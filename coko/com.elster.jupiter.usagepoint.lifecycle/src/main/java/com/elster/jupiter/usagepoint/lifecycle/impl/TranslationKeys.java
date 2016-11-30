@@ -9,8 +9,8 @@ public enum TranslationKeys implements TranslationKey {
     USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_COMPLETED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.COMPLETED, "Completed"),
     USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_FAILED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.FAILED, "Failed"),
     USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_SCHEDULED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.SCHEDULED, "Planned"),
-    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_CANCELLED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.CANCELLED, "Canceled"),
-    USAGE_POINT_STATE_CHANGE_REQUEST_TYPE_STATE(Keys.CHANGE_REQUEST_TYPE_PREFIX + UsagePointStateChangeRequest.Type.STATE_CHANGE, "Canceled"),;
+    USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_CANCELLED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.CANCELLED, "Aborted"),
+    USAGE_POINT_STATE_CHANGE_REQUEST_TYPE_STATE(Keys.CHANGE_REQUEST_TYPE_PREFIX + UsagePointStateChangeRequest.Type.STATE_CHANGE, "State change"),;
 
     private final String key;
     private final String defaultFormat;

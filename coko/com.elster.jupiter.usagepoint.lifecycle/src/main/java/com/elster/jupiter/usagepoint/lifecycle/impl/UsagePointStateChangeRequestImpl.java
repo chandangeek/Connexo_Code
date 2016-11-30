@@ -238,6 +238,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         if (this.status == Status.SCHEDULED) {
             this.status = Status.CANCELLED;
             this.dataModel.update(this);
+            this.lifeCycleService.rescheduleExecutor();
         }
     }
 
