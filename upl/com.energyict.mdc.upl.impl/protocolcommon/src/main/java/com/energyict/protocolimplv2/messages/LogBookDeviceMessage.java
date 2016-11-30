@@ -1,18 +1,20 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides a summary of all DeviceMessages related to configuration/readout of LogBooks
+ * Provides a summary of all DeviceMessages related to configuration/readout of LogBooks.
  * <p/>
  * Copyrights EnergyICT
  * Date: 28/02/13
@@ -20,66 +22,180 @@ import java.util.List;
  */
 public enum LogBookDeviceMessage implements DeviceMessageSpec {
 
-    SetInputChannel(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInputChannelAttributeName)),
-    SetCondition(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionAttributeName)),
-    SetConditionValue(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionValueAttributeName)),
-    SetTimeTrue(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeTrueAttributeName)),
-    SetTimeFalse(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeFalseAttributeName)),
-    SetOutputChannel(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOutputChannelAttributeName)),
-    SetAlarm(6, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAlarmAttributeName)),
-    SetTag(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTagAttributeName)),
-    SetInverse(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInverseAttributeName)),
-    SetImmediate(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetImmediateAttributeName)),
-    ReadDebugLogBook(10,
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
-    ),
-    ReadManufacturerSpecificLogBook(11,
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
-    ),
-    ResetMainLogbook(12),
-    ResetCoverLogbook(13),
-    ResetBreakerLogbook(14),
-    ResetCommunicationLogbook(15),
-    ResetLQILogbook(16),
-    ResetVoltageCutLogbook(17),
-    ReadLogBook(18),
-    ResetSecurityLogbook(19);
+    SetInputChannel(0) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetInputChannelAttributeName, DeviceMessageConstants.SetInputChannelAttributeDefaultTranslation));
+        }
+    },
+    SetCondition(1) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetConditionAttributeName, DeviceMessageConstants.SetConditionAttributeDefaultTranslation));
+        }
+    },
+    SetConditionValue(2) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetConditionValueAttributeName, DeviceMessageConstants.SetConditionValueAttributeDefaultTranslation));
+        }
+    },
+    SetTimeTrue(3) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetTimeTrueAttributeName, DeviceMessageConstants.SetTimeTrueAttributeDefaultTranslation));
+        }
+    },
+    SetTimeFalse(4) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetTimeFalseAttributeName, DeviceMessageConstants.SetTimeFalseAttributeDefaultTranslation));
+        }
+    },
+    SetOutputChannel(5) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetOutputChannelAttributeName, DeviceMessageConstants.SetOutputChannelAttributeDefaultTranslation));
+        }
+    },
+    SetAlarm(6) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetAlarmAttributeName, DeviceMessageConstants.SetAlarmAttributeDefaultTranslation));
+        }
+    },
+    SetTag(7) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetTagAttributeName, DeviceMessageConstants.SetTagAttributeDefaultTranslation));
+        }
+    },
+    SetInverse(8) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetInverseAttributeName, DeviceMessageConstants.SetInverseAttributeDefaultTranslation));
+        }
+    },
+    SetImmediate(9) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetImmediateAttributeName, DeviceMessageConstants.SetImmediateAttributeDefaultTranslation));
+        }
+    },
+    ReadDebugLogBook(10) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Arrays.asList(
+                    this.dateTimeSpec(DeviceMessageConstants.fromDateAttributeName, DeviceMessageConstants.fromDateAttributeNameDefaultTranslation),
+                    this.dateTimeSpec(DeviceMessageConstants.toDateAttributeName, DeviceMessageConstants.toDateAttributeNameDefaultTranslation)
+            );
+        }
+    },
+    ReadManufacturerSpecificLogBook(11) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Arrays.asList(
+                    this.dateTimeSpec(DeviceMessageConstants.fromDateAttributeName, DeviceMessageConstants.fromDateAttributeNameDefaultTranslation),
+                    this.dateTimeSpec(DeviceMessageConstants.toDateAttributeName, DeviceMessageConstants.toDateAttributeNameDefaultTranslation)
+            );
+        }
+    },
+    ResetMainLogbook(12) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetCoverLogbook(13) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetBreakerLogbook(14) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetCommunicationLogbook(15) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetLQILogbook(16) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetVoltageCutLogbook(17) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ReadLogBook(18) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    },
+    ResetSecurityLogbook(19) {
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+    };
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.LOG_BOOKS;
+    private final long id;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    LogBookDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    LogBookDeviceMessage(long id) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+    }
+
+    protected PropertySpec stringSpec(String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return Services
+                .propertySpecService()
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec dateTimeSpec(String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return Services
+                .propertySpecService()
+                .dateTimeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return category;
+        return DeviceMessageCategories.LOG_BOOKS;
     }
 
     @Override
     public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
-    }
-
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
-    private String getNameResourceKey() {
-        return LogBookDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return Services
+                .nlsService()
+                .getThesaurus(Thesaurus.ID.toString())
+                .getFormat(this.getNameTranslationKey())
+                .format();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    public String getNameResourceKey() {
+        return LogBookDeviceMessage.class.getSimpleName() + "." + this.toString();
+    }
+
+    private TranslationKeyImpl getNameTranslationKey() {
+        return new TranslationKeyImpl(this.getNameResourceKey(), "MR" + this.getNameResourceKey());
     }
 
     @Override
@@ -98,7 +214,8 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
     }
 
     @Override
-    public int getMessageId() {
+    public long getMessageId() {
         return id;
     }
+
 }

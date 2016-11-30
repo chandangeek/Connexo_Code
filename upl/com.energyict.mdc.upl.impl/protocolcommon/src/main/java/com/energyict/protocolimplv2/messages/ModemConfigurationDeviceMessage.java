@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,47 +19,60 @@ import java.util.List;
  */
 public enum ModemConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetDialCommand(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDialCommandAttributeName)),
-    SetModemInit1(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetModemInit1AttributeName)),
-    SetModemInit2(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetModemInit2AttributeName)),
-    SetModemInit3(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetModemInit3AttributeName)),
-    SetPPPBaudRate(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPBaudRateAttributeName)),
-    SetModemtype(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetModemtypeAttributeName)),
-    SetResetCycle(6, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetResetCycleAttributeName));
+    SetDialCommand(0, DeviceMessageConstants.SetDialCommandAttributeName, DeviceMessageConstants.SetDialCommandAttributeDefaultTranslation),
+    SetModemInit1(1, DeviceMessageConstants.SetModemInit1AttributeName, DeviceMessageConstants.SetModemInit1AttributeDefaultTranslation),
+    SetModemInit2(2, DeviceMessageConstants.SetModemInit2AttributeName, DeviceMessageConstants.SetModemInit2AttributeDefaultTranslation),
+    SetModemInit3(3, DeviceMessageConstants.SetModemInit3AttributeName, DeviceMessageConstants.SetModemInit3AttributeDefaultTranslation),
+    SetPPPBaudRate(4, DeviceMessageConstants.SetPPPBaudRateAttributeName, DeviceMessageConstants.SetPPPBaudRateAttributeDefaultTranslation),
+    SetModemtype(5, DeviceMessageConstants.SetModemtypeAttributeName, DeviceMessageConstants.SetModemtypeAttributeDefaultTranslation),
+    SetResetCycle(6, DeviceMessageConstants.SetResetCycleAttributeName, DeviceMessageConstants.SetResetCycleAttributeDefaultTranslation);
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.MODEM_CONFIGURATION;
+    private final long id;
+    private final String deviceMessageConstantKey;
+    private final String deviceMessageConstantDefaultTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private ModemConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    ModemConfigurationDeviceMessage(long id, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.deviceMessageConstantKey = deviceMessageConstantKey;
+        this.deviceMessageConstantDefaultTranslation = deviceMessageConstantDefaultTranslation;
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return category;
+        return DeviceMessageCategories.MODEM_CONFIGURATION;
     }
 
     @Override
     public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+        return Services
+                .nlsService()
+                .getThesaurus(Thesaurus.ID.toString())
+                .getFormat(this.getNameTranslationKey())
+                .format();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
-    private String getNameResourceKey() {
+    @Override
+    public String getNameResourceKey() {
         return ModemConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
+    }
+
+
+    private TranslationKeyImpl getNameTranslationKey() {
+        return new TranslationKeyImpl(this.getNameResourceKey(), this.deviceMessageConstantDefaultTranslation);
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+        return Collections.singletonList(this.getPropertySpec());
+    }
+
+    private PropertySpec getPropertySpec() {
+        return Services
+                .propertySpecService()
+                .stringSpec()
+                .named(this.deviceMessageConstantKey, this.getNameTranslationKey())
+                .describedAs(this.getNameTranslationKey().description())
+                .finish();
     }
 
     @Override
@@ -77,7 +91,8 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpec {
     }
 
     @Override
-    public int getMessageId() {
+    public long getMessageId() {
         return id;
     }
+
 }
