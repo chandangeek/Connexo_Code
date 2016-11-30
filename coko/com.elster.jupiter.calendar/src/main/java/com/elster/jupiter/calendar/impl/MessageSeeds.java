@@ -17,8 +17,8 @@ public enum MessageSeeds implements MessageSeed {
     DAYTYPES_REQUIRED(1002, Constants.DAYTYPES_REQUIRED, "At least one daytype is required"),
     PERIODS_REQUIRED(1003, Constants.PERIODS_REQUIRED, "At least one period is required"),
 
-    CALENDAR_CREATED(1004, Constants.CALENDAR_CREATED, "Time of use calendar has been created.", Level.INFO),
-    CALENDAR_UPDATED(1005, Constants.CALENDAR_UPDATED, "Time of use calendar has been updated.", Level.INFO),
+    CALENDAR_CREATED(1004, Constants.CALENDAR_CREATED, "Calendar has been created.", Level.INFO),
+    CALENDAR_UPDATED(1005, Constants.CALENDAR_UPDATED, "Calendar has been updated.", Level.INFO),
 
     SCHEMA_FAILED(2001, Constants.SCHEMA_FAILED, "XSD schema for calendar import could not be read."),
     JAXB_FAILED(2002, Constants.JAXB_FAILED, "JAXB error occurred."),
