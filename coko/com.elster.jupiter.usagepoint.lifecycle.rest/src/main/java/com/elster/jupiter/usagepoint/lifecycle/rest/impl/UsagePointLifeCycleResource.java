@@ -1,6 +1,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -16,6 +17,7 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilegeInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilegeInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStageInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -46,6 +48,7 @@ public class UsagePointLifeCycleResource {
     private final UsagePointLifeCyclePrivilegeInfoFactory privilegeInfoFactory;
     private final MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
     private final ResourceHelper resourceHelper;
+    private final UsagePointLifeCycleStageInfoFactory stageInfoFactory;
 
     @Inject
     public UsagePointLifeCycleResource(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
@@ -56,7 +59,8 @@ public class UsagePointLifeCycleResource {
                                        UsagePointLifeCycleInfoFactory lifeCycleInfoFactory,
                                        UsagePointLifeCyclePrivilegeInfoFactory privilegeInfoFactory,
                                        MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory,
-                                       ResourceHelper resourceHelper) {
+                                       ResourceHelper resourceHelper,
+                                       UsagePointLifeCycleStageInfoFactory stageInfoFactory) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.statesResourceProvider = statesResourceProvider;
         this.transitionsResourceProvider = transitionsResourceProvider;
@@ -66,6 +70,7 @@ public class UsagePointLifeCycleResource {
         this.privilegeInfoFactory = privilegeInfoFactory;
         this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
         this.resourceHelper = resourceHelper;
+        this.stageInfoFactory = stageInfoFactory;
     }
 
     @GET
@@ -200,5 +205,17 @@ public class UsagePointLifeCycleResource {
     @Path("{lid}/transitions")
     public UsagePointLifeCycleTransitionsResource getTransitions() {
         return this.transitionsResourceProvider.get();
+    }
+
+    @GET
+    @Path("/stages")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
+    public PagedInfoList getAllStages(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithNameInfo> stages = usagePointLifeCycleConfigurationService.getStages().stream()
+                .map(stageInfoFactory::from)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("stages", stages, queryParameters);
     }
 }
