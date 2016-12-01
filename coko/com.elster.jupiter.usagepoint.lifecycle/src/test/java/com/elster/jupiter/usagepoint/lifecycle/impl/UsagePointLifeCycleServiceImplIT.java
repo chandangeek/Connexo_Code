@@ -18,6 +18,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectedConnectionStateAction;
@@ -72,8 +73,8 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         get(ThreadPrincipalService.class).set(user);
 
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Life cycle");
-        state1 = lifeCycle.newState("State 1").setInitial().complete();
-        state2 = lifeCycle.newState("State 2").complete();
+        state1 = lifeCycle.newState("State 1").setInitial().setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        state2 = lifeCycle.newState("State 2").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
         transition = lifeCycle.newTransition("Transition", state1, state2).withLevels(EnumSet.of(UsagePointTransition.Level.FOUR)).complete();
         lifeCycle.markAsDefault();
         usagePoint = get(MeteringService.class).getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint("Usage point", now().minus(2, ChronoUnit.HOURS)).create();
