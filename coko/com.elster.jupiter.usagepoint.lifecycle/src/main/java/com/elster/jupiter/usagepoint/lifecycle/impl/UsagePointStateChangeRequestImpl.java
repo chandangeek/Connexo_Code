@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRequest {
     public enum Fields {
@@ -145,15 +147,19 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         Principal currentUser = this.threadPrincipalService.getPrincipal();
         if (currentUser instanceof User) {
             User user = (User) currentUser;
-            this.originator.set(user);
-            if (transition.getLevels().isEmpty() || transition.getLevels()
-                    .stream()
-                    .map(UsagePointTransition.Level::getPrivilege)
-                    .anyMatch(privilege -> user.hasPrivilege(application, privilege))) {
+            if (userHasPrivilegeToPerformTransition(user, transition, application)) {
+                this.originator.set(user);
                 return;
             }
         }
         throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
+    }
+
+    private boolean userHasPrivilegeToPerformTransition(User user, UsagePointTransition transition, String application) {
+        return transition.getLevels().isEmpty() || transition.getLevels()
+                .stream()
+                .map(UsagePointTransition.Level::getPrivilege)
+                .anyMatch(privilege -> user.hasPrivilege(application, privilege));
     }
 
     @Override
@@ -232,6 +238,16 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     @Override
+    public Set<String> getPrivileges() {
+        if (transitionExistsAndCanBeFetched()) {
+            return this.transition.getLevels().stream()
+                    .map(UsagePointTransition.Level::getPrivilege)
+                    .collect(Collectors.toSet());
+        }
+        return Collections.emptySet();
+    }
+
+    @Override
     public void cancel() {
         if (this.status == Status.SCHEDULED) {
             this.status = Status.CANCELLED;
@@ -252,11 +268,11 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
                 } catch (ExecutableMicroCheckException cex) {
                     this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.MICRO_CHECKS_FAILED_NO_PARAM).format();
                     cex.getViolations().forEach(violation -> this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
-                            .init(this, violation.getMicroCheck().getKey(), violation.getMicroCheck().getName(), violation.getLocalizedMessage())));
+                            .checkFail(this, violation.getMicroCheck().getKey(), violation.getMicroCheck().getName(), violation.getLocalizedMessage())));
                 } catch (ExecutableMicroActionException aex) {
                     this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.MICRO_ACTION_FAILED_NO_PARAM).format();
                     this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
-                            .init(this, aex.getMicroAction().getKey(), aex.getMicroAction().getName(), aex.getLocalizedMessage()));
+                            .actionFail(this, aex.getMicroAction().getKey(), aex.getMicroAction().getName(), aex.getLocalizedMessage()));
                 } catch (Exception ex) {
                     this.generalFailReason = ex.getLocalizedMessage();
                 }

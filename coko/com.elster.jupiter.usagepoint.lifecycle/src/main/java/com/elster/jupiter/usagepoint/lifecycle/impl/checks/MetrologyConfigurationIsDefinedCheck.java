@@ -16,6 +16,9 @@ public class MetrologyConfigurationIsDefinedCheck extends TranslatableCheck {
 
     @Override
     public Optional<ExecutableMicroCheckViolation> execute(UsagePoint usagePoint, Instant transitionTime) {
+        if (!usagePoint.getEffectiveMetrologyConfiguration(transitionTime).isPresent()) {
+            return fail(MicroCheckTranslationKeys.METROLOGY_CONF_IS_DEFINED_MESSAGE);
+        }
         return Optional.empty();
     }
 }

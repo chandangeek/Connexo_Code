@@ -68,6 +68,7 @@ public enum TableSpecs {
 
             Column changeRequest = table.column("CHANGE_REQUEST").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column key = table.column("F_KEY").map(UsagePointStateChangeFailImpl.Fields.KEY.fieldName()).varChar(Table.MAX_STRING_LENGTH).notNull().add();
+            table.column("F_SOURCE").map(UsagePointStateChangeFailImpl.Fields.FAIL_SOURCE.fieldName()).varChar(Table.NAME_LENGTH).notNull().add();
             table.column("NAME").map(UsagePointStateChangeFailImpl.Fields.NAME.fieldName()).varChar().notNull().add();
             table.column("MESSAGE").map(UsagePointStateChangeFailImpl.Fields.MESSAGE.fieldName()).varChar().add();
 

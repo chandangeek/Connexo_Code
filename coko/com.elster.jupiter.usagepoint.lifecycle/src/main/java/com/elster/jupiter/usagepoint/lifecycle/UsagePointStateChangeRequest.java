@@ -7,6 +7,7 @@ import com.elster.jupiter.util.HasId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface UsagePointStateChangeRequest extends HasId {
     enum Status {
@@ -55,6 +56,8 @@ public interface UsagePointStateChangeRequest extends HasId {
     String getGeneralFailReason();
 
     List<UsagePointStateChangeFail> getFailReasons();
+
+    Set<String> getPrivileges();
 
     void cancel();
 
