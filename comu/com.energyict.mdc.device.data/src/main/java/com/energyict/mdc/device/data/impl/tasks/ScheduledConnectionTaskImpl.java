@@ -454,7 +454,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
             return this.doAsSoonAsPossibleSchedule(when, PostingMode.NOW);
         } else {
-            return this.doMinimizeConnectionsSchedule(when, PostingMode.NOW);
+            return this.schedule(when);
         }
     }
 
@@ -541,15 +541,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             when = null;
         } else {
             highestPriority = earliestNextExecutionTimeStampAndPriority.priority;
-            if(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp != null)  {
+            if(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp != null && when.isBefore(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp))  {
                 when = earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp;
             }
             when = this.applyComWindowIfAny(when);
             if(!calledByComtaskExecution) {
                 this.synchronizeScheduledComTaskExecution(when, highestPriority);
             }
-            calledByComtaskExecution = false;
         }
+        calledByComtaskExecution = false;
         this.applyNextExecutionTimestampAndPriority(when, highestPriority, postingMode);
         return when;
     }
