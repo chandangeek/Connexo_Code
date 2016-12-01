@@ -463,8 +463,9 @@ public class SentinelLoadProfile {
                 cal.setTime(lpbd.getBlockEndTime());
                 if (cal.before(lastReadingCal) || cal.after(currentCal)) {
                     // Remove this, it is outside the time frame we are interested in
-                    System.out.println("Sentinel serial no. " + sentinel.getSerialNumber() +
-						", dropping block with end time out of read range: " + lpbd.getBlockEndTime());
+                    String msg = "Sentinel serial no. " + sentinel.getSerialNumber() + ", dropping block with end time out of read range: " + lpbd.getBlockEndTime();
+                    getLogger().severe(msg);
+                    System.out.println(msg);
                     continue inner;
                 }
                 blah.add(lpbd);
