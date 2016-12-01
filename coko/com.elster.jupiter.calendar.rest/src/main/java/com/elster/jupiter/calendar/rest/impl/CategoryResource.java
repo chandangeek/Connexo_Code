@@ -52,5 +52,15 @@ public class CategoryResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CATEGORY));
     }
 
+    @GET
+    @Path("/usedcategories")
+    @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getUsedCategories(@BeanParam JsonQueryParameters queryParameters) {
+        List<Category> usedCategories = calendarService.findUsedCategories();
+        return PagedInfoList.fromCompleteList("categories", usedCategories, queryParameters);
+    }
+
+
 
 }
