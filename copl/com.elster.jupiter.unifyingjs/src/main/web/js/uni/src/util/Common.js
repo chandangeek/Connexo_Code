@@ -53,7 +53,7 @@ Ext.define('Uni.util.Common', {
         };
 
         Ext.Array.each(stores, function (storeClass) {
-            try{
+            try {
                 var store = Ext.getStore(storeClass),
                     isLoading = store.isLoading();
 
@@ -66,7 +66,7 @@ Ext.define('Uni.util.Common', {
                         check();
                     });
                 }
-            } catch(e) {
+            } catch (e) {
                 check();
                 //<debug>
                 console.error('\'' + storeClass + '\' not found');
@@ -121,7 +121,9 @@ Ext.define('Uni.util.Common', {
 
         if (Ext.isObject(result)) {
             for (var key in result) {
-                result[key] = decodeURIComponent(result[key]);
+                if (result.hasOwnProperty(key)) {
+                    result[key] = decodeURIComponent(result[key]);
+                }
             }
         } else if (Ext.isString(result)) {
             result = decodeURIComponent(result);
