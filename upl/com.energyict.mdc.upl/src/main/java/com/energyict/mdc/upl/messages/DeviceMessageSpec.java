@@ -1,5 +1,6 @@
 package com.energyict.mdc.upl.messages;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import java.util.List;
@@ -39,12 +40,12 @@ public interface DeviceMessageSpec {
     String getName();
 
     /**
-     * Gets the resource key that determines the name
+     * Gets the {@link TranslationKey} to translate the name
      * of this category to the user's language settings.
      *
      * @return The resource key
      */
-    String getNameResourceKey();
+    TranslationKey getNameTranslationKey();
 
     /**
      * Gets the List of {@link PropertySpec propertySpecs} that
