@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -46,7 +46,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thres
  */
 public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
 
-    SET_RELAY_OPERATING_MODE(0) {
+    SET_RELAY_OPERATING_MODE(0, "Set relay operating mode") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Arrays.asList(
@@ -55,7 +55,7 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
             );
         }
     },
-    SET_TIME_SWITCHING_TABLE(1) {
+    SET_TIME_SWITCHING_TABLE(1, "Write the time switching table") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Arrays.asList(
@@ -64,25 +64,25 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
             );
         }
     },
-    SET_THRESHOLD_OVER_CONSUMPTION(2) {
+    SET_THRESHOLD_OVER_CONSUMPTION(2, "Set the threshold for over consumption") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.bigDecimalSpec(threshold, thresholdDefaultTranslation));
         }
     },
-    SET_OVERALL_MINIMUM_THRESHOLD(3) {
+    SET_OVERALL_MINIMUM_THRESHOLD(3, "Set overall minimum threshold") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.bigDecimalSpec(threshold, thresholdDefaultTranslation));
         }
     },
-    SET_OVERALL_MAXIMUM_THRESHOLD(4) {
+    SET_OVERALL_MAXIMUM_THRESHOLD(4, "Set overall maximum threshold") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.bigDecimalSpec(threshold, thresholdDefaultTranslation));
         }
     },
-    SET_RELAY_TIME_OFFSETS_TABLE(5) {
+    SET_RELAY_TIME_OFFSETS_TABLE(5, "Write relay offsets table") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Arrays.asList(
@@ -94,7 +94,7 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
             );
         }
     },
-    WRITE_GPS_COORDINATES(6) {
+    WRITE_GPS_COORDINATES(6, "Write the GPS coordinates") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Arrays.asList(
@@ -105,9 +105,11 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
     };
 
     private final long id;
+    private final String defaultNameTranslation;
 
-    PublicLightingDeviceMessage(long id) {
+    PublicLightingDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
     protected PropertySpec stringSpec(String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -155,18 +157,22 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
         return DeviceMessageCategories.PUBLIC_LIGHTING;
     }
 
-    private String translate(final String key) {
-        return UserEnvironment.getDefault().getTranslation(key);
-    }
-
     @Override
     public String getName() {
-        return translate(this.getNameResourceKey());
+        return Services
+                .nlsService()
+                .getThesaurus(Thesaurus.ID.toString())
+                .getFormat(this.getNameTranslationKey())
+                .format();
+    }
+
+    private String getNameResourceKey() {
+        return PublicLightingDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public String getNameResourceKey() {
-        return PublicLightingDeviceMessage.class.getSimpleName() + "." + this.toString();
+    public TranslationKeyImpl getNameTranslationKey() {
+        return new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation);
     }
 
     @Override

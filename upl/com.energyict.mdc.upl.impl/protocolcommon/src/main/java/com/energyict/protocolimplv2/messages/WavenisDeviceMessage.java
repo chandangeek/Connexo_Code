@@ -19,55 +19,57 @@ import java.util.List;
  */
 public enum WavenisDeviceMessage implements DeviceMessageSpec {
 
-    WavenisAddAddressGetNetworkId(0, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisAddAddressWithNetworkId(1, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisBranchMove(2, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisChangeMasterAddress(3, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisCompareRepaireDatabases(4),
-    WavenisDeleteAddress(5, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisInitBubbleUpSlotDatabase(6),
-    WavenisInitDatabases(7),
-    WavenisProgramRadioAddress(8, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisRemoveBubbleUpSlot(9, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisRequestBubbleUpSlot(10, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisRequestModuleStatus(11, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WaveCardRadioAddress(12),
-    WavenisRestoreDatabasesUsingEIServerMasterdata(13),
-    WavenisRestoreBubbleUpDatabase(14),
-    WavenisRestoreLocalFromEIServer(15),
-    WavenisRestoreRootDatabaseFromLocal(16),
-    WavenisResynchronizeModule(17, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisFreeRequestResponse(18) {
+    WavenisAddAddressGetNetworkId(0, "Add Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisAddAddressWithNetworkId(1, "Add Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisBranchMove(2, "Branch move a slave to a master", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisChangeMasterAddress(3, "Change master address", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisCompareRepaireDatabases(4, "Compare the Wavenis root database with the RTU local database, and repair if necessary"),
+    WavenisDeleteAddress(5, "Delete Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisInitBubbleUpSlotDatabase(6, "Initialize the bubble up slot database"),
+    WavenisInitDatabases(7, "Initialize the Wavenis root database and RTU local database"),
+    WavenisProgramRadioAddress(8, "Program the Wavecard radio address", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisRemoveBubbleUpSlot(9, "Remove a bubble up slot", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisRequestBubbleUpSlot(10, "Request a bubble up slot", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisRequestModuleStatus(11, "Request the state of a Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WaveCardRadioAddress(12, "Request the Wavecard spec"),
+    WavenisRestoreDatabasesUsingEIServerMasterdata(13, "Restore local (route & bubble up) and root database using EIServer master data"),
+    WavenisRestoreBubbleUpDatabase(14, "Restore bubble up database"),
+    WavenisRestoreLocalFromEIServer(15, "Restore the RTU+Server local route database using the EIServer master data"),
+    WavenisRestoreRootDatabaseFromLocal(16, "Restore the Wavecard root database using the local route database"),
+    WavenisResynchronizeModule(17, "Resynchronize Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisFreeRequestResponse(18, "Send a Wavenis RF request") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.hexStringSpec(DeviceMessageConstants.rfCommand, DeviceMessageConstants.rfCommandDefaultTranslation));
         }
     },
-    WavenisSetRunLevelIdle(19),
-    WavenisSetRunLevelInit(20),
-    WavenisSetRunLevelRun(21),
-    WavenisSetFriendlyName(22, DeviceMessageConstants.friendlyName, DeviceMessageConstants.friendlyNameDefaultTranslation),
-    WavenisSetL1PreferredList(23, DeviceMessageConstants.preferredL1NodeList, DeviceMessageConstants.preferredL1NodeListDefaultTranslation),
-    WavenisSynchronizeModule(24, DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
-    WavenisUpdateEIServerMasterdataUsingLocalDatabases(25),
-    WavenisEnableDisable(26, DeviceMessageConstants.enableWavenis, DeviceMessageConstants.enableWavenisDefaultTranslation);
+    WavenisSetRunLevelIdle(19, "Set the run level to idle"),
+    WavenisSetRunLevelInit(20, "Set the run level to init"),
+    WavenisSetRunLevelRun(21, "Set the run level to run"),
+    WavenisSetFriendlyName(22, "Set friendly name", DeviceMessageConstants.friendlyName, DeviceMessageConstants.friendlyNameDefaultTranslation),
+    WavenisSetL1PreferredList(23, "Set the L1 preferred list", DeviceMessageConstants.preferredL1NodeList, DeviceMessageConstants.preferredL1NodeListDefaultTranslation),
+    WavenisSynchronizeModule(24, "Synchronize a Wavenis module on the network", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
+    WavenisUpdateEIServerMasterdataUsingLocalDatabases(25, "Update EIServer master data using the local (route & bubble up) databases"),
+    WavenisEnableDisable(26, "Enable or disable Wavenis", DeviceMessageConstants.enableWavenis, DeviceMessageConstants.enableWavenisDefaultTranslation);
 
     private final long id;
     private final String deviceMessageConstantKey;
     private final String deviceMessageConstantDefaultTranslation;
+    private final String defaultNameTranslation;
 
-    WavenisDeviceMessage(int id) {
+    WavenisDeviceMessage(int id, String defaultNameTranslation) {
         this.id = id;
+        this.defaultNameTranslation = defaultNameTranslation;
         this.deviceMessageConstantKey = null;
         this.deviceMessageConstantDefaultTranslation = null;
     }
 
-    WavenisDeviceMessage(int id, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    WavenisDeviceMessage(int id, String defaultNameTranslation, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         this.id = id;
+        this.defaultNameTranslation = defaultNameTranslation;
         this.deviceMessageConstantKey = deviceMessageConstantKey;
         this.deviceMessageConstantDefaultTranslation = deviceMessageConstantDefaultTranslation;
     }
-
 
     protected PropertySpec stringSpec(String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
@@ -103,13 +105,13 @@ public enum WavenisDeviceMessage implements DeviceMessageSpec {
                 .format();
     }
 
-    @Override
-    public String getNameResourceKey() {
+    private String getNameResourceKey() {
         return WavenisDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    private TranslationKeyImpl getNameTranslationKey() {
-        return new TranslationKeyImpl(this.getNameResourceKey(), "MR" + this.getNameResourceKey());
+    @Override
+    public TranslationKeyImpl getNameTranslationKey() {
+        return new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation);
     }
 
     @Override

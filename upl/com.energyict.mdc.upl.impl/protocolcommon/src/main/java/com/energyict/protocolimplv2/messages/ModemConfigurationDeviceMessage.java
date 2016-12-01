@@ -51,13 +51,12 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpec {
                 .format();
     }
 
-    @Override
-    public String getNameResourceKey() {
+    private String getNameResourceKey() {
         return ModemConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-
-    private TranslationKeyImpl getNameTranslationKey() {
+    @Override
+    public TranslationKeyImpl getNameTranslationKey() {
         return new TranslationKeyImpl(this.getNameResourceKey(), this.deviceMessageConstantDefaultTranslation);
     }
 

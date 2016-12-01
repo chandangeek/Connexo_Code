@@ -22,67 +22,67 @@ import java.util.List;
  */
 public enum LogBookDeviceMessage implements DeviceMessageSpec {
 
-    SetInputChannel(0) {
+    SetInputChannel(0, "Set input channel") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetInputChannelAttributeName, DeviceMessageConstants.SetInputChannelAttributeDefaultTranslation));
         }
     },
-    SetCondition(1) {
+    SetCondition(1, "Set condition") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetConditionAttributeName, DeviceMessageConstants.SetConditionAttributeDefaultTranslation));
         }
     },
-    SetConditionValue(2) {
+    SetConditionValue(2, "Set condition value") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetConditionValueAttributeName, DeviceMessageConstants.SetConditionValueAttributeDefaultTranslation));
         }
     },
-    SetTimeTrue(3) {
+    SetTimeTrue(3, "Set time true") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetTimeTrueAttributeName, DeviceMessageConstants.SetTimeTrueAttributeDefaultTranslation));
         }
     },
-    SetTimeFalse(4) {
+    SetTimeFalse(4, "Set time false") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetTimeFalseAttributeName, DeviceMessageConstants.SetTimeFalseAttributeDefaultTranslation));
         }
     },
-    SetOutputChannel(5) {
+    SetOutputChannel(5, "Set output channel") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetOutputChannelAttributeName, DeviceMessageConstants.SetOutputChannelAttributeDefaultTranslation));
         }
     },
-    SetAlarm(6) {
+    SetAlarm(6, "Set alarm") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetAlarmAttributeName, DeviceMessageConstants.SetAlarmAttributeDefaultTranslation));
         }
     },
-    SetTag(7) {
+    SetTag(7, "Set tag") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetTagAttributeName, DeviceMessageConstants.SetTagAttributeDefaultTranslation));
         }
     },
-    SetInverse(8) {
+    SetInverse(8, "Set inverse") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetInverseAttributeName, DeviceMessageConstants.SetInverseAttributeDefaultTranslation));
         }
     },
-    SetImmediate(9) {
+    SetImmediate(9, "Set immediate") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.SetImmediateAttributeName, DeviceMessageConstants.SetImmediateAttributeDefaultTranslation));
         }
     },
-    ReadDebugLogBook(10) {
+    ReadDebugLogBook(10, "Read debug logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Arrays.asList(
@@ -91,7 +91,7 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
             );
         }
     },
-    ReadManufacturerSpecificLogBook(11) {
+    ReadManufacturerSpecificLogBook(11, "Read manufacturer specific logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Arrays.asList(
@@ -100,49 +100,49 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
             );
         }
     },
-    ResetMainLogbook(12) {
+    ResetMainLogbook(12, "Reset main logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
         }
     },
-    ResetCoverLogbook(13) {
+    ResetCoverLogbook(13, "Reset cover logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
         }
     },
-    ResetBreakerLogbook(14) {
+    ResetBreakerLogbook(14, "Reset breaker logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
         }
     },
-    ResetCommunicationLogbook(15) {
+    ResetCommunicationLogbook(15, "Reset communication logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
         }
     },
-    ResetLQILogbook(16) {
+    ResetLQILogbook(16, "Reset LQI logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
         }
     },
-    ResetVoltageCutLogbook(17) {
+    ResetVoltageCutLogbook(17, "Reset voltage cut logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
         }
     },
-    ReadLogBook(18) {
+    ReadLogBook(18, "Read logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
         }
     },
-    ResetSecurityLogbook(19) {
+    ResetSecurityLogbook(19, "Reset security logbook") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
@@ -150,9 +150,11 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
     };
 
     private final long id;
+    private final String defaultNameTranslation;
 
-    LogBookDeviceMessage(long id) {
+    LogBookDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
     protected PropertySpec stringSpec(String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -189,13 +191,13 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
                 .format();
     }
 
-    @Override
-    public String getNameResourceKey() {
+    private String getNameResourceKey() {
         return LogBookDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    private TranslationKeyImpl getNameTranslationKey() {
-        return new TranslationKeyImpl(this.getNameResourceKey(), "MR" + this.getNameResourceKey());
+    @Override
+    public TranslationKeyImpl getNameTranslationKey() {
+        return new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation);
     }
 
     @Override

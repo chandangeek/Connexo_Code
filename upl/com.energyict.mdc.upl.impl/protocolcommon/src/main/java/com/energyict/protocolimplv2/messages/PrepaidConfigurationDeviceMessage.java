@@ -22,7 +22,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.prepa
  */
 public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    AddPrepaidCredit(0) {
+    AddPrepaidCredit(0, "Add prepaid credit") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             TranslationKeyImpl translationKey = new TranslationKeyImpl(prepaidCreditAttributeName, prepaidCreditAttributeNameDefaultTranslation);
@@ -35,13 +35,13 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
                     .finish());
         }
     },
-    DisablePrepaid(1) {
+    DisablePrepaid(1, "Disable prepaid") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
         }
     },
-    EnablePrepaid(2) {
+    EnablePrepaid(2, "Enable prepaid") {
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
@@ -49,9 +49,11 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
     };
 
     private final long id;
+    private final String defaultNameTranslation;
 
-    PrepaidConfigurationDeviceMessage(long id) {
+    PrepaidConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
     @Override
@@ -68,13 +70,13 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
                 .format();
     }
 
-    @Override
-    public String getNameResourceKey() {
+    private String getNameResourceKey() {
         return PrepaidConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    private TranslationKeyImpl getNameTranslationKey() {
-        return new TranslationKeyImpl(this.getNameResourceKey(), "MR" + this.getNameResourceKey());
+    @Override
+    public TranslationKeyImpl getNameTranslationKey() {
+        return new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation);
     }
 
     @Override

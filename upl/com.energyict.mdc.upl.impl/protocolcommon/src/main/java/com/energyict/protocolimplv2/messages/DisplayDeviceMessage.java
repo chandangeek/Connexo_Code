@@ -22,25 +22,25 @@ import java.util.List;
  */
 public enum DisplayDeviceMessage implements DeviceMessageSpec {
 
-    CONSUMER_MESSAGE_CODE_TO_PORT_P1(0) {
+    CONSUMER_MESSAGE_CODE_TO_PORT_P1(0, "Send a code message to the P1 port") {
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.p1InformationAttributeName, DeviceMessageConstants.p1InformationAttributeDefaultTranslation));
         }
     },
-    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(1) {
+    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(1, "Send a text message to the P1 port") {
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.p1InformationAttributeName, DeviceMessageConstants.p1InformationAttributeDefaultTranslation));
         }
     },
-    SET_DISPLAY_MESSAGE(2) {
+    SET_DISPLAY_MESSAGE(2, "Set display message") {
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
             return Collections.singletonList(this.stringSpec(DeviceMessageConstants.DisplayMessageAttributeName, DeviceMessageConstants.DisplayMessageAttributeDefaultTranslation));
         }
     },
-    SET_DISPLAY_MESSAGE_WITH_OPTIONS(3) {
+    SET_DISPLAY_MESSAGE_WITH_OPTIONS(3, "Set display message with options") {
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
             return Arrays.asList(
@@ -50,7 +50,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpec {
             );
         }
     },
-    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(4) {
+    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(4, "Set display message on IHD with options") {
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
             return Arrays.asList(
@@ -60,7 +60,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpec {
             );
         }
     },
-    CLEAR_DISPLAY_MESSAGE(5) {
+    CLEAR_DISPLAY_MESSAGE(5, "Clear display message") {
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
             return Collections.emptyList();
@@ -68,9 +68,11 @@ public enum DisplayDeviceMessage implements DeviceMessageSpec {
     };
 
     private final long id;
+    private final String defaultNameTranslation;
 
-    DisplayDeviceMessage(long id) {
+    DisplayDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
     protected PropertySpec stringSpec(String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -117,13 +119,13 @@ public enum DisplayDeviceMessage implements DeviceMessageSpec {
                 .format();
     }
 
-    @Override
-    public String getNameResourceKey() {
+    private String getNameResourceKey() {
         return DisplayDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    private TranslationKeyImpl getNameTranslationKey() {
-        return new TranslationKeyImpl(this.getNameResourceKey(), "MR" + this.getNameResourceKey());
+    @Override
+    public TranslationKeyImpl getNameTranslationKey() {
+        return new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation);
     }
 
     @Override
