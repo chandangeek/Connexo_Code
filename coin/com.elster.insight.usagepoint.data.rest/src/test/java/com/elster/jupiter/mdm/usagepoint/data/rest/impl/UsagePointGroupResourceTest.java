@@ -26,6 +26,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.impl.SearchBuilderImpl;
 import com.elster.jupiter.search.impl.SearchMonitor;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -503,7 +504,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         assertThat(jsonModel.<String>get("$.usagePoints[0].displayMetrologyConfiguration")).isNull();
         assertThat(jsonModel.<String>get("$.usagePoints[1].displayMetrologyConfiguration")).isEqualTo("LivingHeatProsumer");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayType")).containsExactly("Virtual SDP", "Physical SDP");
-        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Under construction", "Connected");
+        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Logically disconnected", "Connected");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].location")).containsExactly("Cosmos", "Earth");
     }
 
@@ -532,7 +533,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         assertThat(jsonModel.<String>get("$.usagePoints[0].displayMetrologyConfiguration")).isNull();
         assertThat(jsonModel.<String>get("$.usagePoints[1].displayMetrologyConfiguration")).isEqualTo("LivingHeatProsumer");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayType")).containsExactly("Virtual SDP", "Physical SDP");
-        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Under construction", "Connected");
+        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Logically disconnected", "Connected");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].location")).containsExactly("Cosmos", "Earth");
     }
 
@@ -667,6 +668,8 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         Optional<Location> locationOptional = Optional.ofNullable(location).map(UsagePointGroupResourceTest::mockLocation);
         when(usagePoint.getLocation()).thenReturn(locationOptional);
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
+        UsagePointState usagePointState = mock(UsagePointState.class);
+        when(usagePoint.getState()).thenReturn(usagePointState);
         return usagePoint;
     }
 
