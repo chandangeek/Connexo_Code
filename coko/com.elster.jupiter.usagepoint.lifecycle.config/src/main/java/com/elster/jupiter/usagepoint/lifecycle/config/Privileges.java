@@ -5,10 +5,10 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum Privileges implements TranslationKey {
     //Resources
-    RESOURCE_USAGE_POINT_LIFECYCLE("usagePoint.lifecycle.administer", "Usage point life cycle"),
-    RESOURCE_USAGE_POINT_LIFECYCLE_DESCRIPTION("usagePoint.lifecycle.administer", "Manage usage point life cycle"),
-    RESOURCE_USAGE_POINT_LIFECYCLE_LEVELS("usagePoint.lifecycle.access.levels", "Usage point life cycle access levels"),
-    RESOURCE_USAGE_POINT_LIFECYCLE_LEVELS_DESCRIPTION("usagePoint.lifecycle.access.levels.administer", "Manage usage point life cycle access levels"),
+    RESOURCE_USAGE_POINT_LIFECYCLE("resource.usagePoint.lifecycle", "Usage point life cycle"),
+    RESOURCE_USAGE_POINT_LIFECYCLE_DESCRIPTION("resource.usagePoint.lifecycle.description", "Manage usage point life cycle"),
+    RESOURCE_USAGE_POINT_LIFECYCLE_LEVELS("resource.usagePoint.lifecycle.access.levels", "Usage point life cycle access levels"),
+    RESOURCE_USAGE_POINT_LIFECYCLE_LEVELS_DESCRIPTION("resource.usagePoint.lifecycle.access.levels.description", "Manage usage point life cycle access levels"),
 
     //Privileges
     USAGE_POINT_LIFE_CYCLE_VIEW(Constants.USAGE_POINT_LIFE_CYCLE_VIEW, "View"),
