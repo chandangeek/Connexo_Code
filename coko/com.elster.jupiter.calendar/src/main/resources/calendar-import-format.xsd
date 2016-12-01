@@ -36,7 +36,7 @@
         </xs:sequence>
     </xs:complexType>
     <xs:element name="content-version" type="xs:NMTOKEN"/>
-    <xs:element name="category" type="xs:NCName"/>
+    <xs:element name="category" type="xs:string"/>
     <xs:element name="mRID" type="xs:NCName"/>
     <xs:element name="description" type="xs:string"/>
     <xs:element name="start-year" type="xs:integer"/>

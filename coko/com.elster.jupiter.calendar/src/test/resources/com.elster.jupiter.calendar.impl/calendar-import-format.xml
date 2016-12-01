@@ -23,7 +23,7 @@
     </eventset>
     <calendar>
         <name>Residential TOU Example</name>
-        <category>TOU</category>
+        <category>Time of use</category>
         <mRID>optional</mRID>
         <description>From example provide by Robert Ritchy</description>
         <start-year>2010</start-year>

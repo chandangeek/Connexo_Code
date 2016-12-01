@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 
 public enum OutOfTheBoxCategory {
 
-    TOU("TOU"), WORKFORCE("Workforce"), COMMANDS("Commands");
+    TOU("Time of use"), WORKFORCE("Workforce"), COMMANDS("Commands");
 
     private final String displayName;
 

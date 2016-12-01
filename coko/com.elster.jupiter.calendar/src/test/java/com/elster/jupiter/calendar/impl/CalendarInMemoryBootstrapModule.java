@@ -4,7 +4,6 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -27,6 +26,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+
+import java.time.Clock;
 
 import static org.mockito.Mockito.mock;
 
@@ -113,6 +114,7 @@ public class CalendarInMemoryBootstrapModule {
             //bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(Clock.class).toInstance(Clock.systemDefaultZone());
         }
     }
 }

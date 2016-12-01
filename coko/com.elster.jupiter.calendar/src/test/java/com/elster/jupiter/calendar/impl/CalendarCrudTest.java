@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
@@ -97,7 +98,7 @@ public class CalendarCrudTest {
                 .add();
 
         service.newCalendar("Test", Year.of(2010), eventSet)
-                .category(service.findCategoryByName("TOU").orElseThrow(AssertionError::new))
+                .category(service.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).orElseThrow(AssertionError::new))
                 .description("Description remains to be completed :-)")
                 .endYear(Year.of(2018))
                 .mRID("Sample-TOU-rates")
@@ -496,7 +497,7 @@ public class CalendarCrudTest {
             assertThat(calendarImportResult.getCalendars()).hasSize(1);
             Calendar calendar = calendarImportResult.getCalendars().get(0);
             assertThat(calendar.getCategory()).isNotNull();
-            assertThat(calendar.getCategory().getName()).isEqualTo("TOU");
+            assertThat(calendar.getCategory().getName()).isEqualTo("Time of use");
             assertThat(calendar.getName()).isEqualTo("Residential TOU Example");
             assertThat(calendar.getMRID()).isEqualTo("optional");
             assertThat(calendar.getStartYear()).isEqualTo(Year.of(2010));
@@ -602,7 +603,7 @@ public class CalendarCrudTest {
 
         service.newCalendar("Test", Year.of(2010), eventSet)
                 .endYear(Year.of(2018))
-                .category(service.findCategoryByName("TOU").orElseThrow(AssertionError::new))
+                .category(service.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).orElseThrow(AssertionError::new))
                 .description("Description remains to be completed :-)")
                 .mRID("Sample-TOU-rates")
                 .newDayType("Summer weekday")

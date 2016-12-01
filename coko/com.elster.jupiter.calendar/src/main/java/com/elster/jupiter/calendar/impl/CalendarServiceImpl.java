@@ -72,7 +72,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Inject
-    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService, MessageService messageService) {
+    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService, MessageService messageService, Clock clock) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -80,6 +80,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         setEventService(eventService);
         setUpgradeService(upgradeService);
         setMessageService(messageService);
+        setClock(clock);
         activate();
     }
 
