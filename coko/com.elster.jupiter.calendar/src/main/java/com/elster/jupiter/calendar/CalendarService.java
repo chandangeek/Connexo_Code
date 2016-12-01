@@ -42,6 +42,8 @@ public interface CalendarService {
 
     List<Category> findAllCategories();
 
+    List<Category> findUsedCategories();
+
     Optional<Category> findCategoryByName(String name);
 
     Optional<Category> findCategory(long id);

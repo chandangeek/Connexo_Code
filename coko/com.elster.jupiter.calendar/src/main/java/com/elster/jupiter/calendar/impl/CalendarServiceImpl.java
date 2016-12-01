@@ -232,6 +232,18 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public List<Category> findUsedCategories() {
+        return categoryMapper().find()
+                .stream()
+                .filter(category -> {
+                    CalendarFilter calendarFilter = newCalendarFilter().setCategory(category);
+                    List<Calendar> calendars = this.getCalendarFinder(calendarFilter.toCondition()).find();
+                    return calendars.size() > 0;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<Calendar> findCalendarByName(String name) {
         return calendarMapper().getUnique("name", name);
     }
