@@ -1,9 +1,11 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
@@ -13,6 +15,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -39,11 +42,13 @@ public class UsagePointStateImpl implements UsagePointState {
 
     private final Thesaurus thesaurus;
     private final EventService eventService;
+    private final DataModel dataModel;
 
     private Reference<State> fsmState = ValueReference.absent();
     private Reference<UsagePointLifeCycleImpl> lifeCycle = ValueReference.absent();
 
     private long id;
+    @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private UsagePointStage.Stage stage;
     @SuppressWarnings("unused")
     private long version;
@@ -55,9 +60,12 @@ public class UsagePointStateImpl implements UsagePointState {
     private String userName;
 
     @Inject
-    public UsagePointStateImpl(Thesaurus thesaurus, EventService eventService) {
+    public UsagePointStateImpl(Thesaurus thesaurus,
+                               EventService eventService,
+                               DataModel dataModel) {
         this.thesaurus = thesaurus;
         this.eventService = eventService;
+        this.dataModel = dataModel;
     }
 
     public UsagePointStateImpl init(UsagePointLifeCycleImpl lifeCycle, State fsmState, UsagePointStage.Stage stage) {
@@ -182,5 +190,13 @@ public class UsagePointStateImpl implements UsagePointState {
     @Override
     public int hashCode() {
         return this.fsmState != null ? this.fsmState.hashCode() : 0;
+    }
+
+    void save() {
+        if (this.getId() > 0) {
+            Save.UPDATE.save(this.dataModel, this);
+        } else {
+            Save.CREATE.save(this.dataModel, this);
+        }
     }
 }

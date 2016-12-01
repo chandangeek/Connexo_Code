@@ -6,7 +6,9 @@ import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
@@ -35,9 +37,11 @@ public class UsagePointStateImplTest {
     private State fsmState;
     @Mock
     private ProcessReference process;
+    @Mock
+    private DataModel dataModel;
 
     private UsagePointState getTestInstance() {
-        return new UsagePointStateImpl(this.thesaurus, this.eventService).init(this.lifeCycle, this.fsmState, this.stage);
+        return new UsagePointStateImpl(this.thesaurus, this.eventService, this.dataModel).init(this.lifeCycle, this.fsmState, UsagePointStage.Stage.OPERATIONAL);
     }
 
     @Test

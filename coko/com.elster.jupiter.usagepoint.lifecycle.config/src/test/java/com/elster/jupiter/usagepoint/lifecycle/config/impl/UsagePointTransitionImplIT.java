@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
@@ -46,9 +47,9 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Before
     public void before() {
         this.lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Test");
-        this.state1 = this.lifeCycle.newState("State1").complete();
-        this.state2 = this.lifeCycle.newState("State2").complete();
-        this.state3 = this.lifeCycle.newState("State3").complete();
+        this.state1 = this.lifeCycle.newState("State1").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        this.state2 = this.lifeCycle.newState("State2").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        this.state3 = this.lifeCycle.newState("State3").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
     }
 
     @Test

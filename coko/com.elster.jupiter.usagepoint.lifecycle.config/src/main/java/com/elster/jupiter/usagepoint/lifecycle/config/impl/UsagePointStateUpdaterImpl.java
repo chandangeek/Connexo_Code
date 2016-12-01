@@ -69,9 +69,10 @@ public class UsagePointStateUpdaterImpl implements UsagePointState.UsagePointSta
         } else {
             this.stateMachineUpdater.complete();
         }
-        if (this.state != null) {
+        if (this.stage != null) {
             this.state.setStage(this.stage);
         }
+        this.state.save();
         return this.state;
     }
 }

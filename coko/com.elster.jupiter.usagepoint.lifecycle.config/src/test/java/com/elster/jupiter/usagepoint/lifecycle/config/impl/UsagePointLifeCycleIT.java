@@ -8,6 +8,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
@@ -71,7 +72,7 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
     public void testCanCreateNewState() {
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Test");
         String stateName = "StateTest";
-        lifeCycle.newState(stateName).complete();
+        lifeCycle.newState(stateName).setStage(UsagePointStage.Stage.OPERATIONAL).complete();
         UsagePointState usagePointState = get(UsagePointLifeCycleConfigurationService.class).findUsagePointLifeCycle(lifeCycle.getId()).get()
                 .getStates()
                 .stream()
@@ -110,8 +111,8 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
     public void testCanCreateTransition() {
         UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
         UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
-        UsagePointState from = lifeCycle.newState("From").complete();
-        UsagePointState to = lifeCycle.newState("To").complete();
+        UsagePointState from = lifeCycle.newState("From").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        UsagePointState to = lifeCycle.newState("To").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
 
         UsagePointTransition transition = lifeCycle.newTransition("tr1", from, to)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.ONE, UsagePointTransition.Level.TWO))
@@ -138,8 +139,8 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
     public void testCanCloneLifeCycle() {
         UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
         UsagePointLifeCycleImpl source = (UsagePointLifeCycleImpl) service.newUsagePointLifeCycle("Test");
-        UsagePointState state1 = source.newState("State 1").setInitial().complete();
-        UsagePointState state2 = source.newState("State 2").complete();
+        UsagePointState state1 = source.newState("State 1").setStage(UsagePointStage.Stage.OPERATIONAL).setInitial().complete();
+        UsagePointState state2 = source.newState("State 2").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
         source.newTransition("tr1", state1, state2).complete();
 
         UsagePointLifeCycleImpl clone = (UsagePointLifeCycleImpl) service.cloneUsagePointLifeCycle("Clone", source);
