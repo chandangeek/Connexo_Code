@@ -51,6 +51,16 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link HexString} values that need to be
+     * an exact number of characters in length.
+     *
+     * @param length The number of characters
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpecOfExactLength(int length);
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of encrypted String values.
      *
      * @return The PropertySpecBuilder
