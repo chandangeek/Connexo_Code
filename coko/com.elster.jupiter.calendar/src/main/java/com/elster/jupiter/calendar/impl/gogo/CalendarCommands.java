@@ -100,7 +100,7 @@ public class CalendarCommands {
             calendarService.newCalendar(name, Year.of(2010), eventSet)
                     .endYear(Year.of(2020))
                     .description("Description remains to be completed :-)")
-                    .category(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get())
+                    .category(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get())
                     .mRID(name)
                     .newDayType("Summer weekday")
                         .event("Off peak").startsFrom(LocalTime.of(0,0,0))
