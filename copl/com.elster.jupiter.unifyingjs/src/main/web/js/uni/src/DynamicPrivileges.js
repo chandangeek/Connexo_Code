@@ -2,7 +2,8 @@ Ext.define('Uni.DynamicPrivileges', {
     singleton: true,
 
     requires: [
-        'Uni.store.DynamicPrivileges'
+        'Uni.store.DynamicPrivileges',
+        'Uni.util.Common'
     ],
 
     getDynamicPrivilegesStore: function () {
@@ -55,15 +56,7 @@ Ext.define('Uni.DynamicPrivileges', {
         Ext.each(stores, function (store) {
             var store = Ext.data.StoreManager.lookup(store) || Ext.create(store);
 
-            // router.arguments are encoded at this point.
-            // extraParams call expects non-encoded arguments, so we have to decode them here
-            var arguments = {};
-            for (var property in router.arguments) {
-                if (router.arguments.hasOwnProperty(property)) {
-                    arguments[property] = decodeURIComponent(router.arguments[property]);
-                }
-            }
-            Ext.apply(store.getProxy().extraParams, arguments);
+            Ext.apply(store.getProxy().extraParams, Uni.util.Common.decodeURIArguments(router.arguments));
             store.load({
                 callback: function () {
                     this.each(function (record) {
