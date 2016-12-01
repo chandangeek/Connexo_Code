@@ -159,7 +159,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                     text: Uni.I18n.translate('general.Add', 'IMT', 'Add'),
                                     itemId: 'add-button',
                                     ui: 'action',
-                                    mRID: me.usagePoint.get('mRID')
+                                    usagePointname: me.usagePoint.get('name')
                                 },
                                 {
                                     xtype: 'button',

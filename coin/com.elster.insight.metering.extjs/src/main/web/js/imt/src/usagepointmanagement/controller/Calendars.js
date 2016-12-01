@@ -76,13 +76,13 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
     },
 
 
-    addCalendar: function (mRID) {
+    addCalendar: function (usagePointname) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointname, {
             success: function (types, usagePoint) {
                 me.usagePoint = usagePoint;
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usage-point-calendar-add', {
@@ -115,7 +115,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
         var me = this,
             values = this.getForm().getValues()
         Ext.Ajax.request({
-            url: '../../api/udr/usagepoints/' + encodeURIComponent(btn.mRID) + '/calendars',
+            url: '../../api/udr/usagepoints/' + encodeURIComponent(btn.usagePointname) + '/calendars',
             method: 'POST',
             jsonData: {
                 calendar: {
@@ -125,7 +125,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
             },
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.calendarAdded', 'IMT', 'Calendar added'));
-                me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars').forward({mRID: btn.mRID});
+                me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars').forward({mRID: btn.usagePointname});
             },
             failure: function (response) {
                     var responseText = Ext.decode(response.responseText, true);
@@ -141,27 +141,27 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
         var record = this.getCalendarGrid().getSelectionModel().getLastSelected();
         switch(item.action){
             case 'viewPreview':
-                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars/preview').forward({mRID: this.usagePoint.get('mRID'), calendarId: record.getCalendar().get('id')})
+                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars/preview').forward({mRID: this.usagePoint.get('name'), calendarId: record.getCalendar().get('id')})
                 break;
             case 'viewTimeline':
-                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/history').forward({mRID: this.usagePoint.get('mRID')});
+                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/history').forward({mRID: this.usagePoint.get('name')});
                 break;
         }
     },
 
-    previewCalendar: function(mRID,calendarId){
+    previewCalendar: function(usagePointname,calendarId){
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointname, {
             success: function (types, usagePoint) {
                 me.usagePoint = usagePoint;
                 var calendars = me.getStore('Imt.usagepointmanagement.store.ActiveCalendars');
-                calendars.setMrid(mRID);
+                calendars.setMrid(usagePointname);
                 calendars.load();
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usagepoint-view-calendar-setup', {
-                    url: '/api/udr/usagepoints/'+ mRID +'/calendars/',
+                    url: '/api/udr/usagepoints/'+ usagePointname +'/calendars/',
                     calendarId: calendarId,
                     router: router,
                     usagePoint: usagePoint
