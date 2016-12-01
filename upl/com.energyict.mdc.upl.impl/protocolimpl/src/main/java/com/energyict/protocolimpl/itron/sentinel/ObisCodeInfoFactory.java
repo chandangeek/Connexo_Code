@@ -151,7 +151,7 @@ public class ObisCodeInfoFactory {
             for(int index=0;index<art.getNrOfSummations();index++) {
                 int dataControlEntryIndex = sentinel.getStandardTableFactory().getDataSelectionTable().getSummationSelects()[index];
                 if (dataControlEntryIndex != 255) {
-                    ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
+                    ObisCodeDescriptor obisCodeDescriptor = getObisCodeDescriptor(si, dataControlEntryIndex);
                    if (obisCodeDescriptor != null) {
                        obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getObisCode().getB(),obisCodeDescriptor.getObisCode().getC(),ObisCode.CODE_D_TIME_INTEGRAL,tier,fField),registerSetInfo+"summation register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getVolumeUnit(),index,dataControlEntryIndex));
                    }
@@ -161,7 +161,7 @@ public class ObisCodeInfoFactory {
             for(int index=0;index<art.getNrOfDemands();index++) {
                 int dataControlEntryIndex = sentinel.getStandardTableFactory().getDataSelectionTable().getDemandSelects()[index];
                 if (dataControlEntryIndex != 255) {
-                    ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
+                    ObisCodeDescriptor obisCodeDescriptor = getObisCodeDescriptor(si, dataControlEntryIndex);
                     if (obisCodeDescriptor != null) {
                         obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getObisCode().getB(),obisCodeDescriptor.getObisCode().getC(),ObisCode.CODE_D_MAXIMUM_DEMAND,tier,fField),registerSetInfo+"max/min demand register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex),index,dataControlEntryIndex));
                         if (art.isCumulativeDemandFlag()) {
@@ -178,13 +178,28 @@ public class ObisCodeInfoFactory {
 
                 int dataControlEntryIndex = sentinel.getStandardTableFactory().getDataSelectionTable().getCoincidentSelects()[index];
                 if (dataControlEntryIndex != 255) {
-                    ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
+                    ObisCodeDescriptor obisCodeDescriptor = getObisCodeDescriptor(si, dataControlEntryIndex);
                     if (obisCodeDescriptor != null) {
                         obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getObisCode().getB(),obisCodeDescriptor.getObisCode().getC(),ObisCodeExtensions.OBISCODE_D_COINCIDENT+index,tier,fField),registerSetInfo+"coincident demand register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex),index,dataControlEntryIndex));
                     }
                 }
             }
         }
+    }
+
+    private ObisCodeDescriptor getObisCodeDescriptor(SourceInfo si, int dataControlEntryIndex) throws IOException {
+        ObisCodeDescriptor obisCodeDescriptor = null;
+        try {
+            obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
+        } catch (NullPointerException npe) {
+            sentinel.getLogger().info("NullPointerException when calling getObisCodeDescriptor(): " + npe);
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            sentinel.getLogger().info("ArrayIndexOutOfBoundsException when calling getObisCodeDescriptor(): " + aioobe);
+        } catch (Throwable t) {
+            sentinel.getLogger().info("Unhandled Throwable when calling getObisCodeDescriptor(): " + t);
+            throw t;
+        }
+        return obisCodeDescriptor;
     }
 
     public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
