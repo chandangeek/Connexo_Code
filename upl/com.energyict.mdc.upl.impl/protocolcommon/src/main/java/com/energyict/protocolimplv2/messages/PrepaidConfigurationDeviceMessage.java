@@ -1,12 +1,10 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Collections;
@@ -20,15 +18,14 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.prepa
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecFactory {
 
     AddPrepaidCredit(0, "Add prepaid credit") {
         @Override
-        public List<PropertySpec> getPropertySpecs() {
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             TranslationKeyImpl translationKey = new TranslationKeyImpl(prepaidCreditAttributeName, prepaidCreditAttributeNameDefaultTranslation);
             return Collections.singletonList(
-                Services
-                    .propertySpecService()
+                service
                     .bigDecimalSpec()
                     .named(prepaidCreditAttributeName, translationKey)
                     .describedAs(translationKey.description())
@@ -37,13 +34,13 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
     },
     DisablePrepaid(1, "Disable prepaid") {
         @Override
-        public List<PropertySpec> getPropertySpecs() {
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
     EnablePrepaid(2, "Enable prepaid") {
         @Override
-        public List<PropertySpec> getPropertySpecs() {
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     };
@@ -56,47 +53,21 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return DeviceMessageCategories.PREPAID_CONFIGURATION;
-    }
-
-    @Override
-    public String getName() {
-        return Services
-                .nlsService()
-                .getThesaurus(Thesaurus.ID.toString())
-                .getFormat(this.getNameTranslationKey())
-                .format();
-    }
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     private String getNameResourceKey() {
         return PrepaidConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public TranslationKeyImpl getNameTranslationKey() {
-        return new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation);
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public long getMessageId() {
-        return id;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.PREPAID_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
 }

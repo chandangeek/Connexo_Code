@@ -1,12 +1,10 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Collections;
@@ -17,7 +15,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum WavenisDeviceMessage implements DeviceMessageSpec {
+public enum WavenisDeviceMessage implements DeviceMessageSpecFactory {
 
     WavenisAddAddressGetNetworkId(0, "Add Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
     WavenisAddAddressWithNetworkId(1, "Add Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
@@ -39,8 +37,8 @@ public enum WavenisDeviceMessage implements DeviceMessageSpec {
     WavenisResynchronizeModule(17, "Resynchronize Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
     WavenisFreeRequestResponse(18, "Send a Wavenis RF request") {
         @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return Collections.singletonList(this.hexStringSpec(DeviceMessageConstants.rfCommand, DeviceMessageConstants.rfCommandDefaultTranslation));
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.rfCommand, DeviceMessageConstants.rfCommandDefaultTranslation));
         }
     },
     WavenisSetRunLevelIdle(19, "Set the run level to idle"),
@@ -71,76 +69,46 @@ public enum WavenisDeviceMessage implements DeviceMessageSpec {
         this.deviceMessageConstantDefaultTranslation = deviceMessageConstantDefaultTranslation;
     }
 
-    protected PropertySpec stringSpec(String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return Services
-                .propertySpecService()
+        return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .finish();
     }
 
-    protected PropertySpec hexStringSpec(String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return Services
-                .propertySpecService()
+        return service
                 .hexStringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .finish();
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return DeviceMessageCategories.WAVENIS_CONFIGURATION;
-    }
-
-    @Override
-    public String getName() {
-        return Services
-                .nlsService()
-                .getThesaurus(Thesaurus.ID.toString())
-                .getFormat(this.getNameTranslationKey())
-                .format();
-    }
-
     private String getNameResourceKey() {
         return WavenisDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    @Override
-    public TranslationKeyImpl getNameTranslationKey() {
-        return new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation);
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
+    protected List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
         if (this.deviceMessageConstantKey == null) {
             return Collections.emptyList();
         } else {
-            return Collections.singletonList(this.stringSpec(this.deviceMessageConstantKey, this.deviceMessageConstantDefaultTranslation));
+            return Collections.singletonList(
+                    this.stringSpec(propertySpecService, this.deviceMessageConstantKey, this.deviceMessageConstantDefaultTranslation));
         }
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public long getMessageId() {
-        return id;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.WAVENIS_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
 }

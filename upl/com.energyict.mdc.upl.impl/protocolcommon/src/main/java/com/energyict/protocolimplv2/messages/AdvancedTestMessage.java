@@ -78,6 +78,6 @@ public enum AdvancedTestMessage implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
+        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
     }
 }

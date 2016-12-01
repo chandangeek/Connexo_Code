@@ -1,23 +1,20 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ModemConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecFactory {
 
     SetDialCommand(0, DeviceMessageConstants.SetDialCommandAttributeName, DeviceMessageConstants.SetDialCommandAttributeDefaultTranslation),
     SetModemInit1(1, DeviceMessageConstants.SetModemInit1AttributeName, DeviceMessageConstants.SetModemInit1AttributeDefaultTranslation),
@@ -37,37 +34,16 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpec {
         this.deviceMessageConstantDefaultTranslation = deviceMessageConstantDefaultTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return DeviceMessageCategories.MODEM_CONFIGURATION;
-    }
-
-    @Override
-    public String getName() {
-        return Services
-                .nlsService()
-                .getThesaurus(Thesaurus.ID.toString())
-                .getFormat(this.getNameTranslationKey())
-                .format();
-    }
-
     private String getNameResourceKey() {
         return ModemConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    @Override
-    public TranslationKeyImpl getNameTranslationKey() {
+    private TranslationKeyImpl getNameTranslationKey() {
         return new TranslationKeyImpl(this.getNameResourceKey(), this.deviceMessageConstantDefaultTranslation);
     }
 
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(this.getPropertySpec());
-    }
-
-    private PropertySpec getPropertySpec() {
-        return Services
-                .propertySpecService()
+    private PropertySpec getPropertySpec(PropertySpecService service) {
+        return service
                 .stringSpec()
                 .named(this.deviceMessageConstantKey, this.getNameTranslationKey())
                 .describedAs(this.getNameTranslationKey().description())
@@ -75,23 +51,14 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpec {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public long getMessageId() {
-        return id;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.deviceMessageConstantDefaultTranslation),
+                DeviceMessageCategories.MODEM_CONFIGURATION,
+                Collections.singletonList(this.getPropertySpec(propertySpecService)),
+                propertySpecService, nlsService);
     }
 
 }
