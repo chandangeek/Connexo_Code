@@ -29,6 +29,7 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -450,7 +451,7 @@ public class ChannelResource {
         List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
-            validateLinkedToSlave(channel, Instant.ofEpochMilli(channelDataInfo.interval.end));
+            validateLinkedToSlave(channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
             if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
             } else {
@@ -475,9 +476,9 @@ public class ChannelResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    private void validateLinkedToSlave(Channel channel, Instant readingTimeStamp) {
-        Optional<Channel> slaveChannel = topologyService.getSlaveChannel(channel, readingTimeStamp);
-        if (slaveChannel.isPresent()) {
+    private void validateLinkedToSlave(Channel channel, Range readingTimeStamp) {
+        List<DataLoggerChannelUsage> dataLoggerChannelUsagesForChannels = topologyService.findDataLoggerChannelUsagesForChannels(channel, readingTimeStamp);
+        if (!dataLoggerChannelUsagesForChannels.isEmpty()) {
             throw this.exceptionFactory.newException(MessageSeeds.CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE);
         }
     }
