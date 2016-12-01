@@ -35,9 +35,13 @@ public class CommandRuleResource {
             CommandRuleInfo info = new CommandRuleInfo();
             info.id = i;
             info.name = "Rule " + i;
-            info.dayLimit = i * 2;
+            if(i%2 == 1) {
+                info.dayLimit = i * 2;
+            }
             info.weekLimit = i * 3;
-            info.monthLimit = i * 5;
+            if(i%2==0) {
+                info.monthLimit = i * 5;
+            }
             info.active = i%4 != 0;
             if(i%3 == 0) {
                 info.statusMessage = "Pending changes";
