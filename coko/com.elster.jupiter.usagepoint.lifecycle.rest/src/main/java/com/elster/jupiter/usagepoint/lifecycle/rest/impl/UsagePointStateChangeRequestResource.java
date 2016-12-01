@@ -110,7 +110,7 @@ public class UsagePointStateChangeRequestResource {
     }
 
     @PUT
-    @Path("/history/{hid}/cancel")
+    @Path("/history/{hid}")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")

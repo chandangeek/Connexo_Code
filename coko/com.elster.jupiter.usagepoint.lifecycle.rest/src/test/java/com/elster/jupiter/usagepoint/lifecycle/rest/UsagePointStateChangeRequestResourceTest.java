@@ -199,7 +199,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
         when(changeRequest.getStatusName()).thenReturn("Aborted");
         when(usagePointLifeCycleService.getHistory(usagePoint)).thenReturn(Collections.singletonList(changeRequest));
 
-        Response response = target("/usagepoint/21/transitions/history/1/cancel").request().put(Entity.json(null));
+        Response response = target("/usagepoint/21/transitions/history/1").request().put(Entity.json(null));
 
         verify(changeRequest).cancel();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
