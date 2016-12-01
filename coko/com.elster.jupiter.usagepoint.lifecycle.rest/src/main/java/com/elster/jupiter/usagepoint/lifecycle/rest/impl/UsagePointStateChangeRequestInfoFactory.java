@@ -33,7 +33,6 @@ public class UsagePointStateChangeRequestInfoFactory {
         info.privileges = changeRequest.getPrivileges();
         info.usagePoint = new UsagePointStateChangeRequestInfo.UsagePointInfo();
         UsagePoint usagePoint = changeRequest.getUsagePoint();
-        info.usagePoint.id = usagePoint.getId();
         info.usagePoint.name = usagePoint.getName();
         info.usagePoint.version = usagePoint.getVersion();
         return info;

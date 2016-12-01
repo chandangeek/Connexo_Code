@@ -27,7 +27,6 @@ public class UsagePointStateChangeRequestInfo {
     }
 
     public static class UsagePointInfo {
-        public long id;
         public String name;
         public long version;
 

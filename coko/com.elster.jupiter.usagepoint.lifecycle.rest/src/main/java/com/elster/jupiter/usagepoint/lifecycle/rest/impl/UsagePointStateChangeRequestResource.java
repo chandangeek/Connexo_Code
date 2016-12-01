@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Path("/usagepoint/{id}/transitions")
+@Path("/usagepoint/{uname}/transitions")
 public class UsagePointStateChangeRequestResource {
 
     private final ResourceHelper resourceHelper;
@@ -52,11 +52,11 @@ public class UsagePointStateChangeRequestResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getAvailableTransitions(@PathParam("id") long id,
+    public Response getAvailableTransitions(@PathParam("uname") String usagePointName,
                                             @HeaderParam("X-CONNEXO-APPLICATION-NAME") String application,
                                             @BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> transitions = this.usagePointLifeCycleService
-                .getAvailableTransitions(this.resourceHelper.getUsagePointOrThrowException(id).getState(), application)
+                .getAvailableTransitions(this.resourceHelper.getUsagePointOrThrowException(usagePointName).getState(), application)
                 .stream()
                 .map(IdWithNameInfo::new)
                 .sorted((a1, a2) -> a1.name.compareToIgnoreCase(a2.name))
@@ -76,7 +76,7 @@ public class UsagePointStateChangeRequestResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response performTransition(@PathParam("id") long usagePointId,
+    public Response performTransition(@PathParam("uname") String usagePointName,
                                       @PathParam("tid") long transitionId,
                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String application,
                                       UsagePointTransitionInfo info) {
@@ -99,9 +99,9 @@ public class UsagePointStateChangeRequestResource {
     @Path("/history")
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getChangeRequestHistory(@PathParam("id") long usagePointId,
+    public Response getChangeRequestHistory(@PathParam("uname") String usagePointName,
                                             @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = this.resourceHelper.getUsagePointOrThrowException(usagePointId);
+        UsagePoint usagePoint = this.resourceHelper.getUsagePointOrThrowException(usagePointName);
         List<UsagePointStateChangeRequestInfo> history = this.usagePointLifeCycleService.getHistory(usagePoint)
                 .stream()
                 .map(this.changeRequestInfoFactory::from)
@@ -114,9 +114,9 @@ public class UsagePointStateChangeRequestResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response cancelScheduledChangeRequest(@PathParam("id") long usagePointId,
+    public Response cancelScheduledChangeRequest(@PathParam("uname") String usagePointName,
                                                  @PathParam("hid") long historyId) {
-        UsagePoint usagePoint = this.resourceHelper.getUsagePointOrThrowException(usagePointId);
+        UsagePoint usagePoint = this.resourceHelper.getUsagePointOrThrowException(usagePointName);
         this.usagePointLifeCycleService.getHistory(usagePoint)
                 .stream()
                 .filter(record -> record.getId() == historyId)
