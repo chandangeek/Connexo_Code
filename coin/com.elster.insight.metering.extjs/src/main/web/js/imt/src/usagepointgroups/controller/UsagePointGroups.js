@@ -121,46 +121,50 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
             router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Imt.usagepointgroups.model.UsagePointGroup'),
             addUsagePointGroupController = me.getApplication().getController('Imt.usagepointgroups.controller.AddUsagePointGroupAction'),
-            service,
+            service = Ext.create('Imt.service.Search', {
+                router: router
+            }),
             usagePointsOfGroupStore = me.getStore('Imt.usagepointgroups.store.UsagePointsOfUsagePointGroup'),
-            domainsStore;
+            dependenciesCounter = 2,
+            onDependenciesLoad = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    me.getApplication().fireEvent('changecontentevent', Ext.widget('usagepointgroup-details', {
+                        router: router,
+                        usagePointGroup: usagePointGroup,
+                        service: service
+                    }));
+                    me.updateCriteria(usagePointGroup);
+                    me.updateActionMenuVisibility(usagePointGroup);
 
-        mainView.setLoading();
+                    service.applyState({
+                        domain: 'com.elster.jupiter.metering.UsagePoint',
+                        filters: [{
+                            property: 'usagePointGroup',
+                            value: [{
+                                criteria: currentUsagePointGroupId,
+                                operator: '=='
+                            }]
+                        }]
+                    });
+
+                    mainView.setLoading(false);
+                }
+            },
+            usagePointGroup;
+
         if (addUsagePointGroupController.router) {
             addUsagePointGroupController.router = null;
         }
         usagePointsOfGroupStore.getProxy().setExtraParam('id', currentUsagePointGroupId);
-        service = Ext.create('Imt.service.Search', {
-            router: router
-        });
-        domainsStore = service.getSearchDomainsStore();
-        domainsStore.load(function () {
-            service.applyState({
-                domain: 'com.elster.jupiter.metering.UsagePoint',
-                filters: [{
-                    property: 'usagePointGroup',
-                    value: [{
-                        criteria: currentUsagePointGroupId,
-                        operator: '=='
-                    }]
-                }]
-            });
-        });
+
+        mainView.setLoading();
+        service.getSearchDomainsStore().load(onDependenciesLoad);
         model.load(currentUsagePointGroupId, {
             success: function (record) {
-                var widget = Ext.widget('usagepointgroup-details', {
-                    router: router,
-                    usagePointGroup: record,
-                    service: service
-                });
-
-                me.getApplication().fireEvent('changecontentevent', widget);
+                usagePointGroup = record;
                 me.getApplication().fireEvent('loadUsagePointGroup', record);
-                me.updateCriteria(record);
-                me.updateActionMenuVisibility(record);
-            },
-            callback: function () {
-                mainView.setLoading(false);
+                onDependenciesLoad();
             }
         });
     },
