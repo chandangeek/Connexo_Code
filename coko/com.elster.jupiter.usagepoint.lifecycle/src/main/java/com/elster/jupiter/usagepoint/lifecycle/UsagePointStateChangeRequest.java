@@ -16,9 +16,27 @@ public interface UsagePointStateChangeRequest extends HasId {
         CANCELLED
     }
 
+    enum Type {
+        STATE_CHANGE("state"),;
+
+        private final String key;
+
+        Type(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return key;
+        }
+    }
+
     Status getStatus();
 
     String getStatusName();
+
+    Type getType();
+
+    String getTypeName();
 
     UsagePoint getUsagePoint();
 
