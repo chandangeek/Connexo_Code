@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleRemoveException;
@@ -76,6 +77,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         when(state.isInitial()).thenReturn(true);
         when(state.getLifeCycle()).thenReturn(lifeCycle);
         when(state.getVersion()).thenReturn(3L);
+        when(state.getStage()).thenReturn(mock(UsagePointStage.class));
         when(lifeCycle.getId()).thenReturn(12L);
         when(lifeCycle.getName()).thenReturn("Life cycle");
         when(lifeCycle.getVersion()).thenReturn(4L);

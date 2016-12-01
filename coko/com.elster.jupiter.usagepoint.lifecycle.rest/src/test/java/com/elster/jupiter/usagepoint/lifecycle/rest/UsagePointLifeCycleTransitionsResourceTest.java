@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
@@ -41,6 +42,8 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
     private MicroAction microAction;
     @Mock
     private MicroCheck microCheck;
+    @Mock
+    private UsagePointStage stage;
 
     @Before
     public void before() {
@@ -57,11 +60,15 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
         when(fromState.getId()).thenReturn(56L);
         when(fromState.getName()).thenReturn("From");
         when(fromState.getVersion()).thenReturn(1L);
+        when(fromState.getStage()).thenReturn(stage);
 
         when(toState.getLifeCycle()).thenReturn(lifeCycle);
         when(toState.getId()).thenReturn(57L);
         when(toState.getName()).thenReturn("To");
         when(toState.getVersion()).thenReturn(1L);
+        when(toState.getStage()).thenReturn(stage);
+
+        when(stage.getKey()).thenReturn(UsagePointStage.Stage.OPERATIONAL);
 
         when(transition.getId()).thenReturn(6L);
         when(transition.getVersion()).thenReturn(7L);

@@ -5,6 +5,7 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointStateRemoveException;
 
@@ -35,6 +36,8 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
     private UsagePointLifeCycle lifeCycle;
     @Mock
     private UsagePointState state;
+    @Mock
+    private UsagePointStage stage;
 
     @Before
     public void before() {
@@ -43,6 +46,8 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(lifeCycle.getId()).thenReturn(12L);
         when(lifeCycle.getVersion()).thenReturn(4L);
         when(state.getLifeCycle()).thenReturn(lifeCycle);
+        when(state.getStage()).thenReturn(stage);
+        when(stage.getKey()).thenReturn(UsagePointStage.Stage.OPERATIONAL);
     }
 
     @Test
@@ -58,6 +63,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<List>get("$.states")).hasSize(1);
         assertThat(model.<Number>get("$.states[0].id")).isEqualTo(4);
         assertThat(model.<String>get("$.states[0].name")).isEqualTo("State");
+        assertThat(model.<String>get("$.states[0].stage")).isEqualTo("OPERATIONAL");
         assertThat(model.<Number>get("$.states[0].version")).isEqualTo(3);
         assertThat(model.<Number>get("$.states[0].parent.id")).isEqualTo(12);
         assertThat(model.<Number>get("$.states[0].parent.version")).isEqualTo(4);
@@ -81,6 +87,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<String>get("$.name")).isEqualTo("State");
         assertThat(model.<Number>get("$.version")).isEqualTo(3);
         assertThat(model.<Boolean>get("$.isInitial")).isEqualTo(true);
+        assertThat(model.<String>get("$.stage")).isEqualTo("OPERATIONAL");
         assertThat(model.<Number>get("$.onEntry[0].id")).isEqualTo(1);
         assertThat(model.<Number>get("$.onExit[0].id")).isEqualTo(2);
         assertThat(model.<Number>get("$.parent.id")).isEqualTo(12);
@@ -124,12 +131,14 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
         Response response = target("/lifecycle/12/states").request().post(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Number>get("$.id")).isEqualTo(4);
         assertThat(model.<String>get("$.name")).isEqualTo("State");
+        assertThat(model.<String>get("$.stage")).isEqualTo("OPERATIONAL");
         assertThat(model.<Number>get("$.version")).isEqualTo(1);
         assertThat(model.<Boolean>get("$.isInitial")).isEqualTo(false);
         assertThat(model.<Number>get("$.onEntry[0].id")).isEqualTo(1);
@@ -148,6 +157,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
@@ -187,6 +197,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
         Response response = target("/lifecycle/12/states/4").request().put(json);
@@ -199,6 +210,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<Number>get("$.onExit[0].id")).isEqualTo(2);
         assertThat(model.<Number>get("$.parent.id")).isEqualTo(12);
         assertThat(model.<Number>get("$.parent.version")).isEqualTo(4);
+        assertThat(model.<String>get("$.stage")).isEqualTo("OPERATIONAL");
         verify(builder).setName("State changed");
         verify(builder).onEntry(onEntryProcess);
         verify(builder).onExit(onExitProcess);
@@ -217,6 +229,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         info.name = "State changed";
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -237,6 +250,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.version = 2L;
@@ -259,6 +273,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.version = 2L;
@@ -287,6 +302,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -307,6 +323,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.version = 2L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -326,6 +343,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -344,6 +362,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -364,6 +383,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = UsagePointStage.Stage.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);

@@ -3,6 +3,7 @@ package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -62,10 +63,15 @@ public class UsagePointLifeCycleStatesResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleStateInfo newState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        validationBuilder.notEmpty(stateInfo.name, "name")
+                .notEmpty(stateInfo.stage, "stage")
+                .validate();
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         UsagePointState.UsagePointStateCreator builder = lifeCycle.newState(stateInfo.name);
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
         stateInfo.onExit.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onExit);
+        builder.setStage(stateInfo.stage);
         return this.stateInfoFactory.fullInfo(builder.complete());
     }
 
@@ -76,12 +82,17 @@ public class UsagePointLifeCycleStatesResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleStateInfo editState(UsagePointLifeCycleStateInfo stateInfo) {
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        validationBuilder.notEmpty(stateInfo.name, "name")
+                .notEmpty(stateInfo.stage, "stage")
+                .validate();
         UsagePointState state = this.resourceHelper.lockState(stateInfo);
         UsagePointState.UsagePointStateUpdater builder = state.startUpdate().setName(stateInfo.name);
         state.getOnEntryProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess).forEach(builder::removeOnEntry);
         state.getOnExitProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess).forEach(builder::removeOnExit);
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
         stateInfo.onExit.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onExit);
+        builder.setStage(stateInfo.stage);
         return this.stateInfoFactory.fullInfo(builder.complete());
     }
 
