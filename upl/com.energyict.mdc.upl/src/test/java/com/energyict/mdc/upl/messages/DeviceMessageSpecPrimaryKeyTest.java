@@ -7,10 +7,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
- * Tests the {@link DeviceMessageSpecPrimaryKey} component.
+ * Tests the {@link FactoryBasedDeviceMessageSpecPrimaryKey} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/02/13
@@ -20,7 +18,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
 
     @Test
     public void correctNumberTest(){
-        DeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new DeviceMessageSpecPrimaryKey(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS, DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.name());
+        FactoryBasedDeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new FactoryBasedDeviceMessageSpecPrimaryKey(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS, DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.name());
 
         // asserts
         assertThat(deviceMessageSpecPrimaryKey.isGivenStringNumeric("12")).isTrue();
@@ -28,7 +26,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
 
     @Test
     public void incorrectNumberTest(){
-        DeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new DeviceMessageSpecPrimaryKey(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS, DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.name());
+        FactoryBasedDeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new FactoryBasedDeviceMessageSpecPrimaryKey(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS, DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.name());
 
         // asserts
         assertThat(deviceMessageSpecPrimaryKey.isGivenStringNumeric("I'mNotAnNumber :)")).isFalse();
@@ -36,7 +34,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
 
     @Test
     public void invalidNumberTest(){
-        DeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new DeviceMessageSpecPrimaryKey(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS, DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.name());
+        FactoryBasedDeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new FactoryBasedDeviceMessageSpecPrimaryKey(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS, DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.name());
 
         // asserts
         assertThat(deviceMessageSpecPrimaryKey.isGivenStringNumeric(null)).isFalse();
@@ -44,7 +42,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
 
     @Test
     public void cleanUpClassNameTest() {
-        DeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new DeviceMessageSpecPrimaryKey(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS, DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.name());
+        FactoryBasedDeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new FactoryBasedDeviceMessageSpecPrimaryKey(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS, DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.name());
 
         // asserts
         assertThat(deviceMessageSpecPrimaryKey.cleanUpClassName(DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageTestSpec");
@@ -52,7 +50,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
 
     @Test
     public void extendedCleanUpClassNameTest() {
-        DeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new DeviceMessageSpecPrimaryKey(ExtendedDeviceMessageTestWithoutOverriddenMethodSpec.TEST_SPEC_WITHOUT_SPECS, ExtendedDeviceMessageTestWithoutOverriddenMethodSpec.TEST_SPEC_WITHOUT_SPECS.name());
+        FactoryBasedDeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = new FactoryBasedDeviceMessageSpecPrimaryKey(ExtendedDeviceMessageTestWithoutOverriddenMethodSpec.TEST_SPEC_WITHOUT_SPECS, ExtendedDeviceMessageTestWithoutOverriddenMethodSpec.TEST_SPEC_WITHOUT_SPECS.name());
 
         // asserts
         assertThat(deviceMessageSpecPrimaryKey.cleanUpClassName(ExtendedDeviceMessageTestWithoutOverriddenMethodSpec.TEST_SPEC_WITHOUT_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageSpecPrimaryKeyTest$ExtendedDeviceMessageTestWithoutOverriddenMethodSpec");
@@ -60,7 +58,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
 
     @Test
     public void extendedCleanUpClassNameForSimpleEnumInnerClass(){
-        DeviceMessageSpecPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageSpecPrimaryKey(ExtendedDeviceMessageTestWithOverriddenMethodSpec.TEST_SPEC_WITH_SIMPLE_SPECS, ExtendedDeviceMessageTestWithOverriddenMethodSpec.TEST_SPEC_WITH_SIMPLE_SPECS.name());
+        FactoryBasedDeviceMessageSpecPrimaryKey deviceMessageCategoryPrimaryKey = new FactoryBasedDeviceMessageSpecPrimaryKey(ExtendedDeviceMessageTestWithOverriddenMethodSpec.TEST_SPEC_WITH_SIMPLE_SPECS, ExtendedDeviceMessageTestWithOverriddenMethodSpec.TEST_SPEC_WITH_SIMPLE_SPECS.name());
 
         // asserts
         assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(ExtendedDeviceMessageTestWithOverriddenMethodSpec.TEST_SPEC_WITH_SIMPLE_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageSpecPrimaryKeyTest$ExtendedDeviceMessageTestWithOverriddenMethodSpec");
@@ -109,7 +107,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
 
         @Override
         public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-            return new DeviceMessageSpecPrimaryKey(this, name());
+            return new FactoryBasedDeviceMessageSpecPrimaryKey(this, name());
         }
 
         @Override
@@ -183,7 +181,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
 
         @Override
         public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-            return new DeviceMessageSpecPrimaryKey(this, name());
+            return new FactoryBasedDeviceMessageSpecPrimaryKey(this, name());
         }
     }
 }

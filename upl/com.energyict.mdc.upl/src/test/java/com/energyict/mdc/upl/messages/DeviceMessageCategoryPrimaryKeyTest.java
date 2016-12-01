@@ -7,10 +7,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
- * Tests the {@link DeviceMessageCategoryPrimaryKey} component
+ * Tests the {@link EnumBasedDeviceMessageCategoryPrimaryKey} component
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/02/13
@@ -20,7 +18,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
     @Test
     public void correctNumberTest(){
-        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
+        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new EnumBasedDeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
 
         // asserts
         assertThat(deviceMessageCategoryPrimaryKey.isGivenStringNumeric("12")).isTrue();
@@ -28,7 +26,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
     @Test
     public void incorrectNumberTest(){
-        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
+        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new EnumBasedDeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
 
         // asserts
         assertThat(deviceMessageCategoryPrimaryKey.isGivenStringNumeric("I'mNotAnNumber :)")).isFalse();
@@ -36,7 +34,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
     @Test
     public void invalidNumberTest(){
-        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
+        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new EnumBasedDeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
 
         // asserts
         assertThat(deviceMessageCategoryPrimaryKey.isGivenStringNumeric(null)).isFalse();
@@ -44,7 +42,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
     @Test
     public void cleanUpClassNameTest() {
-        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
+        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new EnumBasedDeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
 
         // asserts
         assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(DeviceMessageTestCategories.SECURITY.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageTestCategories");
@@ -52,7 +50,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
     @Test
     public void extendedCleanUpClassNameTest() {
-        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING, ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING.name());
+        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new EnumBasedDeviceMessageCategoryPrimaryKey(ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING, ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING.name());
 
         // asserts
         assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKeyTest$ExtendedCategoriesForTestingWithOverriddenMethod");
@@ -60,7 +58,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
     @Test
     public void extendedCleanUpClassNameForSimpleEnumInnerClass(){
-        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY, ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY.name());
+        DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new EnumBasedDeviceMessageCategoryPrimaryKey(ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY, ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY.name());
 
         // asserts
         assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKeyTest$ExtendedCategoriesForTestingWithoutOverriddenMethod");
@@ -139,7 +137,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
         @Override
         public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-            return new DeviceMessageCategoryPrimaryKey(this, name());
+            return new EnumBasedDeviceMessageCategoryPrimaryKey(this, name());
         }
     }
 
@@ -201,7 +199,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
 
         @Override
         public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-            return new DeviceMessageCategoryPrimaryKey(this, name());
+            return new EnumBasedDeviceMessageCategoryPrimaryKey(this, name());
         }
     }
 }

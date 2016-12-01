@@ -48,7 +48,7 @@ public interface DeviceMessageSpec {
     TranslationKey getNameTranslationKey();
 
     /**
-     * Gets the List of {@link PropertySpec propertySpecs} that
+     * Gets the List of {@link PropertySpec}s that
      * specify in detail which attributes are required and which are optional.
      *
      * @return The List of PropertySpec
