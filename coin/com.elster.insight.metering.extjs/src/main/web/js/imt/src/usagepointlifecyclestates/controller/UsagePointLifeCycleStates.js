@@ -225,31 +225,43 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
 
     showUsagePointLifeCycleStates: function (usagePointLifeCycleId) {
         var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             usagePointLifeCycleModel = me.getModel('Imt.usagepointlifecycle.model.UsagePointLifeCycle'),
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Imt.usagepointlifecyclestates.store.UsagePointLifeCycleStates'),
             entryProcessesStore = me.getStore('Imt.usagepointlifecyclestates.store.TransitionBusinessProcessesOnEntry'),
             exitProcessesStore = me.getStore('Imt.usagepointlifecyclestates.store.TransitionBusinessProcessesOnExit'),
-            view;
+            dependenciesCounter = 2,
+            onDependenciesLoad = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    var widget = Ext.widget('usagepoint-life-cycle-states-setup', {
+                        router: router,
+                        lifecycleRecord: usagePointLifeCycleRecord
+                    });
+
+                    if (entryProcessesStore) {
+                        entryProcessesStore.removeAll();
+                    }
+                    if (exitProcessesStore) {
+                        exitProcessesStore.removeAll();
+                    }
+
+                    widget.down('#usagepoint-life-cycle-link').setText(usagePointLifeCycleRecord.get('name'));
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    mainView.setLoading(false);
+                }
+            },
+            usagePointLifeCycleRecord;
 
         store.getProxy().setUrl(router.arguments);
+        mainView.setLoading();
+        me.getStore('Imt.usagepointlifecycle.store.Stages').load(onDependenciesLoad);
         usagePointLifeCycleModel.load(usagePointLifeCycleId, {
-            success: function (usagePointLifeCycleRecord) {
-                view = Ext.widget('usagepoint-life-cycle-states-setup', {
-                    router: router,
-                    lifecycleRecord: usagePointLifeCycleRecord
-                });
-
-                if (entryProcessesStore) {
-                    entryProcessesStore.removeAll();
-                }
-                if (exitProcessesStore) {
-                    exitProcessesStore.removeAll();
-                }
-
-                me.getApplication().fireEvent('usagepointlifecycleload', usagePointLifeCycleRecord);
-                view.down('#usagepoint-life-cycle-link').setText(usagePointLifeCycleRecord.get('name'));
-                me.getApplication().fireEvent('changecontentevent', view);
+            success: function (record) {
+                usagePointLifeCycleRecord = record;
+                me.getApplication().fireEvent('usagepointlifecycleload', record);
+                onDependenciesLoad();
             }
         });
     },

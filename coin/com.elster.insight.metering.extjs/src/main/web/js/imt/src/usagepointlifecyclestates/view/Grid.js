@@ -24,6 +24,16 @@ Ext.define('Imt.usagepointlifecyclestates.view.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.stage', 'IMT', 'Stage'),
+                dataIndex: 'stage',
+                flex: 1,
+                renderer: function (value) {
+                    var stage = Ext.getStore('Imt.usagepointlifecycle.store.Stages').getById(value);
+
+                    return stage ? stage.get('name') : value;
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',                
                 privileges: Imt.privileges.UsagePointLifeCycle.configure,
                 menu: {
