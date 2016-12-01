@@ -59,7 +59,7 @@ class CalendarImporter implements FileImporter {
             processor.process(xmlContents);
             markSuccess(fileImportOccurrence);
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            throw new XmlValidationFailed(thesaurus, e);
         } catch (ConstraintViolationException e) {
             new ExceptionLogFormatter(thesaurus, fileImportOccurrence.getLogger()).log(e);
             throw new RuntimeException(thesaurus.getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
@@ -83,20 +83,6 @@ class CalendarImporter implements FileImporter {
 
     private void logUpdate(FileImportOccurrence fileImportOccurrence) {
         log(fileImportOccurrence, MessageSeeds.CALENDAR_UPDATED);
-    }
-
-    private void logValidationFailed(FileImportOccurrence fileImportOccurrence, JAXBException e) {
-        Throwable toLog = (e.getLinkedException() != null) ? e.getLinkedException() : e;
-        String message = toLog.getLocalizedMessage();
-        if ("Content is not allowed in prolog.".equals(message)) {
-            MessageSeeds.VALIDATION_OF_FILE_FAILED.log(fileImportOccurrence.getLogger(), thesaurus);
-        } else {
-            MessageSeeds.VALIDATION_OF_FILE_FAILED_WITH_DETAIL.log(fileImportOccurrence.getLogger(), thesaurus, message);
-        }
-    }
-
-    private void logImportFailed(FileImportOccurrence fileImportOccurrence, Throwable e) {
-        fileImportOccurrence.getLogger().severe(e.getLocalizedMessage());
     }
 
     private void log(FileImportOccurrence fileImportOccurrence, MessageSeeds messageSeeds) {
