@@ -17,6 +17,7 @@ public class UsagePointStateChangeRequestInfoFactory {
         info.scheduleTime = changeRequest.getScheduleTime();
         info.user = new IdWithDisplayValueInfo<>(changeRequest.getOriginator().getId(), changeRequest.getOriginator().getName());
         info.status = new IdWithDisplayValueInfo<>(changeRequest.getStatus(), changeRequest.getStatusName());
+        info.type = new IdWithDisplayValueInfo<>(changeRequest.getType().name(), changeRequest.getTypeName());
         info.message = changeRequest.getGeneralFailReason();
         info.microChecks = changeRequest.getFailReasons()
                 .stream()
