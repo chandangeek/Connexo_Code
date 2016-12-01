@@ -6,7 +6,8 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.usagepointmanagement.view.calendars.Grid',
         'Imt.usagepointmanagement.view.calendars.Preview',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.form.ComboBoxWithEmptyComponent'
     ],
     router: null,
     usagePoint: null,
@@ -39,22 +40,20 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                             hidden: true
                         },
                         {
-                            xtype: 'combobox',
-                            name: 'category',
+                            xtype: 'comboboxwithemptycomponent',
+                            fieldLabel: Uni.I18n.translate('general.category', 'IMT', 'Category'),
                             itemId: 'category-name',
                             required: true,
-                            allowBlank: false,
-                            fieldLabel: Uni.I18n.translate('general.category', 'IMT', 'Category'),
-                            store: 'Imt.usagepointmanagement.store.CalendarCategories',
-                            valueField: 'name',
-                            displayField: 'name',
-                            //listeners: {
-                            //    afterrender: function (field) {
-                            //        if(!me.edit) {
-                            //            field.focus(false, 500);
-                            //        }
-                            //    }
-                            //}
+                            config: {
+                                displayField: 'name',
+                                valueField: 'name',
+                                name: 'category',
+                                allowBlank: false,
+                                store: 'Imt.usagepointmanagement.store.CalendarCategories',
+                                emptyText: Uni.I18n.translate('calendars.selectCategory', 'IMT', 'Select a category'),
+                                width: 500,
+                                noObjectsText: Uni.I18n.translate('calendars.noCategoriesWithActiveCalendarsExist', 'IMT', 'No categories with active calendars exist')
+                            }
                         },
                         {
                             xtype: 'combobox',
