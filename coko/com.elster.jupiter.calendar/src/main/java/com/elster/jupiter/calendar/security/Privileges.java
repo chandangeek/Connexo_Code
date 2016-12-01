@@ -11,7 +11,7 @@ public enum Privileges implements TranslationKey {
     RESOURCE_TOU_CALENDARS_DESCRIPTION("calendars.timeOfUse.description", "Manage calendars"),
 
     //Privileges
-    MANAGE_TOU_CALENDARS(Constants.MANAGE_TOU_CALENDARS, "Manage calendars");
+    MANAGE_TOU_CALENDARS(Constants.MANAGE_TOU_CALENDARS, "Administrate");
 
     private final String key;
     private final String description;
