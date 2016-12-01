@@ -146,16 +146,14 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         if (currentUser instanceof User) {
             User user = (User) currentUser;
             this.originator.set(user);
-            if (!transition.getLevels().isEmpty() && !transition.getLevels()
+            if (transition.getLevels().isEmpty() || transition.getLevels()
                     .stream()
                     .map(UsagePointTransition.Level::getPrivilege)
                     .anyMatch(privilege -> user.hasPrivilege(application, privilege))) {
-                this.status = Status.FAILED;
-                this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format();
+                return;
             }
-        } else {
-            throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
         }
+        throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
     }
 
     @Override
