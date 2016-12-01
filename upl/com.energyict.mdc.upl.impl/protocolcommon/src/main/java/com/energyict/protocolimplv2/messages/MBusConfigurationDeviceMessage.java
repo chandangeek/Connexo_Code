@@ -1,14 +1,13 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,67 +15,86 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum MBusConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecFactory {
 
-    SetMBusEvery(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusEveryAttributeName)),
-    SetMBusInterFrameTime(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusInterFrameTimeAttributeName)),
-    SetMBusConfig(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMBusConfigAttributeName)),
-    SetMBusVIF(3, PropertySpecFactory.fixedLengthHexStringPropertySpec(DeviceMessageConstants.SetMBusVIFAttributeName, 16)),
-    MBusSetOption(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
-    MBusClrOption(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
+    SetMBusEvery(0, "Set MBus every") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetMBusEveryAttributeName, DeviceMessageConstants.SetMBusEveryAttributeDefaultTranslation));
+        }
+    },
+    SetMBusInterFrameTime(1, "Set MBus inter frame time") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetMBusInterFrameTimeAttributeName, DeviceMessageConstants.SetMBusInterFrameTimeAttributeDefaultTranslation));
+        }
+    },
+    SetMBusConfig(2, "Set MBus configuration") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetMBusConfigAttributeName, DeviceMessageConstants.SetMBusConfigAttributeDefaultTranslation));
+        }
+    },
+    SetMBusVIF(3, "Set MBus VIF") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.SetMBusVIFAttributeName, DeviceMessageConstants.SetMBusVIFAttributeDefaultTranslation, 16));
+        }
+    },
+    MBusSetOption(4, "MBus - Set an option") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
+        }
+    },
+    MBusClrOption(5, "MBus - Clear an option") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
+        }
+    };
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_CONFIGURATION;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
+    private final String defaultNameTranslation;
 
-    private MBusConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    MBusConfigurationDeviceMessage(int id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return category;
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+    protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, int length) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .hexStringSpecOfExactLength(length)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
     private String getNameResourceKey() {
         return MBusConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.MBUS_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

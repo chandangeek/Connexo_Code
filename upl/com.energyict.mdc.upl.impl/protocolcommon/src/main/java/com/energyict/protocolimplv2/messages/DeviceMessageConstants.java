@@ -491,6 +491,7 @@ public class DeviceMessageConstants {
     public static final String id = "id";
     public static final String tariff = "tariff";
     public static final String singleOptionAttributeName = "option";
+    public static final String singleOptionAttributeDefaultTranslation = "Option";
 
     public static final String loadIdAttributeName = "PeakShaverConfigurationDeviceMessage.loadid";
     public static final String MaxOffAttributeName = "PeakShaverConfigurationDeviceMessage.maxoff";
@@ -555,9 +556,13 @@ public class DeviceMessageConstants {
 
 
     public static final String SetMBusEveryAttributeName = "MBusConfigurationDeviceMessage.setmbusevery";
+    public static final String SetMBusEveryAttributeDefaultTranslation = "MBus every";
     public static final String SetMBusInterFrameTimeAttributeName = "MBusConfigurationDeviceMessage.setmbusinterframetime";
+    public static final String SetMBusInterFrameTimeAttributeDefaultTranslation = "MBus inter frame timeout";
     public static final String SetMBusConfigAttributeName = "MBusConfigurationDeviceMessage.setmbusconfig";
+    public static final String SetMBusConfigAttributeDefaultTranslation = "MBus configuration";
     public static final String SetMBusVIFAttributeName = "MBusConfigurationDeviceMessage.mbusvif";
+    public static final String SetMBusVIFAttributeDefaultTranslation = "MBus VIF";
 
     public static final String openKeyAttributeName = "MBusSetupDeviceMessage.openkey";
     public static final String transferKeyAttributeName = "MBusSetupDeviceMessage.transferkey";
