@@ -2227,6 +2227,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         }
+                    },
+                    commandrules: {
+                        title: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
+                        route: 'commandrules',
+                        // TODO: "Dual control protected changes - command limitation rules > View" privilege
+                        //privileges: Mdc.privileges.Communication.view,
+                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                        action: 'showRulesView'
                     }
                 }
             },
