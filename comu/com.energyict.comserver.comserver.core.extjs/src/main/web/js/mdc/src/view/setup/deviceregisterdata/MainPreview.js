@@ -128,7 +128,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                             if (Ext.isEmpty(slaveRegister)) {
                                 return '-';
                             }
-                            var slaveId = slaveRegister.name,
+                            var slaveId = slaveRegister.deviceName,
                                 registerId = slaveRegister.registerId;
                             return Ext.String.format('<a href="{0}">{1}</a>',
                                 me.router.getRoute('devices/device/registers/registerdata').buildUrl(

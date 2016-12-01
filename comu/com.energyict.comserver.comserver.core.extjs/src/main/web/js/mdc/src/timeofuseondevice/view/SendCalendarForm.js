@@ -277,7 +277,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                 itemId: 'tou-calendar-command-cancel-link',
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 ui: 'link',
-                                href: '#/devices/' + me.deviceId + '/timeofuse'
+                                href: '#/devices/' + encodeURIComponent(me.deviceId) + '/timeofuse'
                             }
                         ]
                     }
