@@ -253,7 +253,7 @@ class ValidationOverviewSqlBuilder {
     }
 
     private void appendSelectClause() {
-        this.sqlBuilder.append(" select dev.mRID, dev.serialnumber, dt.name as devtypename, dc.name as devconfigname");
+        this.sqlBuilder.append(" select dev.name, dev.serialnumber, dt.name as devtypename, dc.name as devconfigname");
         Stream
                 .of(KpiType.TOTAL, KpiType.CHANNEL, KpiType.REGISTER, KpiType.ALL_DATA_VALIDATED)
                 .forEach(kpiType -> kpiType.appendSelectTo(this.sqlBuilder));
@@ -284,7 +284,7 @@ class ValidationOverviewSqlBuilder {
     }
 
     private void appendGroupByClause() {
-        this.sqlBuilder.append(" group by dev.mRID, dev.serialnumber, dt.name, dc.name");
+        this.sqlBuilder.append(" group by dev.name, dev.serialnumber, dt.name, dc.name");
     }
 
     private void appendHavingClause() {
@@ -293,7 +293,7 @@ class ValidationOverviewSqlBuilder {
     }
 
     private void appendOrderByClause() {
-        this.sqlBuilder.append(" order by dev.mRID");
+        this.sqlBuilder.append(" order by dev.name");
     }
 
     private void appendKpiTypeWithClauses() {
