@@ -13,6 +13,7 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroActionException;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeException;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
@@ -46,7 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -143,7 +143,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
                 .collect(Collectors.toList())).containsExactly(MetrologyConfigurationIsDefinedCheck.class.getSimpleName());
     }
 
-    @Test
+    @Test(expected = UsagePointStateChangeException.class)
     @Transactional
     public void testCanNotExecuteTransitionIfHasUnSufficientPrivileges() {
         initializeCommonUsagePointStateChangeFields();
@@ -152,12 +152,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         UsagePointTransition spyTransition = spy(transition);
 
         lifeCycleService.performTransition(usagePoint, spyTransition, APPLICATION, Collections.emptyMap());
-
-        verify(spyTransition, never()).doTransition(anyString(), anyString(), any(Instant.class), eq(Collections.emptyMap()));
-        UsagePointStateChangeRequest request = lifeCycleService.getHistory(usagePoint).get(0);
-        assertThat(request.getGeneralFailReason()).isNotEmpty();
-        assertThat(request.getGeneralFailReason()).contains(String.valueOf(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION.getNumber()));
-        assertThat(request.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.FAILED);
     }
 
     @Test
