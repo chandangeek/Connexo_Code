@@ -114,19 +114,19 @@ public class ResourceHelper {
                         .supplier());
     }
 
-    public UsagePoint getUsagePointOrThrowException(long id) {
-        return this.meteringService.findUsagePointById(id)
-                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_USAGE_POINT, id));
+    public UsagePoint getUsagePointOrThrowException(String name) {
+        return this.meteringService.findUsagePointByName(name)
+                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_USAGE_POINT, name));
     }
 
-    private Long getUsagePointVersion(long id) {
-        return this.meteringService.findUsagePointById(id).map(UsagePoint::getVersion).orElse(null);
+    private Long getUsagePointVersion(String name) {
+        return this.meteringService.findUsagePointByName(name).map(UsagePoint::getVersion).orElse(null);
     }
 
     public UsagePoint lockUsagePoint(UsagePointStateChangeRequestInfo.UsagePointInfo info) {
-        return this.meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
+        return this.meteringService.findAndLockUsagePointByNameAndVersion(info.name, info.version)
                 .orElseThrow(this.conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> getUsagePointVersion(info.id))
+                        .withActualVersion(() -> getUsagePointVersion(info.name))
                         .supplier());
     }
 }

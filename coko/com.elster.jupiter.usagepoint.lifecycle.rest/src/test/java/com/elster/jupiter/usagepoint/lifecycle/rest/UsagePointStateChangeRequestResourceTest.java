@@ -57,11 +57,11 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
 
         when(usagePoint.getId()).thenReturn(21L);
         when(usagePoint.getVersion()).thenReturn(5L);
-        when(usagePoint.getName()).thenReturn("Usage point");
+        when(usagePoint.getName()).thenReturn("UsagePoint");
         when(usagePoint.getState()).thenReturn(fromState);
 
-        when(meteringService.findUsagePointById(21L)).thenReturn(Optional.of(usagePoint));
-        when(meteringService.findAndLockUsagePointByIdAndVersion(21L, 5L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointByName("UsagePoint")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByNameAndVersion("UsagePoint", 5L)).thenReturn(Optional.of(usagePoint));
         when(usagePointLifeCycleConfigurationService.findUsagePointTransition(6L)).thenReturn(Optional.of(transition));
     }
 
@@ -86,7 +86,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
     @Test
     public void testGetAvailableTransitions() {
         when(usagePointLifeCycleService.getAvailableTransitions(fromState, APPLICATION)).thenReturn(Collections.singletonList(transition));
-        String response = target("/usagepoint/21/transitions").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).get(String.class);
+        String response = target("/usagepoint/UsagePoint/transitions").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).get(String.class);
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
@@ -97,8 +97,8 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
 
     @Test
     public void testGetAvailableTransitionsNoUsagePoint() throws Exception {
-        when(meteringService.findUsagePointById(21L)).thenReturn(Optional.empty());
-        Response response = target("/usagepoint/21/transitions").request().header("X-CONNEXO-APPLICATION-NAME", "TST").get();
+        when(meteringService.findUsagePointByName("UsagePoint")).thenReturn(Optional.empty());
+        Response response = target("/usagepoint/UsagePoint/transitions").request().header("X-CONNEXO-APPLICATION-NAME", "TST").get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -108,7 +108,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
 
     @Test
     public void testGetPropertiesForTransition() {
-        String response = target("/usagepoint/21/transitions/6").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).get(String.class);
+        String response = target("/usagepoint/UsagePoint/transitions/6").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).get(String.class);
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.id")).isEqualTo(6);
@@ -119,7 +119,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
     @Test
     public void testGetPropertiesForTransitionNoTransition() throws Exception {
         when(usagePointLifeCycleConfigurationService.findUsagePointTransition(6L)).thenReturn(Optional.empty());
-        Response response = target("/usagepoint/21/transitions/6").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).get();
+        Response response = target("/usagepoint/UsagePoint/transitions/6").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -129,18 +129,17 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
 
     @Test
     public void testPerformTransitionConcurrent() throws Exception {
-        when(meteringService.findAndLockUsagePointByIdAndVersion(21L, 5L)).thenReturn(Optional.empty());
+        when(meteringService.findAndLockUsagePointByNameAndVersion("UsagePoint", 5L)).thenReturn(Optional.empty());
         UsagePointTransitionInfo info = new UsagePointTransitionInfo();
         info.usagePoint = new UsagePointStateChangeRequestInfo.UsagePointInfo();
-        info.usagePoint.id = 21L;
         info.usagePoint.version = 5L;
-        info.usagePoint.name = "Usage point";
-        Response response = target("/usagepoint/21/transitions/6").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).put(Entity.json(info));
+        info.usagePoint.name = "UsagePoint";
+        Response response = target("/usagepoint/UsagePoint/transitions/6").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'Usage point'");
-        assertThat(model.<String>get("$.error")).isEqualTo("Usage point has changed since the page was last updated.");
+        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'UsagePoint'");
+        assertThat(model.<String>get("$.error")).isEqualTo("UsagePoint has changed since the page was last updated.");
     }
 
     @Test
@@ -149,12 +148,11 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
         when(usagePointLifeCycleService.performTransition(usagePoint, transition, APPLICATION, Collections.emptyMap())).thenReturn(changeRequest);
         UsagePointTransitionInfo info = new UsagePointTransitionInfo();
         info.usagePoint = new UsagePointStateChangeRequestInfo.UsagePointInfo();
-        info.usagePoint.id = 21L;
         info.usagePoint.version = 5L;
-        info.usagePoint.name = "Usage point";
+        info.usagePoint.name = "UsagePoint";
         info.id = 5;
         info.transitionNow = true;
-        Response response = target("/usagepoint/21/transitions/6").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).put(Entity.json(info));
+        Response response = target("/usagepoint/UsagePoint/transitions/6").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).put(Entity.json(info));
         verify(usagePointLifeCycleService).performTransition(usagePoint, transition, APPLICATION, Collections.emptyMap());
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -164,8 +162,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
         assertThat(model.<Number>get("$.user.id")).isNotNull();
         assertThat(model.<String>get("$.status.id")).isEqualTo("COMPLETED");
         assertThat(model.<String>get("$.status.displayValue")).isEqualTo("Completed");
-        assertThat(model.<Number>get("$.usagePoint.id")).isEqualTo(21);
-        assertThat(model.<String>get("$.usagePoint.name")).isEqualTo("Usage point");
+        assertThat(model.<String>get("$.usagePoint.name")).isEqualTo("UsagePoint");
         assertThat(model.<Number>get("$.usagePoint.version")).isEqualTo(5);
         assertThat(model.<List>get("$.microChecks")).isNotNull();
     }
@@ -175,7 +172,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
         UsagePointStateChangeRequest changeRequest = mockUsagePointChangeRequest();
         when(usagePointLifeCycleService.getHistory(usagePoint)).thenReturn(Collections.singletonList(changeRequest));
 
-        Response response = target("/usagepoint/21/transitions/history").request().get();
+        Response response = target("/usagepoint/UsagePoint/transitions/history").request().get();
 
         verify(usagePointLifeCycleService).getHistory(usagePoint);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -185,12 +182,10 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
         assertThat(model.<Number>get("$.history[0].user.id")).isNotNull();
         assertThat(model.<String>get("$.history[0].status.id")).isEqualTo("COMPLETED");
         assertThat(model.<String>get("$.history[0].status.displayValue")).isEqualTo("Completed");
-        assertThat(model.<Number>get("$.history[0].usagePoint.id")).isEqualTo(21);
-        assertThat(model.<String>get("$.history[0].usagePoint.name")).isEqualTo("Usage point");
+        assertThat(model.<String>get("$.history[0].usagePoint.name")).isEqualTo("UsagePoint");
         assertThat(model.<Number>get("$.history[0].usagePoint.version")).isEqualTo(5);
         assertThat(model.<List>get("$.history[0].microChecks")).isNotNull();
     }
-
 
     @Test
     public void testCancelScheduledChangeRequest() throws Exception {
@@ -199,7 +194,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
         when(changeRequest.getStatusName()).thenReturn("Aborted");
         when(usagePointLifeCycleService.getHistory(usagePoint)).thenReturn(Collections.singletonList(changeRequest));
 
-        Response response = target("/usagepoint/21/transitions/history/1/cancel").request().put(Entity.json(null));
+        Response response = target("/usagepoint/UsagePoint/transitions/history/1").request().put(Entity.json(null));
 
         verify(changeRequest).cancel();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
