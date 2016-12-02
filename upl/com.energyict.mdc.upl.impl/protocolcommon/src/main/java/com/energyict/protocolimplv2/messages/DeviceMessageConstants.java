@@ -307,17 +307,23 @@ public class DeviceMessageConstants {
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.captureperiod";
     public static final String capturePeriodAttributeDefaultTranslation = "Capture period";
     public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerproducermode";
+    public static final String consumerProducerModeAttributeDefaultTranslation = "Consumer producer mode";
     public static final String loadProfileOptInOutModeAttributeName = "LoadProfileConfigurationMessage.optinout";
+    public static final String loadProfileOptInOutModeAttributeDefaultTranslation = "Activate/Deactivate capturing for load profile";
     public static final String monitorInstanceAttributeName = "LoadBalanceDeviceMessage.monitorInstance";
     public static final String monitorInstanceAttributeDefaultTranslation = "Monitor instance";
     public static final String setDisplayOnOffModeAttributeName = "LoadProfileConfigurationMessage.setDisplayOnOff";
+    public static final String setDisplayOnOffModeAttributeDefaultTranslation = "Set display ON or OFF";
 
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.configuserfile";
-    public static final String loadProfileAttributeName = "loadProfile";
+    public static final String loadProfileAttributeName = "load profile";
+    public static final String loadProfileAttributeDefaultTranslation = "LoadProfile";
     public static final String fromDateAttributeName = "from";
+    public static final String fromDateAttributeDefaultTranslation = "From";
     public static final String fromDateAttributeNameDefaultTranslation = "From";
     public static final String toDateAttributeName = "to";
+    public static final String toDateAttributeDefaultTranslation = "To";
     public static final String toDateAttributeNameDefaultTranslation = "To";
     public static final String powerQualityThresholdAttributeName = "ConfigurationChangeDeviceMessage.powerqualitythreshold";
     public static final String WriteExchangeStatus = "WriteWavecardParameters.writeexchangestatus";
