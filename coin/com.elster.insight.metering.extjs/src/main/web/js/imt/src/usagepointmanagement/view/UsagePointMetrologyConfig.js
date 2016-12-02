@@ -8,9 +8,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
     },
 
     router: null,
+    usagePoint: null,
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            metrologyConfiguration = me.usagePoint.get('metrologyConfiguration');
 
         me.items = [
             {
@@ -52,9 +54,10 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 fieldLabel: ' ',
                 hidden: true,
                 htmlEncode: false,
+                privileges: me.usagePoint.get('state').stage === 'PRE_OPERATIONAL',
                 renderer: function () {
                     var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({},{fromLandingPage: true});
-                    return Uni.I18n.translate('general.label.defineConfiguration', 'IMT', '<a href="{0}">Define configuration</a>',url);
+                    return Uni.I18n.translate('general.label.linkMetrologyConfiguration', 'IMT', '<a href="{0}">Link metrology configuration</a>', url);
                 },
                 listeners: {
                     beforerender: function() {
@@ -75,11 +78,13 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             {
                 itemId: 'up-metrology-config-meters-empty',
                 fieldLabel: ' ',
-                hidden: true,
+                privileges: me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
+                && !Ext.isEmpty(metrologyConfiguration)
+                && !Ext.isEmpty(metrologyConfiguration.meterRoles),
                 htmlEncode: false,
                 renderer: function () {
-                    var url = me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl({},{fromLandingPage: true});
-                    return Uni.I18n.translate('general.label.setMeters', 'IMT', '<a href="{0}">Set meters</a>',url);
+                    var url = me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl({}, {fromLandingPage: true});
+                    return Uni.I18n.translate('general.label.linkMeters', 'IMT', '<a href="{0}">Link meters</a>', url);
                 }
             }
         ];
@@ -239,10 +244,6 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                         fieldLabel: Uni.I18n.translate('general.label.meters', 'IMT', 'Meters'),
                         value: '-'
                     });
-                    var metrologyConfig = me.usagePoint.get('metrologyConfiguration');
-                    if (metrologyConfig && !Ext.isEmpty(metrologyConfig.meterRoles)) {
-                        me.down('#up-metrology-config-meters-empty').show();
-                    }
                 }
             }
         })
