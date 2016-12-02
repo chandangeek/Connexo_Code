@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,13 +26,20 @@ public class CommandRuleResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getCommandRules(@BeanParam JsonQueryParameters queryParameters) {
-        List<CommandRuleInfo> data =  createDummyData();
+        List<CommandRuleInfo> data =  createDummyData(19);
         return Response.ok(PagedInfoList.fromCompleteList("commandrules", data,queryParameters)).build();
     }
 
-    private List<CommandRuleInfo> createDummyData() {
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public CommandRuleInfo getCommandRule(@PathParam("id") long id) {
+        return createDummyData(Math.toIntExact(id) + 1).get(Math.toIntExact(id));
+    }
+
+    private List<CommandRuleInfo> createDummyData(int size) {
         List<CommandRuleInfo> infos = new ArrayList<>();
-        for(int i = 0; i < 19; i++) {
+        for(int i = 0; i < size; i++) {
             CommandRuleInfo info = new CommandRuleInfo();
             info.id = i;
             info.name = "Rule " + i;
