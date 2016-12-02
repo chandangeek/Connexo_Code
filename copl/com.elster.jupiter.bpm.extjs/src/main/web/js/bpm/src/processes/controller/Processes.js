@@ -73,7 +73,7 @@ Ext.define('Bpm.processes.controller.Processes', {
             'bpm-processes bpm-processes-grid': {
                 select: this.showPreview
             },
-            'bpm-process-action-menu menuitem': {
+            'bpm-process-action-menu': {
                 click: this.chooseAction
             },
             'bpm-edit-process #cbo-associated-to': {
