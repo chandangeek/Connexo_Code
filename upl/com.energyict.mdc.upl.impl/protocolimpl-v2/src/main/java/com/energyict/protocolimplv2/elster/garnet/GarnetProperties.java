@@ -187,7 +187,7 @@ public class GarnetProperties implements HasDynamicProperties {
     private PropertySpec timeZonePropertySpec() {
         return Services
                 .propertySpecService()
-                .timezoneSpec()
+                .timeZoneSpec()
                 .named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT)
                 .finish();
     }

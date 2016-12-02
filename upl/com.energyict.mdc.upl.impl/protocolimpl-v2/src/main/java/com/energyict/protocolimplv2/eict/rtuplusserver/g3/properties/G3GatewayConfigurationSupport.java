@@ -50,7 +50,7 @@ public class G3GatewayConfigurationSupport {
     private PropertySpec timeZonePropertySpec() {
         return Services
                     .propertySpecService()
-                    .timezoneSpec()
+                    .timeZoneSpec()
                     .named(TIMEZONE, TIMEZONE)
                     .describedAs("Description for " + TIMEZONE)
                     .finish();

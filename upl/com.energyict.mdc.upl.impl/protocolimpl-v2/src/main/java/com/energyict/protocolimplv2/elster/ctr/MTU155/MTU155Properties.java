@@ -84,7 +84,7 @@ public class MTU155Properties {
     private PropertySpec<TimeZone> timeZonePropertySpec() {
         return Services
                 .propertySpecService()
-                .timezoneSpec()
+                .timeZoneSpec()
                 .named(TIMEZONE_PROPERTY_NAME, TIMEZONE_PROPERTY_NAME)
                 .describedAs("Description for " + TIMEZONE_PROPERTY_NAME)
                 .markRequired()
