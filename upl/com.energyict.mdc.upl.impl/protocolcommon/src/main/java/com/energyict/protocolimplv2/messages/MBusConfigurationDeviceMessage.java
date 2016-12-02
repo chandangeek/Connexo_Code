@@ -54,10 +54,10 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecFactory {
         }
     };
 
-    private final int id;
+    private final long id;
     private final String defaultNameTranslation;
 
-    MBusConfigurationDeviceMessage(int id, String defaultNameTranslation) {
+    MBusConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }
