@@ -1,5 +1,6 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 
@@ -15,6 +16,6 @@ public class SetConnectedConnectionStateAction extends TranslatableAction {
 
     @Override
     protected void doExecute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties) {
-
+        usagePoint.setConnectionState(ConnectionState.CONNECTED);
     }
 }

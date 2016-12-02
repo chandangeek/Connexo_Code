@@ -3,8 +3,9 @@ package com.elster.jupiter.usagepoint.lifecycle.impl.checks;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum MicroCheckTranslationKeys implements TranslationKey {
-    METROLOGY_CONF_IS_DEFINED_NAME(Keys.NAME_PREFIX + MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), "All data valid"),
-    METROLOGY_CONF_IS_DEFINED_DESCRIPTION(Keys.DESCRIPTION_PREFIX + MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), "Check if there are no suspect readings on the outputs of a usage point."),;
+    METROLOGY_CONF_IS_DEFINED_NAME(Keys.NAME_PREFIX + MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), "Metrology configuration is defined"),
+    METROLOGY_CONF_IS_DEFINED_DESCRIPTION(Keys.DESCRIPTION_PREFIX + MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), "Check if a metrology configuration is defined on a usage point."),
+    METROLOGY_CONF_IS_DEFINED_MESSAGE("metrology.conf.is.defined.message", "Metrology configuration is not defined"),;
 
     private final String key;
     private final String defaultFormat;

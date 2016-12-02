@@ -6,10 +6,13 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeFail;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class UsagePointStateChangeFailImpl implements UsagePointStateChangeFail {
+
     public enum Fields {
+        FAIL_SOURCE("failSource"),
         CHANGE_REQUEST("changeRequest"),
         KEY("objectKey"),
         NAME("objectName"),
@@ -26,6 +29,8 @@ public class UsagePointStateChangeFailImpl implements UsagePointStateChangeFail 
         }
     }
 
+    @NotNull
+    private FailSource failSource;
     @IsPresent
     private Reference<UsagePointStateChangeRequestImpl> changeRequest = ValueReference.absent();
     @Size(max = Table.NAME_LENGTH)
@@ -35,12 +40,26 @@ public class UsagePointStateChangeFailImpl implements UsagePointStateChangeFail 
     @Size(max = Table.MAX_STRING_LENGTH)
     private String message;
 
-    public UsagePointStateChangeFailImpl init(UsagePointStateChangeRequestImpl request, String key, String name, String message) {
+    public UsagePointStateChangeFailImpl actionFail(UsagePointStateChangeRequestImpl request, String key, String name, String message) {
+        this.failSource = FailSource.ACTION;
+        return init(request, key, name, message);
+    }
+
+    public UsagePointStateChangeFailImpl checkFail(UsagePointStateChangeRequestImpl request, String key, String name, String message) {
+        this.failSource = FailSource.CHECK;
+        return init(request, key, name, message);
+    }
+
+    private UsagePointStateChangeFailImpl init(UsagePointStateChangeRequestImpl request, String key, String name, String message) {
         this.changeRequest.set(request);
         this.objectKey = key;
         this.objectName = name;
         this.message = message;
         return this;
+    }
+
+    public FailSource getFailSource() {
+        return this.failSource;
     }
 
     @Override
