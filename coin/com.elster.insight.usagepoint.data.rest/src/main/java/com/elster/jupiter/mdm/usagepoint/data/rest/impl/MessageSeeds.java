@@ -40,8 +40,8 @@ public enum MessageSeeds implements MessageSeed {
     AT_LEAST_ONE_SEARCH_CRITERION(39, "AtLeastOneCriterion" , "At least one search criterion has to be provided"),
     SEARCHABLE_PROPERTY_INVALID_VALUE(40, "SearchablePropertyInvalidValue", "Invalid value"),
     NO_SUCH_METROLOGY_PURPOSE(41, Keys.NO_SUCH_METROLOGY_PURPOSE, "No such metrology purpose with ID {0}"),
-    CANNOT_ACTIVATE_METROLOGY_PURPOSE(42, Keys.CANNOT_ACTIVATE_METROLOGY_PURPOSE, "Can't activate metrology purpose with ID {0}"),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS(43, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don't provide reading types specified in the metrology contract.");
+    CANNOT_ACTIVATE_METROLOGY_PURPOSE(42, Keys.CANNOT_ACTIVATE_METROLOGY_PURPOSE, "Can''t activate metrology purpose with ID {0}"),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS(43, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don''t provide reading types specified in the metrology contract.");
 
     private final int number;
     private final String key;
