@@ -8,7 +8,6 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePreviewForm', {
         layout: 'form',
         columnWidth: 0.5
     },
-    commandRuleRecord: undefined,
 
     initComponent: function() {
         var me = this;
@@ -35,7 +34,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.dayLimit', 'MDC', 'Day limit'),
                         name: 'dayLimit',
                         renderer: function(value) {
-                            return value===0 ? '-' : value;
+                            return value===0 ? Uni.I18n.translate('general.none', 'MDC', 'None') : value;
                         }
                     },
                     {
@@ -43,7 +42,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.weekLimit', 'MDC', 'Week limit'),
                         name: 'weekLimit',
                         renderer: function(value) {
-                            return value===0 ? '-' : value;
+                            return value===0 ? Uni.I18n.translate('general.none', 'MDC', 'None') : value;
                         }
                     },
                     {
@@ -51,7 +50,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.monthLimit', 'MDC', 'Month limit'),
                         name: 'monthLimit',
                         renderer: function(value) {
-                            return value===0 ? '-' : value;
+                            return value===0 ? Uni.I18n.translate('general.none', 'MDC', 'None') : value;
                         }
                     }
                 ]

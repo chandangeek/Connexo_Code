@@ -2234,7 +2234,30 @@ Ext.define('Mdc.controller.history.Setup', {
                         // TODO: "Dual control protected changes - command limitation rules > View" privilege
                         //privileges: Mdc.privileges.Communication.view,
                         controller: 'Mdc.controller.setup.CommandLimitationRules',
-                        action: 'showRulesView'
+                        action: 'showRulesView',
+                        items: {
+                            view: {
+                                title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
+                                route: '{ruleId}',
+                                //privileges: Mdc.privileges.Communication.view,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showCommandRuleOverview',
+                                callback: function (route) {
+                                    this.getApplication().on('loadCommandRule', function (record) {
+                                        route.setTitle(record.get('name'));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                }
+                            },
+                            changes: {
+                                title: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),
+                                route: 'changes',
+                                //privileges: Mdc.privileges.Communication.view,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showCommandRulePendingChanges'
+                            }
+                        }
                     }
                 }
             },

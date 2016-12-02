@@ -21,5 +21,14 @@ Ext.define('Mdc.model.CommandLimitRule',{
                 return text + icon;
             }
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '/api/crr/commandrules',
+        reader: {
+            type: 'json',
+            root: 'commandrules'
+        }
+    }
 });

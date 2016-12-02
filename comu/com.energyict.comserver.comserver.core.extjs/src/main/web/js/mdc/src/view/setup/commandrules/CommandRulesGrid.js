@@ -18,10 +18,10 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
                 sortable: false,
                 menuDisabled: true,
                 dataIndex: 'name',
-                flex: 1
-                //renderer: function (value, metaData, record) {
-                //    return '<a href="#/administration/communicationtasks/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
-                //}
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return '<a href="#/administration/commandrules/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
+                }
             },
             {
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
