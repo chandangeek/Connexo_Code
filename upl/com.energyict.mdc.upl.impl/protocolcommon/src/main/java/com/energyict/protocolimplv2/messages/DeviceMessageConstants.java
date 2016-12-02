@@ -421,9 +421,13 @@ public class DeviceMessageConstants {
     public static final String SetSmsCorrectionAttributeName = "SMSConfigurationDeviceMessage.setsmscorrection";
     public static final String SetSmsConfigAttributeName = "SMSConfigurationDeviceMessage.setsmsconfig";
     public static final String SetDLMSDeviceIDAttributeName = "DLMSConfigurationDeviceMessage.setdlmsdeviceid";
+    public static final String SetDLMSDeviceIDAttributeDefaultTranslation = "DLMS device ID";
     public static final String SetDLMSMeterIDAttributeName = "DLMSConfigurationDeviceMessage.setdlmsmeterid";
+    public static final String SetDLMSMeterIDAttributeDefaultTranslation = "DLMS meter ID";
     public static final String SetDLMSPasswordAttributeName = "DLMSConfigurationDeviceMessage.setdlmspassword";
+    public static final String SetDLMSPasswordAttributeDefaultTranslation = "DLMS password";
     public static final String SetDLMSIdleTimeAttributeName = "DLMSConfigurationDeviceMessage.setdlmsidletime";
+    public static final String SetDLMSIdleTimeAttributeDefaultTranslation = "DLMS idle time";
 
     public static final String SetDukePowerIDAttributeName = "ConfigurationChangeDeviceMessage.setdukepowerid";
     public static final String SetDukePowerPasswordAttributeName = "ConfigurationChangeDeviceMessage.setdukepowerpassword";

@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,65 +16,51 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecFactory {
 
-    SetDLMSDeviceID(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSDeviceIDAttributeName)),
-    SetDLMSMeterID(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSMeterIDAttributeName)),
-    SetDLMSPassword(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSPasswordAttributeName)),
-    SetDLMSIdleTime(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSIdleTimeAttributeName));
+    SetDLMSDeviceID(0, "Set DLMS device ID", DeviceMessageConstants.SetDLMSDeviceIDAttributeName, DeviceMessageConstants.SetDLMSDeviceIDAttributeDefaultTranslation),
+    SetDLMSMeterID(1, "Set DLMS meter ID", DeviceMessageConstants.SetDLMSMeterIDAttributeName, DeviceMessageConstants.SetDLMSMeterIDAttributeDefaultTranslation),
+    SetDLMSPassword(2, "Set DLMS password", DeviceMessageConstants.SetDLMSPasswordAttributeName, DeviceMessageConstants.SetDLMSPasswordAttributeDefaultTranslation),
+    SetDLMSIdleTime(3, "Set DLMS idle time", DeviceMessageConstants.SetDLMSIdleTimeAttributeName, DeviceMessageConstants.SetDLMSIdleTimeAttributeDefaultTranslation);
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.DLMS_CONFIGURATION;
+    private final long id;
+    private final String defaultNameTranslation;
+    private final String propertyName;
+    private final String propertyDefaultTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private DLMSConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    DLMSConfigurationDeviceMessage(int id, String defaultNameTranslation, String propertyName, String propertyDefaultTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
+        this.propertyName = propertyName;
+        this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return category;
-    }
-
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
-    }
-
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
     private String getNameResourceKey() {
         return DLMSConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    private List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        return Collections.singletonList(this.stringSpec(service, this.propertyName, this.propertyDefaultTranslation));
+    }
+
+    private PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.DLMS_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }
