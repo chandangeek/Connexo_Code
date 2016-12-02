@@ -777,10 +777,13 @@ public class DeviceMessageConstants {
     public static final String ZigBeeConfigurationDeviceTypeDefaultTranslation = "Device type";
 
     public static final String StandingChargeAttributeName = "PricingInformation.standingcharge";
+    public static final String StandingChargeAttributeDefaultTranslation = "Standing charge";
     public static final String PricingInformationUserFileAttributeName = "PricingInformation.userfile";
     public static final String PricingInformationUserFileAttributeDefaultTranslation = "User file";
     public static final String PricingInformationActivationDateAttributeName = "PricingInformation.activationdate";
+    public static final String PricingInformationActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String currency = "currency";
+    public static final String currencyDefaultTranslation = "Currency";
 
     public static final String alarmRegisterAttributeName = "AlarmConfigurationMessage.alarmRegister";
     public static final String alarmRegisterAttributeDefaultTranslation = "Alarm register";
