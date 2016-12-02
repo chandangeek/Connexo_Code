@@ -9,7 +9,7 @@ package com.energyict.protocolimplv2.messages;
  * Date: 19/03/13
  * Time: 8:45
  */
-public class DeviceMessageConstants {
+public final class DeviceMessageConstants {
 
     public static final String contactorActivationDateAttributeName = "ContactorDeviceMessage.activationdate";
     public static final String digitalOutputAttributeName = "ContactorDeviceMessage.digitaloutput";
@@ -476,18 +476,31 @@ public class DeviceMessageConstants {
     public static final String SetResetCycleAttributeDefaultTranslation = "Set reset cycle";
 
     public static final String SetISP1PhoneAttributeName = "PPPConfigurationDeviceMessage.setisp1phone";
+    public static final String SetISP1PhoneAttributeDefaultTranslation = "ISP1 phone";
     public static final String SetISP1UsernameAttributeName = "PPPConfigurationDeviceMessage.setisp1username";
+    public static final String SetISP1UsernameAttributeDefaultTranslation = "ISP1 username";
     public static final String SetISP1PasswordAttributeName = "PPPConfigurationDeviceMessage.setisp1password";
+    public static final String SetISP1PasswordAttributeDefaultTranslation = "ISP1 password";
     public static final String SetISP1TriesAttributeName = "PPPConfigurationDeviceMessage.setisp1tries";
+    public static final String SetISP1TriesAttributeDefaultTranslation = "ISP1 tries";
     public static final String SetISP2PhoneAttributeName = "PPPConfigurationDeviceMessage.setisp2phone";
+    public static final String SetISP2PhoneAttributeDefaultTranslation = "ISP2 phone";
     public static final String SetISP2UsernameAttributeName = "PPPConfigurationDeviceMessage.setisp2username";
+    public static final String SetISP2UsernameAttributeDefaultTranslation = "ISP2 username";
     public static final String SetISP2PasswordAttributeName = "PPPConfigurationDeviceMessage.setisp2password";
+    public static final String SetISP2PasswordAttributeDefaultTranslation = "ISP2 password";
     public static final String SetISP2TriesAttributeName = "PPPConfigurationDeviceMessage.setisp2tries";
+    public static final String SetISP2TriesAttributeDefaultTranslation = "ISP2 tries";
     public static final String SetPPPIdleTimeoutAttributeName = "PPPConfigurationDeviceMessage.setpppidletimeout";
+    public static final String SetPPPIdleTimeoutAttributeDefaultTranslation = "PPP idle timeout";
     public static final String SetPPPIdleTime = "PPPConfigurationDeviceMessage.setPPPIdleTime";
+    public static final String SetPPPIdleDefaultTranslation = "PPP idle time";
     public static final String PPPDaemonResetThreshold = "PPPConfigurationDeviceMessage.pppDaemonResetThreshold";
+    public static final String PPPDaemonResetThresDefaultTranslation = "PPP daemon rest threshold";
     public static final String SetPPPRetryIntervalAttributeName = "PPPConfigurationDeviceMessage.setpppretryinterval";
+    public static final String SetPPPRetryIntervalAttributeDefaultTranslation = "PPP retry interval";
     public static final String SetPPPOptionsAttributeName = "PPPConfigurationDeviceMessage.setpppoptions";
+    public static final String SetPPPOptionsAttributeDefaultTranslation = "PPP options";
 
     public static final String SetFunctionAttributeName = "ChannelConfigurationDeviceMessage.setfunction";
     public static final String SetParametersAttributeName = "ChannelConfigurationDeviceMessage.setparameters";
@@ -988,4 +1001,8 @@ public class DeviceMessageConstants {
     public static final String SET_MAX_LOGIN_ATTEMPTS = "ConfigurationChangeDeviceMessage.SET_MAX_LOGIN_ATTEMPTS";
     public static final String SET_LOCKOUT_DURATION = "ConfigurationChangeDeviceMessage.SET_LOCKOUT_DURATION";
     public static final String executionMinutesForEachHour = "ConfigurationChangeDeviceMessage.executionMinutesForEachHour";
+
+    // Hide constructor for class with only public constants
+    private DeviceMessageConstants() {}
+
 }
