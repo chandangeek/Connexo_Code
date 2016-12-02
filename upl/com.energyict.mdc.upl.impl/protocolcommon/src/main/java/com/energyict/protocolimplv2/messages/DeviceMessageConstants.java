@@ -715,17 +715,29 @@ public class DeviceMessageConstants {
     public static final String INITIATOR_ELECTRICAL_PHASEAttributeName = "PLCConfigurationDeviceMessage.initiator_electrical_phase";
 
     public static final String ZigBeeConfigurationSASPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.panid";
+    public static final String ZigBeeConfigurationSASPanIdAttributeDefaultTranslation = "PAN ID";
     public static final String ZigBeeConfigurationForceRemovalAttributeName = "ZigBeeConfigurationDeviceMessage.forceremoval";
+    public static final String ZigBeeConfigurationForceRemovalAttributeDefaultTranslation = "Force removal";
     public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeelinkkey";
+    public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation = "ZigBee link key";
     public static final String ZigBeeConfigurationActivationDateAttributeName = "ZigBeeConfigurationDeviceMessage.activationdate";
+    public static final String ZigBeeConfigurationActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String ZigBeeConfigurationZigBeeAddressAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeeieeeaddress";
+    public static final String ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation = "ZigBee IEEE address";
     public static final String ZigBeeConfigurationMirrorAddressAttributeName = "ZigBeeConfigurationDeviceMessage.mirrorieeeaddress";
+    public static final String ZigBeeConfigurationMirrorAddressAttributeDefaultTranslation = "Mirror IEEE address";
     public static final String ZigBeeConfigurationFirmwareUpdateUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.userfile";
+    public static final String ZigBeeConfigurationFirmwareUpdateUserFileAttributeDefaultTranslation = "User file";
     public static final String ZigBeeConfigurationSASInsecureJoinAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.insecurejoin";
+    public static final String ZigBeeConfigurationSASInsecureJoinAttributeDefaultTranslation = "Insecure join";
     public static final String ZigBeeConfigurationSASExtendedPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.extendedpanid";
+    public static final String ZigBeeConfigurationSASExtendedPanIdAttributeDefaultTranslation = "Extended PAN ID";
     public static final String ZigBeeConfigurationSASPanChannelMaskAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.panchannelmask";
+    public static final String ZigBeeConfigurationSASPanChannelMaskAttributeDefaultTranslation = "PAN channel mask";
     public static final String ZigBeeConfigurationHANRestoreUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.hanrestoreuserfile";
+    public static final String ZigBeeConfigurationHANRestoreUserFileAttributeDefaultTranslation = "HAN restore user file";
     public static final String ZigBeeConfigurationDeviceType = "ZigBeeConfigurationDeviceMessage.devicetype";
+    public static final String ZigBeeConfigurationDeviceTypeDefaultTranslation = "Device type";
 
     public static final String StandingChargeAttributeName = "PricingInformation.standingcharge";
     public static final String PricingInformationUserFileAttributeName = "PricingInformation.userfile";
