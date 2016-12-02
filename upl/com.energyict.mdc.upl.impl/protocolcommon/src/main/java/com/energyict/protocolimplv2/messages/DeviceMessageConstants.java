@@ -614,15 +614,25 @@ public class DeviceMessageConstants {
     public static final String LongPowerFailureThresholdAttributeName = "PowerConfigurationDeviceMessage.longpowerfailurethreshold";
 
     public static final String SetMmEveryAttributeName = "ModbusConfigurationDeviceMessage.setmmevery";
+    public static final String SetMmEveryAttributeDefaultTranslation = "Mm every";
     public static final String SetMmTimeoutAttributeName = "ModbusConfigurationDeviceMessage.setmmtimeout";
+    public static final String SetMmTimeoutAttributeDefaultTranslation = "Mm timeout";
     public static final String SetMmInstantAttributeName = "ModbusConfigurationDeviceMessage.setmminstant";
+    public static final String SetMmInstantAttributeDefaultTranslation = "Mm instant";
     public static final String SetMmOverflowAttributeName = "ModbusConfigurationDeviceMessage.setmmoverflow";
+    public static final String SetMmOverflowAttributeDefaultTranslation = "Mm overflow";
     public static final String SetMmConfigAttributeName = "ModbusConfigurationDeviceMessage.setmmconfig";
+    public static final String SetMmConfigAttributeDefaultTranslation = "Mm configuration";
     public static final String RadixFormatAttributeName = "ModbusConfigurationDeviceMessage.radixformat";
+    public static final String RadixFormatAttributeDefaultTranslation = "Radix format";
     public static final String RegisterAddressAttributeName = "ModbusConfigurationDeviceMessage.registeraddress";
+    public static final String RegisterAddressAttributeDefaultTranslation = "Register address";
     public static final String RegisterValueAttributeName = "ModbusConfigurationDeviceMessage.RegisterValue(s)";
+    public static final String RegisterValueAttributeDefaultTranslation = "Register value(s)";
     public static final String AddressAttributeName = "ModbusConfigurationDeviceMessage.address";
+    public static final String AddressAttributeDefaultTranslation = "Address";
     public static final String ValueAttributeName = "ModbusConfigurationDeviceMessage.Value(s)";
+    public static final String ValueAttributeDefaultTranslation = "Value(s)";
 
 
     public static final String SetMBusEveryAttributeName = "MBusConfigurationDeviceMessage.setmbusevery";
