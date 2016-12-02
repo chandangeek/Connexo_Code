@@ -1,5 +1,6 @@
 package com.energyict.protocol;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 import com.energyict.obis.ObisCode;
@@ -22,6 +23,11 @@ public class LogBookReader {
     private final Date lastLogBook;
 
     /**
+     * The Identifier of the holding Device
+     */
+    private final DeviceIdentifier deviceIdentifier;
+
+    /**
      * Holds the serialNumber of the meter for this LogBook
      */
     private final String meterSerialNumber;
@@ -37,7 +43,7 @@ public class LogBookReader {
      * @param logBookIdentifier The LogBookIdentifier, which unique defines the LogBook to read.
      * @param meterSerialNumber The serial number of the meter of the logbook
      */
-    public LogBookReader(ObisCode logBookObisCode, Date lastLogBook, LogBookIdentifier logBookIdentifier, String meterSerialNumber) {
+    public LogBookReader(ObisCode logBookObisCode, Date lastLogBook, LogBookIdentifier logBookIdentifier, DeviceIdentifier deviceIdentifier, String meterSerialNumber) {
         if(lastLogBook == null){
             this.lastLogBook = new Date(new Date().getTime() - (86400L * 30L * 1000L));    //endTime - 1 month
         } else {
@@ -45,6 +51,7 @@ public class LogBookReader {
         }
         this.logBookObisCode = logBookObisCode;
         this.logBookIdentifier = logBookIdentifier;
+        this.deviceIdentifier = deviceIdentifier;
         this.meterSerialNumber = meterSerialNumber;
     }
 
@@ -55,6 +62,15 @@ public class LogBookReader {
      */
     public ObisCode getLogBookObisCode() {
         return logBookObisCode;
+    }
+
+    /**
+     * Getter for the deviceIdentifier
+     *
+     * @return the deviceIdentifier
+     */
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     /**
@@ -84,4 +100,8 @@ public class LogBookReader {
         return logBookIdentifier;
     }
 
+    @Override
+    public String toString() {
+        return LogBookReader.class.getSimpleName() + ("(ObisCode:" + this.getLogBookObisCode() + ", LogBookIdentifier:" + this.getLogBookIdentifier().toString() + ", DeviceIdentifier:" + this.getDeviceIdentifier().toString() + ")");
+    }
 }

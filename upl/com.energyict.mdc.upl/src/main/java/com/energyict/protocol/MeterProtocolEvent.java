@@ -36,6 +36,7 @@ public class MeterProtocolEvent implements Serializable, Comparable<MeterEvent> 
     private final String message;
     /**
      * Identifies the <i>LogBook</i> ID of the device (CIM logbook id)
+     * <i>(don't confuse with our own LogBook.getId())</i>
      */
     private final int eventLogId;
     /**
@@ -64,7 +65,7 @@ public class MeterProtocolEvent implements Serializable, Comparable<MeterEvent> 
      * @param protocolCode    the event code we received from the device
      * @param eventType       the CIM {@link EndDeviceEventType}
      * @param message         the text that may clarify the event
-     * @param meterEventLogId identifies the <i>LogBook</i> ID of the device (CIM logbook id)
+     * @param meterEventLogId identifies the <i>LogBook</i> ID of the device (CIM logbook id) <i>(don't confuse with our own LogBook.getId())</i>
      * @param deviceEventId   identifies the (sequential) ID of the event in the particular logbook of the Device.
      */
     public MeterProtocolEvent(Date time, int eiCode, int protocolCode, EndDeviceEventType eventType, String message, int meterEventLogId, int deviceEventId) {

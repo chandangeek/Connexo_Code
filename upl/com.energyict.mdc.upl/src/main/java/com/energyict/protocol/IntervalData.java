@@ -13,9 +13,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 /**
  * Represents a single interval record.
@@ -33,6 +35,106 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     private int protocolStatus = 0;
     private int tariffCode = 0;
     private List<IntervalValue> intervalValues = new ArrayList<>();
+
+    /**
+     * A list of the CIM codes of the reading qualities that apply to the interval values.
+     * E.g. "1.2.1001" is power down.
+     */
+    private Set<String> readingQualityTypes = new HashSet<>();
+
+    public IntervalData() {
+    }
+
+    /**
+     * @param endTime end of interval in UTC
+     */
+    public IntervalData(Date endTime) {
+        this.endTime = endTime;
+    }
+
+    /**
+     * @param endTime  end of interval in UTC
+     * @param eiStatus generic interval status
+     */
+    public IntervalData(Date endTime, int eiStatus) {
+        this(endTime);
+        this.eiStatus = eiStatus;
+        this.generateReadingQualities(eiStatus);
+    }
+
+    /**
+     * @param endTime        end of interval in UTC
+     * @param eiStatus       generic interval status
+     * @param protocolStatus protocol specific interval status
+     */
+    public IntervalData(Date endTime, int eiStatus, int protocolStatus) {
+        this(endTime, eiStatus);
+        this.protocolStatus = protocolStatus;
+    }
+
+    /**
+     * @param endTime        end of interval in UTC
+     * @param eiStatus       generic interval status
+     * @param protocolStatus protocol specific interval status
+     * @param tariffCode     tariff code
+     */
+    public IntervalData(Date endTime, int eiStatus, int protocolStatus, int tariffCode) {
+        this(endTime, eiStatus, protocolStatus);
+        this.tariffCode = tariffCode;
+    }
+
+    /**
+     * @param endTime        end of interval in UTC
+     * @param eiStatus       generic interval status
+     * @param protocolStatus protocol specific interval status
+     * @param tariffCode     tariff code
+     * @param intervalValues List of IntervalValue
+     */
+    public IntervalData(Date endTime, int eiStatus, int protocolStatus, int tariffCode, List<IntervalValue> intervalValues) {
+        this(endTime, eiStatus, protocolStatus, tariffCode);
+        this.intervalValues = intervalValues;
+    }
+
+    /**
+     * @param endTime             end of interval in UTC
+     * @param readingQualityTypes the reading qualities that apply to these interval values
+     */
+    public IntervalData(Date endTime, Set<String> readingQualityTypes) {
+        this(endTime);
+        this.readingQualityTypes = readingQualityTypes;
+    }
+
+    /**
+     * @param endTime             end of interval in UTC
+     * @param readingQualityTypes the reading qualities that apply to these interval values
+     * @param protocolStatus      protocol specific interval status
+     */
+    public IntervalData(Date endTime, Set<String> readingQualityTypes, int protocolStatus) {
+        this(endTime, readingQualityTypes);
+        this.protocolStatus = protocolStatus;
+    }
+
+    /**
+     * @param endTime             end of interval in UTC
+     * @param readingQualityTypes the reading qualities that apply to these interval values
+     * @param protocolStatus      protocol specific interval status
+     * @param tariffCode          tariff code
+     */
+    public IntervalData(Date endTime, Set<String> readingQualityTypes, int protocolStatus, int tariffCode) {
+        this(endTime, readingQualityTypes, protocolStatus);
+        this.tariffCode = tariffCode;
+    }
+
+    /**
+     * @param endTime             end of interval in UTC
+     * @param readingQualityTypes the reading qualities that apply to these interval values
+     * @param protocolStatus      protocol specific interval status
+     * @param tariffCode          tariff code
+     */
+    public IntervalData(Date endTime, Set<String> readingQualityTypes, int protocolStatus, int tariffCode, List<IntervalValue> intervalValues) {
+        this(endTime, readingQualityTypes, protocolStatus, tariffCode);
+        this.intervalValues = intervalValues;
+    }
 
     /**
      * Return a list of String, one for each IntervalStateBit in the IntervalData
@@ -105,72 +207,33 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
         return result;
     }
 
-
-    public IntervalData() {
-    }
-
     /**
-     * <p></p>
-     *
-     * @param endTime end of interval in UTC
+     * Generate the proper reading quality CIM codes based on the given eiStatus.
      */
-    public IntervalData(Date endTime) {
-        this.endTime = endTime;
+    private void generateReadingQualities(int eiStatus) {
+        readingQualityTypes.addAll(IntervalFlagMapper.map(eiStatus));
     }
 
     /**
-     * <p></p>
-     *
-     * @param endTime  end of interval in UTC
-     * @param eiStatus generic interval status
+     * A list of the CIM codes of the reading qualities that apply to the interval values.
      */
-    public IntervalData(Date endTime, int eiStatus) {
-        this(endTime);
-        this.eiStatus = eiStatus;
+    public Set<String> getReadingQualityTypes() {
+        return readingQualityTypes;
+    }
+
+    public void setReadingQualityTypes(Set<String> readingQualityTypes) {
+        this.readingQualityTypes = readingQualityTypes;
+    }
+
+    public void addReadingQualityType(String readingQualityType) {
+        getReadingQualityTypes().add(readingQualityType);
+    }
+
+    public void addReadingQualityTypes(Set<String> readingQualityTypes) {
+        getReadingQualityTypes().addAll(readingQualityTypes);
     }
 
     /**
-     * <p></p>
-     *
-     * @param endTime        end of interval in UTC
-     * @param eiStatus       generic interval status
-     * @param protocolStatus protocol specific interval status
-     */
-    public IntervalData(Date endTime, int eiStatus, int protocolStatus) {
-        this(endTime, eiStatus);
-        this.protocolStatus = protocolStatus;
-    }
-
-    /**
-     * <p></p>
-     *
-     * @param endTime        end of interval in UTC
-     * @param eiStatus       generic interval status
-     * @param protocolStatus protocol specific interval status
-     * @param tariffCode     tariff code
-     */
-    public IntervalData(Date endTime, int eiStatus, int protocolStatus, int tariffCode) {
-        this(endTime, eiStatus, protocolStatus);
-        this.tariffCode = tariffCode;
-    }
-
-    /**
-     * <p></p>
-     *
-     * @param endTime        end of interval in UTC
-     * @param eiStatus       generic interval status
-     * @param protocolStatus protocol specific interval status
-     * @param tariffCode     tariff code
-     * @param intervalValues List of IntervalValue
-     */
-    public IntervalData(Date endTime, int eiStatus, int protocolStatus, int tariffCode, List<IntervalValue> intervalValues) {
-        this(endTime, eiStatus, protocolStatus, tariffCode);
-        this.intervalValues = intervalValues;
-    }
-
-    /**
-     * <p></p>
-     *
      * @return time at the end of interval
      */
     @XmlAttribute
@@ -179,8 +242,6 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * <p></p>
-     *
      * @return the generic interval status
      */
     @XmlAttribute
@@ -189,8 +250,17 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * <p></p>
+     * Setter for EIStatus IntervalStateBit flags for the IntervalData
      *
+     * @param eiStatus int IntervalStateBit flags
+     */
+    public void setEiStatus(int eiStatus) {
+        this.eiStatus = eiStatus;
+        readingQualityTypes.clear();
+        generateReadingQualities(eiStatus);
+    }
+
+    /**
      * @return the protocol specific interval status
      */
     @XmlAttribute
@@ -199,8 +269,15 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * <p></p>
+     * Setter for ProtocolStatus (manufacturer's meter code) IntervalStateBit flags for the IntervalData. This is for informational purposes only and is not used in the businesslogic of EIServer.
      *
+     * @param protocolStatus int
+     */
+    public void setProtocolStatus(int protocolStatus) {
+        this.protocolStatus = protocolStatus;
+    }
+
+    /**
      * @param index the logical channel index (zero based)
      * @return the protocolStatus for the given logical channel
      */
@@ -209,8 +286,6 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * <p></p>
-     *
      * @param index the logical channel index (zero based)
      * @return the eict channelStatus for the given logical channel OR-ed with the global EiStatus
      */
@@ -233,25 +308,6 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
             }
         }
         return stringBuilder.toString();
-    }
-
-
-    /**
-     * Setter for EIStatus IntervalStateBit flags for the IntervalData
-     *
-     * @param eiStatus int IntervalStateBit flags
-     */
-    public void setEiStatus(int eiStatus) {
-        this.eiStatus = eiStatus;
-    }
-
-    /**
-     * Setter for ProtocolStatus (manufacturer's meter code) IntervalStateBit flags for the IntervalData. This is for informational purposes only and is not used in the businesslogic of EIServer.
-     *
-     * @param protocolStatus int
-     */
-    public void setProtocolStatus(int protocolStatus) {
-        this.protocolStatus = protocolStatus;
     }
 
     // KV 25082004
@@ -304,19 +360,12 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * <p></p>
-     *
      * @return the tariff code
      */
     @XmlAttribute
     public int getTariffCode() {
         return tariffCode;
     }
-
-
-    /* <p></p>
-    * @param tariffCode the tariff code
-    */
 
     /**
      * Setter for the tariffCode
@@ -371,16 +420,14 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      *
      * @param numbers collection of Number objects
      */
-    public void addValues(Collection numbers) {
-        for (Object number : numbers) {
-            intervalValues.add(new IntervalValue((Number) number));
+    public void addValues(Collection<Number> numbers) {
+        for (Number number : numbers) {
+            intervalValues.add(new IntervalValue(number));
         }
     }
 
 
     /**
-     * <p></p>
-     *
      * @return the number of values for the interval
      */
     public int getValueCount() {
@@ -388,8 +435,6 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * <p></p>
-     *
      * @param index the logical channel index (zero based)
      * @return the value for the given index
      */
@@ -398,8 +443,6 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * <p></p>
-     *
      * @return an iterator over the values for the interval
      */
     public Iterator<IntervalValue> getValuesIterator() {
@@ -417,15 +460,6 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * Returns a ListIterator for the IntervalValue objects List
-     *
-     * @return List Iterator
-     */
-    public ListIterator<IntervalValue> getIntervalValueIterator() {
-        return intervalValues.listIterator();
-    }
-
-    /**
      * Setter for the IntervalValue objects List
      *
      * @param intervalValues List
@@ -435,20 +469,30 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * adds the specified status to the current interval status
+     * Returns a ListIterator for the IntervalValue objects List
      *
-     * @param status one of
-     *               <UL>
-     *               <LI>OK</LI>
-     *               <LI>POWERDOWN</LI>
-     *               <LI>POWERUP</LI>
-     *               <LI>SHORTLONG</LI>
-     *               <LI>WATCHDOG</LI>
-     *               <LI>CONFIGURATION</LI>
-     *               </UL>
+     * @return List Iterator
      */
-    public void addStatus(int status) {
-        eiStatus |= status;
+    public ListIterator<IntervalValue> getIntervalValueIterator() {
+        return intervalValues.listIterator();
+    }
+
+    /**
+     * adds the specified eiStatus to the current interval status
+     *
+     * @param eiStatus one of
+     *                 <UL>
+     *                 <LI>OK</LI>
+     *                 <LI>POWERDOWN</LI>
+     *                 <LI>POWERUP</LI>
+     *                 <LI>SHORTLONG</LI>
+     *                 <LI>WATCHDOG</LI>
+     *                 <LI>CONFIGURATION</LI>
+     *                 </UL>
+     */
+    public void addStatus(int eiStatus) {
+        this.eiStatus |= eiStatus;
+        this.generateReadingQualities(eiStatus);
     }
 
     /**
@@ -458,6 +502,7 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      */
     public void addEiStatus(int eiStatus) {
         this.eiStatus |= eiStatus;
+        this.generateReadingQualities(eiStatus);
     }
 
     /**
@@ -497,9 +542,8 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * updates the interval status based on the information in the event.
-     *
-     * @param event <br>
+     * Updates the interval eiStatus based on the information in the event.
+     * Note that this also generates the proper readingQualityTypes for the new eiStatus.
      */
     protected void doApply(MeterEvent event) {
         switch (event.getEiCode()) {
@@ -557,52 +601,57 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * generate a list of events based on the interval status
+     * Generate a list of events based on the reading qualities.
+     * This can be used by protocol for meters that don't have a logbook. (usually older meters)
      *
      * @return a list of MeterEvents
      */
     public List<MeterEvent> generateEvents() {
         List<MeterEvent> result = new ArrayList<>();
-        if (eiStatus == IntervalData.OK) {
+
+        if (getReadingQualityTypes().isEmpty()) {
             return result;
         }
         // report event as 30 seconds before end of interval
         Date eventTime = new Date(endTime.getTime() - THIRTY_SECONDS);
-        if ((eiStatus & IntervalData.POWERDOWN) != 0) {
+
+        if (hasReadingQuality(ProtocolReadingQualities.POWERDOWN)) {
             result.add(new MeterEvent(eventTime, MeterEvent.POWERDOWN));
         }
-        if ((eiStatus & IntervalData.POWERUP) != 0) {
+        if (hasReadingQuality(ProtocolReadingQualities.POWERUP)) {
             result.add(new MeterEvent(eventTime, MeterEvent.POWERUP));
         }
-        if ((eiStatus & IntervalData.SHORTLONG) != 0) {
+        if (hasReadingQuality(ProtocolReadingQualities.SHORTLONG)) {
             result.add(new MeterEvent(eventTime, MeterEvent.SETCLOCK));
         }
-        if ((eiStatus & IntervalData.WATCHDOGRESET) != 0) {
+        if (hasReadingQuality(ProtocolReadingQualities.WATCHDOGRESET)) {
             result.add(new MeterEvent(eventTime, MeterEvent.WATCHDOGRESET));
         }
-        if ((eiStatus & IntervalData.CONFIGURATIONCHANGE) != 0) {
+        if (hasReadingQuality(ProtocolReadingQualities.CONFIGURATIONCHANGE)) {
             result.add(new MeterEvent(eventTime, MeterEvent.CONFIGURATIONCHANGE));
         }
         // KV 10102003
-        if ((eiStatus & IntervalData.OTHER) != 0) {
+        if (hasReadingQuality(ProtocolReadingQualities.OTHER)) {
             result.add(new MeterEvent(eventTime, MeterEvent.OTHER));
         }
         // KV 12082005
-        if ((eiStatus & IntervalData.PHASEFAILURE) != 0) {
+        if (hasReadingQuality(ProtocolReadingQualities.PHASEFAILURE)) {
             result.add(new MeterEvent(eventTime, MeterEvent.PHASE_FAILURE));
         }
-        if ((eiStatus & IntervalData.REVERSERUN) != 0) {
+        if (hasReadingQuality(ProtocolReadingQualities.REVERSERUN)) {
             result.add(new MeterEvent(eventTime, MeterEvent.REVERSE_RUN));
         }
-
         // KV 29082006
-        if ((eiStatus & IntervalData.DEVICE_ERROR) != 0) {
+        if (hasReadingQuality(ProtocolReadingQualities.DEVICE_ERROR)) {
             result.add(new MeterEvent(eventTime, MeterEvent.HARDWARE_ERROR));
         }
 
         return result;
     }
 
+    private boolean hasReadingQuality(ProtocolReadingQualities protocolReadingQualities) {
+        return getReadingQualityTypes().contains(protocolReadingQualities.getCimCode());
+    }
 
     /**
      * Compare another IntervalData to this IntervalData
@@ -624,9 +673,8 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      * Used by the Serialization interface
      *
      * @param input Object
-     * @throws java.io.IOException thrown when something goes wrong
-     * @throws java.lang.ClassNotFoundException
-     *                             ClassNotFoundException
+     * @throws java.io.IOException              thrown when something goes wrong
+     * @throws java.lang.ClassNotFoundException ClassNotFoundException
      */
     public void readExternal(ObjectInput input) throws IOException, java.lang.ClassNotFoundException {
         endTime = new Date(input.readLong());
@@ -634,10 +682,21 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
         protocolStatus = input.readInt();
         tariffCode = input.readInt();
 
+        int numberOfReadingQualityTypes = input.readInt();
+        for (int index = 0; index < numberOfReadingQualityTypes; index++) {
+            addReadingQualityType(input.readLine());
+        }
+
         int size = input.readInt();
         intervalValues = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             IntervalValue intervalValue = new IntervalValue(new BigDecimal(input.readLine()), input.readInt(), input.readInt());
+
+            numberOfReadingQualityTypes = input.readInt();
+            for (int index = 0; index < numberOfReadingQualityTypes; index++) {
+                intervalValue.addReadingQualityType(input.readLine());
+            }
+
             intervalValues.add(intervalValue);
         }
     }
@@ -654,11 +713,21 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
         output.writeInt(protocolStatus);
         output.writeInt(tariffCode);
 
+        output.writeInt(getReadingQualityTypes().size());
+        for (String readingQualityType : getReadingQualityTypes()) {
+            output.writeBytes(readingQualityType);
+        }
+
         output.writeInt(intervalValues.size());
         for (IntervalValue intervalValue : intervalValues) {
             output.writeBytes(intervalValue.getNumber().toString() + "\n");
             output.writeInt(intervalValue.getProtocolStatus());
             output.writeInt(intervalValue.getEiStatus());
+
+            output.writeInt(intervalValue.getReadingQualityTypes().size());
+            for (String readingQualityType : intervalValue.getReadingQualityTypes()) {
+                output.writeBytes(readingQualityType);
+            }
         }
     }
 
@@ -668,11 +737,23 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      * @return String
      */
     public String toString() {
+
+        StringBuilder readingQualitiesDescription = new StringBuilder();
+        for (String readingQualityType : getReadingQualityTypes()) {
+            if (readingQualitiesDescription.length() > 0) {
+                readingQualitiesDescription.append(", ");
+            }
+            readingQualitiesDescription.append(readingQualityType);
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.
                 append(getEndTime()).
                 append(" ").
                 append(getProtocolStatus()).
+                append(" ").
+                append("ReadingQualities: ").
+                append(readingQualitiesDescription.toString()).
                 append(" ").
                 append(getEiStatus()).
                 append(" ")
@@ -682,5 +763,4 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
         }
         return stringBuilder.toString();
     }
-
 }

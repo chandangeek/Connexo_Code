@@ -1,6 +1,6 @@
 package com.energyict.mdc.upl.meterdata;
 
-import com.energyict.mdc.upl.tasks.ComTask;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.upl.tasks.Issue;
 
 import java.util.List;
@@ -38,12 +38,12 @@ public interface CollectedData {
 
     /**
      * Tests if this type of CollectedData is configured
-     * to be collected by  the specified {@link ComTask}.
+     * to be collected by the specified {@link DataCollectionConfiguration}.
      *
-     * @param comTask The ComTask
-     * @return A flag that indicates if the ComTask is configured
-     *         to collect this type of CollectedData
+     * @param comTask The DataCollectionConfiguration
+     * @return A flag that indicates if the DataCollectionConfiguration is configured
+     * to collect this type of CollectedData
      */
-    boolean isConfiguredIn(ComTask comTask);
+    boolean isConfiguredIn(DataCollectionConfiguration comTask);
 
 }

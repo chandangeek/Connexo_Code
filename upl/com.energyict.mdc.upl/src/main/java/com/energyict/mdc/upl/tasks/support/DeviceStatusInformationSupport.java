@@ -1,10 +1,11 @@
 package com.energyict.mdc.upl.tasks.support;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Defines proper functionality to collect Status information of a Device.
  */
-public interface DeviceStatusInformationSupport extends DeviceRegisterSupport, DeviceLogBookSupport {
-
-    // The status information will be collected from <code>Registers</code> and <code>MeterEvents</code>
+@ProviderType
+public interface DeviceStatusInformationSupport extends DeviceFirmwareSupport, DeviceBreakerStatusSupport, CalendarSupport {
 
 }

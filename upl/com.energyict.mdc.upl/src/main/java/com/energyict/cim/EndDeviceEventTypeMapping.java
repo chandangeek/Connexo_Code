@@ -4,6 +4,8 @@
 
 package com.energyict.cim;
 
+import java.util.Objects;
+
 /**
  * Enum containing the mapping between the meter protocol event code and the corresponding CIM {@link EndDeviceEventType}.
  *
@@ -105,7 +107,7 @@ public enum EndDeviceEventTypeMapping {
 
     public static int getEISCodeCorrespondingToEventType(EndDeviceEventType endDeviceEventType) {
         for (EndDeviceEventTypeMapping each : EndDeviceEventTypeMapping.values()) {
-            if (each.getEventType().toString() == endDeviceEventType.toString()) {
+            if (Objects.equals(each.getEventType().toString(), endDeviceEventType.toString())) {
                 return each.getEisCode();
             }
         }
