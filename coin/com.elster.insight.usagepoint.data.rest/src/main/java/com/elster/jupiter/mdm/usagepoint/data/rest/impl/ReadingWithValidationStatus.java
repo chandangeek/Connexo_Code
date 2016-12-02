@@ -1,8 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 
@@ -17,7 +19,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
-public class IntervalReadingWithValidationStatus {
+public class ReadingWithValidationStatus<T extends BaseReadingRecord> {
 
     private static final TemporalAmount MONTH_INTERVAL_LENGTH = Period.ofMonths(1);
     private static final TemporalAmount YEAR_INTERVAL_LENGTH = Period.ofYears(1);
@@ -27,33 +29,38 @@ public class IntervalReadingWithValidationStatus {
     private ZonedDateTime readingTimeStamp;
     private TemporalAmount intervalLength;
 
-    private Optional<IntervalReadingRecord> intervalReadingRecord = Optional.empty();
-    private Optional<IntervalReadingRecord> calculatedIntervalReadingRecord = Optional.empty();
-    private Optional<IntervalReadingRecord> persistedIntervalReadingRecord = Optional.empty();
+    private Optional<T> readingRecord = Optional.empty();
+    private Optional<T> calculatedReadingRecord = Optional.empty();
+    private Optional<T> persistedReadingRecord = Optional.empty();
     private Optional<DataValidationStatus> validationStatus = Optional.empty();
 
-    private IntervalReadingWithValidationStatus(Channel channel, OutputChannelGeneralValidation outputChannelGeneralValidation, ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
+    private ReadingWithValidationStatus(Channel channel, OutputChannelGeneralValidation outputChannelGeneralValidation, ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
         this.channel = channel;
         this.outputChannelGeneralValidation = outputChannelGeneralValidation;
         this.readingTimeStamp = readingTimeStamp;
         this.intervalLength = intervalLength;
     }
 
+    private ReadingWithValidationStatus(Channel channel, OutputChannelGeneralValidation outputChannelGeneralValidation, ZonedDateTime readingTimeStamp) {
+        this.channel = channel;
+        this.outputChannelGeneralValidation = outputChannelGeneralValidation;
+        this.readingTimeStamp = readingTimeStamp;
+    }
 
     public Optional<DataValidationStatus> getValidationStatus() {
         return validationStatus;
     }
 
-    public void setIntervalReadingRecord(IntervalReadingRecord intervalReadingRecord) {
-        this.intervalReadingRecord = Optional.ofNullable(intervalReadingRecord);
+    public void setReadingRecord(T intervalReadingRecord) {
+        this.readingRecord = Optional.ofNullable(intervalReadingRecord);
     }
 
-    public void setPersistedIntervalReadingRecord(IntervalReadingRecord intervalReadingRecord) {
-        this.persistedIntervalReadingRecord = Optional.ofNullable(intervalReadingRecord);
+    public void setPersistedReadingRecord(T intervalReadingRecord) {
+        this.persistedReadingRecord = Optional.ofNullable(intervalReadingRecord);
     }
 
-    public void setCalculatedIntervalReadingRecord(IntervalReadingRecord intervalReadingRecord) {
-        this.calculatedIntervalReadingRecord = Optional.ofNullable(intervalReadingRecord);
+    public void setCalculatedReadingRecord(T intervalReadingRecord) {
+        this.calculatedReadingRecord = Optional.ofNullable(intervalReadingRecord);
     }
 
     public static Builder builder(Channel channel, boolean validationIsActive, Instant lastChecked) {
@@ -68,9 +75,16 @@ public class IntervalReadingWithValidationStatus {
         return this.readingTimeStamp.toInstant();
     }
 
-    public Range<Instant> getTimePeriod() {
+    public Instant getReportedDateTime() {
+        return this.readingRecord.map(BaseReading::getReportedDateTime).orElse(null);
+    }
+
+    public Optional<Range<Instant>> getTimePeriod() {
         ZonedDateTime intervalStart;
         ZonedDateTime intervalEnd = readingTimeStamp;
+        if (intervalLength == null) {
+            return Optional.empty();
+        }
         if (MONTH_INTERVAL_LENGTH.equals(intervalLength)) {
             Month month = Month.from(intervalEnd);
             if (Month.JANUARY == month) {
@@ -83,19 +97,19 @@ public class IntervalReadingWithValidationStatus {
         } else {
             intervalStart = intervalEnd.minus(intervalLength);
         }
-        return Range.openClosed(intervalStart.toInstant(), intervalEnd.toInstant());
+        return Optional.of(Range.openClosed(intervalStart.toInstant(), intervalEnd.toInstant()));
     }
 
     public BigDecimal getValue() {
-        return intervalReadingRecord.map(IntervalReadingRecord::getValue).orElse(null);
+        return readingRecord.map(BaseReading::getValue).orElse(null);
     }
 
     public Optional<BigDecimal> getPersistedValue() {
-        return persistedIntervalReadingRecord.map(IntervalReadingRecord::getValue);
+        return persistedReadingRecord.map(BaseReading::getValue);
     }
 
     public Optional<BigDecimal> getCalculatedValue() {
-        return calculatedIntervalReadingRecord.map(IntervalReadingRecord::getValue);
+        return calculatedReadingRecord.map(BaseReading::getValue);
     }
 
     public boolean isChannelValidationActive() {
@@ -107,11 +121,11 @@ public class IntervalReadingWithValidationStatus {
     }
 
     public Optional<Pair<ReadingModificationFlag, ReadingQualityRecord>> getReadingModificationFlag() {
-        return Optional.ofNullable(intervalReadingRecord.map(record -> ReadingModificationFlag.getModificationFlag(record, channel
+        return Optional.ofNullable(readingRecord.map(record -> ReadingModificationFlag.getModificationFlag(record, channel
                 .findReadingQualities()
                 .atTimestamp(record.getTimeStamp())
                 .sorted()
-                .collect(), calculatedIntervalReadingRecord)).orElse(null));
+                .collect(), calculatedReadingRecord)).orElse(null));
     }
 
     public static class Builder {
@@ -123,8 +137,12 @@ public class IntervalReadingWithValidationStatus {
             this.channel = channel;
         }
 
-        public IntervalReadingWithValidationStatus from(ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
-            return new IntervalReadingWithValidationStatus(this.channel, this.outputChannelGeneralValidation, readingTimeStamp, intervalLength);
+        public ReadingWithValidationStatus from(ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
+            if (intervalLength != null) {
+                return new ReadingWithValidationStatus<IntervalReadingRecord>(this.channel, this.outputChannelGeneralValidation, readingTimeStamp, intervalLength);
+            } else {
+                return new ReadingWithValidationStatus<>(this.channel, this.outputChannelGeneralValidation, readingTimeStamp);
+            }
         }
     }
 

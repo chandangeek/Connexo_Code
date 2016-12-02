@@ -7,7 +7,6 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import javax.inject.Inject;
 import java.util.Comparator;
-import java.util.Optional;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
@@ -20,14 +19,24 @@ public class OutputRegisterDataInfoFactory {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
     }
 
-    public OutputRegisterDataInfo createRegisterDataInfo(ReadingRecord readingRecord, Optional<DataValidationStatus> validationStatus) {
-        OutputRegisterDataInfo info = new OutputRegisterDataInfo();
-        info.timeStamp = readingRecord.getTimeStamp();
-        info.value = readingRecord.getValue();
-        info.reportedDateTime = readingRecord.getReportedDateTime();
+    public OutputRegisterDataInfo createRegisterDataInfo(ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus) {
+        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+        info.timeStamp = readingWithValidationStatus.getTimeStamp();
+        info.value = readingWithValidationStatus.getValue();
+        info.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
+        info.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
+        readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
+            info.modificationFlag = modificationFlag.getFirst();
+            info.editedInApp = modificationFlag.getLast()
+                    .getType()
+                    .system()
+                    .map(ReadingModificationFlag::getApplicationInfo)
+                    .orElse(null);
+            info.modificationDate = modificationFlag.getLast().getTimestamp();
+        });
 
-        if (validationStatus.isPresent()) {
-            DataValidationStatus status = validationStatus.get();
+        if (readingWithValidationStatus.getValidationStatus().isPresent()) {
+            DataValidationStatus status = readingWithValidationStatus.getValidationStatus().get();
             info.validationResult = ValidationStatus.forResult(status.getValidationResult());
             info.dataValidated = status.completelyValidated();
             info.action = decorate(status.getReadingQualities()
@@ -38,6 +47,11 @@ public class OutputRegisterDataInfoFactory {
                     .sorted(Comparator.reverseOrder())
                     .findFirst()
                     .orElse(null);
+            info.isConfirmed = status.getReadingQualities()
+                    .stream()
+                    .filter(quality -> quality.getType().isConfirmed())
+                    .findFirst()
+                    .isPresent();
             info.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
         }
 

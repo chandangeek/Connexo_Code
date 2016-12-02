@@ -2,14 +2,17 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.AbstractCimChannel;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -24,6 +27,7 @@ import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,6 +65,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Before
     public void before() {
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
         when(meteringService.findUsagePointByName(any())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
@@ -184,12 +190,20 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testGetRegisterOutputData() throws Exception {
-        Channel channel = mock(Channel.class);
+        AggregatedChannel channel = mock(AggregatedChannel.class);
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
         when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
                 .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
-
+        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
+        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
+        ReadingQualityFetcher fetcher = mock(ReadingQualityFetcher.class);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
+        when(fetcher.atTimestamp(any(Instant.class))).thenReturn(fetcher);
+        when(fetcher.sorted()).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(Collections.emptyList());
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
         // Business method
         String json = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData")
                 .queryParam("filter", buildFilter()).request().get(String.class);
@@ -206,11 +220,19 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testGetRegisterOutputDataValidated() throws Exception {
-        Channel channel = mock(Channel.class);
+        AggregatedChannel channel = mock(AggregatedChannel.class);
         mockReadingsWithValidationResult(channel);
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
-        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
+        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
+        ReadingQualityFetcher fetcher = mock(ReadingQualityFetcher.class);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
+        when(fetcher.atTimestamp(any(Instant.class))).thenReturn(fetcher);
+        when(fetcher.sorted()).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(Collections.emptyList());
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
 
         // Business method
         String json = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData").queryParam("filter", buildFilter())

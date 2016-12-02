@@ -7,12 +7,15 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OutputChannelDataInfo {
 
     public IntervalInfo interval;

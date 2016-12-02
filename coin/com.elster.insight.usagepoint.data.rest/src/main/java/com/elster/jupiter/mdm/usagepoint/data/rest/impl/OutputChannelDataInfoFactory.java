@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.mdm.common.rest.IntervalInfo;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -20,10 +21,12 @@ public class OutputChannelDataInfoFactory {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
     }
 
-    public OutputChannelDataInfo createChannelDataInfo(IntervalReadingWithValidationStatus readingWithValidationStatus) {
+    public OutputChannelDataInfo createChannelDataInfo(ReadingWithValidationStatus<IntervalReadingRecord> readingWithValidationStatus) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.readingTime = readingWithValidationStatus.getTimeStamp();
-        outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
+        outputChannelDataInfo.interval = readingWithValidationStatus.getTimePeriod()
+                .map(IntervalInfo::from)
+                .orElse(null);
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
         outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
         readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {

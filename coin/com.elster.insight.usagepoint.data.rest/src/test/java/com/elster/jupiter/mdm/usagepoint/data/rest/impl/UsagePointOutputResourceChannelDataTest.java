@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -288,9 +287,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testReadingValidationInfoForMissedReadingInTheMiddleOfValidatedData() {
         OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory));
-        IntervalReadingWithValidationStatus status = mock(IntervalReadingWithValidationStatus.class);
+        ReadingWithValidationStatus status = mock(ReadingWithValidationStatus.class);
         when(status.getTimeStamp()).thenReturn(timeStamp.minus(1, ChronoUnit.DAYS));
-        when(status.getTimePeriod()).thenReturn(Range.closedOpen(timeStamp.minus(1, ChronoUnit.DAYS), timeStamp));
+        when(status.getTimePeriod()).thenReturn(Optional.of(Range.closedOpen(timeStamp.minus(1, ChronoUnit.DAYS), timeStamp)));
         when(status.getValidationStatus()).thenReturn(Optional.empty());
         when(status.getChannelLastChecked()).thenReturn(Optional.of(timeStamp));
         when(status.isChannelValidationActive()).thenReturn(true);
@@ -305,10 +304,10 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testReadingValidationInfoForMissedReadingAfterLastCheckedDate() {
         OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory));
-        IntervalReadingWithValidationStatus status = mock(IntervalReadingWithValidationStatus.class);
+        ReadingWithValidationStatus status = mock(ReadingWithValidationStatus.class);
         Instant dayAfter = timeStamp.plus(1, ChronoUnit.DAYS);
         when(status.getTimeStamp()).thenReturn(dayAfter);
-        when(status.getTimePeriod()).thenReturn(Range.closedOpen(dayAfter, timeStamp.plus(2, ChronoUnit.DAYS)));
+        when(status.getTimePeriod()).thenReturn(Optional.of(Range.closedOpen(dayAfter, timeStamp.plus(2, ChronoUnit.DAYS))));
         when(status.getValidationStatus()).thenReturn(Optional.empty());
         when(status.getChannelLastChecked()).thenReturn(Optional.of(timeStamp));
         when(status.isChannelValidationActive()).thenReturn(true);
