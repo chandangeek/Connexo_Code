@@ -51,7 +51,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                 allowBlank: false,
                                 store: 'Imt.usagepointmanagement.store.CalendarCategories',
                                 emptyText: Uni.I18n.translate('calendars.selectCategory', 'IMT', 'Select a category'),
-                                width: 500,
+                                width: 600,
                                 noObjectsText: Uni.I18n.translate('calendars.noCategoriesWithActiveCalendarsExist', 'IMT', 'No categories with active calendars exist')
                             }
                         },
@@ -61,6 +61,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                             itemId: 'calendar-combo',
                             required: true,
                             allowBlank: false,
+                            emptyText: Uni.I18n.translate('calendars.selectCalendar', 'IMT', 'Select a calendar'),
                             fieldLabel: Uni.I18n.translate('general.calendar', 'IMT', 'Calendar'),
                             store: 'Imt.usagepointmanagement.store.CalendarsForCategory',
                             displayField: 'name',
