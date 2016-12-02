@@ -62,7 +62,7 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
         }
         DataModel dataModel = ormService.getDataModels()
                 .stream()
-                .filter(dm -> dm.getTables().stream().anyMatch(table -> table.maps(searchDomain.getDomainClass())))
+                .filter(dm -> dm.getTables(Version.latest()).stream().anyMatch(table -> table.maps(searchDomain.getDomainClass())))
                 .findAny()
                 .get();
         return new SearchDomainExtensionSupportFinder<>(dataModel, searchDomain,
@@ -165,7 +165,7 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
 
     private void appendSearchDomainPrimaryKey(SqlBuilder sqlBuilder) {
         sqlBuilder.openBracket();
-        sqlBuilder.append(dataModel.getTables()
+        sqlBuilder.append(dataModel.getTables(Version.latest())
                 .stream()
                 .filter(table -> table.maps(searchDomain.getDomainClass()))
                 .flatMap(table -> table.getPrimaryKeyColumns().stream())

@@ -6,17 +6,17 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,13 +69,12 @@ public class SearchDomainExtensionSupportFinderTest {
         when(ormService.getDataModels()).thenReturn(Collections.singletonList(dataModel));
         doReturn(Object.class).when(searchDomain).getDomainClass();
         when(table.maps(Object.class)).thenReturn(true);
-        Column primaryColumn1 = mock(Column.class);
-        when(primaryColumn1.getName()).thenReturn("id1");
-        Column primaryColumn2 = mock(Column.class);
-        when(primaryColumn2.getName()).thenReturn("id2");
+        Column primaryColumn1 = mockColumn("id1");
+        Column primaryColumn2 = mockColumn("id2");
         doReturn(Arrays.asList(primaryColumn1, primaryColumn2)).when(table).getPrimaryKeyColumns();
-        doReturn(Collections.singletonList(table)).when(dataModel).getTables();
-        when(dataMapper.getQueryFields()).thenReturn(ImmutableSet.of("id1", "id2", "mrid", "name"));
+        doReturn(Collections.singletonList(table)).when(dataModel).getTables(Version.latest());
+        Stream<Column> columns = Stream.of(primaryColumn1, primaryColumn2, mockColumn("mrid"), mockColumn("name"));
+        doReturn(columns).when(table).getRealColumns();
         when(dataModel.mapper(Object.class)).thenReturn(dataMapper);
 
         List<SearchablePropertyCondition> conditions = Arrays.asList(condition1, condition2);
@@ -101,5 +100,11 @@ public class SearchDomainExtensionSupportFinderTest {
                 "(select id1, id2 from domain_table where condition1 = value1 and condition2 = value2) " /* extension query */ +
                 "order by name DESC  ) " + /* ordering */
                 "x where ROWNUM <=  ? ) where rnum >=  ? ");
+    }
+
+    private static Column mockColumn(String name) {
+        Column column = mock(Column.class);
+        when(column.getName()).thenReturn(name);
+        return column;
     }
 }
