@@ -66,14 +66,9 @@ abstract class JoinDataMapper<T> {
 
 	final List<ColumnAndAlias> getColumnAndAliases(String fieldName) {
 		FieldMapping mapping = getTable().getFieldMapping(fieldName);
-		if (mapping == null) {
-			return null;
-		}
-		List<ColumnAndAlias> result = new ArrayList<>();
-		for (Column column : mapping.getColumns()) {
-			result.add(new ColumnAndAlias((ColumnImpl) column,getAlias()));
-		}
-		return result;
+		return mapping == null ? null : mapping.getColumns().stream()
+				.map(column -> new ColumnAndAlias(column, getAlias()))
+				.collect(Collectors.toList());
 	}
 
 	final ColumnAndAlias getColumnAndAlias(String fieldName) {
