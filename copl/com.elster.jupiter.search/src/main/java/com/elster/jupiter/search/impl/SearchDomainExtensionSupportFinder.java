@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -125,9 +127,20 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
                 + Stream.of(strings).collect(Collectors.joining(", "))
                 + " from ");
         sqlBuilder.openBracket();
-        String[] allFields = dataModel.mapper(searchDomain.getDomainClass())
-                .getQueryFields()
-                .stream()
+//        // TODO: Refactor DeviceFinder with the help of DefaultFinder and unify sub-interfaces of SearchableProperty
+//        // for all search domains with toCondition method. After that the commented code version will work too.
+//        // Now it doesn't work for DeviceFinder since its asFragment doesn't support fieldNames but only columnNames.
+//        String[] allFields = dataModel.mapper(searchDomain.getDomainClass())
+//                .getQueryFields()
+//                .stream()
+//                .toArray(String[]::new);
+        String[] allFields = dataModel.getTables(Version.latest()).stream()
+                .filter(table -> table.maps(searchDomain.getDomainClass()))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("There is no table that maps " + searchDomain.getDomainClass()))
+                .getRealColumns()
+                .map(Column::getName)
+                .distinct()
                 .toArray(String[]::new);
         sqlBuilder.add(domainFinder.asFragment(allFields));
         sqlBuilder.closeBracket();
