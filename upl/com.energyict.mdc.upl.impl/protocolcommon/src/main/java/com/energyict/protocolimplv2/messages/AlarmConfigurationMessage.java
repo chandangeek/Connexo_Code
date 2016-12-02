@@ -1,71 +1,143 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
- * Provides a summary of all messages related to configuring alarms
+ * Provides a summary of all messages related to configuring alarms.
  * <p/>
  * Copyrights EnergyICT
  * Date: 3/04/13
  * Time: 8:38
  */
-public enum AlarmConfigurationMessage implements DeviceMessageSpec {
+public enum AlarmConfigurationMessage implements DeviceMessageSpecFactory {
 
-    RESET_ALL_ALARM_BITS(0),
-    WRITE_ALARM_FILTER(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
-    CONFIGURE_PUSH_EVENT_NOTIFICATION(2,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.transportTypeAttributeName, TransportType.getTypes()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.messageTypeAttributeName, MessageType.getTypes())
-    ),
-    RESET_ALL_ERROR_BITS(3),
-    RESET_DESCRIPTOR_FOR_ALARM_REGISTER_1_OR_2(4,
-            alarmRegisterAttribute(),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmBitMaskAttributeName)),
-    RESET_BITS_IN_ALARM_REGISTER_1_OR_2(5, alarmRegisterAttribute()),
-    WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2(6,
-            alarmRegisterAttribute(),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
-
-    FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION(7,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName),
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.transportTypeAttributeName, TransportType.getTypes()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.messageTypeAttributeName, MessageType.getTypes())
-    ),
-    CONFIGURE_PUSH_EVENT_NOTIFICATION_OBJECT_DEFINITIONS(8,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName)
-    ),
-    CONFIGURE_PUSH_EVENT_NOTIFICATION_SEND_DESTINATION(9,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.transportTypeAttributeName, TransportType.getTypes()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.messageTypeAttributeName, MessageType.getTypes())
-    ),
-    ENABLE_EVENT_NOTIFICATIONS(10,
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.EnableEventNotifications)
-    ),
-    RESET_DESCRIPTOR_FOR_ALARM_REGISTER(11,
-            alarmRegisterAttributeFor3Objects(),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmBitMaskAttributeName)),
-    RESET_BITS_IN_ALARM_REGISTER(12, alarmRegisterAttributeFor3Objects()),
-    WRITE_FILTER_FOR_ALARM_REGISTER(13,
-            alarmRegisterAttributeFor3Objects(),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
-    ;
-
+    RESET_ALL_ALARM_BITS(0, "Reset all alarm bits") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    WRITE_ALARM_FILTER(1, "Write alarm filter") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.alarmFilterAttributeName, DeviceMessageConstants.alarmFilterAttributeDefaultTranslation));
+        }
+    },
+    CONFIGURE_PUSH_EVENT_NOTIFICATION(2, "Configure push event notification") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.transportTypeAttributeName, DeviceMessageConstants.transportTypeAttributeDefaultTranslation, TransportType.getTypes()),
+                    this.stringSpec(service, DeviceMessageConstants.destinationAddressAttributeName, DeviceMessageConstants.destinationAddressAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.messageTypeAttributeName, DeviceMessageConstants.messageTypeAttributeDefaultTranslation, MessageType.getTypes())
+            );
+        }
+    },
+    RESET_ALL_ERROR_BITS(3, "Reset all error bits") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    RESET_DESCRIPTOR_FOR_ALARM_REGISTER_1_OR_2(4, "Reset alarm descriptor") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.alarmRegisterAttribute(service),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.alarmBitMaskAttributeName, DeviceMessageConstants.alarmBitMaskAttributeDefaultTranslation)
+            );
+        }
+    },
+    RESET_BITS_IN_ALARM_REGISTER_1_OR_2(5, "Reset alarm bits") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.alarmRegisterAttribute(service));
+        }
+    },
+    WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2(6, "Write alarm filter") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.alarmRegisterAttribute(service),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.alarmFilterAttributeName, DeviceMessageConstants.alarmFilterAttributeDefaultTranslation)
+            );
+        }
+    },
+    FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION(7, "Configure push event notifications") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.typeAttributeName, DeviceMessageConstants.typeAttributeDefaultTranslation, PushType.getTypes()),
+                    this.stringSpec(service, DeviceMessageConstants.objectDefinitionsAttributeName, DeviceMessageConstants.objectDefinitionsAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.transportTypeAttributeName, DeviceMessageConstants.transportTypeAttributeDefaultTranslation, TransportType.getTypes()),
+                    this.stringSpec(service, DeviceMessageConstants.destinationAddressAttributeName, DeviceMessageConstants.destinationAddressAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.messageTypeAttributeName, DeviceMessageConstants.messageTypeAttributeDefaultTranslation, MessageType.getTypes())
+            );
+        }
+    },
+    CONFIGURE_PUSH_EVENT_NOTIFICATION_OBJECT_DEFINITIONS(8, "Configure push event notification object definitions") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.typeAttributeName, DeviceMessageConstants.typeAttributeDefaultTranslation, PushType.getTypes()),
+                    this.stringSpec(service, DeviceMessageConstants.objectDefinitionsAttributeName, DeviceMessageConstants.objectDefinitionsAttributeDefaultTranslation)
+            );
+        }
+    },
+    CONFIGURE_PUSH_EVENT_NOTIFICATION_SEND_DESTINATION(9, "Configure push event notification destination") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.typeAttributeName, DeviceMessageConstants.typeAttributeDefaultTranslation, PushType.getTypes()),
+                    this.stringSpec(service, DeviceMessageConstants.transportTypeAttributeName, DeviceMessageConstants.transportTypeAttributeDefaultTranslation, TransportType.getTypes()),
+                    this.stringSpec(service, DeviceMessageConstants.destinationAddressAttributeName, DeviceMessageConstants.destinationAddressAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.messageTypeAttributeName, DeviceMessageConstants.messageTypeAttributeDefaultTranslation, MessageType.getTypes())
+            );
+        }
+    },
+    ENABLE_EVENT_NOTIFICATIONS(10, "Enable event notifications") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.EnableEventNotifications, DeviceMessageConstants.EnableEventNotificationsDefaultTranslation));
+        }
+    },
+    RESET_DESCRIPTOR_FOR_ALARM_REGISTER(11, "Reset alarm descriptor") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.alarmRegisterAttributeFor3Objects(service),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.alarmBitMaskAttributeName, DeviceMessageConstants.alarmBitMaskAttributeDefaultTranslation)
+            );
+        }
+    },
+    RESET_BITS_IN_ALARM_REGISTER(12, "Reset alarm bits") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.alarmRegisterAttributeFor3Objects(service));
+        }
+    },
+    WRITE_FILTER_FOR_ALARM_REGISTER(13, "Write alarm filter") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.alarmRegisterAttributeFor3Objects(service),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.alarmFilterAttributeName, DeviceMessageConstants.alarmFilterAttributeDefaultTranslation)
+            );
+        }
+    };
 
     public enum PushType {
         Interval_1(1),
@@ -79,17 +151,12 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
 
         private final int id;
 
-        private PushType(int id) {
+        PushType(int id) {
             this.id = id;
         }
 
         public static String[] getTypes() {
-            PushType[] allTypes = values();
-            String[] result = new String[allTypes.length];
-            for (int index = 0; index < allTypes.length; index++) {
-                result[index] = allTypes[index].name();
-            }
-            return result;
+            return Stream.of(values()).map(PushType::name).toArray(String[]::new);
         }
 
         public int getId() {
@@ -103,26 +170,21 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
 
         private final int id;
 
-        private MessageType(int id) {
+        MessageType(int id) {
             this.id = id;
         }
 
         public static String[] getTypes() {
-            MessageType[] allTypes = values();
-            String[] result = new String[allTypes.length];
-            for (int index = 0; index < allTypes.length; index++) {
-                result[index] = allTypes[index].name();
-            }
-            return result;
+            return Stream.of(values()).map(MessageType::name).toArray(String[]::new);
         }
 
-        public static String getStringValue(int id){
-            for(MessageType type: MessageType.values()){
-                if(type.getId() == id){
-                    return type.name();
-                }
-            }
-            return "Unknown message type";
+        public static String getStringValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .map(MessageType::name)
+                    .orElse("Unknown message type");
         }
 
         public int getId() {
@@ -136,26 +198,21 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
 
         private final int id;
 
-        private TransportType(int id) {
+        TransportType(int id) {
             this.id = id;
         }
 
         public static String[] getTypes() {
-            TransportType[] allTypes = values();
-            String[] result = new String[allTypes.length];
-            for (int index = 0; index < allTypes.length; index++) {
-                result[index] = allTypes[index].name();
-            }
-            return result;
+            return Stream.of(values()).map(TransportType::name).toArray(String[]::new);
         }
 
-        public static String getStringValue(int id){
-            for(TransportType type: TransportType.values()){
-                if(type.getId() == id){
-                    return type.name();
-                }
-            }
-            return "Unknown transport type";
+        public static String getStringValue(int id) {
+            return Stream
+                        .of(values())
+                        .filter(each -> each.getId() == id)
+                        .findFirst()
+                        .map(TransportType::name)
+                        .orElse("Unknown transport type");
         }
 
         public int getId() {
@@ -163,74 +220,89 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
         }
     }
 
-    private static PropertySpec<BigDecimal> alarmRegisterAttribute() {
-        return PropertySpecFactory.bigDecimalPropertySpecWithValues(
-                DeviceMessageConstants.alarmRegisterAttributeName,
-                BigDecimal.valueOf(1),
+    private final int id;
+    private final String defaultNameTranslation;
+
+    AlarmConfigurationMessage(int id, String defaultNameTranslation) {
+        this.id = id;
+        this.defaultNameTranslation = defaultNameTranslation;
+    }
+
+    protected PropertySpec alarmRegisterAttribute(PropertySpecService service) {
+        return this.bigDecimalSpec(
+                service,
+                DeviceMessageConstants.alarmRegisterAttributeName, DeviceMessageConstants.alarmRegisterAttributeDefaultTranslation,
+                BigDecimal.ONE,
                 BigDecimal.valueOf(2));
     }
 
-    private static PropertySpec<BigDecimal> alarmRegisterAttributeFor3Objects() {
-        return PropertySpecFactory.bigDecimalPropertySpecWithValues(
-                DeviceMessageConstants.alarmRegisterAttributeName,
-                BigDecimal.valueOf(1),
-                BigDecimal.valueOf(2),
-                BigDecimal.valueOf(3)
-                );
+    protected PropertySpec alarmRegisterAttributeFor3Objects(PropertySpecService service) {
+        return this.bigDecimalSpec(service,
+                    DeviceMessageConstants.alarmRegisterAttributeName, DeviceMessageConstants.alarmRegisterAttributeDefaultTranslation,
+                    BigDecimal.ONE,
+                    BigDecimal.valueOf(2),
+                    BigDecimal.valueOf(3));
     }
 
-    private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.ALARM_CONFIGURATION;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private AlarmConfigurationMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
-        this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+    private PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return displayCategory;
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... exhaustiveValues) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).addValues(exhaustiveValues).markExhaustive().finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
+    protected PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
+    }
+
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... exhaustiveValues) {
+        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .addValues(exhaustiveValues)
+                .markExhaustive()
+                .finish();
+    }
+
+    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .booleanSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
     private String getNameResourceKey() {
         return AlarmConfigurationMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
-    }
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.ALARM_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

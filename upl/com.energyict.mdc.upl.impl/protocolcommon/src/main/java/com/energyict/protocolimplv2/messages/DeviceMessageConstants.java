@@ -206,6 +206,7 @@ public class DeviceMessageConstants {
     public static final String zeroCrossDelay = "ConfigurationChangeDeviceMessage.zeroCrossDelay";
     public static final String synchronisationBit = "ConfigurationChangeDeviceMessage.synchronisationBit";
     public static final String EnableEventNotifications = "EnableEventNotifications";
+    public static final String EnableEventNotificationsDefaultTranslation = "Enable event notifications";
 
     public static final String managedWhiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.managed.whitelist.phonenumbers";
     public static final String smsCenterPhoneNumberAttributeName = "NetworkConnectivityMessage.smscenter.phonenumber";
@@ -766,16 +767,24 @@ public class DeviceMessageConstants {
     public static final String currency = "currency";
 
     public static final String alarmRegisterAttributeName = "AlarmConfigurationMessage.alarmRegister";
+    public static final String alarmRegisterAttributeDefaultTranslation = "Alarm register";
     public static final String alarmBitMaskAttributeName = "AlarmConfigurationMessage.alarmBitMask";
+    public static final String alarmBitMaskAttributeDefaultTranslation = "Alarm bit mask";
     public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmfilter";
+    public static final String alarmFilterAttributeDefaultTranslation = "Alarm filter";
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configuserfile";
     public static final String configUserFileAttributeDefaultTranslation = "Configuration user file";
     public static final String xmlMessageAttributeName = "GeneralDeviceMessage.xmlMessage";
     public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
+    public static final String transportTypeAttributeDefaultTranslation = "Transport type";
     public static final String objectDefinitionsAttributeName = "AlarmConfigurationMessage.objectDefinitions";
+    public static final String objectDefinitionsAttributeDefaultTranslation = "Object definitions";
     public static final String typeAttributeName = "type";
+    public static final String typeAttributeDefaultTranslation = "type";
     public static final String destinationAddressAttributeName = "AlarmConfigurationMessage.destinationAddress";
+    public static final String destinationAddressAttributeDefaultTranslation = "Destination address";
     public static final String messageTypeAttributeName = "AlarmConfigurationMessage.messageType";
+    public static final String messageTypeAttributeDefaultTranslation = "Message type";
 
     public static final String broadCastLogTableEntryTTLAttributeName = "PLCConfigurationDeviceMessage.broadcastlogtableentryttl";
     public static final String maxJoinWaitTime = "PLCConfigurationDeviceMessage.maxJoinWaitTime";
