@@ -144,7 +144,7 @@ public interface PropertySpecService {
      *
      * @return The PropertySpecBuilder
      */
-    PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
+    PropertySpecBuilderWizard.NlsOptions<TimeZone> timeZoneSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
