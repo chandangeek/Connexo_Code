@@ -238,7 +238,8 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 .filter(category -> {
                     CalendarFilter calendarFilter = newCalendarFilter().setCategory(category);
                     List<Calendar> calendars = this.getCalendarFinder(calendarFilter.toCondition()).find();
-                    return calendars.size() > 0;
+                    Optional<Calendar> any = calendars.stream().filter(Calendar::isActive).findAny();
+                    return any.isPresent();
                 })
                 .collect(Collectors.toList());
     }
