@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocolimpl.dlms.common.DlmsProfileIntervalStatusBits;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -209,5 +210,51 @@ public class DLMSProfileIntervalsTest {
             logger.info(e.getMessage());
             fail();
         }
+    }
+
+    @Test
+    public void testConstructIntervalCalendarWithWinterTimeStatusWithDST() throws Exception {
+        DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new DSMRProfileIntervalStatusBits());
+
+        // 30/10/2016 02:00:00 with status = 0x80 = in DST
+        Calendar calendar_with_DST = profileIntervals.constructIntervalCalendar(null, OctetString.fromByteArray(ProtocolTools.getBytesFromHexString("07E00A1E07020000FF800080", "")), TimeZone.getTimeZone("Europe/Brussels"));
+        assertEquals(calendar_with_DST.getTimeInMillis(),1477785600000l);   // Sunday 30 Oct 2016 2:00:00 GMT+2:00 DST
+    }
+
+    @Test
+    public void testConstructIntervalCalendarWithWinterTimeStatusWithoutDST() throws Exception {
+        DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new DSMRProfileIntervalStatusBits());
+
+        // 30/10/2016 02:00:00 with status 0x00 = not in DST
+        Calendar calendar_without_DST = profileIntervals.constructIntervalCalendar(null, OctetString.fromByteArray(ProtocolTools.getBytesFromHexString("07E00A1E07020000FF800000", "")), TimeZone.getTimeZone("Europe/Brussels"));
+        assertEquals(calendar_without_DST.getTimeInMillis(), 1477789200000l);   // Sun 30 Oct 2016 2:00:00 GMT+1:00
+    }
+
+    @Test
+    public void testConstructIntervalCalendarWithSummerTimeStatusWithDST() throws Exception {
+        DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new DSMRProfileIntervalStatusBits());
+
+        // 27/03/2016 02:00:00 with status = 0x80 = in DST
+        Calendar calendar_with_DST = profileIntervals.constructIntervalCalendar(null, OctetString.fromByteArray(ProtocolTools.getBytesFromHexString("07E0031B07020000FF800080", "")), TimeZone.getTimeZone("Europe/Brussels"));
+
+        assertEquals(calendar_with_DST.getTimeInMillis(),1459040400000L);   // Sunday 27 Mar 2016 2:00:00 GMT+2:00 DST
+    }
+
+    @Test
+    public void testConstructIntervalCalendarWithSummerTimeStatusWithoutDST() throws Exception {
+        DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new DSMRProfileIntervalStatusBits());
+
+        // 27/03/2016 02:00:00 with status 0x00 = not in DST
+        Calendar calendar_without_DST = profileIntervals.constructIntervalCalendar(null, OctetString.fromByteArray(ProtocolTools.getBytesFromHexString("07E0031B07020000FF800080", "")), TimeZone.getTimeZone("Europe/Brussels"));
+        assertEquals(calendar_without_DST.getTimeInMillis(), 1459040400000L);   // Sunday 27 Mar 2016 2:00:00 GMT+1:00
+    }
+
+    @Test
+    public void testConstructIntervalCalendarWithWinterTimeStatusWithDSTjkljlkj() throws Exception {
+        DLMSProfileIntervals profileIntervals = new DLMSProfileIntervals(DLMSUtils.hexStringToByteArray(responseIntervals1), new DSMRProfileIntervalStatusBits());
+
+        // 30/10/2016 02:00:00 with status = 0x80 = in DST
+        Calendar calendar_with_DST = profileIntervals.constructIntervalCalendar(null, OctetString.fromByteArray(ProtocolTools.getBytesFromHexString("07E00A1E07020000FFFF8880", "")), null);
+        assertEquals(calendar_with_DST.getTimeInMillis(),1477785600000l);   // Sunday 30 Oct 2016 2:00:00 GMT+2:00 DST
     }
 }
