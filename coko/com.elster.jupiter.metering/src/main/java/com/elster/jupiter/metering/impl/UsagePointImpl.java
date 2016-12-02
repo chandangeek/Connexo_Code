@@ -27,6 +27,7 @@ import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.UsagePointManageException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
@@ -63,6 +64,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
@@ -517,6 +519,10 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
+        UsagePointStage.Stage usagePointStage = this.getState().getStage().getKey();
+        if (usagePointStage != UsagePointStage.Stage.PRE_OPERATIONAL) {
+            throw UsagePointManageException.incorrectStage(thesaurus);
+        }
         Long startDate = start.toEpochMilli();
         Long endDate = end != null ? end.toEpochMilli() : null;
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.getEffectiveMetrologyConfigurations()

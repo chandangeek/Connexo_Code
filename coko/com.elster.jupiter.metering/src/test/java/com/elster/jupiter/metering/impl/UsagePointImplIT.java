@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointManageException;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
@@ -279,5 +280,24 @@ public class UsagePointImplIT {
 
         UsagePoint found = meteringService.getUsagePointQuery().select(where("state.state").isEqualTo(initialState)).get(0);
         assertThat(found).isEqualTo(usagePoint);
+    }
+
+    @Test(expected = UsagePointManageException.class)
+    @Transactional
+    public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory
+                .newUsagePoint("testUP", now)
+                .create();
+        UsagePointMetrologyConfiguration configuration =
+                inMemoryBootstrapModule
+                        .getMetrologyConfigurationService()
+                        .newUsagePointMetrologyConfiguration("testMC", serviceCategory)
+                        .create();
+        configuration.activate();
+        usagePoint.getState().startUpdate().setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        usagePoint.apply(configuration, now);
     }
 }
