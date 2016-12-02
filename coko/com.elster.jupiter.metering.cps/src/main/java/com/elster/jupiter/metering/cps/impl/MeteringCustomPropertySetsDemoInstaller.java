@@ -201,7 +201,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .withDescription("Unmeasured installations which use attributes-based calculations").create();
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_NON_SDP.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.name()));
 
         ReadingType readingTypeMonthlyAplusWh = meteringService.getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
@@ -250,7 +250,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 PhaseCode.S1.name(),
                 PhaseCode.S2.name(),
                 PhaseCode.S12.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.prepay", SearchablePropertyOperator.EQUAL, "1"));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
