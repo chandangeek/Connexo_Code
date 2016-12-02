@@ -27,8 +27,7 @@ Ext.define('Mdc.model.CommandLimitRule',{
         type: 'rest',
         url: '/api/crr/commandrules',
         reader: {
-            type: 'json',
-            root: 'commandrules'
+            type: 'json'
         }
     }
 });

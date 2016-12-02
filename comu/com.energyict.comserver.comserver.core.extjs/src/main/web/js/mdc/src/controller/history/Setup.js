@@ -2248,14 +2248,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return true;
                                     }, {single: true});
                                     return this;
+                                },
+                                items: {
+                                    changes: {
+                                        title: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),
+                                        route: 'changes',
+                                        //privileges: Mdc.privileges.Communication.view,
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        action: 'showCommandRulePendingChanges'
+                                    }
                                 }
-                            },
-                            changes: {
-                                title: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),
-                                route: 'changes',
-                                //privileges: Mdc.privileges.Communication.view,
-                                controller: 'Mdc.controller.setup.CommandLimitationRules',
-                                action: 'showCommandRulePendingChanges'
                             }
                         }
                     }

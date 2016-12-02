@@ -3,6 +3,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     views: [
         'Mdc.view.setup.commandrules.CommandLimitationRulesOverview',
+        'Mdc.view.setup.commandrules.CommandRuleOverview',
         'Mdc.view.setup.commandrules.CommandRulePendingChangesOverview'
     ],
     models: [
@@ -21,6 +22,9 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         me.control({
             'commandRulesOverview commandRulesGrid': {
                 select: me.loadCommandRuleDetail
+            },
+            'commandRuleActionMenu' : {
+                click: me.onMenuClicked
             }
         });
     },
@@ -49,7 +53,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
         rulesModel.load(commandRuleId, {
             success: function (commandRule) {
-                var widget = Ext.widget('comTaskOverview', {
+                var widget = Ext.widget('commandRuleOverview', {
                     router: me.getController('Uni.controller.history.Router'),
                     commandRuleRecord: commandRule
                 });
@@ -66,6 +70,17 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             router: this.getController('Uni.controller.history.Router')
         });
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    onMenuClicked: function(menu, menuItem) {
+        switch(menuItem.action) {
+            case 'toggleCommandRuleActivation':
+                break;
+            case 'editCommandRule':
+                break;
+            case 'removeCommandRule':
+                break;
+        }
     }
 
 });

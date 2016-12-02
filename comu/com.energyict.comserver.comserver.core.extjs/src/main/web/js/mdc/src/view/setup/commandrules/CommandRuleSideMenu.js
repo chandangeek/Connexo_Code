@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleSideMenu', {
             {
                 text: Ext.isEmpty(me.commandRuleName) ? Uni.I18n.translate('general.overview', 'MDC', 'Overview') : me.commandRuleName,
                 itemId: 'mdc-command-rule-sidemenu-overviewLink',
-                href: me.router.getRoute('administration/communicationtasks/view').buildUrl()
+                href: me.router.getRoute('administration/commandrules/view').buildUrl()
             },
             {
                 text: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),
