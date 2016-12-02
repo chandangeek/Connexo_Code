@@ -52,19 +52,13 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             {
                 itemId: 'up-metrology-config-empty',
                 fieldLabel: ' ',
-                hidden: true,
                 htmlEncode: false,
-                privileges: me.usagePoint.get('state').stage === 'PRE_OPERATIONAL',
+                privileges: Imt.privileges.UsagePoint.canAdministrate()
+                && me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
+                && Ext.isEmpty(metrologyConfiguration),
                 renderer: function () {
                     var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({},{fromLandingPage: true});
                     return Uni.I18n.translate('general.label.linkMetrologyConfiguration', 'IMT', '<a href="{0}">Link metrology configuration</a>', url);
-                },
-                listeners: {
-                    beforerender: function() {
-                        if (!me.getRecord().get('name') && Imt.privileges.UsagePoint.canAdministrate()) {
-                            this.show();
-                        }
-                    }
                 }
             },
             {
