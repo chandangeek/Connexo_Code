@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -510,7 +511,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public AllowedCalendar addCalendar(Calendar calendar) {
-        if (!calendar.getCategory().getName().equals("TOU")) {
+        if (!calendar.getCategory().getName().equals(OutOfTheBoxCategory.TOU.getDefaultDisplayName())) {
             throw new TimeOfUseCalendarOnly(this.getThesaurus());
         }
         Optional<AllowedCalendar> existingAllowedCalendar = this.allowedCalendars.stream()
