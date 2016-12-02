@@ -177,10 +177,13 @@ public class DeviceMessageConstants {
     public static final String restoreDefaultPasswordSealBreakTimeAttributeName = "SecurityMessage.restoredefaultpasswordseal.breaktime";
     public static final String randomBytesAttributeName = "SecurityMessage.random32bytes";
     public static final String deviceGroupAttributeName = "SecurityMessage.devicegroup";
+    public static final String deviceGroupAttributeDefaultTranslation = "Device group";
 
     public static final String deviceConfigurationIDAttributeName = "DeviceActionMessage.deviceConfigurationID";
+    public static final String deviceConfigurationIDAttributeDefaultTranslation = "Device configuration ID";
     public static final String cleanUpUnusedDevicesAndDataAttributeName = "DeviceActionMessage.cleanUpUnusedDevicesAndDataAttributeName";
     public static final String cleanUpUnusedDeviceTypesAttributeName = "DeviceActionMessage.cleanupUnusedDeviceTypes";
+    public static final String cleanUpUnusedDeviceTypesAttributeDefaultTranslation = "Clean up unused master data";
     public static final String broadcastDevicesGroupAttributeName = "FirmwareDeviceMessage.broadcastDevicesGroup";
     public static final String broadcastDevicesGroupAttributeDefaultTranslation = "Group of devices to upgrade using broadcast";
 
@@ -543,6 +546,7 @@ public class DeviceMessageConstants {
     public static final String second = "second";
     public static final String secondDefaultTranslation = "Second";
     public static final String id = "id";
+    public static final String idDefaultTranslation = "ID";
     public static final String tariff = "tariff";
     public static final String singleOptionAttributeName = "option";
     public static final String singleOptionAttributeDefaultTranslation = "Option";
@@ -635,21 +639,32 @@ public class DeviceMessageConstants {
     public static final String mbusSerialNumber = "MBusSetupDeviceMessage.mbusSerialNumber";
 
     public static final String AnalogOutValue = "DeviceActionMessage.analogoutvalue";
+    public static final String AnalogOutValueDefaultTranslation = "Analog out value";
     public static final String OutputOn = "DeviceActionMessage.outputon";
     public static final String OutputOff = "DeviceActionMessage.outputoff";
     public static final String OutputToggle = "DeviceActionMessage.outputtoggle";
     public static final String OutputPulse = "DeviceActionMessage.outputpulse";
 
     public static final String FTIONReboot = "DeviceActionMessage.ftionreboot";
+    public static final String FTIONRebootDefaultTranslation = "FTION reboot";
     public static final String FTIONInitialize = "DeviceActionMessage.ftioninitialize";
+    public static final String FTIONInitializeDefaultTranslation = "FTION initialize";
     public static final String FTIONMailLog = "DeviceActionMessage.ftionmaillog";
+    public static final String FTIONMailLogDefaultTranslation = "FTION mail log";
     public static final String FTIONSaveConfig = "DeviceActionMessage.ftionsaveconfig";
+    public static final String FTIONSaveConfigDefaultTranslation = "FTION save configuration";
     public static final String FTIONUpgrade = "DeviceActionMessage.ftionupgrade";
+    public static final String FTIONUpgradeDefaultTranslation = "FTION upgrade";
     public static final String FTIONClearMem = "DeviceActionMessage.ftionclearmem";
+    public static final String FTIONClearMemDefaultTranslation = "FTION clear memory";
     public static final String FTIONMailConfig = "DeviceActionMessage.ftionmailconfig";
+    public static final String FTIONMailConfigDefaultTranslation = "FTION mail configuration";
     public static final String FTIONModemReset = "DeviceActionMessage.ftionmodemreset";
+    public static final String FTIONModemResetDefaultTranslation = "FTION modem reset";
     public static final String AdminOld = "DeviceActionMessage.adminold";
+    public static final String AdminOldDefaultTranslation = "Admin old";
     public static final String AdminNew = "DeviceActionMessage.adminnew";
+    public static final String AdminNewDefaultTranslation = "Admin new";
 
     public static final String IEC1107ClassIdAttributeName = "GeneralDeviceMessage.iec1107classid";
     public static final String OffsetAttributeName = "GeneralDeviceMessage.offset";
@@ -800,7 +815,9 @@ public class DeviceMessageConstants {
     public static final String interval = "interval";
     public static final String duration = "duration";
     public static final String deviceId = "rtuDeviceId";
+    public static final String deviceIdDefaultTranslation = "Device ID";
     public static final String trackingId = "trackingId";
+    public static final String trackingIdDefaultTranslation = "Tracking ID";
     public static final String delete = "delete";
     public static final String startTime = "startTime";
     public static final String macAddress = "macAddress";
@@ -840,6 +857,7 @@ public class DeviceMessageConstants {
     public static final String fileInfo = "fileInfo";
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
     public static final String servletURL = "servletURL";
+    public static final String servletURLDefaultTranslation = "Servlet URL";
     public static final String logLevel = "logLevel";
     public static final String protocolName = "protocolName";
 
