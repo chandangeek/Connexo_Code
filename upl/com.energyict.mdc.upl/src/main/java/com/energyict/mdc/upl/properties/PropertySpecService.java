@@ -164,22 +164,6 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
-     * {@link PropertySpec} of {@link StringLookup} values.
-     *
-     * @return The PropertySpecBuilder
-     */
-    PropertySpecBuilderWizard.NlsOptions<StringLookup> stringLookupSpec();
-
-    /**
-     * Creates a new {@link PropertySpecBuilder} for building a custom
-     * {@link PropertySpec} of {@link NumberLookup} values.
-     *
-     * @return The PropertySpecBuilder
-     */
-    PropertySpecBuilderWizard.NlsOptions<NumberLookup> numberLookupSpec();
-
-    /**
-     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of persistent instances of the specified api class.
      *
      * @return The PropertySpecBuilder
