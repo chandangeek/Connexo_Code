@@ -67,7 +67,7 @@ public class DeviceMessageCategoryImpl implements DeviceMessageCategory {
     public List<DeviceMessageSpec> getMessageSpecifications() {
         return this.factories
                 .stream()
-                .map(factory -> factory.get(this.propertySpecService, this.nlsService))
+                .map(factory -> factory.get(this.propertySpecService, this.nlsService, ))
                 .collect(Collectors.toList());
     }
 

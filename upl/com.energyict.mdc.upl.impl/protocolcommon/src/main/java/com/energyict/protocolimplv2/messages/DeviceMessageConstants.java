@@ -304,6 +304,7 @@ public class DeviceMessageConstants {
     public static final String negativeThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.negativethresholdinampere";
     public static final String negativeThresholdInAmpereAttributeDefaultTranslation = "Negative threshold in ampere(Export)";
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.captureperiod";
+    public static final String capturePeriodAttributeDefaultTranslation = "Capture period";
     public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerproducermode";
     public static final String loadProfileOptInOutModeAttributeName = "LoadProfileConfigurationMessage.optinout";
     public static final String monitorInstanceAttributeName = "LoadBalanceDeviceMessage.monitorInstance";
@@ -623,20 +624,35 @@ public class DeviceMessageConstants {
     public static final String SetMBusVIFAttributeDefaultTranslation = "MBus VIF";
 
     public static final String openKeyAttributeName = "MBusSetupDeviceMessage.openkey";
+    public static final String openKeyAttributeDefaultTranslation = "Open key";
     public static final String transferKeyAttributeName = "MBusSetupDeviceMessage.transferkey";
+    public static final String transferKeyAttributeDefaultTranslation = "Transfer key";
     public static final String defaultKeyAttributeName = "MBusSetupDeviceMessage.defaultkey";
+    public static final String defaultKeyAttributeDefaultTranslation = "Default key";
     public static final String dib = "MBusSetupDeviceMessage.dib";
+    public static final String dibDefaultTranslation = "DIB";
     public static final String vib = "MBusSetupDeviceMessage.vib";
+    public static final String vibDefaultTranslation = "VIB";
     public static final String dibInstance1 = "MBusSetupDeviceMessage.dibInstance1";
+    public static final String dibInstance1DefaultTranslation = "DIB Instance 1";
     public static final String vibInstance1 = "MBusSetupDeviceMessage.vibInstance1";
+    public static final String vibInstance1DefaultTranslation = "VIB Instance 1";
     public static final String dibInstance2 = "MBusSetupDeviceMessage.dibInstance2";
+    public static final String dibInstance2DefaultTranslation = "DIB Instance 2";
     public static final String vibInstance2 = "MBusSetupDeviceMessage.vibInstance2";
+    public static final String vibInstance2DefaultTranslation = "VIB Instance 2";
     public static final String dibInstance3 = "MBusSetupDeviceMessage.dibInstance3";
+    public static final String dibInstance3DefaultTranslation = "DIB Instance 3";
     public static final String vibInstance3 = "MBusSetupDeviceMessage.vibInstance3";
+    public static final String vibInstance3DefaultTranslation = "VIB Instance 3";
     public static final String dibInstance4 = "MBusSetupDeviceMessage.dibInstance4";
+    public static final String dibInstance4DefaultTranslation = "DIB Instance 4";
     public static final String vibInstance4 = "MBusSetupDeviceMessage.vibInstance4";
+    public static final String vibInstance4DefaultTranslation = "VIB Instance 4";
     public static final String mbusChannel = "MBusSetupDeviceMessage.channel";
+    public static final String mbusChannelDefaultTranslation = "Mbus channel";
     public static final String mbusSerialNumber = "MBusSetupDeviceMessage.mbusSerialNumber";
+    public static final String mbusSerialNumberDefaultTranslation = "MBus serial number";
 
     public static final String AnalogOutValue = "DeviceActionMessage.analogoutvalue";
     public static final String AnalogOutValueDefaultTranslation = "Analog out value";
@@ -874,10 +890,15 @@ public class DeviceMessageConstants {
     public static final String protocolName = "protocolName";
 
     public static final String MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber = "MBusSetupDeviceMessage.ChangeMBusClientIdentificationNumber";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumberDefaultTranslation = "MBus client identification number";
     public static final String MBusSetupDeviceMessage_ChangeMBusClientManufacturerId = "MBusSetupDeviceMessage.ChangeMBusClientManufacturerId";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientManufacturerIdDefaultTranslation = "MBus client manufacturer id";
     public static final String MBusSetupDeviceMessage_ChangeMBusClientVersion = "MBusSetupDeviceMessage.ChangeMBusClientVersion";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientVersionDefaultTranslation = "MBus client version";
     public static final String MBusSetupDeviceMessage_ChangeMBusClientDeviceType = "MBusSetupDeviceMessage.ChangeMBusClientDeviceType";
+    public static final String MBusSetupDeviceMessage_ChangeMBusClientDeviceTypeDefaultTranslation = "MBus client device type";
     public static final String MBusSetupDeviceMessage_mBusClientShortId = "MBusSetupDeviceMessage.MBusClientShortId";
+    public static final String MBusSetupDeviceMessage_mBusClientShortIdDefaultTranslation = "MBus client ShortId";
 
     public static final String ACTIVE_REGISTERS_0_OR_REACTIVE_REGISTERS_1 = "ACE4000ConfigurationMessages.ACTIVE_REGISTERS_0_OR_REACTIVE_REGISTERS_1";
     public static final String NUMBER_OF_SUBINTERVALS = "ACE4000ConfigurationMessages.NUMBER_OF_SUBINTERVALS";

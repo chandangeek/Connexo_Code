@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 /**
@@ -11,5 +12,5 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
  * @since 2016-12-01 (13:04)
  */
 public interface DeviceMessageSpecFactory {
-    DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService);
+    DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter);
 }

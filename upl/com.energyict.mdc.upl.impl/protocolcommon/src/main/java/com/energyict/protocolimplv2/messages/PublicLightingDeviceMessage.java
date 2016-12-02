@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
@@ -154,7 +155,7 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecFactory {
     }
 
     @Override
-    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
                 this.id,
                 new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
