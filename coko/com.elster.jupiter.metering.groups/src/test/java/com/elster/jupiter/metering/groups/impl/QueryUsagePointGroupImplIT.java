@@ -191,7 +191,7 @@ public class QueryUsagePointGroupImplIT {
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         meteringGroupsService.createQueryUsagePointGroup(
                 mockSearchablePropertyValue("type", SearchablePropertyOperator.EQUAL,
-                        Collections.singletonList(UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP.name())))
+                        Collections.singletonList(UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name())))
                 .setMRID("MDM:mine")
                 .setName("mine")
                 .setSearchDomain(searchDomain)
