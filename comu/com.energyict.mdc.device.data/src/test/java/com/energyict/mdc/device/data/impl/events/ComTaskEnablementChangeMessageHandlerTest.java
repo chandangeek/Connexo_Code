@@ -184,10 +184,10 @@ public class ComTaskEnablementChangeMessageHandlerTest {
     public void enablementMarkedAsAlwaysExecuteHavingDeviceWhichHasAlreadyComTaskExecutions() throws JsonProcessingException {
         MessageBuilder messageBuilder = createTestMessageBuilder();
 
-        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device_1.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution)); // The device has a matching ComTaskExecution
 
-        when(otherComTaskExecution.getComTasks()).thenReturn(Collections.singletonList(otherComTask));
+        when(otherComTaskExecution.getComTask()).thenReturn(otherComTask);
         when(device_2.getComTaskExecutions()).thenReturn(Collections.singletonList(otherComTaskExecution)); // The device doesn't have a matching ComTaskExecution, so new one should be created
 
         when(finder.stream()).thenReturn(Stream.of(device_1, device_2));
@@ -218,7 +218,7 @@ public class ComTaskEnablementChangeMessageHandlerTest {
 
     @Test
     public void executeSingleActionWithMachingComTaskExecution() throws JsonProcessingException {
-        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device_1.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution)); // The device has a matching ComTaskExecution
 
         SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_ID, COMTASK_ENABLEMENT_ID);
