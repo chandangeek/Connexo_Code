@@ -514,6 +514,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
     private List<Difference> upgradeFromDdl(ColumnImpl fromColumn, ColumnImpl toColumn) {
         List<Difference> upgradeDifferences = getUpgradeDifference(fromColumn, toColumn);
         if (toColumn.isAutoIncrement() && !fromColumn.isAutoIncrement()) {
+            upgradeDifferences = new ArrayList<>(upgradeDifferences);
             upgradeDifferences.add(addAutoIncrementSequenceDifference(toColumn));
         }
         return upgradeDifferences;
