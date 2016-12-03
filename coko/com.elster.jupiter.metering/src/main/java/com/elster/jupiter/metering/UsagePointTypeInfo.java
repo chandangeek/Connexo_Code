@@ -20,10 +20,10 @@ public class UsagePointTypeInfo {
     }
 
     public static enum UsagePointType{
-        PHYSICAL_SDP(Translation.PHYSICAL_SDP,"Physical SDP", true, false),
-        VIRTUAL_SDP(Translation.VIRTUAL_SDP, "Virtual SDP", true, true),
-        PHYSICAL_NON_SDP(Translation.PHYSICAL_NON_SDP, "Physical non-SDP", false, false),
-        VIRTUAL_NON_SDP(Translation.VIRTUAL_NON_SDP, "Virtual non-SDP", false, true);
+        MEASURED_SDP(Translation.MEASURED_SDP, "Physical SDP", true, false),
+        UNMEASURED_SDP(Translation.UNMEASURED_SDP, "Virtual SDP", true, true),
+        MEASURED_NON_SDP(Translation.MEASURED_NON_SDP, "Physical non-SDP", false, false),
+        UNMEASURED_NON_SDP(Translation.UNMEASURED_NON_SDP, "Virtual non-SDP", false, true);
 
         private TranslationKey translationKey;
         public final String displayName;
@@ -52,10 +52,10 @@ public class UsagePointTypeInfo {
 
         public enum Translation implements TranslationKey {
 
-            PHYSICAL_SDP("physical.sdp","Physical SDP"),
-            VIRTUAL_SDP("virtual.sdp", "Virtual SDP"),
-            PHYSICAL_NON_SDP("physical.non.sdp", "Physical non-SDP"),
-            VIRTUAL_NON_SDP("virtual.non.sdp", "Virtual non-SDP");
+            MEASURED_SDP("physical.sdp", "Physical SDP"),
+            UNMEASURED_SDP("virtual.sdp", "Virtual SDP"),
+            MEASURED_NON_SDP("physical.non.sdp", "Physical non-SDP"),
+            UNMEASURED_NON_SDP("virtual.non.sdp", "Virtual non-SDP");
 
             private String key;
             private String defaultFormat;

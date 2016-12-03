@@ -6,7 +6,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.metering.impl.GasDayOptions;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.DayMonthTime;
@@ -15,6 +15,7 @@ import com.elster.jupiter.util.units.Dimension;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +53,7 @@ public class TruncatedTimelineSqlBuilderTest {
     public void test15MinutesGasToDayLevel() {
         GasDayOptions gasDayOptions = mock(GasDayOptions.class);
         when(gasDayOptions.getYearStart()).thenReturn(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(17, 0)));
-        when(this.meteringService.getGasDayOptions()).thenReturn(gasDayOptions);
+        when(this.meteringService.getGasDayOptions()).thenReturn(Optional.of(gasDayOptions));
         SqlBuilder sqlBuilder = new SqlBuilder();
         TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins())
                 .to(IntervalLength.DAY1)
@@ -67,7 +68,7 @@ public class TruncatedTimelineSqlBuilderTest {
 
     @Test
     public void test15MinutesGasDoesNotNPEWhenGasDayStartNotConfigured() {
-        when(this.meteringService.getGasDayOptions()).thenReturn(null);
+        when(this.meteringService.getGasDayOptions()).thenReturn(Optional.empty());
         SqlBuilder sqlBuilder = new SqlBuilder();
         TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins())
                 .to(IntervalLength.DAY1)
@@ -84,7 +85,7 @@ public class TruncatedTimelineSqlBuilderTest {
     public void test15MinutesGasToYearLevel() {
         GasDayOptions gasDayOptions = mock(GasDayOptions.class);
         when(gasDayOptions.getYearStart()).thenReturn(DayMonthTime.from(MonthDay.of(Month.MAY, 1), LocalTime.of(17, 0)));
-        when(this.meteringService.getGasDayOptions()).thenReturn(gasDayOptions);
+        when(this.meteringService.getGasDayOptions()).thenReturn(Optional.of(gasDayOptions));
         SqlBuilder sqlBuilder = new SqlBuilder();
         TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins())
                 .to(IntervalLength.YEAR1)

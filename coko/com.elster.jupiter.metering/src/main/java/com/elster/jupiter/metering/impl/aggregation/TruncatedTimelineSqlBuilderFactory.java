@@ -4,13 +4,16 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.impl.GasDayOptions;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.DayMonthTime;
 
 import java.time.Month;
 import java.time.MonthDay;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides factory services for {@link TruncatedTimelineSqlBuilder}s.
@@ -145,12 +148,7 @@ final class TruncatedTimelineSqlBuilderFactory {
         }
 
         static GasDayOptions findGasDayOptionsOrStubIfNotConfigured(ServerMeteringService meteringService) {
-            GasDayOptions gasDayOptions = meteringService.getGasDayOptions();
-            if (gasDayOptions == null) {
-                return new NoGasDayOptions();
-            } else {
-                return gasDayOptions;
-            }
+            return meteringService.getGasDayOptions().orElseGet(NoGasDayOptions::new);
         }
 
         @Override
@@ -210,6 +208,11 @@ final class TruncatedTimelineSqlBuilderFactory {
         @Override
         public DayMonthTime getYearStart() {
             return DayMonthTime.fromMidnight(MonthDay.of(Month.JANUARY, 1));
+        }
+
+        @Override
+        public List<RelativePeriod> getRelativePeriods() {
+            return Collections.emptyList();
         }
     }
 
