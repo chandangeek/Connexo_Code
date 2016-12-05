@@ -59,7 +59,13 @@ class CalendarImporter implements FileImporter {
             processor.process(xmlContents);
             markSuccess(fileImportOccurrence);
         } catch (JAXBException e) {
-            throw new XmlValidationFailed(thesaurus, e);
+            Throwable toLog = (e.getLinkedException() != null) ? e.getLinkedException() : e;
+            String message = toLog.getLocalizedMessage();
+            if ("Content is not allowed in prolog.".equals(message)) {
+                throw new XmlValidationFailed(thesaurus, e);
+            } else {
+                throw new XmlValidationFailed(thesaurus, e, message);
+            }
         } catch (ConstraintViolationException e) {
             new ExceptionLogFormatter(thesaurus, fileImportOccurrence.getLogger()).log(e);
             throw new RuntimeException(thesaurus.getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
