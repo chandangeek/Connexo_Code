@@ -460,19 +460,31 @@ public final class DeviceMessageConstants {
 
 
     public static final String SetPOPUsernameAttributeName = "MailConfigurationDeviceMessage.setpopusername";
+    public static final String SetPOPUsernameAttributeDefaultTranslation = "POP username";
     public static final String SetPOPPasswordAttributeName = "MailConfigurationDeviceMessage.setpoppassword";
+    public static final String SetPOPPasswordAttributeDefaultTranslation = "POP password";
     public static final String SetPOPHostAttributeName = "MailConfigurationDeviceMessage.setpophost";
+    public static final String SetPOPHostAttributeDefaultTranslation = "POP host";
     public static final String SetPOPReadMailEveryAttributeName = "MailConfigurationDeviceMessage.setpopreadmailevery";
+    public static final String SetPOPReadMailEveryAttributeDefaultTranslation = "POP read mail every";
     public static final String SetPOP3OptionsAttributeName = "MailConfigurationDeviceMessage.setpop3options";
-    public static final String SetSMTPFromAttributeName = "MailConfigurationDeviceMessage.setsmtpfrom";
+    public static final String SetPOP3OptionsAttributeDefaultTranslation = "POP3 options";
     public static final String SetSMTPToAttributeName = "MailConfigurationDeviceMessage.setsmtpto";
+    public static final String SetSMTPToAttributeDefaultTranslation = "SMTP to";
     public static final String SetSMTPConfigurationToAttributeName = "MailConfigurationDeviceMessage.setsmtpconfigurationto";
+    public static final String SetSMTPConfigurationToAttributeDefaultTranslation = "SMTP configuration to";
     public static final String SetSMTPServerAttributeName = "MailConfigurationDeviceMessage.setsmtpserver";
+    public static final String SetSMTPServerAttributeDefaultTranslation = "SMTP server";
     public static final String SetSMTPDomainAttributeName = "MailConfigurationDeviceMessage.setsmtpdomain";
+    public static final String SetSMTPDomainAttributeDefaultTranslation = "SMTP domain";
     public static final String SetSMTPSendMailEveryAttributeName = "MailConfigurationDeviceMessage.setsmtpsendmailevery";
+    public static final String SetSMTPSendMailEveryAttributeDefaultTranslation = "SMTP send mail every";
     public static final String SetSMTPCurrentIntervalAttributeName = "MailConfigurationDeviceMessage.setsmtpcurrentinterval";
+    public static final String SetSMTPCurrentIntervalAttributeDefaultTranslation = "SMTP current interval";
     public static final String SetSMTPDatabaseIDAttributeName = "MailConfigurationDeviceMessage.setsmtpdatabaseid";
+    public static final String SetSMTPDatabaseIDAttributeDefaultTranslation = "SMTP database ID";
     public static final String SetSMTPOptionsAttributeName = "MailConfigurationDeviceMessage.setsmtpoptions";
+    public static final String SetSMTPOptionsAttributeDefaultTranslation = "SMTP options";
 
     public static final String SetSmsDataNbrAttributeName = "SMSConfigurationDeviceMessage.setsmsdatanbr";
     public static final String SetSmsAlarmNbrAttributeName = "SMSConfigurationDeviceMessage.setsmsalarmnbr";
