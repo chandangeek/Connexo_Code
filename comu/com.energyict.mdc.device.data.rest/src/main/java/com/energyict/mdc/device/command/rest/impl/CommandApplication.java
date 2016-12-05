@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.google.common.collect.ImmutableSet;
@@ -33,8 +34,9 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
     private volatile Thesaurus thesaurus;
     private volatile JsonService jsonService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private volatile License license;
+    private volatile CommandRuleService commandRuleService;
 
+    private volatile License license;
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -56,16 +58,21 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
-
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
 
+
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
+
+//    @Reference
+//    public void setCommandRuleService(CommandRuleService commandRuleService) {
+//        this.commandRuleService = commandRuleService;
+//    }
 
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
@@ -103,6 +110,7 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
+//            bind(commandRuleService).to(CommandRuleService.class);
         }
     }
 }

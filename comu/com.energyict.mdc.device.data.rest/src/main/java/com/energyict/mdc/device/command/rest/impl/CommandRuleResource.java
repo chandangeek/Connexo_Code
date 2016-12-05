@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.command.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -46,13 +47,30 @@ public class CommandRuleResource {
     }
 
     @GET
+    @Path("/categories")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response getCategories() {
+        List<IdWithNameInfo> categories = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
+                .stream()
+                .map(deviceMessageCategory -> new IdWithNameInfo(deviceMessageCategory.getId(), deviceMessageCategory.getName()))
+                .collect(Collectors.toList());
+
+        return Response.ok(categories).build();
+    }
+
+    @GET
     @Path("/commands")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getCommands(@BeanParam JsonQueryFilter filter) {
+    public Response getCommands(@BeanParam JsonQueryFilter jsonQueryFilter) {
+        List<String> alreadySelectedCommands = jsonQueryFilter.getStringList("selectedcommands");
+        List<Integer> selectedCategories = jsonQueryFilter.getIntegerList("categories");
+
         List<CommandInfo> commands = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
+                .filter(deviceMessageCategory -> selectedCategories.size() == 0 || selectedCategories.contains(deviceMessageCategory.getId()))
                 .map(DeviceMessageCategory::getMessageSpecifications)
                 .flatMap(List::stream)
+                .filter(deviceMessageSpec -> !alreadySelectedCommands.contains(deviceMessageSpec.getId().name()))
                 .map(deviceMessageSpec -> new CommandInfo(deviceMessageSpec.getCategory().getName(), deviceMessageSpec.getName(), deviceMessageSpec.getId().name()))
                 .collect(Collectors.toList());
 
