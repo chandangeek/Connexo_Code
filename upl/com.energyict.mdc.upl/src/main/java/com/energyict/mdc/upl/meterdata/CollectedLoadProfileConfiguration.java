@@ -33,6 +33,6 @@ public interface CollectedLoadProfileConfiguration extends CollectedData {
 
     boolean isSupportedByMeter();
 
-    void setSupportedByMeter(boolean b);
+    void setSupportedByMeter(boolean supportedByMeter);
 
 }

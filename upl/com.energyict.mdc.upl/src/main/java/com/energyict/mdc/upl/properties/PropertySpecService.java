@@ -3,6 +3,8 @@ package com.energyict.mdc.upl.properties;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAmount;
+import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -40,6 +42,24 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<String> stringSpecOfMaximumLength(int length);
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link HexString} values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link HexString} values that need to be
+     * an exact number of characters in length.
+     *
+     * @param length The number of characters
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpecOfExactLength(int length);
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -113,11 +133,27 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of Date values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Date> dateTimeSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of LocalTime values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Date> timeSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of TimeZone values.
      *
      * @return The PropertySpecBuilder
      */
-    PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
+    PropertySpecBuilderWizard.NlsOptions<TimeZone> timeZoneSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -126,6 +162,14 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<Duration> durationSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of TemporalAmount values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<TemporalAmount> temporalAmountSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom

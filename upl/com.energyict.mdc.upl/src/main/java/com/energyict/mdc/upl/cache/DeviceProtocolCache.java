@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
 /**
- * Defines a <i>object</i> that represents a generic cache for a DeviceProtocol.
+ * Defines an <i>object</i> that represents a generic cache for a DeviceProtocol.
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public interface DeviceProtocolCache extends Serializable {
@@ -16,5 +16,11 @@ public interface DeviceProtocolCache extends Serializable {
      * @return true if the content changed, false otherwise
      */
     boolean contentChanged();
+
+    /**
+     * Sets the content changed flag
+     * This setter can be used to overrule/alter the behaviour of DeviceProtocolCache#contentChanged() method.
+     */
+    public void setContentChanged(boolean changed);
 
 }

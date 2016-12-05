@@ -1,7 +1,6 @@
 package com.energyict.mdc.upl.properties;
 
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 
 /**
@@ -61,16 +60,7 @@ public interface PropertySpecBuilderWizard {
          * @param descriptionTranslationKey The TranslationKey for the description
          * @return This step of the building process to allow method chaining
          */
-        ThesaurusBased<T> describedAs(TranslationKey descriptionTranslationKey);
-
-        /**
-         * Specifies the {@link Thesaurus} that contains the translations
-         * of the previously specified {@link TranslationKey}s.
-         *
-         * @param thesaurus The Thesaurus
-         * @return The PropertySpecBuilder
-         */
-        PropertySpecBuilder<T> fromThesaurus(Thesaurus thesaurus);
+        PropertySpecBuilder<T> describedAs(TranslationKey descriptionTranslationKey);
     }
 
     /**

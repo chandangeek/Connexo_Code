@@ -9,6 +9,8 @@ package com.energyict.protocol;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Koen
@@ -19,6 +21,12 @@ public class IntervalValue implements Serializable {
     Number number;
     int protocolStatus;
     int eiStatus;
+
+    /**
+     * A list of the CIM codes of the reading qualities that apply to this interval value.
+     * E.g. "1.2.1001" is power down.
+     */
+    private Set<String> readingQualityTypes = new HashSet<>();
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -37,6 +45,20 @@ public class IntervalValue implements Serializable {
         this.number = number;
         this.protocolStatus = protocolStatus;
         this.eiStatus = eiStatus;
+        this.generateReadingQualities(eiStatus);
+    }
+
+    public IntervalValue(Number number, int protocolStatus, Set<String> readingQualityTypes) {
+        this.number = number;
+        this.protocolStatus = protocolStatus;
+        this.readingQualityTypes = readingQualityTypes;
+    }
+
+    /**
+     * Generate the proper reading quality CIM codes based on the given eiStatus.
+     */
+    private void generateReadingQualities(int eiStatus) {
+        readingQualityTypes.addAll(IntervalFlagMapper.map(eiStatus));
     }
 
     @XmlAttribute
@@ -53,22 +75,53 @@ public class IntervalValue implements Serializable {
         return protocolStatus;
     }
 
+    protected void setProtocolStatus(int protocolStatus) {
+        this.protocolStatus = protocolStatus;
+    }
+
     @XmlAttribute
     public int getEiStatus() {
         return eiStatus;
     }
 
+
     // KV 25082004
     protected void setEiStatus(int eiStatus) {
         this.eiStatus = eiStatus;
+        readingQualityTypes.clear();
+        generateReadingQualities(eiStatus);
     }
 
-    protected void setProtocolStatus(int protocolStatus) {
-        this.protocolStatus = protocolStatus;
+    /**
+     * A list of the CIM codes of the reading qualities that apply to this interval value.
+     */
+    public Set<String> getReadingQualityTypes() {
+        return readingQualityTypes;
+    }
+
+    public void setReadingQualityTypes(Set<String> readingQualityTypes) {
+        this.readingQualityTypes = readingQualityTypes;
+    }
+
+    public void addReadingQualityType(String readingQualityType) {
+        getReadingQualityTypes().add(readingQualityType);
+    }
+
+    public void addReadingQualityTypes(Set<String> readingQualityTypes) {
+        getReadingQualityTypes().addAll(readingQualityTypes);
     }
 
     public String toString() {
-        return number + " " + protocolStatus + " " + eiStatus;
+
+        StringBuilder readingQualitiesDescription = new StringBuilder();
+        for (String readingQualityType : getReadingQualityTypes()) {
+            if (readingQualitiesDescription.length() > 0) {
+                readingQualitiesDescription.append(", ");
+            }
+            readingQualitiesDescription.append(readingQualityType);
+        }
+
+        return number + " " + protocolStatus + " " + eiStatus + " ReadingQualities: " + readingQualitiesDescription.toString();
     }
 
 }

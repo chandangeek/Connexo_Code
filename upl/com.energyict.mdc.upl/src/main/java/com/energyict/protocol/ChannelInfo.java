@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 
 /**
- * <p/>
+ * <p>
  * Contains information about a device logical channel
  *
  * @author Karel
@@ -58,6 +58,11 @@ public class ChannelInfo implements java.io.Serializable {
     private String meterIdentifier = "";
 
     /**
+     * The MRID of the ReadingType of the <i>channel</i> which will store the collected Data
+     */
+    private String readingTypeMRID;
+
+    /**
      * Constructor only to be used by JSON (de)marshalling
      */
     private ChannelInfo() {
@@ -75,6 +80,42 @@ public class ChannelInfo implements java.io.Serializable {
         this.channelId = id;
         this.name = name;
         this.unit = unit;
+    }
+
+    /**
+     * Constructor for <CODE>LoadProfiles</CODE> which contain channels from different meters. The {@link #name} field is used to identify the <CODE>ObisCode</CODE> but
+     * some <CODE>ProfileData</CODE may contain multiple channels with the same <CODE>ObisCode</CODE> but from a different Slave meter. The distinction between those channels is
+     * made with the {@link #meterIdentifier}
+     *
+     * @param id                  logical channel id (0 based)
+     * @param name                logical channel name (use OBIS code if device uses OBIS codes, 0 based)
+     * @param unit                the logical channel unit
+     * @param meterIdentification identifier (SerialNumber) of the meter which will provide data for this channel
+     * @param readingTypeMRID     the MRID of the ReadingType of the MeasurementType
+     */
+    public ChannelInfo(int id, String name, Unit unit, String meterIdentification, String readingTypeMRID) {
+        this(id, name, unit);
+        this.meterIdentifier = meterIdentification;
+        this.readingTypeMRID = readingTypeMRID;
+    }
+
+    /**
+     * Constructor for <CODE>LoadProfiles</CODE> which contain channels from different meters. The {@link #name} field is used to identify the <CODE>ObisCode</CODE> but
+     * some <CODE>ProfileData</CODE may contain multiple channels with the same <CODE>ObisCode</CODE> but from a different Slave meter. The distinction between those channels is
+     * made with the {@link #meterIdentifier}
+     *
+     * @param id                  logical channel id (0 based)
+     * @param name                logical channel name (use OBIS code if device uses OBIS codes, 0 based)
+     * @param unit                the logical channel unit
+     * @param meterIdentification identifier (SerialNumber) of the meter which will provide data for this channel
+     * @param cumulative          indicates whether the channel is cumulative
+     * @param readingTypeMRID     the ReadingType of the MeasurementType
+     */
+    public ChannelInfo(int id, String name, Unit unit, String meterIdentification, boolean cumulative, String readingTypeMRID) {
+        this(id, name, unit);
+        this.meterIdentifier = meterIdentification;
+        this.cumulative = cumulative;
+        this.readingTypeMRID = readingTypeMRID;
     }
 
     /**
@@ -179,6 +220,24 @@ public class ChannelInfo implements java.io.Serializable {
     }
 
     /**
+     * Setter for the id
+     *
+     * @param id int
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getReadingTypeMRID() {
+        return readingTypeMRID;
+    }
+
+    @XmlAttribute
+    public void setReadingTypeMRID(String readingTypeMRID) {
+        this.readingTypeMRID = readingTypeMRID;
+    }
+
+    /**
      * Getter for the name
      *
      * @return the name of the logical channel
@@ -186,6 +245,15 @@ public class ChannelInfo implements java.io.Serializable {
     @XmlAttribute
     public String getName() {
         return name;
+    }
+
+    /**
+     * Setter for the name
+     *
+     * @param name String
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -199,6 +267,15 @@ public class ChannelInfo implements java.io.Serializable {
     }
 
     /**
+     * Setter for the unit
+     *
+     * @param unit Unit
+     */
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+
+    /**
      * Getter for the scaler
      *
      * @return scale to apply to this channel's unit
@@ -206,6 +283,15 @@ public class ChannelInfo implements java.io.Serializable {
      */
     public int getScaler() {
         return 0;
+    }
+
+    /**
+     * Setter for the scaler
+     *
+     * @param scaler int
+     * @deprecated scaler is obsolete
+     */
+    public void setScaler(int scaler) {
     }
 
     /**
@@ -219,58 +305,12 @@ public class ChannelInfo implements java.io.Serializable {
     }
 
     /**
-     * Setter for the id
-     *
-     * @param id int
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    /**
-     * Setter for the name
-     *
-     * @param name String
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Setter for the unit
-     *
-     * @param unit Unit
-     */
-    public void setUnit(Unit unit) {
-        this.unit = unit;
-    }
-
-    /**
-     * Setter for the scaler
-     *
-     * @param scaler int
-     * @deprecated scaler is obsolete
-     */
-    public void setScaler(int scaler) {
-    }
-
-    /**
      * Setter for channelId
      *
      * @param channelId int
      */
     public void setChannelId(int channelId) {
         this.channelId = channelId;
-    }
-
-    /**
-     * Setter for the cumulativeWrapValue. when this is set, the BusinessLogic will suppose that the values in the IntervalData are indexe rather then advances
-     *
-     * @param cumulativeWrapValue BigDecimal
-     * @deprecated use setCumulative()
-     */
-    public void setCumulativeWrapValue(BigDecimal cumulativeWrapValue) {
-        this.cumulativeWrapValue = cumulativeWrapValue;
     }
 
     /**
@@ -282,6 +322,16 @@ public class ChannelInfo implements java.io.Serializable {
     @XmlAttribute
     public BigDecimal getCumulativeWrapValue() {
         return cumulativeWrapValue;
+    }
+
+    /**
+     * Setter for the cumulativeWrapValue. when this is set, the BusinessLogic will suppose that the values in the IntervalData are indexe rather then advances
+     *
+     * @param cumulativeWrapValue BigDecimal
+     * @deprecated use setCumulative()
+     */
+    public void setCumulativeWrapValue(BigDecimal cumulativeWrapValue) {
+        this.cumulativeWrapValue = cumulativeWrapValue;
     }
 
     /**
@@ -357,7 +407,7 @@ public class ChannelInfo implements java.io.Serializable {
      * be a concise but informative representation that is easy for a
      * person to read.
      * It is recommended that all subclasses override this method.
-     * <p/>
+     * <p>
      * The <code>toString</code> method for class <code>Object</code>
      * returns a string consisting of the name of the class of which the
      * object is an instance, the at-sign character `<code>@</code>', and
@@ -375,6 +425,7 @@ public class ChannelInfo implements java.io.Serializable {
     public String toString() {
         return "ChannelInfo -> Id: " + this.id + " - Name: " + this.name + " - Unit: " + this.unit;
     }
+
 
     /**
      * 2 channel infos are considered equal if they have the same ObisCode (or text name), BaseUnit and serial number.
@@ -424,6 +475,16 @@ public class ChannelInfo implements java.io.Serializable {
             return true;
         }
 
+        if (this.getReadingTypeMRID() == null && that.getReadingTypeMRID() != null) {
+            return false;
+        }
+        if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() == null) {
+            return false;
+        }
+        if (this.getReadingTypeMRID() != null && that.getReadingTypeMRID() != null && !this.getReadingTypeMRID().equals(that.getReadingTypeMRID())) {
+            return false;
+        }
+
         //Units are considered equal if they are both null, or if they both have the same BaseUnit
         return (unit == null) ? (that.unit == null) : ((that.unit != null) && unit.equalBaseUnit(that.unit));
     }
@@ -433,7 +494,86 @@ public class ChannelInfo implements java.io.Serializable {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (unit != null ? unit.hashCode() : 0);
         result = 31 * result + (meterIdentifier != null ? meterIdentifier.hashCode() : 0);
+        result = 31 * result + (readingTypeMRID != null ? readingTypeMRID.hashCode() : 0);
         return result;
     }
 
+    public static class ChannelInfoBuilder {
+
+        private String name;
+        private ObisCode obisCode;
+        private Unit unit;
+        private String meterIdentifier;
+        private String readingTypeMRID;
+
+        private int id;
+        private int channelId;
+        private BigDecimal cumulativeWrapValue;
+        private boolean cumulative = false;
+        private BigDecimal multiplier = BigDecimal.ONE;
+
+        private ChannelInfoBuilder(ObisCode obisCode) {
+            this.obisCode = obisCode;
+        }
+
+        public static ChannelInfoBuilder fromObisCode(ObisCode obisCode) {
+            ChannelInfoBuilder channelInfoBuilder = new ChannelInfoBuilder(obisCode);
+            channelInfoBuilder.name = obisCode.toString();
+            return channelInfoBuilder;
+        }
+
+        public ChannelInfoBuilder meterIdentifier(String meterIdentifier) {
+            this.meterIdentifier = meterIdentifier;
+            return this;
+        }
+
+        public ChannelInfoBuilder readingTypeMRID(String readingTypeMRID) {
+            this.readingTypeMRID = readingTypeMRID;
+            return this;
+        }
+
+        public ChannelInfoBuilder unit(Unit unit) {
+            this.unit = unit;
+            return this;
+        }
+
+        public ChannelInfoBuilder multiplier(BigDecimal multiplier) {
+            this.multiplier = multiplier;
+            return this;
+        }
+
+        public ChannelInfoBuilder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public ChannelInfoBuilder channelId(int channelId) {
+            this.channelId = channelId;
+            return this;
+        }
+
+        public ChannelInfoBuilder cumulativeWrapValue(BigDecimal cumulativeWrapValue) {
+            this.cumulativeWrapValue = cumulativeWrapValue;
+            return this;
+        }
+
+        public ChannelInfoBuilder cumulative(boolean cumulative) {
+            this.cumulative = cumulative;
+            return this;
+        }
+
+        public ChannelInfo build() {
+            ChannelInfo channelInfo = new ChannelInfo();
+            channelInfo.id = this.id;
+            channelInfo.name = this.name;
+            channelInfo.unit = this.unit;
+            channelInfo.meterIdentifier = this.meterIdentifier;
+            channelInfo.cumulative = this.cumulative;
+            channelInfo.readingTypeMRID = this.readingTypeMRID;
+            channelInfo.cumulativeWrapValue = this.cumulativeWrapValue;
+            channelInfo.channelId = this.channelId;
+            channelInfo.multiplier = this.multiplier;
+            return channelInfo;
+        }
+    }
 }

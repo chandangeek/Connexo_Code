@@ -8,7 +8,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-19 (15:41)
  */
-public interface PropertySpecPossibleValues<T> {
+public interface PropertySpecPossibleValues {
 
     PropertySelectionMode getSelectionMode();
 
@@ -17,7 +17,7 @@ public interface PropertySpecPossibleValues<T> {
      *
      * @return The possible values
      */
-    List<? super T> getAllValues();
+    List<?> getAllValues();
 
     /**
      * Returns <code>true</code> if the possible values are an
@@ -47,6 +47,6 @@ public interface PropertySpecPossibleValues<T> {
      *
      * @return The default value
      */
-    T getDefault();
+    Object getDefault();
 
 }

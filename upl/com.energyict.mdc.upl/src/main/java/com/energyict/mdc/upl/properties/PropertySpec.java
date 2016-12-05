@@ -11,13 +11,14 @@ import java.util.Optional;
  * A PropertySpec is capable of validating a value,
  * likely against a type that is internally managed/known.
  * When a PropertySpec is "required", a value will need to be provided.
- * When a value is invalid, a
+ * When a value is invalid, an exception from the {@link PropertyValidationException}
+ * class hierarchy is thrown.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-28 (14:50)
  */
 @ConsumerType
-public interface PropertySpec<T> {
+public interface PropertySpec {
 
     /**
      * Gets the name of this PropertySpec.
@@ -63,12 +64,12 @@ public interface PropertySpec<T> {
      * @return <code>true</code> iff the value is valid, all other cases will throw an InvalidValueException
      * @throws PropertyValidationException Thrown if the value is not valid for this attribute specification.
      */
-    boolean validateValue(T value) throws PropertyValidationException;
+    boolean validateValue(Object value) throws PropertyValidationException;
 
     /**
      * @return the Default value defined for this PropertySpec
      */
-    Optional<T> getDefaultValue();
+    Optional<?> getDefaultValue();
 
     /**
      * Provides a list of possible values for the PropertySpec. Every value should only occur once.
@@ -77,7 +78,7 @@ public interface PropertySpec<T> {
      *
      * @return the list of possible values for this PropertySpec
      */
-    PropertySpecPossibleValues<T> getPossibleValues();
+    PropertySpecPossibleValues getPossibleValues();
 
     /**
      * Tests if this PropertySpec has support for

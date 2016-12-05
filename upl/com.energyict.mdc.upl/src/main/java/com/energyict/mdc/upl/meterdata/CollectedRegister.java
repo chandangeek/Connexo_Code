@@ -1,8 +1,7 @@
 package com.energyict.mdc.upl.meterdata;
 
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import java.util.Date;
 
@@ -32,6 +31,13 @@ public interface CollectedRegister extends CollectedData {
      * @return the read time
      */
     Date getReadTime();
+
+    /**
+     * Set the collected TimeStamps
+     *
+     * @param readTime the time the register was read
+     */
+    void setReadTime(Date readTime);
 
     /**
      * Returns the start of the measurement period covered by this reading. Most
@@ -64,9 +70,23 @@ public interface CollectedRegister extends CollectedData {
      * Should provide an identifier to uniquely identify the requested Register.
      *
      * @return the {@link RegisterIdentifier registerIdentifier}
-     *         of the BusinessObject which is actionHolder of the request
+     * of the BusinessObject which is actionHolder of the request
      */
     RegisterIdentifier getRegisterIdentifier();
+
+    /**
+     * Gets the MRID of the ReadingType of the collected Register
+     *
+     * @return the MRID of the ReadingType of the collected Register
+     */
+    String getReadingTypeMRID();
+
+    /**
+     * Indicates whether this is a text register
+     *
+     * @return true if this is a text register, false otherwise
+     */
+    boolean isTextRegister();
 
     /**
      * Set the collected timeStamps.<br/>
@@ -106,12 +126,5 @@ public interface CollectedRegister extends CollectedData {
      * @param toTime   the toTime
      */
     void setCollectedTimeStamps(Date readTime, Date fromTime, Date toTime);
-
-    /**
-     * Set the collected TimeStamps
-     *
-     * @param readTime the time the register was read
-     */
-    void setReadTime(Date readTime);
 
 }

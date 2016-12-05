@@ -85,4 +85,8 @@ public interface DeviceProtocol
      */
     List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities();
 
+    DeviceFunction getDeviceFunction();
+
+    ManufacturerInformation getManufacturerInformation();
+
 }

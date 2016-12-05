@@ -60,6 +60,6 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
+        return new FactoryBasedDeviceMessageSpecPrimaryKey(this, name());
     }
 }

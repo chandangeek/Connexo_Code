@@ -84,6 +84,6 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
 
     @Override
     public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-        return new DeviceMessageCategoryPrimaryKey(this, name());
+        return new EnumBasedDeviceMessageCategoryPrimaryKey(this, name());
     }
 }
