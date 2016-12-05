@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 public interface UsagePointBuilder {
@@ -27,6 +29,8 @@ public interface UsagePointBuilder {
     UsagePointBuilder withServiceLocation(ServiceLocation location);
 
     UsagePointBuilder withServiceLocationString(String serviceLocationString);
+
+    UsagePointBuilder addCustomPropertySetValues(RegisteredCustomPropertySet propertySet, CustomPropertySetValues values);
 
     UsagePoint create();
 
