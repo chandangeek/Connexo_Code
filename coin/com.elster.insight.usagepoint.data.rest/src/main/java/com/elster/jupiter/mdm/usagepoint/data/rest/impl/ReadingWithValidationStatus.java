@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -137,12 +138,12 @@ public class ReadingWithValidationStatus<T extends BaseReadingRecord> {
             this.channel = channel;
         }
 
-        public ReadingWithValidationStatus from(ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
-            if (intervalLength != null) {
-                return new ReadingWithValidationStatus<IntervalReadingRecord>(this.channel, this.outputChannelGeneralValidation, readingTimeStamp, intervalLength);
-            } else {
+        public ReadingWithValidationStatus<IntervalReadingRecord> from(ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
+                return new ReadingWithValidationStatus<>(this.channel, this.outputChannelGeneralValidation, readingTimeStamp, intervalLength);
+        }
+
+        public ReadingWithValidationStatus<ReadingRecord> from(ZonedDateTime readingTimeStamp) {
                 return new ReadingWithValidationStatus<>(this.channel, this.outputChannelGeneralValidation, readingTimeStamp);
-            }
         }
     }
 

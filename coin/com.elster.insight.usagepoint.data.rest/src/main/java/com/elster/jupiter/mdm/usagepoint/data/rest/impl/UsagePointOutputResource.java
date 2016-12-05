@@ -46,7 +46,6 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -345,7 +344,7 @@ public class UsagePointOutputResource {
                         .concat(persistedReadings.keySet().stream(), readings.keySet().stream())
                         .distinct()
                         .collect(Collectors.toMap(Function.identity(), timeStamp -> builder.from(ZonedDateTime.ofInstant(timeStamp, clock
-                                .getZone()), null), (a, b) -> a));
+                                .getZone())), (a, b) -> a));
 
                 for (Instant timeStamp : preFilledChannelDataMap.keySet()) {
                     ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus = preFilledChannelDataMap.get(timeStamp);
@@ -384,14 +383,67 @@ public class UsagePointOutputResource {
         return PagedInfoList.fromPagedList("registerData", outputRegisterData, queryParameters);
     }
 
+    @GET
+    @Transactional
+    @Path("/{purposeId}/outputs/{outputId}/registerData/{requestedTimeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public Response getSingleRegisterDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                  @PathParam("requestedTimeStamp") long requestedTimeStamp, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        if (readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_REGULAR, outputId);
+        }
+        ChannelsContainer channelsContainer = effectiveMC.getChannelsContainer(metrologyContract).get();
+        AggregatedChannel channel = effectiveMC.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType())
+                .get();
+        ValidationEvaluator evaluator = validationService.getEvaluator();
+        Instant requestedTime = Instant.ofEpochMilli(requestedTimeStamp);
+
+        ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus = ReadingWithValidationStatus.builder(
+                channel,
+                validationStatusFactory.isValidationActive(effectiveMC, metrologyContract),
+                validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)))
+                .from(ZonedDateTime.ofInstant(requestedTime, clock.getZone()));
+
+        Optional<ReadingRecord> reading = channel.getCalculatedRegisterReadings(Range.openClosed(requestedTime.minusMillis(1L), requestedTime))
+                .stream()
+                .findFirst();
+        Optional<ReadingRecord> persistedReading = channel.getPersistedRegisterReadings(Range.openClosed(requestedTime.minusMillis(1L), requestedTime))
+                .stream()
+                .findFirst();
+
+        if (persistedReading.isPresent() && persistedReading.get().getValue() != null) {
+            readingWithValidationStatus.setReadingRecord(persistedReading.orElse(null));
+            readingWithValidationStatus.setCalculatedReadingRecord(reading.orElse(null));
+            readingWithValidationStatus.setPersistedReadingRecord(persistedReading.orElse(null));
+        } else if (reading.isPresent()) {
+            readingWithValidationStatus.setReadingRecord(reading.orElse(null));
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        evaluator
+                .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel,
+                        Stream.of(persistedReading, reading)
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .collect(Collectors.toList()))
+                .stream().findFirst().ifPresent(readingWithValidationStatus::setValidationStatus);
+
+        return Response.ok(outputRegisterDataInfoFactory.createRegisterDataInfo(readingWithValidationStatus)).build();
+    }
 
     @PUT
     @Transactional
-    @Path("/{purposeId}/outputs/{outputId}/registerData")
+    @Path("/{purposeId}/outputs/{outputId}/registerData/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public OutputRegisterDataInfo editRegisterDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                                           @BeanParam JsonQueryFilter filter, OutputRegisterDataInfo registerDataInfo) {
+                                                           @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryFilter filter, OutputRegisterDataInfo registerDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
@@ -436,7 +488,7 @@ public class UsagePointOutputResource {
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
         Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
         channel.getReading(Instant.ofEpochMilli(timeStamp))
-                .ifPresent(reading -> channel.removeReadings(QualityCodeSystem.MDM, Arrays.asList(reading)));
+                .ifPresent(reading -> channel.removeReadings(QualityCodeSystem.MDM, Collections.singletonList(reading)));
         Instant lastChecked = Instant.ofEpochMilli(timeStamp).minusSeconds(1L);
         validationService.updateLastChecked(channel, currentLastChecked
                 .filter(lastChecked::isAfter).isPresent() ? currentLastChecked.get() : lastChecked);
