@@ -14,6 +14,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposeActionMe
                 Ext.suspendLayouts();
                 me.removeAll();
                 me.add({
+                    itemId: 'purpose-trigger-activation',
                     text: isActive
                         ? Uni.I18n.translate('general.deactivate', 'IMT', 'Deactivate')
                         : Uni.I18n.translate('general.activate', 'IMT', 'Activate'),
