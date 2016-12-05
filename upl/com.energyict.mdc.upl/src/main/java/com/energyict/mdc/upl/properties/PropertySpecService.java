@@ -140,6 +140,14 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of Date values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Date> dateSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of LocalTime values.
      *
      * @return The PropertySpecBuilder
