@@ -3,14 +3,11 @@ package com.energyict.mdc.device.alarms.rest.response;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 
 import org.osgi.service.component.annotations.Component;
@@ -86,11 +83,11 @@ public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
     }
 
     private void addLogBookInfo(DeviceAlarmInfo<?> info, DeviceAlarm deviceAlarm){
-        EndDeviceEventRecord currentEventRecord = deviceAlarm.getCurrentEventRecord();
-        Optional<LogBook> logBook = logBookService.findById(currentEventRecord.getLogBookId());
-        if(logBook.isPresent()){
-            info.logBook = new IdWithNameInfo(logBook.get().getId(), logBook.get().getLogBookType().getName());
-        }
+//        EndDeviceEvent currentEventRecord = deviceAlarm.getCurrentEvent();
+//        Optional<LogBook> logBook = logBookService.findById(currentEventRecord.getLogBookId());
+//        if(logBook.isPresent()){
+//            info.logBook = new IdWithNameInfo(logBook.get().getId(), logBook.get().getLogBookType().getName());
+//        }
     }
 
 }

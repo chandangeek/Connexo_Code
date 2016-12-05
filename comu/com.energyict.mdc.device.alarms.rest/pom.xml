@@ -99,6 +99,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.masterdata</artifactId>
+        </dependency>
 
         <!-- Test -->
         <dependency>

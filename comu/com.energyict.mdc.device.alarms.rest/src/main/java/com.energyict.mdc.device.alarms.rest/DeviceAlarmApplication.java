@@ -10,6 +10,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
+import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 
@@ -102,6 +103,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(transactionService).to(TransactionService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
             bind(deviceService).to(DeviceService.class);
+            bind(DeviceAlarmInfoFactory.class).to(DeviceAlarmInfoFactory.class);
             bind(logBookService).to(LogBookService.class);
         }
     }
