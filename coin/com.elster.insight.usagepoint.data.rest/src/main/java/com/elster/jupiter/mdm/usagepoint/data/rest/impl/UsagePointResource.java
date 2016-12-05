@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -32,6 +33,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -100,6 +102,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -708,11 +711,17 @@ public class UsagePointResource {
     }
 
     private String findTranslatedRelativePeriod(String name) {
-        return Arrays.stream(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values())
+        return defaultRelativePeriodDefinitionTranslationKeys()
                 .filter(e -> e.getDefaultFormat().equals(name))
                 .findFirst()
                 .map(e -> thesaurus.getFormat(e).format())
                 .orElse(name);
+    }
+
+    private Stream<TranslationKey> defaultRelativePeriodDefinitionTranslationKeys() {
+        return Stream.concat(
+                    Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()),
+                    Stream.of(GasDayOptions.RelativePeriodTranslationKey.values()));
     }
 
     private List<? extends RelativePeriod> getRelativePeriodsDefaultOnTop(TemporalAmount intervalLength) {
