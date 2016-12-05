@@ -3,9 +3,8 @@ package com.energyict.mdc.io;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.Set;
 
@@ -18,6 +17,25 @@ import java.util.Set;
  * @since 2012-04-11 (16:16)
  */
 public interface ConnectionType extends HasDynamicProperties{
+
+    enum Property {
+
+        /**
+         * Provides the OS name of the (serial) Communication port to use
+         */
+        COMP_PORT_NAME("ComPortName");
+
+        private final String name;
+
+        Property(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+    }
+
 
     /**
      * Defines the direction of the ConnectionType.
@@ -53,11 +71,11 @@ public interface ConnectionType extends HasDynamicProperties{
      * Establishes a connection with a device from the values
      * specified in the ConnectionProperties.
      *
-     * @param connectionProperties The ConnectionProperties
      * @return The ComChannel that can be used to communicate with the device
      * @throws ConnectionException Thrown when the connection to the device failed
      */
-    ComChannel connect(TypedProperties connectionProperties) throws ConnectionException;
+    //TODO revise the fact that you need to set the connectionProperties here, you already have the setProperties from the HasDynamicProperties
+    ComChannel connect() throws ConnectionException;
 
     /**
      * Terminates the connection with the device and release resources.

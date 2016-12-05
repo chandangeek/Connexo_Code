@@ -2,6 +2,7 @@ package com.energyict.mdc.upl;
 
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import aQute.bnd.annotation.ConsumerType;
 import com.energyict.cbo.Quantity;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -111,7 +111,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @param properties contains a set of protocol specific key value pairs
      * @see com.energyict.mdc.upl.properties.PropertySpec#validateValue(Object)
      */
-    void setProperties(Properties properties) throws PropertyValidationException;
+    void setProperties(TypedProperties properties) throws PropertyValidationException;
 
     /**
      * <p>

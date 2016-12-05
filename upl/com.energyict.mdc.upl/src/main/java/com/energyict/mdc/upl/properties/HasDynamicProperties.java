@@ -4,7 +4,6 @@ import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Models the behavior of a component that has dynamic configuration.
@@ -50,6 +49,6 @@ public interface HasDynamicProperties {
      * @param properties contains a set of protocol specific key value pairs
      * @see com.energyict.mdc.upl.properties.PropertySpec#validateValue(Object)
      */
-    void setProperties(Properties properties) throws PropertyValidationException;
+    void setProperties(TypedProperties properties) throws PropertyValidationException;
 
 }
