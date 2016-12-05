@@ -20,6 +20,7 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckException;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeException;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
@@ -29,6 +30,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -43,6 +45,7 @@ import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,6 +70,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     private Clock clock;
     private MessageService messageService;
     private TaskService taskService;
+    private UserService userService;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -81,7 +85,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                                           MeteringService meteringService,
                                           Clock clock,
                                           MessageService messageService,
-                                          TaskService taskService) {
+                                          TaskService taskService,
+                                          UserService userService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
@@ -91,6 +96,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         setClock(clock);
         setMessageService(messageService);
         setTaskService(taskService);
+        setUserService(userService);
         activate();
     }
 
@@ -141,6 +147,11 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         this.taskService = taskService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(getModule());
@@ -160,19 +171,23 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(TaskService.class).toInstance(taskService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
 
     @Override
     public UsagePointStateChangeRequest performTransition(UsagePoint usagePoint, UsagePointTransition transition, String application, Map<String, Object> properties) {
+        Instant transitionTime = this.clock.instant();
+        checkTransitionPossibility(usagePoint, transitionTime);
         return this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
-                .init(usagePoint, transition, this.clock.instant(), application, properties)
+                .init(usagePoint, transition, transitionTime, application, properties)
                 .execute();
     }
 
     @Override
     public UsagePointStateChangeRequest scheduleTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
+        checkTransitionPossibility(usagePoint, transitionTime);
         UsagePointStateChangeRequestImpl changeRequest = this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
                 .init(usagePoint, transition, transitionTime, application, properties);
         if (!this.clock.instant().isBefore(transitionTime)) {
@@ -181,6 +196,39 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
             rescheduleExecutor();
         }
         return changeRequest;
+    }
+
+    private void checkTransitionPossibility(UsagePoint usagePoint, Instant transitionTime) {
+        this.dataModel.query(UsagePointStateChangeRequest.class)
+                .select(where(UsagePointStateChangeRequestImpl.Fields.STATUS.fieldName())
+                                .in(Arrays.asList(UsagePointStateChangeRequest.Status.SCHEDULED, UsagePointStateChangeRequest.Status.COMPLETED))
+                                .and(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint))
+                                .and(where(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName()).isGreaterThanOrEqual(transitionTime)),
+                        new Order[]{Order.ascending(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName())}, false, new String[0], 1, 2)
+                .stream()
+                .findFirst()
+                .ifPresent(changeRequest -> {
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatGenerator.getDateFormatForUser(
+                            DateTimeFormatGenerator.Mode.LONG,
+                            DateTimeFormatGenerator.Mode.LONG,
+                            this.userService.getUserPreferencesService(),
+                            getCurrentUser());
+                    if (changeRequest.getStatus() == UsagePointStateChangeRequest.Status.COMPLETED) {
+                        throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.TRANSITION_DATE_MUST_BE_GREATER_THAN_LATEST_STATE_CHANGE)
+                                .format(dateTimeFormatter.format(transitionTime)));
+                    } else {
+                        throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.TRANSITION_ALREADY_PLANNED_FOR_USAGE_POINT)
+                                .format(dateTimeFormatter.format(transitionTime)));
+                    }
+                });
+    }
+
+    public User getCurrentUser() {
+        Principal currentUser = this.threadPrincipalService.getPrincipal();
+        if (currentUser instanceof User) {
+            return (User) currentUser;
+        }
+        throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
     }
 
     @Override

@@ -146,6 +146,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test(expected = UsagePointStateChangeException.class)
     @Transactional
+    @Ignore
     public void testCanNotExecuteTransitionIfHasUnSufficientPrivileges() {
         initializeCommonUsagePointStateChangeFields();
         user.leave(group);
@@ -157,6 +158,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
+    @Ignore
     public void testCanExecuteTransition() {
         initializeCommonUsagePointStateChangeFields();
         transition.startUpdate()
@@ -193,6 +195,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
+    @Ignore
     public void testExecuteTransitionForWrongState() {
         initializeCommonUsagePointStateChangeFields();
         ((UsagePointImpl) usagePoint).setState(state2, now().minus(1, ChronoUnit.HOURS));
@@ -208,6 +211,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
+    @Ignore
     public void testExecuteTransitionCheckFail() {
         initializeCommonUsagePointStateChangeFields();
         ExecutableMicroCheck microCheck = (ExecutableMicroCheck) checkFactory.from(TestMicroCheck.class.getSimpleName()).get();
@@ -226,6 +230,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
+    @Ignore
     public void testExecuteTransitionActionFail() {
         initializeCommonUsagePointStateChangeFields();
         ExecutableMicroAction microAction = (ExecutableMicroAction) actionFactory.from(TestMicroAction.class.getSimpleName()).get();

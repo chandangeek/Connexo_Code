@@ -19,7 +19,6 @@ import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -118,12 +117,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         this.usagePoint.set(usagePoint);
         this.transitionTime = transitionTime;
         this.scheduleTime = this.clock.instant();
-        Principal currentUser = this.threadPrincipalService.getPrincipal();
-        if (currentUser instanceof User) {
-            this.originator.set((User) currentUser);
-        } else {
-            throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
-        }
+        this.originator.set(this.lifeCycleService.getCurrentUser());
         this.dataModel.persist(this);
         return this;
     }
@@ -144,13 +138,10 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     private void initOriginator(UsagePointTransition transition, String application) {
-        Principal currentUser = this.threadPrincipalService.getPrincipal();
-        if (currentUser instanceof User) {
-            User user = (User) currentUser;
-            if (userHasPrivilegeToPerformTransition(user, transition, application)) {
-                this.originator.set(user);
-                return;
-            }
+        User user = this.lifeCycleService.getCurrentUser();
+        if (userHasPrivilegeToPerformTransition(user, transition, application)) {
+            this.originator.set(user);
+            return;
         }
         throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
     }

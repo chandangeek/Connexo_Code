@@ -13,6 +13,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFacto
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
+import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -33,6 +34,7 @@ public class UsagePointLifeCycleModule extends AbstractModule {
         requireBinding(Clock.class);
         requireBinding(MessageService.class);
         requireBinding(TaskService.class);
+        requireBinding(UserService.class);
 
         bind(ServerUsagePointLifeCycleService.class).to(UsagePointLifeCycleServiceImpl.class).in(Scopes.SINGLETON);
         bind(UsagePointLifeCycleService.class).toProvider(UsagePointLifeCycleServiceProvider.class);

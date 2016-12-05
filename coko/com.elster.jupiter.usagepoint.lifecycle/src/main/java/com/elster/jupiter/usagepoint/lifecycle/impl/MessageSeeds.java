@@ -12,7 +12,9 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_STATE_DOES_NOT_SUPPORT_TRANSITION(4, Keys.USAGE_POINT_STATE_DOES_NOT_SUPPORT_TRANSITION, "Usage point state ''{0}'' doesn''t support transition to state ''{1}''."),
     MICRO_CHECKS_FAILED_NO_PARAM(5, Keys.MICRO_CHECKS_FAILED_NO_PARAM, "Failed pre-transition checks:"),
     MICRO_CHECKS_FAILED(6, Keys.MICRO_CHECKS_FAILED, "Failed pre-transition checks: {0}"),
-    MICRO_ACTION_FAILED_NO_PARAM(7, Keys.MICRO_ACTION_FAILED_NO_PARAM, "Failed auto actions:");
+    MICRO_ACTION_FAILED_NO_PARAM(7, Keys.MICRO_ACTION_FAILED_NO_PARAM, "Failed auto actions:"),
+    TRANSITION_DATE_MUST_BE_GREATER_THAN_LATEST_STATE_CHANGE(8, Keys.TRANSITION_DATE_MUST_BE_GREATER_THAN_LATEST_STATE_CHANGE, "The transition date must be greater than latest state modification date {0}"),
+    TRANSITION_ALREADY_PLANNED_FOR_USAGE_POINT(9, Keys.TRANSITION_ALREADY_PLANNED_FOR_USAGE_POINT, "Another transition is already planned on {0}"),;
 
     private final int number;
     private final String key;
@@ -60,5 +62,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MICRO_CHECKS_FAILED_NO_PARAM = "micro.checks.failed.no.param";
         public static final String MICRO_CHECKS_FAILED = "micro.checks.failed";
         public static final String MICRO_ACTION_FAILED_NO_PARAM = "micro.action.failed.no.param";
+        public static final String TRANSITION_DATE_MUST_BE_GREATER_THAN_LATEST_STATE_CHANGE = "transition.date.must.be.greater.than.latest.state.change";
+        public static final String TRANSITION_ALREADY_PLANNED_FOR_USAGE_POINT = "transition.already.planned.for.usage.point";
     }
 }

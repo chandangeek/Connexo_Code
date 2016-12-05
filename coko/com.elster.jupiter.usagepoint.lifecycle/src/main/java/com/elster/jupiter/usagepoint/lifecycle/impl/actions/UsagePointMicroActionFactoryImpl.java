@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
@@ -31,6 +32,7 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
 
     private DataModel dataModel;
     private Thesaurus thesaurus;
+    private PropertySpecService propertySpecService;
 
     private final Map<String, Class<? extends MicroAction>> microActionMapping = new HashMap<>();
 
@@ -40,9 +42,11 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
 
     @Inject
     public UsagePointMicroActionFactoryImpl(UpgradeService upgradeService,
-                                            NlsService nlsService) {
+                                            NlsService nlsService,
+                                            PropertySpecService propertySpecService) {
         setUpgradeService(upgradeService);
         setNlsService(nlsService);
+        setPropertySpecService(propertySpecService);
         activate();
     }
 
@@ -54,6 +58,11 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Activate
@@ -68,6 +77,7 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
             protected void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         };
     }

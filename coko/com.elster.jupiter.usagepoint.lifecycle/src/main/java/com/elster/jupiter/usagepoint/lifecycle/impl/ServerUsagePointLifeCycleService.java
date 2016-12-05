@@ -6,6 +6,7 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroActionException;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckException;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.users.User;
 
 import java.time.Instant;
 import java.util.Map;
@@ -27,4 +28,6 @@ public interface ServerUsagePointLifeCycleService extends UsagePointLifeCycleSer
     void rescheduleExecutor();
 
     void createUsagePointInitialStateChangeRequest(UsagePoint usagePoint);
+
+    User getCurrentUser();
 }
