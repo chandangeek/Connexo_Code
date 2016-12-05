@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,67 +17,88 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    DownloadFile(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.fileInfo)),
-    PushConfiguration(1),
-    PushLogsNow(2),
-    SetServerLogLevel(3, PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.logLevel, BigDecimal.valueOf(0), BigDecimal.valueOf(7))),
-    SetWebPortalLogLevel(4, PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.logLevel, BigDecimal.valueOf(0), BigDecimal.valueOf(7))),
-    ;
+    DownloadFile(0, "Download file") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.fileInfo, DeviceMessageConstants.fileInfoDefaultTranslation));
+        }
+    },
+    PushConfiguration(1, "Push the configuration files") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    PushLogsNow(2, "Push the log files now") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    SetServerLogLevel(3, "Set server log level") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.boundedBigDecimalSpec(
+                            service,
+                            DeviceMessageConstants.logLevel, DeviceMessageConstants.logLevelDefaultTranslation,
+                            BigDecimal.ZERO, BigDecimal.valueOf(7)));
+        }
+    },
+    SetWebPortalLogLevel(4, "Set web portal log level") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.boundedBigDecimalSpec(
+                            service,
+                            DeviceMessageConstants.logLevel, DeviceMessageConstants.logLevelDefaultTranslation,
+                            BigDecimal.ZERO, BigDecimal.valueOf(7)));
+        }
+    };
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.LOGGING_CONFIGURATION;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private LoggingConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    LoggingConfigurationDeviceMessage(int id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return category;
-    }
-
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
-    }
-
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
     private String getNameResourceKey() {
         return LoggingConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec boundedBigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal lowerLimit, BigDecimal upperLimit) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .boundedBigDecimalSpec(lowerLimit, upperLimit)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.LOGGING_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

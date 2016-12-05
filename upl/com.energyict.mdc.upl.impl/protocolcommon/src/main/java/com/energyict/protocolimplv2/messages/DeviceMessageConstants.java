@@ -995,10 +995,12 @@ public final class DeviceMessageConstants {
     public static final String frequencyPair = "frequencyPair";
     public static final String discoveryMaxCredits = "discoveryMaxCredits";
     public static final String fileInfo = "fileInfo";
+    public static final String fileInfoDefaultTranslation = "File information";
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
     public static final String servletURL = "servletURL";
     public static final String servletURLDefaultTranslation = "Servlet URL";
     public static final String logLevel = "logLevel";
+    public static final String logLevelDefaultTranslation = "Log level";
     public static final String protocolName = "protocolName";
 
     public static final String MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber = "MBusSetupDeviceMessage.ChangeMBusClientIdentificationNumber";
