@@ -772,8 +772,11 @@ public final class DeviceMessageConstants {
     public static final String AdminNewDefaultTranslation = "Admin new";
 
     public static final String IEC1107ClassIdAttributeName = "GeneralDeviceMessage.iec1107classid";
+    public static final String IEC1107ClassIdAttributeDefaultTranslation = "IEC1107 class ID";
     public static final String OffsetAttributeName = "GeneralDeviceMessage.offset";
+    public static final String OffsetAttributeDefaultTranslation = "Offset";
     public static final String RawDataAttributeName = "GeneralDeviceMessage.rawdata";
+    public static final String RawDataAttributeDefaultTranslation = "Raw data";
 
     public static final String MulticastAddress1AttributeName = "PLCConfigurationDeviceMessage.multicastaddress1";
     public static final String MulticastAddress2AttributeName = "PLCConfigurationDeviceMessage.multicastaddress2";
@@ -862,6 +865,7 @@ public final class DeviceMessageConstants {
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configuserfile";
     public static final String configUserFileAttributeDefaultTranslation = "Configuration user file";
     public static final String xmlMessageAttributeName = "GeneralDeviceMessage.xmlMessage";
+    public static final String xmlMessageAttributeDefaultTranslation = "XML message";
     public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
     public static final String transportTypeAttributeDefaultTranslation = "Transport type";
     public static final String objectDefinitionsAttributeName = "AlarmConfigurationMessage.objectDefinitions";
