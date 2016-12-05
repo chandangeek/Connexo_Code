@@ -3,11 +3,15 @@ package com.energyict.mdc.device.alarms.rest.response;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.LogBookService;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -22,15 +26,17 @@ import java.util.stream.Collectors;
 public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
 
     private volatile DeviceService deviceService;
+    private volatile LogBookService logBookService;
 
     public DeviceAlarmInfoFactory(){
 
     }
 
     @Inject
-    public DeviceAlarmInfoFactory(DeviceService deviceService) {
+    public DeviceAlarmInfoFactory(DeviceService deviceService, LogBookService logBookService) {
         this();
         this.deviceService = deviceService;
+        this.logBookService = logBookService;
     }
 
 
@@ -52,6 +58,7 @@ public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
     public DeviceAlarmInfo<?> asInfo(DeviceAlarm deviceAlarm, Class<? extends DeviceInfo> deviceInfoClass) {
         DeviceAlarmInfo<?> info =  new DeviceAlarmInfo<>(deviceAlarm, deviceInfoClass);
         info.clearedStatus = deviceAlarm.getClearedStatus();
+        addLogBookInfo(info, deviceAlarm);
         addMeterInfo(info, deviceAlarm);
         return info;
     }
@@ -75,6 +82,14 @@ public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
                 info.location = formattedLocation;
                 info.deviceMRID = device.getmRID();
             }
+        }
+    }
+
+    private void addLogBookInfo(DeviceAlarmInfo<?> info, DeviceAlarm deviceAlarm){
+        EndDeviceEventRecord currentEventRecord = deviceAlarm.getCurrentEventRecord();
+        Optional<LogBook> logBook = logBookService.findById(currentEventRecord.getLogBookId());
+        if(logBook.isPresent()){
+            info.logBook = new IdWithNameInfo(logBook.get().getId(), logBook.get().getLogBookType().getName());
         }
     }
 

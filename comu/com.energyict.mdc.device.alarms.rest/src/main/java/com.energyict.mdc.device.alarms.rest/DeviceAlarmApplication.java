@@ -11,6 +11,7 @@ import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -34,6 +35,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile TransactionService transactionService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile DeviceService deviceService;
+    private volatile LogBookService logBookService;
 
     public DeviceAlarmApplication(){
 
@@ -79,6 +81,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
+    public void setLogBookService(LogBookService logBookService){
+        this.logBookService = logBookService;
+    }
+
+    @Reference
     public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
         this.deviceAlarmService = deviceAlarmService;
     }
@@ -95,6 +102,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(transactionService).to(TransactionService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
             bind(deviceService).to(DeviceService.class);
+            bind(logBookService).to(LogBookService.class);
         }
     }
 }
