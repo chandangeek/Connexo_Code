@@ -23,11 +23,11 @@ public class DeviceMessageCategoryImpl implements DeviceMessageCategory {
     private final DeviceMessageCategoryPrimaryKey primaryKey;
     private final TranslationKey nameTranslationKey;
     private final TranslationKey descriptionTranslationKey;
-    private final List<DeviceMessageSpecFactory> factories;
+    private final List<DeviceMessageSpecSupplier> factories;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
 
-    public DeviceMessageCategoryImpl(int id, DeviceMessageCategoryPrimaryKey primaryKey, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, List<DeviceMessageSpecFactory> factories, PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageCategoryImpl(int id, DeviceMessageCategoryPrimaryKey primaryKey, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, List<DeviceMessageSpecSupplier> factories, PropertySpecService propertySpecService, NlsService nlsService) {
         this.id = id;
         this.primaryKey = primaryKey;
         this.nameTranslationKey = nameTranslationKey;

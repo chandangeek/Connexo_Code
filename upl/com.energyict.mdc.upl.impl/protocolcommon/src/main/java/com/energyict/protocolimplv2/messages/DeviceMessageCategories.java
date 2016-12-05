@@ -22,14 +22,14 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:12)
  */
-public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
+public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
 
     /**
      * The category for all messages that relate to the Activity Calendar
      */
     ACTIVITY_CALENDAR(0, "Configuration Messages", "The category for all messages that relate to writing an activity calendar, a special days calendar or any other kind of tariff information.") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(ActivityCalendarDeviceMessage.values());
         }
     },
@@ -38,7 +38,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     CONTACTOR(1, "Contactor", "The category for all messages that relate to connecting or disconnecting the contactor/breaker/valve of a device") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(ContactorDeviceMessage.values());
         }
     },
@@ -47,7 +47,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     PUBLIC_LIGHTING(2, "Public lighting configuration", "This category summarizes all messages related to configuring public lighting objects (e.g. time switching table, operating mode,...)") {
         @Override
-        public List<DeviceMessageSpecFactory> factories() {
+        public List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(PublicLightingDeviceMessage.values());
         }
     },
@@ -56,7 +56,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     ALARM_CONFIGURATION(3, "Alarm configuration", "The category for all messages that relate to configuring alarms (e.g. write an alarm filter, reset alarm,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(AlarmConfigurationMessage.values());
         }
     },
@@ -65,7 +65,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     PLC_CONFIGURATION(4, "PLC configuration", "The category for all messages that relate to setting up a complete PLC network") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.<DeviceMessageSpec>asList(PLCConfigurationDeviceMessage.values());
         }
     },
@@ -74,7 +74,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     RESET(5, "Reset", "The category for all messages related to resetting values/registers/states/flags") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Collections.emptyList();
         }
     },
@@ -83,7 +83,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     NETWORK_AND_CONNECTIVITY(6, "Network and connectivity", "The category for all messages that will change the connectivity setup of a device (e.g. GPRS settings)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.<DeviceMessageSpec>asList(NetworkConnectivityMessage.values());
         }
     },
@@ -92,7 +92,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     ZIGBEE_CONFIGURATION(7, "ZigBee configuration", "The category for all messages that relate to setting up and configuring a ZigBee network (e.g. configure HAN, add slave,...)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.<DeviceMessageSpec>asList(ZigBeeConfigurationDeviceMessage.values());
         }
     },
@@ -102,7 +102,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     SECURITY(8, "Security", "The category for all messages that relate to authentication, authorization and encryption.") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.<DeviceMessageSpec>asList(SecurityMessage.values());
         }
     },
@@ -112,7 +112,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     FIRMWARE(9, "Firmware", "The category for all message that relate to upgrading the device's firmware.") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(FirmwareDeviceMessage.values());
         }
     },
@@ -121,7 +121,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     DEVICE_ACTIONS(10, "Device actions", "The category for all messages that trigger a specific action of the device (e.g. billing reset, restore factory settings,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(DeviceActionMessage.values());
         }
     },
@@ -130,7 +130,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     PRICING_INFORMATION(11, "Pricing information", "The category for all messages that relate to a pricing information") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.<DeviceMessageSpec>asList(PricingInformationMessage.values());
         }
     },
@@ -139,7 +139,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     DISPLAY(12, "Display", "The category for all messages that can put messages or codes on a display") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(DisplayDeviceMessage.values());
         }
     },
@@ -148,7 +148,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     GENERAL(13, "General", "The category for all general messages, that don't have one unique goal (e.g. writing a full configuration to a device)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(GeneralDeviceMessage.values());
         }
     },
@@ -157,7 +157,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     LOAD_BALANCE(14, "Load balance", "The category for all messages that relate to load limiting, energy balance and grid stability.") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(LoadBalanceDeviceMessage.values());
         }
     },
@@ -166,7 +166,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     ADVANCED_TEST(15, "Advanced test messages", "This category summarizes all advanced test messages. These should not be used in normal use cases.") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(AdvancedTestMessage.values());
         }
     },
@@ -175,7 +175,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     LOAD_PROFILES(16, "LoadProfile messages", "This category summarizes all messages related to load profiles and their configuration (e.g. reset the load profile, change the interval,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(LoadProfileMessage.values());
         }
     },
@@ -184,7 +184,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     LOG_BOOKS(17, "Logbooks", "This category summarizes all messages related to logbooks and their configuration (e.g. reset a logbook)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(LogBookDeviceMessage.values());
         }
     },
@@ -193,7 +193,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     CLOCK(18, "Clock", "This category summarizes all messages related to configuring the device clock. This can be e.g. setting the current meter time, changing the DST rules or adjusting the time zone offset.") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(ClockDeviceMessage.values());
         }
     },
@@ -202,7 +202,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     PEAK_SHAVER_CONFIGURATION(19, "Peak shaver configuration", "This category summarizes all messages related to configuring a peak shaver (e.g. set the active and reactive channel,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(PeakShaverConfigurationDeviceMessage.values());
         }
     },
@@ -211,7 +211,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     MAIL_CONFIGURATION(20, "Mail configuration", "This category summarizes all messages related to setting the mail configuration (e.g. POP parameters, SMTP parameters,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(MailConfigurationDeviceMessage.values());
         }
     },
@@ -220,7 +220,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     EIWEB_PARAMETERS(21, "EIWeb parameters", "This category summarizes all messages related to configuring the EIWeb parameters (e.g. password, web page,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(EIWebConfigurationDeviceMessage.values());
         }
     },
@@ -229,7 +229,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     PPP_PARAMETERS(22, "PPP parameters", "This category summarizes all messages related to configuring PPP parameters (e.g. ISP parameters, idle timeout,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(PPPConfigurationDeviceMessage.values());
         }
     },
@@ -238,7 +238,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     MODEM_CONFIGURATION(23, "Modem configuration", "This category summarizes all messages related to configuring a modem (e.g. PPP baud rate, dial command,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(ModemConfigurationDeviceMessage.values());
         }
     },
@@ -247,7 +247,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     SMS_CONFIGURATION(24, "SMS configuration", "This category summarizes all messages related to configuring SMS settings (e.g. interval, sms number,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(SMSConfigurationDeviceMessage.values());
         }
     },
@@ -256,7 +256,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     MODBUS_CONFIGURATION(25, "Modbus configuration", "This category summarizes all messages related to configuring ModBus and writing registers (e.g. on the RTU+Server)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(ModbusConfigurationDeviceMessage.values());
         }
     },
@@ -265,7 +265,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     MBUS_CONFIGURATION(26, "MBus configuration", "This category summarizes all messages related to configuring MBus (e.g. on the RTU+Server: write VIF, set inter frame timeout,...)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(MBusConfigurationDeviceMessage.values());
         }
     },
@@ -274,7 +274,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     MBUS_SETUP(27, "MBus setup", "This category summarizes all messages related to setting up an MBus device in a master slave scenario (e.g. set encryption key, decommission,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(MBusSetupDeviceMessage.values());
         }
     },
@@ -283,7 +283,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     OPUS_CONFIGURATION(28, "Opus configuration", "This category summarizes all messages related to configuring Opus on the RTU+Server") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(OpusConfigurationDeviceMessage.values());
         }
     },
@@ -292,7 +292,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     POWER_CONFIGURATION(29, "Power configuration", "This category summarizes all messages related to configuring power failures and power quality (e.g. sag time threshold, swell threshold,…)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(PowerConfigurationDeviceMessage.values());
         }
     },
@@ -301,7 +301,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     PREPAID_CONFIGURATION(30, "Prepaid configuration", "This category summarizes all messages related to enabling, disabling and configuring prepaid credit") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(PrepaidConfigurationDeviceMessage.values());
         }
     },
@@ -310,7 +310,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     DLMS_CONFIGURATION(31, "DLMS configuration", "This category summarizes all messages related to configuring DLMS (e.g. via EIWeb, on the RTU+Server)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(DLMSConfigurationDeviceMessage.values());
         }
     },
@@ -319,7 +319,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     CHANNEL_CONFIGURATION(32, "Channel configuration", "This category summarizes all messages related to configuring channels (e.g. name, unit, …)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(ChannelConfigurationDeviceMessage.values());
         }
     },
@@ -328,7 +328,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     TOTALIZER_CONFIGURATION(33, "Totalizer configuration", "This category summarizes all messages related to configuring the totalizers (e.g. sum mask, subtract mask, …)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(TotalizersConfigurationDeviceMessage.values());
         }
     },
@@ -337,7 +337,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     CONFIGURATION_CHANGE(34, "Configuration change", "This category summarizes all messages related to configuring parameters that do not fit in any other category.") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(ConfigurationChangeDeviceMessage.values());
         }
     },
@@ -346,7 +346,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     OUTPUT_CONFIGURATION(35, "Output configuration", "This category summarizes all messages related to configuring the outputs of a device") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(OutputConfigurationMessage.values());
         }
     },
@@ -355,7 +355,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     WAVENIS_CONFIGURATION(36, "Wavenis configuration", "This category summarizes all messages related to configuring the Wavenis functionality (e.g. on the RTU+Server that has a Wavecard)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(WavenisDeviceMessage.values());
         }
     },
@@ -364,7 +364,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     LOGGING_CONFIGURATION(37, "Logging configuration", "This category summarizes all messages related to configuring the logging functionality of a device (e.g. of a concentrator)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(LoggingConfigurationDeviceMessage.values());
         }
     },
@@ -373,7 +373,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     UPLINK_CONFIGURATION(38, "Uplink configuration", "The category for all messages that relate to configuring uplink pinging (e.g. write destination address, write ping interval,...)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(UplinkConfigurationDeviceMessage.values());
         }
     },
@@ -382,7 +382,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
      */
     FIREWALL_CONFIGURATION(39, "Firewall configuration", "The category for all messages that relate to configuring the firewall settings (e.g. activate firewall, enable ssh,...)") {
         @Override
-        protected List<DeviceMessageSpecFactory> factories() {
+        protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(FirewallConfigurationMessage.values());
         }
     };
@@ -397,7 +397,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategoryFactory {
         this.defaultDescriptionTranslation = defaultDescriptionTranslation;
     }
 
-    protected abstract List<DeviceMessageSpecFactory> factories();
+    protected abstract List<DeviceMessageSpecSupplier> factories();
 
 
     @XmlElement(name = "type")

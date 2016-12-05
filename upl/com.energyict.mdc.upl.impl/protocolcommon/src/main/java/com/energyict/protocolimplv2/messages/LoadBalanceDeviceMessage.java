@@ -92,7 +92,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.under
  * Date: 3/04/13
  * Time: 9:43
  */
-public enum LoadBalanceDeviceMessage implements DeviceMessageSpecFactory {
+public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
 
     WriteControlThresholds(0, "Write control thresholds") {
         @Override

@@ -43,7 +43,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thres
  * Date: 28/02/13
  * Time: 9:00
  */
-public enum PublicLightingDeviceMessage implements DeviceMessageSpecFactory {
+public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
 
     SET_RELAY_OPERATING_MODE(0, "Set relay operating mode") {
         @Override

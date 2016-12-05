@@ -22,7 +22,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ClockDeviceMessage implements DeviceMessageSpecFactory {
+public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
 
     SET_TIME(0, "Set time") {
         @Override

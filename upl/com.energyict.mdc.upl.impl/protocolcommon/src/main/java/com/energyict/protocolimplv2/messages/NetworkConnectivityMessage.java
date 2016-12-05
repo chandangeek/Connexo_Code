@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  * Date: 2/04/13
  * Time: 10:11
  */
-public enum NetworkConnectivityMessage implements DeviceMessageSpecFactory {
+public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     ACTIVATE_WAKEUP_MECHANISM(0, "Activate wakeup mechanism") {
         @Override

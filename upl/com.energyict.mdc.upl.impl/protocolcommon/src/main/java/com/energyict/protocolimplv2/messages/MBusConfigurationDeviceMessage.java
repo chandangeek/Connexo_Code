@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecFactory {
+public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     SetMBusEvery(0, "Set MBus every") {
         @Override

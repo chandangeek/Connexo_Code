@@ -23,13 +23,13 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
     private final long id;
     private final DeviceMessageSpecPrimaryKey primaryKey;
     private final TranslationKey translationKey;
-    private final DeviceMessageCategoryFactory categoryFactory;
+    private final DeviceMessageCategorySupplier categoryFactory;
     private final List<PropertySpec> propertySpecs;
 
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
 
-    public DeviceMessageSpecImpl(long id, DeviceMessageSpecPrimaryKey primaryKey, TranslationKey translationKey, DeviceMessageCategoryFactory categoryFactory, List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageSpecImpl(long id, DeviceMessageSpecPrimaryKey primaryKey, TranslationKey translationKey, DeviceMessageCategorySupplier categoryFactory, List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, NlsService nlsService) {
         this.id = id;
         this.primaryKey = primaryKey;
         this.translationKey = translationKey;

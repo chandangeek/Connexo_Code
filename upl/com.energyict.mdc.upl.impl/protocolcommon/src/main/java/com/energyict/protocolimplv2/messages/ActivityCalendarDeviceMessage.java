@@ -43,7 +43,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.speci
  * Date: 7/02/13
  * Time: 12:01
  */
-public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecFactory {
+public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
 
     ACTIVITY_CALENDAR_READ(0, "Read activity calendar") {
         @Override

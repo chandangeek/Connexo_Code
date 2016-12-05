@@ -19,7 +19,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum LogBookDeviceMessage implements DeviceMessageSpecFactory {
+public enum LogBookDeviceMessage implements DeviceMessageSpecSupplier {
 
     SetInputChannel(0, "Set input channel") {
         @Override

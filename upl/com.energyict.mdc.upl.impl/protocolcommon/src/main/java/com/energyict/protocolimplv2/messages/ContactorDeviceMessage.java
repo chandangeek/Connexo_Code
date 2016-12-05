@@ -30,7 +30,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relay
  * Date: 28/02/13
  * Time: 9:00
  */
-public enum ContactorDeviceMessage implements DeviceMessageSpecFactory {
+public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
 
     CONTACTOR_OPEN(0, "Contactor open") {
         @Override

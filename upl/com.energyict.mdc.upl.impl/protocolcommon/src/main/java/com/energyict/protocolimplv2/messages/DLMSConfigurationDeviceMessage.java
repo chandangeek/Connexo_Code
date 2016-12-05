@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecFactory {
+public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     SetDLMSDeviceID(0, "Set DLMS device ID", DeviceMessageConstants.SetDLMSDeviceIDAttributeName, DeviceMessageConstants.SetDLMSDeviceIDAttributeDefaultTranslation),
     SetDLMSMeterID(1, "Set DLMS meter ID", DeviceMessageConstants.SetDLMSMeterIDAttributeName, DeviceMessageConstants.SetDLMSMeterIDAttributeDefaultTranslation),

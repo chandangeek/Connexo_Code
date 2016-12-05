@@ -20,7 +20,7 @@ import java.util.List;
  * Date: 11/03/13
  * Time: 11:59
  */
-public enum PricingInformationMessage implements DeviceMessageSpecFactory {
+public enum PricingInformationMessage implements DeviceMessageSpecSupplier {
 
     ReadPricingInformation(0, "Read pricing information") {
         @Override
