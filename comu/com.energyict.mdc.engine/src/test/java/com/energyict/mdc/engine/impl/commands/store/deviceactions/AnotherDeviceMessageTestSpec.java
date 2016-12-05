@@ -16,7 +16,6 @@ import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.impl.PasswordFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecEnum;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.Arrays;
