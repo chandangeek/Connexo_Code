@@ -7,7 +7,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
     ui: 'medium',
     requires: [
         'Mdc.model.RegisterGroup',
-        'Mdc.view.setup.registergroup.RegisterGroupActionMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],

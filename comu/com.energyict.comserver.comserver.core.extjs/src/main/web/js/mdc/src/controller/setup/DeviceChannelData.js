@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.util.Common'
+        'Uni.util.Common',
+        'Uni.store.GasDayYearStart'
     ],
 
     views: [
@@ -99,7 +100,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 tabchange: this.onTabChange
             },
             'deviceLoadProfileChannelDataActionMenu': {
-                beforeshow: this.checkSuspect,
                 click: this.chooseAction
             },
             '#deviceLoadProfileChannelData #save-changes-button': {
@@ -159,6 +159,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             channelId = params['channelId'],
             issueId = params['issueId'],
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            channelsView = viewport.down('#device-load-profile-channels-preview-container'),
             channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
             prevNextstore = contentName === 'block' ? 'Mdc.store.ValidationBlocks' : 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
@@ -185,7 +186,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         prevNextstore: prevNextstore,
                         routerIdArgument: routerIdArgument,
                         isFullTotalCount: isFullTotalCount,
-                        filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {},
+                        filterDefault: activeTab === 1 ? me.getDataFilter(channel, contentName, gasDayYearStart, router) : {},
                         mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
                         dataLoggerSlaveHistoryStore: slaveHistoryStore
                     });
@@ -199,7 +200,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
             },
             device,
-            channel;
+            channel,
+            gasDayYearStart = undefined;
 
         viewport.setLoading(true);
 
@@ -212,6 +214,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
         }
 
+        if (channelsView) { // remove 'onload' handler to avoid changing channelId in router arguments
+            channelsView.bindStore('ext-empty-store');
+        }
         me.getStore(prevNextstore).load(onDependenciesLoad);
 
         if (contentName === 'spec') {
@@ -234,7 +239,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             success: function (record) {
                 me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
                 channel = record;
-                onDependenciesLoad();
+                if (channel.get('readingType').isGasRelated) {
+                    var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
+                    yearStartStore.on('load',
+                        function(store, records) {
+                            gasDayYearStart = records[0];
+                            onDependenciesLoad();
+                        },
+                        me, {single: true});
+                    yearStartStore.load();
+                } else {
+                    onDependenciesLoad();
+                }
             }
         });
     },
@@ -298,7 +314,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         return Ext.String.format(link, router.getRoute('workspace/datavalidationissues/view').buildUrl({issueId: issueId}));
     },
 
-    setDataFilter: function (channel, contentName, router) {
+    getDataFilter: function (channel, contentName, gasDayYearStart, router) {
         var me = this,
             intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
             dataIntervalAndZoomLevels = intervalStore.getIntervalRecord(channel.get('interval')),
@@ -323,7 +339,27 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 value: 'nonSuspect',
                 itemId: 'devicechannels-topfilter-notsuspect'
             });
-            filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart((channel.get('lastReading') || new Date()));
+            if (Ext.isEmpty(channel.get('lastReading'))) {
+                var fromDate = moment().startOf('day');
+                if (!Ext.isEmpty(gasDayYearStart)) {
+                    fromDate.add(gasDayYearStart.get('hours'), 'hours')
+                        .add(gasDayYearStart.get('minutes'), 'minutes');
+                }
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( fromDate.toDate() );
+            } else {
+                var fromDate = channel.get('lastReading');
+                if (!Ext.isEmpty(gasDayYearStart)) {
+                    var lastReading = moment(channel.get('lastReading')),
+                        lastReadingDayAtGasDayOffset = moment(channel.get('lastReading')).startOf('day').add(gasDayYearStart.get('hours'), 'hours').add(gasDayYearStart.get('minutes'), 'minutes');
+                    if (lastReading.isBefore(lastReadingDayAtGasDayOffset) || lastReading.isSame(lastReadingDayAtGasDayOffset)) {
+                        fromDate = lastReadingDayAtGasDayOffset;
+                    } else {
+                        lastReadingDayAtGasDayOffset.add(1, 'days');
+                        fromDate = lastReadingDayAtGasDayOffset;
+                    }
+                }
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( fromDate );
+            }
         }
         filter.duration = all.count + all.timeUnit;
         filter.durationStore = durationsStore;
@@ -367,11 +403,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     chooseAction: function (menu, item) {
-        var me = this,
-            point,
-            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
-            chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
-
+        var me = this;
         switch (item.action) {
             case 'editValue':
                 me.getPage().down('#deviceLoadProfileChannelDataGrid').getPlugin('cellplugin').startEdit(menu.record, 1);
@@ -703,28 +735,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             record: reading
         });
         reading.get('confirmed') && reading.set('confirmed', false);
-    },
-
-    checkSuspect: function (menu) {
-        var validationResult = menu.record.get('validationResult'),
-            mainStatus = false,
-            bulkStatus = false;
-
-        if (validationResult) {
-            mainStatus = validationResult.main == 'suspect';
-            bulkStatus = validationResult.bulk == 'suspect';
-        }
-
-        menu.down('#estimate-value').setVisible(mainStatus || bulkStatus);
-        if (menu.record.get('confirmed') || menu.record.isModified('value') || menu.record.isModified('collectedValue')) {
-            menu.down('#confirm-value').hide();
-        } else {
-            menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
-        }
-
-        if (menu.down('#remove-reading')) {
-            menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
-        }
     },
 
     chooseBulkAction: function (menu, item) {

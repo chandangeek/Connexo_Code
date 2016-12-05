@@ -29,8 +29,9 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskGrid', {
                 menuDisabled: true,
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.Communication.admin,
-                items: 'Mdc.view.setup.comtasks.ComtaskActionMenu',
-                align: 'left'
+                menu: {
+                    xtype: 'comtaskActionMenu'
+                }
             }
         ];
         me.dockedItems = [

@@ -101,7 +101,24 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             }
         });
 
-        initView = function (device) {
+        var initGasDayYearStart = function(device) {
+            var loadProfile = me.getLoadProfile(),
+                isGasLoadProfile = loadProfile.get('channels').filter(function(channel) {
+                    return channel.readingType.isGasRelated;
+                }).length>0;
+            if (isGasLoadProfile) {
+                var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
+                yearStartStore.on('load',
+                    function(store, records) {
+                        initView(device, records[0]);
+                    },
+                    me, {single: true});
+                yearStartStore.load();
+            } else {
+                initView(device);
+            }
+        },
+        initView = function (device, gasDayYearStart) {
             var record = me.getLoadProfile(),
                 dataIntervalAndZoomLevels = me.getStore('Uni.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
                 durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
@@ -113,7 +130,30 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             var func = function () {
                 viewport.setLoading(false);
                 var all = dataIntervalAndZoomLevels.get('all'),
-                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
+                    intervalStart,
+                    fromDate;
+
+                if ( Ext.isEmpty(me.loadProfileModel.get('lastReading')) ) {
+                    fromDate = moment().startOf('day');
+                    if (!Ext.isEmpty(gasDayYearStart)) {
+                        fromDate.add(gasDayYearStart.get('hours'), 'hours')
+                            .add(gasDayYearStart.get('minutes'), 'minutes');
+                    }
+                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart( fromDate.toDate() );
+                } else {
+                    fromDate = me.loadProfileModel.get('lastReading');
+                    if (!Ext.isEmpty(gasDayYearStart)) {
+                        var lastReading = moment(me.loadProfileModel.get('lastReading')),
+                            lastReadingDayAtGasDayOffset = moment(me.loadProfileModel.get('lastReading')).startOf('day').add(gasDayYearStart.get('hours'), 'hours').add(gasDayYearStart.get('minutes'), 'minutes');
+                        if (lastReading.isBefore(lastReadingDayAtGasDayOffset) || lastReading.isSame(lastReadingDayAtGasDayOffset)) {
+                            fromDate = lastReadingDayAtGasDayOffset;
+                        } else {
+                            lastReadingDayAtGasDayOffset.add(1, 'days');
+                            fromDate = lastReadingDayAtGasDayOffset;
+                        }
+                    }
+                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart( fromDate );
+                }
                 widget = Ext.widget('tabbedDeviceLoadProfilesView',{
                     device: device,
                     loadProfileId: loadProfileId,
@@ -186,13 +226,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         };
         if (loadProfile) {
             me.setLoadProfile(loadProfile);
-            defer.setCallback(initView);
+            defer.setCallback(initGasDayYearStart);
         } else {
             loadProfileModel.getProxy().setExtraParam('deviceId', deviceId);
             loadProfileModel.load(loadProfileId, {
                 success: function (record) {
                     me.setLoadProfile(record);
-                    defer.setCallback(initView);
+                    defer.setCallback(initGasDayYearStart);
                 }
             });
         }

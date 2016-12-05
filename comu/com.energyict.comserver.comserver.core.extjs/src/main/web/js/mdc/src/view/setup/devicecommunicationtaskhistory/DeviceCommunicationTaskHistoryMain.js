@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.util.FormEmptyMessage',
+        'Uni.util.FormEmptyMessage'
     ],
 
     initComponent: function () {

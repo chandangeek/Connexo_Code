@@ -29,7 +29,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.Comtasks',
         'Mdc.controller.setup.ConnectionMethods',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
-        'Mdc.controller.setup.DeviceCommunicationSchedules',
+        'Mdc.controller.setup.DeviceCommunicationPlanning',
         'Mdc.controller.setup.DeviceCommunicationTasks',
         'Mdc.controller.setup.DeviceConfigurationLogbooks',
         'Mdc.controller.setup.DeviceConfigurations',

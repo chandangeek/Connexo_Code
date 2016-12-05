@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.DeviceHistory', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.util.Common'
+    ],
+
     views: [
         'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.devicehistory.Setup',
@@ -59,6 +63,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
 
     showDeviceLifeCycleHistory: function () {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            routerArguments = Uni.util.Common.decodeURIArguments(router.arguments),
             lifeCycleTab = me.getPage().down('#device-history-life-cycle-tab'),
             lifeCyclePanel = Ext.widget('device-history-life-cycle-panel'),
             lifeCycleDataView = lifeCyclePanel.down('#life-cycle-data-view'),
@@ -70,11 +76,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         me.getPage().setLoading();
         lifeCycleTab.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(lifeCycleHistoryStore);
-        Ext.apply(lifeCycleHistoryStore.getProxy().extraParams, me.getController('Uni.controller.history.Router').arguments);
+        Ext.apply(lifeCycleHistoryStore.getProxy().extraParams, routerArguments);
         lifeCycleHistoryStore.load(function (records) {
             lifeCycleHistoryStore.add(records.reverse());
 
-            Ext.apply(firmwareHistoryStore.getProxy().extraParams, me.getController('Uni.controller.history.Router').arguments);
+            Ext.apply(firmwareHistoryStore.getProxy().extraParams, routerArguments);
             firmwareHistoryStore.load(function() {
                 if (firmwareHistoryStore.getTotalCount()===0) {
                     firmwareTab.add({
