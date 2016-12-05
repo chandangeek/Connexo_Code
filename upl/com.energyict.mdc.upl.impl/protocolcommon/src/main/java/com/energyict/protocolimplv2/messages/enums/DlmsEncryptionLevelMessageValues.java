@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages.enums;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Copyrights EnergyICT
@@ -18,7 +17,7 @@ public enum DlmsEncryptionLevelMessageValues {
     private final String name;
     private final int value;
 
-    private DlmsEncryptionLevelMessageValues(String name, int value) {
+    DlmsEncryptionLevelMessageValues(String name, int value) {
         this.name = name;
         this.value = value;
     }
@@ -28,19 +27,19 @@ public enum DlmsEncryptionLevelMessageValues {
     }
 
     public static String[] getNames() {
-        List<String> names = new ArrayList<>();
-        for (DlmsEncryptionLevelMessageValues dlmsEncryptionLevelMessageValues : values()) {
-            names.add(dlmsEncryptionLevelMessageValues.name);
-        }
-        return names.toArray(new String[names.size()]);
+        return Stream
+                    .of(values())
+                    .map(each -> each.name)
+                    .toArray(String[]::new);
     }
 
     public static int getValueFor(final String name) {
-        for (DlmsEncryptionLevelMessageValues dlmsEncryptionLevelMessageValues : values()) {
-            if (dlmsEncryptionLevelMessageValues.name.equals(name)) {
-                return dlmsEncryptionLevelMessageValues.getValue();
-            }
-        }
-        return -1;
+        return Stream
+                    .of(values())
+                    .filter(each -> each.name.equals(name))
+                    .map(DlmsEncryptionLevelMessageValues::getValue)
+                    .findFirst()
+                    .orElse(-1);
     }
+
 }

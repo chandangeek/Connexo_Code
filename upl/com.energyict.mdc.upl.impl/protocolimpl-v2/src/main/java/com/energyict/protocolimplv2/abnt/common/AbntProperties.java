@@ -148,7 +148,7 @@ public class AbntProperties implements HasDynamicProperties {
     private PropertySpec timeZonePropertySpec() {
         return Services
                     .propertySpecService()
-                    .timezoneSpec()
+                    .timeZoneSpec()
                     .named(TIMEZONE, TIMEZONE)
                     .describedAs("Description for " + TIMEZONE)
                     .finish();

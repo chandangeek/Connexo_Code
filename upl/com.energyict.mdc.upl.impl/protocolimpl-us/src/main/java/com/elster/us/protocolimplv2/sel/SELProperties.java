@@ -97,7 +97,7 @@ public class SELProperties {
                     UPLPropertySpecFactory.string(DEVICE_PWD, true),
                     Services
                         .propertySpecService()
-                        .timezoneSpec()
+                        .timeZoneSpec()
                         .named(DEVICE_TIMEZONE, DEVICE_TIMEZONE)
                         .describedAs("Description for " + TIMEZONE)
                         .markRequired()

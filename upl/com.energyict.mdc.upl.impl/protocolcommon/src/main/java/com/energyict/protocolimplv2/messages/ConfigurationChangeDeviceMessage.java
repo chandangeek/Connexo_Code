@@ -410,7 +410,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
+        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
     }
 
     private static class Constants {

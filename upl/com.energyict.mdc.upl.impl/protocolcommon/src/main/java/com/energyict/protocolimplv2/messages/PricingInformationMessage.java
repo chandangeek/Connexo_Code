@@ -1,113 +1,141 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides a summary of all messages related to pricing
+ * Provides a summary of all messages related to pricing.
  * <p/>
  * Copyrights EnergyICT
  * Date: 11/03/13
  * Time: 11:59
  */
-public enum PricingInformationMessage implements DeviceMessageSpec {
+public enum PricingInformationMessage implements DeviceMessageSpecSupplier {
 
-    ReadPricingInformation(0),
-    SetPricingInformation(1,
-            PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
-    ),
-    SetStandingChargeAndActivationDate(2,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.StandingChargeAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
-    ),
-    SetStandingCharge(3,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.StandingChargeAttributeName)
-    ),
-    UpdatePricingInformation(4,
-            PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName)
-    ),
-    SEND_NEW_TARIFF(5,
-            PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.contractsXmlUserFileAttributeName)
-    ),
-    SEND_NEW_PRICE_MATRIX(6,
-            PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.contractsXmlUserFileAttributeName)
-    ),
-    SET_CURRENCY_AND_ACTIVATION_DATE(7,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.currency),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
-    ),
-    SET_CURRENCY(8,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.currency)
-    );
+    ReadPricingInformation(0, "Read pricing information") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    SetPricingInformation(1, "Set pricing information") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.deviceMessageFileSpec(service, DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationUserFileAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, DeviceMessageConstants.PricingInformationActivationDateAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    SetStandingChargeAndActivationDate(2, "Set standing charge and activation date") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.StandingChargeAttributeName, DeviceMessageConstants.StandingChargeAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, DeviceMessageConstants.PricingInformationActivationDateAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    SetStandingCharge(3, "Set standing charge") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.StandingChargeAttributeName, DeviceMessageConstants.StandingChargeAttributeDefaultTranslation));
+        }
+    },
+    UpdatePricingInformation(4, "Update pricing information") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationUserFileAttributeDefaultTranslation));
+        }
+    },
+    SEND_NEW_TARIFF(5, "Send new TOU tariff") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.contractsXmlUserFileAttributeName, DeviceMessageConstants.contractsXmlUserFileAttributeDefaultTranslation));
+        }
+    },
+    SEND_NEW_PRICE_MATRIX(6, "Send new price matrix") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.contractsXmlUserFileAttributeName, DeviceMessageConstants.contractsXmlUserFileAttributeDefaultTranslation));
+        }
+    },
+    SET_CURRENCY_AND_ACTIVATION_DATE(7, "Set currency and activation date") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.currency, DeviceMessageConstants.currencyDefaultTranslation),
+                    this.dateTimeSpec(service, DeviceMessageConstants.PricingInformationActivationDateAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    SET_CURRENCY(8, "Set currency") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.currency, DeviceMessageConstants.currencyDefaultTranslation));
+        }
+    };
 
+    private final long id;
+    private final String defaultNameTranslation;
 
-
-
-    private static final DeviceMessageCategory category = DeviceMessageCategories.PRICING_INFORMATION;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private PricingInformationMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    PricingInformationMessage(long id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    private static String translate(final String key) {
-        return UserEnvironment.getDefault().getTranslation(key);
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return category;
+    protected PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateTimeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    @Override
-    public String getName() {
-        return translate(this.getNameResourceKey());
+    protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(DeviceMessageFile.class)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
     private String getNameResourceKey() {
         return PricingInformationMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
-    }
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.LOAD_BALANCE,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

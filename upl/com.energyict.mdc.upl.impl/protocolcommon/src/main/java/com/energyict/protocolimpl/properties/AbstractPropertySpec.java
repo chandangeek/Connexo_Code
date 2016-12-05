@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 
-import java.util.Collections;
-import java.util.List;
+import com.energyict.cpo.PropertySpecPossibleValuesImpl;
+
 import java.util.Optional;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-10-31 (08:42)
  */
-public abstract class AbstractPropertySpec<T> implements PropertySpec<T> {
+public abstract class AbstractPropertySpec implements PropertySpec {
 
     private final String name;
     private final boolean required;
@@ -43,12 +44,19 @@ public abstract class AbstractPropertySpec<T> implements PropertySpec<T> {
     }
 
     @Override
-    public List<T> getPossibleValues() {
-        return Collections.emptyList();
+    public PropertySpecPossibleValues getPossibleValues() {
+        return new PropertySpecPossibleValuesImpl<>();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Optional<?> getDefaultValue() {
+        return Optional.ofNullable(this.getPossibleValues().getDefault());
     }
 
     @Override
-    public Optional<T> getDefaultValue() {
-        return Optional.empty();
+    public boolean supportsMultiValues() {
+        return false;
     }
+
 }

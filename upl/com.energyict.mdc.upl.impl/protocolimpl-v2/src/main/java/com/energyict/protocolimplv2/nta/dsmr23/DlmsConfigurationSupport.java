@@ -81,7 +81,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     protected PropertySpec timeZonePropertySpec() {
-        return Services.propertySpecService().timezoneSpec().named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT).finish();
+        return Services.propertySpecService().timeZoneSpec().named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT).finish();
     }
 
     protected PropertySpec validateInvokeIdPropertySpec() {

@@ -2,12 +2,18 @@ package com.elster.protocolimpl.lis200;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySelectionMode;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class LIS200Utils {
 
@@ -191,5 +197,47 @@ public class LIS200Utils {
             }
         }
 
+        @Override
+        public Optional<?> getDefaultValue() {
+            return Optional.empty();
+        }
+
+        @Override
+        public PropertySpecPossibleValues getPossibleValues() {
+            return new NoPossibleValues();
+        }
+
+        @Override
+        public boolean supportsMultiValues() {
+            return false;
+        }
     }
+
+    private static class NoPossibleValues implements PropertySpecPossibleValues {
+        @Override
+        public PropertySelectionMode getSelectionMode() {
+            return PropertySelectionMode.NONE;
+        }
+
+        @Override
+        public List<?> getAllValues() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean isExhaustive() {
+            return true;
+        }
+
+        @Override
+        public boolean isEditable() {
+            return false;
+        }
+
+        @Override
+        public Object getDefault() {
+            return null;
+        }
+    }
+
 }

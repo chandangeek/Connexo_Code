@@ -1,122 +1,168 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.beginDatesAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.beginDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.endDatesAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.endDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.latitudeAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.latitudeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.longitudeAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.longitudeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.offOffsetsAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.offOffsetsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.onOffsetsAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.onOffsetsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayOperatingModeAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayOperatingModeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.threshold;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdDefaultTranslation;
 
 /**
- * Provides a summary of all <i>Public Lighting</i> related messages
+ * Provides a summary of all <i>Public Lighting</i> related messages.
  * <p/>
  * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:00
  */
-public enum PublicLightingDeviceMessage implements DeviceMessageSpec {
+public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SET_RELAY_OPERATING_MODE(0,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(relayOperatingModeAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3))
-    ),
-    SET_TIME_SWITCHING_TABLE(1,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.userFileReferencePropertySpec(configUserFileAttributeName)
-    ),
-    SET_THRESHOLD_OVER_CONSUMPTION(2,
-            PropertySpecFactory.bigDecimalPropertySpec(threshold)
-    ),
-    SET_OVERALL_MINIMUM_THRESHOLD(3,
-            PropertySpecFactory.bigDecimalPropertySpec(threshold)
-    ),
-    SET_OVERALL_MAXIMUM_THRESHOLD(4,
-            PropertySpecFactory.bigDecimalPropertySpec(threshold)
-    ),
-    SET_RELAY_TIME_OFFSETS_TABLE(5,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(beginDatesAttributeName),
-            PropertySpecFactory.stringPropertySpec(endDatesAttributeName),
-            PropertySpecFactory.stringPropertySpec(offOffsetsAttributeName),
-            PropertySpecFactory.stringPropertySpec(onOffsetsAttributeName)
-    ),
-    WRITE_GPS_COORDINATES(6,
-            PropertySpecFactory.stringPropertySpec(latitudeAttributeName),
-            PropertySpecFactory.stringPropertySpec(longitudeAttributeName)
-    );
+    SET_RELAY_OPERATING_MODE(0, "Set relay operating mode") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, relayNumberAttributeName, relayNumberAttributeDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.bigDecimalSpec(service, relayOperatingModeAttributeName, relayOperatingModeAttributeDefaultTranslation, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2), BigDecimal.valueOf(3))
+            );
+        }
+    },
+    SET_TIME_SWITCHING_TABLE(1, "Write the time switching table") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, relayNumberAttributeName, relayNumberAttributeDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.deviceMessageFileSpec(service, configUserFileAttributeName, configUserFileAttributeDefaultTranslation)
+            );
+        }
+    },
+    SET_THRESHOLD_OVER_CONSUMPTION(2, "Set the threshold for over consumption") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, threshold, thresholdDefaultTranslation));
+        }
+    },
+    SET_OVERALL_MINIMUM_THRESHOLD(3, "Set overall minimum threshold") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, threshold, thresholdDefaultTranslation));
+        }
+    },
+    SET_OVERALL_MAXIMUM_THRESHOLD(4, "Set overall maximum threshold") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, threshold, thresholdDefaultTranslation));
+        }
+    },
+    SET_RELAY_TIME_OFFSETS_TABLE(5, "Write relay offsets table") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, relayNumberAttributeName, relayNumberAttributeDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.stringSpec(service, beginDatesAttributeName, beginDatesAttributeDefaultTranslation),
+                    this.stringSpec(service, endDatesAttributeName, endDatesAttributeDefaultTranslation),
+                    this.stringSpec(service, offOffsetsAttributeName, offOffsetsAttributeDefaultTranslation),
+                    this.stringSpec(service, onOffsetsAttributeName, onOffsetsAttributeDefaultTranslation)
+            );
+        }
+    },
+    WRITE_GPS_COORDINATES(6, "Write the GPS coordinates") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, latitudeAttributeName, latitudeAttributeDefaultTranslation),
+                    this.stringSpec(service, longitudeAttributeName, longitudeAttributeDefaultTranslation)
+            );
+        }
+    };
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.PUBLIC_LIGHTING;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private PublicLightingDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    PublicLightingDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return category;
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    private String translate(final String key) {
-        return UserEnvironment.getDefault().getTranslation(key);
+    private PropertySpecBuilder<BigDecimal> bigDecimalPropertySpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
     }
 
-    @Override
-    public String getName() {
-        return translate(this.getNameResourceKey());
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.bigDecimalPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... possibleValues) {
+        return this.bigDecimalPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .addValues(possibleValues)
+                .markExhaustive()
+                .finish();
+    }
+
+    protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(DeviceMessageFile.class)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
     private String getNameResourceKey() {
         return PublicLightingDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.PUBLIC_LIGHTING,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

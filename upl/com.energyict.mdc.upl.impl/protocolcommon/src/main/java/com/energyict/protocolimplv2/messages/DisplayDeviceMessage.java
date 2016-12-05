@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,77 +19,103 @@ import java.util.List;
  * Date: 3/04/13
  * Time: 8:38
  */
-public enum DisplayDeviceMessage implements DeviceMessageSpec {
+public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
 
-    CONSUMER_MESSAGE_CODE_TO_PORT_P1(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
-    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(1,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
-    SET_DISPLAY_MESSAGE(2,PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName)),
-    SET_DISPLAY_MESSAGE_WITH_OPTIONS(3,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.DisplayMessageActivationDate)
-    ),
-    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(4,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.DisplayMessageActivationDate)
-    ),
-    CLEAR_DISPLAY_MESSAGE(5);
+    CONSUMER_MESSAGE_CODE_TO_PORT_P1(0, "Send a code message to the P1 port") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.p1InformationAttributeName, DeviceMessageConstants.p1InformationAttributeDefaultTranslation));
+        }
+    },
+    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(1, "Send a text message to the P1 port") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.p1InformationAttributeName, DeviceMessageConstants.p1InformationAttributeDefaultTranslation));
+        }
+    },
+    SET_DISPLAY_MESSAGE(2, "Set display message") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.DisplayMessageAttributeName, DeviceMessageConstants.DisplayMessageAttributeDefaultTranslation));
+        }
+    },
+    SET_DISPLAY_MESSAGE_WITH_OPTIONS(3, "Set display message with options") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.DisplayMessageAttributeName, DeviceMessageConstants.DisplayMessageAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.DisplayMessageTimeDurationAttributeName, DeviceMessageConstants.DisplayMessageTimeDurationAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, DeviceMessageConstants.DisplayMessageActivationDate, DeviceMessageConstants.DisplayMessageActivationDefaultTranslation)
+            );
+        }
+    },
+    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(4, "Set display message on IHD with options") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.DisplayMessageAttributeName, DeviceMessageConstants.DisplayMessageAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.DisplayMessageTimeDurationAttributeName, DeviceMessageConstants.DisplayMessageTimeDurationAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, DeviceMessageConstants.DisplayMessageActivationDate, DeviceMessageConstants.DisplayMessageActivationDefaultTranslation)
+            );
+        }
+    },
+    CLEAR_DISPLAY_MESSAGE(5, "Clear display message") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    };
 
-    private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.DISPLAY;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-
-
-    private DisplayDeviceMessage(int id,PropertySpec... deviceMessagePropertySpecs) {
+    DisplayDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return displayCategory;
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
+    protected PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateTimeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
     private String getNameResourceKey() {
         return DisplayDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.DISPLAY,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

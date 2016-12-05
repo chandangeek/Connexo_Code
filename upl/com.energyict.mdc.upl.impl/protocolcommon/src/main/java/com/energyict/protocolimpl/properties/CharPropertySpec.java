@@ -11,7 +11,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-07 (12:57)
  */
-class CharPropertySpec extends AbstractPropertySpec<Character> {
+class CharPropertySpec extends AbstractPropertySpec {
 
     private final Constraint constraint;
 

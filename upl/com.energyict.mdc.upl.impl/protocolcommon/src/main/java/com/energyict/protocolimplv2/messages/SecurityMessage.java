@@ -1,19 +1,25 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.UserNames;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 
 /**
@@ -23,228 +29,544 @@ import java.util.List;
  * Date: 13/03/13
  * Time: 15:18
  */
-public enum SecurityMessage implements DeviceMessageSpec {
+public enum SecurityMessage implements DeviceMessageSpecSupplier {
 
     /**
      * Note that this message will write the security_policy of the SecuritySetup object, DLMS version 0.
      * It is not forwards compatible with DLMS version 1.
      */
-    ACTIVATE_DLMS_ENCRYPTION(0, PropertySpecFactory.stringPropertySpecWithValues(
-            DeviceMessageConstants.encryptionLevelAttributeName,
-            DlmsEncryptionLevelMessageValues.getNames())),
-    CHANGE_DLMS_AUTHENTICATION_LEVEL(1,
-            PropertySpecFactory.stringPropertySpecWithValues(
-                    DeviceMessageConstants.authenticationLevelAttributeName,
-                    DlmsAuthenticationLevelMessageValues.getNames())
-    ),
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS(2,
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedEncryptionKeyAttributeName)
-    ),
-    CHANGE_CLIENT_PASSWORDS(3,
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newReadingClientPasswordAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newManagementClientPasswordAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newFirmwareClientPasswordAttributeName)
-    ),
-    WRITE_PSK(4, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.pskAttributeName)),
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(5, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS(6,
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)
-    ),
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(7, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
-    CHANGE_PASSWORD(8),
-    CHANGE_PASSWORD_WITH_NEW_PASSWORD(9, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
-    CHANGE_LLS_SECRET(10),
-    CHANGE_LLS_SECRET_HEX(11, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),          //Password value parsed by protocols as hex string
+    ACTIVATE_DLMS_ENCRYPTION(0, "Activate encryption") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(
+                            service,
+                            DeviceMessageConstants.encryptionLevelAttributeName, DeviceMessageConstants.encryptionLevelAttributeDefaultTranslation,
+                            DlmsEncryptionLevelMessageValues.getNames()));
+        }
+    },
+    CHANGE_DLMS_AUTHENTICATION_LEVEL(1, "Change authentication level") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(
+                            service,
+                            DeviceMessageConstants.authenticationLevelAttributeName, DeviceMessageConstants.authenticationLevelAttributeDefaultTranslation,
+                            DlmsAuthenticationLevelMessageValues.getNames()));
+        }
+    },
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS(2, "Change encryption key with values") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
+                    this.passwordSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
+            );
+        }
+    },
+    CHANGE_CLIENT_PASSWORDS(3, "Change client passwords") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.passwordSpec(service, DeviceMessageConstants.newReadingClientPasswordAttributeName, DeviceMessageConstants.newReadingClientPasswordAttributeDefaultTranslation),
+                    this.passwordSpec(service, DeviceMessageConstants.newManagementClientPasswordAttributeName, DeviceMessageConstants.newManagementClientPasswordAttributeDefaultTranslation),
+                    this.passwordSpec(service, DeviceMessageConstants.newFirmwareClientPasswordAttributeName, DeviceMessageConstants.newFirmwareClientPasswordAttributeDefaultTranslation)
+            );
+        }
+    },
+    WRITE_PSK(4, "Write PSK") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.pskAttributeName, DeviceMessageConstants.pskAttributeDefaultTranslation));
+        }
+    },
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(5, "Change encryption key with value") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation));
+        }
+    },
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS(6, "Change authentication key with values") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
+                    this.passwordSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
+            );
+        }
+    },
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(7, "Change authentication key with value") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation));
+        }
+    },
+    CHANGE_PASSWORD(8, "Change password") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    CHANGE_PASSWORD_WITH_NEW_PASSWORD(9, "Change password with value") {  // ASCII password
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
+        }
+    },
+    CHANGE_LLS_SECRET(10, "Change LLS secret") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    CHANGE_LLS_SECRET_HEX(11, "Change LLS secret with value") { //Password value parsed by protocols as hex string
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newHexPasswordAttributeName, DeviceMessageConstants.newHexPasswordAttributeDefaultTranslation));
+        }
+    },
     @Deprecated
     /**
      * For backwards compatibility
      */
-            CHANGE_HLS_SECRET(12),
-    CHANGE_HLS_SECRET_HEX(13, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),          //Password value parsed by protocols as hex string
-    ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(14,
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
-                    DeviceMessageConstants.keyTActivationStatusAttributeName,
-                    KeyTUsage.ENABLE.getDescription(),
-                    KeyTUsage.getAllDescriptions()
-            ),
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.SecurityTimeDurationAttributeName, new BigDecimal(0), new BigDecimal(255))),
-    CHANGE_EXECUTION_KEY(15, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
-    CHANGE_TEMPORARY_KEY(16, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),
-    BREAK_OR_RESTORE_SEALS(17,
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.eventLogResetSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreFactorySettingsSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.statusChangeSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.downloadProgramSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions())),
-    TEMPORARY_BREAK_SEALS(18,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.statusChangeSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName, new BigDecimal(0))),
-    GENERATE_NEW_PUBLIC_KEY(19),
-    GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM(20, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.randomBytesAttributeName)),
-    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(21, PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName)),
-    DISABLE_DLMS_AUTHENTICATION_LEVEL_P0(22,
-            PropertySpecFactory.stringPropertySpecWithValues(
-                    DeviceMessageConstants.authenticationLevelAttributeName,
-                    DlmsAuthenticationLevelMessageValues.getNames())
-    ),
-    DISABLE_DLMS_AUTHENTICATION_LEVEL_P3(23,
-            PropertySpecFactory.stringPropertySpecWithValues(
-                    DeviceMessageConstants.authenticationLevelAttributeName,
-                    DlmsAuthenticationLevelMessageValues.getNames())
-    ),
-    ENABLE_DLMS_AUTHENTICATION_LEVEL_P0(24,
-            PropertySpecFactory.stringPropertySpecWithValues(
-                    DeviceMessageConstants.authenticationLevelAttributeName,
-                    DlmsAuthenticationLevelMessageValues.getNames())
-    ),
-    ENABLE_DLMS_AUTHENTICATION_LEVEL_P3(25,
-            PropertySpecFactory.stringPropertySpecWithValues(
-                    DeviceMessageConstants.authenticationLevelAttributeName,
-                    DlmsAuthenticationLevelMessageValues.getNames())
-    ),
-    CHANGE_HLS_SECRET_USING_SERVICE_KEY(26,
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
-    ),
-    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY(27,
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
-    ),
-    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY(28,
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
-    ),
-    CHANGE_WEBPORTAL_PASSWORD1(29, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),  //ASCII password
-    CHANGE_WEBPORTAL_PASSWORD2(30, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),
-    CHANGE_HLS_SECRET_PASSWORD(31, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)), //Password field
-    CHANGE_SECURITY_KEYS(32,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.masterKey),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)
-    ),
+    CHANGE_HLS_SECRET(12, "Change HLS secret") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    CHANGE_HLS_SECRET_HEX(13, "Change HLS secret with value") { //Password value parsed by protocols as hex string
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newHexPasswordAttributeName, DeviceMessageConstants.newHexPasswordAttributeDefaultTranslation));
+        }
+    },
+    ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(14, "Enable/disable temporary encryption key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.keyTActivationStatusAttributeName, DeviceMessageConstants.keyTActivationStatusAttributeDefaultTranslation)
+                            .setDefaultValue(KeyTUsage.ENABLE.getDescription())
+                            .addValues(KeyTUsage.getAllDescriptions())
+                            .finish(),
+                    this.boundedBigDecimalSpec(
+                            service,
+                            DeviceMessageConstants.SecurityTimeDurationAttributeName, DeviceMessageConstants.SecurityTimeDurationAttributeDefaultTranslation,
+                            BigDecimal.ZERO, new BigDecimal(255))
+            );
+        }
+    },
+    CHANGE_EXECUTION_KEY(15, "Change execution key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.executionKeyAttributeName, DeviceMessageConstants.executionKeyAttributeDefaultTranslation));
+        }
+    },
+    CHANGE_TEMPORARY_KEY(16, "Change temporary key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.temporaryKeyAttributeName, DeviceMessageConstants.temporaryKeyAttributeDefaultTranslation));
+        }
+    },
+    BREAK_OR_RESTORE_SEALS(17, "Break or restore seals") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.eventLogResetSealAttributeName, DeviceMessageConstants.eventLogResetSealAttributeDefaultTranslation)
+                            .setDefaultValue(SealActions.UNCHANGED.getDescription())
+                            .addValues(SealActions.getAllDescriptions())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.restoreFactorySettingsSealAttributeName, DeviceMessageConstants.restoreFactorySettingsSealAttributeDefaultTranslation)
+                            .setDefaultValue(SealActions.UNCHANGED.getDescription())
+                            .addValues(SealActions.getAllDescriptions())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.restoreDefaultSettingsSealAttributeName, DeviceMessageConstants.restoreDefaultSettingsSealAttributeDefaultTranslation)
+                            .setDefaultValue(SealActions.UNCHANGED.getDescription())
+                            .addValues(SealActions.getAllDescriptions())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.statusChangeSealAttributeName, DeviceMessageConstants.statusChangeSealAttributeDefaultTranslation)
+                            .setDefaultValue(SealActions.UNCHANGED.getDescription())
+                            .addValues(SealActions.getAllDescriptions())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName, DeviceMessageConstants.remoteConversionParametersConfigSealAttributeDefaultTranslation)
+                            .setDefaultValue(SealActions.UNCHANGED.getDescription())
+                            .addValues(SealActions.getAllDescriptions())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName, DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeDefaultTranslation)
+                            .setDefaultValue(SealActions.UNCHANGED.getDescription())
+                            .addValues(SealActions.getAllDescriptions())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.downloadProgramSealAttributeName, DeviceMessageConstants.downloadProgramSealAttributeDefaultTranslation)
+                            .setDefaultValue(SealActions.UNCHANGED.getDescription())
+                            .addValues(SealActions.getAllDescriptions())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.restoreDefaultPasswordSealAttributeName, DeviceMessageConstants.restoreDefaultPasswordSealAttributeDefaultTranslation)
+                            .setDefaultValue(SealActions.UNCHANGED.getDescription())
+                            .addValues(SealActions.getAllDescriptions())
+                            .finish()
+            );
+        }
+    },
+    TEMPORARY_BREAK_SEALS(18, "Temporary break the seals") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName, DeviceMessageConstants.eventLogResetSealBreakTimeAttributeDefaultTranslation, BigDecimal.ZERO),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName, DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeDefaultTranslation, BigDecimal.ZERO),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName, DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeDefaultTranslation, BigDecimal.ZERO),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.statusChangeSealBreakTimeAttributeName, DeviceMessageConstants.statusChangeSealBreakTimeAttributeDefaultTranslation, BigDecimal.ZERO),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeName, DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeDefaultTranslation, BigDecimal.ZERO),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName, DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeDefaultTranslation, BigDecimal.ZERO),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName, DeviceMessageConstants.downloadProgramSealBreakTimeAttributeDefaultTranslation, BigDecimal.ZERO),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName, DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeDefaultTranslation, BigDecimal.ZERO)
+            );
+        }
+    },
+    GENERATE_NEW_PUBLIC_KEY(19, "Generate new public key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM(20, "Generate new public key from random value") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.randomBytesAttributeName, DeviceMessageConstants.randomBytesAttributeDefaultTranslation));
+        }
+    },
+    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(21, "Set public key of aggregation group") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceGroupSpec(service, DeviceMessageConstants.deviceGroupAttributeName, DeviceMessageConstants.deviceGroupAttributeDefaultTranslation));
+        }
+    },
+    DISABLE_DLMS_AUTHENTICATION_LEVEL_P0(22, "Disable authentication level P0") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(
+                            service,
+                            DeviceMessageConstants.authenticationLevelAttributeName, DeviceMessageConstants.authenticationLevelAttributeDefaultTranslation,
+                            DlmsAuthenticationLevelMessageValues.getNames()));
+        }
+    },
+    DISABLE_DLMS_AUTHENTICATION_LEVEL_P3(23, "Disable authentication level P3") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(
+                            service,
+                            DeviceMessageConstants.authenticationLevelAttributeName, DeviceMessageConstants.authenticationLevelAttributeDefaultTranslation,
+                            DlmsAuthenticationLevelMessageValues.getNames()));
+        }
+    },
+    ENABLE_DLMS_AUTHENTICATION_LEVEL_P0(24, "Enable authentication level P0") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(
+                            service,
+                            DeviceMessageConstants.authenticationLevelAttributeName, DeviceMessageConstants.authenticationLevelAttributeDefaultTranslation,
+                            DlmsAuthenticationLevelMessageValues.getNames()));
+        }
+    },
+    ENABLE_DLMS_AUTHENTICATION_LEVEL_P3(25, "Enable authentication level P3") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(
+                            service,
+                            DeviceMessageConstants.authenticationLevelAttributeName, DeviceMessageConstants.authenticationLevelAttributeDefaultTranslation,
+                            DlmsAuthenticationLevelMessageValues.getNames()));
+        }
+    },
+    CHANGE_HLS_SECRET_USING_SERVICE_KEY(26, "Change HLS secret using service key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.hexStringSpec(service, DeviceMessageConstants.preparedDataAttributeName, DeviceMessageConstants.preparedDataAttributeDefaultTranslation),
+                    this.hexStringSpec(service, DeviceMessageConstants.signatureAttributeName, DeviceMessageConstants.signatureAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.verificationKeyAttributeName, DeviceMessageConstants.verificationKeyAttributeDefaultTranslation)
+            );
+        }
+    },
+    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY(27, "Change authentication key using service key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.hexStringSpec(service, DeviceMessageConstants.preparedDataAttributeName, DeviceMessageConstants.preparedDataAttributeDefaultTranslation),
+                    this.hexStringSpec(service, DeviceMessageConstants.signatureAttributeName, DeviceMessageConstants.signatureAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.verificationKeyAttributeName, DeviceMessageConstants.verificationKeyAttributeDefaultTranslation)
+            );
+        }
+    },
+    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY(28, "Change encryption key using service key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.hexStringSpec(service, DeviceMessageConstants.preparedDataAttributeName, DeviceMessageConstants.preparedDataAttributeDefaultTranslation),
+                    this.hexStringSpec(service, DeviceMessageConstants.signatureAttributeName, DeviceMessageConstants.signatureAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.verificationKeyAttributeName, DeviceMessageConstants.verificationKeyAttributeDefaultTranslation)
+            );
+        }
+    },
+    CHANGE_WEBPORTAL_PASSWORD1(29, "Change webportal password 1") {    //ASCII password
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
+        }
+    },
+    CHANGE_WEBPORTAL_PASSWORD2(30, "Change webportal password 2") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
+        }
+    },
+    CHANGE_HLS_SECRET_PASSWORD(31, "Change HLS secret") {    //Password field
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
+        }
+    },
+    CHANGE_SECURITY_KEYS(32, "Change security keys") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress),
+                    this.passwordSpec(service, DeviceMessageConstants.masterKey, DeviceMessageConstants.masterKeyDefaultTranslation),
+                    this.passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
+                    this.passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
+            );
+        }
+    },
     /**
      * Note that this message will write the security_policy of the SecuritySetup object, DLMS version 1.
      * It is not backwards compatible with DLMS version 0.
      */
-    ACTIVATE_DLMS_SECURITY_VERSION1(33,
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.authenticatedRequestsAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.encryptedRequestsAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.signedRequestsAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.authenticatedResponsesAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.encryptedResponsesAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.signedResponsesAttributeName)
-    ),
+    ACTIVATE_DLMS_SECURITY_VERSION1(33, "Activate advanced security") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.booleanSpec(service, DeviceMessageConstants.authenticatedRequestsAttributeName, DeviceMessageConstants.authenticatedRequestsAttributeDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.encryptedRequestsAttributeName, DeviceMessageConstants.encryptedRequestsAttributeDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.signedRequestsAttributeName, DeviceMessageConstants.signedRequestsAttributeDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.authenticatedResponsesAttributeName, DeviceMessageConstants.authenticatedResponsesAttributeDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.encryptedResponsesAttributeName, DeviceMessageConstants.encryptedResponsesAttributeDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.signedResponsesAttributeName, DeviceMessageConstants.signedResponsesAttributeDefaultTranslation)
+            );
+        }
+    },
     /**
      * Used to agree on one or more symmetric keys using the key
      * agreement algorithm as specified by the security suite. In the case of
      * suites 1 and 2 the ECDH key agreement algorithm is used with the
      * Ephemeral Unified Model C(2e, 0s, ECC CDH) scheme.
      */
-    AGREE_NEW_ENCRYPTION_KEY(34),
-    AGREE_NEW_AUTHENTICATION_KEY(35),
-    CHANGE_SECURITY_SUITE(36,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.securitySuiteAttributeName, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2))
-    ),
-    EXPORT_END_DEVICE_CERTIFICATE(37,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues())
-    ),
-    EXPORT_SUB_CA_CERTIFICATES(38),
-    EXPORT_ROOT_CA_CERTIFICATE(39),
+    AGREE_NEW_ENCRYPTION_KEY(34, "Agree on new encryption key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    AGREE_NEW_AUTHENTICATION_KEY(35, "Agree on new authentication key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    CHANGE_SECURITY_SUITE(36, "Change security suite") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.bigDecimalSpecBuilder(
+                            service,
+                            DeviceMessageConstants.securitySuiteAttributeName, DeviceMessageConstants.securitySuiteAttributeDefaultTranslation)
+                        .addValues(BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2))
+                        .markExhaustive()
+                        .finish());
+        }
+    },
+    EXPORT_END_DEVICE_CERTIFICATE(37, "Export certificate of the end device") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                        this.stringSpec(
+                                service,
+                                DeviceMessageConstants.certificateTypeAttributeName, DeviceMessageConstants.certificateTypeAttributeDefaultTranslation,
+                                CertificateType.getPossibleValues()));
+        }
+    },
+    EXPORT_SUB_CA_CERTIFICATES(38, "Export sub-CA certificates") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    EXPORT_ROOT_CA_CERTIFICATE(39, "Export root-CA certificate") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
 
-    DELETE_CERTIFICATE_BY_TYPE(41,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateEntityAttributeName, CertificateEntity.getPossibleValues()),
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.commonNameAttributeName)
-    ),
-    DELETE_CERTIFICATE_BY_SERIAL_NUMBER(42,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterSerialNumberAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateIssuerAttributeName)
-    ),
-    GENERATE_KEY_PAIR(43,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues())
-    ),
-    GENERATE_CSR(44,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues())
-    ),
-    CHANGE_WEBPORTAL_PASSWORD(45,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.usernameAttributeName, UserNames.getAllNames()),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)
-    ),
-    IMPORT_CA_CERTIFICATE(40,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateAliasAttributeName)
-    ),
-    IMPORT_END_DEVICE_CERTIFICATE(46,
-            PropertySpecFactory.positiveDecimalPropertySpec(DeviceMessageConstants.certificateWrapperIdAttributeName)
-    );
+    DELETE_CERTIFICATE_BY_TYPE(41, "Delete certificate by type") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.certificateEntityAttributeName, DeviceMessageConstants.certificateEntityAttributeDefaultTranslation, CertificateEntity.getPossibleValues()),
+                    this.stringSpec(service, DeviceMessageConstants.certificateTypeAttributeName, DeviceMessageConstants.certificateTypeAttributeDefaultTranslation, CertificateType.getPossibleValues()),
+                    this.stringSpec(service, DeviceMessageConstants.commonNameAttributeName, DeviceMessageConstants.commonNameAttributeDefaultTranslation)
+            );
+        }
+    },
+    DELETE_CERTIFICATE_BY_SERIAL_NUMBER(42, "Delete certificate by serial number") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.meterSerialNumberAttributeName, DeviceMessageConstants.meterSerialNumberAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.certificateIssuerAttributeName, DeviceMessageConstants.certificateIssuerAttributeDefaultTranslation));
+        }
+    },
+    GENERATE_KEY_PAIR(43, "Generate EC key pair") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(
+                            service,
+                            DeviceMessageConstants.certificateTypeAttributeName, DeviceMessageConstants.certificateTypeAttributeDefaultTranslation,
+                            CertificateType.getPossibleValues()));
+        }
+    },
+    GENERATE_CSR(44, "Generate certificate signing request") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(
+                            service,
+                            DeviceMessageConstants.certificateTypeAttributeName, DeviceMessageConstants.certificateTypeAttributeDefaultTranslation,
+                            CertificateType.getPossibleValues()));
+        }
+    },
+    CHANGE_WEBPORTAL_PASSWORD(45, "Change webportal password") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation, UserNames.getAllNames()),
+                    this.passwordSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation));
+        }
+    },
+    IMPORT_CA_CERTIFICATE(40, "Import CA certificate") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.certificateAliasAttributeName, DeviceMessageConstants.certificateAliasAttributeDefaultTranslation));
+        }
+    },
+    IMPORT_END_DEVICE_CERTIFICATE(46, "Import end device certificate") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.positiveBigDecimalSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.certificateWrapperIdAttributeDefaultTranslation));
+        }
+    };
 
-    private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    SecurityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    SecurityMessage(long id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return securityCategory;
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
     }
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... exhaustiveValues) {
+        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .addValues(exhaustiveValues)
+                .markExhaustive()
+                .finish();
+    }
+
+    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .booleanSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec passwordSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .passwordSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .hexStringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec deviceGroupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(DeviceGroup.class)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
+    }
+
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal defaultValue) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .setDefaultValue(defaultValue)
+                .finish();
+    }
+
+    protected PropertySpec boundedBigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal lowerLimit, BigDecimal upperLimit) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .boundedBigDecimalSpec(lowerLimit, upperLimit)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec positiveBigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .positiveBigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
     private String getNameResourceKey() {
         return SecurityMessage.class.getSimpleName() + "." + this.toString();
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
     }
 
     public enum CertificateEntity {
@@ -265,21 +587,19 @@ public enum SecurityMessage implements DeviceMessageSpec {
         }
 
         public static CertificateEntity fromName(String name) {
-            for (CertificateEntity certificateEntity : values()) {
-                if (certificateEntity.name().equals(name)) {
-                    return certificateEntity;
-                }
-            }
-            return Invalid;
+            return filterWith(each -> each.name().equals(name));
         }
 
         public static CertificateEntity fromId(int id) {
-            for (CertificateEntity certificateEntity : values()) {
-                if (certificateEntity.getId() == id) {
-                    return certificateEntity;
-                }
-            }
-            return Invalid;
+            return filterWith(each -> each.getId() == id);
+        }
+
+        public static CertificateEntity filterWith(Predicate<CertificateEntity> predicate) {
+            return Stream
+                    .of(values())
+                    .filter(predicate)
+                    .findFirst()
+                    .orElse(Invalid);
         }
 
         public int getId() {
@@ -305,21 +625,19 @@ public enum SecurityMessage implements DeviceMessageSpec {
         }
 
         public static CertificateType fromName(String name) {
-            for (CertificateType certificateType : values()) {
-                if (certificateType.name().equals(name)) {
-                    return certificateType;
-                }
-            }
-            return Invalid;
+            return filterWith(each -> each.name().equals(name));
         }
 
         public static CertificateType fromId(int id) {
-            for (CertificateType certificateType : values()) {
-                if (certificateType.getId() == id) {
-                    return certificateType;
-                }
-            }
-            return Invalid;
+            return filterWith(each -> each.getId() == id);
+        }
+
+        public static CertificateType filterWith(Predicate<CertificateType> predicate) {
+            return Stream
+                    .of(values())
+                    .filter(predicate)
+                    .findFirst()
+                    .orElse(Invalid);
         }
 
         public int getId() {
@@ -342,20 +660,16 @@ public enum SecurityMessage implements DeviceMessageSpec {
         }
 
         public static Boolean fromDescription(String description) {
-            for (SealActions actions : values()) {
-                if (actions.getDescription().equals(description)) {
-                    return actions.getAction();
-                }
-            }
-            return null;
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .map(SealActions::getAction)
+                    .orElse(null);
         }
 
         public static String[] getAllDescriptions() {
-            String[] result = new String[values().length];
-            for (int index = 0; index < values().length; index++) {
-                result[index] = values()[index].getDescription();
-            }
-            return result;
+            return Stream.of(values()).map(SealActions::getDescription).toArray(String[]::new);
         }
 
         public String getDescription() {
@@ -381,20 +695,16 @@ public enum SecurityMessage implements DeviceMessageSpec {
         }
 
         public static Boolean fromDescription(String description) {
-            for (KeyTUsage usage : values()) {
-                if (usage.getDescription().equals(description)) {
-                    return usage.getStatus();
-                }
-            }
-            return null;
+            return Stream
+                        .of(values())
+                        .filter(each -> each.getDescription().equals(description))
+                        .findFirst()
+                        .map(KeyTUsage::getStatus)
+                        .orElse(null);
         }
 
         public static String[] getAllDescriptions() {
-            String[] result = new String[values().length];
-            for (int index = 0; index < values().length; index++) {
-                result[index] = values()[index].getDescription();
-            }
-            return result;
+            return Stream.of(values()).map(KeyTUsage::getDescription).toArray(String[]::new);
         }
 
         public String getDescription() {
@@ -405,4 +715,16 @@ public enum SecurityMessage implements DeviceMessageSpec {
             return status;
         }
     }
+
+    @Override
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.SECURITY,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
+    }
+
 }

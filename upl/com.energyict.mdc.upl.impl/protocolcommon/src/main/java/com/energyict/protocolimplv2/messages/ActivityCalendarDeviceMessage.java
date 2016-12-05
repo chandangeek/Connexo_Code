@@ -1,131 +1,265 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.XmlUserFileAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.XmlUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarTypeAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.defaultTariffCodeAttrributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.defaultTariffCodeAttrributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
 
 /**
- * Provides a summary of all <i>ActivityCalendar</i> related messages
+ * Provides a summary of all <i>ActivityCalendar</i> related messages.
  * <p/>
  * Copyrights EnergyICT
  * Date: 7/02/13
  * Time: 12:01
  */
-public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
+public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
 
-    ACTIVITY_CALENDAR_READ(0),
-    WRITE_CONTRACTS_FROM_XML_USERFILE(1, PropertySpecFactory.userFileReferencePropertySpec(contractsXmlUserFileAttributeName)),
-    ACTIVITY_CALENDER_SEND(2, PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName)),
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME(3, PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE(4,
-            PropertySpecFactory.stringPropertySpecWithValues(activityCalendarTypeAttributeName, ActivityCalendarType.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT(5,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(contractAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
-    ACTIVITY_CALENDER_SEND_WITH_DATE(6, PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
-            PropertySpecFactory.datePropertySpec(activityCalendarActivationDateAttributeName)),
-    SPECIAL_DAY_CALENDAR_SEND(7, PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName)),
-    SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE(8,
-            PropertySpecFactory.stringPropertySpecWithValues(activityCalendarTypeAttributeName, ActivityCalendarType.getAllDescriptions()),
-            PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName)),
-    SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME(9,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(contractAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
-    CLEAR_AND_DISABLE_PASSIVE_TARIFF(10),
-    ACTIVATE_PASSIVE_CALENDAR(11, PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
-    SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE(12, PropertySpecFactory.userFileReferencePropertySpec(XmlUserFileAttributeName)),
-    ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE(13,
-            PropertySpecFactory.userFileReferencePropertySpec(XmlUserFileAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE(14,
-            PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(defaultTariffCodeAttrributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3))),
+    ACTIVITY_CALENDAR_READ(0, "Read activity calendar") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    WRITE_CONTRACTS_FROM_XML_USERFILE(1, "Write contracts from XML user file") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, contractsXmlUserFileAttributeName, contractsXmlUserFileAttributeDefaultTranslation));
+        }
+    },
+    ACTIVITY_CALENDER_SEND(2, "Send activity calendar") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarCodeTableAttributeName, activityCalendarCodeTableAttributeDefaultTranslation)
+            );
+        }
+    },
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME(3, "Send activity calendar with activation date") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarCodeTableAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE(4, "Send activity calendar with activation date and type") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarTypeAttributeName, activityCalendarTypeAttributeDefaultTranslation, ActivityCalendarType.getAllDescriptions()),
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarCodeTableAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT(5, "Send activity calendar with activation date and contract") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, contractAttributeName, contractAttributeDefaultTranslation),
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarCodeTableAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    ACTIVITY_CALENDER_SEND_WITH_DATE(6, "Send activity calendar with activation date") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.codeTableSpec(service, activityCalendarCodeTableAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    SPECIAL_DAY_CALENDAR_SEND(7, "Send special days calendar") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.codeTableSpec(service, specialDaysCodeTableAttributeName, specialDaysCodeTableAttributeDefaultTranslation));
+        }
+    },
+    SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE(8, "Send special days calendar with type") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarTypeAttributeName, activityCalendarTypeAttributeDefaultTranslation, ActivityCalendarType.getAllDescriptions()),
+                    this.codeTableSpec(service, specialDaysCodeTableAttributeName, specialDaysCodeTableAttributeDefaultTranslation)
+            );
+        }
+    },
+    SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME(9, "Send special days calendar with contract and activation date") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, contractAttributeName, contractAttributeDefaultTranslation),
+                    this.codeTableSpec(service, specialDaysCodeTableAttributeName, specialDaysCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    CLEAR_AND_DISABLE_PASSIVE_TARIFF(10, "Clear and disable passive tariff") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    ACTIVATE_PASSIVE_CALENDAR(11, "Activate passive calendar") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation));
+        }
+    },
+    SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE(12, "Send special days calendar from XLM user file") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, XmlUserFileAttributeName, XmlUserFileAttributeDefaultTranslation));
+        }
+    },
+    ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE(13, "Send activity calendar with activation date from XML user file") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.deviceMessageFileSpec(service, XmlUserFileAttributeName, XmlUserFileAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE(14, "Send activity calendar with activation date and default tariff code") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.deviceMessageFileSpec(service, activityCalendarCodeTableAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, defaultTariffCodeAttrributeName, defaultTariffCodeAttrributeDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2), BigDecimal.valueOf(3))
+            );
+        }
+    },
     ;
 
-    private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private ActivityCalendarDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    ActivityCalendarDeviceMessage(int id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return activityCalendarCategory;
+    private PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
     }
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... possibleValues) {
+        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .addValues(possibleValues)
+                .markExhaustive()
+                .finish();
+    }
+
+    private PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
+    }
+
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... possibleValues) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .addValues(possibleValues)
+                .markExhaustive()
+                .finish();
+    }
+
+    protected PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateTimeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(DeviceMessageFile.class)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec codeTableSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(TariffCalender.class)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
     private String getNameResourceKey() {
         return ActivityCalendarDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.ACTIVITY_CALENDAR,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

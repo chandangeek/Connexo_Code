@@ -1,79 +1,74 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.prepaidCreditAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.prepaidCreditAttributeNameDefaultTranslation;
 
 /**
  * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    AddPrepaidCredit(0, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.prepaidCreditAttributeName)),
-    DisablePrepaid(1),
-    EnablePrepaid(2);
+    AddPrepaidCredit(0, "Add prepaid credit") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            TranslationKeyImpl translationKey = new TranslationKeyImpl(prepaidCreditAttributeName, prepaidCreditAttributeNameDefaultTranslation);
+            return Collections.singletonList(
+                service
+                    .bigDecimalSpec()
+                    .named(prepaidCreditAttributeName, translationKey)
+                    .describedAs(translationKey.description())
+                    .finish());
+        }
+    },
+    DisablePrepaid(1, "Disable prepaid") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    },
+    EnablePrepaid(2, "Enable prepaid") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    };
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.PREPAID_CONFIGURATION;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private PrepaidConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    PrepaidConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return category;
-    }
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
-    }
-
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
     private String getNameResourceKey() {
         return PrepaidConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.PREPAID_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }
