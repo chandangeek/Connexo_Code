@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.rest.util.hypermedia.Roles;
+import com.elster.jupiter.rest.api.util.Roles;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -89,7 +89,7 @@ public class Installer implements FullInstaller {
             DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec("CommandCallback", 60);
             destinationSpec.save();
             destinationSpec.activate();
-            destinationSpec.subscribe(TranslationKeys.USAGE_POINT_COMMAND_MESSAGE_HANDLER_DISPLAYNAME, PublicRestApplication.COMPONENT_NAME, Layer.REST);
+            destinationSpec.subscribe(TranslationKeys.USAGE_POINT_COMMAND_MESSAGE_HANDLER_DISPLAYNAME, PublicRestAppServiceImpl.COMPONENT_NAME, Layer.REST);
         }
     }
 
@@ -115,7 +115,7 @@ public class Installer implements FullInstaller {
     }
 
     private void assignPrivilegesToDeveloperRole() {
-        userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
+        userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestAppServiceImpl.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
         //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
         userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(Roles.DEVELOPER.value())).findFirst().get()));
     }

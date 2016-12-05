@@ -1,3 +1,9 @@
 -classpath: target/classes
 -dsannotations: *
 
+Private-Package: \
+    com.elster.jupiter.kore.api.impl.*,\
+    com.elster.jupiter.kore.api.v1,\
+    com.elster.jupiter.kore.api.v2
+Export-Package: \
+    com.elster.jupiter.kore.api.security

@@ -1,9 +1,9 @@
 package com.elster.jupiter.kore.api.impl.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.kore.api.impl.PublicRestApplication;
+import com.elster.jupiter.kore.api.impl.MessageSeeds;
+import com.elster.jupiter.kore.api.impl.PublicRestAppServiceImpl;
 import com.elster.jupiter.kore.api.impl.TranslationKeys;
-import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -73,7 +73,7 @@ public class UsagePointCommandHelper {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec("CommandCallback", 20);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(TranslationKeys.USAGE_POINT_COMMAND_MESSAGE_HANDLER_DISPLAYNAME, PublicRestApplication.COMPONENT_NAME, Layer.REST);
+        destinationSpec.subscribe(TranslationKeys.USAGE_POINT_COMMAND_MESSAGE_HANDLER_DISPLAYNAME, PublicRestAppServiceImpl.COMPONENT_NAME, Layer.REST);
         return destinationSpec;
     }
 

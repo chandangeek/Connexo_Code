@@ -20,7 +20,7 @@ class PublicRestApplicationPrivilegesProvider implements PrivilegesProvider {
 
     @Override
     public String getModuleName() {
-        return PublicRestApplication.COMPONENT_NAME;
+        return PublicRestAppServiceImpl.COMPONENT_NAME;
     }
 
     @Override

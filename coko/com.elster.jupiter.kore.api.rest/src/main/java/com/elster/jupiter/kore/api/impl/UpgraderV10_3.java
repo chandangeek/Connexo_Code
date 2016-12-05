@@ -2,7 +2,7 @@ package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.rest.util.hypermedia.Roles;
+import com.elster.jupiter.rest.api.util.Roles;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
@@ -38,7 +38,7 @@ class UpgraderV10_3 implements Upgrader {
     }
 
     private void assignPrivilegesToDeveloperRole() {
-        userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
+        userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestAppServiceImpl.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
         //TODO: workaround: attached Developer to user admin !!! to remove this line when the user can be created/added to system
         userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(Roles.DEVELOPER.value())).findFirst().get()));
     }

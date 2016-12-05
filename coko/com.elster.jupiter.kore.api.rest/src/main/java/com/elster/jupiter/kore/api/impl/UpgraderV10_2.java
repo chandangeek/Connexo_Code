@@ -55,7 +55,7 @@ public class UpgraderV10_2 implements Upgrader {
 
     private PreparedStatement upgradeSubscriberSpecsStatement(Connection connection) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET nls_component = ?, nls_layer = ? WHERE name = ?");
-        statement.setString(1, PublicRestApplication.COMPONENT_NAME);
+        statement.setString(1, PublicRestAppServiceImpl.COMPONENT_NAME);
         statement.setString(2, Layer.REST.name());
         statement.setString(3, UsagePointCommandMessageHandlerFactory.SUBSCRIBER_NAME);
         return statement;
