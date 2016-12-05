@@ -2,7 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.rest.util.hypermedia.Roles;
+import com.elster.jupiter.rest.api.util.Roles;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;

@@ -1,10 +1,10 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
-import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
