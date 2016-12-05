@@ -7,8 +7,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
+import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
+import java.util.List;
 
 public class HistoricalDeviceAlarmImpl extends DeviceAlarmImpl implements HistoricalDeviceAlarm {
 
@@ -20,7 +23,10 @@ public class HistoricalDeviceAlarmImpl extends DeviceAlarmImpl implements Histor
         super(dataModel);
     }
 
-    protected HistoricalIssue getBaseIssue(){
+    @Valid
+    private List<HistoricalDeviceAlarmRelatedEventImpl> deviceAlarmRelatedEvents;
+
+    protected HistoricalIssue getBaseIssue() {
         return baseIssue.orNull();
     }
 
@@ -28,8 +34,12 @@ public class HistoricalDeviceAlarmImpl extends DeviceAlarmImpl implements Histor
         this.baseIssue.set(issue);
     }
 
-    void copy(OpenDeviceAlarm source) {
-        this.setId(source.getId());
-        this.setDeviceMRID(source.getDeviceMRID());
+    void copy(OpenDeviceAlarm alarm) {
+        this.setId(alarm.getId());
+        for (DeviceAlarmRelatedEvent event : alarm.getDeviceAlarmRelatedEvents()) {
+            HistoricalDeviceAlarmRelatedEventImpl alarmEvent = getDataModel().getInstance(HistoricalDeviceAlarmRelatedEventImpl.class);
+            alarmEvent.init(this, event.getEventRecord());
+            deviceAlarmRelatedEvents.add(alarmEvent);
+        }
     }
 }

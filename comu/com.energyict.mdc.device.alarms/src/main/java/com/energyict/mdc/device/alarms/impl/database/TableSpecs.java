@@ -9,30 +9,30 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
-import com.energyict.mdc.device.alarms.event.HistoricalDeviceAlarmRelatedEvents;
-import com.energyict.mdc.device.alarms.event.OpenDeviceAlarmRelatedEvents;
-import com.energyict.mdc.device.alarms.impl.records.DeviceAlarmRelatedEventsImpl;
+import com.energyict.mdc.device.alarms.event.HistoricalDeviceAlarmRelatedEvent;
+import com.energyict.mdc.device.alarms.event.OpenDeviceAlarmRelatedEvent;
+import com.energyict.mdc.device.alarms.impl.records.DeviceAlarmRelatedEventImpl;
 import com.energyict.mdc.device.alarms.impl.records.HistoricalDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.impl.records.DeviceAlarmImpl;
-import com.energyict.mdc.device.alarms.impl.records.HistoricalDeviceAlarmRelatedEventsImpl;
+import com.energyict.mdc.device.alarms.impl.records.HistoricalDeviceAlarmRelatedEventImpl;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
-import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmRelatedEventsImpl;
+import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmRelatedEventImpl;
 
 import java.util.Arrays;
 import java.util.ListIterator;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_CLEARED_STATUS;
-import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_BASE_ALARM;
-import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_DEVICE_MRID;
+import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ID;
-import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_FK_TO_ALARM;
-import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_HISTORY_FK_TO_ALARM;
+import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_FK_TO_ISSUE;
+import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_HISTORY_FK_TO_ISSUE;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_HISTORY_PK;
-import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_OPEN_FK_TO_ALARM;
+import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_OPEN_FK_TO_ISSUE;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_OPEN_PK;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_PK;
 
@@ -48,7 +48,7 @@ public enum TableSpecs {
 
             TableSpecs.TableBuilder.buildAlarmTable(table, idColumn, "ISU_ISSUE_HISTORY", DAL_ALARM_HISTORY_PK,
                     // Foreign keys
-                    DAL_ALARM_HISTORY_FK_TO_ALARM);
+                    DAL_ALARM_HISTORY_FK_TO_ISSUE);
             table.addAuditColumns();
         }
     },
@@ -63,7 +63,7 @@ public enum TableSpecs {
 
             TableSpecs.TableBuilder.buildAlarmTable(table, idColumn, "ISU_ISSUE_OPEN", DAL_ALARM_OPEN_PK,
                     // Foreign key
-                    DAL_ALARM_OPEN_FK_TO_ALARM);//to_issue
+                    DAL_ALARM_OPEN_FK_TO_ISSUE);//to_issue
             table.addAuditColumns();
         }
     },
@@ -77,32 +77,50 @@ public enum TableSpecs {
             Column idColumn = table.column(DAL_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
             TableSpecs.TableBuilder.buildAlarmTable(table, idColumn, "ISU_ISSUE_ALL", DAL_ALARM_PK,
                     // Foreign key
-                    DAL_ALARM_FK_TO_ALARM);
+                    DAL_ALARM_FK_TO_ISSUE);
             table.addAuditColumns();
         }
     },
 
-    DAL_OPEN_ALM_RELATED_EVT {
+     DAL_OPEN_ALM_RELATED_EVT {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<OpenDeviceAlarmRelatedEvents> table = dataModel.addTable(name(), OpenDeviceAlarmRelatedEvents.class);
-            table.map(OpenDeviceAlarmRelatedEventsImpl.class);
+            Table<OpenDeviceAlarmRelatedEvent> table = dataModel.addTable(name(), OpenDeviceAlarmRelatedEvent.class);
+            table.map(OpenDeviceAlarmRelatedEventImpl.class);
             table.since(version(10, 3));
-            Column alarmColumn = table.column(DAL_BASE_ALARM).number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column eventRecordColumn = table.column("EVENT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.primaryKey("VAL_PK_OPNALM_REL_EVTS").on(alarmColumn, eventRecordColumn).add();
+            Column alarmColumn = table.column(DAL_ALARM).number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column eventRecordColumn = table.column("EVENTRECORD").number().notNull().map(DeviceAlarmRelatedEventImpl.Fields.EVENTRECORD.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
+            Column endDeviceColumn = table.column("ENDDEVICEID")
+                    .number()
+                    .notNull()
+                    .map("endDeviceId")
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column eventTypeColumn = table.column("EVENTTYPE")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map("eventTypeCode")
+                    .add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createdDateTime")
+                    .add();
+            table.primaryKey("VAL_PK_OPNALM_REL_EVTS").on(alarmColumn, eventRecordColumn, endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
             table.foreignKey("VAL_FK_OPNALM_REL_EVTS")
                     .references(DAL_ALARM_OPEN.name())
                     .on(alarmColumn)
                     .onDelete(CASCADE)
-                    .map(DeviceAlarmRelatedEventsImpl.Fields.AlARM.fieldName())
-                    .reverseMap(DeviceAlarmImpl.Fields.DEVICEALARMRELATEDEVENTS.fieldName())
+                    .map(DeviceAlarmRelatedEventImpl.Fields.AlARM.fieldName())
+                    .reverseMap(DeviceAlarmImpl.Fields.DEVICE_ALARM_RELATED_EVENTS.fieldName())
                     .composition().add();
             table.foreignKey("VAL_FK_OPNALM_REL_EVTSEVT")
+                    .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
                     .references(EndDeviceEventRecord.class)
-                    .on(eventRecordColumn)
+                    .map("eventRecord")
+                    //.reverseMap(DeviceAlarmImpl.Fields.DEVICE_ALARM_RELATED_EVENTS.fieldName())
                     .onDelete(CASCADE)
-                    .map(DeviceAlarmRelatedEventsImpl.Fields.EVENT.fieldName())
                     .composition().add();
         }
     },
@@ -110,23 +128,41 @@ public enum TableSpecs {
     DAL_HIST_ALM_RELATED_EVT {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<HistoricalDeviceAlarmRelatedEvents> table = dataModel.addTable(name(), HistoricalDeviceAlarmRelatedEvents.class);
-            table.map(HistoricalDeviceAlarmRelatedEventsImpl.class);
+            Table<HistoricalDeviceAlarmRelatedEvent> table = dataModel.addTable(name(), HistoricalDeviceAlarmRelatedEvent.class);
+            table.map(HistoricalDeviceAlarmRelatedEventImpl.class);
             table.since(version(10, 3));
-            Column alarmColumn = table.column(DAL_BASE_ALARM).number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column eventRecordColumn = table.column("EVENT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.primaryKey("VAL_PK_HSTALM_REL_EVTS").on(alarmColumn, eventRecordColumn).add();
+            Column alarmColumn = table.column(DAL_ALARM).number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column eventRecordColumn = table.column("EVENTRECORD").number().notNull().map(DeviceAlarmRelatedEventImpl.Fields.EVENTRECORD.fieldName()).conversion(ColumnConversion.NUMBER2LONG).add();
+            Column endDeviceColumn = table.column("ENDDEVICEID")
+                    .number()
+                    .notNull()
+                    .map(DeviceAlarmRelatedEventImpl.Fields.END_DEVICE_ID.fieldName())
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column eventTypeColumn = table.column("EVENTTYPE")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(DeviceAlarmRelatedEventImpl.Fields.EVENT_TYPE_CODE.fieldName())
+                    .add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map(DeviceAlarmRelatedEventImpl.Fields.CREATE_DATE_TIME.fieldName())
+                    .add();
+            table.primaryKey("VAL_PK_HSTALM_REL_EVTS").on(alarmColumn, eventRecordColumn, endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
             table.foreignKey("VAL_FK_HSTALM_REL_EVTSALM")
                     .references(DAL_ALARM_HISTORY.name())
                     .on(alarmColumn)
-                    .map(DeviceAlarmRelatedEventsImpl.Fields.AlARM.fieldName())
-                    .reverseMap(DeviceAlarmImpl.Fields.DEVICEALARMRELATEDEVENTS.fieldName())
+                    .map(DeviceAlarmRelatedEventImpl.Fields.AlARM.fieldName())
+                    .reverseMap(DeviceAlarmImpl.Fields.DEVICE_ALARM_RELATED_EVENTS.fieldName())
                     .composition().onDelete(CASCADE).add();
             table.foreignKey("VAL_FK_HSTALM_REL_EVTSEVT")
+                    .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
                     .references(EndDeviceEventRecord.class)
-                    .on(eventRecordColumn)
-                    .map(DeviceAlarmRelatedEventsImpl.Fields.EVENT.fieldName())
-                    .composition().onDelete(CASCADE).add();
+                    .map("eventRecord")
+                    .onDelete(CASCADE)
+                    .composition().add();
         }
     };
 
@@ -136,8 +172,7 @@ public enum TableSpecs {
         private static final int EXPECTED_FK_KEYS_LENGTH = 1;
 
         static void buildAlarmTable(Table<?> table, Column idColumn, String alarmTable, String pkKey, String... fkKeys) {
-            Column alarmColRef = table.column(DAL_BASE_ALARM).number().conversion(NUMBER2LONG).notNull().add();
-            table.column(DAL_DEVICE_MRID).varChar(NAME_LENGTH).map("deviceMRID").add();
+            Column alarmColRef = table.column(DAL_ALARM).number().conversion(NUMBER2LONG).notNull().add();
             table.column(DAL_ALARM_CLEARED_STATUS).bool().map("clearedStatus").add();
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
@@ -145,7 +180,7 @@ public enum TableSpecs {
             }
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
             table.foreignKey(fkKeysIter.next())
-                    .map(DeviceAlarmImpl.Fields.BASEISSUE.fieldName()).on(alarmColRef)
+                    .map(DeviceAlarmImpl.Fields.BASE_ISSUE.fieldName()).on(alarmColRef)
                     .references(IssueService.COMPONENT_NAME, alarmTable).add();
         }
     }

@@ -4,17 +4,17 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
+import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 public interface DeviceAlarm extends Issue {
 
-    String getDeviceMRID();
+    List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents();
 
-    void setDeviceMRID(String deviceMRID);
-
-    List<EndDeviceEvent> getRelatedEvent();
+    List<EndDeviceEvent> getEndDeviceRelatedEvents();
 
     EndDeviceEvent getCurrentEvent();
 

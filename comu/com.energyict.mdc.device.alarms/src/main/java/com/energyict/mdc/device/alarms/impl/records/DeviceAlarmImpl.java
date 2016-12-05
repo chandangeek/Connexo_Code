@@ -9,14 +9,13 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvents;
+import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -27,14 +26,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.Checks.is;
-
 public class DeviceAlarmImpl implements DeviceAlarm {
 
 
     public enum Fields {
-        BASEISSUE("baseIssue"),
-        DEVICEALARMRELATEDEVENTS("deviceAlarmRelatedEvents"),;
+        BASE_ISSUE("baseIssue"),
+        DEVICE_ALARM_RELATED_EVENTS("deviceAlarmRelatedEvents"),;
 
         private final String javaFieldName;
 
@@ -48,8 +45,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     private Reference<Issue> baseIssue = ValueReference.absent();
-    private String deviceMRID;
-    private List<DeviceAlarmRelatedEvents> deviceAlarmRelatedEvents;
+    private List<DeviceAlarmRelatedEvent> deviceAlarmRelatedEvents;
     private Boolean clearedStatus = Boolean.FALSE;
 
 
@@ -164,15 +160,20 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
-    public List<EndDeviceEvent> getRelatedEvent() {
+    public List<EndDeviceEvent> getEndDeviceRelatedEvents() {
         return deviceAlarmRelatedEvents.stream()
-                .map(DeviceAlarmRelatedEvents::getEvent)
+                .map(DeviceAlarmRelatedEvent::getEventRecord)
                 .collect(Collectors.toList());
     }
 
     @Override
+    public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents(){
+        return deviceAlarmRelatedEvents;
+    }
+
+    @Override
     public EndDeviceEvent getCurrentEvent() {
-        return Collections.max(getRelatedEvent(), Comparator.comparing(EndDeviceEvent::getCreatedDateTime));
+        return Collections.max(getEndDeviceRelatedEvents(), Comparator.comparing(EndDeviceEvent::getCreatedDateTime));
     }
 
     @Override
@@ -204,21 +205,6 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     @Override
     public void autoAssign() {
         getBaseIssue().autoAssign();
-    }
-
-    @Override
-    public String getDeviceMRID() {
-        if (!is(deviceMRID).emptyOrOnlyWhiteSpace()) {
-            return deviceMRID;
-        } else if (getBaseIssue() != null && getBaseIssue().getDevice() != null) {
-            return getBaseIssue().getDevice().getMRID();
-        }
-        return "";
-    }
-
-    @Override
-    public void setDeviceMRID(String deviceMRID) {
-        this.deviceMRID = deviceMRID;
     }
 
 
