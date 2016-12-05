@@ -556,11 +556,17 @@ public final class DeviceMessageConstants {
     public static final String SetPPPOptionsAttributeDefaultTranslation = "PPP options";
 
     public static final String SetFunctionAttributeName = "ChannelConfigurationDeviceMessage.setfunction";
+    public static final String SetFunctionAttributeDefaultTranslation = "Function";
     public static final String SetParametersAttributeName = "ChannelConfigurationDeviceMessage.setparameters";
+    public static final String SetParametersAttributeDefaultTranslation = "Parameters";
     public static final String SetNameAttributeName = "ChannelConfigurationDeviceMessage.setname";
+    public static final String SetNameAttributeDefaultTranslation = "Name server";
     public static final String SetUnitAttributeName = "ChannelConfigurationDeviceMessage.setunit";
+    public static final String SetUnitAttributeDefaultTranslation = "Unit";
     public static final String ChannelConfigurationChnNbrAttributeName = "ChannelConfigurationDeviceMessage.channelnumber";
+    public static final String ChannelConfigurationChnNbrAttributeDefaultTranslation = "Channel number";
     public static final String DivisorAttributeName = "ChannelConfigurationDeviceMessage.divisor";
+    public static final String DivisorAttributeDefaultTranslation = "Divisor";
 
     public static final String SetSumMaskAttributeName = "TotalizersConfigurationDeviceMessage.setsummask";
     public static final String SetSumMaskAttributeDefaultTranslation = "Sum mask";
