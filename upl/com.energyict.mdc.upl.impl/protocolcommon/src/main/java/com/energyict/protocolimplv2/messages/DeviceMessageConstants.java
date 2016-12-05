@@ -687,9 +687,13 @@ public final class DeviceMessageConstants {
     public static final String SetOpusConfigAttributeName = "OpusConfigurationDeviceMessage.setopusconfig";
 
     public static final String enableUplinkPing = "UplinkConfigurationDeviceMessage.enableUplinkPing";
+    public static final String enableUplinkPingDefaultTranslation = "Enable uplink ping";
     public static final String uplinkPingDestinationAddress = "UplinkConfigurationDeviceMessage.uplinkPingDestinationAddress";
+    public static final String uplinkPingDestinationAddressDefaultTranslation = "Destination address";
     public static final String uplinkPingInterval = "UplinkConfigurationDeviceMessage.uplinkPingInterval";
+    public static final String uplinkPingIntervalDefaultTranslation = "Uplink ping interval";
     public static final String uplinkPingTimeout = "UplinkConfigurationDeviceMessage.uplinkPingTimeout";
+    public static final String uplinkPingTimeoutDefaultTranslation = "Uplink ping timeout";
 
     public static final String ReferenceVoltageAttributeName = "PowerConfigurationDeviceMessage.referencevoltage";
     public static final String VoltageSagTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.voltagesagtimethreshold";
