@@ -36,7 +36,7 @@ public class UsagePointInfo {
     public String serviceDeliveryRemark;
     public String servicePriority;
     public Long installationTime;
-    public IdWithNameInfo connectionState;
+    public IdWithNameInfo connectionState = new IdWithNameInfo();
     public String displayConnectionState;
     public String displayMetrologyConfiguration;
     public String displayServiceCategory;
