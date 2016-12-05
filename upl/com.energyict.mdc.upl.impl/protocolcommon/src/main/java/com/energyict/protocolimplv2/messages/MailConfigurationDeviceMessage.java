@@ -60,11 +60,11 @@ public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
                 new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.MAIL_CONFIGURATION,
-                this.getPropertySpec(propertySpecService),
+                this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService);
     }
 
-    private List<PropertySpec> getPropertySpec(PropertySpecService propertySpecService) {
+    private List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
         return Collections.singletonList(this.stringSpec(propertySpecService, this.propertyName, this.propertyDefaultTranslation));
     }
 

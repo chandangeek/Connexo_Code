@@ -682,9 +682,13 @@ public final class DeviceMessageConstants {
     public static final String prepaidCreditAttributeNameDefaultTranslation = "Prepaid credit";
 
     public static final String SetOpusOSNbrAttributeName = "OpusConfigurationDeviceMessage.setopusosnbr";
+    public static final String SetOpusOSNbrAttributeDefaultTranslation = "Opus OS number";
     public static final String SetOpusPasswordAttributeName = "OpusConfigurationDeviceMessage.setopuspassword";
+    public static final String SetOpusPasswordAttributeDefaultTranslation = "Opus password";
     public static final String SetOpusTimeoutAttributeName = "OpusConfigurationDeviceMessage.setopustimeout";
+    public static final String SetOpusTimeoutAttributeDefaultTranslation = "Opus timeout";
     public static final String SetOpusConfigAttributeName = "OpusConfigurationDeviceMessage.setopusconfig";
+    public static final String SetOpusConfigAttributeDefaultTranslation = "Opus configuration";
 
     public static final String enableUplinkPing = "UplinkConfigurationDeviceMessage.enableUplinkPing";
     public static final String enableUplinkPingDefaultTranslation = "Enable uplink ping";
