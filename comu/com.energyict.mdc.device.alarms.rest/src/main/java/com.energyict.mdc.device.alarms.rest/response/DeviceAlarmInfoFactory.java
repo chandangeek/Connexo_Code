@@ -9,6 +9,8 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import org.osgi.service.component.annotations.Component;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Component(name="device.alarm.info.factory", service = { InfoFactory.class }, immediate = true)
 public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
 
     private volatile DeviceService deviceService;
