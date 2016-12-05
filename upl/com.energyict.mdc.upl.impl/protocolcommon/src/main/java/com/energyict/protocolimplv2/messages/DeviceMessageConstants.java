@@ -145,6 +145,8 @@ public class DeviceMessageConstants {
     public static final String systemRebootThreshold = "ConfigurationChangeDeviceMessage.systemRebootThreshold";
     public static final String enableSSL = "ConfigurationChangeDeviceMessage.enableSSL";
     public static final String deviceName = "ConfigurationChangeDeviceMessage.deviceName";
+    public static final String deviceHostName = "ConfigurationChangeDeviceMessage.deviceHostName";
+    public static final String deviceLocation = "ConfigurationChangeDeviceMessage.deviceLocation";
     public static final String ntpAddress = "ConfigurationChangeDeviceMessage.ntpAddress";
     public static final String enableAutomaticDemandResetAttributeName = "ConfigurationChangeDeviceMessage.enabledemandreset";
     public static final String localMacAddress = "ConfigurationChangeDeviceMessage.localMacAddress";

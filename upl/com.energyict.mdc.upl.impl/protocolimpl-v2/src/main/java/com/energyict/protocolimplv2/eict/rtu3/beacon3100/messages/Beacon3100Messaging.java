@@ -90,6 +90,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
     private static final String TEMP_DIR = "java.io.tmpdir";
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
+    private static final ObisCode DEVICE_HOST_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.24.255");
+    private static final ObisCode DEVICE_LOCATION_OBISCODE = ObisCode.fromString("0.0.128.0.32.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
 
@@ -169,6 +171,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
         SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetDeviceName);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetDeviceHostName);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetDeviceLocation);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL);
@@ -526,6 +530,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         rebootApplication(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetDeviceName)) {
                         setDeviceName(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetDeviceHostName)) {
+                        setDeviceHostName(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetDeviceLocation)) {
+                        setDeviceLocation(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetNTPAddress)) {
                         setNTPAddress(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SyncNTPServer)) {
@@ -1784,8 +1792,20 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setDeviceName(OfflineDeviceMessage pendingMessage) throws IOException {
+        writeOctetStringData(pendingMessage, DEVICE_NAME_OBISCODE);
+    }
+
+    private void setDeviceHostName(OfflineDeviceMessage pendingMessage) throws IOException {
+        writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_OBISCODE);
+    }
+
+    private void setDeviceLocation(OfflineDeviceMessage pendingMessage) throws IOException {
+        writeOctetStringData(pendingMessage, DEVICE_LOCATION_OBISCODE);
+    }
+
+    private void writeOctetStringData(OfflineDeviceMessage pendingMessage, ObisCode objectObisCode) throws IOException {
         String name = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getData(DEVICE_NAME_OBISCODE).setValueAttr(OctetString.fromString(name));
+        getCosemObjectFactory().getData(objectObisCode).setValueAttr(OctetString.fromString(name));
     }
 
     private void rebootApplication(OfflineDeviceMessage pendingMessage) throws IOException {
