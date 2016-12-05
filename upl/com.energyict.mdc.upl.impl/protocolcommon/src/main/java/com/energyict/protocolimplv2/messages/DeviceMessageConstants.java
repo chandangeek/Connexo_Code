@@ -12,8 +12,11 @@ package com.energyict.protocolimplv2.messages;
 public final class DeviceMessageConstants {
 
     public static final String contactorActivationDateAttributeName = "ContactorDeviceMessage.activationdate";
+    public static final String contactorActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String digitalOutputAttributeName = "ContactorDeviceMessage.digitaloutput";
+    public static final String digitalOutputAttributeDefaultTranslation = "Digital output";
     public static final String contactorModeAttributeName = "ContactorDeviceMessage.changemode.mode";
+    public static final String contactorModeAttributeDefaultTranslation = "Connect control mode";
     public static final String relayNumberAttributeName = "ContactorDeviceMessage.relaynumber";
     public static final String relayNumberAttributeDefaultTranslation = "Relay number";
     public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
