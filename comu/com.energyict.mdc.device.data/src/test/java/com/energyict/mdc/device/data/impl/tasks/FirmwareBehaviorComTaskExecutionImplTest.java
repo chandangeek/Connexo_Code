@@ -9,8 +9,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Instant;
@@ -23,11 +22,11 @@ import static org.assertj.core.api.Fail.fail;
 /**
  * Tests the FirmwareComTaskExecutionImpl object
  */
-public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
+public class FirmwareBehaviorComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
-    private FirmwareComTaskExecution createFirmwareComTaskExecutionWithoutViolation(Device device) {
+    private ComTaskExecution createFirmwareComTaskExecutionWithoutViolation(Device device) {
         ComTaskEnablement firmwareComTaskEnablement = enableFirmwareComTask();
-        ComTaskExecutionBuilder<FirmwareComTaskExecution> comTaskExecutionBuilder = device.newFirmwareComTaskExecution(firmwareComTaskEnablement);
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newFirmwareComTaskExecution(firmwareComTaskEnablement);
         return comTaskExecutionBuilder.add();
     }
 
@@ -37,13 +36,13 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
 
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "createWithoutViolationsTest", "createWithoutViolationsTest", Instant.now());
-        FirmwareComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
+        ComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
 
         // Business method
         device.save();
 
         // Asserts
-        FirmwareComTaskExecution reloadedFirmwareComTaskExecution = this.reloadFirmwareComTaskExecution(device, firmwareComTaskExecution);
+        ComTaskExecution reloadedFirmwareComTaskExecution = this.reloadFirmwareComTaskExecution(device, firmwareComTaskExecution);
         assertThat(reloadedFirmwareComTaskExecution.getNextExecutionSpecs().isPresent()).isFalse();
         assertThat(reloadedFirmwareComTaskExecution.isAdHoc()).isTrue();
         assertThat(reloadedFirmwareComTaskExecution.usesSharedSchedule()).isFalse();
@@ -55,7 +54,7 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
     public void nextExecutionSpecIsEmptyTest() {
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "nextExecutionSpecIsEmptyTest", "nextExecutionSpecIsEmptyTest", Instant.now());
-        FirmwareComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
+        ComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
 
         // Business method
         device.save();
@@ -69,10 +68,10 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
     public void removeComTaskTest() {
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "removeComTaskTest", "removeComTaskTest", Instant.now());
-        FirmwareComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
+        ComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
 
         device.save();
-        FirmwareComTaskExecution reloadedFirmwareComTaskExecution = reloadFirmwareComTaskExecution(device, firmwareComTaskExecution);
+        ComTaskExecution reloadedFirmwareComTaskExecution = reloadFirmwareComTaskExecution(device, firmwareComTaskExecution);
         device.removeComTaskExecution(reloadedFirmwareComTaskExecution);
 
         device.save();
@@ -90,8 +89,8 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "createWithOtherComTaskEnablementTest", "createWithOtherComTaskEnablementTest", Instant
                         .now());
-        ComTaskExecutionBuilder<FirmwareComTaskExecution> comTaskExecutionBuilder = device.newFirmwareComTaskExecution(basicCheckComTaskEnablement);
-        FirmwareComTaskExecution firmwareComTaskExecution = comTaskExecutionBuilder.add();
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newFirmwareComTaskExecution(basicCheckComTaskEnablement);
+        ComTaskExecution firmwareComTaskExecution = comTaskExecutionBuilder.add();
 
         // Business method
         device.save();
@@ -104,31 +103,31 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
 
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "updateProtocolDialectTest", "updateProtocolDialectTest", Instant.now());
-        ComTaskExecutionBuilder<FirmwareComTaskExecution> comTaskExecutionBuilder = device.newFirmwareComTaskExecution(firmwareComTaskEnablement);
-        FirmwareComTaskExecution firmwareComTaskExecution = comTaskExecutionBuilder.add();
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newFirmwareComTaskExecution(firmwareComTaskEnablement);
+        ComTaskExecution firmwareComTaskExecution = comTaskExecutionBuilder.add();
 
         // Business method
         device.save();
 
         ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherComTaskExecutionDialect());
 
-        FirmwareComTaskExecution reloadedFirmwareComTaskExecution = this.reloadFirmwareComTaskExecution(device, firmwareComTaskExecution);
-        FirmwareComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(reloadedFirmwareComTaskExecution);
+        ComTaskExecution reloadedFirmwareComTaskExecution = this.reloadFirmwareComTaskExecution(device, firmwareComTaskExecution);
+        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(reloadedFirmwareComTaskExecution);
         comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
-        FirmwareComTaskExecution updatedComTaskExecution = comTaskExecutionUpdater.update();
+        ComTaskExecution updatedComTaskExecution = comTaskExecutionUpdater.update();
 
-        FirmwareComTaskExecution reloadedUpdatedComTaskExecution = this.reloadFirmwareComTaskExecution(device, updatedComTaskExecution);
+        ComTaskExecution reloadedUpdatedComTaskExecution = this.reloadFirmwareComTaskExecution(device, updatedComTaskExecution);
 
         //Asserts
         assertThat(reloadedUpdatedComTaskExecution.getProtocolDialectConfigurationProperties()).isNotNull();
         assertThat(reloadedUpdatedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
     }
 
-    protected FirmwareComTaskExecution reloadFirmwareComTaskExecution(Device device, FirmwareComTaskExecution comTaskExecution) {
+    protected ComTaskExecution reloadFirmwareComTaskExecution(Device device, ComTaskExecution comTaskExecution) {
         Device reloadedDevice = getReloadedDevice(device);
         for (ComTaskExecution taskExecution : reloadedDevice.getComTaskExecutions()) {
             if (comTaskExecution.getId() == taskExecution.getId()) {
-                return (FirmwareComTaskExecution) taskExecution;
+                return taskExecution;
             }
         }
         fail("FirmwareComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());

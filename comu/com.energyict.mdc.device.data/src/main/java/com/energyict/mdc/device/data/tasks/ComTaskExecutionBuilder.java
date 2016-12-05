@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.data.tasks;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.time.Instant;
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Builder that supports basic value setters for a {@link ComTaskExecution}.
  */
 @ProviderType
-public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
+public interface ComTaskExecutionBuilder {
 
     ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);
 
@@ -24,19 +23,17 @@ public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
      * @param connectionTask the ConnectionTask to set
      * @return the current updater
      */
-    ComTaskExecutionBuilder<C> connectionTask(ConnectionTask<?, ?> connectionTask);
+    ComTaskExecutionBuilder connectionTask(ConnectionTask<?, ?> connectionTask);
 
-    ComTaskExecutionBuilder<C> priority(int executionPriority);
+    ComTaskExecutionBuilder priority(int executionPriority);
 
     ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     // For adhoc comtaskExecutions
-    public ComTaskExecutionBuilder<C> scheduleNow();
-
-    public ComTaskExecutionBuilder<C> schedule(Instant instant);
+    public ComTaskExecutionBuilder scheduleNow();
 
     // For adhoc comtaskExecutions
-    public ComTaskExecutionBuilder<C> runNow();
+    public ComTaskExecutionBuilder runNow();
 
     /**
      * Temporarily disables scheduling of the related {@link ComTask},
@@ -63,6 +60,6 @@ public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
      *
      * @return the newly created ComTaskExecution
      */
-    C add();
+    ComTaskExecution add();
 
 }
