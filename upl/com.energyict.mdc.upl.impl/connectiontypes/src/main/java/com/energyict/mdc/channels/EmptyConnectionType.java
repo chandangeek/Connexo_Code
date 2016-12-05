@@ -5,7 +5,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -23,7 +22,7 @@ import java.util.Set;
 public class EmptyConnectionType extends ConnectionTypeImpl {
 
     @Override
-    public ComChannel connect(TypedProperties connectionProperties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
         return new VoidComChannel();
     }
 

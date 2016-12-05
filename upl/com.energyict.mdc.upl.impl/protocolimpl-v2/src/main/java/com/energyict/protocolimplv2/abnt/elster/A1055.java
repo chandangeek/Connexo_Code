@@ -5,10 +5,10 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -56,7 +56,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.TimeZone;
 
 /**
@@ -108,7 +107,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         this.getProperties().setProperties(properties);
     }
 
@@ -125,7 +124,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect(), new AbntTransparentTCPDeviceProtocolDialect());
+        return Arrays.asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect(), new AbntTransparentTCPDeviceProtocolDialect());
     }
 
     @Override

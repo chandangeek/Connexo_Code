@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.energyict;
 
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -10,7 +11,6 @@ import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -43,7 +43,7 @@ public class EIMeterFlexSlaveModule extends Modbus {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         this.setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
         this.setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty(PK_FIRST_TIME_DELAY, "0").trim()));

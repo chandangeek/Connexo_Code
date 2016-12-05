@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
@@ -10,7 +11,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessag
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -47,7 +47,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
 
     }
 }

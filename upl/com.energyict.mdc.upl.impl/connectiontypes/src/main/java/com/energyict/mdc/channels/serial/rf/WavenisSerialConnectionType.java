@@ -10,7 +10,6 @@ import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
@@ -40,7 +39,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
     WavenisStack wavenisStack;
 
     @Override
-    public ComChannel connect(TypedProperties properties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
         SerialPortConfiguration serialConfiguration = super.createSerialConfiguration(getComPortName(properties), properties);
         serialConfiguration.setFlowControl(FlowControl.NONE);
         SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();

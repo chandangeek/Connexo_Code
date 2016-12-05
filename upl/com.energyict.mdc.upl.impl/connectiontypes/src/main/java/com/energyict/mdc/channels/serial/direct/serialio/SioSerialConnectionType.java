@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 public class SioSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override
-    public ComChannel connect(TypedProperties properties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
         SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(getComPortName(properties), properties);
         ComChannel comChannel = newSioSerialConnection(serialPortConfiguration);
         comChannel.addProperties(createTypeProperty(ComChannelType.SerialComChannel));

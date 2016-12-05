@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -231,7 +232,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                 UPLPropertySpecFactory.integer("ServerLowerMacAddress", false));
     }
 
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");

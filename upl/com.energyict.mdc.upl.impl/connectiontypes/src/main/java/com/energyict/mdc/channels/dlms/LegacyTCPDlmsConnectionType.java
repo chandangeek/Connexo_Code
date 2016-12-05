@@ -4,7 +4,6 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -28,8 +27,8 @@ public class LegacyTCPDlmsConnectionType extends DlmsConnectionType {
     }
 
     @Override
-    public ComChannel connect(TypedProperties connectionProperties) throws ConnectionException {
-        return getActualConnectionType().connect(connectionProperties);
+    public ComChannel connect() throws ConnectionException {
+        return getActualConnectionType().connect();
     }
 
     @Override

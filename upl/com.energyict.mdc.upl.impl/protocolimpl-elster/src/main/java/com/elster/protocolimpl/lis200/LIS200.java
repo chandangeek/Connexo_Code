@@ -3,6 +3,7 @@ package com.elster.protocolimpl.lis200;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.lis200.commands.AbstractCommand;
@@ -47,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -185,7 +185,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
     }
 
     @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         super.setProperties(properties);
         try {
             securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0").trim());  //Default

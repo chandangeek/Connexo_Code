@@ -1,21 +1,29 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
 /**
  * Copyrights EnergyICT
@@ -23,7 +31,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  * @author khe
  * @since 19/12/2014 - 15:53
  */
-public class AM130ConfigurationSupport implements ConfigurationSupport {
+public class AM130ConfigurationSupport implements HasDynamicProperties {
 
     public static final String LIMIT_MAX_NR_OF_DAYS_PROPERTY = "LimitMaxNrOfDays";
 
@@ -32,13 +40,9 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     public static final boolean USE_GBT_DEFAULT_VALUE = true;
     public static final CipheringType DEFAULT_CIPHERING_TYPE = CipheringType.GENERAL_GLOBAL;
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -51,65 +55,64 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
                 this.cipheringTypePropertySpec(),
                 this.callingAPTitlePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
-                this.callHomeIdPropertySpec()
-        );
+                this.callHomeIdPropertySpec());
+    }
+
+    @Override
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+        // currently I don't hold any properties
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
+        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, BigDecimal.ONE);
     }
 
     protected PropertySpec useGeneralBlockTransferPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(USE_GBT, USE_GBT_DEFAULT_VALUE);
+        return UPLPropertySpecFactory.booleanValue(USE_GBT, false, USE_GBT_DEFAULT_VALUE);
     }
 
     protected PropertySpec generalBlockTransferWindowSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE);
+        return UPLPropertySpecFactory.bigDecimal(GBT_WINDOW_SIZE, false, DEFAULT_GBT_WINDOW_SIZE);
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
-        return PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
-                DlmsProtocolProperties.CIPHERING_TYPE,
-                DEFAULT_CIPHERING_TYPE.getDescription(),
+        return UPLPropertySpecFactory.stringWithDefault(DlmsProtocolProperties.CIPHERING_TYPE, false, DEFAULT_CIPHERING_TYPE.getDescription(),
                 CipheringType.GLOBAL.getDescription(),
                 CipheringType.DEDICATED.getDescription(),
                 CipheringType.GENERAL_GLOBAL.getDescription(),
-                CipheringType.GENERAL_DEDICATED.getDescription()
-        );
+                CipheringType.GENERAL_DEDICATED.getDescription());
     }
 
     public PropertySpec callingAPTitlePropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE_DEFAULT);
+        return UPLPropertySpecFactory.stringWithDefault(IDIS.CALLING_AP_TITLE, false, IDIS.CALLING_AP_TITLE_DEFAULT);
     }
 
     protected PropertySpec limitMaxNrOfDaysPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(LIMIT_MAX_NR_OF_DAYS_PROPERTY, BigDecimal.ZERO);
+        return UPLPropertySpecFactory.bigDecimal(LIMIT_MAX_NR_OF_DAYS_PROPERTY, false, BigDecimal.ZERO);
     }
 
     protected PropertySpec timeZonePropertySpec() {
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+        return UPLPropertySpecFactory.timeZone(TIMEZONE, false);
     }
 
     protected PropertySpec validateInvokeIdPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID);
+        return UPLPropertySpecFactory.booleanValue(VALIDATE_INVOKE_ID, false, DEFAULT_VALIDATE_INVOKE_ID);
     }
 
     protected PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(Dsmr50Properties.READCACHE_PROPERTY, false);
+        return UPLPropertySpecFactory.booleanValue(Dsmr50Properties.READCACHE_PROPERTY, false, false);
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(
-                FORCED_DELAY,
-                new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000));
+        return UPLPropertySpecFactory.duration(FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+        return UPLPropertySpecFactory.bigDecimal(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
     protected PropertySpec callHomeIdPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false);
     }
 
 }

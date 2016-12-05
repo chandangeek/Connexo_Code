@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -39,7 +38,7 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ComChannel connect(TypedProperties connectionProperties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
         return new VoidComChannel();
     }
 

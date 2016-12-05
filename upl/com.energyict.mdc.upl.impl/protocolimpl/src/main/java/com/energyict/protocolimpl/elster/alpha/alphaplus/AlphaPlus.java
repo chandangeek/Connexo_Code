@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.elster.alpha.alphaplus;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -128,7 +129,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0").trim()));
         whoAreYouTimeout = Integer.parseInt(properties.getProperty("WhoAreYouTimeout", "300").trim());

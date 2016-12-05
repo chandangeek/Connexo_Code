@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
@@ -94,7 +95,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         getEdpProperties().addProperties(properties);
     }

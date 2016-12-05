@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
@@ -42,7 +45,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_I
  * Time: 15:41
  * Author: khe
  */
-public class DlmsConfigurationSupport {
+public class DlmsConfigurationSupport implements HasDynamicProperties{
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
@@ -62,6 +65,11 @@ public class DlmsConfigurationSupport {
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
                 this.deviceId());
+    }
+
+    @Override
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+        // currently no properties are set ...
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {

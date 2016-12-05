@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.NestedIOException;
@@ -34,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 
 /**
@@ -242,7 +242,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         String v = properties.getProperty(PK_EXTENDED_LOGGING);
         pExtendedLogging = (v == null) ? 0 : Integer.parseInt(v);

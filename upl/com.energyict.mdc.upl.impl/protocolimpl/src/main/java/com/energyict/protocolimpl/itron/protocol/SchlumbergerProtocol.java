@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.itron.protocol;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocolimpl.base.AbstractProtocol;
@@ -27,7 +28,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
@@ -177,7 +177,7 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getProperty(FORCED_DELAY,"0").trim()));
         setInfoTypeSecurityLevel(Integer.parseInt(properties.getProperty(SECURITY_LEVEL, "1").trim()));

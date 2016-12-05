@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.elster.protocolimpl.lis100.connection.Lis100Connection;
 import com.elster.protocolimpl.lis100.profile.Lis100Profile;
@@ -26,7 +27,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -99,7 +99,7 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     }
 
     @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             serialNumber = properties.getProperty(SERIALNUMBER.getName());
             strPassword = properties.getProperty(PASSWORD.getName());

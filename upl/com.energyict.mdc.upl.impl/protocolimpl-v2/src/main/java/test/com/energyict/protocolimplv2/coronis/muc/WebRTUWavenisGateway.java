@@ -3,9 +3,9 @@ package test.com.energyict.protocolimplv2.coronis.muc;
 import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Place holder protocol for the transparent MUC Wavenis gateway.
@@ -85,7 +84,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         //Do nothing
     }
 

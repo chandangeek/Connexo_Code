@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.mdw.core.Device;
@@ -103,7 +104,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return Collections.emptyList();
     }
 
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         rtuType = properties.getProperty("DeviceType", "mbus");
     }
 

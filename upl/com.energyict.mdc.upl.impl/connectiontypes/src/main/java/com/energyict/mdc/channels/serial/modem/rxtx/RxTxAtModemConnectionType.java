@@ -6,7 +6,6 @@ import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ModemException;
@@ -29,15 +28,15 @@ public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
     private AtModemComponent atModemComponent;
 
     @Override
-    public ComChannel connect(TypedProperties properties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
 
-        this.atModemComponent = SerialComponentFactory.instance.get().newAtModemComponent(new TypedAtModemProperties(properties));
+        this.atModemComponent = SerialComponentFactory.instance.get().newAtModemComponent(new TypedAtModemProperties(getAllProperties()));
         /*
         create the serial ComChannel and set all property values
          */
-        ComChannel comChannel = super.connect(properties);
+        ComChannel comChannel = super.connect();
         try {
-            atModemComponent.connect(getComPortName(properties), comChannel);
+            atModemComponent.connect(getComPortName(getAllProperties()), comChannel);
         } catch (Throwable e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             if (e instanceof ModemException) {

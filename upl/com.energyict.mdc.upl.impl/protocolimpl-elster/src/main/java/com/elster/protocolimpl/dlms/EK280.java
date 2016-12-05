@@ -2,6 +2,7 @@ package com.elster.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.types.basic.ObisCode;
@@ -16,7 +17,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * User: heuckeg
@@ -244,7 +244,7 @@ public class EK280 extends Dlms {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         String archiveStructureVersion = properties.getProperty(EK280.ARCHIVESTRUCTUREVERSION, "");
         if ("V2".equalsIgnoreCase(archiveStructureVersion)) {

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.cbo.TimeDuration;
@@ -14,12 +15,10 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.ADDRESSING_MODE;
@@ -94,20 +93,16 @@ public class DlmsProperties implements DlmsSessionProperties {
     private Integer dataTransportSecurityLevel = null;
 
     public DlmsProperties() {
-        this.properties = TypedProperties.empty();
-    }
-
-    public void setProperties(Properties properties) {
-        this.addProperties(TypedProperties.copyOf(properties));
+        this.properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
     }
 
     @Override
-    public void addProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+    public void addProperties(TypedProperties properties) {
         this.properties.setAllProperties(properties);
     }
 
     @Override
-    public com.energyict.mdc.upl.properties.TypedProperties getProperties() {
+    public TypedProperties getProperties() {
         return properties;
     }
 
@@ -351,7 +346,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public long getForcedDelay() {
-        return properties.getTypedProperty(FORCED_DELAY, new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000)).getMilliSeconds();
+        return properties.getTypedProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY).toMillis();
     }
 
     @Override
@@ -398,7 +393,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public GeneralCipheringKeyType getGeneralCipheringKeyType() {
-        String keyTypeDescription = properties.getStringProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
+        String keyTypeDescription = properties.getTypedProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
 
         if (keyTypeDescription == null && getCipheringType().equals(CipheringType.GENERAL_CIPHERING)) {
             //In the case of general-ciphering, the key type is a required property

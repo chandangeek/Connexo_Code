@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * @author sva
@@ -64,7 +63,7 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
     }
 

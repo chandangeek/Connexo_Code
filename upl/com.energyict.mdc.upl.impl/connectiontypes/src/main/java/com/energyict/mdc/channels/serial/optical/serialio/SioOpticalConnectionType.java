@@ -4,7 +4,6 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -24,8 +23,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class SioOpticalConnectionType extends SioSerialConnectionType implements OpticalDriver {
 
     @Override
-    public ComChannel connect(TypedProperties properties) throws ConnectionException {
-        ComChannel comChannel = super.connect(properties);
+    public ComChannel connect() throws ConnectionException {
+        ComChannel comChannel = super.connect();
         comChannel.addProperties(createTypeProperty(ComChannelType.OpticalComChannel));
         return comChannel;
     }

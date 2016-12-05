@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
@@ -112,7 +111,7 @@ public class AbntProperties implements HasDynamicProperties {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.addProperties(TypedProperties.copyOf(properties));
     }
 

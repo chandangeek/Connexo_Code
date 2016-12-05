@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -21,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
 import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
@@ -59,7 +59,7 @@ public class Enerium200 extends Modbus implements SerialNumberSupport {
     }
 
     @Override
-	public void setProperties(Properties properties) throws PropertyValidationException {
+	public void setProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setProperties(properties);
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "500").trim()));
         setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "1").trim()));

@@ -20,7 +20,6 @@ import com.energyict.protocol.exceptions.ConnectionException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Properties;
 
 /**
  * Serves as the root for components that intend to implement
@@ -39,8 +38,8 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
-        this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+        this.properties = properties;
     }
 
     protected TypedProperties getAllProperties() {

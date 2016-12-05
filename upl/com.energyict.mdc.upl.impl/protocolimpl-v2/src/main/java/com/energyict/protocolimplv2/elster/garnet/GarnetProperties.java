@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
@@ -193,7 +192,7 @@ public class GarnetProperties implements HasDynamicProperties {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         this.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties));
     }
 

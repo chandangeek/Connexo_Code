@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.tasks.support.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -11,6 +10,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -91,8 +90,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
-        this.getDlmsSessionProperties().setProperties(properties);
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+        this.getDlmsSessionProperties().addProperties(properties);
     }
 
     /**

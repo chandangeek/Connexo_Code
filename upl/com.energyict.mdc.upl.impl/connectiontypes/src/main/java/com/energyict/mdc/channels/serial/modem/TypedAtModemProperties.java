@@ -14,7 +14,6 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author sva
@@ -72,7 +71,7 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
     }
 

@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.modbus.multilin.epm2200;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
@@ -17,7 +18,6 @@ import com.energyict.protocolimpl.modbus.core.ModbusException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -38,7 +38,7 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "50").trim()));
     }

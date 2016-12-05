@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.dlms.DLMSCache;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
-import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.io.ConnectionType;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+
+import com.energyict.dlms.DLMSCache;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class AM100 extends WebRTUKP {
         this.dlmsCache = dlmsCache;
     }
 
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
             dlmsConfigurationSupport = new AM100ConfigurationSupport();
         }

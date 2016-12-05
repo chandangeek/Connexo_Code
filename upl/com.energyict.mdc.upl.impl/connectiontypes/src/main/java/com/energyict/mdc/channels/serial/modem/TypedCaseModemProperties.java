@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * @author sva
@@ -74,7 +73,7 @@ public class TypedCaseModemProperties extends AbstractCaseModemProperties implem
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
     }
 

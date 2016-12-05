@@ -6,13 +6,11 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -31,7 +29,7 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
     protected abstract ProtocolProperties getProtocolProperties();
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         getProtocolProperties().setProperties(properties);
     }
 

@@ -50,7 +50,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected PropertySpec<String> parityPropertySpec() {
-        return UPLPropertySpecFactory.string(SerialPortConfiguration.PARITY_NAME, Parities.NONE.getParity(), true, Parities.getTypedValues());
+        return UPLPropertySpecFactory.stringWithDefault(SerialPortConfiguration.PARITY_NAME, true, Parities.NONE.getParity(), Parities.getTypedValues());
     }
 
     protected PropertySpec<BigDecimal> baudRatePropertySpec() {

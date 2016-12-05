@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.stream.Stream;
 
 /**
@@ -82,7 +81,7 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
     }
 

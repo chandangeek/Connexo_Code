@@ -6,7 +6,6 @@ import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ModemException;
@@ -28,13 +27,13 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     private PEMPModemComponent pempModemComponent;
 
     @Override
-    public ComChannel connect(TypedProperties properties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
 
         pempModemComponent = SerialComponentFactory.instance.get().newPEMPModemComponent(new TypedPEMPModemProperties(properties));
         /*
        create the serial ComChannel and set all property values
         */
-        ComChannel comChannel = super.connect(properties);
+        ComChannel comChannel = super.connect();
         try {
             pempModemComponent.connect(getComPortName(properties), comChannel);
         } catch (Throwable e) {

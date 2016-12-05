@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -41,7 +42,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
@@ -110,7 +110,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setT1Timeout(Integer.parseInt(properties.getProperty("T1Timeout", "5000").trim())); // T1 (datalink layer)
         setSourceTransportAddress(Integer.parseInt(properties.getProperty("STSAP", "0").trim()));

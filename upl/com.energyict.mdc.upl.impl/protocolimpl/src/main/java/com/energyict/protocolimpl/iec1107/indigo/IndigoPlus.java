@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.iec1107.indigo;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -29,7 +30,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 
@@ -230,7 +230,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     }
 
     @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         super.setProperties(properties);
         try {
             statusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel", "0"));

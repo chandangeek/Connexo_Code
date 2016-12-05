@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -152,7 +153,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     }
 
     @Override
-    public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
             if (p.getProperty(Property.ADDRESS.getName()) != null) {
                 pAddress = p.getProperty(Property.ADDRESS.getName());

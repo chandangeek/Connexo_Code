@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -14,9 +13,11 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
-import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
@@ -27,7 +28,6 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -73,6 +73,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     private String serialNumber = null;
     private static final ObisCode LOGICAL_DEVICE_NAME_OBIS = ObisCode.fromString("0.0.42.0.0.255");
 
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
@@ -84,14 +85,14 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
      * A collection of general AM500 properties.
      * These properties are not related to the security or the protocol dialects.
      */
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
             dlmsConfigurationSupport = getNewInstanceOfConfigurationSupport();
         }
         return dlmsConfigurationSupport;
     }
 
-    protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
+    protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
         return new IDISConfigurationSupport();
     }
 

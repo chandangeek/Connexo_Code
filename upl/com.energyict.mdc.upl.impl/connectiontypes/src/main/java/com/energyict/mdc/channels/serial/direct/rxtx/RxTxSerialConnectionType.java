@@ -6,7 +6,6 @@ import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -24,7 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override
-    public ComChannel connect(TypedProperties properties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
 
         SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(getComPortName(properties), getBaudRateValue(), getNrOfDataBitsValue(),
                 getNrOfStopBitsValue(), getParityValue(), getFlowControlValue());

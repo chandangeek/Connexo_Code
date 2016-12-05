@@ -9,11 +9,11 @@ import com.energyict.mdc.protocol.tasks.LogBooksTask;
 import com.energyict.mdc.protocol.tasks.ProtocolTask;
 import com.energyict.mdc.protocol.tasks.RegistersTask;
 import com.energyict.mdc.tasks.ComTaskEnablement;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.tasks.ServerComTask;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 
 import com.energyict.cpo.ObjectMapperFactory;

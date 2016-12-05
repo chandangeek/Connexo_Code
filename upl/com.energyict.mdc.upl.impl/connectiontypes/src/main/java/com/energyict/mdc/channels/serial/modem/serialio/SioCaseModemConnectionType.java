@@ -6,7 +6,6 @@ import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ModemException;
@@ -28,13 +27,13 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
     private CaseModemComponent caseModemComponent;
 
     @Override
-    public ComChannel connect(TypedProperties properties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
 
         this.caseModemComponent = SerialComponentFactory.instance.get().newCaseModemComponent(new TypedCaseModemProperties(properties));
         /*
        create the serial ComChannel and set all property values
         */
-        ComChannel comChannel = super.connect(properties);
+        ComChannel comChannel = super.connect();
         try {
             caseModemComponent.connect(getComPortName(properties), comChannel);
         } catch (Throwable e) {
