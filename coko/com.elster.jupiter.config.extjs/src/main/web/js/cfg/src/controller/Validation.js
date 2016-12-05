@@ -173,12 +173,10 @@ Ext.define('Cfg.controller.Validation', {
                 click: this.createEditVersion
             },
             'versions-action-menu': {
-                click: this.chooseRuleSetVersionAction,
-                show: this.onVersionMenuShow
+                click: this.chooseRuleSetVersionAction
             },
             'version-action-menu': {
-                click: this.chooseRuleSetVersionAction,
-                show: this.onVersionMenuShow
+                click: this.chooseRuleSetVersionAction
             },
             'AddReadingTypesToRuleSetup addReadingTypesNoItemsFoundPanel': {
                 openInfoWindow: this.showSelectedReadingTypes,
@@ -1239,13 +1237,8 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-    onVersionMenuShow: function (menu) {
-
-    },
-
     chooseRuleSetVersionAction: function (menu, item) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
             record = menu.record || me.getVersionsGrid().getSelectionModel().getLastSelected();
 
         switch (item.action) {

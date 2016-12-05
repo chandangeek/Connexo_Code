@@ -37,7 +37,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             {
                 xtype: 'uni-actioncolumn',				
                 privileges: Cfg.privileges.Validation.admin,
-                items: 'Cfg.view.validation.RuleSetActionMenu'
+                menu: { xtype: 'ruleset-action-menu' }
             }
         ]
     },
