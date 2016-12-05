@@ -15,7 +15,7 @@ public interface DeviceAlarmService {
 
     String COMPONENT_NAME = "DAL";
     String DEVICE_ALARM = "devicealarm";
-    String DEVICE_ALARM_PREFIX = "APX";
+    String DEVICE_ALARM_PREFIX = "ALM";
 
     Optional<? extends DeviceAlarm> findAlarm(long id);
 
