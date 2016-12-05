@@ -141,7 +141,7 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec bulkRequestPropertySpec() {
-        return propertySpecService.timezoneSpec().named(BULK_REQUEST, BULK_REQUEST).describedAs(BULK_REQUEST).finish();
+        return propertySpecService.booleanSpec().named(BULK_REQUEST, BULK_REQUEST).describedAs(BULK_REQUEST).finish();
     }
 
     protected PropertySpec cipheringTypePropertySpec() {

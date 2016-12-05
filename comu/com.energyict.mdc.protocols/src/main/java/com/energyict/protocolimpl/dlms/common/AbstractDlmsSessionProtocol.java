@@ -72,7 +72,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
                 throw new IOException(message);
             }
         } else {
-            getLogger().info("Skipping validation of meter serial number: No serial number found in EIServer.");
+            getLogger().info("Skipping validation of meter serial number: No serial number found in our system.");
         }
     }
 
