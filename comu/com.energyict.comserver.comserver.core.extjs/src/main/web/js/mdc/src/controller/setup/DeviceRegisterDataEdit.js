@@ -122,6 +122,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         }
     },
 
+
     getReadingTypePrefix: function (type) {
         if (!Ext.isEmpty(type)) {
             return (type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
