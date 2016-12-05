@@ -64,7 +64,7 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
 
     @Override
     public boolean isRequired() {
-        return false;
+        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
     }
 
     @Override

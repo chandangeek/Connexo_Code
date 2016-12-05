@@ -65,7 +65,7 @@ class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, UsagePoi
 
     @Override
     public boolean isRequired() {
-        return false;
+        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
     }
 
     @Override

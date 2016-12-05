@@ -64,7 +64,7 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
 
     @Override
     public boolean isRequired() {
-        return false;
+        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
     }
 
     @Override

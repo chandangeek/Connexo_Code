@@ -62,7 +62,7 @@ class UsagePointGeneralCustomPropertySet implements CustomPropertySet<UsagePoint
 
     @Override
     public boolean isRequired() {
-        return false;
+        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
     }
 
     @Override

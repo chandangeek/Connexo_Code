@@ -68,7 +68,7 @@ class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTec
 
     @Override
     public boolean isRequired() {
-        return false;
+        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
     }
 
     @Override
