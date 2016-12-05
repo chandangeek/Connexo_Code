@@ -347,7 +347,7 @@ public class JbpmTaskResource {
         Comparator<TaskSummary> nameComparator = (task1, task2) -> task1.getName().compareTo(task2.getName());
         TaskSummaryList tasks = getTasks(topTasksPayload.processDefinitionInfos, uriInfo);
         topTasksInfo.totalUserAssigned = tasks.getTasks().stream().filter(taskSummary -> taskSummary.getActualOwner().equals(topTasksPayload.userName)).count();
-        topTasksInfo.workGroupAssigned = tasks.getTasks().stream().filter(taskSummary -> topTasksPayload.workGroups.contains(taskSummary.getWorkGroup())).count();
+        topTasksInfo.workGroupAssigned = tasks.getTasks().stream().filter(taskSummary -> topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals("")).count();
         topTasksInfo.tasks = tasks.getTasks().stream().sorted(priorityComparator.thenComparing(dueDateComparator).thenComparing(nameComparator)).limit(5).collect(Collectors.toList());
         return topTasksInfo;
     }
