@@ -3,8 +3,8 @@ package com.elster.jupiter.util.geo;
 import java.math.BigDecimal;
 
 public final class Longitude extends Angle {
-	
-	Longitude(BigDecimal value) {
+
+	public Longitude(BigDecimal value) {
 		super(value);
 	}
 	

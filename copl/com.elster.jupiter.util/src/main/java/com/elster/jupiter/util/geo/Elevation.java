@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 public final class Elevation extends Angle {
 
-    Elevation(BigDecimal value) {
+    public Elevation(BigDecimal value) {
         super(value);
     }
 
