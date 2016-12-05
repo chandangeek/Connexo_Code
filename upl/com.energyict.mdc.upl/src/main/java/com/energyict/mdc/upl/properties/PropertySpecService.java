@@ -1,8 +1,8 @@
 package com.energyict.mdc.upl.properties;
 
 import java.math.BigDecimal;
-import java.time.temporal.Temporal;
 import java.time.Duration;
+import java.time.temporal.Temporal;
 import java.util.TimeZone;
 
 /**

@@ -32,7 +32,7 @@ public interface DeviceProtocol
                 DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
                 DeviceLoadProfileSupport, DeviceRegisterSupport, DeviceLogBookSupport,
                 DeviceStatusInformationSupport, DeviceMessageSupport, DeviceSecuritySupport,
-                DeviceTopologySupport, DeviceCachingSupport, DeviceDescriptionSupport {
+                DeviceTopologySupport, DeviceCachingSupport, DeviceDescriptionSupport, ConnectionTypeSupport {
 
     /**
      * Models common properties that can be marked required or optional
