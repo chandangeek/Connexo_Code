@@ -1,10 +1,12 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import org.junit.Test;
+
+import com.energyict.cpo.PropertySpec;
 
 import java.math.BigDecimal;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;

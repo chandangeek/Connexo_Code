@@ -14,6 +14,7 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Properties;
 
 /**
@@ -62,7 +63,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final String DEFAULT_TIMEZONE = "GMT";
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
-    public static final BigDecimal DEFAULT_FORCED_DELAY = new BigDecimal(0);
+    public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(0);
     public static final BigDecimal DEFAULT_DELAY_AFTER_ERROR = new BigDecimal(100);
     public static final BigDecimal DEFAULT_PROFILE_INTERVAL = new BigDecimal(900);
     public static final int INVALID = -1;

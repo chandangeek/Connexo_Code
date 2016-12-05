@@ -5,11 +5,11 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;

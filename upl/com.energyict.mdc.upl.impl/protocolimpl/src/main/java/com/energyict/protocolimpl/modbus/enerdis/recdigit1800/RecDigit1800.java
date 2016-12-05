@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.modbus.enerdis.recdigit1800;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -28,7 +29,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -98,7 +98,7 @@ public class RecDigit1800 extends Modbus {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
     	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "1").trim()));
     	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));

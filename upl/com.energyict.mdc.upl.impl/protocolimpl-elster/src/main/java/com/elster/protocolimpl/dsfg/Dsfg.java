@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.elster.protocolimpl.dsfg.connection.DsfgConnection;
 import com.elster.protocolimpl.dsfg.objects.AbstractObject;
@@ -26,7 +27,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -132,7 +132,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     }
 
     @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             strPassword = properties.getProperty(PASSWORD.getName());
             protocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());

@@ -7,13 +7,13 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.ExchangeMode;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;

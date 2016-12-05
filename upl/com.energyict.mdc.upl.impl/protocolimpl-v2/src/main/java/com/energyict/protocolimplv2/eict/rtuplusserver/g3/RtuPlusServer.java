@@ -2,14 +2,13 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -27,6 +26,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
@@ -68,7 +68,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -376,7 +375,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         this.getDlmsSessionProperties().setProperties(properties);
     }
 

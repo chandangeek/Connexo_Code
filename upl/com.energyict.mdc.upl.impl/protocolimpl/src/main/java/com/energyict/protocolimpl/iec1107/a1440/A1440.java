@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -262,7 +263,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setProperties(TypedProperties typedProperties) throws MissingPropertyException, InvalidPropertyException {
+        Properties properties = typedProperties.toStringProperties();
         try {
             this.strID = properties.getProperty(ADDRESS.getName(), "");
             this.strPassword = properties.getProperty(PASSWORD.getName());

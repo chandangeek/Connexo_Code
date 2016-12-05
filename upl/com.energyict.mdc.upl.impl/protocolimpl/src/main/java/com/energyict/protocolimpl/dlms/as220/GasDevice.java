@@ -6,6 +6,7 @@ package com.energyict.protocolimpl.dlms.as220;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -132,7 +133,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
     }
 
 	@Override
-	public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+	public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
 		validateProperties(properties);
 		super.setProperties(properties);
 	}

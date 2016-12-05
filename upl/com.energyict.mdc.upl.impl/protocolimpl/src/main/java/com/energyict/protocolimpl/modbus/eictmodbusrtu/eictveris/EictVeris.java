@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -19,7 +20,6 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -40,7 +40,7 @@ public class EictVeris extends Modbus {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
     }

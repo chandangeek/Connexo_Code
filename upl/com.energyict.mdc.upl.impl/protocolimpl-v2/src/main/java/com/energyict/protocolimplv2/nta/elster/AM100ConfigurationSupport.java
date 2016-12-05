@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,15 +16,14 @@ public class AM100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String READCACHE_PROPERTY = "ReadCache";
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.addAll(super.getOptionalProperties());
-        optionalProperties.add(readCachePropertySpec());
-        return optionalProperties;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(readCachePropertySpec());
+        return propertySpecs;
     }
 
     protected PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(READCACHE_PROPERTY, false);
+        return UPLPropertySpecFactory.booleanValue(READCACHE_PROPERTY, false);
     }
 
 }

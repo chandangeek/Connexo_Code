@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.modbus.spiraxsarco;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -24,7 +25,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Created by cisac on 11/16/2015.
@@ -50,7 +50,7 @@ public class VLM20 extends Modbus{
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         validateAndSetStartRegistesZeroBasedFlag(properties.getProperty(START_REGISTERS_ZERO_BASED, "1"));
     }

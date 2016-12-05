@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -32,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * RecDigit Cct meter is a pulse counter.
@@ -102,7 +102,7 @@ public class RecDigitCct extends Modbus {
     }
 
     @Override
-	public void setProperties(Properties properties) throws PropertyValidationException {
+	public void setProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setProperties(properties);
        	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "1").trim()));
     	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));

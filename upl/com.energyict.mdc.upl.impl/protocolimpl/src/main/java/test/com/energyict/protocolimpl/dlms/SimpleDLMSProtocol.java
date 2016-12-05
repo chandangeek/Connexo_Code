@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
@@ -222,7 +223,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             String[] securityLevel = properties.getProperty(SECURITYLEVEL.getName(), "0").split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);

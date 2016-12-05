@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.landisgyr.sentry.s200;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -29,7 +30,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
@@ -72,7 +72,7 @@ public class S200 extends AbstractProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0000000"));
         setInfoTypePassword(properties.getProperty(PASSWORD.getName(), "0000"));

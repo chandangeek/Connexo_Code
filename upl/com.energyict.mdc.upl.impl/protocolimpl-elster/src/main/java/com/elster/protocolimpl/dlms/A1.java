@@ -3,6 +3,7 @@ package com.elster.protocolimpl.dlms;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.elster.dlms.cosem.applicationlayer.CosemDataAccessException;
 import com.elster.dlms.cosem.classes.common.CosemClassIds;
@@ -42,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * User: heuckeg
@@ -123,7 +123,7 @@ public class A1 extends Dlms {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         archiveStructure = properties.getProperty(Dlms.ARCHIVESTRUCTURE, "");
         logStructure = properties.getProperty(Dlms.LOGSTRUCTURE, "");

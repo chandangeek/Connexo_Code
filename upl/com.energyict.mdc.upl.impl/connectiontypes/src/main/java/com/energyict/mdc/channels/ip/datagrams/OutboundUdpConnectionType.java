@@ -1,22 +1,23 @@
 package com.energyict.mdc.channels.ip.datagrams;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.*;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for UDP.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/11/12
  * Time: 11:20
@@ -28,6 +29,13 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
     public OutboundUdpConnectionType() {
         super();
+    }
+
+    @Override
+    public ComChannel connect() throws ConnectionException {
+        ComChannel comChannel = this.newUDPConnection(this.getBufferSizePropertyValue(), this.hostPropertyValue(), this.portNumberPropertyValue());
+        comChannel.addProperties(createTypeProperty(ComChannelType.DatagramComChannel));
+        return comChannel;
     }
 
     @Override
@@ -45,49 +53,20 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
         return EnumSet.of(ComPortType.UDP);
     }
 
-    @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        for (ConnectionTaskProperty property : properties) {
-            if(property.getValue() != null){
-                this.setProperty(property.getName(), property.getValue());
-            }
-        }
-        ComChannel comChannel = this.newUDPConnection(this.getBufferSizePropertyValue(), this.hostPropertyValue(), this.portNumberPropertyValue());
-        comChannel.addProperties(createTypeProperty(ComChannelType.DatagramComChannel));
-        return comChannel;
-    }
-
     private int getBufferSizePropertyValue() {
         BigDecimal value = (BigDecimal) this.getProperty(BUFFER_SIZE_NAME);
         return this.intProperty(value);
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        final List<PropertySpec> allRequiredProperties = super.getRequiredProperties();
-        allRequiredProperties.add(this.bufferSizePropertySpec());
-        return allRequiredProperties;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(bufferSizePropertySpec());
+        return propertySpecs;
     }
 
     private PropertySpec bufferSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(BUFFER_SIZE_NAME);
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return super.isRequiredProperty(name) || BUFFER_SIZE_NAME.equals(name);
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        PropertySpec superPropertySpec = super.getPropertySpec(name);
-        if(superPropertySpec != null){
-            return superPropertySpec;
-        } else if(BUFFER_SIZE_NAME.equals(name)) {
-            return this.bufferSizePropertySpec();
-        } else {
-            return null;
-        }
+        return UPLPropertySpecFactory.bigDecimal(BUFFER_SIZE_NAME, true);
     }
 
     @Override

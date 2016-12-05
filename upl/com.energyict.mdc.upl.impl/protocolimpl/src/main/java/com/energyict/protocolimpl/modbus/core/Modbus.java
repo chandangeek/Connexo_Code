@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -48,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -146,7 +146,7 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "10").trim()));
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "15").trim()));

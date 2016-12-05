@@ -1,27 +1,27 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.pluggable.ConfigurationInquirySupport;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author sva
  * @since 29/04/13 - 15:08
  */
-public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implements ConfigurationSupport, ConfigurationInquirySupport {
+public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implements HasDynamicProperties {
 
     public static final String MODEM_DIAL_PREFIX = "modem_dial_prefix";         // the prefix command to use when performing the actual dial to the modem of the device
     public static final String CONNECT_TIMEOUT = "modem_connect_timeout";       // timeout for the connect command
@@ -35,89 +35,54 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
 
     private static final String DEFAULT_MODEM_INIT_STRINGS = "1:0;2:0;3:0;4:10;5:0;6:5";
     private static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(5);
-    private static final TimeDuration DEFAULT_COMMAND_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
-    private static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.MILLISECONDS);
-    private static final TimeDuration DEFAULT_DELAY_AFTER_CONNECT = new TimeDuration(500, TimeDuration.MILLISECONDS);
-    private static final TimeDuration DEFAULT_CONNECT_TIMEOUT = new TimeDuration(30, TimeDuration.SECONDS);
+    private static final TemporalAmount DEFAULT_COMMAND_TIMEOUT = Duration.ofSeconds(10);
+    private static final TemporalAmount DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
+    private static final TemporalAmount DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
+    private static final TemporalAmount DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
     private static final String DEFAULT_MODEM_DIAL_PREFIX = "";
-    private static final TimeDuration DEFAULT_DTR_TOGGLE_DELAY = new TimeDuration(2, TimeDuration.SECONDS);
+    private static final TemporalAmount DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
 
     private TypedProperties properties;
     private Map<String, PropertySpec> propertySpecs;
 
     public TypedPEMPModemProperties() {
-        this(new ArrayList<ConnectionTaskProperty>(0));
     }
 
-    public TypedPEMPModemProperties(List<ConnectionTaskProperty> properties) {
+    public TypedPEMPModemProperties(TypedProperties properties) {
         super();
-        this.properties = TypedProperties.empty();
-        validateAndSetProperties(properties);
+        this.properties = properties;
     }
 
-    protected void validateAndSetProperties(List<ConnectionTaskProperty> properties) {
-        for (ConnectionTaskProperty property : properties) {
-            switch (property.getName()) {
-                case MODEM_CONFIGURATION_KEY:
-                    this.properties.setProperty(property.getName(), PEMPModemConfiguration.getPEMPModemConfiguration((String) property.getValue()));
-                    break;
-                default:
-                    this.properties.setProperty(property.getName(), property.getValue());
-                    break;
-            }
-        }
+//    protected void validateAndSetProperties(List<ConnectionTaskProperty> properties) {
+//        for (ConnectionTaskProperty property : properties) {
+//            switch (property.getName()) {
+//                case MODEM_CONFIGURATION_KEY:
+//                    this.properties.setProperty(property.getName(), PEMPModemConfiguration.getPEMPModemConfiguration((String) property.getValue()));
+//                    break;
+//                default:
+//                    this.properties.setProperty(property.getName(), property.getValue());
+//                    break;
+//            }
+//        }
+//    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(atConnectTimeoutSpec(),
+                atCommandPrefixSpec(),
+                atModemInitStringSpec(),
+                atCommandTriesSpec(),
+                atCommandTimeoutSpec(),
+                phoneNumberSpec(),
+                delayAfterConnectSpec(),
+                delayBeforeSendSpec(),
+                dtrToggleDelaySpec(),
+                modemConfigurationKeySpec());
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        this.ensurePropertySpecsInitialized();
-        return this.propertySpecs.get(name);
-    }
-
-    private void ensurePropertySpecsInitialized() {
-        if (this.propertySpecs == null) {
-            Map<String, PropertySpec> temp = new HashMap<>();
-            this.initializePropertySpecs(temp);
-            this.propertySpecs = temp;
-        }
-    }
-
-    private void initializePropertySpecs(Map<String, PropertySpec> propertySpecs) {
-        propertySpecs.put(CONNECT_TIMEOUT, atConnectTimeoutSpec());
-        propertySpecs.put(MODEM_DIAL_PREFIX, atCommandPrefixSpec());
-        propertySpecs.put(MODEM_INIT_STRINGS, atModemInitStringSpec());
-        propertySpecs.put(COMMAND_TRIES, atCommandTriesSpec());
-        propertySpecs.put(COMMAND_TIMEOUT, atCommandTimeoutSpec());
-        propertySpecs.put(PHONE_NUMBER_PROPERTY_NAME, phoneNumberSpec());
-        propertySpecs.put(DELAY_AFTER_CONNECT, delayAfterConnectSpec());
-        propertySpecs.put(DELAY_BEFORE_SEND, delayBeforeSendSpec());
-        propertySpecs.put(DTR_TOGGLE_DELAY, dtrToggleDelaySpec());
-        propertySpecs.put(MODEM_CONFIGURATION_KEY, modemConfigurationKeySpec());
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return PHONE_NUMBER_PROPERTY_NAME.equals(name) ||
-                MODEM_CONFIGURATION_KEY.equals(name);
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Arrays.asList(phoneNumberSpec(), modemConfigurationKeySpec());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> allOptionalProperties = new ArrayList<>();
-        allOptionalProperties.add(delayBeforeSendSpec());
-        allOptionalProperties.add(atCommandTimeoutSpec());
-        allOptionalProperties.add(atCommandTriesSpec());
-        allOptionalProperties.add(atModemInitStringSpec());
-        allOptionalProperties.add(atCommandPrefixSpec());
-        allOptionalProperties.add(atConnectTimeoutSpec());
-        allOptionalProperties.add(delayAfterConnectSpec());
-        allOptionalProperties.add(dtrToggleDelaySpec());
-        return allOptionalProperties;
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+        this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
     }
 
     @Override
@@ -132,27 +97,27 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     @Override
-    protected TimeDuration getConnectTimeout() {
+    protected TemporalAmount getConnectTimeout() {
         Object value = getProperty(CONNECT_TIMEOUT);
-        return value != null ? (TimeDuration) value : DEFAULT_CONNECT_TIMEOUT;
+        return value != null ? (TemporalAmount) value : DEFAULT_CONNECT_TIMEOUT;
     }
 
     @Override
-    protected TimeDuration getDelayAfterConnect() {
+    protected TemporalAmount getDelayAfterConnect() {
         Object value = getProperty(DELAY_AFTER_CONNECT);
-        return value != null ? (TimeDuration) value : DEFAULT_DELAY_AFTER_CONNECT;
+        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_AFTER_CONNECT;
     }
 
     @Override
-    protected TimeDuration getDelayBeforeSend() {
+    protected TemporalAmount getDelayBeforeSend() {
         Object value = getProperty(DELAY_BEFORE_SEND);
-        return value != null ? (TimeDuration) value : DEFAULT_DELAY_BEFORE_SEND;
+        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_BEFORE_SEND;
     }
 
     @Override
-    protected TimeDuration getCommandTimeOut() {
+    protected TemporalAmount getCommandTimeOut() {
         Object value = getProperty(COMMAND_TIMEOUT);
-        return value != null ? (TimeDuration) value : DEFAULT_COMMAND_TIMEOUT;
+        return value != null ? (TemporalAmount) value : DEFAULT_COMMAND_TIMEOUT;
     }
 
     @Override
@@ -178,9 +143,9 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     @Override
-    protected TimeDuration getLineToggleDelay() {
+    protected TemporalAmount getLineToggleDelay() {
         Object value = getProperty(DTR_TOGGLE_DELAY);
-        return value != null ? (TimeDuration) value : DEFAULT_DTR_TOGGLE_DELAY;
+        return value != null ? (TemporalAmount) value : DEFAULT_DTR_TOGGLE_DELAY;
     }
 
     @Override
@@ -201,47 +166,42 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     public static PropertySpec atModemInitStringSpec() {
-        return PropertySpecFactory.stringPropertySpec(MODEM_INIT_STRINGS, DEFAULT_MODEM_INIT_STRINGS);
+        return UPLPropertySpecFactory.string(MODEM_INIT_STRINGS, DEFAULT_MODEM_INIT_STRINGS, false);
     }
 
     public static PropertySpec atCommandTriesSpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(COMMAND_TRIES, DEFAULT_COMMAND_TRIES);
+        return UPLPropertySpecFactory.bigDecimal(COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
     }
 
     public static PropertySpec atCommandTimeoutSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(COMMAND_TIMEOUT, DEFAULT_COMMAND_TIMEOUT);
+        return UPLPropertySpecFactory.timeDuration(COMMAND_TIMEOUT, DEFAULT_COMMAND_TIMEOUT, false, true);
     }
 
     public static PropertySpec delayBeforeSendSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND);
+        return UPLPropertySpecFactory.timeDuration(DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND, false, true);
     }
 
     public static PropertySpec delayAfterConnectSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT);
+        return UPLPropertySpecFactory.timeDuration(DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT, false, true);
     }
 
     public static PropertySpec atConnectTimeoutSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+        return UPLPropertySpecFactory.timeDuration(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT, false, true);
     }
 
     public static PropertySpec atCommandPrefixSpec() {
-        return PropertySpecFactory.stringPropertySpec(MODEM_DIAL_PREFIX, DEFAULT_MODEM_DIAL_PREFIX);
+        return UPLPropertySpecFactory.string(MODEM_DIAL_PREFIX, DEFAULT_MODEM_DIAL_PREFIX, false);
     }
 
     public static PropertySpec dtrToggleDelaySpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY);
+        return UPLPropertySpecFactory.timeDuration(DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY, false, true);
     }
 
     public static PropertySpec modemConfigurationKeySpec() {
-        List<String> possibleValues = new ArrayList<>();
-        for (PEMPModemConfiguration pempModemConfiguration : PEMPModemConfiguration.values()) {
-            possibleValues.add(pempModemConfiguration.getKey());
-        }
-
-        return PropertySpecFactory.stringPropertySpecWithValues(MODEM_CONFIGURATION_KEY, possibleValues.toArray(new String[0]));
+        return UPLPropertySpecFactory.string(MODEM_CONFIGURATION_KEY, true, Stream.of(PEMPModemConfiguration.values()).map(PEMPModemConfiguration::getKey).toArray(String[]::new));
     }
 
     public static PropertySpec phoneNumberSpec() {
-        return PropertySpecFactory.stringPropertySpec(PHONE_NUMBER_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(PHONE_NUMBER_PROPERTY_NAME, true);
     }
 }

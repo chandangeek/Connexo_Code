@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.dlms.g3;
 
 import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -18,18 +17,18 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -100,7 +99,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     }
 
     private DlmsSession createPublicDlmsSession(ComChannel comChannel) {
-        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        TypedProperties clone = com.energyict.protocolimpl.properties.TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PUBLIC_CLIENT);
         AS330DProperties publicClientProperties = new AS330DProperties(false);  //Use gateway logical device ID
         publicClientProperties.addProperties(clone);
@@ -169,7 +168,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     }
 
     @Override
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
             dlmsConfigurationSupport = new AS330DConfigurationSupport();
         }

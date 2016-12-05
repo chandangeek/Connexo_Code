@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -51,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 
 /**
@@ -333,7 +333,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         try {
             this.forcedToReadCache = !properties.getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase(Integer.toString(DEFAULT_FORCED_TO_READ_CACHE));

@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.ge.kv;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -46,7 +47,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
@@ -134,7 +134,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "10").trim()));
         setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "64"));
         c12User = properties.getProperty("C12User","");

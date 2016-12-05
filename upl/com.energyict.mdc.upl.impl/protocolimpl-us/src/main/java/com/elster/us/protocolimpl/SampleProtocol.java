@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
@@ -14,7 +15,6 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  */
 public class SampleProtocol implements MeterProtocol {
 
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
 
     }
 

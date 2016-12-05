@@ -1,21 +1,17 @@
 package com.energyict.mdc.channels.sms;
 
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +32,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     public static final String SERVICE_CODE_PROPERTY_NAME = "API_serviceCode";
 
     private PropertySpec phoneNumberPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(PHONE_NUMBER_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(PHONE_NUMBER_PROPERTY_NAME, true);
     }
 
     protected String phoneNumberPropertyValue() {
@@ -44,7 +40,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec connectionURLPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(CONNECTION_URL_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(CONNECTION_URL_PROPERTY_NAME, true);
     }
 
     protected String connectionURLPropertyValue() {
@@ -52,7 +48,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec sourcePropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(SOURCE_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(SOURCE_PROPERTY_NAME, true);
     }
 
     protected String sourcePropertyValue() {
@@ -60,7 +56,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec authenticationPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(AUTHENTICATION_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(AUTHENTICATION_PROPERTY_NAME, true);
     }
 
     protected String authenticationPropertyValue() {
@@ -68,13 +64,21 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec serviceCodePropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(SERVICE_CODE_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(SERVICE_CODE_PROPERTY_NAME, true);
     }
 
     protected String serviceCodePropertyValue() {
         return (String) this.getProperty(SERVICE_CODE_PROPERTY_NAME);
     }
 
+
+    @Override
+    public ComChannel connect() throws ConnectionException {
+        ProximusSmsComChannel smsComChannel = new ProximusSmsComChannel(this.phoneNumberPropertyValue(),
+                this.connectionURLPropertyValue(), this.sourcePropertyValue(), this.authenticationPropertyValue(), this.serviceCodePropertyValue());
+        smsComChannel.addProperties(createTypeProperty(ComChannelType.ProximusSmsComChannel));
+        return smsComChannel;
+    }
 
     @Override
     public boolean allowsSimultaneousConnections() {
@@ -92,63 +96,19 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        for (ConnectionTaskProperty property : properties) {
-            if(property.getValue() != null){
-                this.setProperty(property.getName(), property.getValue());
-            }
-        }
-        ProximusSmsComChannel smsComChannel = new ProximusSmsComChannel(this.phoneNumberPropertyValue(),
-                this.connectionURLPropertyValue(), this.sourcePropertyValue(), this.authenticationPropertyValue(), this.serviceCodePropertyValue());
-        smsComChannel.addProperties(createTypeProperty(ComChannelType.ProximusSmsComChannel));
-        return smsComChannel;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case PHONE_NUMBER_PROPERTY_NAME:
-                return this.phoneNumberPropertySpec();
-            case CONNECTION_URL_PROPERTY_NAME:
-                return this.connectionURLPropertySpec();
-            case SOURCE_PROPERTY_NAME:
-                return this.sourcePropertySpec();
-            case AUTHENTICATION_PROPERTY_NAME:
-                return this.authenticationPropertySpec();
-            case SERVICE_CODE_PROPERTY_NAME:
-                return this.serviceCodePropertySpec();
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return PHONE_NUMBER_PROPERTY_NAME.equals(name) ||
-                CONNECTION_URL_PROPERTY_NAME.equals(name) ||
-                SOURCE_PROPERTY_NAME.equals(name) ||
-                AUTHENTICATION_PROPERTY_NAME.equals(name) ||
-                SERVICE_CODE_PROPERTY_NAME.equals(name);
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        propertySpecs.add(this.phoneNumberPropertySpec());
+        propertySpecs.add(this.connectionURLPropertySpec());
+        propertySpecs.add(this.authenticationPropertySpec());
+        propertySpecs.add(this.serviceCodePropertySpec());
+        propertySpecs.add(this.sourcePropertySpec());
+        return propertySpecs;
     }
 
     @Override
     public String getVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Arrays.asList(
-                phoneNumberPropertySpec(),
-                connectionURLPropertySpec(),
-                sourcePropertySpec(),
-                authenticationPropertySpec(),
-                serviceCodePropertySpec());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>();
     }
 
     @Override

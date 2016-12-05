@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.enermet.e120;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -156,7 +157,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         pUserId = properties.getProperty(PK_USER_ID);
         pPassword = properties.getProperty(PK_PASSWORD);

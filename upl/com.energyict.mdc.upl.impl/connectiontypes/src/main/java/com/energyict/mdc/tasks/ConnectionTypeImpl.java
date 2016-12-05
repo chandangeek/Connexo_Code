@@ -7,19 +7,19 @@ import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Properties;
 
 /**
  * Serves as the root for components that intend to implement
@@ -31,15 +31,15 @@ import java.util.Properties;
  */
 public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.ConnectionType {
 
-    private TypedProperties properties = TypedProperties.empty();
+    private TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
 
     public ConnectionTypeImpl() {
         super();
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
-        this.properties = TypedProperties.copyOf(properties);
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+        this.properties = properties;
     }
 
     protected TypedProperties getAllProperties() {
@@ -59,7 +59,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     }
 
     @Override
-    public void disconnect(ComChannel comChannel) {
+    public void disconnect(ComChannel comChannel) throws ConnectionException{
         // Prepare the comChannel for disconnect
         comChannel.prepareForDisConnect();
 
@@ -99,7 +99,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     protected ComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         try {
             SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-            RxTxSerialPort serialPort = serialComponentFactory.newRxTxSerialPort(serialPortConfiguration);
+            ServerSerialPort serialPort = serialComponentFactory.newRxTxSerialPort(serialPortConfiguration);
             serialPort.openAndInit();
             return serialComponentFactory.newSerialComChannel(serialPort);
         } catch (SerialPortException e) {
@@ -118,7 +118,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     protected ComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         try {
             SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-            SioSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialPortConfiguration);
+            ServerSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialPortConfiguration);
             serialPort.openAndInit();
             return serialComponentFactory.newSerialComChannel(serialPort);
         } catch (SerialPortException | UnsatisfiedLinkError e) {
@@ -155,7 +155,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * This is used by the protocols to determine the transport layer.
      */
     public static TypedProperties createTypeProperty(ComChannelType comChannelType) {
-        TypedProperties typedProperties = TypedProperties.empty();
+        TypedProperties typedProperties = com.energyict.cpo.TypedProperties.empty();
         typedProperties.setProperty(ComChannelType.TYPE, comChannelType.getType());
         return typedProperties;
     }

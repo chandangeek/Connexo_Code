@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.iec1107.sdc;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -34,7 +35,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 // com.energyict.protocolimpl.iec1107.sdc.Sdc
 /**
  *
@@ -115,7 +115,7 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
     	extendedLogging=Integer.parseInt(properties.getProperty(PROP_EXTENDED_LOGGING, "0").trim());
         this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));

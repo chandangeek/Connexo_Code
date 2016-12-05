@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.wavesense;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -37,7 +38,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
@@ -115,7 +115,7 @@ public class WaveSense extends AbstractProtocol implements MessageProtocol, Prot
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "40000").trim()));
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));

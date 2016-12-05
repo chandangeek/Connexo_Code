@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.elster.garnet.common;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
 
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;

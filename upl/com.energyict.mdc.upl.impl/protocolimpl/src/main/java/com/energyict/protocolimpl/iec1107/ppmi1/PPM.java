@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.iec1107.ppmi1;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -42,7 +43,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -253,7 +253,7 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
                 UPLPropertySpecFactory.string("Software7E1", false));
     }
 
-    public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         if (p.getProperty(ADDRESS.getName()) != null) {
             this.pAddress = p.getProperty(ADDRESS.getName());
         }

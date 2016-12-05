@@ -1,10 +1,12 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.io.ConnectionType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -24,10 +26,10 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -46,9 +48,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -327,7 +330,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.logger.log(Level.INFO, "Adding the properties to the DeviceProtocol instance.");
         this.typedProperties.setAllProperties(TypedProperties.copyOf(properties));
     }
@@ -354,7 +357,52 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getConnectionTypeFactory().findAll();
+        return Collections.singletonList(new ConnectionType() {
+            @Override
+            public ComChannel connect() throws ConnectionException {
+                return new VoidComChannel();
+            }
+
+            @Override
+            public void disconnect(ComChannel comChannel) throws ConnectionException {
+
+            }
+
+            @Override
+            public boolean allowsSimultaneousConnections() {
+                return false;
+            }
+
+            @Override
+            public boolean supportsComWindow() {
+                return false;
+            }
+
+            @Override
+            public Set<ComPortType> getSupportedComPortTypes() {
+                return EnumSet.allOf(ComPortType.class);
+            }
+
+            @Override
+            public ConnectionTypeDirection getDirection() {
+                return ConnectionTypeDirection.OUTBOUND;
+            }
+
+            @Override
+            public String getVersion() {
+                return "No version";
+            }
+
+            @Override
+            public List<PropertySpec> getPropertySpecs() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+            }
+        });
     }
 
 }

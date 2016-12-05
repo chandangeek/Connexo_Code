@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -110,7 +111,7 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter, Seria
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
 
     }
 }

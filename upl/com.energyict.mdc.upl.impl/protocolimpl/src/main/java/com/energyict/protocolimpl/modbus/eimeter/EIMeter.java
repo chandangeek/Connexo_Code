@@ -4,6 +4,7 @@
 package com.energyict.protocolimpl.modbus.eimeter;
 
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.MessageEntry;
@@ -19,7 +20,6 @@ import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author fbo
@@ -36,7 +36,7 @@ public class EIMeter extends Modbus {
     protected void doTheDisConnect() throws IOException { /* relax */ }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
         setInfoTypeMeterFirmwareVersion(properties.getProperty(PK_METER_FIRMWARE_VERSION, "1.07"));

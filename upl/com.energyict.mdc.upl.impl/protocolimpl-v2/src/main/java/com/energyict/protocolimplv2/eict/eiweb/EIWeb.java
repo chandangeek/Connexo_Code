@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Basic implementation of the EIWeb DeviceProtocol.
@@ -237,7 +236,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         // nothing much to do
     }
 

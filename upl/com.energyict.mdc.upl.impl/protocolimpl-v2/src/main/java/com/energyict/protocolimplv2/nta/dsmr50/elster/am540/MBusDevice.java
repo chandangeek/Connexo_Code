@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;

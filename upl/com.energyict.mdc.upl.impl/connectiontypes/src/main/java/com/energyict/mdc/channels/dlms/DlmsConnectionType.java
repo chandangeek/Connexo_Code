@@ -1,14 +1,11 @@
 package com.energyict.mdc.channels.dlms;
 
 
-import com.energyict.mdc.io.ConnectionType.ConnectionTypeDirection;
-import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dynamicattributes.BigDecimalFactory;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 
@@ -38,32 +35,26 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     }
 
     PropertySpec getAddressingModePropertySpec() {
-        return PropertySpecBuilder.
-                forClass(BigDecimal.class, new BigDecimalFactory()).
-                name(PROPERTY_NAME_ADDRESSING_MODE).
-                markExhaustive().
-                addValues(
-                        BigDecimal.valueOf(1),
-                        BigDecimal.valueOf(2),
-                        BigDecimal.valueOf(4)).
-                setDefaultValue(BigDecimal.valueOf(2)).
-                finish();
+        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_ADDRESSING_MODE, false, BigDecimal.valueOf(2),
+                BigDecimal.valueOf(1),
+                BigDecimal.valueOf(2),
+                BigDecimal.valueOf(4));
     }
 
     PropertySpec getServerMacAddress() {
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, new BigDecimal(1));
+        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_MAC_ADDRESS, false, new BigDecimal(1));
     }
 
     PropertySpec getServerUpperMacAddress() {
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(17));
+        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, false, new BigDecimal(17));
     }
 
     PropertySpec getServerLowerMacAddress() {
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, new BigDecimal(1));
+        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, false, new BigDecimal(1));
     }
 
     PropertySpec getConnectionPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, new BigDecimal(1));
+        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_CONNECTION, false, new BigDecimal(1));
     }
 
     @Override

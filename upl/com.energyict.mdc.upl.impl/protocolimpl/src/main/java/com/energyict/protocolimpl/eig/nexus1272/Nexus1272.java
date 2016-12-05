@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.eig.nexus1272;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -36,7 +37,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
 
@@ -99,7 +99,7 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         channelMapping = properties.getProperty("NexusChannelMapping", "");
         if (channelMapping != null && !channelMapping.isEmpty()) {

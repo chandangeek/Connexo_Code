@@ -1,18 +1,15 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.pluggable.ConfigurationInquirySupport;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +17,7 @@ import java.util.Map;
  * @author sva
  * @since 18/03/13 - 16:33
  */
-public class TypedPaknetModemProperties extends AbstractPaknetModemProperties implements ConfigurationSupport, ConfigurationInquirySupport {
+public class TypedPaknetModemProperties extends AbstractPaknetModemProperties implements HasDynamicProperties {
 
     public static final String MODEM_DIAL_PREFIX = "modem_dial_prefix";         // the prefix command to use when performing the actual dial to the modem of the device
     public static final String CONNECT_TIMEOUT = "modem_connect_timeout";       // timeout for the connect command
@@ -33,78 +30,42 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
 
     private static final String DEFAULT_MODEM_INIT_STRINGS = "1:0;2:0;3:0;4:10;5:0;6:5";
     private static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(5);
-    private static final TimeDuration DEFAULT_COMMAND_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
-    private static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.MILLISECONDS);
-    private static final TimeDuration DEFAULT_DELAY_AFTER_CONNECT = new TimeDuration(500, TimeDuration.MILLISECONDS);
-    private static final TimeDuration DEFAULT_CONNECT_TIMEOUT = new TimeDuration(30, TimeDuration.SECONDS);
+    private static final TemporalAmount DEFAULT_COMMAND_TIMEOUT = Duration.ofSeconds(10);
+    private static final TemporalAmount DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
+    private static final TemporalAmount DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
+    private static final TemporalAmount DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
     private static final String DEFAULT_MODEM_DIAL_PREFIX = "";
-    private static final TimeDuration DEFAULT_DTR_TOGGLE_DELAY = new TimeDuration(2, TimeDuration.SECONDS);
+    private static final TemporalAmount DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
 
     private TypedProperties properties;
     private Map<String, PropertySpec> propertySpecs;
 
     public TypedPaknetModemProperties() {
-        this(new ArrayList<ConnectionTaskProperty>(0));
     }
 
-    public TypedPaknetModemProperties(List<ConnectionTaskProperty> properties) {
+    public TypedPaknetModemProperties(TypedProperties properties) {
         super();
-        this.properties = TypedProperties.empty();
-        for (ConnectionTaskProperty property : properties) {
-            this.properties.setProperty(property.getName(), property.getValue());
-        }
+        this.properties = properties;
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        this.ensurePropertySpecsInitialized();
-        return this.propertySpecs.get(name);
-    }
-
-    private void ensurePropertySpecsInitialized() {
-        if (this.propertySpecs == null) {
-            Map<String, PropertySpec> temp = new HashMap<>();
-            this.initializePropertySpecs(temp);
-            this.propertySpecs = temp;
-        }
-    }
-
-    private void initializePropertySpecs(Map<String, PropertySpec> propertySpecs) {
-        propertySpecs.put(CONNECT_TIMEOUT, atConnectTimeoutSpec());
-        propertySpecs.put(MODEM_DIAL_PREFIX, atCommandPrefixSpec());
-        propertySpecs.put(MODEM_INIT_STRINGS, atModemInitStringSpec());
-        propertySpecs.put(COMMAND_TRIES, atCommandTriesSpec());
-        propertySpecs.put(COMMAND_TIMEOUT, atCommandTimeoutSpec());
-        propertySpecs.put(PHONE_NUMBER_PROPERTY_NAME, phoneNumberSpec());
-        propertySpecs.put(DELAY_AFTER_CONNECT, delayAfterConnectSpec());
-        propertySpecs.put(DELAY_BEFORE_SEND, delayBeforeSendSpec());
-        propertySpecs.put(DTR_TOGGLE_DELAY, dtrToggleDelaySpec());
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                phoneNumberSpec(),
+                delayBeforeSendSpec(),
+                atCommandTimeoutSpec(),
+                atCommandTriesSpec(),
+                atModemInitStringSpec(),
+                atCommandPrefixSpec(),
+                atConnectTimeoutSpec(),
+                delayAfterConnectSpec()
+        );
     }
 
     @Override
-    public boolean isRequiredProperty(String name) {
-        return PHONE_NUMBER_PROPERTY_NAME.equals(name);
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+        this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
     }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Arrays.asList(phoneNumberSpec());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> allOptionalProperties = new ArrayList<>();
-        allOptionalProperties.add(delayBeforeSendSpec());
-        allOptionalProperties.add(atCommandTimeoutSpec());
-        allOptionalProperties.add(atCommandTriesSpec());
-        allOptionalProperties.add(atModemInitStringSpec());
-        allOptionalProperties.add(atCommandPrefixSpec());
-        allOptionalProperties.add(atConnectTimeoutSpec());
-        allOptionalProperties.add(delayAfterConnectSpec());
-        allOptionalProperties.add(dtrToggleDelaySpec());
-        return allOptionalProperties;
-    }
-
 
     @Override
     protected String getPhoneNumber() {
@@ -118,27 +79,27 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
     }
 
     @Override
-    protected TimeDuration getConnectTimeout() {
+    protected TemporalAmount getConnectTimeout() {
         Object value = getProperty(CONNECT_TIMEOUT);
-        return value != null ? (TimeDuration) value : DEFAULT_CONNECT_TIMEOUT;
+        return value != null ? (TemporalAmount) value : DEFAULT_CONNECT_TIMEOUT;
     }
 
     @Override
-    protected TimeDuration getDelayAfterConnect() {
+    protected TemporalAmount getDelayAfterConnect() {
         Object value = getProperty(DELAY_AFTER_CONNECT);
-        return value != null ? (TimeDuration) value : DEFAULT_DELAY_AFTER_CONNECT;
+        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_AFTER_CONNECT;
     }
 
     @Override
-    protected TimeDuration getDelayBeforeSend() {
+    protected TemporalAmount getDelayBeforeSend() {
         Object value = getProperty(DELAY_BEFORE_SEND);
-        return value != null ? (TimeDuration) value : DEFAULT_DELAY_BEFORE_SEND;
+        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_BEFORE_SEND;
     }
 
     @Override
-    protected TimeDuration getCommandTimeOut() {
+    protected TemporalAmount getCommandTimeOut() {
         Object value = getProperty(COMMAND_TIMEOUT);
-        return value != null ? (TimeDuration) value : DEFAULT_COMMAND_TIMEOUT;
+        return value != null ? (TemporalAmount) value : DEFAULT_COMMAND_TIMEOUT;
     }
 
     @Override
@@ -164,9 +125,9 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
     }
 
     @Override
-    protected TimeDuration getLineToggleDelay() {
+    protected TemporalAmount getLineToggleDelay() {
         Object value = getProperty(DTR_TOGGLE_DELAY);
-        return value != null ? (TimeDuration) value : DEFAULT_DTR_TOGGLE_DELAY;
+        return value != null ? (TemporalAmount) value : DEFAULT_DTR_TOGGLE_DELAY;
     }
 
     protected TypedProperties getAllProperties() {

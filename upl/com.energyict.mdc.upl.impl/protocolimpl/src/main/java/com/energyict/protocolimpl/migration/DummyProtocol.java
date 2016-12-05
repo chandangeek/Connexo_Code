@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -32,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class DummyProtocol implements MeterProtocol {
 
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         throw new UnsupportedOperationException();
     }
 

@@ -3,11 +3,11 @@ package com.energyict.protocolimplv2.elster.garnet;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * @author sva
@@ -213,7 +212,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         getRequestFactory().getProperties().setProperties(properties);
     }
 

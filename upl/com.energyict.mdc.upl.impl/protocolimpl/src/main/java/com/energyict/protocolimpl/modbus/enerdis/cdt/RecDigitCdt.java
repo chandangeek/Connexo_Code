@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
@@ -13,7 +14,6 @@ import com.energyict.protocolimpl.modbus.core.ModbusException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Properties;
 
 /**
  * RecDigit Cct meter is a pulse counter.
@@ -34,7 +34,7 @@ public abstract class RecDigitCdt extends Modbus {
     protected void doTheDisConnect() throws IOException {}
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
     	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "1").trim()));
     	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));

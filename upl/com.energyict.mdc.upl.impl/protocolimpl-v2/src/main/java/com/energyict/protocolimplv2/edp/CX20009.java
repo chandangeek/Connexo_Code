@@ -5,13 +5,13 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -20,13 +20,13 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 
-import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolExceptionReference;
@@ -68,7 +68,7 @@ public class CX20009 extends AbstractDlmsProtocol {
      * A collection of general DLMS properties.
      * These properties are not related to the security or the protocol dialects.
      */
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
             dlmsConfigurationSupport = new EDPDlmsConfigurationSupport();
         }

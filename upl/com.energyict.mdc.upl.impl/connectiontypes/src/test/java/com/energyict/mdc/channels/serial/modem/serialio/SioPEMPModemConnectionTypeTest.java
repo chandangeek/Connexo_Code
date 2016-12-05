@@ -1,7 +1,5 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
@@ -13,17 +11,15 @@ import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.AbstractPEMPModemProperties;
 import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
-import com.energyict.protocol.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+
+import com.energyict.cbo.TimeDuration;
+import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
+import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocol.exceptions.ModemException;
 import com.energyict.protocol.exceptions.ProtocolExceptionReference;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,10 +27,20 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva

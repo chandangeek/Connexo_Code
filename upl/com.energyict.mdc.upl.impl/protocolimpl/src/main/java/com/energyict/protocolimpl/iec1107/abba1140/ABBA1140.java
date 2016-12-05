@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -225,7 +226,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     @Override
-    public void setProperties(Properties p) throws MissingPropertyException, InvalidPropertyException {
+    public void setProperties(TypedProperties p) throws MissingPropertyException, InvalidPropertyException {
         try {
             if (p.getProperty(ADDRESS.getName()) != null) {
                 pAddress = p.getProperty(ADDRESS.getName());

@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -460,7 +461,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     }
 
     @Override
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             nodeId = properties.getProperty(Property.NODEID.getName(), "");
             serialNumber = properties.getProperty(Property.SERIALNUMBER.getName(), "");

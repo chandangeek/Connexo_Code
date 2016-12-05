@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -127,7 +128,7 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         for (Object key : properties.keySet()) {
             if (key instanceof String) {
                 String propertyName = (String) key;

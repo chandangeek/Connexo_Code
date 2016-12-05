@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
@@ -242,7 +243,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     }
 
     @Override
-    public void setProperties(Properties p) throws PropertyValidationException {
+    public void setProperties(TypedProperties p) throws PropertyValidationException {
         try {
             if (p.getProperty(ADDRESS.getName()) != null) {
                 this.pAddress = p.getProperty(ADDRESS.getName());

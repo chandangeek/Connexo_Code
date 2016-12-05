@@ -3,8 +3,10 @@ package com.energyict.protocolimpl.dlms.eictz3;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -505,7 +507,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private String firmwareVersion;
 
     /**
-     * This one indicates if we have set the properties yet. It is used to make sure {@link #setProperties(Properties)} is called before {@link #init(InputStream, OutputStream, TimeZone, Logger)},
+     * This one indicates if we have set the properties yet. It is used to make sure {@link HasDynamicProperties#setProperties(TypedProperties)} is called before {@link #init(InputStream, OutputStream, TimeZone, Logger)},
      * as one would assume the sequence to be the other way around.
      */
     private transient boolean propertiesSet = false;
@@ -1382,7 +1384,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     @Override
-    public final void setProperties(final Properties properties) throws InvalidPropertyException {
+    public final void setProperties(final TypedProperties properties) throws InvalidPropertyException {
         try {
             this.deviceId = properties.getProperty(ADDRESS.getName());
             this.password = properties.getProperty(PASSWORD.getName());

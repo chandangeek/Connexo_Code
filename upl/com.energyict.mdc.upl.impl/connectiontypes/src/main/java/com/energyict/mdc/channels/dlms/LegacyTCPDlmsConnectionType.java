@@ -1,16 +1,16 @@
 package com.energyict.mdc.channels.dlms;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +24,11 @@ public class LegacyTCPDlmsConnectionType extends DlmsConnectionType {
 
     public LegacyTCPDlmsConnectionType() {
         super(new OutboundTcpIpConnectionType());
+    }
+
+    @Override
+    public ComChannel connect() throws ConnectionException {
+        return getActualConnectionType().connect();
     }
 
     @Override
@@ -42,59 +47,27 @@ public class LegacyTCPDlmsConnectionType extends DlmsConnectionType {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        return getActualConnectionType().connect(comPort, properties);
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = getActualConnectionType().getPropertySpecs();
+        propertySpecs.addAll(Arrays.asList(getAddressingModePropertySpec(),
+                getConnectionPropertySpec(),
+                getServerMacAddress(),
+                getServerLowerMacAddress(),
+                getServerUpperMacAddress()));
+        return propertySpecs;
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case PROPERTY_NAME_ADDRESSING_MODE:
-                return this.getAddressingModePropertySpec();
-            case PROPERTY_NAME_CONNECTION:
-                return this.getConnectionPropertySpec();
-            case PROPERTY_NAME_SERVER_MAC_ADDRESS:
-                return this.getServerMacAddress();
-            case PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS:
-                return this.getServerLowerMacAddress();
-            case PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS:
-                return this.getServerUpperMacAddress();
-            default:
-                return getActualConnectionType().getPropertySpec(name);
-        }
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return getActualConnectionType().isRequiredProperty(name);
-    }
 
     @Override
     public String getVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getActualConnectionType().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = getActualConnectionType().getOptionalProperties();
-        optionalProperties.add(getAddressingModePropertySpec());
-        optionalProperties.add(getConnectionPropertySpec());
-        optionalProperties.add(getServerMacAddress());
-        optionalProperties.add(getServerLowerMacAddress());
-        optionalProperties.add(getServerUpperMacAddress());
-        return optionalProperties;
-    }
-
     PropertySpec getServerUpperMacAddress() {
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(1));
+        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, false, new BigDecimal(1));
     }
 
     PropertySpec getServerLowerMacAddress() {
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, new BigDecimal(0));
+        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, false, new BigDecimal(0));
     }
 }

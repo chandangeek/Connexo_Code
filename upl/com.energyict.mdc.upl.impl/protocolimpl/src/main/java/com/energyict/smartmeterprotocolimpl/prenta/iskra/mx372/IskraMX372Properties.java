@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Utils;
 import com.energyict.dlms.DLMSReference;
@@ -15,7 +16,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -43,7 +43,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         getProtocolProperties().put(DlmsProtocolProperties.SECURITY_LEVEL, getSecurityLevel());
     }

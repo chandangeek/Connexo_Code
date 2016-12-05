@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -61,7 +62,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author kvds
@@ -339,7 +339,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setSDKSampleProperty(Integer.parseInt(properties.getProperty(PK_SAMPLE, "123")));
         this.simulateRealCommunication = "1".equalsIgnoreCase(properties.getProperty(PK_SIMULATE_REAL_COMMUNICATION, "0").trim());

@@ -16,6 +16,7 @@ package com.energyict.protocolimpl.itron.fulcrum;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -27,7 +28,6 @@ import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 
 /**
  *
@@ -62,7 +62,7 @@ public class Fulcrum extends SchlumbergerProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "5000").trim()));
     }
