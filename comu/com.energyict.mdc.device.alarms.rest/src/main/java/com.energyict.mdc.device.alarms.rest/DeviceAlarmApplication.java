@@ -6,9 +6,11 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
+import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -22,9 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by albertv on 11/29/2016.
- */
 
 @Component(name = "com.energyict.mdc.device.com.energyict.mdc.device.alarms.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/dal", "app=MDC", "name=" + DeviceAlarmApplication.DEVICE_ALARMS_REST_COMPONENT})
 public class DeviceAlarmApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
@@ -33,6 +32,8 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     public static final String DEVICE_ALARMS_REST_COMPONENT = "DAR";
 
     private volatile TransactionService transactionService;
+    private volatile DeviceAlarmService deviceAlarmService;
+    private volatile DeviceService deviceService;
 
     public DeviceAlarmApplication(){
 
@@ -77,11 +78,23 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
+        this.deviceAlarmService = deviceAlarmService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
         protected void configure() {
             bind(transactionService).to(TransactionService.class);
+            bind(deviceAlarmService).to(DeviceAlarmService.class);
+            bind(deviceService).to(DeviceService.class);
         }
     }
 }
