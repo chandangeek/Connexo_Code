@@ -359,7 +359,7 @@ public class UsagePointResource {
                     .stream()
                     .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
                     .filter(metrologyContract -> info.purposes.stream()
-                            .anyMatch(purpose -> metrologyContract.getMetrologyPurpose().getId() == purpose.id))
+                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
                     .filter(metrologyContract -> !metrologyContract.isMandatory())
                     .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range
                             .atLeast(effectiveMC.getStart())));

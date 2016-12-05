@@ -278,20 +278,19 @@ public class UsagePointOutputResource {
     }
 
     @PUT
-    @Path("/{purposeId}/activate")
+    @Path("/{contractId}/activate")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response activateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
+    public Response activateMetrologyContract(@PathParam("name") String name, @PathParam("contractId") long contractId, PurposeInfo purposeInfo) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyPurpose purpose = resourceHelper.findMetrologyPurposeOrThrowException(purposeId);
 
         MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts()
                 .stream()
                 .filter(mc -> !effectiveMC.getChannelsContainer(mc, clock.instant()).isPresent())
                 .filter(mc -> !mc.getDeliverables().isEmpty())
-                .filter(mc -> mc.getMetrologyPurpose().equals(purpose))
+                .filter(mc -> mc.getId() == contractId)
                 .filter(mc -> !mc.isMandatory())
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE));
@@ -304,14 +303,14 @@ public class UsagePointOutputResource {
 
 
     @PUT
-    @Path("/{purposeId}/deactivate")
+    @Path("/{contractId}/deactivate")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response deactivateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
+    public Response deactivateMetrologyContract(@PathParam("name") String name, @PathParam("contractId") long contractId, PurposeInfo purposeInfo) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, purposeId);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
         if (effectiveMC.getChannelsContainer(metrologyContract, clock.instant()).isPresent()) {
             effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, clock.instant());
         }
