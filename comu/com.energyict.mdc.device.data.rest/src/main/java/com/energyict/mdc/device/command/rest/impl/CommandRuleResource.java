@@ -1,7 +1,11 @@
 package com.energyict.mdc.device.command.rest.impl;
 
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -13,14 +17,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/commandrules")
 public class CommandRuleResource {
 
+    DeviceMessageSpecificationService deviceMessageSpecificationService;
+
 
     @Inject
-    public CommandRuleResource() {
-
+    public CommandRuleResource(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @GET
@@ -37,7 +45,21 @@ public class CommandRuleResource {
         return createDummyData(Math.toIntExact(id) + 1).get(Math.toIntExact(id));
     }
 
-    private List<CommandRuleInfo> createDummyData(int size) {
+    @GET
+    @Path("/commands")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response getCommands(@BeanParam JsonQueryFilter filter) {
+        List<CommandInfo> commands = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
+                .stream()
+                .map(DeviceMessageCategory::getMessageSpecifications)
+                .flatMap(List::stream)
+                .map(deviceMessageSpec -> new CommandInfo(deviceMessageSpec.getCategory().getName(), deviceMessageSpec.getName(), deviceMessageSpec.getId().name()))
+                .collect(Collectors.toList());
+
+        return Response.ok(commands).build();
+    }
+
+                                   private List<CommandRuleInfo> createDummyData(int size) {
         List<CommandRuleInfo> infos = new ArrayList<>();
         for(int i = 0; i < size; i++) {
             CommandRuleInfo info = new CommandRuleInfo();
@@ -57,11 +79,11 @@ public class CommandRuleResource {
             info.version = 1;
             for(int j = 0; j < 2; j++) {
                 if(i%2 == 0) {
-                    info.commands.add(new CommandInfo("Category " + i, "Command " + j));
-                    info.commands.add(new CommandInfo("Category " + i, "Command " + i));
+                    info.commands.add(new CommandInfo("Category " + i, "Command " + j, "test"));
+                    info.commands.add(new CommandInfo("Category " + i, "Command " + i, "test"));
                 }
                 int sum = i+j;
-                info.commands.add(new CommandInfo("Category " + j, "Command " + sum));
+                info.commands.add(new CommandInfo("Category " + j, "Command " + sum, "test"));
             }
             infos.add(info);
         }
