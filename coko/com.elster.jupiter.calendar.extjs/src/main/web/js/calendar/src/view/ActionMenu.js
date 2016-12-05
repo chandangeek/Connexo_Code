@@ -1,31 +1,38 @@
 Ext.define('Cal.view.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tou-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'activateDeactivate',
-            text: Uni.I18n.translate('general.deActivate', 'CAL', 'Deactivate'),
-            action: 'activateDeactivate',
-            privileges: Cal.privileges.Calendar.admin,
-            activateDeactivate: function(){
-                return this.record.get('status').id;
+    initComponent: function() {
+        this.items = [
+            {
+                itemId: 'activateDeactivate',
+                text: Uni.I18n.translate('general.deActivate', 'CAL', 'Deactivate'),
+                action: 'activateDeactivate',
+                privileges: Cal.privileges.Calendar.admin,
+                activateDeactivate: function(){
+                    return this.record.get('status').id;
+                }
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'view-preview-cal',
+                text: Uni.I18n.translate('general.viewPreview', 'CAL', 'View preview'),
+                action: 'viewpreview',
+                section: this.SECTION_VIEW
+            },
+            {
+                itemId: 'remove-preview-cal',
+                text: Uni.I18n.translate('general.remove', 'CAL', 'Remove'),
+                privileges: Cal.privileges.Calendar.admin,
+                action: 'remove',
+                visible: function () {
+                    return !this.record.get('inUse');
+                },
+                section: this.SECTION_REMOVE
             }
-        },
-        {
-            itemId: 'view-preview-cal',
-            text: Uni.I18n.translate('general.viewPreview', 'CAL', 'View preview'),
-            action: 'viewpreview'
-        },
-        {
-            itemId: 'remove-preview-cal',
-            text: Uni.I18n.translate('general.remove', 'CAL', 'Remove'),
-            privileges: Cal.privileges.Calendar.admin,
-            action: 'remove'
-        }
-    ],
+        ];
+        this.callParent(arguments);
+    },
+
     listeners: {
         beforeshow: function () {
             var me = this;
