@@ -105,7 +105,7 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
 
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
         Entity<LoadProfileSpecInfo> json = Entity.json(info);
-        TimeDuration interval = getRandomTimeDuration();
+        TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(1, "loadProfile", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
         LoadProfileSpec.LoadProfileSpecBuilder specBuilder = mock(LoadProfileSpec.LoadProfileSpecBuilder.class);
         LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(15);
