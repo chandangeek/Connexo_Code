@@ -560,7 +560,9 @@ public final class DeviceMessageConstants {
     public static final String DivisorAttributeName = "ChannelConfigurationDeviceMessage.divisor";
 
     public static final String SetSumMaskAttributeName = "TotalizersConfigurationDeviceMessage.setsummask";
+    public static final String SetSumMaskAttributeDefaultTranslation = "Sum mask";
     public static final String SetSubstractMaskAttributeName = "TotalizersConfigurationDeviceMessage.setsubstractmask";
+    public static final String SetSubstractMaskAttributeDefaultTranslation = "TotalizersConfigurationDeviceMessage.Subtract mask";
 
     public static final String SetActiveChannelAttributeName = "PeakShaverConfigurationDeviceMessage.setactivechannel";
     public static final String SetReactiveChannelAttributeName = "PeakShaverConfigurationDeviceMessage.setreactivechannel";
