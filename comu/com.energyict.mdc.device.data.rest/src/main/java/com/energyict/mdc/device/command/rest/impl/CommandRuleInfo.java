@@ -1,7 +1,12 @@
 package com.energyict.mdc.device.command.rest.impl;
 
+import com.energyict.mdc.device.command.CommandRule;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandRuleInfo {
     public long id;
@@ -13,4 +18,20 @@ public class CommandRuleInfo {
     public String statusMessage;
     public long version;
     public List<CommandInfo> commands = new ArrayList<>();
+
+    static CommandRuleInfo from(CommandRule commandRule) {
+        CommandRuleInfo commandRuleInfo = new CommandRuleInfo();
+        commandRuleInfo.id = commandRule.getId();
+        commandRuleInfo.name = commandRule.getName();
+        commandRuleInfo.dayLimit = commandRule.getDayLimit();
+        commandRuleInfo.weekLimit = commandRule.getWeekLimit();
+        commandRuleInfo.monthLimit = commandRule.getMonthLimit();
+        commandRuleInfo.version = commandRule.getVersion();
+        commandRuleInfo.commands = commandRule.getCommands()
+                .stream()
+                .map(commandInRule -> new CommandInfo(commandInRule.getCommand().getCategory().getName(), commandInRule.getCommand().getName(), commandInRule.getCommand().getId().name()))
+                .collect(Collectors.toList());
+
+        return commandRuleInfo;
+    }
 }

@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.crr.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/crr", "app=MDC", "name=" + CommandApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.device.command.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/crr", "app=MDC", "name=" + CommandApplication.COMPONENT_NAME})
 public class CommandApplication extends javax.ws.rs.core.Application implements TranslationKeyProvider, MessageSeedProvider{
 
     public static final String APP_KEY = "MDC";
@@ -69,10 +69,10 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-//    @Reference
-//    public void setCommandRuleService(CommandRuleService commandRuleService) {
-//        this.commandRuleService = commandRuleService;
-//    }
+    @Reference
+    public void setCommandRuleService(CommandRuleService commandRuleService) {
+        this.commandRuleService = commandRuleService;
+    }
 
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
@@ -110,7 +110,7 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
-//            bind(commandRuleService).to(CommandRuleService.class);
+            bind(commandRuleService).to(CommandRuleService.class);
         }
     }
 }

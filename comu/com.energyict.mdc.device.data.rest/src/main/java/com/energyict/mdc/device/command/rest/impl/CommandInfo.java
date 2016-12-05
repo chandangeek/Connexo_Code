@@ -5,6 +5,10 @@ public class CommandInfo {
     public String command;
     public String commandName;
 
+    public CommandInfo() {
+
+    }
+
     public CommandInfo(String category, String command, String commandName) {
         this.category = category;
         this.command = command;
