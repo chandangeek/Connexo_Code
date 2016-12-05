@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.util.hypermedia.doc;
+package com.elster.jupiter.rest.api.util.v1.hypermedia.doc;
 
 /**
  * Interface used to instruct Miredot how to generate doc for javax.ws.rs.core.Link

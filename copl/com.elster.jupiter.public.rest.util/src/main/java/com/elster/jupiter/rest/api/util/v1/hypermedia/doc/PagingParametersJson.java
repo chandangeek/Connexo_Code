@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.util.hypermedia.doc;
+package com.elster.jupiter.rest.api.util.v1.hypermedia.doc;
 
 import javax.ws.rs.QueryParam;
 

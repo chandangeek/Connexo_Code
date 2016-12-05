@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.util.hypermedia;
+package com.elster.jupiter.rest.api.util.v1.hypermedia;
 
 import com.elster.jupiter.domain.util.QueryParameters;
 

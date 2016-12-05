@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.util.hypermedia;
+package com.elster.jupiter.rest.api.util.v1.hypermedia;
 
 import javax.ws.rs.core.Link;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

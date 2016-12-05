@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.util.hypermedia;
+package com.elster.jupiter.rest.api.util;
 
 public enum Roles {
     DEVELOPER("Developer", "Grants access to public rest api");

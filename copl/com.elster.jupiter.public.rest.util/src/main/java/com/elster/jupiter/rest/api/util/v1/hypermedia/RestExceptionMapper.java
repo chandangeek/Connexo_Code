@@ -1,13 +1,11 @@
-package com.elster.jupiter.rest.util.hypermedia;
+package com.elster.jupiter.rest.api.util.v1.hypermedia;
 
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-
 
 public class RestExceptionMapper implements ExceptionMapper<ExceptionFactory.RestException> {
 
@@ -22,7 +20,7 @@ public class RestExceptionMapper implements ExceptionMapper<ExceptionFactory.Res
     public Response toResponse(ExceptionFactory.RestException exception) {
         ConstraintViolationInfo constraintViolationInfo = infoProvider.get();
         constraintViolationInfo.message = exception.getLocalizedMessage();
-        constraintViolationInfo.error = exception.getMessage();
+        constraintViolationInfo.error = exception.getMessageSeed().getKey();
 
         return Response.status(exception.getStatus()).entity(constraintViolationInfo).build();
     }
