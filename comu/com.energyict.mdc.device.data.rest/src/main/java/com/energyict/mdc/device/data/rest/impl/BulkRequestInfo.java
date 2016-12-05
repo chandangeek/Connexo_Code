@@ -11,4 +11,5 @@ public class BulkRequestInfo {
     public List<Long> deviceIds;
     public List<Long> scheduleIds;
     public long newDeviceConfiguration;
+    public String strategy;
 }

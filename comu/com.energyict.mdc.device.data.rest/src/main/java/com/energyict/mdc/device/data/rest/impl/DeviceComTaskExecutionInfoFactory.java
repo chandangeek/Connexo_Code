@@ -48,15 +48,7 @@ public class DeviceComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoF
     }
 
     private ComTask getComTask(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution.getComTasks().size() == 1) {
-            return comTaskExecution.getComTasks().get(0);
-        }
-        List<ComTaskEnablement> comTaskEnablements = comTaskExecution.getDevice().getDeviceConfiguration().getComTaskEnablements();
-        return comTaskEnablements.stream()
-                .map(ComTaskEnablement::getComTask)
-                .filter(ct -> CollectionUtil.contains(comTaskExecution.getComTasks(), ct))
-                .findFirst()
-                .orElse(null);
+        return comTaskExecution.getComTask();
     }
 
 }
