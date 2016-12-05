@@ -13,6 +13,16 @@ public class UsagePointLifeCycleInfoFactory {
         this.stateInfoFactory = stateInfoFactory;
     }
 
+    public UsagePointLifeCycleInfo shortInfo(UsagePointLifeCycle lifeCycle) {
+        UsagePointLifeCycleInfo info = new UsagePointLifeCycleInfo();
+        info.id = lifeCycle.getId();
+        info.name = lifeCycle.getName();
+        info.version = lifeCycle.getVersion();
+        info.obsolete = lifeCycle.isObsolete();
+        info.isDefault = lifeCycle.isDefault();
+        return info;
+    }
+
     public UsagePointLifeCycleInfo from(UsagePointLifeCycle lifeCycle) {
         UsagePointLifeCycleInfo info = new UsagePointLifeCycleInfo();
         info.id = lifeCycle.getId();
