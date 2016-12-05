@@ -45,6 +45,8 @@ import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -213,13 +215,14 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                             DateTimeFormatGenerator.Mode.LONG,
                             this.userService.getUserPreferencesService(),
                             getCurrentUser());
+                    MessageSeed seed;
                     if (changeRequest.getStatus() == UsagePointStateChangeRequest.Status.COMPLETED) {
-                        throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.TRANSITION_DATE_MUST_BE_GREATER_THAN_LATEST_STATE_CHANGE)
-                                .format(dateTimeFormatter.format(transitionTime)));
+                        seed = MessageSeeds.TRANSITION_DATE_MUST_BE_GREATER_THAN_LATEST_STATE_CHANGE;
                     } else {
-                        throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.TRANSITION_ALREADY_PLANNED_FOR_USAGE_POINT)
-                                .format(dateTimeFormatter.format(transitionTime)));
+                        seed = MessageSeeds.TRANSITION_ALREADY_PLANNED_FOR_USAGE_POINT;
                     }
+                    throw new BadUsagePointTransitionTimeException(this.thesaurus, seed,
+                            dateTimeFormatter.format(LocalDateTime.ofInstant(changeRequest.getTransitionTime(), ZoneId.systemDefault())));
                 });
     }
 
