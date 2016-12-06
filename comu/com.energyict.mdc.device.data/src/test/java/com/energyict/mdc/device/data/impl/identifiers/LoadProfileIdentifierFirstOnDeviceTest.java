@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;

@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.meterdata.ResultType;
 
 import java.util.Arrays;
 import java.util.Comparator;

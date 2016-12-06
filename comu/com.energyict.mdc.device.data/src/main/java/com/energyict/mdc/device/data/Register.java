@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 

@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;

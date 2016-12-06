@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.data.impl.configchange.ServerLogBookForConfigChange;
 import com.google.common.collect.Range;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;

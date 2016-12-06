@@ -46,7 +46,6 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -54,6 +53,7 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;

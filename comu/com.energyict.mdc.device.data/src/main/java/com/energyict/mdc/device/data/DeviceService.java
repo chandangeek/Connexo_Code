@@ -6,7 +6,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;

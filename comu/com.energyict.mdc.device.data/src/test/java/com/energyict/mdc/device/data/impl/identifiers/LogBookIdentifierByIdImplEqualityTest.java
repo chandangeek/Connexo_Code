@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import org.junit.BeforeClass;
