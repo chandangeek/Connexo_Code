@@ -50,5 +50,7 @@ public interface Issue extends Entity {
 
     void assignTo(IssueAssignee assignee);
 
+    void assignTo(String type, long id);
+
     void autoAssign();
 }

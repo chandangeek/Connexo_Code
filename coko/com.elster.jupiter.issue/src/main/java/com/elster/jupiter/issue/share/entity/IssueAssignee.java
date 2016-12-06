@@ -12,4 +12,14 @@ public interface IssueAssignee {
     WorkGroup getWorkGroup();
     void setUser(User user);
     void setWorkGroup(WorkGroup workGroup);
+    long getId();
+    String getType();
+    String getName();
+    long getVersion();
+
+    public static class Types {
+        private Types(){}
+
+        public static final String USER = "USER";
+    }
 }

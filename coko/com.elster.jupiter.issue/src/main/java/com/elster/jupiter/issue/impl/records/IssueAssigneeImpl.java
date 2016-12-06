@@ -36,4 +36,24 @@ public class IssueAssigneeImpl implements IssueAssignee {
     public void setWorkGroup(WorkGroup workGroup) {
         this.workGroup = workGroup;
     }
+
+    @Override
+    public long getId() {
+        return user.getId();
+    }
+
+    @Override
+    public String getType() {
+        return Types.USER;
+    }
+
+    @Override
+    public String getName() {
+        return user.getName();
+    }
+
+    @Override
+    public long getVersion() {
+        return user.getVersion();
+    }
 }

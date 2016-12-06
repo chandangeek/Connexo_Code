@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -106,5 +107,9 @@ public interface IssueService {
     IssueFilter newIssueFilter();
 
     IssueGroupFilter newIssueGroupFilter();
+
+    boolean checkIssueAssigneeType(String type);
+
+    Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id);
 
 }

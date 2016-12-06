@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl;
 
 import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.AssigneeDetails;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private Set<String> statuses;
     private String groupBy;
     private List<Long> userAssignees;
+    private String meterName;
     private List<Long> workGroupAssignees;
     private String mrid;
     private Set<String> issueTypes;
@@ -142,6 +144,11 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     }
 
     @Override
+    public IssueGroupFilter withAssignee(long id, String type){
+        return this.withUserAssignee(id);
+    }
+
+    @Override
     public List<Long> getUserAssignees() {
         return this.userAssignees;
     }
@@ -154,6 +161,11 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     @Override
     public List<DueDateRange> getDueDates() {
         return this.dueDates;
+    }
+
+    @Override
+    public List<AssigneeDetails> getAssignees() {
+        return userAssignees.stream().map(userId -> new AssigneeDetails(userId, "USER")).collect(Collectors.toList());
     }
 
     @Override
@@ -178,6 +190,17 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     @Override
     public IssueGroupFilter withDueDate(long startTime, long endTime) {
         this.dueDates.add(new DueDateRange(startTime, endTime));
+        return this;
+    }
+
+    @Override
+    public String getMeterName() {
+        return meterName;
+    }
+
+    @Override
+    public IssueGroupFilterImpl withMeterName(String name) {
+        this.meterName = name;
         return this;
     }
 

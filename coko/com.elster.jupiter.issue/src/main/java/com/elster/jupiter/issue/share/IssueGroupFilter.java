@@ -1,11 +1,14 @@
 package com.elster.jupiter.issue.share;
 
+import com.elster.jupiter.issue.share.entity.AssigneeDetails;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collection;
 import java.util.List;
 
-
+@ProviderType
 public interface IssueGroupFilter {
 
     Object getGroupKey();
@@ -38,13 +41,21 @@ public interface IssueGroupFilter {
 
     IssueGroupFilter withUserAssignee(long id);
 
+    IssueGroupFilter withAssignee(long id, String type);
+
     IssueGroupFilter withWorkGroupAssignee(long id);
+
+    String getMeterName();
+
+    IssueGroupFilter withMeterName(String name);
 
     List<Long> getUserAssignees();
 
     List<Long> getWorkGroupAssignees();
 
     List<DueDateRange> getDueDates();
+
+    List<AssigneeDetails> getAssignees();
 
     String getMeterMrid();
 

@@ -24,6 +24,7 @@ import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -435,6 +436,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
+    public Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id) {
+        return Optional.of(findIssueAssignee(id, null));
+    }
+
+    @Override
     public IssueStatus createStatus(String key, boolean isHistorical, TranslationKey translationKey) {
         if (findStatus(key).isPresent()) {
             throw new NotUniqueKeyException(thesaurus, key);
@@ -564,6 +570,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public IssueGroupFilter newIssueGroupFilter() {
         return new IssueGroupFilterImpl();
+    }
+
+    @Override
+    public boolean checkIssueAssigneeType(String type) {
+        return true;
     }
 
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {

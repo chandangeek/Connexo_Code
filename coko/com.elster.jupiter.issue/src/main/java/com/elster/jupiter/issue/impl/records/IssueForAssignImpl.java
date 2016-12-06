@@ -95,4 +95,11 @@ public class IssueForAssignImpl implements IssueForAssign{
         issue.assignTo(userId, workGroup);
         issue.update();
     }
+
+    @Override
+    public void assignTo(String type, long assigneeId){
+        isProcessed = true;
+        issue.assignTo(assigneeId, null);
+        issue.update();
+    }
 }

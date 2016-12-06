@@ -187,6 +187,11 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
+    public void assignTo(String type, long id){
+        assignTo(id, null);
+    }
+
+    @Override
     public void autoAssign() {
         IssueForAssign wrapper = new IssueForAssignImpl(this, Instant.now(clock));
         issueAssignmentService.assignIssue(Collections.singletonList(wrapper));
