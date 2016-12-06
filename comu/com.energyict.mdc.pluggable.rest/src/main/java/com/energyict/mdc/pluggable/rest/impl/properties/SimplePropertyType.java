@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.ean.Ean13;
