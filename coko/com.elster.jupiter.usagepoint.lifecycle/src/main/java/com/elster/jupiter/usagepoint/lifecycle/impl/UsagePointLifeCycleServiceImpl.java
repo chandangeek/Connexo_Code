@@ -178,18 +178,48 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         };
     }
 
+    private DateTimeFormatter getDateTimeFormatter() {
+        return DateTimeFormatGenerator.getDateFormatForUser(
+                DateTimeFormatGenerator.Mode.LONG,
+                DateTimeFormatGenerator.Mode.LONG,
+                this.userService.getUserPreferencesService(),
+                getCurrentUser());
+    }
+
     @Override
     public UsagePointStateChangeRequest performTransition(UsagePoint usagePoint, UsagePointTransition transition, String application, Map<String, Object> properties) {
-        Instant transitionTime = this.clock.instant();
-        checkTransitionPossibility(usagePoint, transitionTime);
-        return this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
-                .init(usagePoint, transition, transitionTime, application, properties)
-                .execute();
+        return scheduleTransition(usagePoint, transition, this.clock.instant(), application, properties);
     }
 
     @Override
     public UsagePointStateChangeRequest scheduleTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
-        checkTransitionPossibility(usagePoint, transitionTime);
+        return getFailedRequestIfTransitionCanNotBePerformed(usagePoint, transition, transitionTime)
+                .orElseGet(() -> executeOrScheduleChangeRequest(usagePoint, transition, transitionTime, application, properties));
+    }
+
+    private Optional<UsagePointStateChangeRequest> getFailedRequestIfTransitionCanNotBePerformed(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
+        return this.dataModel.query(UsagePointStateChangeRequest.class)
+                .select(where(UsagePointStateChangeRequestImpl.Fields.STATUS.fieldName())
+                                .in(Arrays.asList(UsagePointStateChangeRequest.Status.SCHEDULED, UsagePointStateChangeRequest.Status.COMPLETED))
+                                .and(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint))
+                                .and(where(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName()).isGreaterThanOrEqual(transitionTime)),
+                        new Order[]{Order.ascending(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName())}, false, new String[0], 1, 2)
+                .stream()
+                .findFirst()
+                .map(changeRequest -> {
+                    MessageSeed seed;
+                    if (changeRequest.getStatus() == UsagePointStateChangeRequest.Status.COMPLETED) {
+                        seed = MessageSeeds.TRANSITION_DATE_MUST_BE_GREATER_THAN_LATEST_STATE_CHANGE;
+                    } else {
+                        seed = MessageSeeds.TRANSITION_ALREADY_PLANNED_FOR_USAGE_POINT;
+                    }
+                    return this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
+                            .initAsFailRecord(usagePoint, transition, transitionTime,
+                                    this.thesaurus.getFormat(seed).format(getDateTimeFormatter().format(LocalDateTime.ofInstant(changeRequest.getTransitionTime(), ZoneId.systemDefault()))));
+                });
+    }
+
+    private UsagePointStateChangeRequest executeOrScheduleChangeRequest(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
         UsagePointStateChangeRequestImpl changeRequest = this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
                 .init(usagePoint, transition, transitionTime, application, properties);
         if (!this.clock.instant().isBefore(transitionTime)) {
@@ -200,32 +230,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         return changeRequest;
     }
 
-    private void checkTransitionPossibility(UsagePoint usagePoint, Instant transitionTime) {
-        this.dataModel.query(UsagePointStateChangeRequest.class)
-                .select(where(UsagePointStateChangeRequestImpl.Fields.STATUS.fieldName())
-                                .in(Arrays.asList(UsagePointStateChangeRequest.Status.SCHEDULED, UsagePointStateChangeRequest.Status.COMPLETED))
-                                .and(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint))
-                                .and(where(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName()).isGreaterThanOrEqual(transitionTime)),
-                        new Order[]{Order.ascending(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName())}, false, new String[0], 1, 2)
-                .stream()
-                .findFirst()
-                .ifPresent(changeRequest -> {
-                    DateTimeFormatter dateTimeFormatter = DateTimeFormatGenerator.getDateFormatForUser(
-                            DateTimeFormatGenerator.Mode.LONG,
-                            DateTimeFormatGenerator.Mode.LONG,
-                            this.userService.getUserPreferencesService(),
-                            getCurrentUser());
-                    MessageSeed seed;
-                    if (changeRequest.getStatus() == UsagePointStateChangeRequest.Status.COMPLETED) {
-                        seed = MessageSeeds.TRANSITION_DATE_MUST_BE_GREATER_THAN_LATEST_STATE_CHANGE;
-                    } else {
-                        seed = MessageSeeds.TRANSITION_ALREADY_PLANNED_FOR_USAGE_POINT;
-                    }
-                    throw new BadUsagePointTransitionTimeException(this.thesaurus, seed,
-                            dateTimeFormatter.format(LocalDateTime.ofInstant(changeRequest.getTransitionTime(), ZoneId.systemDefault())));
-                });
-    }
-
+    @Override
     public User getCurrentUser() {
         Principal currentUser = this.threadPrincipalService.getPrincipal();
         if (currentUser instanceof User) {
@@ -261,6 +266,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     @Override
     public void triggerMicroChecks(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
         List<ExecutableMicroCheckViolation> violations = transition.getChecks().stream()
+                .filter(check -> check instanceof ExecutableMicroCheck)
                 .map(ExecutableMicroCheck.class::cast)
                 .map(check -> check.execute(usagePoint, transitionTime))
                 .filter(Optional::isPresent)
@@ -274,6 +280,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     @Override
     public void triggerMicroActions(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, Map<String, Object> properties) {
         transition.getActions().stream()
+                .filter(action -> action instanceof ExecutableMicroAction)
                 .map(ExecutableMicroAction.class::cast)
                 .forEach(action -> action.execute(usagePoint, transitionTime, properties));
     }

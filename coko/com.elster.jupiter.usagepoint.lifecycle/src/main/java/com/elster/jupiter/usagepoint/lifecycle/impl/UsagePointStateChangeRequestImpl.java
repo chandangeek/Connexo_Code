@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRequest {
     public enum Fields {
@@ -119,6 +117,18 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         this.scheduleTime = this.clock.instant();
         this.originator.set(this.lifeCycleService.getCurrentUser());
         this.dataModel.persist(this);
+        return this;
+    }
+
+    UsagePointStateChangeRequestImpl initAsFailRecord(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String failReason) {
+        this.status = Status.FAILED;
+        this.transitionId = transition.getId();
+        this.transition = transition;
+        this.fromStateName = transition.getFrom().getName();
+        this.toStateName = transition.getTo().getName();
+        this.usagePoint.set(usagePoint);
+        this.transitionTime = transitionTime;
+        this.generalFailReason = failReason;
         return this;
     }
 
@@ -229,13 +239,10 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     @Override
-    public Set<String> getPrivileges() {
-        if (transitionExistsAndCanBeFetched()) {
-            return this.transition.getLevels().stream()
-                    .map(UsagePointTransition.Level::getPrivilege)
-                    .collect(Collectors.toSet());
-        }
-        return Collections.emptySet();
+    public boolean userCanManageRequest(String application) {
+        return this.status == Status.SCHEDULED
+                && transitionExistsAndCanBeFetched()
+                && userHasPrivilegeToPerformTransition(this.lifeCycleService.getCurrentUser(), this.transition, application);
     }
 
     @Override
