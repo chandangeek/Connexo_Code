@@ -78,6 +78,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('transitionBusinessProcess.entry', 'IMT', 'Processes on entry'),
                     itemId: 'processesOnEntryContainer',
+                    hidden: true, //temporarily
                     required: false,
                     msgTarget: 'under',
                     layout: 'hbox',
@@ -141,6 +142,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('transitionBusinessProcess.exit', 'IMT', 'Processes on exit'),
                     itemId: 'processesOnExitContainer',
+                    hidden: true, //temporarily
                     required: false,
                     msgTarget: 'under',
                     layout: 'hbox',

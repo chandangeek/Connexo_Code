@@ -16,8 +16,8 @@ Ext.define('Imt.usagepointlifecyclestates.model.UsagePointLifeCycleState', {
                 return data.name;
             }
         },
-        {name: 'onEntry', type: 'auto', defaultValue: []},
-        {name: 'onExit', type: 'auto', defaultValue: []}
+        {name: 'onEntry', type: 'auto', defaultValue: [], persist: false},
+        {name: 'onExit', type: 'auto', defaultValue: [], persist: false}
     ],
     proxy: {
         type: 'rest',

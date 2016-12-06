@@ -36,6 +36,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.PreviewForm', {
                 xtype: 'fieldcontainer',
                 itemId: 'entry-field-container',
                 fieldLabel: Uni.I18n.translate('transitionBusinessProcess.entry', 'IMT', 'Processes on entry'),
+                hidden: true, //temporarily
                 items: [
                     {
                         xtype: 'container',
@@ -47,6 +48,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.PreviewForm', {
                 xtype: 'fieldcontainer',
                 itemId: 'exit-field-container',
                 fieldLabel: Uni.I18n.translate('transitionBusinessProcess.exit', 'IMT', 'Processes on exit'),
+                hidden: true, //temporarily
                 items: [
                     {
                         xtype: 'container',
