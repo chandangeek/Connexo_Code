@@ -5,7 +5,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
         'Uni.form.field.Duration',
         'Imt.usagepointmanagement.view.forms.fields.DisplayFieldWithIcon',
         'Uni.form.field.Coordinates',
-        'Uni.form.field.Location'
+        'Uni.form.field.Location',
+        'Imt.usagepointmanagement.view.forms.fields.UsagePointTypeDisplayField'
     ],
     router: null,
 
@@ -64,18 +65,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 }
             },
             {
+                xtype: 'usagepointtypedisplayfield',
                 name: 'typeOfUsagePoint',
                 itemId: 'fld-up-typeOfUsagePoint',
-                fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point'),
-                renderer: function (value) {
-                    var result;
-
-                    if (!Ext.isEmpty(value)) {
-                        result = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').findRecord('name', value).get('displayName');
-                    }
-
-                    return result || '-';
-                }
+                fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point')
             },
             {
                 itemId: 'fld-up-life-cycle',
@@ -176,15 +169,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 locationDetailsUrl: '/api/udr/usagepoints/locations'
             },
             {
-                xtype: 'displayfield',
+                xtype: 'usagepointtypedisplayfield',
                 name: 'typeOfUsagePoint',
                 itemId: 'fld-up-typeOfUsagePoint',
-                fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point'),
-                renderer: function (data) {
-                    var value;
-                    value = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').findRecord('name', data);
-                    return value.get('displayName');
-                }
+                fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point')
             },
             {
                 xtype: 'displayfield',
