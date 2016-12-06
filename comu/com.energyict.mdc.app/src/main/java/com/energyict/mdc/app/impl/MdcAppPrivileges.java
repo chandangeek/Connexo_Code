@@ -74,6 +74,11 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI,
 
+
+                //CommandRules
+                com.energyict.mdc.device.command.security.Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,
+                com.energyict.mdc.device.command.security.Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE,
+
                 //mdc.device.config
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
@@ -173,5 +178,6 @@ class MdcAppPrivileges {
 
                 //service category
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY);
+
     }
 }

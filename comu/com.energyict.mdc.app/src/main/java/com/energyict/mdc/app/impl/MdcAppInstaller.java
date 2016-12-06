@@ -158,6 +158,9 @@ public class MdcAppInstaller {
                     //Device groups
                     com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL,
 
+                    //CommandRules
+                    com.energyict.mdc.device.command.security.Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,
+
                     //Device life cycle
                     com.energyict.mdc.device.lifecycle.config.Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE,
 
