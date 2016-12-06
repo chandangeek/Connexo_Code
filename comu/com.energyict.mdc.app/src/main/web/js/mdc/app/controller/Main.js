@@ -30,7 +30,8 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.UsagePoint',
         'Scs.privileges.ServiceCall',
         'Mdc.privileges.Monitor',
-        'Mdc.privileges.MetrologyConfiguration'
+        'Mdc.privileges.MetrologyConfiguration',
+        'Mdc.privileges.CommandLimitationRules'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
@@ -64,7 +65,8 @@ Ext.define('MdcApp.controller.Main', {
         Mdc.privileges.UsagePoint.all(),
         Scs.privileges.ServiceCall.all(),
         Mdc.privileges.Monitor.all(),
-        Mdc.privileges.MetrologyConfiguration.all()
+        Mdc.privileges.MetrologyConfiguration.all(),
+        Mdc.privileges.CommandLimitationRules.all()
     ),
     controllers: [
         'Sam.controller.Main',
