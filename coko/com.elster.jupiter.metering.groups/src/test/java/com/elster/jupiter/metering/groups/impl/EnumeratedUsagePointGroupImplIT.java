@@ -43,11 +43,11 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.Month;
 import java.time.Year;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -148,10 +148,12 @@ public class EnumeratedUsagePointGroupImplIT {
     public void testUsagePointDeletionHandler() {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+        Clock clock = injector.getInstance(Clock.class);
+
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usage point", Instant.EPOCH).create();
         EnumeratedUsagePointGroup enumeratedUsagePointGroup = meteringGroupsService.createEnumeratedUsagePointGroup(usagePoint).setName("test").create();
-        Instant activeMemberTime = Instant.now();
+        Instant activeMemberTime = clock.instant().minusMillis(1);
         assertThat(enumeratedUsagePointGroup.getMemberCount(activeMemberTime)).isEqualTo(1);
         usagePoint.makeObsolete();
 
@@ -164,7 +166,7 @@ public class EnumeratedUsagePointGroupImplIT {
 
         // Assert
         enumeratedUsagePointGroup = meteringGroupsService.findEnumeratedUsagePointGroup(enumeratedUsagePointGroup.getId()).get();
-        Instant inactiveMemberTime = Instant.now().plus(1, ChronoUnit.SECONDS);
+        Instant inactiveMemberTime = clock.instant().plusMillis(1);
 
         assertThat(enumeratedUsagePointGroup.getMemberCount(inactiveMemberTime)).isEqualTo(0);
         assertThat(enumeratedUsagePointGroup.getMembers(inactiveMemberTime)).isEmpty();

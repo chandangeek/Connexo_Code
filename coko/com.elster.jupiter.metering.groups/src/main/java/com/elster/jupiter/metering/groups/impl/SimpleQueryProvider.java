@@ -7,7 +7,6 @@ import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 abstract class SimpleQueryProvider<T> implements QueryProvider<T> {
@@ -27,19 +26,23 @@ abstract class SimpleQueryProvider<T> implements QueryProvider<T> {
 
     @Override
     public List<T> executeQuery(Instant instant, List<SearchablePropertyCondition> conditions, int start, int limit) {
-        Optional<Condition> condition = conditions.stream().map(SearchablePropertyCondition::getCondition).reduce(Condition::and);
+        Condition condition = wrapConditions(conditions);
         if (start > -1) {
-            return basicQuerySupplier.get().select(condition.orElse(Condition.TRUE), start + 1, start + limit + 1);
+            return basicQuerySupplier.get().select(condition, start + 1, start + limit + 1);
         } else {
-            return basicQuerySupplier.get().select(condition.orElse(Condition.TRUE));
+            return basicQuerySupplier.get().select(condition);
         }
     }
 
     @Override
     public Query<T> getQuery(List<SearchablePropertyCondition> conditions) {
-        Optional<Condition> condition = conditions.stream().map(SearchablePropertyCondition::getCondition).reduce(Condition::and);
+        Condition condition = wrapConditions(conditions);
         Query<T> basicQuery = basicQuerySupplier.get();
-        basicQuery.setRestriction(condition.orElse(Condition.TRUE));
+        basicQuery.setRestriction(condition);
         return basicQuery;
+    }
+
+    Condition wrapConditions(List<SearchablePropertyCondition> conditions) {
+        return conditions.stream().map(SearchablePropertyCondition::getCondition).reduce(Condition::and).orElse(Condition.TRUE);
     }
 }
