@@ -74,6 +74,7 @@ public class UsagePointMicroCheckFactoryImpl implements UsagePointMicroCheckFact
 
     private void addMicroCheckMappings() {
         addMicroCheckMapping(MetrologyConfigurationIsDefinedCheck.class);
+        addMicroCheckMapping(MeterRolesAreSpecifiedCheck.class);
     }
 
     private void addMicroCheckMapping(Class<? extends ExecutableMicroCheck> clazz) {

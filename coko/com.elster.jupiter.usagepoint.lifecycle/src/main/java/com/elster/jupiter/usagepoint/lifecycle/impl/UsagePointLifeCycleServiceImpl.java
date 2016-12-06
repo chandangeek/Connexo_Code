@@ -31,6 +31,7 @@ import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslati
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -199,10 +200,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
 
     private Optional<UsagePointStateChangeRequest> getFailedRequestIfTransitionCanNotBePerformed(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime) {
         return this.dataModel.query(UsagePointStateChangeRequest.class)
-                .select(where(UsagePointStateChangeRequestImpl.Fields.STATUS.fieldName())
-                                .in(Arrays.asList(UsagePointStateChangeRequest.Status.SCHEDULED, UsagePointStateChangeRequest.Status.COMPLETED))
-                                .and(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint))
-                                .and(where(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName()).isGreaterThanOrEqual(transitionTime)),
+                .select(selectSuccessfulStateChangesForUsagePointAfter(usagePoint, transitionTime).or(selectScheduledStateChangesForUsagePoint(usagePoint)),
                         new Order[]{Order.ascending(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName())}, false, new String[0], 1, 2)
                 .stream()
                 .findFirst()
@@ -217,6 +215,17 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                             .initAsFailRecord(usagePoint, transition, transitionTime,
                                     this.thesaurus.getFormat(seed).format(getDateTimeFormatter().format(LocalDateTime.ofInstant(changeRequest.getTransitionTime(), ZoneId.systemDefault()))));
                 });
+    }
+
+    private Condition selectSuccessfulStateChangesForUsagePointAfter(UsagePoint usagePoint, Instant transitionTime) {
+        return where(UsagePointStateChangeRequestImpl.Fields.STATUS.fieldName()).isEqualTo(UsagePointStateChangeRequest.Status.COMPLETED)
+                .and(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint))
+                .and(where(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName()).isGreaterThanOrEqual(transitionTime));
+    }
+
+    private Condition selectScheduledStateChangesForUsagePoint(UsagePoint usagePoint) {
+        return where(UsagePointStateChangeRequestImpl.Fields.STATUS.fieldName()).isEqualTo(UsagePointStateChangeRequest.Status.SCHEDULED)
+                .and(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint));
     }
 
     private UsagePointStateChangeRequest executeOrScheduleChangeRequest(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
