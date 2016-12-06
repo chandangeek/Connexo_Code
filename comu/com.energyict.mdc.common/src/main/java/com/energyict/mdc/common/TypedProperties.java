@@ -1,11 +1,7 @@
 package com.energyict.mdc.common;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * TypedProperties model a set of dynamic properties.
@@ -20,18 +16,22 @@ import java.util.Set;
  * @author Joost Bruneel (jbr), Rudi Vankeirsbilck (rudi)
  * @since 2012-05-10 (14:11)
  */
-public class TypedProperties {
+public class TypedProperties implements com.energyict.mdc.upl.properties.TypedProperties {
 
     private Map<String, Object> props = new HashMap<>();
     private TypedProperties inheritedProperties;
     private UnmodifiableTypedProperties unmodifiableView;
+
+    protected TypedProperties() {
+        super();
+    }
 
     /**
      * Returns a new empty TypedProperties.
      *
      * @return The empty TypedProperties
      */
-    public static TypedProperties empty () {
+    public static TypedProperties empty() {
         return new TypedProperties();
     }
 
@@ -44,7 +44,7 @@ public class TypedProperties {
      * @param inheritedProperties The set of properties that will be inherited
      * @return The TypedProperties with inherited properties of which none have been overrule yet
      */
-    public static TypedProperties inheritingFrom (TypedProperties inheritedProperties) {
+    public static TypedProperties inheritingFrom(TypedProperties inheritedProperties) {
         TypedProperties typedProperties = empty();
         typedProperties.inheritedProperties = inheritedProperties;
         return typedProperties;
@@ -57,12 +57,11 @@ public class TypedProperties {
      * @param other The other TypedProperties
      * @return The copy of the TypedProperties
      */
-    public static TypedProperties copyOf (TypedProperties other) {
+    public static TypedProperties copyOf(TypedProperties other) {
         TypedProperties typedProperties;
         if (other.getInheritedProperties() == null) {
             typedProperties = empty();
-        }
-        else {
+        } else {
             typedProperties = inheritingFrom(other.getInheritedProperties());
         }
         typedProperties.setAllProperties(other);
@@ -80,16 +79,12 @@ public class TypedProperties {
      * @param simpleProperties The other TypedProperties
      * @return The copy of the TypedProperties
      */
-    public static TypedProperties copyOf (Properties simpleProperties) {
+    public static TypedProperties copyOf(Properties simpleProperties) {
         TypedProperties typedProperties = empty();
         for (Object key : simpleProperties.keySet()) {
             typedProperties.setProperty((String) key, simpleProperties.getProperty((String) key));
         }
         return typedProperties;
-    }
-
-    protected TypedProperties() {
-        super();
     }
 
     /**
@@ -99,7 +94,7 @@ public class TypedProperties {
      * the value of the property is removed.
      *
      * @param propertyName The name of the property for which a value is set
-     * @param value The value
+     * @param value        The value
      * @see #removeProperty(String)
      */
     public void setProperty(String propertyName, Object value) {
@@ -112,8 +107,46 @@ public class TypedProperties {
      *
      * @param otherTypedProperties The other TypedProperties from which value are copied
      */
-    public void setAllProperties (TypedProperties otherTypedProperties) {
+    public void setAllProperties(TypedProperties otherTypedProperties) {
+        this.setAllProperties(otherTypedProperties, false);
+    }
+
+    /**
+     * Sets all the properties that are defined by the other
+     * TypedProperties, and optionally from its inherited values).
+     *
+     * @param otherTypedProperties       The other TypedProperties from which value are copied
+     * @param includeInheritedProperties boolean indicating whether or not the inherited values should be set as well -
+     *                                   if true, the inherited properties are added <b>as local</b> property of this instance
+     */
+    private void setAllProperties(TypedProperties otherTypedProperties, boolean includeInheritedProperties) {
+        /* If needed, first we add the inherited properties, then the local (so we can overwrite the inherited) */
+        if (includeInheritedProperties && otherTypedProperties.getInheritedProperties() != null) {
+            this.setAllProperties(otherTypedProperties.getInheritedProperties(), true);
+        }
+
+        //Now add the local properties
         this.props.putAll(otherTypedProperties.props);
+    }
+
+    @Override
+    public void setAllLocalProperties(com.energyict.mdc.upl.properties.TypedProperties otherTypedProperties) {
+        if (otherTypedProperties instanceof TypedProperties) {
+            TypedProperties other = (TypedProperties) otherTypedProperties;
+            this.setAllProperties(other, false);
+        } else {
+            throw new IllegalArgumentException("Expected instance of " + this.getClass().getName());
+        }
+    }
+
+    @Override
+    public void setAllProperties(com.energyict.mdc.upl.properties.TypedProperties otherTypedProperties) {
+        if (otherTypedProperties instanceof TypedProperties) {
+            TypedProperties other = (TypedProperties) otherTypedProperties;
+            this.setAllProperties(other, true);
+        } else {
+            throw new IllegalArgumentException("Expected instance of " + this.getClass().getName());
+        }
     }
 
     /**
@@ -129,12 +162,10 @@ public class TypedProperties {
         if (valueFromThisLevel == null) {
             if (this.inheritedProperties != null) {
                 return this.inheritedProperties.getProperty(propertyName);
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return valueFromThisLevel;
         }
     }
@@ -147,17 +178,15 @@ public class TypedProperties {
      * @param propertyName The name of the property
      * @return The value defined at this level or inherited from a parent level
      */
-    public <T> T getTypedProperty (String propertyName) {
+    public <T> T getTypedProperty(String propertyName) {
         Object valueFromThisLevel = this.props.get(propertyName);
         if (valueFromThisLevel == null) {
             if (this.inheritedProperties != null) {
                 return this.inheritedProperties.getTypedProperty(propertyName);
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return (T) valueFromThisLevel;
         }
     }
@@ -170,19 +199,17 @@ public class TypedProperties {
      *
      * @param propertyName The name of the property
      * @return The value defined at this level or inherited from a parent level
-     *         or the default value when no level provides a value
+     * or the default value when no level provides a value
      */
     public Object getProperty(String propertyName, Object defaultValue) {
         Object valueFromThisLevel = this.props.get(propertyName);
         if (valueFromThisLevel == null) {
             if (this.inheritedProperties != null) {
                 return this.inheritedProperties.getProperty(propertyName, defaultValue);
-            }
-            else {
+            } else {
                 return defaultValue;
             }
-        }
-        else {
+        } else {
             return valueFromThisLevel;
         }
     }
@@ -195,19 +222,17 @@ public class TypedProperties {
      *
      * @param propertyName The name of the property
      * @return The value defined at this level or inherited from a parent level
-     *         or the default value when no level provides a value
+     * or the default value when no level provides a value
      */
-    public <T> T getTypedProperty (String propertyName, T defaultValue) {
+    public <T> T getTypedProperty(String propertyName, T defaultValue) {
         Object valueFromThisLevel = this.props.get(propertyName);
         if (valueFromThisLevel == null) {
             if (this.inheritedProperties != null) {
                 return this.inheritedProperties.getTypedProperty(propertyName, defaultValue);
-            }
-            else {
+            } else {
                 return defaultValue;
             }
-        }
-        else {
+        } else {
             return (T) valueFromThisLevel;
         }
     }
@@ -232,7 +257,7 @@ public class TypedProperties {
      *
      * @return The number of properties that are defined on this level
      */
-    public int localSize () {
+    public int localSize() {
         return props.size();
     }
 
@@ -242,7 +267,7 @@ public class TypedProperties {
      *
      * @return The number of properties that are defined
      */
-    public int size () {
+    public int size() {
         return this.propertyNames().size();
     }
 
@@ -265,7 +290,7 @@ public class TypedProperties {
      *
      * @return The set of properties that are defined at this level
      */
-    public Set<String> localPropertyNames () {
+    public Set<String> localPropertyNames() {
         return new HashSet<>(this.props.keySet());
     }
 
@@ -276,7 +301,7 @@ public class TypedProperties {
      *
      * @return The set of properties that are defined at this level
      */
-    public Set<String> propertyNames () {
+    public Set<String> propertyNames() {
         Set<String> allKeys = this.localPropertyNames();
         if (this.inheritedProperties != null) {
             allKeys.addAll(this.inheritedProperties.propertyNames());
@@ -291,7 +316,7 @@ public class TypedProperties {
      * @param propertyName The name of the property
      * @return A flag that indicates if there is a value for the property
      */
-    public boolean hasLocalValueFor (String propertyName) {
+    public boolean hasLocalValueFor(String propertyName) {
         return this.props.containsKey(propertyName);
     }
 
@@ -299,11 +324,11 @@ public class TypedProperties {
      * Tests if the value for the property with the specified name
      * is specified on this level.
      *
-     * @param value The value
+     * @param value        The value
      * @param propertyName The name of the property
      * @return A flag that indicates if there is a value for the property
      */
-    public boolean isLocalValueFor (Object value, String propertyName) {
+    public boolean isLocalValueFor(Object value, String propertyName) {
         Object localValue = this.props.get(propertyName);
         return localValue != null && localValue.equals(value);
     }
@@ -315,7 +340,7 @@ public class TypedProperties {
      * @param propertyName The name of the property
      * @return A flag that indicates if there is a value for the property
      */
-    public boolean hasInheritedValueFor (String propertyName) {
+    public boolean hasInheritedValueFor(String propertyName) {
         return this.inheritedProperties != null && this.inheritedProperties.hasValueFor(propertyName);
     }
 
@@ -323,11 +348,11 @@ public class TypedProperties {
      * Tests if the value for the property with the specified name
      * is specified on the parent level.
      *
-     * @param value The value
+     * @param value        The value
      * @param propertyName The name of the property
      * @return A flag that indicates if there is a value for the property
      */
-    public boolean isInheritedValueFor (Object value, String propertyName) {
+    public boolean isInheritedValueFor(Object value, String propertyName) {
         return this.inheritedProperties != null && this.inheritedProperties.isValueFor(value, propertyName);
     }
 
@@ -338,7 +363,7 @@ public class TypedProperties {
      * @param propertyName The name of the property
      * @return A flag that indicates if there is a value for the property
      */
-    public boolean hasValueFor (String propertyName) {
+    public boolean hasValueFor(String propertyName) {
         return this.hasLocalValueFor(propertyName) || this.hasInheritedValueFor(propertyName);
     }
 
@@ -346,11 +371,11 @@ public class TypedProperties {
      * Tests if there is a value for the property with the specified name
      * defined on this level or inherited from the parent level.
      *
-     * @param value The value
+     * @param value        The value
      * @param propertyName The name of the property
      * @return A flag that indicates if there is a value for the property
      */
-    public boolean isValueFor (Object value, String propertyName) {
+    public boolean isValueFor(Object value, String propertyName) {
         return this.isLocalValueFor(value, propertyName) || this.isInheritedValueFor(value, propertyName);
     }
 
@@ -364,7 +389,7 @@ public class TypedProperties {
             if (value instanceof Boolean) {
                 Boolean flag = (Boolean) value;
                 newProps.setProperty(propertyName, flag ? "1" : "0");
-            } else if(value != null){
+            } else if (value != null) {
                 newProps.setProperty(propertyName, String.valueOf(value));
             }
         }
@@ -373,7 +398,7 @@ public class TypedProperties {
 
 
     @Override
-    public String toString () {
+    public String toString() {
         return this.toStringProperties().toString();
     }
 
@@ -386,16 +411,14 @@ public class TypedProperties {
     public boolean equals(Object other) {
         if (this == other) {
             return true;
-        }
-        else if (other == null || getClass() != other.getClass()) {
+        } else if (other == null || getClass() != other.getClass()) {
             return false;
-        }
-        else {
-            return ((TypedProperties)other).props.equals(this.props);
+        } else {
+            return ((TypedProperties) other).props.equals(this.props);
         }
     }
 
-    public TypedProperties getInheritedProperties () {
+    public TypedProperties getInheritedProperties() {
         return inheritedProperties;
     }
 
@@ -428,8 +451,7 @@ public class TypedProperties {
     public Object getInheritedValue(String propertyName) {
         if (this.inheritedProperties != null) {
             return this.inheritedProperties.getProperty(propertyName);
-        }
-        else {
+        } else {
             return null;
         }
     }

@@ -1,6 +1,6 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.BaseUnit;
+import com.energyict.cbo.BaseUnit;
 import org.junit.*;
 
 import static junit.framework.Assert.assertEquals;

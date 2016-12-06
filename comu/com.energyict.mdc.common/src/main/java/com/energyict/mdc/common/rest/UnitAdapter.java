@@ -1,7 +1,7 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 

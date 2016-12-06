@@ -1,7 +1,7 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class ObisCodeAdapter extends XmlAdapter<String, ObisCode> {

@@ -5,6 +5,7 @@
 package com.energyict.mdc.common;
 
 import org.junit.Test;
+import com.energyict.obis.ObisCode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
