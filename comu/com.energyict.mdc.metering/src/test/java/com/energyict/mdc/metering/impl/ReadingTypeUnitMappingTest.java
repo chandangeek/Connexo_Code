@@ -3,8 +3,8 @@ package com.energyict.mdc.metering.impl;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 import org.fest.assertions.Condition;
 

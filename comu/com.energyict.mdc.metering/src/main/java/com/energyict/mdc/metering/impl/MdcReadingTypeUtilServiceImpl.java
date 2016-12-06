@@ -1,8 +1,8 @@
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.ReadingTypeInformation;
 

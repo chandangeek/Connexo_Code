@@ -1,6 +1,6 @@
 package com.energyict.mdc.metering.impl.matchers;
 
-import com.energyict.mdc.common.BaseUnit;
+import com.energyict.cbo.BaseUnit;
 
 import java.util.ArrayList;
 import java.util.Iterator;

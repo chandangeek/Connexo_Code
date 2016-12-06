@@ -1,6 +1,6 @@
 package com.energyict.mdc.metering.impl;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;

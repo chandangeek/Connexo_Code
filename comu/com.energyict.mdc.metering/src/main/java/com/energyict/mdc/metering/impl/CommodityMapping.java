@@ -1,7 +1,7 @@
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Commodity;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Defines a mapping between the DLMS ObisCode and a CIM Commodity

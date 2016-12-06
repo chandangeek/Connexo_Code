@@ -1,6 +1,6 @@
 package com.energyict.mdc.metering.impl;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * The <i>TimeOfUse</i> is used to describe any attribution of the value to a specific TOU Bucket.

@@ -1,6 +1,6 @@
 package com.energyict.mdc.metering.impl;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
 import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;
@@ -63,7 +63,7 @@ class ObisCodeUtil {
      * <p>
      * <i>Check is made by checking if this is:</i>
      * <ul>
-     * <li>an Electricity ObisCode {@link #isElectricity(com.energyict.mdc.common.ObisCode)}</li>
+     * <li>an Electricity ObisCode {@link #isElectricity(com.energyict.obis.ObisCode)}</li>
      * <li>the C-field of the obisCode is in the range of {@link #ELECTRICITY_C_FIELD_ENERGY_RANGES}</li>
      * </ul>
      * </p>
@@ -80,7 +80,7 @@ class ObisCodeUtil {
      * <p>
      * <i>Check is made by checking if this is:</i>
      * <ul>
-     * <li>an Electricity ObisCode {@link #isElectricity(com.energyict.mdc.common.ObisCode)}</li>
+     * <li>an Electricity ObisCode {@link #isElectricity(com.energyict.obis.ObisCode)}</li>
      * <li>the C-field of the obisCode is included in the set of {@link #ELECTRICITY_C_FIELD_VOLTAGE_VALUES}</li>
      * </ul>
      * </p>
@@ -97,7 +97,7 @@ class ObisCodeUtil {
      * <p>
      * <i>Check is made by checking if this is:</i>
      * <ul>
-     * <li>an Electricity ObisCode {@link #isElectricity(com.energyict.mdc.common.ObisCode)}</li>
+     * <li>an Electricity ObisCode {@link #isElectricity(com.energyict.obis.ObisCode)}</li>
      * <li>the C-field of the obisCode is included in the set of {@link #ELECTRICITY_C_FIELD_CURRENT_VALUES}</li>
      * </ul>
      * </p>

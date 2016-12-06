@@ -1,8 +1,8 @@
 package com.energyict.mdc.metering.impl;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;

@@ -1,9 +1,9 @@
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.MeasurementKind;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;

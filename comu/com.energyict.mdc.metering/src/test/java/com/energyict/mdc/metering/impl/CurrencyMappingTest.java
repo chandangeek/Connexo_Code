@@ -1,7 +1,7 @@
 package com.energyict.mdc.metering.impl;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import java.util.Optional;
 import org.junit.Test;
 

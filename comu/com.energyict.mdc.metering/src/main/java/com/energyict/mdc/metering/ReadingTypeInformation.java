@@ -1,8 +1,8 @@
 package com.energyict.mdc.metering;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 /**
  * Groups an {@link ObisCode}, {@link Unit} and {@link TimeDuration}
