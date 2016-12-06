@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
