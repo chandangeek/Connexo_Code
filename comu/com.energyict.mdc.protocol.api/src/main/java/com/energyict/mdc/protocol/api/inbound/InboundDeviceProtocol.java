@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.inbound;
 
 import com.energyict.mdc.pluggable.Pluggable;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 

@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.ProfileData;
 
 import java.util.ArrayList;
 import java.util.List;

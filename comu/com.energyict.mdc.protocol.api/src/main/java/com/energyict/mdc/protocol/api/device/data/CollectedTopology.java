@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 
 import java.time.Duration;
 import java.util.List;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 /**
  * Identifies the topology of a Device.

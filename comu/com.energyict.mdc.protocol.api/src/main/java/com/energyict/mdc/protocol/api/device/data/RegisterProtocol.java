@@ -6,7 +6,7 @@
 
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

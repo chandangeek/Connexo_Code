@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api.device.data;
 
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 /**
  * CollectedDeviceInfo is a type of {@link CollectedData} that can be used to keep track of additional device information collected for a specific device<br>

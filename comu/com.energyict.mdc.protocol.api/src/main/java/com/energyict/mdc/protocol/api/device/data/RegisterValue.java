@@ -6,10 +6,10 @@
 
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -151,7 +151,7 @@ public class RegisterValue implements Serializable {
 
     public RegisterValue(OfflineRegister register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long registerSpecId, String text) {
         this.obisCode = register.getObisCode();
-        this.rtuSerialNumber = register.getDeviceSerialNumber();
+        this.rtuSerialNumber = register.getSerialNumber();
         this.quantity = quantity;
         this.eventTime = eventTime;
         this.fromTime = fromTime;

@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Register represents a single register in a rtu

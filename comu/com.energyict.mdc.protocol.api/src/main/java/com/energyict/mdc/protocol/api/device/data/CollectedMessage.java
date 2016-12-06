@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.time.Instant;
 

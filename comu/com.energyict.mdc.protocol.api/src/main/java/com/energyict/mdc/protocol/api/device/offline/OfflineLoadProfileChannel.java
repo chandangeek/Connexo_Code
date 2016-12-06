@@ -1,9 +1,9 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Offline;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.mdc.upl.offline.Offline;
+import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
 

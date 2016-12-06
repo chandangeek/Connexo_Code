@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
-import com.energyict.mdc.common.Offline;
+import com.energyict.mdc.upl.offline.Offline;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;

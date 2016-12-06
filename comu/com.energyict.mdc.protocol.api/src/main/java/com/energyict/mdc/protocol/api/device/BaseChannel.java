@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.device;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 
 /**
  * Represents a single load profile on a data logger or energy meter.

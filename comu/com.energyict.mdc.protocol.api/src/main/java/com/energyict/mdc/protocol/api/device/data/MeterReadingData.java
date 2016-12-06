@@ -6,7 +6,7 @@
 
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 
 import java.util.ArrayList;
 import java.util.List;

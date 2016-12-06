@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 
 import java.util.List;
 

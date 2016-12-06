@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.List;

@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
 /**
  * Models the situation in which events are collected, for a device uniquely identified by its {@link DeviceIdentifier},

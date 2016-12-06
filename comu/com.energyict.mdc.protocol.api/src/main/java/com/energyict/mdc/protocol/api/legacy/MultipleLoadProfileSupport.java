@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.api.legacy;
 
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.util.List;

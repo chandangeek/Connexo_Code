@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
-import com.energyict.mdc.common.Offline;
+import com.energyict.mdc.upl.offline.Offline;
 
 /**
  * Represents the offline version of a {@link com.elster.jupiter.calendar.Calendar}.

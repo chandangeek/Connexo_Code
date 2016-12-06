@@ -3,9 +3,9 @@ package com.energyict.mdc.protocol.api.legacy;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceDescriptionSupport;
+import com.energyict.mdc.upl.DeviceDescriptionSupport;
 
 import java.io.IOException;
 import java.io.InputStream;
