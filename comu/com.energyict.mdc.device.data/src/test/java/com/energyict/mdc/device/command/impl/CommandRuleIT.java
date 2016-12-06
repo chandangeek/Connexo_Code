@@ -28,6 +28,7 @@ import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -120,13 +121,13 @@ public class CommandRuleIT {
     public void createCommandLimitationRule() {
         CommandRule commandRule;
         try (TransactionContext context = transactionService.getContext()) {
-            commandRule = commandRuleService.createRule("test").dayLimit(10).monthLimit(11).weekLimit(5).add();
+            commandRule = commandRuleService.createRule("test").dayLimit(4).monthLimit(11).weekLimit(5).command(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE.name()).add();
             context.commit();
         }
 
         assertThat(commandRule).isNotNull();
         assertThat(commandRule.getName().equals("test"));
-        assertThat(commandRule.getDayLimit()).isEqualTo(10);
+        assertThat(commandRule.getDayLimit()).isEqualTo(4);
         assertThat(commandRule.getWeekLimit()).isEqualTo(5);
         assertThat(commandRule.getMonthLimit()).isEqualTo(11);
 
@@ -137,7 +138,7 @@ public class CommandRuleIT {
 
         assertThat(commandRule).isNotNull();
         assertThat(commandRule.getName().equals("test"));
-        assertThat(commandRule.getDayLimit()).isEqualTo(10);
+        assertThat(commandRule.getDayLimit()).isEqualTo(4);
         assertThat(commandRule.getWeekLimit()).isEqualTo(5);
         assertThat(commandRule.getMonthLimit()).isEqualTo(11);
 
@@ -145,15 +146,15 @@ public class CommandRuleIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_NAME + "}")
     public void createCommandLimitationRuleWithDuplicateName() {
         try (TransactionContext context = transactionService.getContext()) {
-            commandRuleService.createRule("test").dayLimit(10).weekLimit(11).monthLimit(12).add();
+            commandRuleService.createRule("test").dayLimit(10).weekLimit(11).monthLimit(12).command(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE.name()).add();
             context.commit();
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            commandRuleService.createRule("test").add();
+            commandRuleService.createRule("test").command(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE.name()).add();
             context.commit();
         }
 

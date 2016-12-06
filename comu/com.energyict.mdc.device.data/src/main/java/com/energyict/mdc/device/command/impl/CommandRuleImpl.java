@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 
 import com.google.inject.Inject;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -55,6 +56,8 @@ public class CommandRuleImpl implements CommandRule {
     private long weekLimit;
     private long monthLimit;
     private Reference<CommandRuleTemplate> commandRuleTemplate;
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_COMMAND_REQUIRED + "}")
+    @Valid
     private List<CommandInRule> commands = new ArrayList<>();
 
     @SuppressWarnings("unused")

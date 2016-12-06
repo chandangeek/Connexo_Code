@@ -33,6 +33,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        userService.addModulePrivileges(this);
     }
 
     @Override
