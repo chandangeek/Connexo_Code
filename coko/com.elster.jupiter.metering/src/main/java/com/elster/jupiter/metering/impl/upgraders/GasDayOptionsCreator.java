@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.metering.impl.upgraders;
 
-import com.elster.jupiter.metering.impl.GasDayOptions;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.DayMonthTime;
@@ -13,6 +13,7 @@ import org.osgi.framework.BundleContext;
 
 import java.time.LocalTime;
 import java.time.MonthDay;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Creates the {@link com.elster.jupiter.metering.impl.GasDayOptions}
+ * Creates the {@link GasDayOptions}
  * from the configuration parameters if it does not exist yet.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -38,11 +39,11 @@ public class GasDayOptionsCreator {
     }
 
     public void createIfMissing(BundleContext context) {
-        GasDayOptions gasDayOptions = this.meteringService.getGasDayOptions();
-        if (gasDayOptions == null) {
+        Optional<GasDayOptions> gasDayOptions = this.meteringService.getGasDayOptions();
+        if (!gasDayOptions.isPresent()) {
             this.createGasDayOptionsFromConfigurationParameters(context);
         } else {
-            LOGGER.info(() -> "Gas day options already configured: " + gasDayOptions.getYearStart().toString());
+            LOGGER.info(() -> "Gas day options already configured: " + gasDayOptions.get().getYearStart().toString());
         }
     }
 

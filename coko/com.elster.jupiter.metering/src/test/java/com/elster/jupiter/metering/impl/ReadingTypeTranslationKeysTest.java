@@ -22,6 +22,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -66,6 +67,8 @@ public class ReadingTypeTranslationKeysTest {
     private PartyService partyService;
     @Mock
     private IdsService idsService;
+    @Mock
+    private TimeService timeService;
 
     private Injector injector;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -142,6 +145,7 @@ public class ReadingTypeTranslationKeysTest {
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(TimeService.class).toInstance(timeService);
         }
     }
 
