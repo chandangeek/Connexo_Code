@@ -1,18 +1,18 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
@@ -58,7 +58,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
     private static OfflineRegister getMockedRegister() {
         OfflineRegister register = mock(OfflineRegister.class);
         when(register.getObisCode()).thenReturn(OBIS_CODE);
-        when(register.getDeviceSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(register.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         return register;
     }
 
@@ -69,20 +69,20 @@ public class SmartMeterProtocolRegisterAdapterTest {
 
     @Before
     public void initializeEnvironment() {
-        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(ReadingType.class))).
+        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(String.class))).
                 thenAnswer(invocationOnMock -> {
                     RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
                     ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
 
-                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType);
+                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType.getMRID());
                     collectedRegister.setResultType(ResultType.Supported);
                     return collectedRegister;
                 });
-        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), any(ReadingType.class))).
+        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), any(String.class))).
                 thenAnswer(invocationOnMock -> {
                     RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
                     ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-                    return new MockCollectedRegister(registerIdentifier, readingType);
+                    return new MockCollectedRegister(registerIdentifier, readingType.getMRID());
                 });
     }
 

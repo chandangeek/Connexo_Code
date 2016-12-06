@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -16,15 +15,18 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
-
-import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import java.util.Optional;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
@@ -76,7 +78,7 @@ public class DeviceCachingTest {
 
         // assert that the content is not null and always changed so we always update it in the database
         assertNotNull(deviceProtocolCache);
-        assertTrue(deviceProtocolCache.isDirty());
+        assertTrue(deviceProtocolCache.contentChanged());
     }
 
     @Test
@@ -96,7 +98,7 @@ public class DeviceCachingTest {
 
         // assert that the content is not null and always changed so we always update it in the database
         assertNotNull(deviceProtocolCache);
-        assertFalse(deviceProtocolCache.isDirty());
+        assertFalse(deviceProtocolCache.contentChanged());
     }
 
     /**
@@ -155,17 +157,13 @@ public class DeviceCachingTest {
     private class NotTheCorrectDeviceProtocolCache implements DeviceProtocolCache {
 
         @Override
-        public boolean isDirty() {
+        public boolean contentChanged() {
             return false;
         }
 
-
         @Override
-        public void markClean() {
-        }
+        public void setContentChanged(boolean changed) {
 
-        @Override
-        public void markDirty() {
         }
     }
 

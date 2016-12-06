@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;

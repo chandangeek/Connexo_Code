@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceClockSupport;
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 

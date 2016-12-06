@@ -2,29 +2,29 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 import org.joda.time.DateTimeConstants;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Adapter between a {@link MeterProtocol} and {@link DeviceLoadProfileSupport}.
+ * Adapter between a {@link MeterProtocol} and {@link com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport}.
  * We use a {@link MeterProtocolClockAdapter} for the timeHandling of the interface.
  *
  * @author gna
@@ -71,12 +71,12 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      * <b>Note:</b> This method is only called by the Collection Software if the option to "fail if channel configuration mismatch" is
      * checked on the <code>CommunicationProfile</code>
      * <p/>
-     * We will only check 1 <code>LoadProfile</code>({@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport#GENERIC_LOAD_PROFILE_OBISCODE}) as standard {@link MeterProtocol}s only have support for 1 <code>LoadProfile</code>.
+     * We will only check 1 <code>LoadProfile</code>({@link com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport#GENERIC_LOAD_PROFILE_OBISCODE}) as standard {@link MeterProtocol}s only have support for 1 <code>LoadProfile</code>.
      * <b>We will only be able to verify the number of channels. The interval and channelUnits will not be validated until the actual data is fetched!</b>
      * <i>(even then it is only done by the protocol implementer)</i>
      * <p/>
      * If a <code>LoadProfile</code> is not supported (meaning the {@link LoadProfileReader#getProfileObisCode() LoadProfileObisCode} is not
-     * equal to {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport#GENERIC_LOAD_PROFILE_OBISCODE}), the corresponding boolean in the <code>DeviceLoadProfileConfiguration</code> must
+     * equal to {@link com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport#GENERIC_LOAD_PROFILE_OBISCODE}), the corresponding boolean in the <code>DeviceLoadProfileConfiguration</code> must
      * be set to false.
      *
      * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
@@ -208,7 +208,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      * Collect a single <code>ProfileData</code> object from the Device.
      * The returned object will contain one of the below possibilities:
      * <ul>
-     * <li>Correct {@link com.energyict.mdc.protocol.api.device.data.IntervalData IntervalData} and {@link ChannelInfo}</li>
+     * <li>Correct {@link com.energyict.protocol.IntervalData IntervalData} and {@link ChannelInfo}</li>
      * <li>A Not supported resultType if we could not read the data</li>
      * <li>An incompatible resultType if we could not correctly parse the received data</li>
      * </ul>
@@ -280,7 +280,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             ProfileData profileData = this.meterProtocol.getProfileData(Date.from(combinedLastReadingTime), true);
             deviceLoadProfile.setCollectedData(getIntervalDatas(profileData.getIntervalDatas(), Date.from(loadProfileReader.getStartReadingTime())), convertToProperChannelInfos(profileData, loadProfileReader.getChannelInfos(), deviceLoadProfile));
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
-            deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents(), this.meteringService));
+            deviceLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
         } catch (IOException e) {
             if (isTimeout(e)) {
                 throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
@@ -322,7 +322,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(Date.from(logBookReader.getLastLogBook()), true);
-            deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents(), this.meteringService));
+            deviceLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
         } catch (IOException e) {
             if (isTimeout(e)) {
                 throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);

@@ -4,13 +4,13 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.protocol.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
 import java.io.IOException;

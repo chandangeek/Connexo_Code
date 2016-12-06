@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.protocol.MeterProtocolEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +39,16 @@ public class MockCollectedLogBook implements CollectedLogBook {
     }
 
     @Override
-    public void setMeterEvents(List<MeterProtocolEvent> collectedMeterEvents) {
+    public void setCollectedMeterEvents(List<MeterProtocolEvent> collectedMeterEvents) {
         this.collectedMeterEvents = collectedMeterEvents;
+    }
+
+    @Override
+    public void addCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
+        if (collectedMeterEvents == null) {
+            collectedMeterEvents = new ArrayList<>();
+        }
+        this.collectedMeterEvents.addAll(meterEvents);
     }
 
     @Override
@@ -61,6 +69,12 @@ public class MockCollectedLogBook implements CollectedLogBook {
     public void setFailureInformation(ResultType resultType, Issue issue) {
         this.setResultType(resultType);
         this.issues.add(issue);
+    }
+
+    @Override
+    public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+        this.setResultType(resultType);
+        this.issues.addAll(issues);
     }
 
     @Override

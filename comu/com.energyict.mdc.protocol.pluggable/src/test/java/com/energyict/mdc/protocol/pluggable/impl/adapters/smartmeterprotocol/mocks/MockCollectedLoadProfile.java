@@ -2,12 +2,12 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mo
 
 import com.google.common.collect.Range;
 
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.protocol.IntervalData;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
 import java.time.Instant;

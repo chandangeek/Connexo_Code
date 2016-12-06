@@ -2,19 +2,19 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.StackTracePrinter;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Adapter between a {@link SmartMeterProtocolAdapterImpl} and a {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport}
+ * Adapter between a {@link SmartMeterProtocolAdapterImpl} and a {@link com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport}
  *
  * @author gna
  * @since 5/04/12 - 13:56
@@ -131,7 +131,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
      * or null, then all channels from the corresponding LoadProfile should be fetched
      * <p/>
      * If for a certain <code>LoadProfile</code> not all data since {@link LoadProfileReader#getStartReadingTime() lastReading}
-     * can be returned, then a proper {@link ResultType} <b>and</b> {@link com.energyict.mdc.issues.Issue issue}
+     * can be returned, then a proper {@link ResultType} <b>and</b> {@link com.energyict.mdc.upl.tasks.Issue issue}
      * should be set so proper logging of this action can be performed.
      * <p/>
      * In essence, the size of the returned <code>List</code> should be the same as the size of the given argument <code>List</code>.

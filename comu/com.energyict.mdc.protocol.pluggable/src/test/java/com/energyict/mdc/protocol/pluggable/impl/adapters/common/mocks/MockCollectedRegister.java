@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
 import java.time.Instant;
@@ -19,7 +19,7 @@ import java.util.List;
  * @since 2014-01-27 (13:47)
  */
 public class MockCollectedRegister implements CollectedRegister {
-    private final ReadingType readingType;
+    private final String readingTypeMRID;
     private Instant fromTime;
     private Instant toTime;
     private Instant eventTime;
@@ -30,9 +30,9 @@ public class MockCollectedRegister implements CollectedRegister {
     private ResultType resultType;
     private List<Issue> issues = new ArrayList<>();
 
-    public MockCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+    public MockCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
         super();
-        this.readingType = readingType;
+        this.readingTypeMRID = readingTypeMRID;
         this.setRegisterIdentifier(registerIdentifier);
     }
 
@@ -42,8 +42,8 @@ public class MockCollectedRegister implements CollectedRegister {
     }
 
     @Override
-    public ReadingType getReadingType() {
-        return this.readingType;
+    public String getReadingTypeMRID() {
+        return this.readingTypeMRID;
     }
 
     @Override

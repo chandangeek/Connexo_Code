@@ -15,30 +15,30 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -109,12 +109,12 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     private OfflineDevice offlineDevice;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceClockSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceClockSupport} functionality
      */
     private SmartMeterProtocolClockAdapter smartMeterProtocolClockAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport} functionality
      */
     private SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter;
 
@@ -129,12 +129,12 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     private DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport} functionality
      */
     private SmartMeterProtocolLogBookAdapter smartMeterProtocolLogBookAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport} functionality
      */
     private SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter;
 

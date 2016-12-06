@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.obis.ObisCode;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.TestSerialNumberDeviceIdentifier;
 
@@ -55,8 +55,8 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
     }
 
     @Override
-    public void setSupportedByMeter(boolean b) {
-        this.supported = b;
+    public void setSupportedByMeter(boolean supportedByMeter) {
+        this.supported = supportedByMeter;
     }
 
     @Override
