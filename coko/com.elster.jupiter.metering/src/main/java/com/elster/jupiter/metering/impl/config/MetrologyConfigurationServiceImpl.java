@@ -36,7 +36,6 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 
-import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,13 +56,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     private MeteringDataModelService meteringDataModelService;
     private DataModel dataModel;
     private Thesaurus thesaurus;
-    private Clock clock;
 
-    public MetrologyConfigurationServiceImpl(MeteringDataModelService meteringDataModelService, DataModel dataModel, Thesaurus thesaurus, Clock clock) {
+    public MetrologyConfigurationServiceImpl(MeteringDataModelService meteringDataModelService, DataModel dataModel, Thesaurus thesaurus) {
         this.meteringDataModelService = meteringDataModelService;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
-        this.clock = clock;
     }
 
     @Override
@@ -136,7 +133,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public boolean isInUse(MetrologyConfiguration metrologyConfiguration) {
-        Condition condition = where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("interval").isEffective(clock.instant()));
+        Condition condition = where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("interval").isEffective());
         List<EffectiveMetrologyConfigurationOnUsagePoint> atLeastOneUsagePoint = this.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class)
                 .select(condition, new Order[0], false, new String[0], 1, 1);
