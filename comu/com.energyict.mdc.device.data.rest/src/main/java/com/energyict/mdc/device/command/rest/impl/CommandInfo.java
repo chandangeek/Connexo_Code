@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.command.rest.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class CommandInfo {
     public String category;
     public String command;
