@@ -201,7 +201,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .withDescription("Unmeasured installations which use attributes-based calculations").create();
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.name()));
 
         ReadingType readingTypeMonthlyAplusWh = meteringService.getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
