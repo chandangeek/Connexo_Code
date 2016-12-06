@@ -9,9 +9,11 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.CommandRuleService.CommandRuleBuilder;
+import com.energyict.mdc.device.command.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -43,6 +45,7 @@ public class CommandRuleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public Response getCommandRules(@BeanParam JsonQueryParameters queryParameters) {
         List<CommandRuleInfo> data = commandRuleService.findAllCommandRules()
                 .stream()
@@ -54,6 +57,7 @@ public class CommandRuleResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response addCommandRule(CommandRuleInfo commandRuleInfo) {
         CommandRuleBuilder builder = commandRuleService.createRule(commandRuleInfo.name);
         builder.dayLimit(commandRuleInfo.dayLimit);
@@ -70,6 +74,7 @@ public class CommandRuleResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public CommandRuleInfo getCommandRule(@PathParam("id") long id) {
         CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
         return CommandRuleInfo.from(commandRule);
@@ -78,6 +83,7 @@ public class CommandRuleResource {
     @GET
     @Path("/categories")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response getCategories() {
         List<IdWithNameInfo> categories = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
@@ -89,6 +95,7 @@ public class CommandRuleResource {
 
     @GET
     @Path("/commands")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getCommands(@BeanParam JsonQueryFilter jsonQueryFilter) {
         List<String> alreadySelectedCommands = jsonQueryFilter.getStringList("selectedcommands");
