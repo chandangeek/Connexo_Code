@@ -25,7 +25,7 @@ Ext.define('Uni.view.widget.WorkList', {
                     '<table style="margin: 5px 0 10px 0; table-layout: fixed; width: 100%;">',
                     '<tpl for=".">',
                     '<tr id="{id}" class="issue">',
-                    '<td height="25" width="20" data-qtip="{tooltip}">',
+                    '<td height="25" width="20" data-qtip="{iconTooltip}">',
                     '<tpl if="icon"><span class="{icon}"/></tpl></td>',
                     '<td data-qtip="{tooltip}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><a href="{href}">{title}</a></td>',
                     '</tr>',
@@ -144,12 +144,13 @@ Ext.define('Uni.view.widget.WorkList', {
                 title: item.name,
                 tooltip: me.getTooltip(workItem, item),
                 href: me.getHref(workItem, item),
-                icon: me.getIcon(workItem, item)
+                icon: me.getIcon(workItem, item),
+                iconTooltip: me.getIconTooltip(workItem, item)
             });
         });
 
         itemsStore = Ext.create('Ext.data.Store', {
-            fields: ['title', 'tooltip', 'href', 'icon'],
+            fields: ['title', 'tooltip', 'href', 'icon', 'iconTooltip'],
             data: itemsData
         });
         dataview.bindStore(itemsStore);
@@ -248,5 +249,16 @@ Ext.define('Uni.view.widget.WorkList', {
             return 'icon-user';
         }
         return 'icon-users';
+    },
+
+    getIconTooltip: function (workItem, item) {
+        var me = this,
+            userProperty = workItem.get('workItem').userProperty,
+            workgroupProperty = workItem.get('workItem').workgroupProperty;
+
+        if (item[userProperty].length > 0) {
+            return Uni.I18n.translate('bpm.task.user', 'UNI', 'User');
+        }
+        return Uni.I18n.translate('bpm.task.workgroup', 'UNI', 'Workgroup');
     }
 });
