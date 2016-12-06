@@ -24,7 +24,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Handles update events that are being sent when a {@link LoadProfileType}
  * has been updated and will veto the update when:
  * <ul>
- * <li>that would cause a duplicate {@link com.energyict.mdc.common.ObisCode}
+ * <li>that would cause a duplicate {@link com.energyict.obis.ObisCode}
  * in a {@link DeviceConfiguration} that is using the LoadProfileType.</li>
  * <li>the ObisCode changed and the LoadProfileType is already in use by a {@link LoadProfileSpec}</li>
  * <li>the interval changed and the LoadProfileType is already in use by a {@link LoadProfileSpec}</li>

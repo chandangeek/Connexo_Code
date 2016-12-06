@@ -8,7 +8,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
- * is made to update the {@link com.energyict.mdc.common.ObisCode}
+ * is made to update the {@link com.energyict.obis.ObisCode}
  * of a {@link com.energyict.mdc.masterdata.MeasurementType} that is in use.
  *
  * @author Rudi Vankeirsbilck (rudi)

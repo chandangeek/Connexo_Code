@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 
 import com.energyict.mdc.masterdata.LoadProfileType;

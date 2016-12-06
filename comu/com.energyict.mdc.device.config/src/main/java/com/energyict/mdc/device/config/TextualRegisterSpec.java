@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.masterdata.RegisterType;
 
 import aQute.bnd.annotation.ProviderType;
