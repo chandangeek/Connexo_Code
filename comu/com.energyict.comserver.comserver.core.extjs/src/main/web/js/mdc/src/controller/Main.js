@@ -273,8 +273,7 @@ Ext.define('Mdc.controller.Main', {
                         {
                             text: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
                             href: '#/administration/commandrules',
-                            //privileges: Mdc.privileges.DataCollectionKpi.view,
-                            // TODO: "Dual control protected changes - command limitation rules > View" privilege
+                            privileges: Mdc.privileges.CommandLimitationRules.view,
                             route: 'commandrules'
                         }
                     ]

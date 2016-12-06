@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
                         xtype: 'button',
                         itemId: 'mdc-add-command-rule-btn',
                         text: Uni.I18n.translate('commandRules.create', 'MDC', 'Add command limitation rule'),
-                        //privileges: Mdc.privileges.Communication.admin,
+                        privileges: Mdc.privileges.CommandLimitationRules.admin,
                         action: 'addCommandRule',
                         href: me.router.getRoute('administration/commandrules/add').buildUrl()
                     }

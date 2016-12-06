@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandLimitationRulesOverview', {
                             {
                                 itemId: 'mdc-command-rules-add-button',
                                 text: Uni.I18n.translate('commandRules.create', 'MDC', 'Add command limitation rule'),
-                                privileges: Mdc.privileges.Communication.admin,
+                                privileges: Mdc.privileges.CommandLimitationRules.admin,
                                 href: '#/administration/commandrules/add'
                             }
                         ]

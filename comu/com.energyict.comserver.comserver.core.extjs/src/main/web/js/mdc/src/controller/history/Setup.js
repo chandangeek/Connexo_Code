@@ -2231,15 +2231,30 @@ Ext.define('Mdc.controller.history.Setup', {
                     commandrules: {
                         title: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
                         route: 'commandrules',
-                        // TODO: "Dual control protected changes - command limitation rules > View" privilege
-                        //privileges: Mdc.privileges.Communication.view,
+                        privileges: Mdc.privileges.CommandLimitationRules.view,
                         controller: 'Mdc.controller.setup.CommandLimitationRules',
                         action: 'showRulesView',
                         items: {
+                            add: {
+                                title: Uni.I18n.translate('commandRules.create', 'MDC', 'Add command limitation rule'),
+                                route: 'add',
+                                privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showAddCommandRule',
+                                items: {
+                                    commands: {
+                                        title: Uni.I18n.translate('general.addCommands', 'MDC', 'Add commands'),
+                                        route: 'commands',
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                        action: 'showAddCommandsPage'
+                                    }
+                                }
+                            },
                             view: {
                                 title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
                                 route: '{ruleId}',
-                                //privileges: Mdc.privileges.Communication.view,
+                                privileges: Mdc.privileges.CommandLimitationRules.view,
                                 controller: 'Mdc.controller.setup.CommandLimitationRules',
                                 action: 'showCommandRuleOverview',
                                 callback: function (route) {
