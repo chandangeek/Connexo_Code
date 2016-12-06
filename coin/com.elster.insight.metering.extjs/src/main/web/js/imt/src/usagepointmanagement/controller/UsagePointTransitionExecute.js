@@ -47,11 +47,9 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
         record.set('effectiveTimestamp', me.getTransitionDateField().down('#installation-time-at-date-time-field').getValue());
         record.set('usagePoint', _.pick(me.usagePoint.getData(), 'name', 'version'));
         record.endEdit();
-        Ext.Ajax.suspendEvent('requestexception');
         record.save({
             backUrl: router.getRoute('usagepoints/view').buildUrl(),
             callback: function (record, operation) {
-                Ext.Ajax.resumeEvent('requestexception');
                 me.getStep2().handleSuccessRequest(Ext.decode(operation.response.responseText), router);
             }
         });
