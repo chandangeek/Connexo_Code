@@ -164,7 +164,7 @@ public class MetrologyConfigurationResource {
             throw exceptionFactory.newException(MessageSeeds.YOU_CANNOT_REMOVE_ACTIVE_METROLOGY_CONFIGURATION);
         }
 
-        metrologyConfiguration.delete();
+        metrologyConfiguration.makeObsolete();
 
         return Response.status(Response.Status.OK).build();
     }

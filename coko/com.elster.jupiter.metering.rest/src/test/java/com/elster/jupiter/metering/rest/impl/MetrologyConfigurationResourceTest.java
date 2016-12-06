@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
@@ -223,7 +222,7 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
 
         //Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(metrologyConfiguration).delete();
+        verify(metrologyConfiguration).makeObsolete();
     }
 
     @Test
