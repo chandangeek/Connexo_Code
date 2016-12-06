@@ -12,11 +12,12 @@ import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,8 +74,7 @@ public class SearchDomainExtensionSupportFinderTest {
         Column primaryColumn2 = mockColumn("id2");
         doReturn(Arrays.asList(primaryColumn1, primaryColumn2)).when(table).getPrimaryKeyColumns();
         doReturn(Collections.singletonList(table)).when(dataModel).getTables(Version.latest());
-        Stream<Column> columns = Stream.of(primaryColumn1, primaryColumn2, mockColumn("mrid"), mockColumn("name"));
-        doReturn(columns).when(table).getRealColumns();
+        when(dataMapper.getQueryFields()).thenReturn(ImmutableSet.of("id1", "id2", "mrid", "name"));
         when(dataModel.mapper(Object.class)).thenReturn(dataMapper);
 
         List<SearchablePropertyCondition> conditions = Arrays.asList(condition1, condition2);
