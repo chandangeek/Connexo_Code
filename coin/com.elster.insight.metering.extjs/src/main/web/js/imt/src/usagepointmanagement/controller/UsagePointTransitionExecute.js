@@ -1,0 +1,92 @@
+Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
+    extend: 'Ext.app.Controller',
+
+    views: [
+        'Imt.usagepointmanagement.view.transitionexecute.Browse'
+    ],
+
+    models: [
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.usagepointmanagement.model.UsagePointTransition'
+    ],
+
+    refs: [
+        {ref: 'page', selector: 'usagepointTransitionExecuteBrowse'},
+        {ref: 'navigationMenu', selector: '#usagepointTransitionWizardNavigation'},
+        {ref: 'usagepointTransitionExecuteWizard', selector: '#usagepointTransitionExecuteWizard'},
+        {ref: 'nextBtn', selector: 'usagepointTransitionExecuteWizard #nextButton'},
+        {ref: 'cancelBtn', selector: 'usagepointTransitionExecuteWizard #wizardCancelButton'},
+        {ref: 'step2', selector: '#usagepointtransitionexecute-wizard-step2'},
+        {ref: 'transitionDateField', selector: 'usagepointTransitionExecuteBrowse #transitionDateField'}
+    ],
+
+    init: function () {
+        this.control({
+            'usagepointTransitionExecuteWizard #nextButton': {
+                click: this.nextClick
+            }
+        });
+    },
+
+    nextClick: function () {
+        var me = this,
+            layout = me.getUsagepointTransitionExecuteWizard().getLayout(),
+            propertyForm = me.getUsagepointTransitionExecuteWizard().down('property-form'),
+            router = me.getController('Uni.controller.history.Router'),                   
+            record = propertyForm.getRecord();
+
+        Ext.suspendLayouts();
+        me.getPage().down('#wizard-buttons').removeAll(true);
+        me.getNavigationMenu().moveNextStep();
+        layout.setActiveItem(layout.getNext());
+        me.getStep2().showProgressBar();
+        Ext.resumeLayouts(true);
+        propertyForm.updateRecord();
+        record.beginEdit();
+        record.set('transitionNow', me.getTransitionDateField().down('#installation-time-now').checked);
+        record.set('effectiveTimestamp', me.getTransitionDateField().down('#installation-time-at-date-time-field').getValue());
+        record.set('usagePoint', _.pick(me.usagePoint.getData(), 'name', 'version'));
+        record.endEdit();
+        Ext.Ajax.suspendEvent('requestexception');
+        record.save({
+            backUrl: router.getRoute('usagepoints/view').buildUrl(),
+            callback: function (record, operation) {
+                Ext.Ajax.resumeEvent('requestexception');
+                me.getStep2().handleSuccessRequest(Ext.decode(operation.response.responseText), router);
+            }
+        });
+    },
+
+    showExecuteTransition: function (usagepointId, transitionId) {
+        var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            transitionModel = me.getModel('Imt.usagepointmanagement.model.UsagePointTransition'),
+            app = me.getApplication();
+
+        mainView.setLoading();
+        transitionModel.getProxy().setParams(usagepointId);
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagepointId, {
+            success: function (usagepoint) {
+                app.fireEvent('usagePointLoaded', usagepoint);
+                me.usagePoint = usagepoint;
+                transitionModel.load(transitionId, {
+                    success: function (record) {
+                        app.fireEvent('loadUsagePointTransition', record);
+                        app.fireEvent('changecontentevent', Ext.widget('usagepointTransitionExecuteBrowse', {
+                            itemId: 'usagepointTransitionExecuteBrowse',
+                            router: me.getController('Uni.controller.history.Router')
+                        }));
+                        Ext.suspendLayouts();
+                        me.getPage().down('usagepointTransitionWizardNavigation').setTitle(record.get('name'));
+                        me.getPage().down('property-form').loadRecord(record);
+                        Ext.resumeLayouts(true);
+                        mainView.setLoading(false);
+                    },
+                    failure: function () {
+                        mainView.setLoading(false);
+                    }
+                });
+            }
+        });
+    }
+});

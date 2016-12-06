@@ -10,11 +10,13 @@ Ext.define('Imt.usagepointhistory.controller.History', {
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
-        'Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'
+        'Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint',
+        'Imt.usagepointhistory.store.LifeCycleAndState'
     ],
     views: [
         'Imt.usagepointhistory.view.Overview',
-        'Imt.usagepointhistory.view.VersionsOverview'
+        'Imt.usagepointhistory.view.VersionsOverview',
+        'Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState'
     ],
     refs: [
         {
@@ -29,6 +31,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         me.control({
             '#usage-point-history #usage-point-history-tab-panel': {
                 beforetabchange: me.onBeforeHistoryTabChange
+            },
+            'life-cycle-and-state actioncolumn': {
+                abortTransition: this.abortTransition
             }
         });
     },
@@ -72,6 +77,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),
+            lifeCycleAndStateStore = me.getStore('Imt.usagepointhistory.store.LifeCycleAndState'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             usagePointId = router.arguments.usagePointId,
             customAttributeSetId = newCard.customAttributeSetId,
@@ -79,77 +85,118 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             onVersionsStoreLoad,
             url;
 
-        if (customAttributeSetId != router.queryParams.customAttributeSetId) {
-            router.queryParams.customAttributeSetId = customAttributeSetId;
-            url = router.getRoute().buildUrl(router.arguments, router.queryParams);
-            Uni.util.History.setParsePath(false);
-            Uni.util.History.suspendEventsForNextCall();
-            router.queryParams.customAttributeSetId = customAttributeSetId;
-            delete router.queryParams.selectCurrent;
-            if (isInit) {
+        if (!customAttributeSetId) {
+            if (router.queryParams.customAttributeSetId) {
+                delete router.queryParams.customAttributeSetId;
+                url = router.getRoute().buildUrl(router.arguments, router.queryParams);
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
                 window.location.replace(url);
-            } else {
-                window.location.href = url;
             }
-        }
-
-        versionsStore.getProxy().setParams(usagePointId, customAttributeSetId);
-
-        Ext.suspendLayouts();
-        if (oldCard) {
-            oldCard.removeAll();
-        }
-        cardView = newCard.add({
-            xtype: 'custom-attribute-set-versions-overview',
-            itemId: 'custom-attribute-set-versions-setup-id',
-            title: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
-            store: versionsStore,
-            type: 'usagePoint',
-            ui: 'medium',
-            padding: 0,
-            selectByDefault: !router.queryParams.selectCurrent
-        });
-        Ext.resumeLayouts(true);
-        if (router.queryParams.selectCurrent) {
-            onVersionsStoreLoad = function () {
-                var currentVersion = versionsStore.find('isActive', true);
-
-                if (cardView.rendered) {
-                    cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
+            lifeCycleAndStateStore.getProxy().setParams(usagePointId);
+            Ext.suspendLayouts();
+            if (oldCard) {
+                oldCard.removeAll();
+            }
+            cardView = newCard.add({
+                xtype: 'life-cycle-and-state',
+                itemId: 'life-cycle-and-state',
+                margin: '10 0 0 0'
+            });
+            Ext.resumeLayouts(true);
+            lifeCycleAndStateStore.load();
+        } else {
+            if (customAttributeSetId != router.queryParams.customAttributeSetId) {
+                router.queryParams.customAttributeSetId = customAttributeSetId;
+                url = router.getRoute().buildUrl(router.arguments, router.queryParams);
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
+                delete router.queryParams.selectCurrent;
+                if (isInit) {
+                    window.location.replace(url);
+                } else {
+                    window.location.href = url;
                 }
-            };
-            versionsStore.on('load', onVersionsStoreLoad, me);
-            cardView.on('destroy', function () {
-                versionsStore.un('load', onVersionsStoreLoad, me);
+            }
+            versionsStore.getProxy().setParams(usagePointId, customAttributeSetId);
+            Ext.suspendLayouts();
+            if (oldCard) {
+                oldCard.removeAll();
+            }
+            cardView = newCard.add({
+                xtype: 'custom-attribute-set-versions-overview',
+                itemId: 'custom-attribute-set-versions-setup-id',
+                title: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
+                store: versionsStore,
+                type: 'usagePoint',
+                ui: 'medium',
+                padding: 0,
+                selectByDefault: !router.queryParams.selectCurrent
+            });
+            Ext.resumeLayouts(true);
+            if (router.queryParams.selectCurrent) {
+                onVersionsStoreLoad = function () {
+                    var currentVersion = versionsStore.find('isActive', true);
+
+                    if (cardView.rendered) {
+                        cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
+                    }
+                };
+                versionsStore.on('load', onVersionsStoreLoad, me);
+                cardView.on('destroy', function () {
+                    versionsStore.un('load', onVersionsStoreLoad, me);
+                });
+            }
+            attributeSetModel.getProxy().setExtraParam('usagePointId', usagePointId);
+            attributeSetModel.load(customAttributeSetId, {
+                success: function (record) {
+                    var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
+
+                    if (newCard.rendered) {
+                        Ext.suspendLayouts();
+                        isEditable = record.get('isEditable');
+                        addBtn = newCard.down('#custom-attribute-set-add-version-btn');
+                        addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
+                        actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');
+                        actionBtn = newCard.down('#custom-attribute-set-versions-preview-action-button');
+
+                        if (addBtn) {
+                            addBtn.setVisible(isEditable);
+                        }
+                        if (addBtnTop) {
+                            addBtnTop.setVisible(isEditable);
+                        }
+                        if (actionColumn) {
+                            actionColumn.setVisible(isEditable);
+                        }
+                        if (actionBtn) {
+                            actionBtn.setVisible(isEditable);
+                        }
+                        Ext.resumeLayouts(true);
+                    }
+                }
             });
         }
+    },
 
-        attributeSetModel.getProxy().setExtraParam('usagePointId', usagePointId);
-        attributeSetModel.load(customAttributeSetId, {
-            success: function (record) {
-                var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
-
-                if (newCard.rendered) {
-                    Ext.suspendLayouts();
-                    isEditable = record.get('isEditable');
-                    addBtn = newCard.down('#custom-attribute-set-add-version-btn');
-                    addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
-                    actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');
-                    actionBtn = newCard.down('#custom-attribute-set-versions-preview-action-button');
-
-                    if (addBtn) {
-                        addBtn.setVisible(isEditable);
-                    }
-                    if (addBtnTop) {
-                        addBtnTop.setVisible(isEditable);
-                    }
-                    if (actionColumn) {
-                        actionColumn.setVisible(isEditable);
-                    }
-                    if (actionBtn) {
-                        actionBtn.setVisible(isEditable);
-                    }
-                    Ext.resumeLayouts(true);
+    abortTransition: function (record) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        
+        record.getProxy().setParams(router.arguments.usagePointId);
+        Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.abort', 'IMT', 'Abort')}).show({
+            title: Uni.I18n.translate('usagePointHistory.abortTransitionTitle', 'IMT', "Abort state change from '{0}' to '{1}'?", [record.get('fromStateName'), record.get('toStateName')]),
+            msg: Uni.I18n.translate('usagePointHistory.abortTransitionMsg', 'IMT', 'The scheduled state change will be aborted.'),
+            config: {
+                record: record
+            },
+            fn: function (action) {
+                if (action == 'confirm') {
+                    record.save({
+                        success: function () {
+                            router.getRoute().forward();
+                        }
+                    });
                 }
             }
         });

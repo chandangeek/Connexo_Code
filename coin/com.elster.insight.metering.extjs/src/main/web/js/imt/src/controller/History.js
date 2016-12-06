@@ -69,12 +69,20 @@ Ext.define('Imt.controller.History', {
                         return this;
                     },
                     items: {
-                        //edit: {
-                        //    title: Uni.I18n.translate('general.label.usagepoint.edit', 'IMT', 'Edit'),
-                        //    route: 'edit',
-                        //    controller: 'Imt.usagepointmanagement.controller.Edit',
-                        //    action: 'editUsagePoint'
-                        //},
+                        transitions: {
+                            title: Uni.I18n.translate('general.transition', 'IMT', 'Transition'),
+                            route: 'transitions/{transitionId}',
+                            controller: 'Imt.usagepointmanagement.controller.UsagePointTransitionExecute',
+                            action: 'showExecuteTransition',
+                            callback: function (route) {
+                                this.getApplication().on('loadUsagePointTransition', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
+                        },
                         attributes: {
                             title: Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
                             route: 'attributes',

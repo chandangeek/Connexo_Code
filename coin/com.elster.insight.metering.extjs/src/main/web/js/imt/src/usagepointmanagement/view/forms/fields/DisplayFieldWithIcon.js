@@ -10,7 +10,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.DisplayFieldWithIcon', {
     renderer: function (value) {
         var result = '';
 
-        if (Ext.isObject(value)) {
+        if (Ext.isObject(value) && !Ext.Object.isEmpty(value)) {
             result = value.name
                 + ' <span class="'
                 + Imt.util.IconsMap.getCls(value.id)

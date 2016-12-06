@@ -85,6 +85,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                                 xtype: 'general-attributes-form',
                                 itemId: 'general-attributes-form',
                                 title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
+                                router: me.router,
                                 record: me.usagePoint,
                                 viewDefaults: me.viewDefaults,
                                 editDefaults: me.editDefaults,
