@@ -47,6 +47,7 @@ import java.time.Instant;
 import java.time.Month;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,8 +164,11 @@ public class EnumeratedUsagePointGroupImplIT {
 
         // Assert
         enumeratedUsagePointGroup = meteringGroupsService.findEnumeratedUsagePointGroup(enumeratedUsagePointGroup.getId()).get();
-        assertThat(enumeratedUsagePointGroup.getMemberCount(Instant.now())).isEqualTo(0);
-        assertThat(enumeratedUsagePointGroup.getMembers(Instant.now())).isEmpty();
+        Instant inactiveMemberTime = Instant.now().plus(1, ChronoUnit.SECONDS);
+
+        assertThat(enumeratedUsagePointGroup.getMemberCount(inactiveMemberTime)).isEqualTo(0);
+        assertThat(enumeratedUsagePointGroup.getMembers(inactiveMemberTime)).isEmpty();
+
         assertThat(enumeratedUsagePointGroup.getMemberCount(activeMemberTime)).isEqualTo(1);
         assertThat(enumeratedUsagePointGroup.getMembers(activeMemberTime)).contains(usagePoint);
     }
