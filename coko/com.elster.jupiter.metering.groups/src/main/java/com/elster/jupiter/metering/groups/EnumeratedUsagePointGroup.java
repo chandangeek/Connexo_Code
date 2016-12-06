@@ -6,5 +6,5 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface EnumeratedUsagePointGroup extends UsagePointGroup, EnumeratedGroup<UsagePoint> {
-    String TYPE_IDENTIFIER = "EEG";
+    String TYPE_IDENTIFIER = "EUG";
 }

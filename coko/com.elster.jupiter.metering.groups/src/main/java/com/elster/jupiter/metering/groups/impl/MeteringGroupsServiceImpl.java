@@ -30,7 +30,6 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.conditions.Operator;
@@ -57,6 +56,7 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
@@ -122,9 +122,15 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
                     bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
-                    V10_2SimpleUpgrader.VERSION, V10_2SimpleUpgrader.class,
-                    V10_3SimpleUpgrader.VERSION, V10_3SimpleUpgrader.class));
+            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME),
+                    dataModel,
+                    Installer.class,
+                    ImmutableMap.of(
+                            version(10, 2), V10_2SimpleUpgrader.class,
+                            version(10, 2, 1), UpgraderV10_2_1.class,
+                            UpgraderV10_3.VERSION, UpgraderV10_3.class
+                    ));
+
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
