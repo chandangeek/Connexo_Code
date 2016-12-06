@@ -344,7 +344,7 @@ public class JbpmTaskResource {
         TopTasksInfo topTasksInfo = new TopTasksInfo();
         Comparator<TaskSummary> priorityComparator = (task1, task2) -> Integer.compare(task1.getPriority(), task2.getPriority());
         Comparator<TaskSummary> dueDateComparator = Comparator.comparing(TaskSummary::getDueDate, Comparator.nullsLast(Date::compareTo));
-        Comparator<TaskSummary> nameComparator = (task1, task2) -> task1.getName().compareTo(task2.getName());
+        Comparator<TaskSummary> nameComparator = (task1, task2) -> task1.getName().toLowerCase().compareTo(task2.getName().toLowerCase());
         TaskSummaryList tasks = getTasks(topTasksPayload.processDefinitionInfos, uriInfo);
         List<TaskSummary> filteredTasks = tasks.getTasks()
                 .stream()
