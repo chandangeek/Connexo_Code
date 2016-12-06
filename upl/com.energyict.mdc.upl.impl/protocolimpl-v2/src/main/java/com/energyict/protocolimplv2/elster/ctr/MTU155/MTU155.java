@@ -17,6 +17,9 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -31,7 +34,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -285,7 +287,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-12-06 13:29:40 +0100 (Tue, 06 Dec 2016)$";
     }
 
     @Override
@@ -413,4 +415,47 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
     }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(getDeviceIdentifier());
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getRequestFactory().getIdentificationStructure().getVf().getValue(0).getStringValue());
+        return firmwareVersionsCollectedData;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(getDeviceIdentifier());
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        CollectedCalendar collectedCalendar = MdcManager.getCollectedDataFactory().createCalendarCollectedData(getDeviceIdentifier());
+        this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[0].getIntValue())
+                .ifPresent(collectedCalendar::setActiveCalendar);
+        this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[2].getIntValue())
+                .ifPresent(collectedCalendar::setPassiveCalendar);
+        return collectedCalendar;
+    }
+
+    private Optional<String> toCalendarName(int tariffSchemaId) {
+        if (tariffSchemaId > 0) {
+            return this.toCalendarName(String.valueOf(tariffSchemaId));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<String> toCalendarName(String tariffSchemaId) {
+        return Optional.of(tariffSchemaId);
+
+        //TODO uncomment the code below when OfflineCalendar is available on OfflineDevice
+/*        return this.offlineDevice
+                .getCalendars()
+                .stream()
+                .filter(each -> each.getMRID().equals(tariffSchemaId))
+                .findFirst()
+                .map(OfflineCalendar::getName);*/
+    }
+
 }

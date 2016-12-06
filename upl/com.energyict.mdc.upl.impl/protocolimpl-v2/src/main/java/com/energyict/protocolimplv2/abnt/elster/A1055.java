@@ -13,12 +13,16 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -28,12 +32,13 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
@@ -83,7 +88,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-26 15:25:57 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-12-06 13:29:39 +0100 (Tue, 06 Dec 2016)$";
     }
 
     @Override
@@ -325,5 +330,28 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
             this.securitySupport = new NoSecuritySupport();
         }
         return this.securitySupport;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        Issue warning = MdcManager.getIssueFactory().createWarning(
+                this.offlineDevice,
+                "issue.protocol.readingOfCalendarNotSupported",
+                DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+
+        CollectedCalendar calendarCollectedData = MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        calendarCollectedData.setFailureInformation(ResultType.NotSupported, warning);
+
+        return calendarCollectedData;
     }
 }

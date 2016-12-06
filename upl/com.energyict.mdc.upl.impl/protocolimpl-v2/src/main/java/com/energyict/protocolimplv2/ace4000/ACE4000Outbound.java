@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.ComChannel;
@@ -12,6 +14,9 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -27,9 +32,6 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -37,6 +39,7 @@ import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.messages.ACE4000Messaging;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
+import com.energyict.protocolimplv2.ace4000.requests.ReadFirmwareVersion;
 import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
 import com.energyict.protocolimplv2.ace4000.requests.ReadMBusRegisters;
 import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
@@ -94,7 +97,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-06-29 13:42:57 +0200 (Wed, 29 Jun 2016)$";
+        return "$Date: 2016-12-06 13:29:39 +0100 (Tue, 06 Dec 2016)$";
     }
 
     @Override
@@ -396,4 +399,18 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return messageProtocol;
     }
 
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return new ReadFirmwareVersion(this).request(getDeviceIdentifier());
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
 }

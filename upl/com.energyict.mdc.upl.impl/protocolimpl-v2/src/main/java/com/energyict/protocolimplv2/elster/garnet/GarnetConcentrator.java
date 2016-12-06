@@ -12,6 +12,9 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -27,7 +30,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
@@ -38,6 +40,7 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -258,7 +261,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
+        return "$Date: 2016-12-06 13:29:40 +0100 (Tue, 06 Dec 2016)$";
     }
 
     public GarnetProperties getProperties() {
@@ -313,5 +316,32 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     private void setDevice(OfflineDevice offlineDevice) {
         this.offlineDevice = offlineDevice;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
+        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(deviceIdentifier);
+        try {
+            result.setActiveMeterFirmwareVersion(getRegisterFactory().readFirmwareVersion());
+        } catch (GarnetException e) {
+            result.setFailureInformation(
+                    ResultType.InCompatible,
+                    MdcManager.getIssueFactory().createProblem(
+                            deviceIdentifier,
+                            "issue.protocol.readingOfFirmwareFailed",
+                            e.toString()));
+        }
+        return result;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 }

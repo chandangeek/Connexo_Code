@@ -1,10 +1,21 @@
 package com.energyict.protocolimplv2.dlms;
 
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.tasks.support.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -13,15 +24,12 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -38,7 +46,7 @@ import java.util.logging.Logger;
 
 /**
  * Common functionality that is shared between the smart V2 DLMS protocols
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/10/13
  * Time: 13:30
@@ -345,7 +353,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
 
     @Override
     public void setProtocolLogger(Logger protocolLogger) {
-        if (protocolLogger!=null) {
+        if (protocolLogger != null) {
             this.logger = protocolLogger;
             getLogger().finest("Protocol logger initialized");
         }
@@ -357,5 +365,45 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
 
     public boolean useDsmr4SelectiveAccessFormat() {
         return true;
+    }
+
+    /**
+     * Default DLMS activity calendar. Subclasses can override.
+     */
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        CollectedCalendar result = MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        try {
+            ActivityCalendar activityCalendar = getDlmsSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+            result.setActiveCalendar(activityCalendar.readCalendarNameActive().stringValue());
+            result.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = MdcManager.getIssueFactory().createProblem(
+                        DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE,
+                        "issue.protocol.readingOfCalendarFailed",
+                        e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            } //Else, a communication timeout is thrown
+        }
+        return result;
+    }
+
+    /**
+     * Returns the value of register 1.0.0.2.0.255 as text. Subclasses can override.
+     */
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getMeterInfo().getFirmwareVersion());
+        return firmwareVersionsCollectedData;
+    }
+
+    /**
+     * Return empty status by default, subclasses can override.
+     */
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 }

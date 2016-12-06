@@ -27,6 +27,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     public static final DLMSAttribute SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
     public static final DLMSAttribute EQUIPMENT_IDENTIFIER = DLMSAttribute.fromString("1:0.0.96.1.1.255:2");
     public static final DLMSAttribute CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
+    public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
     public static final DLMSAttribute CLOCK = DLMSAttribute.fromString("8:0.0.1.0.0.255:2");
     private final int roundTripCorrection;
     private final int retries;
@@ -43,8 +44,19 @@ public class ComposedMeterInfo extends ComposedCosemObject {
                 SERIALNR,
                 EQUIPMENT_IDENTIFIER,
                 CONFIG_NUMBER,
-                CLOCK
+                CLOCK,
+                FIRMWARE_VERSION
         };
+    }
+
+    public String getFirmwareVersion() {
+        AbstractDataType attribute = getAttribute(FIRMWARE_VERSION);
+        if (attribute instanceof OctetString) {
+            return attribute.getOctetString().stringValue();
+        } else {
+            IOException ioException = new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
+            throw CommunicationException.unexpectedResponse(ioException);
+        }
     }
 
     public Date getClock() {

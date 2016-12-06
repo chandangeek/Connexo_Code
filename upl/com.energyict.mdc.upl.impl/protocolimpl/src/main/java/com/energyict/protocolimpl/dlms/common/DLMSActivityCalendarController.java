@@ -85,7 +85,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
     private static final int indexDDayOfMonth = 3;
     private static final int indexDDayOfWeek = 4;
     private static final byte[] initialSpecialDayDateArray = new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
-    private static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
+    public static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
     private static final ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
 
     private CosemObjectFactory cosemObjectFactory;
