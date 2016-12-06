@@ -92,6 +92,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final ObisCode DEVICE_HOST_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.24.255");
     private static final ObisCode DEVICE_LOCATION_OBISCODE = ObisCode.fromString("0.0.128.0.32.255");
+    private static final ObisCode MULTI_APN_COFIG_OBISCODE = ObisCode.fromString("0.128.25.3.0.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
 
@@ -176,6 +177,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL);
+        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.ConfigureAPNs);
         SUPPORTED_MESSAGES.add(DeviceActionMessage.RebootApplication);
         SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ActivateFirewall);
         SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.DeactivateFirewall);
@@ -540,6 +542,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         syncNTPServer(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL)) {
                         setDeviceLogLevel(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureAPNs)) {
+                        configureAPNs(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                         changeDlmAuthLevel(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1)) {
@@ -1961,6 +1965,38 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDropUnencrypted(dropUnencryptedNotifications);
     }
 
+    private void configureAPNs(OfflineDeviceMessage pendingMessage) throws IOException {
+        final long activeApn = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activeAPN).getDeviceMessageAttributeValue());
+        final String apnConfigurations = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.apnConfigurations).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getData(MULTI_APN_COFIG_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
+    }
+
+    private Structure createApnConfigs(final long activeApn, final String providedAPNConfigurations) throws ProtocolException {
+        Structure apnConfiguration = new Structure();
+        Array apnConfigs = new Array();
+        List<String> apnConfigList = Arrays.asList(providedAPNConfigurations.trim().split(";"));
+        if(apnConfigList.size() == 0){
+            throw new ProtocolException("Provided list of APNs is empty. Please provide the correct configuration");
+        }
+        for(String apnConfig: apnConfigList){
+            String[] configEntries = apnConfig.trim().split(",");
+            if(configEntries.length != 3){
+                throw new ProtocolException("The expected number of entries for an apn config is 3 and we receive " + configEntries.length + ". Please provide the correct configuration");
+            }
+            String apnName = configEntries[0].trim();
+            String userName = configEntries[1].trim();
+            String password = configEntries[2].trim();
+            Structure apnConfigStructure = new Structure();
+            apnConfigStructure.addDataType(OctetString.fromString(apnName));
+            apnConfigStructure.addDataType(OctetString.fromString(userName));
+            apnConfigStructure.addDataType(OctetString.fromString(password));
+            apnConfigs.addDataType(apnConfigStructure);
+        }
+
+        apnConfiguration.addDataType(new Unsigned32(activeApn));
+        apnConfiguration.addDataType(apnConfigs);
+        return apnConfiguration;
+    }
 
     /**
      * Performs a reset on a {@link ProfileGeneric}.

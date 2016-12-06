@@ -147,6 +147,8 @@ public class DeviceMessageConstants {
     public static final String deviceName = "ConfigurationChangeDeviceMessage.deviceName";
     public static final String deviceHostName = "ConfigurationChangeDeviceMessage.deviceHostName";
     public static final String deviceLocation = "ConfigurationChangeDeviceMessage.deviceLocation";
+    public static final String activeAPN = "ConfigurationChangeDeviceMessage.activeAPN";
+    public static final String apnConfigurations = "ConfigurationChangeDeviceMessage.apnConfigurations";
     public static final String ntpAddress = "ConfigurationChangeDeviceMessage.ntpAddress";
     public static final String enableAutomaticDemandResetAttributeName = "ConfigurationChangeDeviceMessage.enabledemandreset";
     public static final String localMacAddress = "ConfigurationChangeDeviceMessage.localMacAddress";
@@ -765,5 +767,6 @@ public class DeviceMessageConstants {
     public static final String DropUnencryptedMeterNotifications = "DLMSGatewayMessage.DropUnencryptedMeterNotifications";
 
     public static final String setupObjectAttributeName = "NetworkConnectivityMessage.setupObjectAttributeName";
+
 
 }

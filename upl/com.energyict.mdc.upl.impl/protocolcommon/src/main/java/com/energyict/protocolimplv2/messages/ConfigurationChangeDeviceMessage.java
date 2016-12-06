@@ -363,6 +363,10 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.deviceLogLevel, DeviceLogLevel.getLogLevels())),
     SetDeviceLocation(87, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceLocation)),
     SetDeviceHostName(88, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceHostName)),
+    ConfigureAPNs(89,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.activeAPN),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.apnConfigurations)
+    ),
     ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
