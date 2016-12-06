@@ -1,7 +1,8 @@
 Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
     extend: 'Ext.form.Panel',
     requires: [
-        'Imt.usagepointmanagement.view.forms.fields.DisplayFieldWithIcon'
+        'Imt.usagepointmanagement.view.forms.fields.DisplayFieldWithIcon',
+        'Imt.usagepointmanagement.view.forms.fields.UsagePointTypeDisplayField'
     ],
     alias: 'widget.usage-point-summary',
     layout: 'form',
@@ -48,18 +49,10 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             }
         },
         {
+            xtype: 'usagepointtypedisplayfield',
             itemId: 'up-summary-typeOfUsagePoint',
             name: 'typeOfUsagePoint',
-            fieldLabel: Uni.I18n.translate('general.label.type', 'IMT', 'Type'),
-            renderer: function (value) {
-                var result = '-';
-
-                if (!Ext.isEmpty(value)) {
-                    result = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').findRecord('name', value).get('displayName');
-                }
-
-                return result;
-            }
+            fieldLabel: Uni.I18n.translate('general.label.type', 'IMT', 'Type')
         },
         {
             xtype: 'displayfieldwithicon',
