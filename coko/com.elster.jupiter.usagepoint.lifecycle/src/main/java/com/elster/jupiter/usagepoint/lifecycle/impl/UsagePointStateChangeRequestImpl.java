@@ -129,6 +129,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         this.usagePoint.set(usagePoint);
         this.transitionTime = transitionTime;
         this.generalFailReason = failReason;
+        this.originator.set(this.lifeCycleService.getCurrentUser());
         return this;
     }
 
@@ -200,7 +201,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
 
     @Override
     public User getOriginator() {
-        return this.originator.get();
+        return this.originator.orElse(null);
     }
 
     @Override
