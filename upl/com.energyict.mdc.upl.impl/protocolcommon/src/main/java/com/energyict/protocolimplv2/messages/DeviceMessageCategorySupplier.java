@@ -10,6 +10,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-01 (14:10)
  */
-public interface DeviceMessageCategoryFactory {
+public interface DeviceMessageCategorySupplier {
     DeviceMessageCategory get(PropertySpecService propertySpecService, NlsService nlsService);
 }

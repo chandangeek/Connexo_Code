@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Utils;
@@ -182,7 +183,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
                 ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false));
     }
 
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             pNodeId = Integer.parseInt(properties.getProperty(NODEID.getName()));
             if (properties.getProperty(PK_USER_ID) != null) {

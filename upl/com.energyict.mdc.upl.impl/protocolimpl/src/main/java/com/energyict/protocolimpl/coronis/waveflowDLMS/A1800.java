@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -15,7 +16,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 public class A1800 extends AbstractDLMS {
@@ -54,7 +54,7 @@ public class A1800 extends AbstractDLMS {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", LOAD_PROFILE_PULSES.toString())));
         applyMultiplier = !"0".equals(properties.getProperty(PROPERTY_LP_MULTIPLIER, "0"));

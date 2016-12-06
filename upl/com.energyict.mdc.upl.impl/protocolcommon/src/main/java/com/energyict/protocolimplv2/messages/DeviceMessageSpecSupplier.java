@@ -11,6 +11,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-01 (13:04)
  */
-public interface DeviceMessageSpecFactory {
+public interface DeviceMessageSpecSupplier {
     DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter);
 }

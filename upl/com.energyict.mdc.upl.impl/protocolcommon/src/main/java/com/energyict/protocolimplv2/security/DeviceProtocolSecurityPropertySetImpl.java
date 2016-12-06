@@ -2,8 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.SecurityProperty;
-
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     private TypedProperties securityProperties;
 
     public DeviceProtocolSecurityPropertySetImpl(List<SecurityProperty> securityProperties) {
-        this.securityProperties = TypedProperties.empty();
+        this.securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         for (SecurityProperty securityProperty : securityProperties) {
             this.securityProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
         }

@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -132,7 +133,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     }
 
     @Override
-    public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
             if (p.getProperty(ADDRESS.getName()) != null) {
                 pAddress = p.getProperty(ADDRESS.getName());

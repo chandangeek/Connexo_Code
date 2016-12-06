@@ -1,14 +1,13 @@
 package com.energyict.mdc.channels.ip.socket;
 
-import com.energyict.cbo.InvalidValueException;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
+import com.energyict.cbo.InvalidValueException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
@@ -48,12 +47,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     protected static final int DEFAULT_POST_DIAL_TRIES = 1;
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        for (ConnectionTaskProperty property : properties) {
-            if (property.getValue() != null) {
-                this.setProperty(property.getName(), property.getValue());
-            }
-        }
+    public ComChannel connect() throws ConnectionException {
         try {
             ComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
             comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
@@ -118,40 +112,24 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(POST_DIAL_DELAY, BigDecimal.valueOf(DEFAULT_POST_DIAL_DELAY));
+        return UPLPropertySpecFactory.bigDecimal(POST_DIAL_DELAY, false, BigDecimal.valueOf(DEFAULT_POST_DIAL_DELAY));
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(POST_DIAL_TRIES, BigDecimal.valueOf(DEFAULT_POST_DIAL_TRIES));
+        return UPLPropertySpecFactory.bigDecimal(POST_DIAL_TRIES, false, BigDecimal.valueOf(DEFAULT_POST_DIAL_TRIES));
     }
 
     private PropertySpec postDialCommandPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(POST_DIAL_COMMAND);
+        return UPLPropertySpecFactory.string(POST_DIAL_COMMAND, false);
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        final List<PropertySpec> allOptionalProperties = super.getOptionalProperties();
-        allOptionalProperties.add(this.postDialDelayPropertySpec());
-        allOptionalProperties.add(this.postDialRetriesPropertySpec());
-        allOptionalProperties.add(this.postDialCommandPropertySpec());
-        return allOptionalProperties;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        PropertySpec superPropertySpec = super.getPropertySpec(name);
-        if (superPropertySpec != null) {
-            return superPropertySpec;
-        } else if (POST_DIAL_DELAY.equals(name)) {
-            return this.postDialDelayPropertySpec();
-        } else if (POST_DIAL_TRIES.equals(name)) {
-            return this.postDialRetriesPropertySpec();
-        } else if (POST_DIAL_COMMAND.equals(name)) {
-            return this.postDialCommandPropertySpec();
-        } else {
-            return null;
-        }
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(postDialDelayPropertySpec());
+        propertySpecs.add(postDialRetriesPropertySpec());
+        propertySpecs.add(postDialCommandPropertySpec());
+        return propertySpecs;
     }
 
     @Override

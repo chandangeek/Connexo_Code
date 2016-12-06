@@ -513,7 +513,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     public void initializeDevice() throws IOException {
     }
 
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         validateProperties(properties);
     }
 

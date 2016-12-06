@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am130;
 
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;

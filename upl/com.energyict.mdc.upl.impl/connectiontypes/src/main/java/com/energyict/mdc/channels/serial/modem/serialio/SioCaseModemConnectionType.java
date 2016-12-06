@@ -1,15 +1,13 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.channels.serial.SerialComChannel;
+import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.protocol.exceptions.ModemException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,15 +27,15 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
     private CaseModemComponent caseModemComponent;
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+    public ComChannel connect() throws ConnectionException {
 
-        caseModemComponent = ManagerFactory.getCurrent().getSerialComponentFactory().newCaseModemComponent(new TypedCaseModemProperties(properties));
+        this.caseModemComponent = SerialComponentFactory.instance.get().newCaseModemComponent(new TypedCaseModemProperties(properties));
         /*
        create the serial ComChannel and set all property values
         */
-        ComChannel comChannel = super.connect(comPort, properties);
+        ComChannel comChannel = super.connect();
         try {
-            caseModemComponent.connect(comPort.getName(), (SerialComChannel) comChannel);
+            caseModemComponent.connect(getComPortName(properties), comChannel);
         } catch (Throwable e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             if (e instanceof ModemException) {
@@ -58,32 +56,9 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> allOptionalProperties = new ArrayList<>();
-        allOptionalProperties.addAll(super.getOptionalProperties());    // need to create a new list because the super returns a fixed list
-        allOptionalProperties.addAll(new TypedCaseModemProperties().getOptionalProperties());
-        return allOptionalProperties;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> requiredProperties = new ArrayList<>();
-        requiredProperties.addAll(super.getRequiredProperties());  // need to create a new list because the super returns a fixed list
-        requiredProperties.addAll(new TypedCaseModemProperties().getRequiredProperties());
-        return requiredProperties;
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return super.isRequiredProperty(name) || new TypedCaseModemProperties().isRequiredProperty(name);
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        PropertySpec propertySpec = super.getPropertySpec(name);
-        if (propertySpec == null) {
-            return new TypedCaseModemProperties().getPropertySpec(name);
-        }
-        return propertySpec;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.addAll(new TypedCaseModemProperties().getPropertySpecs());
+        return propertySpecs;
     }
 }

@@ -19,6 +19,7 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -44,7 +45,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -758,7 +758,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     }
 
     @Override
-    public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             strID = properties.getProperty(ADDRESS.getName());
             strPassword = properties.getProperty(PASSWORD.getName());

@@ -39,7 +39,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
  * Date: 2/05/13
  * Time: 10:44
  */
-public enum LoadProfileMessage implements DeviceMessageSpecFactory {
+public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
 
     PARTIAL_LOAD_PROFILE_REQUEST(0, "Partial load profile request") {
         @Override

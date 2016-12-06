@@ -19,7 +19,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.prepa
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecFactory {
+public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     AddPrepaidCredit(0, "Add prepaid credit") {
         @Override

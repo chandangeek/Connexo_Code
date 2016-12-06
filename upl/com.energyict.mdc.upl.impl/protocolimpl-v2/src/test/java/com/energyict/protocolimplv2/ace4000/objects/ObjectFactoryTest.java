@@ -1,15 +1,21 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
+import com.energyict.mdc.protocol.DummyComChannel;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.DummyComChannel;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
-import org.junit.Test;
 
 import java.util.List;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;

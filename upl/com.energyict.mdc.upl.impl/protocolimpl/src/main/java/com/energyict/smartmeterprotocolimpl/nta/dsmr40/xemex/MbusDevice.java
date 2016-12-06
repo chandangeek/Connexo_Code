@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -10,10 +11,8 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbus
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * @author sva
@@ -57,7 +56,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
 
     }
 }

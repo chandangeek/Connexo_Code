@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.edmi.mk6;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -35,7 +36,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
@@ -92,7 +92,7 @@ public class MK6 extends AbstractProtocol implements Serializable {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
 		setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "1"));
 		setEventLogName(properties.getProperty("EventLogName", "Event Log"));

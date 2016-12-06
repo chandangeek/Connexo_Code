@@ -20,7 +20,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum MBusSetupDeviceMessage implements DeviceMessageSpecFactory {
+public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
 
     Decommission(0, "Decommission") {
         @Override

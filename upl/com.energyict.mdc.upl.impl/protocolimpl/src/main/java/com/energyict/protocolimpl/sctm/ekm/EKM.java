@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.sctm.ekm;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
@@ -22,7 +23,6 @@ import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -59,7 +59,7 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         billingTimeStampId = properties.getProperty(BILLING_TIME_STAMP_ID);
     }

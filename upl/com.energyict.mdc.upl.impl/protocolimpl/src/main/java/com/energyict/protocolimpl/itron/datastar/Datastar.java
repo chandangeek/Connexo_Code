@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.itron.datastar;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -22,7 +23,6 @@ import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 
 /**
  * @version  2.0
@@ -75,7 +75,7 @@ public class Datastar extends SchlumbergerProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         allowClockSet = Integer.parseInt(properties.getProperty(ALLOW_CLOCK_SET, "0").trim()) == 1;
         setDelayAfterConnect(Integer.parseInt(properties.getProperty(DELAY_AFTER_CONNECT, "2000").trim()));

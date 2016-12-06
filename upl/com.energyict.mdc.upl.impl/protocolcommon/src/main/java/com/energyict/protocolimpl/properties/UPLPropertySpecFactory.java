@@ -9,6 +9,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,6 +79,10 @@ public final class UPLPropertySpecFactory {
 
     public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required) {
         return bigDecimalSpecBuilder(name, required).finish();
+    }
+
+    public static PropertySpec<BigDecimal> positiveBigDecimal(String name, boolean required) {
+        return specBuilder(name, required, () -> Services.propertySpecService().positiveBigDecimalSpec()).finish();
     }
 
     public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required, BigDecimal defaultValue, BigDecimal... possibleValues) {
@@ -184,6 +189,17 @@ public final class UPLPropertySpecFactory {
         return builder;
     }
 
+    public static PropertySpec<Duration> duration(String name, boolean required, Duration defaultValue) {
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = specBuilder(name, required, () -> Services.propertySpecService().durationSpec());
+        durationPropertySpecBuilder.setDefaultValue(defaultValue);
+        if (required) {
+            durationPropertySpecBuilder.markRequired();
+        }
+
+        return durationPropertySpecBuilder.finish();
+    }
+
     // Hide utility class constructor
-    private UPLPropertySpecFactory() {}
+    private UPLPropertySpecFactory() {
+    }
 }

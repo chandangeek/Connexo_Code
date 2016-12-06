@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum WavenisDeviceMessage implements DeviceMessageSpecFactory {
+public enum WavenisDeviceMessage implements DeviceMessageSpecSupplier {
 
     WavenisAddAddressGetNetworkId(0, "Add Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),
     WavenisAddAddressWithNetworkId(1, "Add Wavenis module", DeviceMessageConstants.rfAddress, DeviceMessageConstants.rfAddressDefaultTranslation),

@@ -3,11 +3,11 @@ package test.com.energyict.protocolimplv2.coronis.waveflow;
 import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -55,7 +55,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.TimeZone;
 
 /**
@@ -364,7 +363,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.getWaveFlowProperties().addProperties(TypedProperties.copyOf(properties));
     }
 

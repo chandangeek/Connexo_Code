@@ -14,6 +14,7 @@ package com.energyict.protocolimpl.edf.trimarancje;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -36,7 +37,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 
 /**
@@ -104,7 +104,7 @@ public class Trimaran extends AbstractProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "300").trim())); // TE
         setInfoTypeHalfDuplex(Integer.parseInt(properties.getProperty(PROP_HALF_DUPLEX, "50").trim())); // TC

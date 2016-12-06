@@ -7,7 +7,7 @@ import static com.energyict.protocolimplv2.messages.EnumBasedPrimaryKeySupport.c
 
 /**
  * Provides an implementation for the {@link DeviceMessageCategoryPrimaryKey} interface
- * that are being produced by {@link DeviceMessageCategoryFactory DeviceMessageCategoryFactories}
+ * that are being produced by {@link DeviceMessageCategorySupplier DeviceMessageCategoryFactories}
  * that are implemented by enum classes.
  * <p/>
  * Copyrights EnergyICT
@@ -19,7 +19,7 @@ public class EnumBasedDeviceMessageCategoryPrimaryKey implements DeviceMessageCa
     private final String factoryClassName;
     private final String enumName;
 
-    public EnumBasedDeviceMessageCategoryPrimaryKey(DeviceMessageCategoryFactory factory, String enumName) {
+    public EnumBasedDeviceMessageCategoryPrimaryKey(DeviceMessageCategorySupplier factory, String enumName) {
         this.factoryClassName = factory.getClass().getName();
         this.enumName = enumName;
     }

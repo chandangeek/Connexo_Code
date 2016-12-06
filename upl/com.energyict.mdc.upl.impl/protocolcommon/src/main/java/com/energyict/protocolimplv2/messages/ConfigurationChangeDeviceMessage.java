@@ -1,21 +1,25 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Copyrights EnergyICT
@@ -23,118 +27,427 @@ import java.util.List;
  * Time: 9:45
  * Author: khe
  */
-public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
+public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplier {
 
-    WriteExchangeStatus(0, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
-    WriteRadioAcknowledge(1, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
-    WriteRadioUserTimeout(2, PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
-    WriteNewPDRNumber(3, PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newPDRAttributeName, 14)),
-    ConfigureConverterMasterData(4,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, "VOL1", "VOL2", "VEN1", "VEN2"),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.converterSerialNumberAttributeName)),
-    ConfigureGasMeterMasterData(5,
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.meterTypeAttributeName, "MASS", "USON", "CORI", "VENT", "MEMB", "TURB", "ROTO", "Axxx"),
-            PropertySpecFactory.boundedDecimalPropertySpec(
-                    DeviceMessageConstants.meterCaliberAttributeName,
-                    new BigDecimal(0),
-                    new BigDecimal(999999)
-            ),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterSerialNumberAttributeName)),
-    ConfigureGasParameters(6,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.gasDensityAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.airDensityAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.relativeDensityAttributeName),
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.molecularNitrogenPercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.carbonDioxidePercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.molecularHydrogenPercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
-
+    WriteExchangeStatus(0) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.WriteExchangeStatus, DeviceMessageConstants.WriteExchangeStatusDefaultTranslation));
+        }
+    },
+    WriteRadioAcknowledge(1) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.WriteRadioAcknowledge, DeviceMessageConstants.WriteRadioAcknowledgeDefaultTranslation));
+        }
+    },
+    WriteRadioUserTimeout(2) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.temporalAmountSpec(service, DeviceMessageConstants.WriteRadioUserTimeout, DeviceMessageConstants.WriteRadioUserTimeoutDefaultTranslation));
+        }
+    },
+    WriteNewPDRNumber(3) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecOfExactLength(service, DeviceMessageConstants.newPDRAttributeName, DeviceMessageConstants.newPDRAttributeNameDefaultTranslation, 14));
+        }
+    },
+    ConfigureConverterMasterData(4) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.converterTypeAttributeName, DeviceMessageConstants.converterTypeAttributeDefaultTranslation)
+                            .addValues("VOL1", "VOL2", "VEN1", "VEN2")
+                            .markExhaustive()
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.converterSerialNumberAttributeName, DeviceMessageConstants.converterSerialNumberAttributeDefaultTranslation).finish()
+            );
+        }
+    },
+    ConfigureGasMeterMasterData(5) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.meterTypeAttributeName, DeviceMessageConstants.meterTypeAttributeDefaultTranslation)
+                            .addValues("MASS", "USON", "CORI", "VENT", "MEMB", "TURB", "ROTO", "Axxx")
+                            .markExhaustive()
+                            .finish(),
+                    this.boundedBigDecimalSpec(
+                            service, DeviceMessageConstants.meterCaliberAttributeName, DeviceMessageConstants.meterCaliberAttributeDefaultTranslation,
+                            BigDecimal.ZERO, new BigDecimal(999999)
+                    ),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.meterSerialNumberAttributeName, DeviceMessageConstants.meterSerialNumberAttributeDefaultTranslation).finish()
+            );
+        }
+    },
+    ConfigureGasParameters(6) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.gasDensityAttributeName, DeviceMessageConstants.gasDensityAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.airDensityAttributeName, DeviceMessageConstants.airDensityAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.relativeDensityAttributeName, DeviceMessageConstants.relativeDensityAttributeDefaultTranslation),
+                    this.boundedBigDecimalSpec(
+                            service, DeviceMessageConstants.molecularNitrogenPercentageAttributeName, DeviceMessageConstants.molecularNitrogenPercentageAttributeDefaultTranslation,
+                            BigDecimal.ZERO, new BigDecimal(100)),
+                    this.boundedBigDecimalSpec(
+                            service, DeviceMessageConstants.carbonDioxidePercentageAttributeName, DeviceMessageConstants.carbonDioxidePercentageAttributeDefaultTranslation,
+                            BigDecimal.ZERO, new BigDecimal(100)),
+                    this.boundedBigDecimalSpec(
+                            service, DeviceMessageConstants.molecularHydrogenPercentageAttributeName, DeviceMessageConstants.molecularHydrogenPercentageAttributeDefaultTranslation,
+                            BigDecimal.ZERO, new BigDecimal(100)),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.higherCalorificValueAttributeName, DeviceMessageConstants.higherCalorificValueAttributeDefaultTranslation)
+            );
+        }
+    },
     //EIWeb general messages
-    SetDescription(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDescriptionAttributeName)),
-    SetIntervalInSeconds(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetIntervalInSecondsAttributeName)),
-    SetUpgradeUrl(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName)),
-    SetUpgradeOptions(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeOptionsAttributeName)),
-    SetDebounceTreshold(11, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDebounceTresholdAttributeName)),
-    SetTariffMoment(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTariffMomentAttributeName)),
-    SetCommOffset(13, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetCommOffsetAttributeName)),
-    SetAggIntv(14, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAggIntvAttributeName)),
-    SetPulseTimeTrue(15, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPulseTimeTrueAttributeName)),
-
-    SetDukePowerID(16, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIDAttributeName)),
-    SetDukePowerPassword(17, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerPasswordAttributeName)),
-    SetDukePowerIdleTime(18, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName)),
-
-    UploadMeterScheme(19, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.MeterScheme)),
-    UploadSwitchPointClockSettings(20, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockSettings)),
-    UploadSwitchPointClockUpdateSettings(21, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings)),
-
-    ProgramBatteryExpiryDate(22, PropertySpecFactory.datePropertySpec(DeviceMessageConstants.ConfigurationChangeDate)),
-
-    ChangeOfSupplier(23,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ChangeOfSupplierName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
-    ),
-    ChangeOfTenancy(24, PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)),
-    SetCalorificValueAndActivationDate(25,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CalorificValue),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
-    ),
-    SetConversionFactorAndActivationDate(26,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ConversionFactor),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
-    ),
-    SetAlarmFilter(27, PropertySpecFactory.fixedLengthHexStringPropertySpec(DeviceMessageConstants.AlarmFilterAttributeName, 4)),
-    ChangeDefaultResetWindow(28, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DefaultResetWindowAttributeName)),
-    ChangeAdministrativeStatus(29,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(
-                    DeviceMessageConstants.AdministrativeStatusAttributeName,
-                    new BigDecimal(0),
-                    new BigDecimal(1),
-                    new BigDecimal(2),
-                    new BigDecimal(3)
-            )
-    ),
-    BootSyncEnable(30, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.enableBootSync)),
-    WhitelistedPhoneNumbers(31, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
-    EnableFW(32),
-    DisableFW(33),
-    EnableSSL(35, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableSSL)),
-    SetDeviceName(36, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceName)),
-    SetNTPAddress(37, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ntpAddress)),
-    Clear_Faults_Flags(38),
-    Clear_Statistical_Values(39),
-    SyncNTPServer(40),
-    ConfigureAutomaticDemandReset(41,
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableAutomaticDemandResetAttributeName),
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.day, BigDecimal.valueOf(0), BigDecimal.valueOf(31)),
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.hour, BigDecimal.valueOf(0), BigDecimal.valueOf(23))
-    ),
-    ENABLE_DISCOVERY_ON_POWER_UP(43),
-    DISABLE_DISCOVERY_ON_POWER_UP(44),
-    ConfigureMasterBoardParameters(45,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.localMacAddress, BigDecimal.valueOf(-1)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxCredit, BigDecimal.valueOf(-1)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.zeroCrossDelay, BigDecimal.valueOf(-1)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.synchronisationBit, BigDecimal.valueOf(-1))
-    ),
-    UpgradeSetOption(46, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
-    UpgradeClrOption(47, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
-    ConfigureBillingPeriodStartDate(48,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.year, BigDecimal.ZERO),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month, BigDecimal.ZERO),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.dayOfWeek, "--", "MO", "TU", "WE", "TH", "FR", "SA", "SU")),
-    ConfigureBillingPeriodLength(49, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.billingPeriodLengthAttributeName)),
-    WriteNewOnDemandBillingDate(50,
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.setOnDemandBillingDateAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.OnDemandBillingReasonAttributeName,
-                    BigDecimal.valueOf(0), BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3), BigDecimal.valueOf(4),
-                    BigDecimal.valueOf(5), BigDecimal.valueOf(6), BigDecimal.valueOf(7))),
-    ChangeUnitStatus(51, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.UnitStatusAttributeName, "Normal", "Maintenance")),
-    ConfigureStartOfGasDaySettings(52, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.IgnoreDSTAttributeName, false)),
-    ConfigureStartOfGasDay(53, PropertySpecFactory.timeOfDayPropertySpec(DeviceMessageConstants.StartOfGasDayAttributeName)),
-    ConfigureRSSIMultipleSampling(54, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableRSSIMultipleSampling, true)),
+    SetDescription(7) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDescriptionAttributeName, DeviceMessageConstants.SetDescriptionAttributeDefaultTranslation).finish());
+        }
+    },
+    SetIntervalInSeconds(8) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetIntervalInSecondsAttributeName, DeviceMessageConstants.SetIntervalInSecondsAttributeDefaultTranslation).finish());
+        }
+    },
+    SetUpgradeUrl(9) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetUpgradeUrlAttributeName, DeviceMessageConstants.SetUpgradeUrlAttributeDefaultTranslation).finish());
+        }
+    },
+    SetUpgradeOptions(10) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetUpgradeOptionsAttributeName, DeviceMessageConstants.SetUpgradeOptionsAttributeDefaultTranslation).finish());
+        }
+    },
+    SetDebounceTreshold(11) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDebounceTresholdAttributeName, DeviceMessageConstants.SetDebounceTresholdAttributeDefaultTranslation).finish());
+        }
+    },
+    SetTariffMoment(12) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetTariffMomentAttributeName, DeviceMessageConstants.SetTariffMomentAttributeDefaultTranslation).finish());
+        }
+    },
+    SetCommOffset(13) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetCommOffsetAttributeName, DeviceMessageConstants.SetCommOffsetAttributeDefaultTranslation).finish());
+        }
+    },
+    SetAggIntv(14) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetAggIntvAttributeName, DeviceMessageConstants.SetAggIntvAttributeDefaultTranslation).finish());
+        }
+    },
+    SetPulseTimeTrue(15) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetPulseTimeTrueAttributeName, DeviceMessageConstants.SetPulseTimeTrueAttributeDefaultTranslation).finish());
+        }
+    },
+    SetDukePowerID(16) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDukePowerIDAttributeName, DeviceMessageConstants.SetDukePowerIDAttributeDefaultTranslation).finish());
+        }
+    },
+    SetDukePowerPassword(17) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDukePowerPasswordAttributeName, DeviceMessageConstants.SetDukePowerPasswordAttributeDefaultTranslation).finish());
+        }
+    },
+    SetDukePowerIdleTime(18) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDukePowerIdleTimeAttributeName, DeviceMessageConstants.SetDukePowerIdleTimeAttributeDefaultTranslation).finish());
+        }
+    },
+    UploadMeterScheme(19) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.MeterScheme, DeviceMessageConstants.MeterSchemeDefaultTranslation));
+        }
+    },
+    UploadSwitchPointClockSettings(20) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.SwitchPointClockSettings, DeviceMessageConstants.SwitchPointClockSettingsDefaultTranslation));
+        }
+    },
+    UploadSwitchPointClockUpdateSettings(21) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.SwitchPointClockUpdateSettings, DeviceMessageConstants.SwitchPointClockUpdateSettingsDefaultTranslation));
+        }
+    },
+    ProgramBatteryExpiryDate(22) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.dateSpec(service, DeviceMessageConstants.ConfigurationChangeDate, DeviceMessageConstants.ConfigurationChangeDateDefaultTranslation));
+        }
+    },
+    ChangeOfSupplier(23) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecBuilder(service, DeviceMessageConstants.ChangeOfSupplierName, DeviceMessageConstants.ChangeOfSupplierDefaultTranslation).finish(),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.ChangeOfSupplierID, DeviceMessageConstants.ChangeOfSupplierIDDefaultTranslation),
+                    this.dateTimeSpec(service, DeviceMessageConstants.ConfigurationChangeActivationDate, DeviceMessageConstants.ConfigurationChangeActivationDateDefaultTranslation)
+            );
+        }
+    },
+    ChangeOfTenancy(24) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.dateTimeSpec(service, DeviceMessageConstants.ConfigurationChangeActivationDate, DeviceMessageConstants.ConfigurationChangeActivationDateDefaultTranslation));
+        }
+    },
+    SetCalorificValueAndActivationDate(25) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.CalorificValue, DeviceMessageConstants.CalorificValueDefaultTranslation),
+                    this.dateTimeSpec(service, DeviceMessageConstants.ConfigurationChangeActivationDate, DeviceMessageConstants.ConfigurationChangeActivationDateDefaultTranslation)
+            );
+        }
+    },
+    SetConversionFactorAndActivationDate(26) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.ConversionFactor, DeviceMessageConstants.ConversionFactorDefaultTranslation),
+                    this.dateTimeSpec(service, DeviceMessageConstants.ConfigurationChangeActivationDate, DeviceMessageConstants.ConfigurationChangeActivationDateDefaultTranslation)
+            );
+        }
+    },
+    SetAlarmFilter(27) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.hexStringSpecOfExactLength(
+                            service, DeviceMessageConstants.AlarmFilterAttributeName, DeviceMessageConstants.AlarmFilterAttributeDefaultTranslation,
+                            4));
+        }
+    },
+    ChangeDefaultResetWindow(28) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.DefaultResetWindowAttributeName, DeviceMessageConstants.DefaultResetWindowAttributeDefaultTranslation));
+        }
+    },
+    ChangeAdministrativeStatus(29) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.bigDecimalSpec(
+                            service, DeviceMessageConstants.AdministrativeStatusAttributeName, DeviceMessageConstants.AdministrativeStatusAttributeDefaultTranslation,
+                            BigDecimal.ZERO,
+                            BigDecimal.ONE,
+                            new BigDecimal(2),
+                            new BigDecimal(3)));
+        }
+    },
+    BootSyncEnable(30) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.enableBootSync, DeviceMessageConstants.enableBootSyncDefaultTranslation).finish());
+        }
+    },
+    WhitelistedPhoneNumbers(31) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.whiteListPhoneNumbersAttributeName, DeviceMessageConstants.whiteListPhoneNumbersAttributeDefaultTranslation).finish());
+        }
+    },
+    EnableFW(32) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
+    DisableFW(33) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
+    EnableSSL(35) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.enableSSL, DeviceMessageConstants.enableSSLDefaultTranslation));
+        }
+    },
+    SetDeviceName(36) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.deviceName, DeviceMessageConstants.deviceNameDefaultTranslation).finish());
+        }
+    },
+    SetNTPAddress(37) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.ntpAddress, DeviceMessageConstants.ntpAddressDefaultTranslation).finish());
+        }
+    },
+    Clear_Faults_Flags(38) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
+    Clear_Statistical_Values(39) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
+    SyncNTPServer(40) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
+    ConfigureAutomaticDemandReset(41) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.booleanSpec(service, DeviceMessageConstants.enableAutomaticDemandResetAttributeName, DeviceMessageConstants.enableAutomaticDemandResetAttributeDefaultTranslation),
+                    this.boundedBigDecimalSpec(
+                            service, DeviceMessageConstants.day, DeviceMessageConstants.dayDefaultTranslation,
+                            BigDecimal.ZERO, BigDecimal.valueOf(31)),
+                    this.boundedBigDecimalSpec(
+                            service, DeviceMessageConstants.hour, DeviceMessageConstants.hourDefaultTranslation,
+                            BigDecimal.ZERO, BigDecimal.valueOf(23))
+            );
+        }
+    },
+    ENABLE_DISCOVERY_ON_POWER_UP(43) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
+    DISABLE_DISCOVERY_ON_POWER_UP(44) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
+    ConfigureMasterBoardParameters(45) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.localMacAddress, DeviceMessageConstants.localMacAddressDefaultTranslation)
+                            .setDefaultValue(BigDecimal.valueOf(-1))
+                            .finish(),
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.maxCredit, DeviceMessageConstants.maxCreditDefaultTranslation)
+                            .setDefaultValue(BigDecimal.valueOf(-1))
+                            .finish(),
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.zeroCrossDelay, DeviceMessageConstants.zeroCrossDelayDefaultTranslation)
+                            .setDefaultValue(BigDecimal.valueOf(-1))
+                            .finish(),
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.synchronisationBit, DeviceMessageConstants.synchronisationBitDefaultTranslation)
+                            .setDefaultValue(BigDecimal.valueOf(-1))
+                            .finish()
+            );
+        }
+    },
+    UpgradeSetOption(46) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation).finish());
+        }
+    },
+    UpgradeClrOption(47) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation).finish());
+        }
+    },
+    ConfigureBillingPeriodStartDate(48) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.year, DeviceMessageConstants.monthDefaultTranslation)
+                            .setDefaultValue(BigDecimal.ZERO)
+                            .finish(),
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.month, DeviceMessageConstants.monthDefaultTranslation)
+                            .setDefaultValue(BigDecimal.ZERO)
+                            .finish(),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.day, DeviceMessageConstants.dayDefaultTranslation),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.dayOfWeek, DeviceMessageConstants.dayOfWeekDefaultTranslation)
+                            .setDefaultValue("--")
+                            .addValues("MO", "TU", "WE", "TH", "FR", "SA", "SU")
+                            .markExhaustive()
+                            .finish()
+            );
+        }
+    },
+    ConfigureBillingPeriodLength(49) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.billingPeriodLengthAttributeName, DeviceMessageConstants.billingPeriodLengthAttributeDefaultTranslation));
+        }
+    },
+    WriteNewOnDemandBillingDate(50) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.dateTimeSpec(service, DeviceMessageConstants.setOnDemandBillingDateAttributeName, DeviceMessageConstants.setOnDemandBillingDateAttributeDefaultTranslation),
+                    this.bigDecimalSpec(
+                            service, DeviceMessageConstants.OnDemandBillingReasonAttributeName, DeviceMessageConstants.OnDemandBillingReasonAttributeDefaultTranslation,
+                            BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2), BigDecimal.valueOf(3),
+                            BigDecimal.valueOf(4), BigDecimal.valueOf(5), BigDecimal.valueOf(6), BigDecimal.valueOf(7))
+            );
+        }
+    },
+    ChangeUnitStatus(51) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpecBuilder(
+                            service, DeviceMessageConstants.UnitStatusAttributeName, DeviceMessageConstants.UnitStatusAttributeDefaultTranslation)
+                            .addValues("Normal", "Maintenance")
+                            .markExhaustive()
+                            .finish());
+        }
+    },
+    ConfigureStartOfGasDaySettings(52) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.booleanSpec(
+                            service, DeviceMessageConstants.IgnoreDSTAttributeName, DeviceMessageConstants.IgnoreDSTAttributeDefaultTranslation,
+                            Boolean.FALSE));
+        }
+    },
+    ConfigureStartOfGasDay(53) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.timeSpec(service, DeviceMessageConstants.StartOfGasDayAttributeName, DeviceMessageConstants.StartOfGasDayAttributeDefaultTranslation));
+        }
+    },
+    ConfigureRSSIMultipleSampling(54) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.booleanSpec(
+                            service, DeviceMessageConstants.enableRSSIMultipleSampling, DeviceMessageConstants.enableRSSIMultipleSamplingDefaultTranslation,
+                            Boolean.TRUE));
+        }
+    },
     CHANGE_OF_TENANT(55,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
@@ -216,7 +529,12 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SHORT_DISPLAY_MESSAGE)),
     SendLongDisplayMessage(70,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.LONG_DISPLAY_MESSAGE)),
-    ResetDisplayMessage(71),
+    ResetDisplayMessage(71) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
     ConfigureLCDDisplay(72,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA,
                     new BigDecimal(5),
@@ -356,61 +674,152 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     SetMaxLoginAttempts(81, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS)),
     SetLockoutDuration(82, PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DeviceMessageConstants.SET_LOCKOUT_DURATION, new TimeDuration(10000, TimeDuration.MILLISECONDS))),
     ConfigureGeneralLocalPortReadout(83, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName)),
-    DISABLE_PUSH_ON_INSTALLATION(84),
+    DISABLE_PUSH_ON_INSTALLATION(84) {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList() ;
+        }
+    },
     ENABLE_PUSH_ON_INTERVAL_OBJECTS(85,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionMinutesForEachHour));
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
+    private final long id;
 
-    ConfigurationChangeDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    ConfigurationChangeDeviceMessage(int id) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
-    public int getMessageId() {
-        return id;
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec dateSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return DeviceMessageCategories.CONFIGURATION_CHANGE;
+    protected PropertySpec timeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .timeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+    protected PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateTimeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
+    protected PropertySpec temporalAmountSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .temporalAmountSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec boundedBigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal lowerLimit, BigDecimal upperLimit) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .boundedBigDecimalSpec(lowerLimit, upperLimit)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
+    }
+
+    protected PropertySpec stringSpecOfExactLength(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, int length) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpecOfExactLength(length)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec hexStringSpecOfExactLength(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, int length) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .hexStringSpecOfExactLength(length)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    private PropertySpecBuilder<Boolean> booleanSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .booleanSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
+    }
+
+    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.booleanSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
+    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, Boolean defaultValue) {
+        return this.booleanSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).setDefaultValue(defaultValue).finish();
+    }
+
+    protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description());
+    }
+
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... exhaustiveValues) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .addValues(exhaustiveValues)
+                .markExhaustive()
+                .finish();
+    }
+
+    protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(DeviceMessageFile.class)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
     private String getNameResourceKey() {
         return ConfigurationChangeDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return deviceMessagePropertySpecs;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.CONFIGURATION_CHANGE,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
     private static class Constants {
@@ -426,21 +835,17 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
         private final int id;
 
-        private PushType(int id) {
+        PushType(int id) {
             this.id = id;
         }
 
         public static String[] getTypes() {
-            PushType[] allTypes = values();
-            String[] result = new String[allTypes.length];
-            for (int index = 0; index < allTypes.length; index++) {
-                result[index] = allTypes[index].name();
-            }
-            return result;
+            return Stream.of(values()).map(PushType::name).toArray(String[]::new);
         }
 
         public int getId() {
             return id;
         }
     }
+
 }

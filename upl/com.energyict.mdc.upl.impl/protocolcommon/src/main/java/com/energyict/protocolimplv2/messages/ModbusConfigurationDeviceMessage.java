@@ -18,7 +18,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecFactory {
+public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     SetMmEvery(0, "Set Mm every", DeviceMessageConstants.SetMmEveryAttributeName, DeviceMessageConstants.SetMmEveryAttributeDefaultTranslation),
     SetMmTimeout(1, "Set Mm timeout", DeviceMessageConstants.SetMmTimeoutAttributeName, DeviceMessageConstants.SetMmTimeoutAttributeDefaultTranslation),

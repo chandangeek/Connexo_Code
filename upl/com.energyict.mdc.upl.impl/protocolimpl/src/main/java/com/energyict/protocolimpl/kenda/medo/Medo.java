@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.kenda.medo;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
@@ -23,7 +24,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -274,7 +274,7 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException {
         try {
             this.outstationID = Integer.parseInt(properties.getProperty(NODEID.getName()));
             this.destinationCode = Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));

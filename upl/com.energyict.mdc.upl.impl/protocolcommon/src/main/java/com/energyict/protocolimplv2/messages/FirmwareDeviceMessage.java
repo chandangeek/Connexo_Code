@@ -103,7 +103,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resum
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum FirmwareDeviceMessage implements DeviceMessageSpecFactory {
+public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
 
     UPGRADE_FIRMWARE_WITH_USER_FILE(0, "Firmware upgrade via user file") {
         @Override

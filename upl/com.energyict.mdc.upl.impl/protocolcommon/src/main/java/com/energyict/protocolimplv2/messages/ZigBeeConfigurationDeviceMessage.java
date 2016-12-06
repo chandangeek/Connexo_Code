@@ -20,7 +20,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecFactory {
+public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     CreateHANNetwork(0, "Create HAN network") {
         @Override

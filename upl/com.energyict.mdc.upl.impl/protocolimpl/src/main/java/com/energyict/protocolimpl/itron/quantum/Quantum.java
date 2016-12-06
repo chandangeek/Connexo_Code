@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.itron.quantum;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -26,7 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -79,7 +79,7 @@ public class Quantum extends SchlumbergerProtocol {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         allowClockSet = Integer.parseInt(properties.getProperty(ALLOW_CLOCK_SET, "0").trim()) == 1;
         setDelayAfterConnect(Integer.parseInt(properties.getProperty(DELAY_AFTER_CONNECT, "2000").trim()));

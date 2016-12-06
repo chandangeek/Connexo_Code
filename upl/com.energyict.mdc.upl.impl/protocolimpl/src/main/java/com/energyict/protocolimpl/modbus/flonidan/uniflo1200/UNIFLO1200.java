@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -37,7 +38,6 @@ import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
@@ -171,7 +171,7 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 	}
 
 	@Override
-	public void setProperties(Properties properties) throws PropertyValidationException {
+	public void setProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setProperties(properties);
 		sendDebug("setProperties()", 5);
         try {

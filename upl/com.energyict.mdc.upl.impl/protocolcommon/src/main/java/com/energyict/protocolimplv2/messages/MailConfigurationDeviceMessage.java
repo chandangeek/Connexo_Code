@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,82 +16,65 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum MailConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     // Read Mail (POP3) Parameters
-    SetPOPUsername(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPUsernameAttributeName)),
-    SetPOPPassword(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPPasswordAttributeName)),
-    SetPOPHost(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPHostAttributeName)),
-    SetPOPReadMailEvery(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPReadMailEveryAttributeName)),
-    SetPOP3Options(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOP3OptionsAttributeName)),
+    SetPOPUsername(0, "Set POP username", DeviceMessageConstants.SetPOPUsernameAttributeName, DeviceMessageConstants.SetPOPUsernameAttributeDefaultTranslation),
+    SetPOPPassword(1, "Set POP password", DeviceMessageConstants.SetPOPPasswordAttributeName, DeviceMessageConstants.SetPOPPasswordAttributeDefaultTranslation),
+    SetPOPHost(2, "Set POP host", DeviceMessageConstants.SetPOPHostAttributeName, DeviceMessageConstants.SetPOPHostAttributeDefaultTranslation),
+    SetPOPReadMailEvery(3, "Set POP read mail every", DeviceMessageConstants.SetPOPReadMailEveryAttributeName, DeviceMessageConstants.SetPOPReadMailEveryAttributeDefaultTranslation),
+    SetPOP3Options(4, "Set POP3 options", DeviceMessageConstants.SetPOP3OptionsAttributeName, DeviceMessageConstants.SetPOP3OptionsAttributeDefaultTranslation),
+    SetSMTPTo(6, "Set SMTP to", DeviceMessageConstants.SetSMTPToAttributeName, DeviceMessageConstants.SetSMTPToAttributeDefaultTranslation),
+    SetSMTPConfigurationTo(7, "Set SMTP configuration to", DeviceMessageConstants.SetSMTPConfigurationToAttributeName, DeviceMessageConstants.SetSMTPConfigurationToAttributeDefaultTranslation),
+    SetSMTPServer(8, "Set SMTP server", DeviceMessageConstants.SetSMTPServerAttributeName, DeviceMessageConstants.SetSMTPServerAttributeDefaultTranslation),
+    SetSMTPDomain(9, "Set SMTP domain", DeviceMessageConstants.SetSMTPDomainAttributeName, DeviceMessageConstants.SetSMTPDomainAttributeDefaultTranslation),
+    SetSMTPSendMailEvery(10, "Set SMTP send mail every", DeviceMessageConstants.SetSMTPSendMailEveryAttributeName, DeviceMessageConstants.SetSMTPSendMailEveryAttributeDefaultTranslation),
+    SetSMTPCurrentInterval(11, "Set SMTP current interval", DeviceMessageConstants.SetSMTPCurrentIntervalAttributeName, DeviceMessageConstants.SetSMTPCurrentIntervalAttributeDefaultTranslation),
+    SetSMTPDatabaseID(12, "Set SMTP database ID", DeviceMessageConstants.SetSMTPDatabaseIDAttributeName, DeviceMessageConstants.SetSMTPDatabaseIDAttributeDefaultTranslation),
+    SetSMTPOptions(13, "Set SMTP options", DeviceMessageConstants.SetSMTPOptionsAttributeName, DeviceMessageConstants.SetSMTPOptionsAttributeDefaultTranslation),
+    POP3SetOption(14, "POP3 - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    POP3ClrOption(15, "POP3 - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    SMTPSetOption(16, "SMTP - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    SMTPClrOption(17, "SMTP - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation);
 
-    // Send Mail (SMTP) Parameters
-    SetSMTPFrom(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPFromAttributeName)),
-    SetSMTPTo(6, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPToAttributeName)),
-    SetSMTPConfigurationTo(7, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPConfigurationToAttributeName)),
-    SetSMTPServer(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPServerAttributeName)),
-    SetSMTPDomain(9, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPDomainAttributeName)),
-    SetSMTPSendMailEvery(10, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPSendMailEveryAttributeName)),
-    SetSMTPCurrentInterval(11, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPCurrentIntervalAttributeName)),
-    SetSMTPDatabaseID(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPDatabaseIDAttributeName)),
-    SetSMTPOptions(13, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPOptionsAttributeName)),
-    POP3SetOption(14, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
-    POP3ClrOption(15, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
-    SMTPSetOption(16, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
-    SMTPClrOption(17, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
+    private final long id;
+    private final String defaultNameTranslation;
+    private final String propertyName;
+    private final String propertyDefaultTranslation;
 
-    private static final DeviceMessageCategory mailConfigurationCategory = DeviceMessageCategories.MAIL_CONFIGURATION;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private MailConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    MailConfigurationDeviceMessage(long id, String defaultNameTranslation, String propertyName, String propertyDefaultTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
+        this.propertyName = propertyName;
+        this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return mailConfigurationCategory;
-    }
-
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
-    }
-
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
     private String getNameResourceKey() {
         return MailConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.MAIL_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+    private List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+        return Collections.singletonList(this.stringSpec(propertySpecService, this.propertyName, this.propertyDefaultTranslation));
     }
 
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
+    private PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

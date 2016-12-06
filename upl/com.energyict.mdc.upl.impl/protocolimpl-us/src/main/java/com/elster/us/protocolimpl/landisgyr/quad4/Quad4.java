@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -175,7 +176,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     }
 
     @Override
-    public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
             if (p.getProperty(SERIALNUMBER.getName()) != null) {
                 pSerialNumber = p.getProperty(SERIALNUMBER.getName());

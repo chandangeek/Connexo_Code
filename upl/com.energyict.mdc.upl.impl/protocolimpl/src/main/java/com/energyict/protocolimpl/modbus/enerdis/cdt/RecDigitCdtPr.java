@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -22,7 +23,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 
 /**
@@ -77,7 +77,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     }
 
     @Override
-    public void setProperties(Properties properties) throws PropertyValidationException {
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PK_LIMIT_MAX_NR_OF_DAYS, "0"));
 

@@ -1,6 +1,6 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;

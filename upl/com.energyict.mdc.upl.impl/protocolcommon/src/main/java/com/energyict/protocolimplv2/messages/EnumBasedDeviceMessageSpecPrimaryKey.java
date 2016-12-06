@@ -7,7 +7,7 @@ import static com.energyict.protocolimplv2.messages.EnumBasedPrimaryKeySupport.c
 
 /**
  * Provides an implementation for the {@link DeviceMessageSpecPrimaryKey} interface
- * that are being produced by {@link DeviceMessageSpecFactory DeviceMessageSpecFactories}
+ * that are being produced by {@link DeviceMessageSpecSupplier DeviceMessageSpecFactories}
  * that are implemented by enum classes.
  * <p/>
  * Copyrights EnergyICT
@@ -19,7 +19,7 @@ public class EnumBasedDeviceMessageSpecPrimaryKey implements DeviceMessageSpecPr
     private final String enumClassName;
     private final String enumName;
 
-    public EnumBasedDeviceMessageSpecPrimaryKey(DeviceMessageSpecFactory factory, String enumName) {
+    public EnumBasedDeviceMessageSpecPrimaryKey(DeviceMessageSpecSupplier factory, String enumName) {
         this.enumClassName = factory.getClass().getName();
         this.enumName = enumName;
     }

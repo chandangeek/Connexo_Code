@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast;
 
 import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;

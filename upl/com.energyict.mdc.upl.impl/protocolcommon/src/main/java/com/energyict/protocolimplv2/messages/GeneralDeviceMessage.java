@@ -1,15 +1,17 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,67 +23,90 @@ import java.util.List;
  * Date: 3/04/13
  * Time: 8:38
  */
-public enum GeneralDeviceMessage implements DeviceMessageSpec {
+public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
 
-    WRITE_RAW_IEC1107_CLASS( 0,
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName)),
-    WRITE_FULL_CONFIGURATION(1,PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.configUserFileAttributeName)),
-    SEND_XML_MESSAGE(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.xmlMessageAttributeName));
+    WRITE_RAW_IEC1107_CLASS(0, "Write raw IEC1107 class") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.IEC1107ClassIdAttributeName, DeviceMessageConstants.IEC1107ClassIdAttributeDefaultTranslation, BigDecimal.ZERO, BigDecimal.valueOf(9999)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.OffsetAttributeName, DeviceMessageConstants.OffsetAttributeDefaultTranslation, BigDecimal.ZERO, BigDecimal.valueOf(9999)),
+                    this.hexStringSpec(service, DeviceMessageConstants.RawDataAttributeName, DeviceMessageConstants.RawDataAttributeDefaultTranslation)
+            );
+        }
+    },
+    WRITE_FULL_CONFIGURATION(1, "Write full configuration") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.configUserFileAttributeName, DeviceMessageConstants.configUserFileAttributeDefaultTranslation));
+        }
+    },
+    SEND_XML_MESSAGE(2, "Send XML message") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.xmlMessageAttributeName, DeviceMessageConstants.xmlMessageAttributeDefaultTranslation));
+        }
+    };
 
-    private static final DeviceMessageCategory generalCategory = DeviceMessageCategories.GENERAL;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private GeneralDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    GeneralDeviceMessage(int id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return generalCategory;
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec boundedBigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal lowerLimit, BigDecimal upperLimit) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .boundedBigDecimalSpec(lowerLimit, upperLimit)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
+    protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .hexStringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(DeviceMessageFile.class)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
     private String getNameResourceKey() {
         return GeneralDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.GENERAL,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

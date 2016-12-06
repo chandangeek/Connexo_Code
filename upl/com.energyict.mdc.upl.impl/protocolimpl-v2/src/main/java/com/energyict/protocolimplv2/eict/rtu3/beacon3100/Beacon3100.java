@@ -3,20 +3,19 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.protocol.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.security.SecuritySuite;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -26,9 +25,11 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
-import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.ObservationTimestampPropertyImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.CipheringType;
@@ -39,7 +40,6 @@ import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -221,7 +221,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
         final Beacon3100Properties publicClientProperties = new Beacon3100Properties();
 
-        publicClientProperties.addProperties(getDlmsSessionProperties().getProperties().clone());
+        publicClientProperties.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(getDlmsSessionProperties().getProperties()));
         publicClientProperties.getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS.toString(),
         												   BigDecimal.valueOf(ClientConfiguration.PUBLIC.clientId));
 
@@ -481,7 +481,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      */
     private BigDecimal getGeneralProperty(String macAddress, String propertyName) {
         for (OfflineDevice offlineSlaveDevice : offlineDevice.getAllSlaveDevices()) {
-            String callHomeId = offlineSlaveDevice.getAllProperties().getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+            String callHomeId = offlineSlaveDevice.getAllProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
             if (callHomeId != null && callHomeId.equals(macAddress)) {
                 return offlineSlaveDevice.getAllProperties().getTypedProperty(propertyName);
             }
@@ -559,7 +559,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * A collection of general DLMS properties.
      * These properties are not related to the security or the protocol dialects.
      */
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
             dlmsConfigurationSupport = new Beacon3100ConfigurationSupport();
         }

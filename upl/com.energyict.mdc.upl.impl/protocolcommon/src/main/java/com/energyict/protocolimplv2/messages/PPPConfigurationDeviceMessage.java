@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecFactory {
+public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     SetISP1Phone(0, "Set ISP1 phone", PropertyType.STRING, DeviceMessageConstants.SetISP1PhoneAttributeName, DeviceMessageConstants.SetISP1PhoneAttributeDefaultTranslation),
     SetISP1Username(1, "Set ISP1 username", PropertyType.STRING, DeviceMessageConstants.SetISP1UsernameAttributeName, DeviceMessageConstants.SetISP1UsernameAttributeDefaultTranslation),

@@ -1,21 +1,40 @@
 package com.energyict.mdc.channels.ip.socket;
 
-import com.energyict.cpo.Environment;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
+import com.energyict.cpo.Environment;
 import com.energyict.mdw.core.DLMSKeyStoreParameters;
 import com.energyict.mdw.core.DLMSKeyStoreUserFile;
 import com.energyict.mdw.crypto.DLMSKeyStoreUserFileProviderImpl;
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import sun.security.util.DerInputStream;
-import sun.security.x509.*;
+import sun.security.x509.AuthorityKeyIdentifierExtension;
+import sun.security.x509.GeneralName;
+import sun.security.x509.GeneralNames;
+import sun.security.x509.PKIXExtensions;
+import sun.security.x509.X500Name;
 
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.security.*;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -44,30 +63,30 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
      * Defaults to TLSv1.2
      */
     private PropertySpec tlsVersionPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(TLS_VERSION_PROPERTY_NAME, TLS_DEFAULT_VERSION);
+        return UPLPropertySpecFactory.stringWithDefault(TLS_VERSION_PROPERTY_NAME, false, TLS_DEFAULT_VERSION);
     }
 
     /**
      * A comma-separated list of cipher suites that are preferred by the client (ComServer)
      */
     private PropertySpec preferredCipheringSuitesPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(PREFERRED_CIPHER_SUITES_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(PREFERRED_CIPHER_SUITES_PROPERTY_NAME, false);
     }
 
     /**
      * The alias of the TLS private key.
      */
     private PropertySpec tlsAliasPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(CLIENT_TLS_ALIAS);
+        return UPLPropertySpecFactory.string(CLIENT_TLS_ALIAS, false);
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = super.getOptionalProperties();
-        optionalProperties.add(tlsVersionPropertySpec());
-        optionalProperties.add(preferredCipheringSuitesPropertySpec());
-        optionalProperties.add(tlsAliasPropertySpec());
-        return optionalProperties;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(tlsVersionPropertySpec());
+        propertySpecs.add(preferredCipheringSuitesPropertySpec());
+        propertySpecs.add(tlsAliasPropertySpec());
+        return propertySpecs;
     }
 
     private String getTLSVersionPropertyValue() {
@@ -80,20 +99,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     private String getClientTLSAliasPropertyValue() {
         return (String) this.getProperty(CLIENT_TLS_ALIAS);
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case TLS_VERSION_PROPERTY_NAME:
-                return tlsVersionPropertySpec();
-            case PREFERRED_CIPHER_SUITES_PROPERTY_NAME:
-                return preferredCipheringSuitesPropertySpec();
-            case CLIENT_TLS_ALIAS:
-                return tlsAliasPropertySpec();
-            default:
-                return super.getPropertySpec(name);
-        }
     }
 
     public Logger getLogger() {
@@ -142,7 +147,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
                     enabledCipherSuites.remove(preferredCipherSuite);
                     enabledCipherSuites.add(index, preferredCipherSuite);
                 } else {
-                    String pattern = Environment.getDefault().getTranslation("preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite '{0}' is not supported by your current java version.");
+                    String pattern = Environment.getDefault()
+                            .getTranslation("preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite '{0}' is not supported by your current java version.");
                     throw new ConnectionException(pattern, preferredCipherSuite);
                 }
             }
@@ -215,7 +221,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         /**
          * Given the partial or complete certificate chain provided by the peer, build a certificate path to a trusted root and return if it can be validated and is trusted for server SSL authentication based on the authentication type.
          *
-         * @param chain    the peer certificate chain
+         * @param chain the peer certificate chain
          * @param authType he key exchange algorithm used
          * @throws CertificateException if the certificate chain is not trusted by this TrustManager.
          */

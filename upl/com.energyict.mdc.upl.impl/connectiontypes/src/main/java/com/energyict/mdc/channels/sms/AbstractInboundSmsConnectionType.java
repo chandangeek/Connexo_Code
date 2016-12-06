@@ -4,7 +4,8 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
-import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -33,7 +34,7 @@ public abstract class AbstractInboundSmsConnectionType extends ConnectionTypeImp
     }
 
     @Override
-    public ComChannel connect(TypedProperties connectionProperties) throws com.energyict.dialer.connection.ConnectionException {
+    public ComChannel connect() throws ConnectionException {
         return new VoidComChannel();
     }
 

@@ -1,11 +1,8 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
-import java.util.Properties;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 /**
  * Copyrights EnergyICT
@@ -14,6 +11,6 @@ import java.util.Properties;
  */
 public interface ProtocolProperties extends HasDynamicProperties {
 
-    void setProperties(Properties properties) throws PropertyValidationException;
+    void setProperties(TypedProperties properties) throws PropertyValidationException;
 
 }

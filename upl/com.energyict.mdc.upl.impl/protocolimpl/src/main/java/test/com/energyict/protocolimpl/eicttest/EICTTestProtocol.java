@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -60,7 +61,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 /**
  *
@@ -551,7 +551,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     }
 
     @Override
-	public void setProperties(Properties properties) throws PropertyValidationException {
+	public void setProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setProperties(properties);
         setEICTTestProperty(Integer.parseInt(properties.getProperty(PK_TEST_PROPERTY, "123")));
        	setLoadProfileObisCode(ObisCode.fromString(properties.getProperty(PK_LOAD_PROFILE_OBIS_CODE, "0.0.99.1.0.255")));

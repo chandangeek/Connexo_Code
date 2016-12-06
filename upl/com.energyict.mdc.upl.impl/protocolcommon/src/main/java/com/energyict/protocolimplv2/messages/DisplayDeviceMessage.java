@@ -19,7 +19,7 @@ import java.util.List;
  * Date: 3/04/13
  * Time: 8:38
  */
-public enum DisplayDeviceMessage implements DeviceMessageSpecFactory {
+public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
 
     CONSUMER_MESSAGE_CODE_TO_PORT_P1(0, "Send a code message to the P1 port") {
         @Override

@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * Date: 3/04/13
  * Time: 8:38
  */
-public enum AlarmConfigurationMessage implements DeviceMessageSpecFactory {
+public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
 
     RESET_ALL_ALARM_BITS(0, "Reset all alarm bits") {
         @Override

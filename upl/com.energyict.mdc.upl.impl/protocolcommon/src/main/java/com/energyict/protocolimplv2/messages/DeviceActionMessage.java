@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
  * Date: 11/03/13
  * Time: 11:59
  */
-public enum DeviceActionMessage implements DeviceMessageSpecFactory {
+public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
 
     BILLING_RESET(0, "Billing reset") {
         @Override

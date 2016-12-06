@@ -1,37 +1,67 @@
 package com.energyict.protocolimplv2.edp;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 
 /**
  * A collection of general DLMS properties that are relevant for the EDP DLMS meters.
  * These properties are not related to the security or the protocol dialects.
  * The parsing and the usage of the property values is done in implementations of {@link com.energyict.dlms.protocolimplv2.DlmsSessionProperties}
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/10/13
  * Time: 15:41
  * Author: khe
  */
-public class EDPDlmsConfigurationSupport implements ConfigurationSupport {
+public class EDPDlmsConfigurationSupport implements HasDynamicProperties {
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
+    private PropertySpec timeZonePropertySpec() {
+        return Services
+                .propertySpecService()
+                .timezoneSpec()
+                .named(TIMEZONE, TIMEZONE)
+                .describedAs("Description for " + TIMEZONE)
+                .finish();
+    }
+
+    private PropertySpec serverUpperMacAddressPropertySpec() {
+        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, BigDecimal.ONE);
+    }
+
+    private PropertySpec serverLowerMacAddressPropertySpec() {
+        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, BigDecimal.valueOf(16));
+    }
+
+    private PropertySpec readCachePropertySpec() {
+        return UPLPropertySpecFactory.booleanValue(DlmsProtocolProperties.READCACHE_PROPERTY, false);
+    }
+
+    private PropertySpec forcedDelayPropertySpec() {
+        return UPLPropertySpecFactory.duration(FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
+    }
+
+    private PropertySpec maxRecPduSizePropertySpec() {
+        return UPLPropertySpecFactory.bigDecimal(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -41,29 +71,8 @@ public class EDPDlmsConfigurationSupport implements ConfigurationSupport {
                 this.readCachePropertySpec());
     }
 
-    private PropertySpec timeZonePropertySpec() {
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
-    }
-
-    private PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
-    }
-
-    private PropertySpec serverLowerMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, BigDecimal.valueOf(16));
-    }
-
-    private PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(DlmsProtocolProperties.READCACHE_PROPERTY);
-    }
-
-    private PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(
-                FORCED_DELAY,
-                new TimeDuration(DEFAULT_FORCED_DELAY.intValue() / 1000));
-    }
-
-    private PropertySpec maxRecPduSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
+    @Override
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+        // currently nothing to set
     }
 }

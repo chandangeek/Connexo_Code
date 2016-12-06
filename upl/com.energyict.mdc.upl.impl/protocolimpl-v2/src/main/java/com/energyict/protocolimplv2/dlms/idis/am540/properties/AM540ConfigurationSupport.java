@@ -1,16 +1,16 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,18 +33,15 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
     public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
     public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
+    public static final String DEFAULT_TRANSPARENT_PASSWORD = "00000000";
+    public static final String DEFAULT_TRANSPARENT_SECURITY_LEVEL = "1:0";
 
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
-    public static final int NOT_USED_AARQ_TIMEOUT = 0;
+    public static final Duration DEFAULT_NOT_USED_AARQ_TIMEOUT = Duration.ofSeconds(0);
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -76,83 +73,85 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.frameCounterRecoveryStep()
         );
     }
+
     private PropertySpec frameCounterRecoveryRetries() {
-        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100));
+        return UPLPropertySpecFactory.bigDecimal(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, false, BigDecimal.valueOf(100));
     }
+
     private PropertySpec frameCounterRecoveryStep() {
-        return PropertySpecFactory.bigDecimalPropertySpec(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE);
+        return UPLPropertySpecFactory.bigDecimal(AM540ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, false, BigDecimal.ONE);
     }
 
     private PropertySpec validateCachedFrameCounter() {
-        return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER);
+        return UPLPropertySpecFactory.booleanValue(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, false);
     }
 
     private PropertySpec useCachedFrameCounter() {
-        return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER);
+        return UPLPropertySpecFactory.booleanValue(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false);
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {
-        return PropertySpecFactory.booleanPropertySpec(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER);
+        return UPLPropertySpecFactory.booleanValue(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
     }
 
     private PropertySpec lastSeenDatePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(G3Properties.PROP_LASTSEENDATE);
+        return UPLPropertySpecFactory.bigDecimal(G3Properties.PROP_LASTSEENDATE, false);
     }
 
     private PropertySpec pollingDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(POLLING_DELAY, new TimeDuration(0));
+        return UPLPropertySpecFactory.duration(POLLING_DELAY, false, Duration.ofSeconds(0));
     }
 
     private PropertySpec pskPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(G3Properties.PSK);
+        return UPLPropertySpecFactory.hexString(G3Properties.PSK, false);
     }
 
     private PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
+        return UPLPropertySpecFactory.bigDecimal(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), false);
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
+        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
     }
 
     private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
+        return UPLPropertySpecFactory.bigDecimal(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, false);
     }
 
     private PropertySpec actualLogicalDeviceIdPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
+        return UPLPropertySpecFactory.bigDecimal(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, false);
     }
 
     private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
+        return UPLPropertySpecFactory.booleanValue(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(AARQ_TIMEOUT_PROPERTY, new TimeDuration(NOT_USED_AARQ_TIMEOUT));
+        return UPLPropertySpecFactory.duration(AARQ_TIMEOUT_PROPERTY, false, DEFAULT_NOT_USED_AARQ_TIMEOUT);
     }
 
     private PropertySpec aarqRetriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2));
+        return UPLPropertySpecFactory.bigDecimal(AARQ_RETRIES_PROPERTY, false, BigDecimal.valueOf(2));
     }
 
     private PropertySpec initialFrameCounter() {
-        return PropertySpecFactory.positiveDecimalPropertySpec(INITIAL_FRAME_COUNTER);
+        return UPLPropertySpecFactory.positiveBigDecimal(INITIAL_FRAME_COUNTER, false);
     }
 
     private PropertySpec useMeterInTransparentMode() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(USE_METER_IN_TRANSPARENT_MODE, false);
+        return UPLPropertySpecFactory.booleanValue(USE_METER_IN_TRANSPARENT_MODE, false, false);
     }
 
     private PropertySpec transparentConnectTime() {
-        return PropertySpecFactory.bigDecimalPropertySpec(TRANSP_CONNECT_TIME, BigDecimal.valueOf(10));
+        return UPLPropertySpecFactory.bigDecimal(TRANSP_CONNECT_TIME, false, BigDecimal.valueOf(10));
     }
 
     private PropertySpec transparentPassword() {
-        return PropertySpecFactory.stringPropertySpec(PASSWORD, "00000000");
+        return UPLPropertySpecFactory.string(PASSWORD, false, DEFAULT_TRANSPARENT_PASSWORD);
     }
 
     private PropertySpec transparentSecurityLevel() {
-        return PropertySpecFactory.stringPropertySpec(METER_SECURITY_LEVEL, "1:0");
+        return UPLPropertySpecFactory.string(METER_SECURITY_LEVEL, false, DEFAULT_TRANSPARENT_SECURITY_LEVEL);
     }
 
 }

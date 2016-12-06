@@ -15,7 +15,7 @@ import java.util.Collections;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecFactory {
+public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     SetDialCommand(0, DeviceMessageConstants.SetDialCommandAttributeName, DeviceMessageConstants.SetDialCommandAttributeDefaultTranslation),
     SetModemInit1(1, DeviceMessageConstants.SetModemInit1AttributeName, DeviceMessageConstants.SetModemInit1AttributeDefaultTranslation),
