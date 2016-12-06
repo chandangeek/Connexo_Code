@@ -627,16 +627,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModel(model, record);
+        me.saveChannelDataEstimateModelr(model, record);
     },
 
-    saveChannelDataEstimateModel: function (record, readings) {
+    saveChannelDataEstimateModelr: function (record, readings) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().setParams({deviceId: encodeURIComponent(router.arguments.deviceId), channelId: router.arguments.channelId});
-        record.getProxy().setExtraParam('deviceId', encodeURIComponent(router.arguments.deviceId));
-        record.getProxy().setExtraParam('channelId', router.arguments.channelId);
+        record.getProxy().setParams(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
         me.getReadingEstimationWindow().setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({
