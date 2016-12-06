@@ -346,9 +346,14 @@ public class JbpmTaskResource {
         Comparator<TaskSummary> dueDateComparator = Comparator.comparing(TaskSummary::getDueDate, Comparator.nullsLast(Date::compareTo));
         Comparator<TaskSummary> nameComparator = (task1, task2) -> task1.getName().compareTo(task2.getName());
         TaskSummaryList tasks = getTasks(topTasksPayload.processDefinitionInfos, uriInfo);
-        topTasksInfo.totalUserAssigned = tasks.getTasks().stream().filter(taskSummary -> taskSummary.getActualOwner().equals(topTasksPayload.userName)).count();
-        topTasksInfo.workGroupAssigned = tasks.getTasks().stream().filter(taskSummary -> topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals("")).count();
-        topTasksInfo.tasks = tasks.getTasks().stream().sorted(priorityComparator.thenComparing(dueDateComparator).thenComparing(nameComparator)).limit(5).collect(Collectors.toList());
+        List<TaskSummary> filteredTasks = tasks.getTasks()
+                .stream()
+                .filter(taskSummary -> taskSummary.getActualOwner()
+                        .equals(topTasksPayload.userName) || topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()))
+                .collect(Collectors.toList());
+        topTasksInfo.totalUserAssigned = filteredTasks.stream().filter(taskSummary -> taskSummary.getActualOwner().equals(topTasksPayload.userName)).count();
+        topTasksInfo.workGroupAssigned = filteredTasks.stream().filter(taskSummary -> topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals("")).count();
+        topTasksInfo.tasks = filteredTasks.stream().sorted(dueDateComparator.thenComparing(priorityComparator).thenComparing(nameComparator)).limit(5).collect(Collectors.toList());
         return topTasksInfo;
     }
 
