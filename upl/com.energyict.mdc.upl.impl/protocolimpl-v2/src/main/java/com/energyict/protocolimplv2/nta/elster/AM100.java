@@ -79,4 +79,9 @@ public class AM100 extends WebRTUKP {
         result.add(new RxTxAtModemConnectionType());
         return result;
     }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
 }

@@ -526,6 +526,11 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
+
+    @Override
     public CollectedBreakerStatus getBreakerStatus() {
         return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }

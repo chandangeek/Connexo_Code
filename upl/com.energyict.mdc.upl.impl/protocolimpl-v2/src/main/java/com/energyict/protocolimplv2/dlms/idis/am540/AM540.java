@@ -590,4 +590,9 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
         return result;
     }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
 }
