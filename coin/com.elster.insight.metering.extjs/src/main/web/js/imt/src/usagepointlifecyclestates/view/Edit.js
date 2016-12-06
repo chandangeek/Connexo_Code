@@ -4,7 +4,8 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
     requires: [
         'Uni.view.container.ContentContainer',
         'Uni.grid.column.Default',
-        'Uni.grid.column.RemoveAction'
+        'Uni.grid.column.RemoveAction',
+        'Uni.form.field.DisplayFieldWithInfoIcon'
     ],
 
     content: [
@@ -45,6 +46,33 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                     fieldLabel: Uni.I18n.translate('general.name', 'IMT', 'Name'),
                     required: true,
                     hidden: true
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    itemId: 'usagepoint-life-cycle-stage-container',
+                    fieldLabel: Uni.I18n.translate('general.stage', 'IMT', 'Stage'),
+                    required: true,
+                    layout: 'hbox',
+                    width: 530,
+                    items: [
+                        {
+                            xtype: 'combobox',
+                            name: 'stage',
+                            itemId: 'usagepoint-life-cycle-stage',
+                            store: 'Imt.usagepointlifecycle.store.Stages',
+                            valueField: 'id',
+                            displayField: 'name',
+                            queryMode: 'local',
+                            forceSelection: true,
+                            width: 285
+                        },
+                        {
+                            xtype: 'displayfield-with-info-icon',
+                            itemId: 'usagepoint-life-cycle-stage-info-icon',
+                            infoTooltip: Uni.I18n.translate('general.addUsagePointLifeCycle.stage.qtip', 'IMT', 'State of usage point life cycle state influences an available actions for usage point in such state.'),
+                            onlyIcon: true
+                        }
+                    ]
                 },
                 {
                     xtype: 'fieldcontainer',

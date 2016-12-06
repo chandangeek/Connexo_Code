@@ -23,6 +23,16 @@ Ext.define('Imt.usagepointlifecyclestates.view.PreviewForm', {
                 }
             },
             {
+                itemId: 'stage-field',
+                fieldLabel: Uni.I18n.translate('general.stage', 'IMT', 'Stage'),
+                name: 'stage',
+                renderer: function (value) {
+                    var stage = Ext.getStore('Imt.usagepointlifecycle.store.Stages').getById(value);
+
+                    return stage ? stage.get('name') : value;
+                }
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'entry-field-container',
                 fieldLabel: Uni.I18n.translate('transitionBusinessProcess.entry', 'IMT', 'Processes on entry'),

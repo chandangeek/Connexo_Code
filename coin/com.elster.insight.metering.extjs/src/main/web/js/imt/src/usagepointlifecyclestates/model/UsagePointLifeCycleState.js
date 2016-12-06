@@ -8,6 +8,7 @@ Ext.define('Imt.usagepointlifecyclestates.model.UsagePointLifeCycleState', {
         {name: 'name', type: 'string'},
         {name: 'isCustom', type: 'boolean'},
         {name: 'isInitial', type: 'boolean'},
+        'stage',
         {
             name: 'display_name',
             persist: false,
