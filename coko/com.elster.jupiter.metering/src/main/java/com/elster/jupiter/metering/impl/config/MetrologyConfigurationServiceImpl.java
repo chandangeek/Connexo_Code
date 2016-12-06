@@ -35,8 +35,8 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.conditions.Where;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,11 +57,13 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     private MeteringDataModelService meteringDataModelService;
     private DataModel dataModel;
     private Thesaurus thesaurus;
+    private Clock clock;
 
-    public MetrologyConfigurationServiceImpl(MeteringDataModelService meteringDataModelService, DataModel dataModel, Thesaurus thesaurus) {
+    public MetrologyConfigurationServiceImpl(MeteringDataModelService meteringDataModelService, DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         this.meteringDataModelService = meteringDataModelService;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     @Override
@@ -120,19 +122,21 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
-        return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("name", name);
+        return this.getDataModel().mapper(MetrologyConfiguration.class)
+                .getUnique(MetrologyConfigurationImpl.Fields.NAME.fieldName(), name, MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName(), null);
     }
 
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
-        return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel(), MetrologyContract.class, ReadingTypeDeliverable.class, Formula.class, ReadingTypeRequirement.class)
+        return DefaultFinder.of(MetrologyConfiguration.class, where(MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName()).isNull(),
+                this.getDataModel(), MetrologyContract.class, ReadingTypeDeliverable.class, Formula.class, ReadingTypeRequirement.class)
                 .defaultSortColumn("lower(mc.name)")
                 .find();
     }
 
     @Override
     public boolean isInUse(MetrologyConfiguration metrologyConfiguration) {
-        Condition condition = Where.where("metrologyConfiguration").isEqualTo(metrologyConfiguration);
+        Condition condition = where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("interval").isEffective(clock.instant()));
         List<EffectiveMetrologyConfigurationOnUsagePoint> atLeastOneUsagePoint = this.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class)
                 .select(condition, new Order[0], false, new String[0], 1, 1);

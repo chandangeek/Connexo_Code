@@ -731,7 +731,17 @@ public enum TableSpecs {
                     .map(MetrologyConfigurationImpl.Fields.STATUS.fieldName())
                     .notNull()
                     .add();
-            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE)
+                    .add();
+            Column obsoleteTime = table.column(MetrologyConfigurationImpl.Fields.OBSOLETETIME.name())
+                    .number()
+                    .map(MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName())
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .since(version(10, 3))
+                    .add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METROLOGYCONFIG").on(id).add();
             table.foreignKey("FK_MTR_METROLOGYCONFIG2SERVCAT")
@@ -739,7 +749,8 @@ public enum TableSpecs {
                     .on(serviceCategoryColumn)
                     .map(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.fieldName())
                     .add();
-            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).upTo(version(10, 3)).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name, obsoleteTime).since(version(10, 3)).add();
         }
     },
     MTR_M_CONFIG_CPS_USAGES {

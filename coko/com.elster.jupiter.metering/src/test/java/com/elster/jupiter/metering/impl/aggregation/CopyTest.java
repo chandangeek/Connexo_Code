@@ -36,6 +36,7 @@ import com.elster.jupiter.util.units.Dimension;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,6 +94,8 @@ public class CopyTest {
     private MeteringDataModelService meteringDataModelService;
     @Mock
     private ServerMeteringService meteringService;
+    @Mock
+    private Clock clock;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
@@ -107,7 +110,7 @@ public class CopyTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringDataModelService, this.dataModel, this.thesaurus);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringDataModelService, this.dataModel, this.thesaurus, this.clock);
         when(this.meterActivationSet.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(this.readingType.getMRID()).thenReturn("CopyTest");
     }

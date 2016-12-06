@@ -52,6 +52,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
@@ -110,6 +111,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private volatile PropertySpecService propertySpecService;
     private volatile LicenseService licenseService;
     private volatile UpgradeService upgradeService;
+    private volatile Publisher publisher;
 
     private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
     private List<CustomUsagePointMeterActivationValidator> customValidators = new CopyOnWriteArrayList<>();
@@ -139,7 +141,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                         PartyService partyService, Clock clock, UserService userService, EventService eventService, NlsService nlsService,
                                         MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
-                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService) {
+                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, Publisher publisher) {
         setIdsService(idsService);
         setQueryService(queryService);
         setPartyService(partyService);
@@ -156,6 +158,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         setLicenseService(licenseService);
         setUpgradeService(upgradeService);
         setOrmService(ormService);
+        setPublisher(publisher);
 
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -194,7 +197,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
             this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.truncaterFactory, this.customPropertySetService);
         }
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus, this.clock);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
     }
 
@@ -231,6 +234,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
                 bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
+                bind(Publisher.class).toInstance(publisher);
             }
         });
     }
@@ -469,6 +473,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Thesaurus myThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus cboThesaurus = nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN);
         this.thesaurus = myThesaurus.join(cboThesaurus);
+    }
+
+    @Reference(name = "thePublisher")
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
     }
 
     @Override

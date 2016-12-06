@@ -1176,6 +1176,8 @@ public class UsagePointImpl implements UsagePoint {
     public void makeObsolete() {
         this.obsoleteTime = this.clock.instant();
         this.dataModel.update(this, "obsoleteTime");
+        this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
+                .ifPresent(efmc -> efmc.close(this.obsoleteTime));
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
