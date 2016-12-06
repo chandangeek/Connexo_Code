@@ -133,7 +133,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     private AppService appService;
     @Mock
-    private SearchService searchService;
+    SearchService searchService;
     @Mock
     private MessageService messageService;
 
