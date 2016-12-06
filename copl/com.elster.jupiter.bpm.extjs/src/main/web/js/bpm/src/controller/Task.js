@@ -150,7 +150,7 @@ Ext.define('Bpm.controller.Task', {
                         queryString.workgroup = decoded.workgroups.length == 0 ? [Uni.I18n.translate('general.workgroupUnassigned', 'BPM', 'Unassigned')] : decoded.workgroups.map(function (wg) {
                             return wg.name;
                         });
-                        queryString.status = ['ASSIGNED', 'CREATED'];
+                        queryString.status = ['ASSIGNED', 'CREATED', 'ONGOING'];
                         queryString.sort = Ext.JSON.encode(sort);
                         window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                     }
@@ -164,7 +164,7 @@ Ext.define('Bpm.controller.Task', {
                 success: function (operation) {
                     queryString.param = undefined;
                     queryString.user = Ext.JSON.decode(operation.responseText).data[0].name;
-                    queryString.status = ['ASSIGNED', 'CREATED'];
+                    queryString.status = ['ASSIGNED', 'CREATED', 'ONGOING'];
                     queryString.sort = Ext.JSON.encode(sort);
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
