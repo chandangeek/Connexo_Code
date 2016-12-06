@@ -26,11 +26,11 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
@@ -67,6 +67,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -155,8 +157,8 @@ public class UsagePointDataServiceImplTest {
         when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
-        usagePointDataService = new UsagePointDataServiceImpl(clock, ormService, meteringService, validationService,
-                nlsService, customPropertySetService, usagePointConfigurationService, UpgradeModule.FakeUpgradeService.getInstance());
+        usagePointDataService = new UsagePointDataServiceImpl(clock, meteringService, validationService,
+                nlsService, customPropertySetService, usagePointConfigurationService, UpgradeModule.FakeUpgradeService.getInstance(), userService);
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
         when(channel.isRegular()).thenReturn(true);
