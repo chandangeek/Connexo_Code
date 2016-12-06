@@ -7,9 +7,11 @@ public interface PendingUpdate {
 
     boolean isActivation();
 
+    boolean isDeactivation();
+
     boolean isRemoval();
 
     default boolean isUpdate() {
-        return !isActivation() && !isRemoval();
+        return !isActivation() && !isRemoval() && !isDeactivation();
     }
 }

@@ -384,6 +384,68 @@ public class DualControlServiceTest {
     }
 
     @Test
+    public void testApproveRemoval() {
+        ThreadPrincipalServiceImpl threadPrincipalService = new ThreadPrincipalServiceImpl();
+        DualControlService dualControlService = new DualControlServiceImpl(threadPrincipalService, ormService, userService, upgradeService);
+        User operator = mock(User.class);
+        User approver1 = mock(User.class);
+        User approver2 = mock(User.class);
+
+        Book book = new Book(dualControlService, "The Jungle Book", 3);
+
+        threadPrincipalService.withContextAdded(() -> {
+                    book.request(BookChange.activation());
+                },
+                operator
+        ).run();
+        threadPrincipalService.withContextAdded(book::approvePending,
+                approver1
+        ).run();
+        threadPrincipalService.withContextAdded(book::approvePending,
+                approver2
+        ).run();
+
+        threadPrincipalService.withContextAdded(() -> {
+                    book.request(BookChange.removal());
+                },
+                operator
+        ).run();
+        {
+            assertThat(book.isActive()).isTrue();
+            assertThat(book.getMonitor().getState()).isEqualTo(State.PENDING_UPDATE);
+            assertThat(book.getMonitor().getOperations()).hasSize(4);
+            UserOperation userOperation = book.getMonitor().getOperations().get(3);
+            assertThat(userOperation.getAction()).isEqualTo(UserAction.REQUEST);
+            assertThat(userOperation.getUser()).isEqualTo(operator);
+            assertThat(book.getPendingUpdate()).isPresent();
+        }
+        threadPrincipalService.withContextAdded(book::approvePending,
+                approver1
+        ).run();
+        {
+            assertThat(book.isActive()).isTrue();
+            assertThat(book.getMonitor().getState()).isEqualTo(State.PENDING_UPDATE);
+            assertThat(book.getMonitor().getOperations()).hasSize(5);
+            UserOperation userOperation = book.getMonitor().getOperations().get(4);
+            assertThat(userOperation.getAction()).isEqualTo(UserAction.APPROVE);
+            assertThat(userOperation.getUser()).isEqualTo(approver1);
+            assertThat(book.getPendingUpdate()).isPresent();
+        }
+        threadPrincipalService.withContextAdded(book::approvePending,
+                approver2
+        ).run();
+        {
+            assertThat(book.isActive()).isFalse();
+            assertThat(book.getMonitor().getState()).isEqualTo(State.OBSOLETE);
+            assertThat(book.getMonitor().getOperations()).hasSize(6);
+            UserOperation userOperation = book.getMonitor().getOperations().get(5);
+            assertThat(userOperation.getAction()).isEqualTo(UserAction.APPROVE);
+            assertThat(userOperation.getUser()).isEqualTo(approver2);
+            assertThat(book.getPendingUpdate()).isEmpty();
+        }
+    }
+
+    @Test
     public void testApproveDeactivation() {
         ThreadPrincipalServiceImpl threadPrincipalService = new ThreadPrincipalServiceImpl();
         DualControlService dualControlService = new DualControlServiceImpl(threadPrincipalService, ormService, userService, upgradeService);
@@ -436,7 +498,7 @@ public class DualControlServiceTest {
         ).run();
         {
             assertThat(book.isActive()).isFalse();
-            assertThat(book.getMonitor().getState()).isEqualTo(State.OBSOLETE);
+            assertThat(book.getMonitor().getState()).isEqualTo(State.INACTIVE);
             assertThat(book.getMonitor().getOperations()).hasSize(6);
             UserOperation userOperation = book.getMonitor().getOperations().get(5);
             assertThat(userOperation.getAction()).isEqualTo(UserAction.APPROVE);
@@ -469,6 +531,68 @@ public class DualControlServiceTest {
 
         threadPrincipalService.withContextAdded(() -> {
                     book.request(BookChange.deactivation());
+                },
+                operator
+        ).run();
+        {
+            assertThat(book.isActive()).isTrue();
+            assertThat(book.getMonitor().getState()).isEqualTo(State.PENDING_UPDATE);
+            assertThat(book.getMonitor().getOperations()).hasSize(4);
+            UserOperation userOperation = book.getMonitor().getOperations().get(3);
+            assertThat(userOperation.getAction()).isEqualTo(UserAction.REQUEST);
+            assertThat(userOperation.getUser()).isEqualTo(operator);
+            assertThat(book.getPendingUpdate()).isPresent();
+        }
+        threadPrincipalService.withContextAdded(book::approvePending,
+                approver1
+        ).run();
+        {
+            assertThat(book.isActive()).isTrue();
+            assertThat(book.getMonitor().getState()).isEqualTo(State.PENDING_UPDATE);
+            assertThat(book.getMonitor().getOperations()).hasSize(5);
+            UserOperation userOperation = book.getMonitor().getOperations().get(4);
+            assertThat(userOperation.getAction()).isEqualTo(UserAction.APPROVE);
+            assertThat(userOperation.getUser()).isEqualTo(approver1);
+            assertThat(book.getPendingUpdate()).isPresent();
+        }
+        threadPrincipalService.withContextAdded(book::rejectPending,
+                approver2
+        ).run();
+        {
+            assertThat(book.isActive()).isTrue();
+            assertThat(book.getMonitor().getState()).isEqualTo(State.ACTIVE);
+            assertThat(book.getMonitor().getOperations()).hasSize(6);
+            UserOperation userOperation = book.getMonitor().getOperations().get(5);
+            assertThat(userOperation.getAction()).isEqualTo(UserAction.REJECT);
+            assertThat(userOperation.getUser()).isEqualTo(approver2);
+            assertThat(book.getPendingUpdate()).isEmpty();
+        }
+    }
+
+    @Test
+    public void testRejectRemoval() {
+        ThreadPrincipalServiceImpl threadPrincipalService = new ThreadPrincipalServiceImpl();
+        DualControlService dualControlService = new DualControlServiceImpl(threadPrincipalService, ormService, userService, upgradeService);
+        User operator = mock(User.class);
+        User approver1 = mock(User.class);
+        User approver2 = mock(User.class);
+
+        Book book = new Book(dualControlService, "The Jungle Book", 3);
+
+        threadPrincipalService.withContextAdded(() -> {
+                    book.request(BookChange.activation());
+                },
+                operator
+        ).run();
+        threadPrincipalService.withContextAdded(book::approvePending,
+                approver1
+        ).run();
+        threadPrincipalService.withContextAdded(book::approvePending,
+                approver2
+        ).run();
+
+        threadPrincipalService.withContextAdded(() -> {
+                    book.request(BookChange.removal());
                 },
                 operator
         ).run();
@@ -608,6 +732,32 @@ public class DualControlServiceTest {
             assertThat(book.getName()).isEqualTo("Jungle Book");
             assertThat(book.getWeeksToLend()).isEqualTo(5);
             assertThat(book.getPendingUpdate()).isEmpty();
+        }
+    }
+
+    @Test
+    public void testRemoveInactiveDoesntNeedApproval() {
+        ThreadPrincipalServiceImpl threadPrincipalService = new ThreadPrincipalServiceImpl();
+        DualControlService dualControlService = new DualControlServiceImpl(threadPrincipalService, ormService, userService, upgradeService);
+        User operator = mock(User.class);
+        User approver1 = mock(User.class);
+        User approver2 = mock(User.class);
+
+        Book book = new Book(dualControlService, "The Jungle Book", 3);
+
+        threadPrincipalService.withContextAdded(() -> {
+                    book.request(BookChange.removal());
+                },
+                operator
+        ).run();
+        {
+            assertThat(book.isActive()).isFalse();
+            assertThat(book.getMonitor().getState()).isEqualTo(State.OBSOLETE);
+            assertThat(book.getMonitor().getOperations()).hasSize(1);
+            UserOperation userOperation = book.getMonitor().getOperations().get(0);
+            assertThat(userOperation.getAction()).isEqualTo(UserAction.REQUEST);
+            assertThat(userOperation.getUser()).isEqualTo(operator);
+            assertThat(book.isObsolete()).isTrue();
         }
     }
 

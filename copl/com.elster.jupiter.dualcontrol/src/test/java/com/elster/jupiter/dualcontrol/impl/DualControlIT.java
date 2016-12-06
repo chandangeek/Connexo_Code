@@ -234,7 +234,7 @@ public class DualControlIT {
         Book book = createActiveBook();
 
         threadPrincipalService.set(operator);
-        book.request(BookChange.deactivation());
+        book.request(BookChange.removal());
         threadPrincipalService.clear();
 
         {

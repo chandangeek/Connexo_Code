@@ -5,6 +5,7 @@ import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.dualcontrol.UnderDualControl;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 class Book implements UnderDualControl<BookChange> {
 
@@ -15,6 +16,7 @@ class Book implements UnderDualControl<BookChange> {
     private String name;
     private int weeksToLend;
     private boolean active = false;
+    private boolean obsolete = false;
     private BookChange pending;
 
     public String getName() {
@@ -62,6 +64,11 @@ class Book implements UnderDualControl<BookChange> {
             }
             if (bookChange.isRemoval()) {
                 this.active = false;
+                this.obsolete = true;
+                return;
+            }
+            if (bookChange.isDeactivation()) {
+                this.active = false;
                 return;
             }
             name = bookChange.getName();
@@ -75,15 +82,29 @@ class Book implements UnderDualControl<BookChange> {
     }
 
     public void request(BookChange bookChange) {
+        delay();
         getMonitor().request(bookChange, this);
     }
 
+    void delay() {
+        try {
+            TimeUnit.MILLISECONDS.sleep(10);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
-    public void approvePending() { // pull up?
+    public boolean isObsolete() {
+        return obsolete;
+    }
+
+    public void approvePending() {
+        delay();
         getMonitor().approve(this);
     }
 
     public void rejectPending() {
+        delay();
         getMonitor().reject(this);
     }
 }

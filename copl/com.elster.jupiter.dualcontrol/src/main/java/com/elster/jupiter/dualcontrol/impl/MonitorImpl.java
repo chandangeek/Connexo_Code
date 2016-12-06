@@ -28,8 +28,7 @@ class MonitorImpl implements Monitor {
 
     enum Fields {
         STATE("state"),
-        OPERATIONS("operations")
-        ;
+        OPERATIONS("operations");
 
         private String javaFieldName;
 
@@ -48,6 +47,9 @@ class MonitorImpl implements Monitor {
                 if (update.isActivation()) {
                     return State.PENDING_ACTIVATION;
                 }
+                if (update.isRemoval()) {
+                    return State.OBSOLETE;
+                }
                 throw new IllegalStateException();
             }
         },
@@ -64,15 +66,18 @@ class MonitorImpl implements Monitor {
         },
         ACTIVE(State.ACTIVE) {
             public State newStateForRequest(PendingUpdate update) {
-                if (update.isUpdate() || update.isRemoval()) {
-                    return State.PENDING_UPDATE;
+                if (update.isActivation()) {
+                    throw new IllegalStateException();
                 }
-                throw new IllegalStateException();
+                return State.PENDING_UPDATE;
             }
         },
         PENDING_UPDATE(State.PENDING_UPDATE) {
             @Override
             public State newStateForFinalApproval(PendingUpdate update) {
+                if (update.isDeactivation()) {
+                    return State.INACTIVE;
+                }
                 return update.isRemoval() ? State.OBSOLETE : State.ACTIVE;
             }
 
@@ -145,14 +150,17 @@ class MonitorImpl implements Monitor {
 
     @Override
     public <T extends PendingUpdate> void request(T update, UnderDualControl<T> underDualControl) {
-        this.state = getBehaviourState().newStateForRequest(update);
+        state = getBehaviourState().newStateForRequest(update);
+        dataModel.mapper(Monitor.class).update(this, Fields.STATE.fieldName());
 
         UserOperationImpl userOperation = UserOperationImpl.of(this, getUser(), UserAction.REQUEST);
         operations.add(userOperation);
 
-        dataModel.mapper(Monitor.class).update(this, Fields.STATE.fieldName());
-
         underDualControl.setPendingUpdate(update);
+        if (State.OBSOLETE.equals(state)) {
+            underDualControl.applyUpdate();
+            underDualControl.clearUpdate();
+        }
     }
 
     @Override

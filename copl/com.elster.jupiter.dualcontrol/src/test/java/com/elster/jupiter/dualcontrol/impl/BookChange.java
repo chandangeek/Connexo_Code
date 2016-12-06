@@ -5,6 +5,7 @@ import com.elster.jupiter.dualcontrol.PendingUpdate;
 class BookChange implements PendingUpdate {
 
     private boolean activation;
+    private boolean deactivation;
     private boolean removal;
 
     private String name;
@@ -18,6 +19,11 @@ class BookChange implements PendingUpdate {
     @Override
     public boolean isRemoval() {
         return removal;
+    }
+
+    @Override
+    public boolean isDeactivation() {
+        return deactivation;
     }
 
     public static BookChange activation() {
@@ -42,9 +48,15 @@ class BookChange implements PendingUpdate {
         return weeksToLend;
     }
 
-    public static BookChange deactivation() {
+    public static BookChange removal() {
         BookChange bookChange = new BookChange();
         bookChange.removal = true;
+        return bookChange;
+    }
+
+    public static BookChange deactivation() {
+        BookChange bookChange = new BookChange();
+        bookChange.deactivation = true;
         return bookChange;
     }
 }
