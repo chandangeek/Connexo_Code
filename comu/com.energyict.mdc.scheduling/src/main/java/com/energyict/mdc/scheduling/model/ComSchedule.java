@@ -3,7 +3,7 @@ package com.energyict.mdc.scheduling.model;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.tasks.ComTask;
