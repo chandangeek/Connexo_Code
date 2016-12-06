@@ -1,15 +1,17 @@
 package com.energyict.mdc.device.command.impl;
 
-import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
 import com.energyict.mdc.device.command.CommandInRule;
-import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleTemplate;
+import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
 
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+@HasValidLimits(groups = {Save.Create.class, Save.Update.class})
 public class CommandRuleTemplateImpl implements CommandRuleTemplate {
 
     enum Fields {
@@ -33,6 +35,8 @@ public class CommandRuleTemplateImpl implements CommandRuleTemplate {
     }
     private long id;
 
+    @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String name;
     private long dayLimit;
     private long weekLimit;

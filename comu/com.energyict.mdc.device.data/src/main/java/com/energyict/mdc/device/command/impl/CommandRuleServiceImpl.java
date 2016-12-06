@@ -10,10 +10,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
+import com.energyict.mdc.device.command.CommandRuleTemplate;
+import com.energyict.mdc.device.command.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -25,6 +28,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.validation.MessageInterpolator;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +49,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     private volatile Thesaurus thesaurus;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UpgradeService upgradeService;
+    private volatile UserService userService;
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
@@ -53,13 +59,14 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Inject
-    CommandRuleServiceImpl(OrmService ormService, NlsService nlsService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService, DeviceMessageSpecificationService deviceMessageSpecificationService, UpgradeService upgradeService) {
+    CommandRuleServiceImpl(OrmService ormService, NlsService nlsService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService, DeviceMessageSpecificationService deviceMessageSpecificationService, UpgradeService upgradeService, UserService userService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
         setNlsService(nlsService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setUpgradeService(upgradeService);
+        setUserService(userService);
         activate(bundleContext);
     }
 
@@ -80,13 +87,25 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Override
+    public Optional<CommandRule> findCommandRuleByName(String name) {
+        List<CommandRule> commandRules = dataModel.mapper(CommandRule.class).select(where(CommandRuleImpl.Fields.NAME.fieldName()).isEqualToIgnoreCase(name));
+        return commandRules.isEmpty() ? Optional.empty() : Optional.of(commandRules.get(0));
+    }
+
+    @Override
+    public Optional<CommandRuleTemplate> findCommandTemplateRuleByName(String name) {
+        List<CommandRuleTemplate> commandRuleTemplates = dataModel.mapper(CommandRuleTemplate.class).select(where(CommandRuleTemplateImpl.Fields.NAME.fieldName()).isEqualToIgnoreCase(name));
+        return commandRuleTemplates.isEmpty() ? Optional.empty() : Optional.of(commandRuleTemplates.get(0));
+    }
+
+    @Override
     public List<MessageSeed> getSeeds() {
-        return Collections.emptyList();
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
     public String getComponentName() {
-        return null;
+        return CommandRuleService.COMPONENT_NAME;
     }
 
     @Override
@@ -96,11 +115,12 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Collections.emptyList();
+        return Arrays.asList(Privileges.values());
     }
 
     @Activate
     public void activate(BundleContext context) {
+        CommandRuleService commandRuleService = this;
         LOGGER.info(() -> "Activating " + this.toString() + " from thread " + Thread.currentThread().getName());
         try {
             this.context = context;
@@ -110,8 +130,11 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                 protected void configure() {
                     bind(DataModel.class).toInstance(dataModel);
                     bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                     bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                    bind(UserService.class).toInstance(userService);
+                    bind(CommandRuleService.class).toInstance(commandRuleService);
                 }
             });
 
@@ -151,6 +174,11 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     public DataModel getDataModel() {

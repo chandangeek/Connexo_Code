@@ -1,18 +1,9 @@
 package com.energyict.mdc.device.command;
 
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasName;
-
 import java.util.List;
 import java.util.Optional;
 
-public interface CommandRule extends HasId, HasName {
-
-    long getDayLimit();
-
-    long getWeekLimit();
-
-    long getMonthLimit();
+public interface CommandRule extends ServerCommandRule {
 
     List<CommandInRule> getCommands();
 

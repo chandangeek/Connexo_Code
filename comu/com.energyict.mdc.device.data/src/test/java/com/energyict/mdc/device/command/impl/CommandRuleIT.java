@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.command.impl;
 
-import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -139,6 +140,22 @@ public class CommandRuleIT {
         assertThat(commandRule.getDayLimit()).isEqualTo(10);
         assertThat(commandRule.getWeekLimit()).isEqualTo(5);
         assertThat(commandRule.getMonthLimit()).isEqualTo(11);
+
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    public void createCommandLimitationRuleWithDuplicateName() {
+        try (TransactionContext context = transactionService.getContext()) {
+            commandRuleService.createRule("test").dayLimit(10).weekLimit(11).monthLimit(12).add();
+            context.commit();
+        }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            commandRuleService.createRule("test").add();
+            context.commit();
+        }
 
     }
 

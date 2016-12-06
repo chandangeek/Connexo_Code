@@ -13,4 +13,5 @@ Export-Package:  \
 	com.energyict.mdc.device.data.security,\
 	com.energyict.mdc.device.data.tasks,\
 	com.energyict.mdc.device.data.tasks.history,\
-	com.energyict.mdc.device.command
+	com.energyict.mdc.device.command,\
+	com.energyict.mdc.device.command.security

@@ -25,6 +25,10 @@ public interface CommandRuleService {
 
     Optional<CommandRule> findCommandRule(long commandRuleId);
 
+    Optional<CommandRule> findCommandRuleByName(String name);
+
+    Optional<CommandRuleTemplate> findCommandTemplateRuleByName(String name);
+
 
     @ProviderType
     interface CommandRuleBuilder {

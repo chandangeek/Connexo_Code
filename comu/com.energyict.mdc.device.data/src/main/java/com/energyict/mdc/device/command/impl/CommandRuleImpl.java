@@ -1,26 +1,30 @@
 package com.energyict.mdc.device.command.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleTemplate;
-import com.energyict.mdc.device.data.impl.DeviceProtocolPropertyImpl;
+import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
+import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.google.inject.Inject;
 
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_NAME + "}")
+@HasValidLimits(groups = {Save.Create.class, Save.Update.class})
 public class CommandRuleImpl implements CommandRule {
 
-    enum Fields {
+    public enum Fields {
 
         NAME("name"),
         DAYLIMIT("dayLimit"),
@@ -35,7 +39,7 @@ public class CommandRuleImpl implements CommandRule {
             this.javaFieldName = javaFieldName;
         }
 
-        String fieldName() {
+        public String fieldName() {
             return javaFieldName;
         }
 
@@ -44,6 +48,8 @@ public class CommandRuleImpl implements CommandRule {
 
     private final DataModel dataModel;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String name;
     private long dayLimit;
     private long weekLimit;
