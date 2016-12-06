@@ -11,7 +11,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
