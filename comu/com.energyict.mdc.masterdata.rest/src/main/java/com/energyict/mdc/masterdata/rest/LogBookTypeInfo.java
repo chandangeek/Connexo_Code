@@ -1,6 +1,6 @@
 package com.energyict.mdc.masterdata.rest;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
