@@ -2,6 +2,9 @@ package com.energyict.mdc.issues;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.tasks.Warning;
+import com.energyict.mdc.upl.tasks.Problem;
 
 /**
  * Provides services to collect {@link Issue}s.

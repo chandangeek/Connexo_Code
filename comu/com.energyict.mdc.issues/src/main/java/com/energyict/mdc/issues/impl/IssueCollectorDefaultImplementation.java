@@ -6,10 +6,10 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.time.Clock;
 
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.issues.IssueCollector;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.tasks.Warning;
 
 import java.util.ArrayList;
 import java.util.Collection;

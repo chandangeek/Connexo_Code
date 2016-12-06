@@ -1,6 +1,9 @@
 package com.energyict.mdc.issues;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.tasks.Warning;
 
 import aQute.bnd.annotation.ProviderType;
 
