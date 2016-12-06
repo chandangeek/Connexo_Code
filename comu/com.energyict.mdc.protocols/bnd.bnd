@@ -3,19 +3,4 @@
 
 Export-Package: com.energyict.protocols.naming
 Private-Package:  \
-    com.energyict.assembly,\
-    com.energyict.dialer.*,\
-    com.energyict.dlms.*,\
-    com.energyict.encryption.*,\
-    com.energyict.genericprotocolimpl.*,\
-    com.energyict.license.*,\
-    com.energyict.protocolimpl.*,\
-    com.energyict.protocolimplv2.*,\
-    com.energyict.protocols.exception,\
-    com.energyict.protocols.impl.*,\
-    com.energyict.protocols.mdc.*,\
-    com.energyict.protocols.messaging.*,\
-    com.energyict.protocols.sms.*,\
-    com.energyict.protocols.util.*,\
-    com.energyict.smartmeterprotocolimpl.*,\
-    com.energyict.xml.*
+    com.energyict.protocols.mdc.*

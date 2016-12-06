@@ -431,44 +431,6 @@ public class AM540 extends AbstractDlmsProtocol {
                 firmwareRegister.getObisCode());
     }
 
-    @Override
-    public CollectedCalendar getCollectedCalendar() {
-        CollectedCalendar collectedCalendar = this.getCollectedDataFactory().createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
-        try {
-            ActivityCalendar activityCalendar = this.getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
-            this.updateCollectedCalendar(activityCalendar, collectedCalendar);
-        } catch (ProtocolException e) {
-            this.getIssueService().newProblem(
-                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
-        }
-        return collectedCalendar;
-    }
-
-    private void updateCollectedCalendar(ActivityCalendar activityCalendar, CollectedCalendar collectedCalendar) {
-        try {
-            collectedCalendar.setActiveCalendar(activityCalendar.readCalendarNameActive().stringValue());
-        } catch (IOException e) {
-            this.getIssueService().newProblem(
-                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
-        }
-        try {
-            collectedCalendar.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
-        } catch (IOException e) {
-            this.getIssueService().newProblem(
-                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
-                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE, e);
-        }
-    }
-
-    protected CosemObjectFactory getCosemObjectFactory() {
-        return this.getDlmsSession().getCosemObjectFactory();
-    }
-
     private OfflineRegister getFirmwareRegister() {
         return new MyOwnPrivateRegister(this.getOfflineDevice(), ObisCode.fromString("1.1.0.2.0.255"));
     }
