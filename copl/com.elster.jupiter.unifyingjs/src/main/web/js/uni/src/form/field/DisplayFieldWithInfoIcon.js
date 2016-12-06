@@ -17,12 +17,13 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
      * Should be used instead of the {@link Ext.form.field.Display.renderer} function.
      */
     beforeRenderer: null,
+    onlyIcon: false,
 
     renderer: function (value, field) {
         var me = this,
             icon = '';
 
-        if (Ext.isEmpty(value)) {
+        if (Ext.isEmpty(value) && !me.onlyIcon) {
             return me.emptyText;
         }
 
@@ -31,8 +32,9 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
         }
 
         if (me.infoTooltip) {
-            icon  = '<span class="uni-icon-info-small" style="width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
+            icon = '<span class="icon-info" style="font-size: 16px; width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
         }
-        return Ext.String.htmlEncode(value) + icon;
+
+        return !me.onlyIcon ? Ext.String.htmlEncode(value) + icon : icon;
     }
 });
