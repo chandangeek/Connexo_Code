@@ -454,10 +454,10 @@ public class UsagePointOutputResource {
                 .get();
         Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
         BaseReading reading = registerDataInfo.createNew(readingTypeDeliverable.getReadingType());
-        if ((reading instanceof NumericalOutputRegisterDataInfo && NumericalOutputRegisterDataInfo.class.cast(reading).isConfirmed != null && NumericalOutputRegisterDataInfo.class
-                .cast(reading).isConfirmed) ||
-                (reading instanceof BillingOutputRegisterDataInfo && BillingOutputRegisterDataInfo.class.cast(reading).isConfirmed != null && BillingOutputRegisterDataInfo.class
-                        .cast(reading).isConfirmed)) {
+        if ((registerDataInfo instanceof NumericalOutputRegisterDataInfo && NumericalOutputRegisterDataInfo.class.cast(registerDataInfo).isConfirmed != null && NumericalOutputRegisterDataInfo.class
+                .cast(registerDataInfo).isConfirmed) ||
+                (registerDataInfo instanceof BillingOutputRegisterDataInfo && BillingOutputRegisterDataInfo.class.cast(registerDataInfo).isConfirmed != null && BillingOutputRegisterDataInfo.class
+                        .cast(registerDataInfo).isConfirmed)) {
             channel.confirmReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
         } else {
             Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
