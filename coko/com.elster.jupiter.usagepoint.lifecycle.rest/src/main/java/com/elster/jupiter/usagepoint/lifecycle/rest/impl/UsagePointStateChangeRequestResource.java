@@ -92,7 +92,7 @@ public class UsagePointStateChangeRequestResource {
         } else {
             changeRequest = this.usagePointLifeCycleService.scheduleTransition(usagePoint, transition, info.effectiveTimestamp, application, propertiesMap);
         }
-        return Response.ok(this.changeRequestInfoFactory.from(changeRequest)).build();
+        return Response.ok(this.changeRequestInfoFactory.from(changeRequest, application)).build();
     }
 
     @GET
@@ -100,11 +100,12 @@ public class UsagePointStateChangeRequestResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getChangeRequestHistory(@PathParam("uname") String usagePointName,
-                                            @BeanParam JsonQueryParameters queryParameters) {
+                                            @BeanParam JsonQueryParameters queryParameters,
+                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String application) {
         UsagePoint usagePoint = this.resourceHelper.getUsagePointOrThrowException(usagePointName);
         List<UsagePointStateChangeRequestInfo> history = this.usagePointLifeCycleService.getHistory(usagePoint)
                 .stream()
-                .map(this.changeRequestInfoFactory::from)
+                .map(changeRequest -> this.changeRequestInfoFactory.from(changeRequest, application))
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromCompleteList("history", history, queryParameters)).build();
     }

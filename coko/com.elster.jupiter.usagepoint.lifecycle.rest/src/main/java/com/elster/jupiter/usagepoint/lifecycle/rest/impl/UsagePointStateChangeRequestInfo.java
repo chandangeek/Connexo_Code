@@ -5,23 +5,23 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class UsagePointStateChangeRequestInfo {
     public long id;
-    public IdWithDisplayValueInfo<String> type;
+    public IdWithDisplayValueInfo<String> type = new IdWithDisplayValueInfo<>();
     public String fromStateName;
     public String toStateName;
     public Instant transitionTime;
     public Instant scheduleTime;
-    public IdWithDisplayValueInfo<Long> user;
-    public IdWithDisplayValueInfo<UsagePointStateChangeRequest.Status> status;
+    public IdWithDisplayValueInfo<Long> user = new IdWithDisplayValueInfo<>();
+    public IdWithDisplayValueInfo<UsagePointStateChangeRequest.Status> status = new IdWithDisplayValueInfo<>();
     public String message;
-    public List<IdWithNameInfo> microChecks;
-    public List<IdWithNameInfo> microActions;
-    public UsagePointInfo usagePoint;
-    public Set<String> privileges;
+    public List<IdWithNameInfo> microChecks = new ArrayList<>();
+    public List<IdWithNameInfo> microActions = new ArrayList<>();
+    public UsagePointInfo usagePoint = new UsagePointInfo();
+    public boolean userCanManageRequest;
 
     public UsagePointStateChangeRequestInfo() {
     }

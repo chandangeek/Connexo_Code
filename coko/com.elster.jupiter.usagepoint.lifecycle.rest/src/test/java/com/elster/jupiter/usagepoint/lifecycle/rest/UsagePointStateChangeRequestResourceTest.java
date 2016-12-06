@@ -172,7 +172,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
         UsagePointStateChangeRequest changeRequest = mockUsagePointChangeRequest();
         when(usagePointLifeCycleService.getHistory(usagePoint)).thenReturn(Collections.singletonList(changeRequest));
 
-        Response response = target("/usagepoint/UsagePoint/transitions/history").request().get();
+        Response response = target("/usagepoint/UsagePoint/transitions/history").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).get();
 
         verify(usagePointLifeCycleService).getHistory(usagePoint);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
