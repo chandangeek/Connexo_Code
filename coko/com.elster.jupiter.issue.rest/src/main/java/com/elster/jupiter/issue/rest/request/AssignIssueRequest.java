@@ -11,6 +11,8 @@ public class AssignIssueRequest extends BulkIssueRequest {
     public static class AssigneeReference {
         public long userId;
         public long workGroupId;
+        public long id;
+        public String type;
 
     }
 }
