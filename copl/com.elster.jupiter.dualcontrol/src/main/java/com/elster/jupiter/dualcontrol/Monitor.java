@@ -12,5 +12,7 @@ public interface Monitor {
 
     State getState();
 
-    List<UserOperation> getUserOperations();
+    List<UserOperation> getOperations();
+
+    long getId();
 }

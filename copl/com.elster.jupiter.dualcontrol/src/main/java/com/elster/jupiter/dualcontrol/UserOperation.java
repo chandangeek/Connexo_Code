@@ -14,4 +14,8 @@ public interface UserOperation {
     default boolean isRequest() {
         return UserAction.REQUEST.equals(getAction());
     }
+
+    default boolean isRejection() {
+        return UserAction.REJECT.equals(getAction());
+    }
 }
