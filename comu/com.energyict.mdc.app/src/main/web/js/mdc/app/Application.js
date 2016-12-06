@@ -28,7 +28,8 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.UsagePoint',
         'Scs.privileges.ServiceCall',
         'Mdc.privileges.Monitor',
-        'Mdc.privileges.MetrologyConfiguration'
+        'Mdc.privileges.MetrologyConfiguration',
+        'Mdc.privileges.CommandLimitationRules'
     ],
     controllers: [
         'MdcApp.controller.Main'
