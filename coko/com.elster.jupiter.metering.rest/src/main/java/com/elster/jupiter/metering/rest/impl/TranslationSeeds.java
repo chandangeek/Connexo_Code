@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
@@ -42,13 +41,7 @@ public enum TranslationSeeds implements TranslationKey {
     SERVICECATEGORY_DISPLAY("displayServiceCategory", "Service category"),
     METROLOGY_CONFIGURATION_DISPLAY("displayMetrologyConfiguration", "Metrology configuration"),
     BILLING_READY_DISPLAY("displayAmiBillingReady", "AMI billing ready"),
-    LOCATION("location", "Location"),
-
-    MEASURED_SDP(UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name(), UsagePointTypeInfo.UsagePointType.MEASURED_SDP.displayName),
-    MEASURED_NON_SDP(UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.name(), UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.displayName),
-    UNMEASURED_NON_SDP(UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.name(), UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.displayName),
-    UNMEASURED_SDP(UsagePointTypeInfo.UsagePointType.UNMEASURED_SDP.name(), UsagePointTypeInfo.UsagePointType.UNMEASURED_SDP.displayName)
-;
+    LOCATION("location", "Location");
 
     private final String key;
     private final String defaultFormat;

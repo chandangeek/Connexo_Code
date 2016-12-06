@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.rest;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -20,6 +21,7 @@ public class ReadingTypeInfo {
     public String accumulation;
     public String flowDirection;
     public String commodity;
+    public boolean isGasRelated;
     public String measurementKind;
     public long interHarmonicNumerator;
     public long interHarmonicDenominator;
@@ -54,6 +56,7 @@ public class ReadingTypeInfo {
         this.accumulation = readingType.getAccumulation().getDescription();
         this.flowDirection = readingType.getFlowDirection().getDescription();
         this.commodity = readingType.getCommodity().getDescription();
+        this.isGasRelated = readingType.getCommodity().equals(Commodity.NATURALGAS);
         this.measurementKind = readingType.getMeasurementKind().getDescription();
         this.interHarmonicNumerator = readingType.getInterharmonic().getNumerator();
         this.interHarmonicDenominator = readingType.getInterharmonic().getDenominator();
