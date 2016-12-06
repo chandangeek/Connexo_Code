@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
@@ -12,7 +12,7 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Arrays;
@@ -93,7 +93,7 @@ public class OfflineRegisterImplTest {
         assertEquals(REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
         assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
         assertThat(offlineRegister.inGroup(REGISTER_GROUP_ID)).isTrue();
-        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getDeviceSerialNumber());
+        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
     }
 
     private Device getMockedDevice() {
@@ -117,7 +117,7 @@ public class OfflineRegisterImplTest {
         assertEquals(REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
         assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
         assertThat(offlineRegister.inGroup(REGISTER_GROUP_ID)).isFalse();
-        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getDeviceSerialNumber());
+        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
     }
 
     private Register getMockedRegister(Device device) {

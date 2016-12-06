@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

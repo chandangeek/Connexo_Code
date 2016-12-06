@@ -4,9 +4,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
@@ -16,18 +16,19 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 import org.junit.Assert;
@@ -93,15 +94,15 @@ public class CollectedRegisterListDeviceCommandTest {
         when(offlineRegister.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
         when(this.collectedRegister.getCollectedQuantity()).thenReturn(new Quantity("2", Unit.getUndefined()));
-        when(this.collectedRegister.getEventTime()).thenReturn(Instant.ofEpochMilli(1358757000000L)); // 21 januari 2013 9:30:00
-        when(this.collectedRegister.getFromTime()).thenReturn(Instant.ofEpochMilli(1358755200000L));  // 21 januari 2013 9:00:00
-        when(this.collectedRegister.getToTime()).thenReturn(Instant.ofEpochMilli(1358758800000L));    // 21 januari 2013 10:00:00
-        when(this.collectedRegister.getReadTime()).thenReturn(Instant.ofEpochMilli(1358758920000L));  // 21 januari 2013 10:02:00
+        when(this.collectedRegister.getEventTime()).thenReturn(new Date(1358757000000L)); // 21 januari 2013 9:30:00
+        when(this.collectedRegister.getFromTime()).thenReturn(new Date(1358755200000L));  // 21 januari 2013 9:00:00
+        when(this.collectedRegister.getToTime()).thenReturn(new Date(1358758800000L));    // 21 januari 2013 10:00:00
+        when(this.collectedRegister.getReadTime()).thenReturn(new Date(1358758920000L));  // 21 januari 2013 10:02:00
         when(this.collectedRegister.getText()).thenReturn("CollectedRegister text");
         when(this.collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0");
-        when(this.collectedRegister.getReadingType()).thenReturn(readingType);
+        when(this.collectedRegister.getReadingTypeMRID()).thenReturn(readingType.getMRID());
         when(this.collectedRegisterIdentifier.getObisCode()).thenReturn(REGISTER_OBIS);
         when(this.collectedRegister.getRegisterIdentifier()).thenReturn(this.collectedRegisterIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
@@ -171,8 +172,8 @@ public class CollectedRegisterListDeviceCommandTest {
 //        assertThat(singlePreStoredLoadProfile.getDeviceIdentifier().findDevice().getId()).isEqualTo(dataLogger.getId());
 //
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks()).hasSize(2);
-//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(0).getReadingType().getMRID());
-//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(1).getReadingType().getMRID());
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(0).getReadingTypeMRID().getMRID());
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(1).getReadingTypeMRID().getMRID());
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(4);
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getIntervals()).hasSize(4);
 //

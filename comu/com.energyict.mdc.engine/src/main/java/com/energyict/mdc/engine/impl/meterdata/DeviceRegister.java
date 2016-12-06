@@ -1,12 +1,11 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
 import java.time.Instant;
@@ -14,8 +13,8 @@ import java.time.Instant;
 /**
  * Implementation of a Register, collected from a Device.
  * If no data could be collected,
- * then a proper {@link com.energyict.mdc.issues.Issue}
- * and {@link com.energyict.mdc.protocol.api.device.data.ResultType}
+ * then a proper {@link com.energyict.mdc.upl.tasks.Issue}
+ * and {@link com.energyict.mdc.upl.meterdata.ResultType}
  * should be returned.
  *
  * @author gna
@@ -29,9 +28,9 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
     private final RegisterIdentifier registerIdentifier;
 
     /**
-     * The readingType of the Collected Register
+     * The MRID of the ReadingType of the Collected Register
      */
-    private final ReadingType readingType;
+    private final String readingTypeMRID;
 
     /**
      * The collected {@link Quantity}
@@ -73,10 +72,10 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
      *
      * @param registerIdentifier the identifier of the Register
      */
-    public DeviceRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
+    public DeviceRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
         super();
         this.registerIdentifier = registerIdentifier;
-        this.readingType = readingType;
+        this.readingTypeMRID = readingTypeMRID;
     }
 
     @Override
@@ -137,8 +136,8 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
     }
 
     @Override
-    public ReadingType getReadingType() {
-        return this.readingType;
+    public String getReadingTypeMRID() {
+        return this.readingTypeMRID;
     }
 
     @Override

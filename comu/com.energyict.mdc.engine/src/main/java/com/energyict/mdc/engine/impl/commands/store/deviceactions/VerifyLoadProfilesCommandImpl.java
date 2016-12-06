@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -14,13 +14,13 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.tasks.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
 import java.util.ArrayList;

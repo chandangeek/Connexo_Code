@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;

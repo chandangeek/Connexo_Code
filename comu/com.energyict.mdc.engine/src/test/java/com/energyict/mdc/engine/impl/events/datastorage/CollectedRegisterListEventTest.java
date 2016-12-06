@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.common.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.protocol.api.device.data.*;
@@ -11,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -70,7 +72,7 @@ public class CollectedRegisterListEventTest {
 
         CollectedRegister firstRegister = mock(CollectedRegister.class);
         when(firstRegister.getRegisterIdentifier()).thenReturn(firstIdentifier);
-        when(firstRegister.getCollectedQuantity()).thenReturn(new Quantity(new BigDecimal(265), Unit.get("kWh")));
+        when(firstRegister.getCollectedQuantity()).thenReturn(new com.energyict.cbo.Quantity(new BigDecimal(265), com.energyict.cbo.Unit.get("kWh")));
         when(firstRegister.getReadTime()).thenReturn(readTime);
         when(firstRegister.getToTime()).thenReturn(toTime);
 

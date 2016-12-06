@@ -1,19 +1,19 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.tasks.LoadProfilesTask;

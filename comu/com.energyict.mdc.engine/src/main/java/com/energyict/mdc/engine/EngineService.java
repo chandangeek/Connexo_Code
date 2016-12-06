@@ -3,7 +3,7 @@ package com.energyict.mdc.engine;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import aQute.bnd.annotation.ProviderType;

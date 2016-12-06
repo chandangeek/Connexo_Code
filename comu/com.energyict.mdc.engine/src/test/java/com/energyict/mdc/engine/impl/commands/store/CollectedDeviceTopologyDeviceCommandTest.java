@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;

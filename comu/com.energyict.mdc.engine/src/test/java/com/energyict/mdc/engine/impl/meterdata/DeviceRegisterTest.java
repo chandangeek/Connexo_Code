@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import org.junit.*;
 
@@ -31,34 +31,34 @@ public class DeviceRegisterTest {
 
     @Test
     public void registerIdTest() {
-        BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(String.class));
         assertThat(billingDeviceRegisters.getRegisterIdentifier()).isNotNull();
 
-        DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getMockedRegisterIdentifier(), mock(String.class));
         assertThat(defaultDeviceRegister.getRegisterIdentifier()).isNotNull();
 
-        MaximumDemandDeviceRegister maximumDemandDeviceRegister = new MaximumDemandDeviceRegister(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        MaximumDemandDeviceRegister maximumDemandDeviceRegister = new MaximumDemandDeviceRegister(getMockedRegisterIdentifier(), mock(String.class));
         assertThat(maximumDemandDeviceRegister.getRegisterIdentifier()).isNotNull();
     }
 
     @Test
     public void defaultSupportedNonIssueTest(){
-        BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(String.class));
         assertThat(billingDeviceRegisters.getResultType()).isEqualTo(ResultType.Supported);
         assertThat(billingDeviceRegisters.getIssues()).isEmpty();
 
-        DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getMockedRegisterIdentifier(), mock(String.class));
         assertThat(defaultDeviceRegister.getResultType()).isEqualTo(ResultType.Supported);
         assertThat(defaultDeviceRegister.getIssues()).isEmpty();
 
-        MaximumDemandDeviceRegister maximumDemandDeviceRegister = new MaximumDemandDeviceRegister(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        MaximumDemandDeviceRegister maximumDemandDeviceRegister = new MaximumDemandDeviceRegister(getMockedRegisterIdentifier(), mock(String.class));
         assertThat(maximumDemandDeviceRegister.getResultType()).isEqualTo(ResultType.Supported);
         assertThat(maximumDemandDeviceRegister.getIssues()).isEmpty();
     }
 
     @Test
     public void setCollectedDataTest() {
-        BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(String.class));
         Quantity quantity = mock(Quantity.class);
         String text = "Collected String Test";
         billingDeviceRegisters.setCollectedData(quantity, text);
@@ -71,7 +71,7 @@ public class DeviceRegisterTest {
         final Instant readTime = Instant.now().minus(Duration.ofSeconds(100));
         final Instant fromTime = Instant.now().minus(Duration.ofSeconds(700));
         final Instant toTime = Instant.now().minus(Duration.ofSeconds(550));
-        BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        BillingDeviceRegisters billingDeviceRegisters = new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(String.class));
         billingDeviceRegisters.setCollectedTimeStamps(readTime, fromTime, toTime);
 
         assertThat(billingDeviceRegisters.getReadTime()).isEqualTo(readTime);
@@ -86,7 +86,7 @@ public class DeviceRegisterTest {
         final Instant fromTime = Instant.now().minus(Duration.ofSeconds(700));
         final Instant toTime = Instant.now().minus(Duration.ofSeconds(550));
         final Instant eventTime = Instant.now().minus(Duration.ofMillis(643712));
-        MaximumDemandDeviceRegister maximumDemandDeviceRegister = new MaximumDemandDeviceRegister(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        MaximumDemandDeviceRegister maximumDemandDeviceRegister = new MaximumDemandDeviceRegister(getMockedRegisterIdentifier(), mock(String.class));
         maximumDemandDeviceRegister.setCollectedTimeStamps(readTime, fromTime, toTime, eventTime);
 
         assertThat(maximumDemandDeviceRegister.getReadTime()).isEqualTo(readTime);
@@ -98,7 +98,7 @@ public class DeviceRegisterTest {
     @Test
     public void defaultDeviceRegisterTimeTest() {
         final Instant readTime = Instant.now().minus(Duration.ofSeconds(100));
-        DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getMockedRegisterIdentifier(), mock(String.class));
         defaultDeviceRegister.setReadTime(readTime);
 
         assertThat(defaultDeviceRegister.getReadTime()).isEqualTo(readTime);

@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.*;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;

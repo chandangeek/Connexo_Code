@@ -6,8 +6,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -17,14 +16,20 @@ import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -39,13 +44,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -476,11 +474,11 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoggerLoadProfile = slave.getLoadProfiles().get(0);
         slaveLoggerLoadProfile.getChannels().stream().forEach(slaveChannel -> {
-                channelMap.put(slaveChannel, dataLoggerLoadProfile.getChannels().get(channelMap.size()));
+            channelMap.put(slaveChannel, dataLoggerLoadProfile.getChannels().get(channelMap.size()));
         });
         createMockedOfflineLoadProfile(slave);
 
-        getTopologyService().setDataLogger(slave, dataLogger, fromClock.toInstant() , channelMap, new HashMap<>() );
+        getTopologyService().setDataLogger(slave, dataLogger, fromClock.toInstant(), channelMap, new HashMap<>());
         //Assert the linking of the data logger channels with the slave channels
         assertThat(getTopologyService().getSlaveChannel(dataLoggerLoadProfile.getChannels().get(0), fromClock.toInstant()).get().getId()).isEqualTo(slaveLoggerLoadProfile.getChannels().get(0).getId());
         assertThat(getTopologyService().getSlaveChannel(dataLoggerLoadProfile.getChannels().get(1), fromClock.toInstant()).get().getId()).isEqualTo(slaveLoggerLoadProfile.getChannels().get(1).getId());

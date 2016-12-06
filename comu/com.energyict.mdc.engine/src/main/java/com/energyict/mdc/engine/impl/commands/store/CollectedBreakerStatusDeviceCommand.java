@@ -5,9 +5,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedBreakerStatusEvent;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 
 import java.util.List;
 import java.util.Optional;

@@ -3,10 +3,10 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.CreateNoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.NoLogBooksCollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.Collections;
@@ -51,7 +51,12 @@ public class NoLogBooksForDevice extends CollectedDeviceData implements NoLogBoo
     }
 
     @Override
-    public void setMeterEvents(List<MeterProtocolEvent> meterEvents) {
+    public void setCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
+        // nothing to do
+    }
+
+    @Override
+    public void addCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
         // nothing to do
     }
 }

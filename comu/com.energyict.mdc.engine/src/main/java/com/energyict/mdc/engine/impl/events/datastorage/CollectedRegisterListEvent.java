@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 
 import org.json.JSONException;
@@ -47,19 +47,19 @@ public class CollectedRegisterListEvent extends AbstractCollectedDataProcessingE
             if (text != null){
                 writer.key("text").value(text);
             }
-            Instant readTime = each.getReadTime();
+            Instant readTime = each.getReadTime().toInstant();
             if (readTime != null){
                 writer.key("readTime").value(readTime);
             }
-            Instant fromTime = each.getFromTime();
+            Instant fromTime = each.getFromTime().toInstant();
             if (readTime != null){
                 writer.key("fromTime").value(fromTime);
             }
-            Instant toTime = each.getToTime();
+            Instant toTime = each.getToTime().toInstant();
             if (readTime != null){
                 writer.key("toTime").value(toTime);
             }
-            Instant eventTime = each.getEventTime();
+            Instant eventTime = each.getEventTime().toInstant();
             if (eventTime != null){
                 writer.key("eventTime").value(eventTime);
             }

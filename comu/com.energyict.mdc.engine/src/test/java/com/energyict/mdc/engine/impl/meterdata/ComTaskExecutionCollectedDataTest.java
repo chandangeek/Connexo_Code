@@ -4,8 +4,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.transaction.TransactionService;

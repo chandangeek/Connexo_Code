@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.cache;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 
 import java.io.Serializable;
 

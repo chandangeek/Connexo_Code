@@ -5,8 +5,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedCalendarEvent;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 
 import java.time.Clock;
 import java.util.ArrayList;

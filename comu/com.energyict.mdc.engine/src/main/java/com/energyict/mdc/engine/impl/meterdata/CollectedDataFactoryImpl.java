@@ -1,22 +1,16 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -25,7 +19,11 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -64,23 +62,23 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
-        return new MaximumDemandDeviceRegister(registerIdentifier, readingType);
+    public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
+        return new MaximumDemandDeviceRegister(registerIdentifier, readingTypeMRID);
     }
 
     @Override
-    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier, ReadingType readingType) {
-        return new AdapterDeviceRegister(registerIdentifier, readingType);
+    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
+        return new AdapterDeviceRegister(registerIdentifier, readingTypeMRID);
     }
 
     @Override
-    public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
-        return new BillingDeviceRegisters(registerIdentifier, readingType);
+    public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
+        return new BillingDeviceRegisters(registerIdentifier, readingTypeMRID);
     }
 
     @Override
-    public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
-        return new DefaultDeviceRegister(registerIdentifier, readingType);
+    public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
+        return new DefaultDeviceRegister(registerIdentifier, readingTypeMRID);
     }
 
     @Override

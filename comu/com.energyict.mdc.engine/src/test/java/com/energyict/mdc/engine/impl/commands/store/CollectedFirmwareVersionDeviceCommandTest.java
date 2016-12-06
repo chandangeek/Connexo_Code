@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

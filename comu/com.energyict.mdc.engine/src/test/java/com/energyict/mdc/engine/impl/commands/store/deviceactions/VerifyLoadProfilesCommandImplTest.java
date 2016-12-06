@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTi
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import org.fest.assertions.api.Assertions;
 import org.junit.Test;

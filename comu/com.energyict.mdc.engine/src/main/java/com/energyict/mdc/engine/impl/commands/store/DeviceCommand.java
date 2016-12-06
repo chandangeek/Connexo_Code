@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -56,7 +56,7 @@ public interface DeviceCommand {
         void addIssue(CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution);
 
         /**
-         * Tests if {@link com.energyict.mdc.issues.Problem}s have been added.
+         * Tests if {@link com.energyict.mdc.upl.tasks.Problem}s have been added.
          *
          * @return true iff Problems have been added
          * @see #addIssue(CompletionCode, Issue, ComTaskExecution)

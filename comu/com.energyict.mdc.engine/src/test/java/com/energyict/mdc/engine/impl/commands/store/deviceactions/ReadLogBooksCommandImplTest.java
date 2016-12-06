@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
@@ -15,11 +15,11 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
 import org.junit.Test;
@@ -131,7 +131,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedLogBook collectedLogBook1 = new DeviceLogBook(logBookIdentifier1);
-        collectedLogBook1.setMeterEvents(Arrays.asList(mock(MeterProtocolEvent.class)));
+        collectedLogBook1.setCollectedMeterEvents(Arrays.asList(mock(MeterProtocolEvent.class)));
         CollectedLogBook collectedLogBook2 = new DeviceLogBook(logBookIdentifier2);
         CollectedLogBook collectedLogBook3 = new DeviceLogBook(logBookIdentifier3);
         when(deviceProtocol.getLogBookData(Matchers.<List<LogBookReader>>any())).thenReturn(Arrays.asList(collectedLogBook1, collectedLogBook2, collectedLogBook3));

@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.upl.tasks.Problem;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 /**

@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,18 +115,13 @@ public class CollectedDeviceCacheCommandTest {
         private String description = "NoDescription";
 
         @Override
-        public boolean isDirty() {
+        public boolean contentChanged() {
             return dirty;
         }
 
         @Override
-        public void markClean() {
-            this.dirty = false;
-        }
-
-        @Override
-        public void markDirty() {
-            this.dirty = true;
+        public void setContentChanged(boolean changed) {
+            this.dirty = changed;
         }
 
         protected void updateChangedState(final boolean changedState) {

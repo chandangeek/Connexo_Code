@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 import java.util.ArrayList;

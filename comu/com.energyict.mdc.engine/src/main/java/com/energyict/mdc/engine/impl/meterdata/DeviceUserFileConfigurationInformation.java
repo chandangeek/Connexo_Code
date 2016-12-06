@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.StoreConfigurationUserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**

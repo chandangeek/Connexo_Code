@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  * <ul>
  * <li>Check with the {@link DeviceCommandExecutor} if additional tasks can be accepted</li>
  * <li>Execute the InboundDeviceProtocol</li>
- * <li>Filter the {@link com.energyict.mdc.protocol.api.device.data.CollectedData} against the {@link com.energyict.mdc.tasks.ComTask}s of the Device that is posting the data</li>
+ * <li>Filter the {@link com.energyict.mdc.upl.meterdata.CollectedData} against the {@link com.energyict.mdc.tasks.ComTask}s of the Device that is posting the data</li>
  * <li>Convert the filtered collected data to {@link com.energyict.mdc.engine.impl.commands.store.DeviceCommand}s</li>
  * <li>Execute the composite device command with the DeviceCommandExecutor</li>
  * </ul>

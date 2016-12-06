@@ -13,10 +13,10 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.upl.tasks.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;

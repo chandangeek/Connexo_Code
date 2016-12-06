@@ -47,8 +47,8 @@ import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalSt
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;

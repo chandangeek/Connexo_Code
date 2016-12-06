@@ -5,10 +5,10 @@ import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.protocol.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
 import com.elster.jupiter.util.Ranges;
@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Implementation of a LoadProfile, collected from a Device.
- * If no data could be collected, then a proper {@link #issueList issue} and {@link com.energyict.mdc.protocol.api.device.data.ResultType}
+ * If no data could be collected, then a proper {@link #issueList issue} and {@link com.energyict.mdc.upl.meterdata.ResultType}
  * will be returned.
  *
  * @author gna

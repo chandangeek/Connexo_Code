@@ -7,7 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.*;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
 

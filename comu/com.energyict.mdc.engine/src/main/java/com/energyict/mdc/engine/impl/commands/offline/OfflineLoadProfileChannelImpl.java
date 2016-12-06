@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 

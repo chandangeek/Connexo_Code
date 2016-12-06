@@ -3,9 +3,9 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.tasks.Warning;
 
 import java.time.Clock;
 import java.time.Instant;

@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import org.junit.*;
 
 import java.util.Arrays;

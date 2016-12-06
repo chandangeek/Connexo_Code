@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
@@ -18,12 +18,12 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.tasks.RegistersTask;
 import org.junit.Assert;
 import org.junit.Before;
@@ -196,7 +196,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
     private OfflineRegister mockOfflineRegister(long deviceId, String serialNumber, Long registerId, ObisCode obisCode) {
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
         when(offlineRegister.getDeviceIdentifier()).thenReturn((DeviceIdentifier) new DeviceIdentifierById(deviceId, deviceService));
-        when(offlineRegister.getDeviceSerialNumber()).thenReturn(serialNumber);
+        when(offlineRegister.getSerialNumber()).thenReturn(serialNumber);
         when(offlineRegister.getRegisterId()).thenReturn(registerId);
         when(offlineRegister.getObisCode()).thenReturn(obisCode);
         when(offlineRegister.getDeviceMRID()).thenReturn(MR_ID);
@@ -214,7 +214,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         RegisterCommand registerCommand = spy(new RegisterCommandImpl(groupedDeviceCommand, mock(RegistersTask.class), comTaskExecution));
 
         CollectedData noCollectedRegisterCollectedData = mock(CollectedData.class);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(String.class));
         List<CollectedData> collectedDataItems = new ArrayList<>(2);
         collectedDataItems.add(noCollectedRegisterCollectedData);
         collectedDataItems.add(collectedRegister);

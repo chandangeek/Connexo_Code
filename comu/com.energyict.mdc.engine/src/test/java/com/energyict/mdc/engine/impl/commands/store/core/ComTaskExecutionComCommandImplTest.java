@@ -17,7 +17,7 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ComTask;

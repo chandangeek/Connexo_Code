@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;

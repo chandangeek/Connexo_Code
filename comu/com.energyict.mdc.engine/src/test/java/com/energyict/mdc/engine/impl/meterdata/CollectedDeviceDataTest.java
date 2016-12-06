@@ -3,9 +3,9 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import org.junit.*;
 
@@ -29,7 +29,7 @@ public class CollectedDeviceDataTest {
     }
 
     private static CollectedData getSimpleCollectedData(){
-        return new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(ReadingType.class));
+        return new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(String.class));
     }
 
     @Test

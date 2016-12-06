@@ -11,7 +11,7 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.upl.tasks.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 

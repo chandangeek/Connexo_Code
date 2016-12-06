@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 

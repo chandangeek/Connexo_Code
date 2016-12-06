@@ -1,24 +1,25 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.MeterProtocolEvent;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Implementation of a LogBook, collected from the Device.
- * If no data could be collected, then a proper {@link com.energyict.mdc.issues.Issue}
- * and {@link com.energyict.mdc.protocol.api.device.data.ResultType} will be returned.
+ * If no data could be collected, then a proper {@link com.energyict.mdc.upl.tasks.Issue}
+ * and {@link com.energyict.mdc.upl.meterdata.ResultType} will be returned.
  *
  * @author gna
  * @since 4/04/12 - 8:27
@@ -64,9 +65,20 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
     }
 
     @Override
-    public void setMeterEvents(List<MeterProtocolEvent> meterEvents) {
-        if(meterEvents == null){
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setMeterEvents", "meterEvents", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+    public void setCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
+        if (meterEvents == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedMeterEvents", "meterEvents", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+        }
+        this.meterEvents = meterEvents;
+    }
+
+    @Override
+    public void addCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
+        if (meterEvents == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "addCollectedMeterEvents", "meterEvents", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+        }
+        if (this.meterEvents == null) {
+            this.meterEvents = new ArrayList<>();
         }
         this.meterEvents = meterEvents;
     }

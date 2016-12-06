@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Implementation of a DeviceTopology, collected from a Device. If no data could be collected or the feature is not supported,
- * the a proper {@link com.energyict.mdc.issues.Issue} and {@link com.energyict.mdc.protocol.api.device.data.ResultType} should be returned.
+ * the a proper {@link com.energyict.mdc.upl.tasks.Issue} and {@link com.energyict.mdc.upl.meterdata.ResultType} should be returned.
  *
  * @author gna
  * @since 5/04/12 - 11:57

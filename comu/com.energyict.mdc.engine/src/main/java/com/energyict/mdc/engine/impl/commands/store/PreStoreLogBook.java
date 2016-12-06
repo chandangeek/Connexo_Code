@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 

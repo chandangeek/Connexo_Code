@@ -5,7 +5,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LogBooksTask;
@@ -56,7 +56,6 @@ public class LogBookCommandHelper {
      */
     private static LogBookReader createLogBookReader(final Clock clock, final OfflineLogBook logBook) {
         return new LogBookReader(
-                clock,
                 logBook.getObisCode(),
                 logBook.getLastLogBook(),
                 logBook.getLogBookIdentifier(),

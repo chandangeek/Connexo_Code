@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;

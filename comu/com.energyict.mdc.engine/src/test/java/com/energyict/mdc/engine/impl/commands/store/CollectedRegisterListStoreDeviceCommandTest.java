@@ -10,9 +10,9 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -28,13 +28,14 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -315,8 +316,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     }
 
     private CollectedRegister createCollectedRegister(RegisterIdentifier registerIdentifier) {
-        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier, getMdcReadingTypeUtilService().getReadingTypeFrom(registerIdentifier.getObisCode(), kiloWattHours));
-        collectedRegister.setReadTime(registerEventTime1);
+        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier, getMdcReadingTypeUtilService().getReadingTypeFrom(registerIdentifier.getObisCode(), kiloWattHours).getMRID());
+        collectedRegister.setReadTime(Date.from(registerEventTime1));
         collectedRegister.setCollectedData(register1Quantity);
         return collectedRegister;
     }

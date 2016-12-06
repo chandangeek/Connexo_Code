@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -24,7 +24,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
@@ -239,7 +239,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             Serializable cacheObject = deviceProtocolCache.get().getSimpleCacheObject();
             if (cacheObject != null) {
                 this.deviceProtocolCache = (DeviceProtocolCache) cacheObject;
-                this.deviceProtocolCache.markClean(); // Cache is loaded from DB, so make sure it is marked clean, i.e. not dirty or changed
+                this.deviceProtocolCache.setContentChanged(false); // Cache is loaded from DB, so make sure it is marked clean, i.e. not dirty or changed
             }
         }
     }
@@ -333,7 +333,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     @Override
-    public TypedProperties getAllProperties() {
+    public com.energyict.mdc.upl.properties.TypedProperties getAllProperties() {
         return allProperties;
     }
 

@@ -4,11 +4,11 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 import java.util.List;

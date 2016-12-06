@@ -60,7 +60,7 @@ public interface ComPortConnectionLogger {
 
     /**
      * Logs that the execution of a {@link com.energyict.mdc.tasks.ComTask}
-     * by a {@link com.energyict.mdc.engine.config.ComPort} failed due to {@link com.energyict.mdc.issues.Problem}s
+     * by a {@link com.energyict.mdc.engine.config.ComPort} failed due to {@link com.energyict.mdc.upl.tasks.Problem}s
      * that were reported while executing.
      *
      * @param comPortThreadName The name of the ComPort thread that completed the execution
@@ -72,7 +72,7 @@ public interface ComPortConnectionLogger {
 
     /**
      * Logs that the execution of a {@link com.energyict.mdc.tasks.ComTask}
-     * by a {@link com.energyict.mdc.engine.config.ComPort} failed due to {@link com.energyict.mdc.issues.Problem}s
+     * by a {@link com.energyict.mdc.engine.config.ComPort} failed due to {@link com.energyict.mdc.upl.tasks.Problem}s
      * that were reported while executing.
      *
      * @param comPortThreadName The name of the ComPort thread that completed the execution

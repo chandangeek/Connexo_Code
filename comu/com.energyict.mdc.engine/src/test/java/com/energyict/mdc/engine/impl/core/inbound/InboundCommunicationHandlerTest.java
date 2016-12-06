@@ -48,7 +48,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -479,7 +479,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(String.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData(any(OfflineDevice.class))).thenReturn(collectedData);
@@ -556,7 +556,7 @@ public class InboundCommunicationHandlerTest {
     private void testComSessionShadowForSuccessFulCommunication(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(String.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData(any(OfflineDevice.class))).thenReturn(collectedData);

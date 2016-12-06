@@ -17,16 +17,16 @@ import com.energyict.mdc.engine.impl.tools.StackTracePrinter;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemException;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.protocol.IntervalData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
@@ -392,7 +392,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     private boolean channelIsConfigured(LoadProfileReader loadProfileReader, ChannelInfo readChannel) {
 
         //Clone the argument
-        ChannelInfo clone = new ChannelInfo(readChannel.getId(), readChannel.getName(), readChannel.getUnit(), readChannel.getMeterIdentifier(), readChannel.isCumulative(), readChannel.getReadingType());
+        ChannelInfo clone = new ChannelInfo(readChannel.getId(), readChannel.getName(), readChannel.getUnit(), readChannel.getMeterIdentifier(), readChannel.isCumulative(), readChannel.getReadingTypeMRID());
 
         //We found an exact match, cool.
         if (loadProfileReader.getChannelInfos().contains(clone)) {
