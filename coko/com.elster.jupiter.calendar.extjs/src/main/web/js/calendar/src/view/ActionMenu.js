@@ -10,7 +10,7 @@ Ext.define('Cal.view.ActionMenu', {
                 privileges: Cal.privileges.Calendar.admin,
                 activateDeactivate: function(){
                     return this.record.get('status').id;
-                }
+                },
                 section: this.SECTION_ACTION
             },
             {
