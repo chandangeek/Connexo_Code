@@ -133,8 +133,13 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         UsagePointImpl usagePoint = this.build();
         usagePoint.doSave();
         if (!customPropertySetsValues.isEmpty()) {
-            customPropertySetsValues.forEach((propertySet, values) ->
-                    usagePoint.forCustomProperties().getPropertySet(propertySet.getId()).setValues(values));
+            customPropertySetsValues.forEach((propertySet, values) -> {
+                if (propertySet.getCustomPropertySet().isVersioned()) {
+                    usagePoint.forCustomProperties().getVersionedPropertySet(propertySet.getId()).setVersionValues(null, values);
+                } else {
+                    usagePoint.forCustomProperties().getPropertySet(propertySet.getId()).setValues(values);
+                }
+            });
             usagePoint.update(); // force missing CAS validation
         }
         return usagePoint;

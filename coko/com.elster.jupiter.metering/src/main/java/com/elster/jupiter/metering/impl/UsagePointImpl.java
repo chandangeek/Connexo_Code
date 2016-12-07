@@ -550,7 +550,6 @@ public class UsagePointImpl implements UsagePoint {
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
         effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
         this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
-        this.update();
     }
 
     @Override
