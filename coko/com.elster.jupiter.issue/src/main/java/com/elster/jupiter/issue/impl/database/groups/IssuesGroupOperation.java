@@ -4,8 +4,6 @@ import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.entity.AssigneeDetails;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -173,16 +171,6 @@ public abstract class IssuesGroupOperation {
             }
         }
         if (builder.length() != 0) {
-            builder.insert(0, " AND (").append(") ");
-            return builder.toString();
-        }
-        return "";
-    }
-
-    String getMeterCondition() {
-        if (getFilter().getMeterMrid() != null) {
-            StringBuilder builder = new StringBuilder();
-            builder.append("device.MRID = '").append(getFilter().getMeterMrid()).append("'");
             builder.insert(0, " AND (").append(") ");
             return builder.toString();
         }

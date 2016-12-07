@@ -47,8 +47,6 @@ public interface IssueGroupFilter {
 
     String getMeterName();
 
-    IssueGroupFilter withMeterName(String name);
-
     List<Long> getUserAssignees();
 
     List<Long> getWorkGroupAssignees();
@@ -56,8 +54,6 @@ public interface IssueGroupFilter {
     List<DueDateRange> getDueDates();
 
     List<AssigneeDetails> getAssignees();
-
-    String getMeterName();
 
     IssueGroupFilter withMeterName(String name);
 

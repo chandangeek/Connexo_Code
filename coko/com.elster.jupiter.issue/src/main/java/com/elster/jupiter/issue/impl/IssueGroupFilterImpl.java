@@ -23,7 +23,6 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private List<Long> userAssignees;
     private String meterName;
     private List<Long> workGroupAssignees;
-    private String meterName;
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
 
