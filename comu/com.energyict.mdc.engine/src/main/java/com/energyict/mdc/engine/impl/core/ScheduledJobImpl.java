@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -71,9 +70,9 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     private ComWindow getComWindow() {
         ComWindow comWindowToUse = this.getConnectionTask().getCommunicationWindow();
-        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(item -> item instanceof FirmwareComTaskExecution).findFirst();
+        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware).findFirst();
         if (firmwareComTaskExecution.isPresent()) {
-            FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) firmwareComTaskExecution.get();
+            ComTaskExecution comTaskExecution = firmwareComTaskExecution.get();
             Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution);
             if (firmwareCampaign.isPresent()) {
                 comWindowToUse = firmwareCampaign.get().getComWindow();
@@ -95,14 +94,9 @@ public abstract class ScheduledJobImpl extends JobExecution {
     @Override
     public void rescheduleToNextComWindow() {
         this.createExecutionContext(false);
-        int numberOfPlannedButNotExecutedTasks = (int)
-                this.getComTaskExecutions()
-                        .stream()
-                        .flatMap(each -> each.getComTasks().stream())
-                        .count();
 
         if (getExecutionContext() != null) {
-            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
+            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(this.getComTaskExecutions().size());
             this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
             this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
             this.completeOutsideComWindow();

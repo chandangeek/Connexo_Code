@@ -125,7 +125,7 @@ public class CodingException extends ComServerRuntimeException {
      * @return The CodingException
      */
     public static CodingException comTaskSessionMissing(ComTaskExecution comTaskExecution, MessageSeed messageSeed) {
-        return new CodingException(messageSeed, comTaskExecution.getComTasks().get(0).getName());
+        return new CodingException(messageSeed, comTaskExecution.getComTask().getName());
     }
 
     public static CodingException malformedObjectName(ComServer comServer, MalformedObjectNameException e, MessageSeed messageSeed) {

@@ -694,7 +694,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             return null;
         } else {
             for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
-                if (comTaskEnablement.getComTask().equals(first.getComTasks().get(0))) {
+                if (comTaskEnablement.getComTask().equals(first.getComTask())) {
                     securityPropertySet = comTaskEnablement.getSecurityPropertySet();
                 }
             }

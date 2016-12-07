@@ -12,7 +12,14 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation for a {@link CommandRoot}
@@ -58,22 +65,14 @@ public class CommandRootImpl implements CommandRoot {
                     groupedDeviceCommand.perform(executionContext);
                 } catch (Throwable e) {
                     // we really should not get here, log stuff and continue with the others
-                    executionContext.connectionLogger.taskExecutionFailed(e, getCurrentThreadName(), getComTasksDescription(), executionContext.getComTaskExecution().getDevice().getmRID());
+                    executionContext.connectionLogger.taskExecutionFailed(e, getCurrentThreadName(), getComTasksDescription(), executionContext.getComTaskExecution().getDevice().getName());
                 }
             }
         }
     }
 
     private String getComTasksDescription() {
-        StringBuilder result = new StringBuilder();
-        List<ComTask> comTasks = executionContext.getComTaskExecution().getComTasks();
-        for (ComTask comTask : comTasks) {
-            if (result.length() > 0) {
-                result.append(", ");
-            }
-            result.append(comTask.getName());
-        }
-        return result.toString();
+        return executionContext.getComTaskExecution().getComTask().getName();
     }
 
     private String getCurrentThreadName() {

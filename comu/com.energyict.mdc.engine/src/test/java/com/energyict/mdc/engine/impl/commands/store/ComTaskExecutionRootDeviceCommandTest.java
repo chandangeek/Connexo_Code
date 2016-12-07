@@ -61,7 +61,7 @@ public class ComTaskExecutionRootDeviceCommandTest {
     public void initializeMocks () throws SQLException {
         when(this.comTask.getName()).thenReturn(FailureLoggerImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
+        when(this.comTaskExecution.getComTask()).thenReturn(this.comTask);
     }
 
     @Test
