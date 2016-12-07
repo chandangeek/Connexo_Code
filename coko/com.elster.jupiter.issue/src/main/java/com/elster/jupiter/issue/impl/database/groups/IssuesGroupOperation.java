@@ -4,6 +4,8 @@ import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.AssigneeDetails;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -129,6 +131,13 @@ public abstract class IssuesGroupOperation {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
+        return "";
+    }
+
+    String getMeterCondition() {
+        if (getFilter().getMeterName() != null) {
+            return " AND (device.name = '" + getFilter().getMeterName() + "') ";
+        }
         return "";
     }
 

@@ -18,6 +18,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -146,7 +147,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                         "issue.share.service.IssueCreationService issueCreationService;' and this rule calls " +
                         "'issueCreationService.createIssue(@{ruleId}, event);' or something like that.");
             }
-            events.stream().forEach(event -> ksession.insert(event));
+            events.forEach(ksession::insert);
             ksession.fireAllRules();
             ksession.dispose();
         }
@@ -156,7 +157,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public void processIssueCreationEvent(long ruleId, IssueEvent event) {
         // Sometimes we need to restrict issue creation due to global reasons (common for all type of issues)
         if (event.getEndDevice().isPresent() && restrictIssueCreation(event)) {
-                LOG.info("Issue creation for device " + event.getEndDevice().get().getMRID() + " was restricted");
+                LOG.info("Issue creation for device "
+                        + event.getEndDevice().map(EndDevice::getName).orElse("UNKNOWN")
+                        + " was restricted");
                 return;
             }
 
@@ -222,8 +225,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             KnowledgeBuilderConfiguration kbConf = knowledgeBuilderFactoryService.newKnowledgeBuilderConfiguration(null, rulesClassloader);
             KnowledgeBuilder kbuilder = knowledgeBuilderFactoryService.newKnowledgeBuilder(kbConf);
 
-            List<CreationRule> allRules = getCreationRules();
-            for (CreationRule rule : allRules) {
+            for (CreationRule rule : getCreationRules()) {
                 if (issueService.getCreationRuleTemplates().get(rule.getTemplateImpl()) != null) {
                     kbuilder.add(resourceFactoryService.newByteArrayResource(rule.getData()), ResourceType.DRL);
                 }
@@ -253,7 +255,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     private List<CreationRule> getCreationRules() {
-        List<CreationRule> ruleList = null;
+        List<CreationRule> ruleList;
         try {
             ruleList = getCreationRuleQuery().select(Condition.TRUE);
         } catch (UnderlyingSQLFailedException sqlEx) {

@@ -23,7 +23,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private List<Long> userAssignees;
     private String meterName;
     private List<Long> workGroupAssignees;
-    private String mrid;
+    private String meterName;
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
 
@@ -169,13 +169,13 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     }
 
     @Override
-    public String getMeterMrid() {
-        return mrid;
+    public String getMeterName() {
+        return meterName;
     }
 
     @Override
-    public IssueGroupFilterImpl withMeterMrid(String mrid) {
-        this.mrid = mrid;
+    public IssueGroupFilterImpl withMeterName(String name) {
+        this.meterName = name;
         return this;
     }
 
@@ -190,17 +190,6 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     @Override
     public IssueGroupFilter withDueDate(long startTime, long endTime) {
         this.dueDates.add(new DueDateRange(startTime, endTime));
-        return this;
-    }
-
-    @Override
-    public String getMeterName() {
-        return meterName;
-    }
-
-    @Override
-    public IssueGroupFilterImpl withMeterName(String name) {
-        this.meterName = name;
         return this;
     }
 

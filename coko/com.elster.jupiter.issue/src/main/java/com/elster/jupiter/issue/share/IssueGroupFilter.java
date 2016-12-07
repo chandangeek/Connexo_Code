@@ -57,9 +57,9 @@ public interface IssueGroupFilter {
 
     List<AssigneeDetails> getAssignees();
 
-    String getMeterMrid();
+    String getMeterName();
 
-    IssueGroupFilter withMeterMrid(String mrid);
+    IssueGroupFilter withMeterName(String name);
 
     IssueGroupFilter withIssueTypes(Collection<String> issueTypes);
 
