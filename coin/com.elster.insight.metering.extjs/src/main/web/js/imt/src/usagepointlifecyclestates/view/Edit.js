@@ -38,15 +38,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                             field.focus(false);
                         }
                     }
-                },
-                {
-                    xtype: 'displayfield',
-                    name: 'display_name',
-                    itemId: 'lifeCycleStateNameDisplayField',
-                    fieldLabel: Uni.I18n.translate('general.name', 'IMT', 'Name'),
-                    required: true,
-                    hidden: true
-                },
+                },                
                 {
                     xtype: 'fieldcontainer',
                     itemId: 'usagepoint-life-cycle-stage-container',
@@ -231,17 +223,9 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                     this.setTitle(Uni.I18n.translate('usagePointLifeCycleStates.add', 'IMT', 'Add state'));
                 } else { //Edit
                     var createBtn = this.down('#createEditButton');
-
                     this.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", record.get('name')));
                     createBtn.setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
-                    createBtn.action = 'save';
-                    if (!record.get('isCustom')) {
-                        this.getForm().findField('name').disabled = true;
-                        this.down('#lifeCycleStateNameField').hide();
-                        var displayNameField = this.down('#lifeCycleStateNameDisplayField');
-                        displayNameField.setValue(record.get('name'));
-                        displayNameField.show();
-                    }
+                    createBtn.action = 'save';                   
                 }
                 this.getForm().loadRecord(record);
                 var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();

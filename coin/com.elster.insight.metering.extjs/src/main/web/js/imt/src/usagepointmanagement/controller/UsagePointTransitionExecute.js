@@ -30,8 +30,9 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
 
     nextClick: function () {
         var me = this,
-            layout = me.getUsagepointTransitionExecuteWizard().getLayout(),
-            propertyForm = me.getUsagepointTransitionExecuteWizard().down('property-form'),
+            wizard = me.getUsagepointTransitionExecuteWizard(),
+            layout = wizard.getLayout(),
+            propertyForm = wizard.down('property-form'),
             router = me.getController('Uni.controller.history.Router'),                   
             record = propertyForm.getRecord();
 
@@ -59,7 +60,22 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
         var me = this,
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             transitionModel = me.getModel('Imt.usagepointmanagement.model.UsagePointTransition'),
-            app = me.getApplication();
+            app = me.getApplication(),
+            dependenciesCounter = 2,
+            onDependenciesLoad = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    app.fireEvent('changecontentevent', Ext.widget('usagepointTransitionExecuteBrowse', {
+                        itemId: 'usagepointTransitionExecuteBrowse',
+                        router: me.getController('Uni.controller.history.Router')
+                    }));
+                    Ext.suspendLayouts();
+                    me.getPage().down('usagepointTransitionWizardNavigation').setTitle(me.transition.get('name'));
+                    me.getPage().down('property-form').loadRecord(me.transition);
+                    Ext.resumeLayouts(true);
+                    mainView.setLoading(false);
+                }
+            };
 
         mainView.setLoading();
         transitionModel.getProxy().setParams(usagepointId);
@@ -67,23 +83,17 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
             success: function (usagepoint) {
                 app.fireEvent('usagePointLoaded', usagepoint);
                 me.usagePoint = usagepoint;
-                transitionModel.load(transitionId, {
-                    success: function (record) {
-                        app.fireEvent('loadUsagePointTransition', record);
-                        app.fireEvent('changecontentevent', Ext.widget('usagepointTransitionExecuteBrowse', {
-                            itemId: 'usagepointTransitionExecuteBrowse',
-                            router: me.getController('Uni.controller.history.Router')
-                        }));
-                        Ext.suspendLayouts();
-                        me.getPage().down('usagepointTransitionWizardNavigation').setTitle(record.get('name'));
-                        me.getPage().down('property-form').loadRecord(record);
-                        Ext.resumeLayouts(true);
-                        mainView.setLoading(false);
-                    },
-                    failure: function () {
-                        mainView.setLoading(false);
-                    }
-                });
+                onDependenciesLoad();
+            }
+        });
+        transitionModel.load(transitionId, {
+            success: function (record) {
+                me.transition = record;
+                app.fireEvent('loadUsagePointTransition', record);
+                onDependenciesLoad();
+            },
+            failure: function () {
+                onDependenciesLoad();
             }
         });
     }

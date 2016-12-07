@@ -8,6 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.ResultPanel', {
         var me = this,
             errorsPanel = me.down('#errors-panel');
 
+        Ext.suspendLayouts();
         Ext.each(failedItems, function (failedItem) {
             errorsPanel.add({
                 margin: '10 0 0 30',
@@ -25,6 +26,7 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.ResultPanel', {
                 ]
             });
         });
+        Ext.resumeLayouts(true);
     },
 
     initComponent: function () {
@@ -74,9 +76,7 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.ResultPanel', {
         me.callParent();
         if (failed) {
             failedItems = me.response.microActions.length ? me.response.microActions : me.response.microChecks;
-            Ext.suspendLayouts();
             me.addErrorItems(failedItems);
-            Ext.resumeLayouts(true);
         }
     }
 });

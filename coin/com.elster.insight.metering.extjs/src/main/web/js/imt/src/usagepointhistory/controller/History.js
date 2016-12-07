@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 beforetabchange: me.onBeforeHistoryTabChange
             },
             'life-cycle-and-state actioncolumn': {
-                abortTransition: this.abortTransition
+                abortTransition: me.abortTransition
             }
         });
     },
