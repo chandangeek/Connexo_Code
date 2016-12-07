@@ -193,7 +193,8 @@ Ext.define('Bpm.controller.Task', {
 
             var argSort = router.arguments.sort, argUser = router.arguments.user,
                 argDueDate = router.arguments.dueDate, argStatus = router.arguments.status,
-                argProcess = router.arguments.process;
+                argProcess = router.arguments.process,
+                argWorkgroup = router.arguments.workgroup;
 
             router.getRoute('workspace/tasks').params.use = false;
             delete queryString.param;
@@ -202,6 +203,7 @@ Ext.define('Bpm.controller.Task', {
             argDueDate && (argDueDate != '') && (queryString.dueDate = argDueDate);
             argStatus && (argStatus != '') && (queryString.status = argStatus);
             argProcess && (argProcess != '') && (queryString.process = argProcess);
+            argWorkgroup && (argWorkgroup != '') && (queryString.workgroup = argWorkgroup);
 
             if (Uni.util.QueryString.buildHrefWithQueryString(queryString, false) != location.href) {
                 window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
@@ -302,6 +304,7 @@ Ext.define('Bpm.controller.Task', {
         route.params.dueDate = queryString.dueDate;
         route.params.status = queryString.status;
         route.params.process = queryString.process;
+        route.params.workgroup = queryString.workgroup;
 
         route && route.forward(router.arguments);
     },
@@ -318,12 +321,14 @@ Ext.define('Bpm.controller.Task', {
         tasksRoute.params.dueDate = undefined;
         tasksRoute.params.status = undefined;
         tasksRoute.params.process = undefined;
+        tasksRoute.params.workgroup = undefined;
 
         queryString.sort && (queryString.sort != '') && (tasksRoute.params.sort = queryString.sort);
         queryString.user && (queryString.user != '') && (tasksRoute.params.user = queryString.user);
         queryString.dueDate && (queryString.dueDate != '') && (tasksRoute.params.dueDate = queryString.dueDate);
         queryString.status && (queryString.status != '') && (tasksRoute.params.status = queryString.status);
         queryString.process && (queryString.process != '') && (tasksRoute.params.process = queryString.process);
+        queryString.workgroup && (queryString.workgroup != '') && (tasksRoute.params.workgroup = queryString.workgroup);
 
         route ='workspace/tasks/bulkaction';
 
@@ -333,6 +338,7 @@ Ext.define('Bpm.controller.Task', {
         route.params.dueDate = queryString.dueDate;
         route.params.status = queryString.status;
         route.params.process = queryString.process;
+        route.params.workgroup = queryString.workgroup;
 
         route && route.forward(router.arguments);
 

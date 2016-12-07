@@ -112,8 +112,7 @@ Ext.define('Bpm.view.task.UserAssigneeCombo', {
         change: function (combo, newValue) {
             var me = this;
 
-            workgroupChangeEvent: false,
-                me.userChangeEvent = true;
+            me.userChangeEvent = true;
             if (me.workgroupChangeEvent && me.userChangeEvent) {
                 me.initializeUserCombo();
             }
@@ -165,6 +164,8 @@ Ext.define('Bpm.view.task.UserAssigneeCombo', {
         var me = this,
             value = me.getValue();
 
+        me.workgroupChangeEvent = false;
+        me.userChangeEvent = false;
         if (me.isDisabled()) {
             return;
         }
