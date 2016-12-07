@@ -556,12 +556,19 @@ public final class DeviceMessageConstants {
     public static final String SetSMTPOptionsAttributeDefaultTranslation = "SMTP options";
 
     public static final String SetSmsDataNbrAttributeName = "SMSConfigurationDeviceMessage.setsmsdatanbr";
+    public static final String SetSmsDataNbrAttributeDefaultTranslation = "SMS data number";
     public static final String SetSmsAlarmNbrAttributeName = "SMSConfigurationDeviceMessage.setsmsalarmnbr";
+    public static final String SetSmsAlarmNbrAttributeDefaultTranslation = "SMS alarm number";
     public static final String SetSmsEveryAttributeName = "SMSConfigurationDeviceMessage.setsmsevery";
+    public static final String SetSmsEveryAttributeDefaultTranslation = "SMS every";
     public static final String SetSmsNbrAttributeName = "SMSConfigurationDeviceMessage.setsmsnbr";
+    public static final String SetSmsNbrAttributeDefaultTranslation = "SMS number";
     public static final String SetSmsCorrectionAttributeName = "SMSConfigurationDeviceMessage.setsmscorrection";
+    public static final String SetSmsCorrectionAttributeDefaultTranslation = "SMS correction";
     public static final String SetSmsConfigAttributeName = "SMSConfigurationDeviceMessage.setsmsconfig";
+    public static final String SetSmsConfigAttributeDefaultTranslation = "SMS configuration";
     public static final String SetDLMSDeviceIDAttributeName = "DLMSConfigurationDeviceMessage.setdlmsdeviceid";
+    public static final String SetDLMSDeviceIDAttributeNameDefaultTranslation = "DLMSConfigurationDeviceMessage.setdlmsdeviceid";
     public static final String SetDLMSDeviceIDAttributeDefaultTranslation = "DLMS device ID";
     public static final String SetDLMSMeterIDAttributeName = "DLMSConfigurationDeviceMessage.setdlmsmeterid";
     public static final String SetDLMSMeterIDAttributeDefaultTranslation = "DLMS meter ID";

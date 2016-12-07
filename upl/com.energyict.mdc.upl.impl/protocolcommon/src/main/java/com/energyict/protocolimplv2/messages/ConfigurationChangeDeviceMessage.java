@@ -12,13 +12,10 @@ import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -1006,12 +1003,6 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 DeviceMessageCategories.CONFIGURATION_CHANGE,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService);
-    }
-
-    private static class Constants {
-
-        private static final Date DEFAULT_DATE = new Date(978307200000l);   // 01/01/2001
-        private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yy");
     }
 
     public enum PushType {
