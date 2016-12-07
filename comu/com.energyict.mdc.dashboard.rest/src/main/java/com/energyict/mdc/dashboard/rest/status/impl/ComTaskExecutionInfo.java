@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ComTaskExecutionInfo extends BaseComTaskExecutionInfo {
 
-    public List<IdWithNameInfo> comTasks;
+    public IdWithNameInfo comTask;
     public IdWithNameInfo device;
     public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
