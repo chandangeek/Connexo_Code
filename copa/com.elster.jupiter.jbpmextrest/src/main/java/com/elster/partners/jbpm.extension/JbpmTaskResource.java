@@ -349,7 +349,9 @@ public class JbpmTaskResource {
         List<TaskSummary> filteredTasks = tasks.getTasks()
                 .stream()
                 .filter(taskSummary -> taskSummary.getActualOwner()
-                        .equals(topTasksPayload.userName) || topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()))
+                        .equals(topTasksPayload.userName) ||
+                        ((topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals(""))
+                                || topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals(topTasksPayload.userName)))
                 .collect(Collectors.toList());
         topTasksInfo.totalUserAssigned = filteredTasks.stream().filter(taskSummary -> taskSummary.getActualOwner().equals(topTasksPayload.userName)).count();
         topTasksInfo.workGroupAssigned = filteredTasks.stream().filter(taskSummary -> topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals("")).count();
