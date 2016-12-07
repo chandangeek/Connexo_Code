@@ -24,6 +24,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectedConnectionStateAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
+import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
 import com.elster.jupiter.users.Group;
@@ -41,7 +42,6 @@ import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -141,12 +141,12 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         assertThat(get(UsagePointMicroCheckFactoryImpl.class).getAllChecks()
                 .stream()
                 .map(MicroCheck::getKey)
-                .collect(Collectors.toList())).containsExactly(MetrologyConfigurationIsDefinedCheck.class.getSimpleName());
+                .collect(Collectors.toList()))
+                .containsOnly(MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), MeterRolesAreSpecifiedCheck.class.getSimpleName());
     }
 
     @Test(expected = UsagePointStateChangeException.class)
     @Transactional
-    @Ignore
     public void testCanNotExecuteTransitionIfHasUnSufficientPrivileges() {
         initializeCommonUsagePointStateChangeFields();
         user.leave(group);
@@ -158,7 +158,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
-    @Ignore
     public void testCanExecuteTransition() {
         initializeCommonUsagePointStateChangeFields();
         transition.startUpdate()
@@ -178,7 +177,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
-    @Ignore("Bug in h2 for inner select with ordering and aliases 'ORDER BY =UPSCR.TRANSITION_TIME AS UPSCRTRANSITION_TIME' instead of  'ORDER BY UPSCRTRANSITION_TIME'")
     public void testExecuteRemovedTransition() {
         initializeCommonUsagePointStateChangeFields();
         transition.remove();
@@ -195,7 +193,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
-    @Ignore
     public void testExecuteTransitionForWrongState() {
         initializeCommonUsagePointStateChangeFields();
         ((UsagePointImpl) usagePoint).setState(state2, now().minus(1, ChronoUnit.HOURS));
@@ -211,7 +208,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
-    @Ignore
     public void testExecuteTransitionCheckFail() {
         initializeCommonUsagePointStateChangeFields();
         ExecutableMicroCheck microCheck = (ExecutableMicroCheck) checkFactory.from(TestMicroCheck.class.getSimpleName()).get();
@@ -230,7 +226,6 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     @Transactional
-    @Ignore
     public void testExecuteTransitionActionFail() {
         initializeCommonUsagePointStateChangeFields();
         ExecutableMicroAction microAction = (ExecutableMicroAction) actionFactory.from(TestMicroAction.class.getSimpleName()).get();
