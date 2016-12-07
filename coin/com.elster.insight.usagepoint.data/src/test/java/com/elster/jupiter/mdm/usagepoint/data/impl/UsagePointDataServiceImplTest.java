@@ -8,6 +8,7 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -99,6 +100,8 @@ public class UsagePointDataServiceImplTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private MessageService messageSerivce;
+    @Mock
     private ValidationService validationService;
     @Mock
     private NlsService nlsService;
@@ -158,7 +161,7 @@ public class UsagePointDataServiceImplTest {
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
         usagePointDataService = new UsagePointDataServiceImpl(clock, meteringService, validationService,
-                nlsService, customPropertySetService, usagePointConfigurationService, UpgradeModule.FakeUpgradeService.getInstance(), userService);
+                nlsService, customPropertySetService, usagePointConfigurationService, UpgradeModule.FakeUpgradeService.getInstance(), userService, messageSerivce);
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
         when(channel.isRegular()).thenReturn(true);
