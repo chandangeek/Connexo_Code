@@ -13,7 +13,7 @@ Ext.define('Yfn.controller.history.YellowfinReports', {
 
     routeConfig: {
         workspace: {
-            title: Uni.I18n.translate('general.workspace', 'YFN', 'Devices'),
+            title: Uni.I18n.translate('general.workspace', 'YFN', 'Workspace'),
             route: 'workspace',
             disabled: true,
             items: {
