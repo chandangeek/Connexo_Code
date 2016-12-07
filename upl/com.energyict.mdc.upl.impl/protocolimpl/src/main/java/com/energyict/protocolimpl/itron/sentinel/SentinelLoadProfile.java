@@ -23,6 +23,7 @@ import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
 import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
 import com.energyict.protocolimpl.itron.sentinel.logicalid.LoadProfilePreliminaryDataRead;
 import com.energyict.protocolimpl.itron.sentinel.logicalid.LogicalID;
+import com.energyict.protocolimpl.itron.sentinel.tables.AbstractLoadProfileDataSetTable;
 import com.energyict.protocolimpl.itron.sentinel.tables.LoadProfileData;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.EventLogMfgCodeFactory;
 
@@ -359,13 +360,14 @@ public class SentinelLoadProfile {
         getLogger().info("KV_DEBUG> interval "+i+", time="+cal.getTime());
     }
 
-    public com.energyict.protocolimpl.itron.sentinel.tables.AbstractLoadProfileDataSetTable getLoadProfileDataSetTable(int blockNrOffset, int nrOfBlocksToRequest, int intervalsets, int count, int chunkSize) throws IOException {
+    public com.energyict.protocolimpl.itron.sentinel.tables.AbstractLoadProfileDataSetTable getLoadProfileDataSetTable(int blockNrOffset, int nrOfBlocksToRequest, int intervalsets, int count, int chunkSize, byte[] partialReadData) throws IOException {
         com.energyict.protocolimpl.itron.sentinel.tables.LoadProfileDataSet1Table loadProfileDataSet1Table = new com.energyict.protocolimpl.itron.sentinel.tables.LoadProfileDataSet1Table(sentinel.getStandardTableFactory());
         loadProfileDataSet1Table.setBlockNrOffset(blockNrOffset);
         loadProfileDataSet1Table.setNrOfBlocksToRequest(nrOfBlocksToRequest);
         loadProfileDataSet1Table.setIntervalsets(intervalsets);
         loadProfileDataSet1Table.setCount(count);
         loadProfileDataSet1Table.setChunkSize(chunkSize);
+        loadProfileDataSet1Table.injectPartialReadData(partialReadData);
         loadProfileDataSet1Table.build();
         return loadProfileDataSet1Table;
     }
@@ -406,14 +408,17 @@ public class SentinelLoadProfile {
                     numIntervals = intervalsPerBlock;
                 }
 
-                List<LoadProfileBlockData> aList = new ArrayList<LoadProfileBlockData>();
+                List<LoadProfileBlockData> aList = new ArrayList<>();
                 blockData.add(aList);
 
                 int count = 0;
+                byte[] partialReadData = null;
                 while (!read) {
                     try {
                         if (numIntervals <= getChunkSize()) {
-                            lpbd = getLoadProfileDataSetTable(currentBlock, 1, numIntervals, count, getChunkSize()).getLoadProfileDataSet().getLoadProfileDataSets()[0];
+                            AbstractLoadProfileDataSetTable loadProfileDataSetTable = getLoadProfileDataSetTable(currentBlock, 1, numIntervals, count, getChunkSize(), partialReadData);
+                            lpbd = loadProfileDataSetTable.getLoadProfileDataSet().getLoadProfileDataSets()[0];
+                            if (partialReadData == null) partialReadData = loadProfileDataSetTable.getPartialReadData();
                             aList.add(lpbd);
                             read = true;
                             count++;
@@ -426,7 +431,9 @@ public class SentinelLoadProfile {
                         } else {
                             while (numIntervals > getChunkSize()) {
                                 // read chunk size intervals
-                                lpbd = getLoadProfileDataSetTable(currentBlock, 1, getChunkSize(), count, getChunkSize()).getLoadProfileDataSet().getLoadProfileDataSets()[0];
+                                AbstractLoadProfileDataSetTable loadProfileDataSetTable = getLoadProfileDataSetTable(currentBlock, 1, getChunkSize(), count, getChunkSize(), partialReadData);
+                                lpbd = loadProfileDataSetTable.getLoadProfileDataSet().getLoadProfileDataSets()[0];
+                                if (partialReadData == null) partialReadData = loadProfileDataSetTable.getPartialReadData();
                                 aList.add(lpbd);
                                 count++;
                                 numIntervals -= getChunkSize();
