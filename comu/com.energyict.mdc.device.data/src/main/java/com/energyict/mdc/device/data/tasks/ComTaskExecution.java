@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -100,6 +101,13 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return A flag that indicates if this ComTaskExecution is adhoc
      */
     boolean isAdHoc();
+
+    /**
+     * Test if this ComTaskExecution is a firmware related comtaskexecution
+     *
+     * @return a flag that indicates if this ComTaskExecution is firmware related
+     */
+    boolean isFirmware();
 
     /**
      * Gets the {@link Device} for which this ComTaskExecution
@@ -338,19 +346,9 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     void schedule(Instant when);
 
-    ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> getUpdater();
+    ComTaskExecutionUpdater getUpdater();
 
     List<ProtocolTask> getProtocolTasks();
-
-    List<ComTask> getComTasks();
-
-    /**
-     * Tests if this ComTaskExecution is configured to execute the ComSchedule.
-     * Note that only {@link ScheduledComTaskExecution} can be configured to do this.
-     *
-     * @see #usesSharedSchedule()
-     */
-    boolean executesComSchedule(ComSchedule comSchedule);
 
     /**
      * Tests if this ComTaskExecution is configured to execute the {@link ComTask}.
@@ -382,4 +380,30 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     void addNewComTaskExecutionTrigger(Instant triggerTimeStamp);
 
     long getConnectionTaskId(); // for performance reasons, approved by program architect
+
+    /**
+     * Returns a list with one element with the {@link ComTask} that specifies
+     * the details of this ComTaskExecution.
+     * <p>
+     * The getComTask method should be used
+     *
+     * @return Singleton list of the ComTask
+     */
+    @Deprecated
+    List<ComTask> getComTasks();
+
+    /**
+     * Gets the {@link ComTask} that specifies
+     * the details of this ComTaskExecution.
+     *
+     * @return The ComTask
+     */
+    ComTask getComTask();
+
+    /**
+     * Gets the {@link ProtocolDialectConfigurationProperties}.
+     */
+    ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
+
+    Optional<ComSchedule> getComSchedule();
 }

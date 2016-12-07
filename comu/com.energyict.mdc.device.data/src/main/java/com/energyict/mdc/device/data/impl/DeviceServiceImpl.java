@@ -52,9 +52,9 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActio
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -298,8 +298,8 @@ class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public boolean isLinkedToDevices(ComSchedule comSchedule) {
         Condition condition = where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        List<ScheduledComTaskExecution> scheduledComTaskExecutions = this.deviceDataModelService.dataModel().query(ScheduledComTaskExecution.class).
-                select(condition, new Order[0], false, new String[0], 1, 1);
+        List<ComTaskExecution> scheduledComTaskExecutions = this.deviceDataModelService.dataModel().query(ComTaskExecution.class).
+                select(condition, new Order[0], false, new String[0], 1, 1).stream().filter(ComTaskExecution::usesSharedSchedule).collect(Collectors.toList());
         return !scheduledComTaskExecutions.isEmpty();
     }
 
