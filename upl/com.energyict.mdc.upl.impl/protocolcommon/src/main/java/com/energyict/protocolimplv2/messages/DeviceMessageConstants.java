@@ -395,7 +395,9 @@ public final class DeviceMessageConstants {
     public static final String setDisplayOnOffModeAttributeDefaultTranslation = "Set display ON or OFF";
 
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
+    public static final String xmlConfigAttributeDefaultTranslation = "XML";
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.configuserfile";
+    public static final String UserFileConfigAttributeDefaultTranslation = "Configuration user file";
     public static final String loadProfileAttributeName = "load profile";
     public static final String loadProfileAttributeDefaultTranslation = "LoadProfile";
     public static final String fromDateAttributeName = "from";
