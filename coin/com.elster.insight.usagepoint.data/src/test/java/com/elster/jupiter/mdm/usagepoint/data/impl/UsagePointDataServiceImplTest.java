@@ -28,6 +28,9 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
@@ -88,6 +91,8 @@ public class UsagePointDataServiceImplTest {
     @Mock
     private Clock clock;
     @Mock
+    private OrmService ormService;
+    @Mock
     private DataModel dataModel;
     @Mock
     private MeteringService meteringService;
@@ -123,6 +128,8 @@ public class UsagePointDataServiceImplTest {
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
     private ReadingQualityRecord error, suspect, missing, added, edited, removed, estimated;
+    @Mock
+    private FullInstaller installer;
 
     @Captor
     ArgumentCaptor<Range<Instant>> captor;
@@ -133,6 +140,8 @@ public class UsagePointDataServiceImplTest {
 
     @Before
     public void setUp() {
+        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> installer);
+        when(ormService.newDataModel(eq(UsagePointDataService.COMPONENT_NAME), anyString())).thenReturn(dataModel);
         when(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
         when(upgradeService.newNonOrmDataModel()).thenReturn(dataModel);
         when(clock.instant()).thenReturn(NOW);
@@ -146,8 +155,8 @@ public class UsagePointDataServiceImplTest {
         when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
-        usagePointDataService = new UsagePointDataServiceImpl(clock, meteringService, validationService,
-                nlsService, customPropertySetService, usagePointConfigurationService, upgradeService, userService);
+        usagePointDataService = new UsagePointDataServiceImpl(clock, ormService, meteringService, validationService,
+                nlsService, customPropertySetService, usagePointConfigurationService, UpgradeModule.FakeUpgradeService.getInstance());
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
         when(channel.isRegular()).thenReturn(true);

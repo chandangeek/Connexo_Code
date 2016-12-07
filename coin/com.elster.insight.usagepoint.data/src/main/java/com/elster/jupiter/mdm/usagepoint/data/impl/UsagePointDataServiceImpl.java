@@ -9,6 +9,7 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -49,7 +50,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -60,6 +60,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -78,6 +79,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     private volatile ValidationService validationService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile UpgradeService upgradeService;
+    private volatile MessageService messageService;
     private volatile UserService userService;
 
     @SuppressWarnings("unused")
@@ -119,6 +121,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(UserService.class).toInstance(userService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }
@@ -175,6 +178,11 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         this.userService = userService;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @Override
     public String getComponentName() {
         return UsagePointDataService.COMPONENT_NAME;
@@ -187,10 +195,12 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        Collections.addAll(keys, ChannelDataValidationSummaryFlag.values());
-        Collections.addAll(keys, Privileges.values());
-        return keys;
+        return Stream.of(
+                Arrays.stream(ChannelDataValidationSummaryFlag.values()),
+                Arrays.stream(Subscribers.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -211,7 +221,9 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     public ChannelDataValidationSummary getValidationSummary(Channel channel, Range<Instant> interval) {
         ReadingQualityType valid = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.DATAVALID);
         TreeMap<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings =
-                (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval).stream().map(BaseReading::getTimeStamp))
+                (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval)
+                        .stream()
+                        .map(BaseReading::getTimeStamp))
                         .collect(Collectors.toMap(
                                 Function.identity(),
                                 time -> Sets.newHashSet(valid), // this quality is to be checked after readings with all other qualities are gone,
@@ -281,7 +293,8 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                                                                                           MetrologyContract contract, Range<Instant> interval) {
         ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(contract)
                 .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT,
-                        contract.getId(), effectiveMetrologyConfiguration.getUsagePoint().getName()) {
+                        contract.getId(), effectiveMetrologyConfiguration.getUsagePoint()
+                        .getName()) {
                 });
         Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
                 .map(Effectivity::getInterval)
