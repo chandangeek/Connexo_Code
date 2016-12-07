@@ -6,6 +6,7 @@ Ext.define('Imt.privileges.UsagePoint', {
     view: ['privilege.administer.anyUsagePoint', 'privilege.view.anyUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.view.ownUsagePoint'],
     admin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     adminTimeSlicedCps: ['privilege.administer.usage.point.time.sliced.cps'],
+    manageAttributes: ['privilege.administer.usage.point.manage.attributes'],
 
     all: function() {
         return Ext.Array.merge(Imt.privileges.UsagePoint.view, Imt.privileges.UsagePoint.admin);
