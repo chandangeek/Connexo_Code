@@ -32,6 +32,13 @@ Ext.define('Imt.purpose.model.Reading', {
                 
                 return result;                
             }
+        },
+        {
+            name: 'interval_end',
+            persist: false,
+            mapping: 'interval.end',
+            dateFormat: 'time',
+            type: 'date'
         }
     ]
 });
