@@ -64,6 +64,9 @@ class MdmAppPrivileges {
                 //Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
 
+                //Calendars
+                com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS,
+
                // Usage point groups
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
