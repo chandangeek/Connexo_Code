@@ -72,7 +72,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         if (this.type === 'device') {
             me.store.setProxy({
                 type: 'rest',
-                url: '/api/ddr/devices/'+ encodeURIComponent(this.mrId) +'/whatsgoingon',
+                url: '/api/ddr/devices/'+ encodeURIComponent(this.deviceId) +'/whatsgoingon',
                 startParam: null,
                 limitParam: null,
                 reader: {
@@ -83,7 +83,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         } else if (this.type === 'usagepoint') {
             me.store.setProxy({
                 type: 'rest',
-                url: '/api/udr/usagepoints/'+ encodeURIComponent(this.mrId) +'/whatsgoingon',
+                url: '/api/udr/usagepoints/'+ encodeURIComponent(this.usagePointId) +'/whatsgoingon',
                 startParam: null,
                 limitParam: null,
                 reader: {
@@ -95,7 +95,11 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         me.store.load({
             callback: function(){
                 me.store.clearFilter();
-                me.down('tabpanel').removeAll();
+                if (me.down('tabpanel')) {
+                    me.down('tabpanel').removeAll();
+                } else {
+                    return;
+                }
                 if (type !== 'all' && type !== '' && type !== undefined) {
                     me.store.filter([
                         {
@@ -107,6 +111,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 }
                 var tabContents = [];
                 var lines = [];
+                var emptyText;
                 Ext.suspendLayouts();
                 me.store.each(function (item, index, total) {
                     if (index !== 0 && (index + 1) % 10 === 0) {
@@ -121,6 +126,21 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     tabContents.push(lines);
                 }
                 if (tabContents.length===0){
+                    switch (type) {
+                        case 'issue':
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowIssues', 'UNI', 'No active issues to show');
+                            break;
+                        case 'servicecall':
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowServiceCalls', 'UNI', 'No active service calls to show');
+                            break;
+                        case 'process':
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowProcesses', 'UNI', 'No active processes to show');
+                            break;
+                        default:
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active issues, processes or service calls to show');
+                            break;
+
+                    }
                     me.down('tabpanel').add({
                         layout: 'hbox',
                         margin: '38 0 0 0',
@@ -135,7 +155,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             {
                                 html: '<span style="color:#686868;font-size:20px;">' +
                                 '<i class="icon-info" style="color:#686868;margin-right:15px;"></i>' +
-                                    Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active issues, processes or service calls to show') +
+                                    emptyText +
                                     '</span>'
                             },
                             {
@@ -292,10 +312,10 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 break;
             case 'process':
                 if(me.type == 'usagepoint'){
-                    href = this.router.getRoute('usagepoints/view').buildUrl({mRID: this.mrId}) + '/processes?activeTab=running';
+                    href = this.router.getRoute('usagepoints/view').buildUrl({usagePointId: this.usagePointId}) + '/processes?activeTab=running';
                     html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 } else  if (me.type == 'device'){
-                    href = this.router.getRoute('devices/device').buildUrl({mRID: this.mrId}) + '/processes?activeTab=running';
+                    href = this.router.getRoute('devices/device').buildUrl({deviceId: this.deviceId}) + '/processes?activeTab=running';
                     html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 }
                 break;

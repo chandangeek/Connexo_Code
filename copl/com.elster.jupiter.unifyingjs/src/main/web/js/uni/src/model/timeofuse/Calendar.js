@@ -2,7 +2,7 @@
  * @class Uni.model.timeofuse.Calendar
  */
 Ext.define('Uni.model.timeofuse.Calendar', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
 
     requires: [
         'Uni.model.timeofuse.Event',
@@ -14,14 +14,14 @@ Ext.define('Uni.model.timeofuse.Calendar', {
 
     fields: [
         {name: 'name', type: 'string'},
-        {name: 'category', type: 'string'},
+        {name: 'category'},
         {name: 'mRID', type: 'string'},
         {name: 'id', type: 'number'},
         {name: 'description', type: 'string'},
-        {name: 'timeZone', type: 'string'},
         {name: 'startYear', type: 'number'},
         {name: 'weekTemplate', type: 'auto', persist: false},
-        {name: 'inUse', type: 'boolean'}
+        {name: 'inUse', type: 'boolean'},
+        {name: 'status'}
     ],
 
     associations: [
