@@ -158,6 +158,11 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
+    public void assignTo(String type, long id) {
+        getBaseIssue().assignTo(type, id);
+    }
+
+    @Override
     public void autoAssign() {
         getBaseIssue().autoAssign();
     }
