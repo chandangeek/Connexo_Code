@@ -44,7 +44,7 @@ Ext.define('Usr.view.group.Edit', {
                                 itemId: 'form-errors',
                                 xtype: 'uni-form-error-message',
                                 name: 'form-errors',
-                                width: 750,
+                                maxWidth: 650,
                                 align: 'left',
                                 margin: '0 0 10 0',
                                 hidden: true

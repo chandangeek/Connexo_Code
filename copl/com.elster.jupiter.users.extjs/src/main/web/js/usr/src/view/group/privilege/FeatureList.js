@@ -50,7 +50,9 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
-                    items: 'Usr.view.group.privilege.FeatureActionMenu'
+                    menu: {
+                        xtype: 'feature-action-menu'
+                    }
                 }
             ]
         };

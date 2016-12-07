@@ -1,9 +1,9 @@
 Ext.define('Usr.view.group.privilege.FeatureActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.feature-action-menu',
-    plain: true,
-    border: false,
     itemId: 'feature-action-menu',
-    shadow: false,
-    items: []
+    initComponent: function() {
+        this.items = [];
+        this.callParent(arguments);
+    }
 });

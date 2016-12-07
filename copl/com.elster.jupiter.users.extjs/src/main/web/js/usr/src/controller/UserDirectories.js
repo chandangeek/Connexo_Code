@@ -56,8 +56,7 @@ Ext.define('Usr.controller.UserDirectories', {
                 select: this.showPreview
             },
             'usr-user-directory-action-menu': {
-                click: this.chooseAction,
-                show: this.onShowUserDirectoryMenu
+                click: this.chooseAction
             },
             'usr-add-user-directory #btn-add': {
                 click: this.addUserDirectory
@@ -124,31 +123,6 @@ Ext.define('Usr.controller.UserDirectories', {
                 me.setAsDefault(record);
                 break;
         }
-    },
-
-    onShowUserDirectoryMenu: function (menu) {
-        var me = this,
-            editUserDirectory = menu.down('#edit-user-directory'),
-            synchronizeUserDirectory = menu.down('#synchronize-user-directory'),
-            removeUserDirectory = menu.down('#remove-user-directory'),
-            setAsDefault = menu.down('#set-as-default-user-directory'),
-            isEditUserDirectory = true, isSynchronizeUserDirectory = true, isRemoveUserDirectory = true, isSetAsDefault = true;
-
-        if (menu.record.get('isDefault')) {
-            isSetAsDefault = false;
-            isRemoveUserDirectory = false;
-        }
-
-        if (menu.record.get('name') === me.localDomainName) {
-            isEditUserDirectory = false;
-            isSynchronizeUserDirectory = false;
-            isRemoveUserDirectory = false;
-        }
-
-        editUserDirectory && editUserDirectory.setVisible(isEditUserDirectory);
-        synchronizeUserDirectory && synchronizeUserDirectory.setVisible(isSynchronizeUserDirectory);
-        removeUserDirectory && removeUserDirectory.setVisible(isRemoveUserDirectory);
-        setAsDefault && setAsDefault.setVisible(isSetAsDefault);
     },
 
     remove: function (record) {
