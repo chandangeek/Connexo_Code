@@ -1,5 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.GasDayOptions;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.time.RelativePeriod;
@@ -27,6 +29,7 @@ import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_WEEK;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
+import static com.elster.jupiter.util.streams.Currying.perform;
 
 @Component(name = "com.elster.jupiter.udr.relativeperiodcategory.installer", service = RelativePeriodCategoryInstaller.class, immediate = true, property = {"name=URP"})
 public class RelativePeriodCategoryInstaller implements FullInstaller {
@@ -34,6 +37,12 @@ public class RelativePeriodCategoryInstaller implements FullInstaller {
     private static final Logger LOGGER = Logger.getLogger(RelativePeriodCategoryInstaller.class.getName());
     private volatile UpgradeService upgradeService;
     private volatile TimeService timeService;
+    private volatile MeteringService meteringService;
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
 
     @Reference
     public void setTimeService(TimeService timeService) {
@@ -41,8 +50,8 @@ public class RelativePeriodCategoryInstaller implements FullInstaller {
     }
 
     @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Activate
@@ -83,16 +92,27 @@ public class RelativePeriodCategoryInstaller implements FullInstaller {
         RelativePeriodCategory category = getCategory();
 
         EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY, YESTERDAY)
-                .stream()
                 .forEach(definition -> {
                     RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
                             .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(category);
                 });
+
+        this.meteringService
+                .getGasDayOptions()
+                .ifPresent(perform(this::createGasRelativePeriods).with(category));
     }
+
+    private void createGasRelativePeriods(GasDayOptions gasDayOptions, RelativePeriodCategory category) {
+        gasDayOptions
+                .getRelativePeriods()
+                .forEach(relativePeriod -> relativePeriod.addRelativePeriodCategory(category));
+    }
+
 
     private RelativePeriodCategory getCategory() {
         return timeService.findRelativePeriodCategoryByName(DefaultTranslationKey.RELATIVE_PERIOD_CATEGORY_USAGE_POINT_VALIDATION_OVERVIEW.getKey())
                 .orElseThrow(IllegalArgumentException::new);
     }
+
 }

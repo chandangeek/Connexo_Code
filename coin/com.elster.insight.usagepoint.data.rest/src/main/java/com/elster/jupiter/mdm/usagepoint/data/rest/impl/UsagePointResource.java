@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -32,6 +33,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -100,6 +102,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -134,6 +137,9 @@ public class UsagePointResource {
     private final Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider;
     private final Provider<GoingOnResource> goingOnResourceProvider;
     private final Provider<UsagePointOutputResource> usagePointOutputResourceProvider;
+    private final Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider;
+    private final Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider;
+    private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
 
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
@@ -151,9 +157,9 @@ public class UsagePointResource {
                               ServiceCallService serviceCallService, ServiceCallInfoFactory serviceCallInfoFactory,
                               Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
                               CustomPropertySetService customPropertySetService,
-                              UsagePointInfoFactory usagePointInfoFactory,
+                              Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider, UsagePointInfoFactory usagePointInfoFactory,
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
-                              ExceptionFactory exceptionFactory,
+                              Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider, Provider<BulkScheduleResource> bulkScheduleResourceProvider, ExceptionFactory exceptionFactory,
                               LocationInfoFactory locationInfoFactory,
                               ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
                               Thesaurus thesaurus,
@@ -174,7 +180,10 @@ public class UsagePointResource {
         this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.usagePointCustomPropertySetResourceProvider = usagePointCustomPropertySetResourceProvider;
         this.customPropertySetService = customPropertySetService;
+        this.usagePointCalendarResourceProvider = usagePointCalendarResourceProvider;
         this.usagePointInfoFactory = usagePointInfoFactory;
+        this.usagePointCalendarHistoryResourceProvider = usagePointCalendarHistoryResourceProvider;
+        this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
         this.locationInfoFactory = locationInfoFactory;
         this.validationSummaryInfoFactory = validationSummaryInfoFactory;
         this.thesaurus = thesaurus;
@@ -536,9 +545,24 @@ public class UsagePointResource {
         return usagePointCustomPropertySetResourceProvider.get();
     }
 
+    @Path("/{name}/calendars")
+    public UsagePointCalendarResource getUsagePointCalendarResource() {
+        return usagePointCalendarResourceProvider.get();
+    }
+
+    @Path("/{name}/history/calendars")
+    public UsagePointCalendarHistoryResource getUsagePointCalendarHistoryResource() {
+        return usagePointCalendarHistoryResourceProvider.get();
+    }
+
     @Path("/{name}/whatsgoingon")
     public GoingOnResource getGoingOnResource() {
         return goingOnResourceProvider.get();
+    }
+
+    @Path("/calendars")
+    public BulkScheduleResource getBulkScheduleResource() {
+        return bulkScheduleResourceProvider.get();
     }
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
@@ -687,11 +711,17 @@ public class UsagePointResource {
     }
 
     private String findTranslatedRelativePeriod(String name) {
-        return Arrays.stream(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values())
+        return defaultRelativePeriodDefinitionTranslationKeys()
                 .filter(e -> e.getDefaultFormat().equals(name))
                 .findFirst()
                 .map(e -> thesaurus.getFormat(e).format())
                 .orElse(name);
+    }
+
+    private Stream<TranslationKey> defaultRelativePeriodDefinitionTranslationKeys() {
+        return Stream.concat(
+                    Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()),
+                    Stream.of(GasDayOptions.RelativePeriodTranslationKey.values()));
     }
 
     private List<? extends RelativePeriod> getRelativePeriodsDefaultOnTop(TemporalAmount intervalLength) {
