@@ -8,19 +8,19 @@ Ext.define('Fim.store.Status', {
             data: [
                 {
                     value: 'FAILURE',
-                    display: Uni.I18n.translate('importService.history.failStatus', 'FIM', 'Failed'),
+                    display: Uni.I18n.translate('importService.history.failStatus', 'FIM', 'Failed')
                 },
                 {
                     value: 'PROCESSING',
-                    display: Uni.I18n.translate('importService.history.busyStatus', 'FIM', 'Ongoing'),
+                    display: Uni.I18n.translate('importService.history.busyStatus', 'FIM', 'Ongoing')
                 },
                 {
                     value: 'SUCCESS',
-                    display: Uni.I18n.translate('importService.history.successStatus', 'FIM', 'Successful'),
+                    display: Uni.I18n.translate('importService.history.successStatus', 'FIM', 'Successful')
                 },
                 {
                     value: 'SUCCESS_WITH_FAILURES',
-                    display: Uni.I18n.translate('importService.history.successWithErrorsStatus', 'FIM', 'Partial success'),
+                    display: Uni.I18n.translate('importService.history.successWithErrorsStatus', 'FIM', 'Partial success')
                 }
             ],
             fields: [
