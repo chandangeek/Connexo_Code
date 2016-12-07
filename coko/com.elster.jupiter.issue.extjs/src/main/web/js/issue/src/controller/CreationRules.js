@@ -29,9 +29,6 @@ Ext.define('Isu.controller.CreationRules', {
             'issue-creation-rules-overview issues-creation-rules-list': {
                 select: this.showPreview
             },
-            'issues-creation-rules-list uni-actioncolumn': {
-                menuclick: this.chooseAction
-            },
             'creation-rule-action-menu': {
                 click: this.chooseAction
             },

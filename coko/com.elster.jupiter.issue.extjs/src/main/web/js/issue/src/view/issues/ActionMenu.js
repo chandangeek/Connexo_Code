@@ -91,7 +91,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         var me = this,
             issueId = me.record.getId(),
             issueType = me.record.get('issueType').uid,
-            deviceMRID,
+            deviceName,
             comTaskId,
             comTaskSessionId,
             connectionTaskId,
@@ -199,8 +199,8 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
         // add specific actions
         if (Isu.privileges.Device.viewDeviceCommunication) {
-            deviceMRID = me.record.get('deviceMRID');
-            if (deviceMRID) {
+            deviceName = me.record.get('deviceName');
+            if (deviceName) {
                 comTaskId = me.record.get('comTaskId');
                 comTaskSessionId = me.record.get('comTaskSessionId');
                 connectionTaskId = me.record.get('connectionTaskId');
@@ -210,7 +210,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                         text: Uni.I18n.translate('issues.actionMenu.viewCommunicationLog', 'ISU', 'View communication log'),
                         href: me.router.getRoute('devices/device/communicationtasks/history/viewlog').buildUrl(
                             {
-                                mRID: deviceMRID,
+                                deviceId: deviceName,
                                 comTaskId: comTaskId,
                                 historyId: comTaskSessionId
                             },
@@ -226,7 +226,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                         text: Uni.I18n.translate('issues.actionMenu.viewConnectionLog', 'ISU', 'View connection log'),
                         href: me.router.getRoute('devices/device/connectionmethods/history/viewlog').buildUrl(
                             {
-                                mRID: deviceMRID,
+                                deviceId: deviceName,
                                 connectionMethodId: connectionTaskId,
                                 historyId: comSessionId
                             },
