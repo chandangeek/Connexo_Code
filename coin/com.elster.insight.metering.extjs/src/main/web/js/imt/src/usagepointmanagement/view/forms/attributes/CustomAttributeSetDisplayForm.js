@@ -41,7 +41,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetDis
             if (isActive) {
                 if (startTime || endTime) {
                     if (!endTime) {
-                        period = Uni.I18n.translate('general.fromX', 'IMT', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
+                        period = Uni.I18n.translate('general.FromX', 'IMT', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
                     } else if (!startTime) {
                         period = Uni.I18n.translate('general.untilX', 'IMT', 'Until {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
                     } else {

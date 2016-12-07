@@ -4,8 +4,8 @@ Ext.define('Imt.service.Search', {
     init: function() {
         var me = this;
         me.defaultColumns = {
-            'com.elster.jupiter.metering.EndDevice': ['mRID', 'serialNumber', 'name'],
-            'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayMetrologyConfiguration', 'displayType', 'displayConnectionState', 'location']
+            'com.elster.jupiter.metering.EndDevice': ['name', 'serialNumber'],
+            'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration', 'displayType', 'displayConnectionState', 'location']
         };
         me.callParent(arguments);
     },
@@ -13,16 +13,16 @@ Ext.define('Imt.service.Search', {
         var me = this,
             column = this.callParent(arguments);
 
-        if (column && column.dataIndex === 'mRID') {
+        if (column && column.dataIndex === 'name') {
             if (me.searchDomain.getId() === 'com.elster.jupiter.metering.UsagePoint') {
-                column.renderer = function (value, metaData, record) {
-                    var url = me.router.getRoute('usagepoints/view').buildUrl({mRID: encodeURIComponent(value)});
+                column.renderer = function (value, metaData) {
+                    var url = me.router.getRoute('usagepoints/view').buildUrl({usagePointId: encodeURIComponent(value)});
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                 }
             } else if (me.searchDomain.getId() === 'com.elster.jupiter.metering.EndDevice') {
                 column.renderer = function(value, metaData) {
-                    var url = me.router.getRoute('usagepoints/device').buildUrl({deviceMRID: value});
+                    var url = me.router.getRoute('usagepoints/device').buildUrl({deviceId: value});
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                 }

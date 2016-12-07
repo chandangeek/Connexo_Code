@@ -100,7 +100,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             menu = previewPanel.down('#metrology-configuration-list-action-menu');
 
         Ext.suspendLayouts();
-        previewPanel.disableActionsButton(record.get('status').id == "deprecated");
+        previewPanel.setVisibleActionsButton(record.get('status').id != "deprecated");
         previewPanel.setTitle(Ext.htmlEncode(record.get('name')));
         previewPanel.loadRecord(record);
         Ext.resumeLayouts(true);
@@ -114,7 +114,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('metrologyconfiguration.general.remove.msg', 'IMT', 'This metrology configuration will be removed.'),
-            title: Uni.I18n.translate('general.remove', 'IMT', "Remove '{0}'", [record.data.name]),
+            title: Uni.I18n.translate('general.remove.count', 'IMT', "Remove '{0}'", [record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {

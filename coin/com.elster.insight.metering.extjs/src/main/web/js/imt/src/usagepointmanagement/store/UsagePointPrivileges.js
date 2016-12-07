@@ -8,7 +8,7 @@ Ext.define('Imt.usagepointmanagement.store.UsagePointPrivileges', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/customproperties/{customAttributeSetId}/privileges',
+        url: '/api/udr/usagepoints/{usagePointId}/customproperties/{customAttributeSetId}/privileges',
 
         reader: {
             type: 'json',
@@ -17,10 +17,6 @@ Ext.define('Imt.usagepointmanagement.store.UsagePointPrivileges', {
 
         pageParam: false,
         startParam: false,
-        limitParam: false,
-
-        setUrl: function(params) {
-            this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{customAttributeSetId}', params.customAttributeSetId);
-        }
+        limitParam: false
     }
 });

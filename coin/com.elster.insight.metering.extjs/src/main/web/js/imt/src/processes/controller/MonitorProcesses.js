@@ -17,7 +17,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
         'Imt.processes.view.MetrologyConfigurationOutputs'
     ],
 
-    showUsagePointProcesses: function (mRID) {
+    showUsagePointProcesses: function (usagePointId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
@@ -25,7 +25,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
 
         viewport.setLoading();
 
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint) {
                 var widget;
 
@@ -37,7 +37,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                     properties: {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
-                        value:  usagePoint.get('id'),
+                        value:  usagePoint.get('mRID'),
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute() ? 'workspace/tasks/task/performTask' : null
                     }
                 });
@@ -49,7 +49,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
         });
     },
 
-    showUsagePointStartProcess: function (mRID) {
+    showUsagePointStartProcess: function (usagePointId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
@@ -57,7 +57,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
 
         viewport.setLoading();
 
-        usagePointsController.loadUsagePoint(mRID, {
+        usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint) {
                 var widget;
 
@@ -85,12 +85,12 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                             },
                             {
                                 name: 'value',
-                                value: usagePoint.get('id')
+                                value: usagePoint.get('mRID')
                             }
                         ],
-                        successLink: router.getRoute('usagepoints/view/processes').buildUrl({usagePointId: mRID}),
-                        cancelLink: router.getRoute('usagepoints/view').buildUrl({usagePointId: mRID}),
-                        context: {id: usagePoint.get('mRID')}
+                        successLink: router.getRoute('usagepoints/view/processes').buildUrl({usagePointId: usagePointId}),
+                        cancelLink: router.getRoute('usagepoints/view').buildUrl({usagePointId: usagePointId}),
+                        context: {id: usagePoint.get('name')}
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
