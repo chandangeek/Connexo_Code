@@ -897,9 +897,13 @@ public final class DeviceMessageConstants {
     public static final String AnalogOutValue = "DeviceActionMessage.analogoutvalue";
     public static final String AnalogOutValueDefaultTranslation = "Analog out value";
     public static final String OutputOn = "DeviceActionMessage.outputon";
+    public static final String OutputOnDefaultTranslation = "Output on";
     public static final String OutputOff = "DeviceActionMessage.outputoff";
+    public static final String OutputOffDefaultTranslation = "Output off";
     public static final String OutputToggle = "DeviceActionMessage.outputtoggle";
+    public static final String OutputToggleDefaultTranslation = "Output toggle";
     public static final String OutputPulse = "DeviceActionMessage.outputpulse";
+    public static final String OutputPulseDefaultTranslation = "Output pulse";
 
     public static final String FTIONReboot = "DeviceActionMessage.ftionreboot";
     public static final String FTIONRebootDefaultTranslation = "FTION reboot";
@@ -1207,6 +1211,7 @@ public final class DeviceMessageConstants {
     public static final String trackingId = "trackingId";
     public static final String trackingIdDefaultTranslation = "Tracking ID";
     public static final String delete = "delete";
+    public static final String deleteDefaultTranslation = "Delete";
     public static final String startTime = "startTime";
     public static final String startTimeDefaultTranslation = "Start time";
     public static final String macAddress = "macAddress";
@@ -1214,10 +1219,13 @@ public final class DeviceMessageConstants {
     public static final String macAddresses = "macAddresses";
     public static final String macAddressesDefaultTranslation = "Mac addresses";
     public static final String output = "output";
+    public static final String outputDefaultTranslation = "Output";
     public static final String enabled = "enabled";
     public static final String enabledDefaultTranslation = "Enabled";
     public static final String outputId = "OutputConfigurationMessage.outputId";
+    public static final String outputIdDefaultTranslation = "Output ID";
     public static final String newState = "OutputConfigurationMessage.newState";
+    public static final String newStateDefaultTranslation = "New state";
 
     public static final String EnableDLMS = "FirewallConfigurationMessage.enableDLMS";
     public static final String EnableDLMSDefaultTranslation = "Enable DLMS";
@@ -1233,6 +1241,7 @@ public final class DeviceMessageConstants {
     public static final String numberOfTimeSlotsForNewSystems = "numberOfTimeSlotsForNewSystems";
     public static final String numberOfTimeSlotsForNewSystemsDefaultTranslation = "Number of time slots for new systems";
     public static final String outputBitMap = "outputBitMap";
+    public static final String outputBitMapDefaultTranslation = "Output bitmap";
     public static final String endTime = "endTime";
     public static final String endTimeDefaultTranslation = "End time";
     public static final String rfAddress = "rfAddress";
