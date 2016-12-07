@@ -22,7 +22,10 @@ public enum MessageSeeds implements MessageSeed {
     MONTH_LIMIT_BIGGER_THAN_DAY_AND_WEEK(10, Keys.MONTH_LIMIT_BIGGER_THAN_DAY_AND_WEEK, "Month limit should be bigger than day limit and bigger than week limit"),
     MONTH_LIMIT_BIGGER_THAN_DAY(11, Keys.MONTH_LIMIT_BIGGER_THAN_DAY, "Month limit should be bigger than day limit"),
     MONTH_LIMIT_BIGGER_THAN_WEEK(12, Keys.MONTH_LIMIT_BIGGER_THAN_WEEK, "Month limit should be bigger than week limit"),
-    AT_LEAST_ONE_COMMAND_REQUIRED(12, Keys.AT_LEAST_ONE_COMMAND_REQUIRED, "At least one command required");
+    AT_LEAST_ONE_COMMAND_REQUIRED(13, Keys.AT_LEAST_ONE_COMMAND_REQUIRED, "At least one command required"),
+    DUPLICATE_COMMAND(14, Keys.DUPLICATE_COMMAND, "Duplicate commands are not allowed in a command limitation rule");
+
+
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -78,5 +81,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MONTH_LIMIT_BIGGER_THAN_DAY = "monthLimitBiggerThanDay";
         public static final String MONTH_LIMIT_BIGGER_THAN_WEEK = "monthLimitBiggerThanWeek";
         public static final String AT_LEAST_ONE_COMMAND_REQUIRED = "atLeastOneCommandRequired";
+        public static final String DUPLICATE_COMMAND = "duplicateCommand";
     }
     }

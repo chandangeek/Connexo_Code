@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 
 import com.google.inject.Inject;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class CommandInRuleImpl implements CommandInRule {
@@ -81,5 +82,24 @@ public class CommandInRuleImpl implements CommandInRule {
     @Override
     public Optional<CommandRuleTemplate> getCommandRuleTemplate() {
         return this.commandRuleTemplate.getOptional();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CommandInRuleImpl that = (CommandInRuleImpl) o;
+        return commandId == that.commandId &&
+                Objects.equals(commandRule, that.commandRule) &&
+                Objects.equals(commandRuleTemplate, that.commandRuleTemplate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(commandRule, commandRuleTemplate, commandId);
     }
 }

@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleTemplate;
+import com.energyict.mdc.device.command.impl.constraintvalidators.HasUniqueCommands;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
 import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -19,10 +20,12 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_NAME + "}")
 @HasValidLimits(groups = {Save.Create.class, Save.Update.class})
+@HasUniqueCommands(groups= {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMMAND + "}")
 public class CommandRuleImpl implements CommandRule {
 
     public enum Fields {
@@ -157,5 +160,22 @@ public class CommandRuleImpl implements CommandRule {
     public void addCommand(DeviceMessageSpec deviceMessageSpec) {
         CommandInRuleImpl commandInRule = this.dataModel.getInstance(CommandInRuleImpl.class).initialize(deviceMessageSpec, this);
         this.commands.add(commandInRule);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CommandRuleImpl that = (CommandRuleImpl) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
