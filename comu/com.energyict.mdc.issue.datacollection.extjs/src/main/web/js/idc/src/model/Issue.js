@@ -1,7 +1,7 @@
 Ext.define('Idc.model.Issue', {
     extend: 'Isu.model.Issue',
     fields: [
-        'deviceConfiguration', 'deviceType', 'deviceState', 'deviceMRID', 'slaveDeviceId',
+        'deviceConfiguration', 'deviceType', 'deviceState', 'deviceName', 'slaveDeviceId',
         'connectionAttemptsNumber', 'connectionTask', 'communicationTask',
         {name: 'firstConnectionAttempt', type: 'date', dateFormat: 'time'},
         {name: 'lastConnectionAttempt', type: 'date', dateFormat: 'time'},
