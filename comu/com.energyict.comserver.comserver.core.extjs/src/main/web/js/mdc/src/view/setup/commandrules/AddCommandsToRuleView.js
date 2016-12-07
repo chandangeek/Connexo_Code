@@ -30,8 +30,7 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleView', {
                         grid: {
                             itemId: 'mdc-command-rule-add-commands-grid',
                             xtype: 'AddCommandsToRuleGrid',
-                            store: 'Mdc.store.Commands',
-                            height: 600
+                            store: 'Mdc.store.Commands'
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -39,7 +38,7 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleView', {
                             title: Uni.I18n.translate('commandRules.add.empty.title', 'MDC', 'No commands found.'),
                             reasons: [
                                 Uni.I18n.translate('commandRules.add.empty.list.item1', 'MDC', 'No commands comply with the filter.'),
-                                Uni.I18n.translate('commandRules.add.empty.list.item2', 'MDC', 'All commands have already been added to rule.')
+                                Uni.I18n.translate('commandRules.add.empty.list.item2', 'MDC', 'All commands have already been added to the rule.')
                             ]
                         }
                     },

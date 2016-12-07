@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                         xtype: 'uni-form-error-message',
                         itemId: 'mdc-command-rule-addEdit-error',
                         hidden: true,
-                        width: 380
+                        width: 500
                     },
                     {
                         xtype: 'textfield',
@@ -45,12 +45,12 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                         fieldLabel: Uni.I18n.translate('general.dayLimit', 'MDC', 'Day limit'),
                         itemId: 'mdc-command-rule-addEdit-dayLimit-radioGroup',
                         required: true,
+                        msgTarget: 'under',
                         layout: 'hbox',
                         items: [
                             {
                                 xtype: 'radiogroup',
                                 itemId: 'mdc-command-rule-addEdit-dayLimit-radioGroup',
-                                name: 'dayLimitGroup',
                                 columns: 1,
                                 vertical: true,
                                 width: 100,
@@ -75,7 +75,6 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'mdc-command-rule-addEdit-dayLimit-values',
-                                name: 'dayLimitValues',
                                 layout: 'vbox',
                                 items: [
                                     {
@@ -105,6 +104,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                         fieldLabel: Uni.I18n.translate('general.weekLimit', 'MDC', 'Week limit'),
                         itemId: 'mdc-command-rule-addEdit-weekLimit-radioGroup',
                         required: true,
+                        msgTarget: 'under',
                         layout: 'hbox',
                         items: [
                             {
@@ -134,7 +134,6 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'mdc-command-rule-addEdit-weekLimit-values',
-                                name: 'weekLimitValues',
                                 layout: 'vbox',
                                 items: [
                                     {
@@ -164,6 +163,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                         fieldLabel: Uni.I18n.translate('general.monthLimit', 'MDC', 'Month limit'),
                         itemId: 'mdc-command-rule-addEdit-monthLimit-radioGroup',
                         required: true,
+                        msgTarget: 'under',
                         layout: 'hbox',
                         items: [
                             {
@@ -193,7 +193,6 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'mdc-command-rule-addEdit-monthLimit-values',
-                                name: 'recurrenceValues',
                                 layout: 'vbox',
                                 items: [
                                     {
@@ -263,7 +262,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                                         }
                                     }
                                 ],
-                                width: 800,
+                                width: 500,
                                 height: 220
                             },
                             {

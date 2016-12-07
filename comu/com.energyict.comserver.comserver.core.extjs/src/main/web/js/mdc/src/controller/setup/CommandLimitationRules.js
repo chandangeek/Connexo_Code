@@ -179,9 +179,19 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             page = me.getRuleEdit(),
             form = page.down('#mdc-command-rule-addEdit-rule-form'),
             formValues = form.getValues(),
-            formErrorsPanel = form.down('#mdc-command-rule-addEdit-error');
+            formErrorsPanel = form.down('#mdc-command-rule-addEdit-error'),
+            dayLimitContainer = form.down('#mdc-command-rule-addEdit-dayLimit-radioGroup'),
+            weekLimitContainer = form.down('#mdc-command-rule-addEdit-weekLimit-radioGroup'),
+            monthLimitContainer = form.down('#mdc-command-rule-addEdit-monthLimit-radioGroup'),
+            commandsContainer = form.down('#mdc-command-rule-addEdit-commands-fieldContainer');
 
-        if (form.isValid() /*&& !emptyCommands*/) {
+        formErrorsPanel.hide();
+        form.getForm().clearInvalid();
+        dayLimitContainer.unsetActiveError();
+        weekLimitContainer.unsetActiveError();
+        monthLimitContainer.unsetActiveError();
+        commandsContainer.unsetActiveError();
+        if (form.isValid()) {
             var record = me.ruleModel || Ext.create('Mdc.model.CommandLimitationRule'),
                 commandsStore = page.down('#mdc-command-rule-addEdit-commands-grid').getStore(),
                 arrayCommands = [];
@@ -217,8 +227,28 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
+                        var errorsToShow = [];
+                        Ext.each(json.errors, function (item) {
+                            switch (item.id) {
+                                case 'dayLimit':
+                                    dayLimitContainer.setActiveError(item.msg);
+                                    break;
+                                case 'weekLimit':
+                                    weekLimitContainer.setActiveError(item.msg);
+                                    break;
+                                case 'monthLimit':
+                                    monthLimitContainer.setActiveError(item.msg);
+                                    break;
+                                case 'commands':
+                                    commandsContainer.setActiveError(item.msg);
+                                    break;
+                                default:
+                                    errorsToShow.push(item);
+                                    break;
+                            }
+                        });
                         Ext.suspendLayouts();
-                        form.getForm().markInvalid(json.errors);
+                        form.getForm().markInvalid(errorsToShow);
                         formErrorsPanel.show();
                         Ext.resumeLayouts(true);
                     }

@@ -6,10 +6,6 @@ Ext.define('Mdc.store.CommandCategories',{
     model: 'Mdc.model.CommandCategory',
     storeId: 'CommandCategories',
     autoLoad: false,
-    sorters: {
-        property: 'name',
-        direction: 'ASC'
-    },
     proxy: {
         type: 'rest',
         url: '/api/crr/commandrules/categories',
