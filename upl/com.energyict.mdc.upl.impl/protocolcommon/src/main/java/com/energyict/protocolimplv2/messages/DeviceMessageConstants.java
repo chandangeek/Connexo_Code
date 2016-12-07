@@ -1220,9 +1220,13 @@ public final class DeviceMessageConstants {
     public static final String newState = "OutputConfigurationMessage.newState";
 
     public static final String EnableDLMS = "FirewallConfigurationMessage.enableDLMS";
+    public static final String EnableDLMSDefaultTranslation = "Enable DLMS";
     public static final String EnableHTTP = "FirewallConfigurationMessage.enableHTTP";
+    public static final String EnableHTTPDefaultTranslation = "Enable HTTP";
     public static final String EnableSSH = "FirewallConfigurationMessage.enableSSH";
+    public static final String EnableSSHDefaultTranslation = "Enable SSH";
     public static final String defaultEnabled = "FirewallConfigurationMessage.defaultEnabled";
+    public static final String defaultEnabledDefaultTranslation = "Default enabled";
 
     public static final String receptionThreshold = "receptionThreshold";
     public static final String receptionThresholdDefaultTranslation = "Reception threshold";
