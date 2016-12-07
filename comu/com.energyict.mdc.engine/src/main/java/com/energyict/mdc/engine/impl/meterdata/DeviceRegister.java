@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
-import java.time.Instant;
+import java.util.Date;
 
 /**
  * Implementation of a Register, collected from a Device.
@@ -45,27 +45,27 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
     /**
      * The timeStamp when the data was collected
      */
-    private Instant readTime;
+    private Date readTime;
 
     /**
      * Defines the start of the measurement period covered by this reading. Most
      * registers are since the start of measurement, in this case fromTime is null
      */
-    private Instant fromTime;
+    private Date fromTime;
 
     /**
      * Defines the end of the measurement period covered by this reading. For
      * most registers this will be equal to the read time. For billing point
      * register, this is the time of the billing point
      */
-    private Instant toTime;
+    private Date toTime;
 
     /**
      * Defines the time the metered event took place. For most registers this
      * will be null. For maximum demand registers, this is the interval time the
      * maximum demand was registered
      */
-    private Instant eventTime;
+    private Date eventTime;
 
     /**
      * Default constructor
@@ -119,19 +119,19 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
         return text;
     }
 
-    public Instant getReadTime() {
+    public Date getReadTime() {
         return readTime;
     }
 
-    public Instant getFromTime() {
+    public Date getFromTime() {
         return fromTime;
     }
 
-    public Instant getToTime() {
+    public Date getToTime() {
         return toTime;
     }
 
-    public Instant getEventTime() {
+    public Date getEventTime() {
         return eventTime;
     }
 
@@ -145,24 +145,24 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
         return this.registerIdentifier;
     }
 
-    public void setReadTime(final Instant readTime) {
+    public void setReadTime(final Date readTime) {
         this.readTime = readTime;
     }
 
-    protected void setFromTime(final Instant fromTime) {
+    protected void setFromTime(final Date fromTime) {
         this.fromTime = fromTime;
     }
 
-    protected void setToTime(final Instant toTime) {
+    protected void setToTime(final Date toTime) {
         this.toTime = toTime;
     }
 
-    protected void setEventTime(final Instant eventTime) {
+    protected void setEventTime(final Date eventTime) {
         this.eventTime = eventTime;
     }
 
     @Override
-    public void setCollectedTimeStamps(final Instant readTime, final Instant fromTime, final Instant toTime) {
+    public void setCollectedTimeStamps(final Date readTime, final Date fromTime, final Date toTime) {
         setReadTime(readTime);
         setFromTime(fromTime);
         setToTime(toTime);
@@ -170,7 +170,7 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
     }
 
     @Override
-    public void setCollectedTimeStamps(final Instant readTime, final Instant fromTime, final Instant toTime, final Instant eventTime) {
+    public void setCollectedTimeStamps(final Date readTime, final Date fromTime, final Date toTime, final Date eventTime) {
         setReadTime(readTime);
         setFromTime(fromTime);
         setToTime(toTime);

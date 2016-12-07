@@ -4,6 +4,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
 import java.time.Instant;
+import java.util.Date;
 
 /**
  * Implementation of a standard Register, collected from a Device.
@@ -29,7 +30,7 @@ public class DefaultDeviceRegister extends DeviceQuantityRegister {
     }
 
     @Override
-    public void setReadTime(Instant readTime) {
+    public void setReadTime(Date readTime) {
         super.setReadTime(readTime);
         super.setToTime(readTime);
         super.setFromTime(null);
