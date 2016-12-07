@@ -25,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,6 +89,7 @@ public class CommandRuleResource {
         List<IdWithNameInfo> categories = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
                 .map(deviceMessageCategory -> new IdWithNameInfo(deviceMessageCategory.getId(), deviceMessageCategory.getName()))
+                .sorted((o1, o2) -> o1.name.compareTo(o2.name))
                 .collect(Collectors.toList());
 
         return Response.ok(categories).build();
@@ -104,14 +106,18 @@ public class CommandRuleResource {
         List<CommandInfo> commands = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
                 .filter(deviceMessageCategory -> selectedCategories.size() == 0 || selectedCategories.contains(deviceMessageCategory.getId()))
+                .sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
                 .map(DeviceMessageCategory::getMessageSpecifications)
                 .flatMap(List::stream)
                 .filter(deviceMessageSpec -> !alreadySelectedCommands.contains(deviceMessageSpec.getId().name()))
                 .map(deviceMessageSpec -> new CommandInfo(deviceMessageSpec.getCategory().getName(), deviceMessageSpec.getName(), deviceMessageSpec.getId().name()))
+                .sorted(CommandInfo::compareTo)
                 .collect(Collectors.toList());
 
         return Response.ok(commands).build();
     }
+
+
 
 }
 
