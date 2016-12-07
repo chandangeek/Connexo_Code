@@ -11,11 +11,13 @@ Ext.define('Imt.usagepointhistory.controller.History', {
     stores: [
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint',
+        'Imt.usagepointmanagement.store.CalendarHistory',
         'Imt.usagepointhistory.store.LifeCycleAndState'
     ],
     views: [
         'Imt.usagepointhistory.view.Overview',
         'Imt.usagepointhistory.view.VersionsOverview',
+        'Imt.usagepointhistory.view.CalendarsVersionsOverview',
         'Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState'
     ],
     refs: [
@@ -79,13 +81,27 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),
             lifeCycleAndStateStore = me.getStore('Imt.usagepointhistory.store.LifeCycleAndState'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
+            calendarStore = me.getStore('Imt.usagepointmanagement.store.CalendarHistory'),
             usagePointId = router.arguments.usagePointId,
             customAttributeSetId = newCard.customAttributeSetId,
             cardView,
             onVersionsStoreLoad,
-            url;
+            url;        
 
-        if (!customAttributeSetId) {
+        if (oldCard) {
+            oldCard.removeAll();
+        }
+
+        if(newCard.itemId === 'calendar-tab'){
+            calendarStore.setMrid(mRID);
+            newCard.add({
+                xtype: 'calendars-versions-overview',
+                store: calendarStore,
+                type: 'usagePoint',
+                ui: 'medium',
+                padding: 0
+            });
+        } if (!customAttributeSetId) {
             if (router.queryParams.customAttributeSetId) {
                 delete router.queryParams.customAttributeSetId;
                 url = router.getRoute().buildUrl(router.arguments, router.queryParams);
@@ -182,7 +198,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
     abortTransition: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        
+
         record.getProxy().setParams(router.arguments.usagePointId);
         Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.abort', 'IMT', 'Abort')}).show({
             title: Uni.I18n.translate('usagePointHistory.abortTransitionTitle', 'IMT', "Abort state change from '{0}' to '{1}'?", [record.get('fromStateName'), record.get('toStateName')]),

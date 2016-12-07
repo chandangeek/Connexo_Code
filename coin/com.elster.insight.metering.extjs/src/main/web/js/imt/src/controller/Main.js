@@ -47,6 +47,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointgroups.controller.AddUsagePointGroupAction',
         'Imt.metrologyconfiguration.controller.EstimationConfiguration',
         'Imt.usagepointgroups.controller.UsagePointGroups',
+        'Imt.usagepointmanagement.controller.Calendars',
+        'Imt.controller.SearchItemsBulkAction',        
         'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
         'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
         'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',

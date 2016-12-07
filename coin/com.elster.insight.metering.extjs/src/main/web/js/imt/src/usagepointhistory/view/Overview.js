@@ -68,6 +68,13 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
             }
         });
 
+        cfg.items.push(
+            {
+                title: Uni.I18n.translate('general.calendar', 'IMT', 'Calendar'),
+                itemId: 'calendar-tab'
+            }
+        );
+
         return cfg;
     }
 });
