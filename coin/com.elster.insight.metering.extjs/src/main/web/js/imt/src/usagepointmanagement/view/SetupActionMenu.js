@@ -30,7 +30,8 @@ Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
                 text: item.get('name'),
                 handler: function() {
                     router.getRoute('usagepoints/view/transitions').forward({transitionId: item.get('id')});
-                }
+                },
+                section: me.SECTION_ACTION
             })
         });
     }

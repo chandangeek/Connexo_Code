@@ -71,10 +71,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
             },
             'usagepoint-life-cycle-state-edit #addOnExitTransitionBusinessProcess': {
                 click: this.addExitTransitionBusinessProcessesToState
-            },
-            'usagepoint-life-cycle-states-action-menu': {
-                show: this.configureMenu
-            },
+            },            
             'add-processes-to-state button[name=cancel]': {
                 click: this.forwardToPreviousPage
             },
@@ -85,13 +82,6 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                 selectionchange: this.hideProcessesErrorPanel
             }
         });
-    },
-
-    configureMenu: function (menu) {
-        var initialAction = menu.down('#initialAction'),
-            isInitial = menu.record.get('isInitial');
-
-        isInitial ? initialAction.hide() : initialAction.show();
     },
 
     showErrorPanel: function (value) {

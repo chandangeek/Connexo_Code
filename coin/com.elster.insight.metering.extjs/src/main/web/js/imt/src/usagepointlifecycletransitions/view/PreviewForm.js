@@ -32,8 +32,8 @@ Ext.define('Imt.usagepointlifecycletransitions.view.PreviewForm', {
                 name: 'privileges',
                 itemId: 'privileges-field',
                 renderer: function (privileges) {
-                    var str = '';
                     if (privileges) {
+                        var str = '';
                         Ext.Array.each(privileges, function (privilege) {
                             if (privilege.privilege === privileges[privileges.length - 1].privilege) {
                                 str += privilege.name;
@@ -41,8 +41,10 @@ Ext.define('Imt.usagepointlifecycletransitions.view.PreviewForm', {
                                 str += privilege.name + ' - ';
                             }
                         });
+                        return Ext.String.htmlEncode(str);
+                    } else {
+                        return '-';
                     }
-                    return Ext.String.htmlEncode(str);
                 }
             },
             {
