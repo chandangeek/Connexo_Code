@@ -2,8 +2,6 @@ package com.energyict.mdc.device.command.rest.impl;
 
 import com.energyict.mdc.device.command.CommandRule;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +28,7 @@ public class CommandRuleInfo {
         commandRuleInfo.commands = commandRule.getCommands()
                 .stream()
                 .map(commandInRule -> new CommandInfo(commandInRule.getCommand().getCategory().getName(), commandInRule.getCommand().getName(), commandInRule.getCommand().getId().name()))
+                .sorted((c1, c2) -> c1.compareTo(c2))
                 .collect(Collectors.toList());
 
         return commandRuleInfo;
