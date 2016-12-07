@@ -152,7 +152,7 @@ Ext.define('Bpm.view.task.AssigneeForm', {
                         store: me.user.store,
                         allUsersUrl: me.allUsersUrl,
                         workgroupUsersUrl: me.workgroupUsersUrl,
-                        value: Uni.I18n.translate('bpm.task.user.unassigned', 'BPM', 'Unassigned'),
+                        value: Uni.I18n.translate('bpm.task.user.unassigned', 'BPM', 'Unassigned')
                     }
                 ]
             }
