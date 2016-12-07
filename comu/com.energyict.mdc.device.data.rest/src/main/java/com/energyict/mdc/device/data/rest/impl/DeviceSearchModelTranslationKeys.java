@@ -3,9 +3,10 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum DeviceSearchModelTranslationKeys implements TranslationKey {
+    NAME("name", "Name"),
     MRID("mRID", "MRID"),
     SERIALNUMBER("serialNumber", "Serial number"),
-    DEVICETYPENAME("deviceTypeName", "Device type"),
+    DEVICE_TYPE_NAME("deviceTypeName", "Device type"),
     DEVICE_CONFIGURATION_NAME("deviceConfigurationName", "Device configuration"),
     STATE("state", "State"),
     BATCH("batch", "Batch"),
@@ -14,7 +15,7 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     USAGE_POINT("usagePoint", "Usage point"),
     YEAR_OF_CERTIFICATION("yearOfCertification", "Year of certification"),
     ESTIMATION_ACTIVE("estimationActive", "Data estimation"),
-    MASTER_DEVICE_MRID("masterDevicemRID", "Master device"),
+    MASTER_DEVICE_NAME("masterDeviceName", "Master device"),
     SHIPMENT_DATE("shipmentDate", "Shipment date"),
     INSTALLATION_DATE("installationDate", "Installation date"),
     DEACTIVATION_DATE("deactivationDate", "Deactivation date"),

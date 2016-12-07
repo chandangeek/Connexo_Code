@@ -29,6 +29,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,8 +73,8 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Before
     public void setUpStubs() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getVersion()).thenReturn(1L);
         when(device.getmRID()).thenReturn("1");
         when(device.forValidation()).thenReturn(deviceValidation);
@@ -95,7 +96,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         RegisterType registerType = mock(RegisterType.class);
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findAndLockRegisterSpecByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(registerSpec));
         when(masterDataService.findRegisterType(anyLong())).thenReturn(Optional.of(registerType));
         when(masterDataService.findAndLockRegisterTypeByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(registerType));
@@ -300,14 +301,51 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<Number>get("multiplier")).isEqualTo(multiplier.intValue());
     }
 
-    private void mockRegisterWithCalculatedReadingType(Long registerSpecId, String collectedReadingTypeMrid, String calculatedReadingTypeMrid, Optional<BigDecimal> multiplier) {
+    @Test
+    public void getRegistersTest() throws Exception{
+        Long firstRegisterId = 123L;
+        Long secondRegisterId = 125L;
+        String collectedReadingTypeMrid = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+        String calculatedReadingTypeMrid = "0.0.0.4.1.2.12.0.0.0.0.0.0.0.0.0.72.0";
+        BigDecimal multiplier = BigDecimal.valueOf(74L);
+        NumericalRegister firstNumericalRegister = mockRegisterWithCalculatedReadingType(firstRegisterId, collectedReadingTypeMrid, calculatedReadingTypeMrid, Optional.of(multiplier));
+        NumericalRegister secondNumericalRegister = mockRegisterWithCalculatedReadingType(secondRegisterId, collectedReadingTypeMrid, calculatedReadingTypeMrid, Optional.of(multiplier));
+        mockRegisterWithCalculatedReadingType(secondRegisterId, collectedReadingTypeMrid, calculatedReadingTypeMrid, Optional.of(multiplier));
+        when(device.getRegisters()).thenReturn(Arrays.asList(firstNumericalRegister, secondNumericalRegister));
+        String json = target("devices/1/registers").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total").longValue()).isEqualTo(2);
+
+    }
+
+    @Test
+    public void getFilteredRegistersTest() throws Exception{
+        Long firstRegisterId = 123L;
+        Long secondRegisterId = 125L;
+        String collectedReadingTypeMrid = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+        String calculatedReadingTypeMrid = "0.0.0.4.1.2.12.0.0.0.0.0.0.0.0.0.72.0";
+        BigDecimal multiplier = BigDecimal.valueOf(74L);
+        NumericalRegister firstNumericalRegister = mockRegisterWithCalculatedReadingType(firstRegisterId, collectedReadingTypeMrid, calculatedReadingTypeMrid, Optional.of(multiplier));
+        NumericalRegister secondNumericalRegister = mockRegisterWithCalculatedReadingType(secondRegisterId, collectedReadingTypeMrid, calculatedReadingTypeMrid, Optional.of(multiplier));
+        mockRegisterWithCalculatedReadingType(secondRegisterId, collectedReadingTypeMrid, calculatedReadingTypeMrid, Optional.of(multiplier));
+        when(device.getRegisters()).thenReturn(Arrays.asList(firstNumericalRegister, secondNumericalRegister));
+        String json = target("devices/1/registers").queryParam("filter", URLEncoder.encode("[{\"property\":\"registers\",\"value\":[123]}]", "UTF-8")).request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total").longValue()).isEqualTo(1);
+
+    }
+
+    private NumericalRegister mockRegisterWithCalculatedReadingType(Long registerSpecId, String collectedReadingTypeMrid, String calculatedReadingTypeMrid, Optional<BigDecimal> multiplier) {
         ReadingType collectedReadingType = ReadingTypeMockBuilder.from(collectedReadingTypeMrid).getMock();
+        when(collectedReadingType.getAliasName()).thenReturn("CollectedReadingType" + registerSpecId);
         ReadingType calculatedReadingType = ReadingTypeMockBuilder.from(calculatedReadingTypeMrid).getMock();
+        when(calculatedReadingType.getAliasName()).thenReturn("CalculatedReadingType" + registerSpecId);
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getId()).thenReturn(978978978L);
         NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
         when(registerSpec.getObisCode()).thenReturn(registerSpecObisCode);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
+        when(registerSpec.getRegisterType().getReadingType()).thenReturn(collectedReadingType);
         when(registerSpec.getReadingType()).thenReturn(collectedReadingType);
         when(registerSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(registerSpec.getId()).thenReturn(registerSpecId);
@@ -321,7 +359,10 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(numericalRegister.getLastReadingDate()).thenReturn(Optional.empty());
         when(numericalRegister.getDeviceObisCode()).thenReturn(registerSpecObisCode);
         when(numericalRegister.getOverflow()).thenReturn(Optional.empty());
+        when(numericalRegister.getRegisterSpecId()).thenReturn(registerSpecId);
         multiplier.ifPresent(multiplierValue -> when(device.getMultiplier()).thenReturn(multiplierValue));
         when(device.getRegisters()).thenReturn(Collections.singletonList(numericalRegister));
+
+        return numericalRegister;
     }
 }

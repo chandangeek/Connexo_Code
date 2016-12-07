@@ -12,7 +12,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
@@ -20,15 +19,16 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -46,7 +46,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testAdditionalComTaskFields() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -62,7 +62,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTask comTask = mockComTask(1L, "Read");
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -70,7 +70,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(connectionTask.getName()).thenReturn("connectionMethod");
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
-        JsonModel jsonModel = JsonModel.model(target("/devices/mrid/comtasks/").request().get(String.class));
+        JsonModel jsonModel = JsonModel.model(target("/devices/name/comtasks/").request().get(String.class));
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Boolean>get("$.comTasks[0].isOnHold")).isTrue();
         assertThat(jsonModel.<Instant>get("$.comTasks[0].successfulFinishTime")).isNotNull();
@@ -80,8 +80,8 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testActivateComTask() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("mrid", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("name", 1L)).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -99,7 +99,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTask comTask = mockComTask(1L, "Read");
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -112,12 +112,12 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         info.device.mRID = "mrid";
         info.device.version = 1L;
         info.device.parent = new VersionInfo<>(1L, 1L);
-        Response response = target("/devices/mrid/comtasks/1/activate").request().put(Entity.json(info));
+        Response response = target("/devices/name/comtasks/1/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     private ComTaskExecution mockComTaskExecution() {
-        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(13L);
         when(comTaskExecution.isOnHold()).thenReturn(true);
         when(comTaskExecution.getPlannedNextExecutionTimestamp()).thenReturn(plannedDate);
@@ -126,8 +126,8 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         doReturn(Optional.of(connectionTask)).when(comTaskExecution).getConnectionTask();
-        List<ComTask> comTasks = Arrays.asList(mockComTask(1L, "Read all"));
-        when(comTaskExecution.getComTasks()).thenReturn(comTasks);
+        ComTask comTask = mockComTask(1L, "Read all");
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
         when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(1)));

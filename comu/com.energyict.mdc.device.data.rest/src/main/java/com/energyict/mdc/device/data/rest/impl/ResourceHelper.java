@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -126,37 +127,37 @@ public class ResourceHelper {
         return deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, version);
     }
 
-    public Device findDeviceByMrIdOrThrowException(String mRID) {
-        return deviceService.findByUniqueMrid(mRID).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mRID));
+    public Device findDeviceByNameOrThrowException(String deviceName) {
+        return deviceService.findDeviceByName(deviceName).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceName));
     }
 
-    public Long getCurrentDeviceVersion(String mRID) {
-        return deviceService.findByUniqueMrid(mRID).map(Device::getVersion).orElse(null);
+    public Long getCurrentDeviceVersion(String deviceName) {
+        return deviceService.findDeviceByName(deviceName).map(Device::getVersion).orElse(null);
     }
 
-    public Optional<Device> getLockedDevice(String mRID, long version) {
-        return deviceService.findAndLockDeviceBymRIDAndVersion(mRID, version);
+    public Optional<Device> getLockedDevice(String deviceName, long version) {
+        return deviceService.findAndLockDeviceByNameAndVersion(deviceName, version);
     }
 
     public Device lockDeviceOrThrowException(DeviceVersionInfo info) {
         Optional<DeviceConfiguration> deviceConfiguration = getLockedDeviceConfiguration(info.parent.id, info.parent.version);
         if (deviceConfiguration.isPresent()) {
-            return getLockedDevice(info.mRID, info.version)
-                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
+            return getLockedDevice(info.name, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                             .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.id)
-                            .withActualVersion(() -> getCurrentDeviceVersion(info.mRID))
+                            .withActualVersion(() -> getCurrentDeviceVersion(info.name))
                             .supplier());
         }
-        throw conflictFactory.contextDependentConflictOn(info.mRID)
+        throw conflictFactory.contextDependentConflictOn(info.name)
                 .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.id)
-                .withActualVersion(() -> getCurrentDeviceVersion(info.mRID))
+                .withActualVersion(() -> getCurrentDeviceVersion(info.name))
                 .build();
     }
 
-    public Device lockDeviceOrThrowException(long deviceId, String mRID, long deviceVersion) {
+    public Device lockDeviceOrThrowException(long deviceId, String name, long deviceVersion) {
         return deviceService.findAndLockDeviceByIdAndVersion(deviceId, deviceVersion)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(mRID)
-                        .withActualVersion(() -> getCurrentDeviceVersion(mRID))
+                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                        .withActualVersion(() -> getCurrentDeviceVersion(name))
                         .supplier());
     }
 
@@ -346,29 +347,29 @@ public class ResourceHelper {
                 .stream()
                 .filter(lp -> lp.getId() == loadProfileId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, device.getmRID(), loadProfileId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, device.getName(), loadProfileId));
     }
 
-    public Channel findChannelOnDeviceOrThrowException(String mRID, long channelId) {
-        Device device = this.findDeviceByMrIdOrThrowException(mRID);
+    public Channel findChannelOnDeviceOrThrowException(String deviceName, long channelId) {
+        Device device = this.findDeviceByNameOrThrowException(deviceName);
         return this.findChannelOnDeviceOrThrowException(device, channelId);
     }
 
     public Channel findChannelOnDeviceOrThrowException(Device device, long channelId) {
         return device.getChannels().stream().filter(c -> c.getId() == channelId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), channelId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getName(), channelId));
     }
 
-    public Register findRegisterOnDeviceOrThrowException(String mRID, long registerId) {
-        Device device = this.findDeviceByMrIdOrThrowException(mRID);
+    public Register findRegisterOnDeviceOrThrowException(String deviceName, long registerId) {
+        Device device = this.findDeviceByNameOrThrowException(deviceName);
         return this.findRegisterOnDeviceOrThrowException(device, registerId);
     }
 
     public Register findRegisterOnDeviceOrThrowException(Device device, long registerId) {
         return device.getRegisters().stream().filter(r -> r.getRegisterSpecId() == registerId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_REGISTER_ON_DEVICE, device.getmRID(), registerId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_REGISTER_ON_DEVICE, device.getName(), registerId));
     }
 
 
@@ -470,9 +471,9 @@ public class ResourceHelper {
 
     private Condition addDeviceQueryCondition(StandardParametersBean params) {
         Condition conditionDevice = Condition.TRUE;
-        String mRID = params.getFirst("mRID");
-        if (mRID != null) {
-            conditionDevice = conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+        String name = params.getFirst("name");
+        if (name != null) {
+            conditionDevice = conditionDevice.and(where("name").likeIgnoreCase(name));
         }
         String serialNumber = params.getFirst("serialNumber");
         if (serialNumber != null) {
@@ -503,7 +504,7 @@ public class ResourceHelper {
                 .stream()
                 .filter(ct -> ct.getId() == connectionMethodId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getmRID(), connectionMethodId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_METHOD, device.getName(), connectionMethodId));
     }
 
     public Condition getQueryConditionForDevice(MultivaluedMap<String, String> uriParams) {
@@ -517,9 +518,9 @@ public class ResourceHelper {
     private Condition addDeviceQueryCondition(MultivaluedMap<String, String> uriParams) {
         Condition conditionDevice = Condition.TRUE;
         JsonQueryFilter filter = new JsonQueryFilter(uriParams.getFirst("filter"));
-        String mRID = filter.getString("mRID");
-        if (mRID != null) {
-            conditionDevice = conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+        String name = filter.getString("name");
+        if (name != null) {
+            conditionDevice = conditionDevice.and(where("name").likeIgnoreCase(name));
         }
         String serialNumber = filter.getString("serialNumber");
         if (serialNumber != null) {
@@ -696,7 +697,8 @@ public class ResourceHelper {
         if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info), newRange);
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange);
         device.save();
     }
 
@@ -706,7 +708,8 @@ public class ResourceHelper {
         if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
-        customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info));
+        customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info));
         device.save();
     }
 
@@ -717,7 +720,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info), newRange, effectiveTimestamp);
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, effectiveTimestamp);
         device.save();
     }
 
@@ -728,7 +732,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(info), newRange, channel.getDevice()
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, channel.getDevice()
                 .getId());
         channel.getChannelSpec().save();
     }
@@ -740,7 +745,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(info), newRange, effectiveTimestamp, channel
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, effectiveTimestamp, channel
                 .getDevice()
                 .getId());
         channel.getChannelSpec().save();
@@ -753,7 +759,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), newRange, register.getDevice()
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, register.getDevice()
                 .getId());
         register.getRegisterSpec().save();
     }
@@ -765,7 +772,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId());
         }
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
-        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), newRange, effectiveTimestamp, register
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                .getPropertySpecs(), info), newRange, effectiveTimestamp, register
                 .getDevice()
                 .getId());
         register.getRegisterSpec().save();
@@ -887,7 +895,8 @@ public class ResourceHelper {
                 .orElseThrow(conflictException(info));
 
         if (registeredCustomPropertySet.isEditableByCurrentUser() && matches(info, registeredCustomPropertySet)) {
-            customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), register.getDevice().getId());
+            customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
+                    .getPropertySpecs(), info), register.getDevice().getId());
             register.getRegisterSpec().save();
         } else {
             throw conflictException(info).get();
@@ -954,7 +963,9 @@ public class ResourceHelper {
                 .getDeviceType()
                 .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isEditableByCurrentUser()) {
-            customPropertySetService.setValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(info), channel.getDevice().getId());
+            customPropertySetService.setValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(registeredCustomPropertySet.get()
+                    .getCustomPropertySet()
+                    .getPropertySpecs(), info), channel.getDevice().getId());
             channel.getChannelSpec().save();
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, info.id);
@@ -968,21 +979,10 @@ public class ResourceHelper {
         return typedProperties;
     }
 
-    private CustomPropertySetValues getCustomPropertySetValues(CustomPropertySetInfo info) {
+    private CustomPropertySetValues getCustomPropertySetValues(List<PropertySpec> propertySpecs, CustomPropertySetInfo info) {
         CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
-        info.properties.forEach(property -> {
-            if (property.getPropertyValueInfo() != null) {
-                if (property.getPropertyValueInfo().getValue() != null && !property.getPropertyValueInfo().getValue().toString().isEmpty()) {
-                    customPropertySetValues.setProperty(property.key, property.getPropertyValueInfo().getValue());
-                } else if (property.getPropertyValueInfo().defaultValue != null && !property.getPropertyValueInfo().defaultValue.toString().isEmpty()) {
-                    customPropertySetValues.setProperty(property.key, property.getPropertyValueInfo().defaultValue);
-                } else if (property.required) {
-                    throw exceptionFactory.newException(MessageSeeds.NO_SUCH_REQUIRED_PROPERTY);
-                }
-            } else if (property.required) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_REQUIRED_PROPERTY);
-            }
-        });
+        propertySpecs.forEach(propertySpec ->
+                customPropertySetValues.setProperty(propertySpec.getName(), this.mdcPropertyUtils.findPropertyValue(propertySpec, info.properties)));
         return customPropertySetValues;
     }
 

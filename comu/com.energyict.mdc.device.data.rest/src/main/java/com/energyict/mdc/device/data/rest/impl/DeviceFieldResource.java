@@ -78,17 +78,17 @@ public class DeviceFieldResource extends FieldResource {
     @Path("/gateways")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public PagedInfoList getGateways(@QueryParam("search") String search, @QueryParam("excludeDeviceMRID") String excludeDeviceMRID, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getGateways(@QueryParam("search") String search, @QueryParam("excludeDeviceName") String excludeDeviceName, @BeanParam JsonQueryParameters queryParameters) {
         Condition condition = Condition.TRUE;
         if (!Checks.is(search).emptyOrOnlyWhiteSpace()) {
-            condition = condition.and(Where.where("mRID").likeIgnoreCase('*' + search + '*'));
+            condition = condition.and(Where.where("name").likeIgnoreCase('*' + search + '*'));
         }
-        if (!Checks.is(excludeDeviceMRID).emptyOrOnlyWhiteSpace()) {
-            condition = condition.and(Where.where("mRID").isNotEqual(excludeDeviceMRID));
+        if (!Checks.is(excludeDeviceName).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(Where.where("name").isNotEqual(excludeDeviceName));
         }
         condition = condition.and(Where.where("deviceConfiguration.gatewayType").isNotEqual(GatewayType.NONE));
-        List<Device> devices = deviceService.findAllDevices(condition).from(queryParameters).sorted("mRID", true).find();
-        List<IdWithNameInfo> infos = devices.stream().map(d -> new IdWithNameInfo(d.getId(), d.getmRID())).collect(Collectors.toList());
+        List<Device> devices = deviceService.findAllDevices(condition).from(queryParameters).sorted("name", true).find();
+        List<IdWithNameInfo> infos = devices.stream().map(d -> new IdWithNameInfo(d.getId(), d.getName())).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("gateways", infos, queryParameters);
     }
 
