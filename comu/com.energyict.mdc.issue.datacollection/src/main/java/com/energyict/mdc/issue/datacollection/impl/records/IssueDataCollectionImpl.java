@@ -162,6 +162,11 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public void assignTo(String type, long id) {
+        getBaseIssue().assignTo(type, id);
+    }
+
+    @Override
     public void autoAssign() {
         getBaseIssue().autoAssign();
     }
