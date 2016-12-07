@@ -2,7 +2,8 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
     extend: 'Ext.form.Panel',
     alias: 'widget.preview_communication',
     requires: [
-        'Uni.util.Common'
+        'Uni.util.Common',
+        'Dsh.view.widget.CommunicationsActionMenu'
     ],
     title: '',
     frame: true,
@@ -14,7 +15,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
             xtype: 'uni-button-action',
             itemId: 'communicationPreviewActionMenu',
             menu: {
-//                xtype: 'communications-action-menu'
+                xtype: 'communications-action-menu'
             }
         }
     ],
@@ -27,23 +28,8 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.name', 'DSH', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.communicationTask', 'DSH', 'Communication task'),
                     name: 'name'
-                },
-                {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.commTasks', 'DSH', 'Communication task(s)'),
-                    name: 'comTasks',
-                        renderer: function(value){
-                            if(!Ext.isEmpty(value)){
-                                var result = '';
-                                Ext.each(value, function(item){
-                                    result = result + '<li>'+ Ext.String.htmlEncode(item.name)+'</li>'
-                                });
-                                return result;
-                            } else {
-                                return '-';
-                            }
-                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.device', 'DSH', 'Device'),
@@ -51,8 +37,9 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     renderer: function (val) {
                         var res = '-';
                         if (val) {
-                            Mdc.privileges.Device.canViewOrAdministrateDeviceData()
-                                ? res = '<a href="#/devices/' + Uni.util.Common.encodeURIComponent(val.id) + '">' + Ext.String.htmlEncode(val.id) + '</a>' : res = Ext.String.htmlEncode(val.name);
+                            res = Mdc.privileges.Device.canViewOrAdministrateDeviceData()
+                                ? '<a href="#/devices/' + Uni.util.Common.encodeURIComponent(val.name) + '">' + Ext.String.htmlEncode(val.name) + '</a>'
+                                : Ext.String.htmlEncode(val.name);
                         }
                         return res;
                     }
@@ -87,7 +74,11 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.frequency', 'DSH', 'Frequency'),
+                    fieldLabel: Uni.I18n.translate('general.sharedCommunicationSchedule', 'DSH', 'Shared communication schedule'),
+                    name: 'comScheduleName'
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('general.schedule', 'DSH', 'Schedule'),
                     name: 'comScheduleFrequency',
                     renderer: function (val) {
                         var res = '-';

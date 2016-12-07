@@ -65,6 +65,12 @@ Ext.define('Dsh.controller.Communications', {
             },
             'communications-list #btn-communications-bulk-action': {
                 click: this.forwardToBulk
+            },
+            'communications-action-menu': {
+                click: this.chooseAction
+            },
+            'communications-details connection-action-menu': {
+                click: this.onConnectionActionMenuClick
             }
         });
 
@@ -80,69 +86,44 @@ Ext.define('Dsh.controller.Communications', {
         store.load();
     },
 
-    initMenu: function (record, menuItems, me) {
+    chooseAction: function (menu, item) {
         var me = this;
 
-        me.getCommunicationsGridActionMenu().menu.removeAll();
-        me.getCommunicationPreviewActionMenu().menu.removeAll();
+        switch (item.action) {
+            case 'viewLog':
+                me.viewCommunicationLog(menu.record);
+                break;
+            case 'run':
+                me.communicationRun(menu.record);
+                break;
+            case 'runNow':
+                me.communicationRunNow(menu.record);
+                break;
+        }
+    },
+
+    onConnectionActionMenuClick: function (menu, item) {
+        var me = this;
+        switch (item.action) {
+            case 'viewLog':
+                me.viewConnectionLog(menu.record);
+                break;
+        }
+    },
+
+    initMenu: function (record, menuItems) {
+        var me = this;
+
         me.getConnectionsPreviewActionBtn().menu.removeAll();
 
         Ext.suspendLayouts();
-
-        Ext.each(record.get('comTasks'), function (item) {
-            if (record.get('sessionId') !== 0) {
-                menuItems.push({
-                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'DSH', 'View \'{0}\' log'), item.name),
-                    action: {
-                        action: 'viewlog',
-                        comTask: {
-                            mRID: record.get('device').id,
-                            sessionId: record.get('sessionId'),
-                            comTaskId: item.id
-                        }
-                    },
-                    listeners: {
-                        click: me.viewCommunicationLog
-                    }
-                });
-            }
-        });
-
-        if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
-            if (record.get('connectionTask').connectionStrategy.id === 'MINIMIZE_CONNECTIONS') {
-                menuItems.push({
-                    text: Uni.I18n.translate('general.run', 'DSH', 'Run'),
-                    action: {
-                        action: 'run',
-                        record: record,
-                        me: me
-                    },
-                    listeners: {
-                        click: me.communicationRun
-                    }
-                });
-            }
-
-            menuItems.push({
-                text: Uni.I18n.translate('general.runNow', 'DSH', 'Run now'),
-                action: {
-                    action: 'runNow',
-                    record: record,
-                    me: me
-                },
-                listeners: {
-                    click: me.communicationRunNow
-                }
-            });
-
-        }
 
         var connectionMenuItem = {
             text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'DSH', 'View connection log'),
             action: {
                 action: 'viewlog',
                 connection: {
-                    mRID: record.get('device').id,
+                    deviceId: record.get('device').name,
                     connectionMethodId: record.get('connectionTask').id,
                     sessionId: record.get('connectionTask').comSessionId
 
@@ -153,8 +134,6 @@ Ext.define('Dsh.controller.Communications', {
             }
         };
 
-        me.getCommunicationsGridActionMenu().menu.add(menuItems);
-        me.getCommunicationPreviewActionMenu().menu.add(menuItems);
 
         if (record.get('connectionTask').comSessionId !== 0) {
             me.getConnectionsPreviewActionBtn().menu.add(connectionMenuItem);
@@ -167,16 +146,22 @@ Ext.define('Dsh.controller.Communications', {
         var me = this,
             preview = me.getCommunicationPreview(),
             connPreview = me.getConnectionPreview(),
-            record = selected[0],
-            menuItems = [];
+            record = selected[0];
+
 
         if (record) {
-            me.initMenu(record, menuItems, me);
+            if(record.get('connectionTask').comSessionId !== 0) {
+                connPreview.down('uni-button-action').setDisabled(false);
+            } else {
+                connPreview.down('uni-button-action').setDisabled(true);
+            }
+            preview.down('communications-action-menu').record = record;
+            connPreview.down('connection-action-menu').record = record;
             preview.loadRecord(record);
-            preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('name'), record.get('device').id]));
+            preview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [record.get('name'), record.get('device').name]));
             if (record.getData().connectionTask) {
                 var conTask = record.getConnectionTask();
-                connPreview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [conTask.get('connectionMethod').name, conTask.get('device').id]));
+                connPreview.setTitle(Uni.I18n.translate('general.XonY', 'DSH', '{0} on {1}', [conTask.get('connectionMethod').name, conTask.get('device').name]));
                 connPreview.show();
                 connPreview.loadRecord(conTask);
             } else {
@@ -185,17 +170,17 @@ Ext.define('Dsh.controller.Communications', {
         }
     },
 
-    viewCommunicationLog: function (item) {
-        location.href = '#/devices/' + item.action.comTask.mRID
-        + '/communicationtasks/' + item.action.comTask.comTaskId
-        + '/history/' + item.action.comTask.sessionId
+    viewCommunicationLog: function (record) {
+        location.href = '#/devices/' +record.get('device').name
+        + '/communicationtasks/' + record.get('comTask').id
+        + '/history/' + record.get('sessionId')
         + '/viewlog' +
-        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+        '?logLevels=Error&logLevels=Warning&logLevels=Information';
     },
 
-    viewConnectionLog: function (item) {
-        location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
-        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
+    viewConnectionLog: function (record) {
+        location.href = '#/devices/' + record.get('device').name + '/connectionmethods/' + record.get('connectionTask').id + '/history/' + record.get('connectionTask').comSessionId + '/viewlog' +
+        '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
     },
 
     onGenerateReport: function () {
@@ -239,9 +224,8 @@ Ext.define('Dsh.controller.Communications', {
         });
     },
 
-    communicationRun: function (item) {
-        var me = item.action.me;
-        var record = item.action.record;
+    communicationRun: function (record) {
+        var me = this;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
                 Uni.I18n.translate('general.runSucceeded', 'DSH', 'Run succeeded')
@@ -251,10 +235,9 @@ Ext.define('Dsh.controller.Communications', {
         });
     },
 
-    communicationRunNow: function (item) {
-        var me = item.action.me;
-        var record = item.action.record;
-        record.run(function () {
+    communicationRunNow: function (record) {
+        var me = this;
+        record.runNow(function () {
             me.getApplication().fireEvent('acknowledge',
                 Uni.I18n.translate('device.communication.run.now', 'DSH', 'Run now succeeded')
             );

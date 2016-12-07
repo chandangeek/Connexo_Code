@@ -9,7 +9,8 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Yfn.privileges.Yellowfin'
+        'Yfn.privileges.Yellowfin',
+        'Dsh.view.widget.CommunicationsActionMenu'
     ],
     columns: {
         defaults: {
@@ -19,7 +20,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
         items: [
             {
                 itemId: 'name',
-                text: Uni.I18n.translate('communication.widget.details.commmunication', 'DSH', 'Communication'),
+                text: Uni.I18n.translate('communication.widget.details.commmunicationTask', 'DSH', 'Communication task'),
                 dataIndex: 'name',
                 flex: 2
             },
@@ -27,9 +28,9 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 itemId: 'device',
                 text: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                 dataIndex: 'device',
-                flex: 1,
+                flex: 2,
                 renderer: function (val) {
-                    return val.id ? Ext.String.htmlEncode(val.id) : '-';
+                    return val.name ? Ext.String.htmlEncode(val.name) : '-';
                 }
             },
             {
@@ -49,6 +50,12 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 renderer: function (val) {
                     return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                 }
+            },
+            {
+                text: Uni.I18n.translate('general.sharedCommunicationSchedule', 'DSH', 'Shared communication schedule'),
+                itemId: 'comScheduleName',
+                dataIndex: 'comScheduleName',
+                flex: 2
             },
             {
                 itemId: 'startTime',
@@ -81,7 +88,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 itemId: 'communicationsGridActionMenu',
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    //xtype: 'communications-action-menu'
+                    xtype: 'communications-action-menu'
                 }
             }
         ]

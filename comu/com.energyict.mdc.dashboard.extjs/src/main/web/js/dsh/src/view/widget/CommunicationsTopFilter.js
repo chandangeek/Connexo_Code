@@ -7,6 +7,26 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
     filters: [
         {
             type: 'combobox',
+            dataIndex: 'comTasks',
+            emptyText: Uni.I18n.translate('general.commTask', 'DSH', 'Communication task'),
+            multiSelect: true,
+            displayField: 'name',
+            valueField: 'id',
+            store: 'Dsh.store.filter.CommunicationTask',
+            itemId: 'com-task-filter'
+        },
+        {
+            type: 'combobox',
+            dataIndex: 'deviceTypes',
+            emptyText: Uni.I18n.translate('general.deviceType', 'DSH', 'Device type'),
+            multiSelect: true,
+            displayField: 'name',
+            valueField: 'id',
+            store: 'Dsh.store.filter.DeviceType',
+            itemId: 'device-type-filter'
+        },
+        {
+            type: 'combobox',
             dataIndex: 'deviceGroups',
             emptyText: Uni.I18n.translate('general.deviceGroup', 'DSH', 'Device group'),
             multiSelect: true,
@@ -14,16 +34,6 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             valueField: 'id',
             store: 'Dsh.store.filter.DeviceGroup',
             itemId: 'device-group-filter'
-        },
-        {
-            type: 'combobox',
-            dataIndex: 'currentStates',
-            emptyText: Uni.I18n.translate('general.Status', 'DSH', 'Status'),
-            multiSelect: true,
-            displayField: 'localizedValue',
-            valueField: 'taskStatus',
-            store: 'Dsh.store.filter.CurrentState',
-            itemId: 'current-state-filter'
         },
         {
             type: 'combobox',
@@ -37,33 +47,23 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
         },
         {
             type: 'combobox',
-            dataIndex: 'comTasks',
-            emptyText: Uni.I18n.translate('general.commTask', 'DSH', 'Communication task'),
+            dataIndex: 'currentStates',
+            emptyText: Uni.I18n.translate('general.Status', 'DSH', 'Status'),
             multiSelect: true,
-            displayField: 'name',
-            valueField: 'id',
-            store: 'Dsh.store.filter.CommunicationTask',
-            itemId: 'com-task-filter'
+            displayField: 'localizedValue',
+            valueField: 'taskStatus',
+            store: 'Dsh.store.filter.CurrentState',
+            itemId: 'current-state-filter'
         },
         {
             type: 'combobox',
             dataIndex: 'comSchedules',
-            emptyText: Uni.I18n.translate('connection.widget.filter.communicationSchedule', 'DSH', 'Communication schedule'),
+            emptyText: Uni.I18n.translate('connection.widget.filter.sharedCommunicationSchedule', 'DSH', 'Shared communication schedule'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
             store: 'Dsh.store.filter.CommunicationSchedule',
             itemId: 'com-schedule-filter'
-        },
-        {
-            type: 'combobox',
-            dataIndex: 'deviceTypes',
-            emptyText: Uni.I18n.translate('general.deviceType', 'DSH', 'Device type'),
-            multiSelect: true,
-            displayField: 'name',
-            valueField: 'id',
-            store: 'Dsh.store.filter.DeviceType',
-            itemId: 'device-type-filter'
         },
         {
             type: 'interval',

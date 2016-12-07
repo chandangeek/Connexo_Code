@@ -48,6 +48,7 @@ Ext.define('Dsh.view.Communications', {
                             'margin-top': '32px'
                         },
                         xtype: 'preview_connection',
+                        communicationViewMode: true,
                         itemId: 'connectiondetails'
                     }
                 ]

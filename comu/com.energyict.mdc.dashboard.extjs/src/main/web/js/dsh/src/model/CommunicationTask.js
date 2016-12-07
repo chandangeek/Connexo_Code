@@ -14,7 +14,7 @@ Ext.define('Dsh.model.CommunicationTask', {
         "latestResult",
         "connectionTask",
         "sessionId",
-        "comTasks",
+        "comTask",
         { name: 'startTime', type: 'date', dateFormat: 'time'},
         { name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
         { name: 'nextCommunication', type: 'date', dateFormat: 'time'},

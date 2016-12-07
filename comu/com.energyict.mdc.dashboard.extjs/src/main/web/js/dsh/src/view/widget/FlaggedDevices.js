@@ -13,8 +13,8 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
     tooltipTpl: new Ext.XTemplate(
         '<table>',
         '<tr>',
-        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.mrid', 'DSH', 'MRID') + '</td>',
-        '<td>{[Ext.htmlEncode(values.mRID)]}</td>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.name', 'DSH', 'Name') + '</td>',
+        '<td>{[Ext.htmlEncode(values.name)]}</td>',
         '</tr>',
         '<tr>',
         '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.serialNumber', 'DSH', 'Serial number') + '</td>',
@@ -47,8 +47,8 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
         tpl: new Ext.XTemplate(
             '<table  style="margin: 5px 0 10px 5px">',
             '<tpl for=".">',
-                '<tr id="{mRID}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
-                    '<td width="100%"><a href="{href}">{[Ext.htmlEncode(values.mRID)]}</a></td>',
+                '<tr id="{name}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
+                    '<td width="100%"><a href="{href}">{[Ext.htmlEncode(values.name)]}</a></td>',
                     '<tpl if="this.showButton()">',
                     '<td>',
                     '<a data-qtip="'+
@@ -122,7 +122,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             me.setTitle(title);
 
             store.each(function(item) {
-                item.set('href', me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(item.getId())}));
+                item.set('href', me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(item.get('name'))}));
                 item.set('tooltip', me.tooltipTpl.apply(item.getData(true)));
             });
 

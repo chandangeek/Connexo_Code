@@ -6,19 +6,26 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
     ],
     title: '',
     frame: true,
+    communicationViewMode: false,
     layout: {
         type: 'column'
     },
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            itemId: 'connectionsPreviewActionBtn',
-            menu: {
-                xtype: 'connection-action-menu',
-                itemId: 'connectionsActionMenu'
+
+    initComponent: function() {
+        var me = this;
+        me.tools =  [
+            {
+                xtype: 'uni-button-action',
+                itemId: 'connectionsPreviewActionBtn',
+                menu: {
+                    xtype: 'connection-action-menu',
+                    itemId: 'connectionsActionMenu',
+                    communicationViewMode: me.communicationViewMode
+                }
             }
-        }
-    ],
+        ];
+        me.callParent(arguments);
+    },
     items: [
         {
             columnWidth: 0.5,
@@ -33,8 +40,9 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     renderer: function (val) {
                         var res = '-';
                         if (val) {
-                            Mdc.privileges.Device.canViewOrAdministrateDeviceData()
-                                ? res = '<a href="#/devices/' + Uni.util.Common.encodeURIComponent(val.id) + '">' + Ext.String.htmlEncode(val.id) + '</a>' : res = Ext.String.htmlEncode(val.name);
+                            res = Mdc.privileges.Device.canViewOrAdministrateDeviceData()
+                                ? '<a href="#/devices/' + Uni.util.Common.encodeURIComponent(val.name) + '">' + Ext.String.htmlEncode(val.name) + '</a>'
+                                : Ext.String.htmlEncode(val.name);
                         }
                         return res;
                     }
@@ -193,10 +201,5 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                 }
             ]
         }
-    ],
-
-    initComponent: function () {
-        var me = this;
-        me.callParent(arguments);
-    }
+    ]
 });

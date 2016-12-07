@@ -9,7 +9,8 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Yfn.privileges.Yellowfin'
+        'Yfn.privileges.Yellowfin',
+        'Dsh.view.widget.connection.CommunicationActionMenu'
     ],
     columns: {
         defaults: {
@@ -32,7 +33,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
-                    return val.id ? Ext.String.htmlEncode(val.id) : '';
+                    return val.name ? Ext.String.htmlEncode(val.name) : '';
                 }
             },
             {
@@ -84,7 +85,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 itemId: 'communicationsGridActionMenu',
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    //xtype: 'communications-action-menu'
+                    xtype: 'communication-action-menu'
                 }
             }
         ]
