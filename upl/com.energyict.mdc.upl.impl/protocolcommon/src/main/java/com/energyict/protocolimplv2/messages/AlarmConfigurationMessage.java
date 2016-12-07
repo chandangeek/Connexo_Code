@@ -220,10 +220,10 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
         }
     }
 
-    private final int id;
+    private final long id;
     private final String defaultNameTranslation;
 
-    AlarmConfigurationMessage(int id, String defaultNameTranslation) {
+    AlarmConfigurationMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

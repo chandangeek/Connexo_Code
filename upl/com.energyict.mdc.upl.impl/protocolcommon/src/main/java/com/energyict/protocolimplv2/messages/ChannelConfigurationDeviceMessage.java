@@ -67,14 +67,10 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
         }
     };
 
-    private final int id;
+    private final long id;
     private final String defaultNameTranslation;
 
-    public int getMessageId() {
-        return id;
-    }
-
-    ChannelConfigurationDeviceMessage(int id, String defaultNameTranslation) {
+    ChannelConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

@@ -157,7 +157,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    ContactorDeviceMessage(int id, String defaultNameTranslation) {
+    ContactorDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

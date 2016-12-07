@@ -175,7 +175,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    ActivityCalendarDeviceMessage(int id, String defaultNameTranslation) {
+    ActivityCalendarDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

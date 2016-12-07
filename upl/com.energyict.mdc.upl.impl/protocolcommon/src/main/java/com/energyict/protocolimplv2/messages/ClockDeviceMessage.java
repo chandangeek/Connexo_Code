@@ -190,7 +190,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    ClockDeviceMessage(int id, String defaultNameTranslation) {
+    ClockDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

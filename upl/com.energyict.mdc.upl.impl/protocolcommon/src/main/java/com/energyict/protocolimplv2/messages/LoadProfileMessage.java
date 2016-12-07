@@ -127,7 +127,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    LoadProfileMessage(int id, String defaultNameTranslation) {
+    LoadProfileMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

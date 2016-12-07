@@ -56,14 +56,14 @@ public enum WavenisDeviceMessage implements DeviceMessageSpecSupplier {
     private final String deviceMessageConstantDefaultTranslation;
     private final String defaultNameTranslation;
 
-    WavenisDeviceMessage(int id, String defaultNameTranslation) {
+    WavenisDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
         this.deviceMessageConstantKey = null;
         this.deviceMessageConstantDefaultTranslation = null;
     }
 
-    WavenisDeviceMessage(int id, String defaultNameTranslation, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    WavenisDeviceMessage(long id, String defaultNameTranslation, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
         this.deviceMessageConstantKey = deviceMessageConstantKey;

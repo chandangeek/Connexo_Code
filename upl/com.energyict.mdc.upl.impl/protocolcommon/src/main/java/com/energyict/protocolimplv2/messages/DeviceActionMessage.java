@@ -343,7 +343,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    DeviceActionMessage(int id, String defaultNameTranslation) {
+    DeviceActionMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

@@ -28,7 +28,7 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
     private final String propertyName;
     private final String propertyDefaultTranslation;
 
-    DLMSConfigurationDeviceMessage(int id, String defaultNameTranslation, String propertyName, String propertyDefaultTranslation) {
+    DLMSConfigurationDeviceMessage(long id, String defaultNameTranslation, String propertyName, String propertyDefaultTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
         this.propertyName = propertyName;

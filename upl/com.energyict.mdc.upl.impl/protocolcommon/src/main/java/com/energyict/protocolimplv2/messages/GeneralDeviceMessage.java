@@ -51,7 +51,7 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    GeneralDeviceMessage(int id, String defaultNameTranslation) {
+    GeneralDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

@@ -47,7 +47,7 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecSup
     private final long id;
     private final String defaultNameTranslation;
 
-    TotalizersConfigurationDeviceMessage(int id, String defaultNameTranslation) {
+    TotalizersConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

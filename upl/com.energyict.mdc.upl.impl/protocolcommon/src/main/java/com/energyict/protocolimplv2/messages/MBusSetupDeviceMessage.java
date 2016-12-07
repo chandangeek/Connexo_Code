@@ -168,7 +168,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    MBusSetupDeviceMessage(int id, String defaultNameTranslation) {
+    MBusSetupDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

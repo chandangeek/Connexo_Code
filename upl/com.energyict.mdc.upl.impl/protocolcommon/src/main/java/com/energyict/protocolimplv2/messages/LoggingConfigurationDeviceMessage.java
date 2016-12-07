@@ -61,7 +61,7 @@ public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpecSuppli
     private final long id;
     private final String defaultNameTranslation;
 
-    LoggingConfigurationDeviceMessage(int id, String defaultNameTranslation) {
+    LoggingConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

@@ -66,7 +66,7 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
     private final String propertyDefaultTranslation;
     private final PropertyType propertyType;
 
-    PPPConfigurationDeviceMessage(int id, String defaultNameTranslation, PropertyType propertyType, String propertyName, String propertyDefaultTranslation) {
+    PPPConfigurationDeviceMessage(long id, String defaultNameTranslation, PropertyType propertyType, String propertyName, String propertyDefaultTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
         this.propertyType = propertyType;

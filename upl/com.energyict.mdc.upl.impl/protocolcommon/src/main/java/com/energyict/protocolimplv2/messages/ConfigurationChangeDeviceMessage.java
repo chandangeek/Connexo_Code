@@ -851,7 +851,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     private final long id;
     private final String defaultNameTranslation;
 
-    ConfigurationChangeDeviceMessage(int id, String defaultNameTranslation) {
+    ConfigurationChangeDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }

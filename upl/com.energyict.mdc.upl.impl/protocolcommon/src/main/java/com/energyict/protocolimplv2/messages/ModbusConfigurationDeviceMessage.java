@@ -73,11 +73,11 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
     private final String propertyName;
     private final String propertyNameDefaultTranslation;
 
-    ModbusConfigurationDeviceMessage(int id, String defaultNameTranslation) {
+    ModbusConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this(id, defaultNameTranslation, "NA" , "NA");
     }
 
-    ModbusConfigurationDeviceMessage(int id, String defaultNameTranslation, String propertyName, String propertyNameDefaultTranslation) {
+    ModbusConfigurationDeviceMessage(long id, String defaultNameTranslation, String propertyName, String propertyNameDefaultTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
         this.propertyName = propertyName;
