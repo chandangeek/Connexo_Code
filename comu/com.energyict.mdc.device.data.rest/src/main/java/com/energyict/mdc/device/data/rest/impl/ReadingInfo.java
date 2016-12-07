@@ -23,7 +23,7 @@ import java.util.List;
 })
 public abstract class ReadingInfo {
     @JsonProperty("id")
-    public Long id;
+    public String id;
     @JsonProperty("timeStamp")
     public Instant timeStamp;
     @JsonProperty("reportedDateTime")

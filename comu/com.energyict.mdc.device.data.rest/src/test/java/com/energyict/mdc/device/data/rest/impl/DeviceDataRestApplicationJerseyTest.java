@@ -319,6 +319,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
             SubscriberExecutionSpec subscriberExecutionSpec = mock(SubscriberExecutionSpec.class);
             SubscriberSpec spec = mock(SubscriberSpec.class);
             when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(spec);
+            when(subscriberExecutionSpec.isActive()).thenReturn(true);
             DestinationSpec destinationSpec = mock(DestinationSpec.class);
             when(spec.getDestination()).thenReturn(destinationSpec);
             when(destinationSpec.getName()).thenReturn(specName);

@@ -639,9 +639,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
     private ComTaskExecution mockComTaskExecution(int categoryId, boolean isOnHold, boolean isAdHoc) {
         ComTaskExecution mock = mock(ComTaskExecution.class);
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(categoryId);
-        ComTask comTask2 = mockComTaskWithoutProtocolTaskForCategory();
-        when(mock.getComTasks()).thenReturn(Arrays.asList(comTask2, comTask1));
+        ComTask comTask = mockComTaskWithoutProtocolTaskForCategory();
+        when(mock.getComTask()).thenReturn(comTask);
         when(mock.isOnHold()).thenReturn(isOnHold);
         when(mock.isAdHoc()).thenReturn(isAdHoc);
         return mock;

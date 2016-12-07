@@ -12,7 +12,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
@@ -27,7 +26,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -64,7 +62,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTask comTask = mockComTask(1L, "Read");
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -101,7 +99,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTask comTask = mockComTask(1L, "Read");
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -119,7 +117,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     }
 
     private ComTaskExecution mockComTaskExecution() {
-        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(13L);
         when(comTaskExecution.isOnHold()).thenReturn(true);
         when(comTaskExecution.getPlannedNextExecutionTimestamp()).thenReturn(plannedDate);
@@ -128,8 +126,8 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         doReturn(Optional.of(connectionTask)).when(comTaskExecution).getConnectionTask();
-        List<ComTask> comTasks = Arrays.asList(mockComTask(1L, "Read all"));
-        when(comTaskExecution.getComTasks()).thenReturn(comTasks);
+        ComTask comTask = mockComTask(1L, "Read all");
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
         when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(1)));
