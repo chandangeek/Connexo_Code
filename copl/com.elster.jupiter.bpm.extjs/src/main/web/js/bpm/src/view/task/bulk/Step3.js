@@ -11,7 +11,7 @@ Ext.define('Bpm.view.task.bulk.Step3', {
         {
             xtype: 'uni-form-error-message',
             itemId: 'step3-error-message',
-            width: 400,
+            width: 430,
             margin: '0 0 5 0',
             hidden: true
         },

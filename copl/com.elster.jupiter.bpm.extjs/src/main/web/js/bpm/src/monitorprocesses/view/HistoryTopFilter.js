@@ -45,7 +45,7 @@ Ext.define('Bpm.monitorprocesses.view.HistoryTopFilter', {
                 valueField: 'name',
                 store: 'Bpm.monitorprocesses.store.HistoryProcessesFilterUsers'
             }
-        ]
+        ];
         me.callParent(arguments);
     }
 });

@@ -129,6 +129,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
                 },
                 failure: function (record, operation) {
                     if (operation.response.status == 400) {
+                        formErrorsPanel.show();
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
                             startProcessForm.getForm().markInvalid(json.errors);
