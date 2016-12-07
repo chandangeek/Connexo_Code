@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import aQute.bnd.annotation.ProviderType;
@@ -75,7 +75,7 @@ public interface FirmwareService {
      * @param comTaskExecution as a result of the firmware campaing
      * @return
      */
-    Optional<FirmwareCampaign> getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution);
+    Optional<FirmwareCampaign> getFirmwareCampaign(ComTaskExecution comTaskExecution);
 
     void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign);
 

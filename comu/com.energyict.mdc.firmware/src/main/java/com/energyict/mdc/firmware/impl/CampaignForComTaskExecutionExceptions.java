@@ -4,11 +4,10 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 
 /**
- * Exceptions that are raised when looking for a {@link FirmwareCampaign} starting from a {@link FirmwareComTaskExecution}
+ * Exceptions that are raised when looking for a {@link FirmwareCampaign} starting from a ComTaskExecution related to Firmware
  * Copyrights EnergyICT
  * Date: 4/04/2016
  * Time: 15:01

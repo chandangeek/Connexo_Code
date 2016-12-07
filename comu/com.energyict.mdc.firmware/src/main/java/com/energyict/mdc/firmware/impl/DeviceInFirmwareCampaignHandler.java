@@ -3,9 +3,9 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.firmware.FirmwareService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,7 +35,7 @@ public class DeviceInFirmwareCampaignHandler extends EventHandler<LocalEvent> {
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
         if (KNOWN_TOPICS.contains(event.getType().getTopic())) {
-            FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) event.getSource();
+            ComTaskExecution comTaskExecution = (ComTaskExecution) event.getSource();
             this.firmwareService.getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
                 .stream()
                 .forEach(deviceInCampaign -> deviceInCampaign.updateStatus(comTaskExecution));
