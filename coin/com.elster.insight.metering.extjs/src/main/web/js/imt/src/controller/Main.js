@@ -87,14 +87,14 @@ Ext.define('Imt.controller.Main', {
 	        Uni.store.MenuItems.add(menuItem);
 	
 	        var portalItem1 = Ext.create('Uni.model.PortalItem', {
-	            title: Uni.I18n.translate('general.label.administration', 'IMT', 'Administration'),
+	            title: Uni.I18n.translate('general.usagePointLifecycleManagement', 'IMT', 'Usage point lifecycle management'),
 	            portal: 'usagepoints',
 	            items: [
 	                {
 	                    text: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
 	                    href: '#/usagepoints/add',
 	                    itemId: 'add-usagepoints'
-	                },
+	                }
 	            ]
 	        });
 	
@@ -147,7 +147,7 @@ Ext.define('Imt.controller.Main', {
 
         if (Imt.privileges.UsagePointLifeCycle.canView()) {
             Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.usagePointLifeCycleManagement', 'IMT', 'Usage point life cycle management'),
+                title: Uni.I18n.translate('general.usagePointLifecycleManagement', 'IMT', 'Usage point lifecycle management'),
                 portal: 'administration',
                 items: [
                     {
