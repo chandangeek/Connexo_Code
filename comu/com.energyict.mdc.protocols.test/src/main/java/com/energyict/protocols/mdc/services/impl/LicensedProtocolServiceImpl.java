@@ -2,12 +2,12 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.api.ProtocolFamily;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-
+import com.energyict.license.FamilyRule;
 import com.energyict.license.LicensedProtocolRule;
+import com.energyict.mdc.protocol.LicensedProtocol;
+import com.energyict.mdc.protocol.ProtocolFamily;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
@@ -17,9 +17,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 /**
- * Implementation of LicensedProtocolService interface responsible for the licnese
+ * Implementation of LicensedProtocolService interface responsible for the license
  * of the EICT test protocols
  * Copyrights EnergyICT
  * Date: 19/11/13
@@ -28,11 +29,22 @@ import java.util.StringTokenizer;
 @Component(name = "com.energyict.mdc.service.licensedtestprotocols", service = LicensedProtocolService.class, immediate = true)
 public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
+    /**
+     * Every protocol of the TEST family
+     */
+    private final static List<LicensedProtocol> TEST_PROTOCOLS;
+
+    static {
+        TEST_PROTOCOLS = Arrays.stream(LicensedProtocolRule.values())
+                .filter(licensedProtocolRule -> licensedProtocolRule.getFamilies().contains(FamilyRule.TEST))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public List<LicensedProtocol> getAllLicensedProtocols(License license) {
         List<LicensedProtocol> allLicensedProtocols = new ArrayList<>();
         MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
-        for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
+        for (LicensedProtocol licensedProtocolRule : TEST_PROTOCOLS) {
             if (mdcProtocolLicense.hasProtocol(licensedProtocolRule.getClassName())) {
                 allLicensedProtocols.add(licensedProtocolRule);
             }
@@ -42,7 +54,7 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
     @Override
     public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
+        for (LicensedProtocol licensedProtocolRule : TEST_PROTOCOLS) {
             if (licensedProtocolRule.getClassName().equals(deviceProtocolPluggableClass.getJavaClassName())) {
                 return licensedProtocolRule;
             }
@@ -55,6 +67,23 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);
         LicensedProtocol licensedProtocol = mdcProtocolLicense.getLicensedProtocol(javaClassName);
         return licensedProtocol != null && licensedProtocol.getCode() != 0;
+    }
+
+    /**
+     * Models the behavior of a component that will check if the protocol
+     * with a certain class name is covered by this license or not.
+     */
+    private interface ProtocolCheck {
+
+        /**
+         * Checks if the protocol class with the specified name
+         * is covered by the license.
+         *
+         * @param className The name of the protocol class
+         * @return A flag that indicates of the protocol class is covered by the license
+         */
+        public boolean isCovered(String className);
+
     }
 
     private class MdcProtocolLicense {
@@ -218,23 +247,5 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
                 return this.className;
             }
         }
-    }
-
-
-    /**
-     * Models the behavior of a component that will check if the protocol
-     * with a certain class name is covered by this license or not.
-     */
-    private interface ProtocolCheck {
-
-        /**
-         * Checks if the protocol class with the specified name
-         * is covered by the license.
-         *
-         * @param className The name of the protocol class
-         * @return A flag that indicates of the protocol class is covered by the license
-         */
-        public boolean isCovered(String className);
-
     }
 }
