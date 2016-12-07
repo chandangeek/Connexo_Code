@@ -174,9 +174,28 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
-        data.getRegisteredCustomPropertySets().forEach((customPropertySet, customPropertySetRecord) ->
-                usagePointBuilder.addCustomPropertySetValues(customPropertySet, customPropertySetRecord.getCustomPropertySetValues())
+        data.getRegisteredCustomPropertySets().forEach((customPropertySet, customPropertySetRecord) -> {
+                    CustomPropertySetValues values = null;
+                    if (customPropertySet.getCustomPropertySet().isVersioned()) {
+                        Range<Instant> rangeToCreate = getRangeToCreate(customPropertySetRecord);
+                        if (!rangeToCreate.hasLowerBound()) {
+                            rangeToCreate = Range.atLeast(data.getInstallationTime().orElse(getClock().instant())).intersection(rangeToCreate);
+                        }
+                        values = CustomPropertySetValues.emptyDuring(rangeToCreate);
+                        copyValues(customPropertySetRecord.getCustomPropertySetValues(), values);
+                    } else {
+                        values = customPropertySetRecord.getCustomPropertySetValues();
+                    }
+                    usagePointBuilder.addCustomPropertySetValues(customPropertySet, values);
+                }
         );
+    }
+
+    private void copyValues(CustomPropertySetValues source, CustomPropertySetValues target) {
+        source.propertyNames().forEach(propertyName -> {
+            Object propertyValue = source.getProperty(propertyName);
+            target.setProperty(propertyName, propertyValue);
+        });
     }
 
     private void setLocation(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
@@ -456,7 +475,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
 
         usagePointCustomPropertySet.setValues(values);
-
     }
 
     private Range<Instant> getRangeToCreate(CustomPropertySetRecord customPropertySetRecord) {
