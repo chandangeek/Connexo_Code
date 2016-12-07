@@ -32,7 +32,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>calendar</artifactId>
-                <version>1.1.0${revision}</version>
+                <version>2.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -44,7 +44,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>calendar.rest</artifactId>
-                <version>1.1.0${revision}</version>
+                <version>2.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -229,6 +229,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>usagepoint.calendar</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>usagepoint.lifecycle</artifactId>
                 <version>1.0.0${revision}</version>
                 <scope>provided</scope>
@@ -329,6 +335,7 @@
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
                 <module>../com.elster.jupiter.systemadmin.rest</module>
+                <module>../com.elster.jupiter.usagepoint.calendar</module>
                 <module>../com.elster.jupiter.usagepoint.lifecycle</module>
                 <module>../com.elster.jupiter.usagepoint.lifecycle.config</module>
                 <module>../com.elster.jupiter.usagepoint.lifecycle.rest</module>
