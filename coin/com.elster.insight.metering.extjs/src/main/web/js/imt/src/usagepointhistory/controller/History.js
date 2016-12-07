@@ -55,12 +55,12 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 customAttributesStore.load(function () {
                     var widget, tabPanel;
 
-                    widget =  Ext.widget('usage-point-history', {
+                    widget = Ext.widget('usage-point-history', {
                         itemId: 'usage-point-history',
                         router: router,
                         usagePoint: usagePoint
                     });
-                    app.fireEvent('changecontentevent',widget);
+                    app.fireEvent('changecontentevent', widget);
                     viewport.setLoading(false);
                     tabPanel = widget.down('#usage-point-history-tab-panel');
                     tabPanel.fireEvent('beforetabchange', tabPanel, tabPanel.getActiveTab(), undefined, undefined, true);
@@ -86,13 +86,13 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             customAttributeSetId = newCard.customAttributeSetId,
             cardView,
             onVersionsStoreLoad,
-            url;        
+            url;
 
         if (oldCard) {
             oldCard.removeAll();
         }
 
-        if(newCard.itemId === 'calendar-tab'){
+        if (newCard.itemId === 'calendar-tab') {
             calendarStore.setMrid(mRID);
             newCard.add({
                 xtype: 'calendars-versions-overview',
@@ -101,7 +101,8 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 ui: 'medium',
                 padding: 0
             });
-        } if (!customAttributeSetId) {
+        }
+        if (!customAttributeSetId) {
             if (router.queryParams.customAttributeSetId) {
                 delete router.queryParams.customAttributeSetId;
                 url = router.getRoute().buildUrl(router.arguments, router.queryParams);
@@ -111,9 +112,6 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             }
             lifeCycleAndStateStore.getProxy().setParams(usagePointId);
             Ext.suspendLayouts();
-            if (oldCard) {
-                oldCard.removeAll();
-            }
             cardView = newCard.add({
                 xtype: 'life-cycle-and-state',
                 itemId: 'life-cycle-and-state',
@@ -136,9 +134,6 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             }
             versionsStore.getProxy().setParams(usagePointId, customAttributeSetId);
             Ext.suspendLayouts();
-            if (oldCard) {
-                oldCard.removeAll();
-            }
             cardView = newCard.add({
                 xtype: 'custom-attribute-set-versions-overview',
                 itemId: 'custom-attribute-set-versions-setup-id',
