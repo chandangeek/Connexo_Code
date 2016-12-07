@@ -23,7 +23,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -161,7 +160,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return mockReason("1", "Reason", getDefaultIssueType());
     }
 
-    protected IssueAssignee mockAssignee(long id, String name, String type){
+    protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName){
         IssueAssignee assignee = mock(IssueAssignee.class);
         User user = mock(User.class);
         WorkGroup workGroup = mock(WorkGroup.class);
