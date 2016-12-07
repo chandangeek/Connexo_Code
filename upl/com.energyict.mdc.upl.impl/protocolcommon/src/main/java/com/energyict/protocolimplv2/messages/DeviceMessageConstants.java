@@ -520,13 +520,19 @@ public final class DeviceMessageConstants {
     public static final String SetNTPOptionsAttributeDefaultTranslation = "NTP options";
 
     public static final String SetEIWebPasswordAttributeName = "EIWebConfigurationDeviceMessage.seteiwebpassword";
+    public static final String SetEIWebPasswordAttributeDefaultTranslation = "EIWeb password";
     public static final String SetEIWebPageAttributeName = "EIWebConfigurationDeviceMessage.seteiwebpage";
+    public static final String SetEIWebPageAttributeDefaultTranslation = "EIWeb page";
     public static final String SetEIWebFallbackPageAttributeName = "EIWebConfigurationDeviceMessage.seteiwebfallbackpage";
+    public static final String SetEIWebFallbackPageAttributeDefaultTranslation = "EIWeb fallback page";
     public static final String SetEIWebSendEveryAttributeName = "EIWebConfigurationDeviceMessage.seteiwebsendevery";
+    public static final String SetEIWebSendEveryAttributeDefaultTranslation = "EIWeb send every";
     public static final String SetEIWebCurrentIntervalAttributeName = "EIWebConfigurationDeviceMessage.seteiwebcurrentinterval";
+    public static final String SetEIWebCurrentIntervalAttributeDefaultTranslation = "EIWeb current interval";
     public static final String SetEIWebDatabaseIDAttributeName = "EIWebConfigurationDeviceMessage.seteiwebdatabaseid";
+    public static final String SetEIWebDatabaseIDAttributeDefaultTranslation = "EIWeb database ID";
     public static final String SetEIWebOptionsAttributeName = "EIWebConfigurationDeviceMessage.seteiweboptions";
-
+    public static final String SetEIWebOptionsAttributeDefaultTranslation = "EIWeb options";
 
     public static final String SetPOPUsernameAttributeName = "MailConfigurationDeviceMessage.setpopusername";
     public static final String SetPOPUsernameAttributeDefaultTranslation = "POP username";
@@ -1250,6 +1256,7 @@ public final class DeviceMessageConstants {
     public static final String fileInfo = "fileInfo";
     public static final String fileInfoDefaultTranslation = "File information";
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
+    public static final String sslCertificateUserFileDefaultTranslation = "SSL certificate user file";
     public static final String servletURL = "servletURL";
     public static final String servletURLDefaultTranslation = "Servlet URL";
     public static final String logLevel = "logLevel";
