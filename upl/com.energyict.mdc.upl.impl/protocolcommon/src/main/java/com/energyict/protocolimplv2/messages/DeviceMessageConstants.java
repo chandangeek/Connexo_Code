@@ -694,23 +694,41 @@ public final class DeviceMessageConstants {
     public static final String SetSubstractMaskAttributeDefaultTranslation = "TotalizersConfigurationDeviceMessage.Subtract mask";
 
     public static final String SetActiveChannelAttributeName = "PeakShaverConfigurationDeviceMessage.setactivechannel";
+    public static final String SetActiveChannelAttributeDefaultTranslation = "Active channel";
     public static final String SetReactiveChannelAttributeName = "PeakShaverConfigurationDeviceMessage.setreactivechannel";
+    public static final String SetReactiveChannelAttributeDefaultTranslation = "Reactive channel";
     public static final String SetTimeBaseAttributeName = "PeakShaverConfigurationDeviceMessage.settimebase";
+    public static final String SetTimeBaseAttributeDefaultTranslation = "Time base";
     public static final String SetPOutAttributeName = "PeakShaverConfigurationDeviceMessage.setpout";
+    public static final String SetPOutAttributeDefaultTranslation = "Set POut";
     public static final String SetPInAttributeName = "PeakShaverConfigurationDeviceMessage.setpin";
+    public static final String SetPInAttributeDefaultTranslation = "Set PIn";
     public static final String SetDeadTimeAttributeName = "PeakShaverConfigurationDeviceMessage.setdeadtime";
+    public static final String SetDeadTimeAttributeDefaultTranslation = "Dead time";
     public static final String SetAutomaticAttributeName = "PeakShaverConfigurationDeviceMessage.setautomatic";
+    public static final String SetAutomaticAttributeDefaultTranslation = "Automatic";
     public static final String SetCyclicAttributeName = "PeakShaverConfigurationDeviceMessage.setcyclic";
+    public static final String SetCyclicAttributeDefaultTranslation = "Cyclic";
     public static final String SetInvertAttributeName = "PeakShaverConfigurationDeviceMessage.setinvert";
+    public static final String SetInvertAttributeDefaultTranslation = "Invert";
     public static final String SetAdaptSetpointAttributeName = "PeakShaverConfigurationDeviceMessage.setadaptsetpoint";
+    public static final String SetAdaptSetpointAttributeDefaultTranslation = "Adapt setpoint";
     public static final String SetInstantAnalogOutAttributeName = "PeakShaverConfigurationDeviceMessage.setinstantanalogout";
+    public static final String SetInstantAnalogOutAttributeDefaultTranslation = "Instant analog out";
     public static final String SetPredictedAnalogOutAttributeName = "PeakShaverConfigurationDeviceMessage.setpredictedanalogout";
+    public static final String SetPredictedAnalogOutAttributeDefaultTranslation = "Predicted analog out";
     public static final String SetpointAnalogOutAttributeName = "PeakShaverConfigurationDeviceMessage.setpointanalogout";
+    public static final String SetpointAnalogOutAttributeDefaultTranslation = "Setpoint analog out";
     public static final String SetDifferenceAnalogOutAttributeName = "PeakShaverConfigurationDeviceMessage.setdifferenceanalogout";
+    public static final String SetDifferenceAnalogOutAttributeDefaultTranslation = "Difference analog out";
     public static final String SetTariffAttributeName = "PeakShaverConfigurationDeviceMessage.settariff";
+    public static final String SetTariffAttributeDefaultTranslation = "Tariff";
     public static final String SetResetLoadsAttributeName = "PeakShaverConfigurationDeviceMessage.setresetloads";
+    public static final String SetResetLoadsAttributeDefaultTranslation = "Reset loads";
     public static final String CurrentValueAttributeName = "PeakShaverConfigurationDeviceMessage.currentvalue";
+    public static final String CurrentValueAttributeDefaultTranslation = "Current value";
     public static final String NewValueAttributeName = "PeakShaverConfigurationDeviceMessage.newvalue";
+    public static final String NewValueAttributeDefaultTranslation = "New value";
 
     public static final String newPDRAttributeName = "ConfigurationChangeDeviceMessage.pdr";
     public static final String newPDRAttributeNameDefaultTranslation = "PDR";
@@ -777,16 +795,24 @@ public final class DeviceMessageConstants {
     public static final String id = "id";
     public static final String idDefaultTranslation = "ID";
     public static final String tariff = "tariff";
+    public static final String tariffDefaultTranslation = "Tariff";
     public static final String singleOptionAttributeName = "option";
     public static final String singleOptionAttributeDefaultTranslation = "Option";
 
     public static final String loadIdAttributeName = "PeakShaverConfigurationDeviceMessage.loadid";
+    public static final String loadIdAttributeDefaultTranslation = "Load ID";
     public static final String MaxOffAttributeName = "PeakShaverConfigurationDeviceMessage.maxoff";
+    public static final String MaxOffAttributeDefaultTranslation = "Maximum offset";
     public static final String DelayAttributeName = "PeakShaverConfigurationDeviceMessage.delay";
+    public static final String DelayAttributeDefaultTranslation = "Delay";
     public static final String ManualAttributeName = "PeakShaverConfigurationDeviceMessage.manual";
+    public static final String ManualAttributeDefaultTranslation = "Manual";
     public static final String StatusAttributeName = "PeakShaverConfigurationDeviceMessage.status";
+    public static final String StatusAttributeDefaultTranslation = "Status";
     public static final String PeakShaverIPAddressAttributeName = "PeakShaverConfigurationDeviceMessage.ipaddress";
+    public static final String PeakShaverIPAddressAttributeDefaultTranslation = "IP address";
     public static final String PeakShaveChnNbrAttributeName = "PeakShaverConfigurationDeviceMessage.channelnumber";
+    public static final String PeakShaveChnNbrAttributeDefaultTranslation = "Channel number";
 
     public static final String SetInputChannelAttributeName = "EventsConfigurationDeviceMessage.setinputchannel";
     public static final String SetInputChannelAttributeDefaultTranslation = "Input channel";
