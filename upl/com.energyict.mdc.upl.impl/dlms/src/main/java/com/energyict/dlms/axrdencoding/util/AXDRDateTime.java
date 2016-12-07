@@ -80,6 +80,8 @@ public class AXDRDateTime extends AbstractDataType {
     protected static final byte[] NO_DEVIATION = new byte[]{(byte) 0x80, (byte) 0x00};
     public static final int SIZE = 12;
 
+    private static final int DST_STATUS = 0x80;
+
     protected Calendar dateTime;
     protected boolean useUnspecifiedAsDeviation;
     protected int status;
@@ -187,8 +189,6 @@ public class AXDRDateTime extends AbstractDataType {
         ptr = ptr + 1;    // deviation lowbyte
 
         status = ProtocolUtils.getByte2Int(berEncodedData, ptr);
-
-
     }
 
     public AXDRDateTime(OctetString date, OctetString time, TimeZone timeZone) throws ProtocolException {
@@ -269,7 +269,9 @@ public class AXDRDateTime extends AbstractDataType {
         ptr = ptr + 1;    // deviation lowbyte
 
         status = ProtocolUtils.getByte2Int(berEncodedData, ptr);
-
+        if(needsDSTCorrection((byte) status, tz)) {
+            applyDSTCorrection();
+        }
 
     }
 
@@ -365,6 +367,16 @@ public class AXDRDateTime extends AbstractDataType {
         return getValue().getTime().toString() + " [" + rawData + "]";
     }
 
+    private boolean needsDSTCorrection(byte status, TimeZone timeZone) {
+        boolean calendarInDST = timeZone.inDaylightTime(dateTime.getTime());
+        boolean statusHasDST = (status & DST_STATUS) == DST_STATUS;
+        return !calendarInDST && statusHasDST;
+    }
+
+    private void applyDSTCorrection() {
+       //subtract DST savings (in millisecs)
+       dateTime.add(Calendar.MILLISECOND, dateTime.getTimeZone().getDSTSavings() * -1);
+    }
     /**
      * Indicate whether deviation should (not) be specified, but left at 0x800 (~ undefined)
      * @param useUnspecifiedAsDeviation
