@@ -202,4 +202,11 @@ public interface MeteringService {
 
     Optional<HeadEndInterface> getHeadEndInterface(String amrSystem);
 
+    /**
+     * Gets the GasDayOptions that were created at system installation time.
+     *
+     * @return The GasDayOptions
+     */
+    Optional<GasDayOptions> getGasDayOptions();
+
 }
