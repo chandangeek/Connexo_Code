@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.Device;
 //TODO write device templates
 public class DeviceTpl implements Template<Device, DeviceBuilder>{
 
-    private String mridPrefix;
+    private String namePrefix;
     private String serialNumber;
     private int year;
     private boolean validationActive;
@@ -18,6 +18,6 @@ public class DeviceTpl implements Template<Device, DeviceBuilder>{
 
     @Override
     public DeviceBuilder get(DeviceBuilder builder) {
-        return builder.withMrid(this.mridPrefix + this.serialNumber).withSerialNumber(serialNumber).withYearOfCertification(year);
+        return builder.withName(this.namePrefix + this.serialNumber).withSerialNumber(serialNumber).withYearOfCertification(year);
     }
 }

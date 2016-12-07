@@ -74,10 +74,10 @@ public class CreateA3DeviceCommand {
     }
 
     public void run() {
-        String a3mrid = Constants.Device.A3_DEVICE + Constants.Device.A3_SERIAL_NUMBER;
-        Optional<Device> device = deviceService.findByUniqueMrid(a3mrid);
+        String a3name = Constants.Device.A3_DEVICE + Constants.Device.A3_SERIAL_NUMBER;
+        Optional<Device> device = deviceService.findDeviceByName(a3name);
         if (device.isPresent()) {
-            System.out.println("Device with mrid '" + a3mrid + "' already exists!");
+            System.out.println("Device with name '" + a3name + "' already exists!");
             return;
         }
         findRequiredObjects();
@@ -87,7 +87,7 @@ public class CreateA3DeviceCommand {
         DeviceConfiguration configuration = a3DeviceType.getConfigurations().stream().filter(dc -> a3DeviceConfName.equals(dc.getName())).findFirst()
                 .orElseGet(() -> createA3DeviceConfiguration(a3DeviceType, a3DeviceConfName));
 
-        createA3Device(a3mrid, configuration);
+        createA3Device(a3name, configuration);
     }
 
     private void findRequiredObjects() {
@@ -212,7 +212,7 @@ public class CreateA3DeviceCommand {
 
     private void createA3Device(String a3mrid, DeviceConfiguration configuration) {
         Device device = deviceBuilderProvider.get()
-                .withMrid(a3mrid)
+                .withName(a3mrid)
                 .withSerialNumber(Constants.Device.A3_SERIAL_NUMBER)
                 .withDeviceConfiguration(configuration)
                 .withYearOfCertification(2014)
