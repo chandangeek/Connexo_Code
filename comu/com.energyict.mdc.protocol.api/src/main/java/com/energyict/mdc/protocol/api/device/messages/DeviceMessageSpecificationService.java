@@ -53,7 +53,12 @@ public interface DeviceMessageSpecificationService {
      * @return The DeviceMessageCategory
      * @see DeviceMessageCategory#getId()
      */
-    Optional<DeviceMessageCategory> findCategoryById(int categoryId);
+    default Optional<DeviceMessageCategory> findCategoryById(int categoryId) {
+        return allCategories()
+                    .stream()
+                    .filter(category -> category.getId() == categoryId)
+                    .findFirst();
+    }
 
     /**
      * Finds The {@link DeviceMessageSpec} with the specified id.

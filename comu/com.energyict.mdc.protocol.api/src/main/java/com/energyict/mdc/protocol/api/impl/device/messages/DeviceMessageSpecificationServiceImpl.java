@@ -100,14 +100,6 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     }
 
     @Override
-    public Optional<DeviceMessageCategory> findCategoryById(int categoryId) {
-        return Stream.of(DeviceMessageCategories.values())
-                .map(deviceMessageCategories -> ((DeviceMessageCategory) new DeviceMessageCategoryImpl(deviceMessageCategories)))
-                .filter(category -> categoryId == category.getId())
-                .findFirst();
-    }
-
-    @Override
     public Optional<DeviceMessageSpec> findMessageSpecById(long messageSpecIdDbValue) {
         return this.allMessageSpecs().stream().filter(messageSpec -> messageSpecIdDbValue == messageSpec.getId().dbValue()).findFirst();
     }

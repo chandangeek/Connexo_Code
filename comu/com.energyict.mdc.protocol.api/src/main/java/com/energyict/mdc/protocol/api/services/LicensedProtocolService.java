@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.api.services;
 
 import com.elster.jupiter.license.License;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.LicensedProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.List;
 
@@ -22,10 +22,10 @@ public interface LicensedProtocolService {
      * @param license The License that specifies which protocols are effectively licensed
      * @return a list of all available licensed protocols.
      */
-    public List<LicensedProtocol> getAllLicensedProtocols(License license);
+    List<LicensedProtocol> getAllLicensedProtocols(License license);
 
-    public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+    LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
-    public boolean isValidJavaClassName(String javaClassName, License license);
+    boolean isValidJavaClassName(String javaClassName, License license);
 
 }
