@@ -623,7 +623,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpec(service,
-                            DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA, DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA,
+                            DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA, DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA_DEFAULT_TRANSLATION,
                             new BigDecimal(5),
                             new BigDecimal(6),
                             new BigDecimal(7)),

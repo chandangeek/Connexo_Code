@@ -405,12 +405,19 @@ public final class DeviceMessageConstants {
     public static final String toDateAttributeDefaultTranslation = "To";
     public static final String toDateAttributeNameDefaultTranslation = "To";
     public static final String powerQualityThresholdAttributeName = "ConfigurationChangeDeviceMessage.powerqualitythreshold";
+    public static final String powerQualityThresholdAttributeDefaultTranslation = "Power quality threshold";
     public static final String WriteExchangeStatus = "WriteWavecardParameters.writeexchangestatus";
+    public static final String WriteExchangeStDefaultTranslation = "Exchange status";
     public static final String WriteExchangeStatusDefaultTranslation = "Exchange status";
+    public static final String WriteExchangeStatusDefaultTranslaDefaultTranslation = "Exchange status";
     public static final String WriteRadioAcknowledge = "WriteWavecardParameters.writeradioacknowledge";
+    public static final String WriteRadioAcknowlDefaultTranslation = "WriteWavecardParameters.writeradioacknowledge";
     public static final String WriteRadioAcknowledgeDefaultTranslation = "Radio acknowledge";
+    public static final String WriteRadioAcknowledgeDefaultTranslaDefaultTranslation = "Radio acknowledge";
     public static final String WriteRadioUserTimeout = "WriteWavecardParameters.writeradiousertimeout";
+    public static final String WriteRadioUserTimDefaultTranslation = "WriteWavecardParameters.writeradiousertimeout";
     public static final String WriteRadioUserTimeoutDefaultTranslation = "Radio user timeout";
+    public static final String WriteRadioUserTimeoutDefaultTranslaDefaultTranslation = "Radio user timeout";
 
     public static final String SetDescriptionAttributeName = "ConfigurationChangeDeviceMessage.setdescription";
     public static final String SetDescriptionAttributeDefaultTranslation = "Description";
@@ -574,7 +581,6 @@ public final class DeviceMessageConstants {
     public static final String SetSmsConfigAttributeName = "SMSConfigurationDeviceMessage.setsmsconfig";
     public static final String SetSmsConfigAttributeDefaultTranslation = "SMS configuration";
     public static final String SetDLMSDeviceIDAttributeName = "DLMSConfigurationDeviceMessage.setdlmsdeviceid";
-    public static final String SetDLMSDeviceIDAttributeNameDefaultTranslation = "DLMSConfigurationDeviceMessage.setdlmsdeviceid";
     public static final String SetDLMSDeviceIDAttributeDefaultTranslation = "DLMS device ID";
     public static final String SetDLMSMeterIDAttributeName = "DLMSConfigurationDeviceMessage.setdlmsmeterid";
     public static final String SetDLMSMeterIDAttributeDefaultTranslation = "DLMS meter ID";
@@ -825,12 +831,19 @@ public final class DeviceMessageConstants {
     public static final String uplinkPingTimeoutDefaultTranslation = "Uplink ping timeout";
 
     public static final String ReferenceVoltageAttributeName = "PowerConfigurationDeviceMessage.referencevoltage";
+    public static final String ReferenceVoltageAttributeDefaultTranslation = "Reference voltage";
     public static final String VoltageSagTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.voltagesagtimethreshold";
+    public static final String VoltageSagTimeThresholdAttributeDefaultTranslation = "Voltage sag time threshold";
     public static final String VoltageSwellTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.voltageswelltimethreshold";
+    public static final String VoltageSwellTimeThresholdAttributeDefaultTranslation = "Voltage swell time threshold";
     public static final String VoltageSagThresholdAttributeName = "PowerConfigurationDeviceMessage.voltagesagthreshold";
+    public static final String VoltageSagThresholdAttributeDefaultTranslation = "Voltage sag threshold";
     public static final String VoltageSwellThresholdAttributeName = "PowerConfigurationDeviceMessage.voltageswellthreshold";
+    public static final String VoltageSwellThresholdAttributeDefaultTranslation = "Voltage swell threshold";
     public static final String LongPowerFailureTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.longpowerfailuretimethreshold";
+    public static final String LongPowerFailureTimeThresholdAttributeDefaultTranslation = "Long power failure time threshold";
     public static final String LongPowerFailureThresholdAttributeName = "PowerConfigurationDeviceMessage.longpowerfailurethreshold";
+    public static final String LongPowerFailureThresholdAttributeDefaultTranslation = "Long power failure threshold";
 
     public static final String SetMmEveryAttributeName = "ModbusConfigurationDeviceMessage.setmmevery";
     public static final String SetMmEveryAttributeDefaultTranslation = "Mm every";
