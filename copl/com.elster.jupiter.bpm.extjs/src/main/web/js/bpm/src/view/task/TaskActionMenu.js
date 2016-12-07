@@ -23,7 +23,7 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
                 text: Uni.I18n.translate('bpm.menu.assignToMe', 'BPM', 'Assign to me'),
                 action: 'assignToMeTask',
                 privileges: Bpm.privileges.BpmManagement.assign,
-                section: this.SECTION_ACTION
+                section: this.SECTION_ACTION,
                 visible: false
             },
             {
@@ -31,7 +31,7 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
                 text: Uni.I18n.translate('bpm.menu.releaseTask', 'BPM', 'Unassign'),
                 action: 'unassignedTask',
                 privileges: Bpm.privileges.BpmManagement.assign,
-                section: this.SECTION_ACTION
+                section: this.SECTION_ACTION,
                 visible: false
             },
             {
