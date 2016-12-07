@@ -97,23 +97,24 @@ public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicati
         return mockReason("1", "Reason", getDefaultIssueType());
     }
 
-    protected Meter mockDevice(long id, String mrid) {
+    protected Meter mockMeter(long id, String name) {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
-        when(meter.getMRID()).thenReturn(mrid);
+        when(meter.getName()).thenReturn(name);
         when(meter.getAmrId()).thenReturn(String.valueOf(id));
         Optional<? extends MeterActivation> optionalMA = Optional.empty();
         doReturn(optionalMA).when(meter).getCurrentMeterActivation();
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(meter.getAmrSystem()).thenReturn(amrSystem);
+        when(meter.getSerialNumber()).thenReturn("0.0.0.0.0.0.0.0");
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
-        when(meteringService.findEndDevice(id)).thenReturn(Optional.of(meter));
-        when(meteringService.findEndDevice(mrid)).thenReturn(Optional.of(meter));
+        when(meteringService.findEndDeviceById(id)).thenReturn(Optional.of(meter));
+        when(meteringService.findMeterByName(name)).thenReturn(Optional.of(meter));
         return meter;
     }
 
     protected Meter getDefaultDevice() {
-        return mockDevice(1, "0.0.0.0.0.0.0.0");
+        return mockMeter(1, "DefaultDevice");
     }
 
     protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName){
