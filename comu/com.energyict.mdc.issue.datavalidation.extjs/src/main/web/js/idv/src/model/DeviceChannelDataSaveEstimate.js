@@ -26,13 +26,9 @@ Ext.define('Idv.model.DeviceChannelDataSaveEstimate', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/data/issue/estimate',
+        url: '/api/ddr/devices/{deviceId}/channels/{channelId}/data/issue/estimate',
         reader: {
             type: 'json'
-        },
-
-        setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{channelId}', params.channelId);
         }
     }
 });

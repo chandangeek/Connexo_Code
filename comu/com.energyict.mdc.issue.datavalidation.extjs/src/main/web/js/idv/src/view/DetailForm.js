@@ -40,11 +40,11 @@ Ext.define('Idv.view.DetailForm', {
                                 result = '';
 
                             if (value) {
-                                if (value.serialNumber && Mdc.privileges.Device.canViewDeviceCommunication()) {
-                                    url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
-                                    result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
+                                if (value.name && Mdc.privileges.Device.canViewDeviceCommunication()) {
+                                    url = me.router.getRoute('devices/device').buildUrl({deviceId: value.name});
+                                    result = '<a href="' + url + '">' + value.name + '</a>';
                                 } else {
-                                    result = value.name + ' ' + value.serialNumber;
+                                    result = value.name;
                                 }
                             }
 
