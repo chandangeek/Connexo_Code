@@ -483,8 +483,9 @@ public class BpmResource {
     @Path("/release/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response releaseTask(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
-        String restURL = "/rest/tasks/release/" + String.valueOf(id) + "?currentuser=" + securityContext.getUserPrincipal().getName();
+    public Response releaseTask(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) throws
+            UnsupportedEncodingException {
+        String restURL = "/rest/tasks/release/" + String.valueOf(id) + "?currentuser=" + URLEncoder.encode(securityContext.getUserPrincipal().getName(), "UTF-8");
         String response = bpmService.getBpmServer().doPost(restURL, null, auth, 0);
         if (response == null) {
             throw new BpmResourceAssignUserException(thesaurus);
@@ -496,8 +497,9 @@ public class BpmResource {
     @Path("/assigntome/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response assignUser(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
-        String restURL = "/rest/tasks/assigntome/" + String.valueOf(id) + "?currentuser=" + securityContext.getUserPrincipal().getName();
+    public Response assignUser(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) throws
+            UnsupportedEncodingException {
+        String restURL = "/rest/tasks/assigntome/" + String.valueOf(id) + "?currentuser=" + URLEncoder.encode(securityContext.getUserPrincipal().getName(), "UTF-8");
         String response = bpmService.getBpmServer().doPost(restURL, null, auth, 0);
         if (response == null) {
             throw new BpmResourceAssignUserException(thesaurus);
