@@ -72,14 +72,4 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
         return this.propertySpecs;
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
 }

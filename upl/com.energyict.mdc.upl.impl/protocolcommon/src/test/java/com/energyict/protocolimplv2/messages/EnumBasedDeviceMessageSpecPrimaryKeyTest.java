@@ -104,16 +104,6 @@ public class EnumBasedDeviceMessageSpecPrimaryKeyTest {
         }
 
         @Override
-        public PropertySpec getPropertySpec(String name) {
-            for (PropertySpec securityProperty : getPropertySpecs()) {
-                if (securityProperty.getName().equals(name)) {
-                    return securityProperty;
-                }
-            }
-            return null;
-        }
-
-        @Override
         public DeviceMessageSpecPrimaryKey getPrimaryKey() {
             return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
         }
@@ -211,16 +201,6 @@ public class EnumBasedDeviceMessageSpecPrimaryKeyTest {
                     .describedAs("No support for description of properties in unit testing")
                     .finish();
         }
-
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            return this.getPropertySpecs()
-                    .stream()
-                    .filter(each -> each.getName().equals(name))
-                    .findFirst()
-                    .orElse(null);
-        }
-
 
         @Override
         public DeviceMessageSpecPrimaryKey getPrimaryKey() {
