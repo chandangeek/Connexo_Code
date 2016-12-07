@@ -134,11 +134,13 @@ public class IssueResourceHelper {
         jsonFilter.getStringList(IssueRestModuleConst.STATUS).stream()
                 .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::addStatus);
-        if (jsonFilter.hasProperty(IssueRestModuleConst.REASON) && issueService.findReason(jsonFilter.getString(IssueRestModuleConst.REASON)).isPresent()) {
-            filter.setIssueReason(issueService.findReason(jsonFilter.getString(IssueRestModuleConst.REASON)).get());
+        if (jsonFilter.hasProperty(IssueRestModuleConst.REASON)) {
+            issueService.findReason(jsonFilter.getString(IssueRestModuleConst.REASON))
+                    .ifPresent(filter::setIssueReason);
         }
-        if (jsonFilter.hasProperty(IssueRestModuleConst.METER) && meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).isPresent()) {
-            filter.addDevice(meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).get());
+        if (jsonFilter.hasProperty(IssueRestModuleConst.METER)) {
+            meteringService.findEndDeviceByName(jsonFilter.getString(IssueRestModuleConst.METER))
+                    .ifPresent(filter::addDevice);
         }
 
         if(jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s-> s == null)){

@@ -155,7 +155,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         List<IssueComment> comments = Arrays.asList(mockComment(1L, "My comment", getDefaultUser()));
 
         Query<IssueComment> commentsQuery = mock(Query.class);
-        when(commentsQuery.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyVararg())).thenReturn(comments);
+        when(commentsQuery.select(Matchers.anyObject(), Matchers.<Order>anyVararg())).thenReturn(comments);
 
         when(issueService.query(IssueComment.class, User.class)).thenReturn(commentsQuery);
         Map<?, ?> map = target("/issues/1/comments").request().get(Map.class);
@@ -427,7 +427,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         Map<?, ?> deviceMap = (Map<?, ?>) issueMap.get("device");
         assertThat(deviceMap.get("id")).isEqualTo(1);
         assertThat(deviceMap.get("serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
-        assertThat(deviceMap.get("name")).isEqualTo(null);
+        assertThat(deviceMap.get("name")).isEqualTo("DefaultDevice");
         assertThat(deviceMap.get("usagePoint")).isEqualTo(null);
         assertThat(deviceMap.get("serviceLocation")).isEqualTo(null);
         assertThat(deviceMap.get("serviceCategory")).isEqualTo(null);

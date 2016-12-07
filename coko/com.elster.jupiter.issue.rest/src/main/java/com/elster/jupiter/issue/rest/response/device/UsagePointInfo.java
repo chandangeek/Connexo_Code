@@ -8,7 +8,7 @@ public class UsagePointInfo {
 
     public UsagePointInfo(UsagePoint up) {
         this.id = up.getId();
-        this.info = up.getMRID();
+        this.info = up.getName();
     }
 
     public String getInfo() {

@@ -161,16 +161,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return mockReason("1", "Reason", getDefaultIssueType());
     }
 
-    protected Meter mockMeter(long id, String mrid){
-        Meter meter = mock(Meter.class);
-        when(meter.getId()).thenReturn(id);
-        when(meter.getMRID()).thenReturn(mrid);
-        MeterActivation meterActivation = mock(MeterActivation.class);
-        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
-        return meter;
-    }
-
-    protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName){
+    protected IssueAssignee mockAssignee(long id, String name, String type){
         IssueAssignee assignee = mock(IssueAssignee.class);
         User user = mock(User.class);
         WorkGroup workGroup = mock(WorkGroup.class);
@@ -192,16 +183,16 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     }
 
     protected Meter getDefaultDevice() {
-        return mockDevice(1, "0.0.0.0.0.0.0.0");
+        return mockMeter(1, "DefaultDevice");
     }
 
-    protected Meter mockDevice(long id, String mrid) {
+    protected Meter mockMeter(long id, String name) {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
-        when(meter.getMRID()).thenReturn(mrid);
+        when(meter.getName()).thenReturn(name);
+        when(meter.getSerialNumber()).thenReturn("0.0.0.0.0.0.0.0");
         when(meter.getAmrId()).thenReturn(String.valueOf(id));
-        Optional<? extends MeterActivation> optionalMA = Optional.empty();
-        doReturn(optionalMA).when(meter).getCurrentMeterActivation();
+        doReturn(Optional.empty()).when(meter).getCurrentMeterActivation();
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(meter.getAmrSystem()).thenReturn(amrSystem);
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
@@ -362,7 +353,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issueGroupFilter.onlyGroupWithKey(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
         when(issueGroupFilter.withIssueTypes(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
         when(issueGroupFilter.withStatuses(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
-        when(issueGroupFilter.withMeterMrid(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withMeterName(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
         when(issueGroupFilter.groupBy(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
         when(issueGroupFilter.setAscOrder(false)).thenReturn(issueGroupFilter);
         when(issueGroupFilter.from(1L)).thenReturn(issueGroupFilter);

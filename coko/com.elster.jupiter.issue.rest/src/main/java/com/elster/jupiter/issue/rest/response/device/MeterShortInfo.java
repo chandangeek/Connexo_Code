@@ -9,7 +9,7 @@ public class MeterShortInfo {
     public MeterShortInfo(EndDevice meter) {
         if (meter != null) {
             this.id = meter.getId();
-            this.name = meter.getMRID();
+            this.name = meter.getName();
         }
     }
 }
