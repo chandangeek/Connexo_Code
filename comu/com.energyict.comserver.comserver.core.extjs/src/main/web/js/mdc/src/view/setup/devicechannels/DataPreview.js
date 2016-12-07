@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             mainValidationInfo,
             bulkValidationInfo,
             dataQualities,
-            dataQualitiesForChannels = false,
+            dataQualitiesForChannels = false,            
             router = me.router;
 
         me.setLoading();

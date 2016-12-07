@@ -11,7 +11,9 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
         'Mdc.usagepointmanagement.view.ChannelDataPreview'
     ],
     mixins: {
-        bindable: 'Ext.util.Bindable'
+        bindable: 'Ext.util.Bindable',
+        graphWithGrid: 'Uni.util.GraphWithGrid',
+        readingsGraph: 'Uni.util.ReadingsGraph'
     },
     store: 'Mdc.usagepointmanagement.store.ChannelData',
 
@@ -19,6 +21,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
     channel: null,
     usagePointId: null,
     filter: null,
+    idProperty: 'interval_end',
 
     initComponent: function () {
         var me = this;
@@ -66,17 +69,32 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                         itemId: 'channel-data-graph',
                         store: Ext.getStore(me.store),
                         channel: me.channel,
-                        zoomLevels: me.filter.interval.get('zoomLevels')
+                        zoomLevels: me.filter.interval.get('zoomLevels'),
+                        listeners: {
+                            barselect: Ext.bind(me.onBarSelect, me)
+                        }
                     },
                     {
                         xtype: 'preview-container',
+                        itemId: 'readings-preview-container',
                         grid: {
                             xtype: 'channel-data-grid',
                             itemId: 'channel-data-grid',
                             store: me.store,
                             channel: me.channel,
                             viewConfig: {
-                                loadMask: false
+                                loadMask: false,
+                                doFocus: Ext.emptyFn // workaround to avoid page jump during row selection
+                            },
+                            listeners: {
+                                select: function (grid, record) {
+                                    me.down('#readings-preview-container').fireEvent('rowselect', record);
+                                },
+                                itemclick: function (dataView, record) {
+                                    if (me.down('channel-data-grid').getSelectionModel().isSelected(record)) {
+                                        me.down('#readings-preview-container').fireEvent('rowselect', record);
+                                    }
+                                }                                
                             }
                         },
                         emptyComponent: {
@@ -92,6 +110,9 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                             itemId: 'channel-data-preview',
                             router: me.router,
                             channel: me.channel
+                        },
+                        listeners: {
+                            rowselect: Ext.bind(me.onRowSelect, me)
                         }
                     }
                 ]
@@ -129,12 +150,82 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
         this.setLoading(true);
     },
 
-    onLoad: function () {
-        this.down('#channel-data-graph').showGraphView();
+    onLoad: function () {        
+        this.showGraphView();
         this.setLoading(false);
     },
 
     onBeforeDestroy: function () {
         this.bindStore('ext-empty-store');
+    },
+
+    formatData: function () {
+        var me = this,
+            data = [],
+            missedValues = [],
+            unit = me.channel.get('readingType').names.unitOfMeasure,
+            validationMap = {
+                NOT_VALIDATED: {
+                    barColor: 'rgba(113,173,199,1)',
+                    tooltipColor: 'rgba(0,131,200,0.3)',
+                    icon: '<span class="icon-flag6"></span>'
+                },
+                SUSPECT: {
+                    barColor: 'rgba(235,86,66,1)',
+                    tooltipColor: 'rgba(235,86,66,0.3)',
+                    icon: '<span class="icon-flag5" style="color:red"></span>'
+                },
+                INFORMATIVE: {
+                    barColor: 'rgba(222,220,73,1)',
+                    tooltipColor: 'rgba(222,220,73,0.3)',
+                    icon: '<span class="icon-flag5" style="color:yellow"></span>'
+                },
+                OK: {
+                    barColor: 'rgba(112,187,81,1)',
+                    tooltipColor: 'rgba(255,255,255,0.85)',
+                    icon: ''
+                },
+                NO_LINKED_DEVICES: {
+                    barColor: null,
+                    tooltipColor: null,
+                    icon: ''
+                }
+            };
+
+        me.store.each(function (record) {
+            var point = {},
+                interval = record.get('interval'),
+                validation = record.get('validation');
+
+            point.x = interval.start;
+            point.id = point.x;
+            point.y = parseFloat(record.get('value')) || null;
+            point.intervalEnd = interval.end;
+            point.color = validationMap[validation].barColor;
+            point.tooltipColor = validationMap[validation].tooltipColor;
+            point.icon = validationMap[validation].icon;
+            point.unit = unit;
+            //point.multiplier = record.get('multiplier');
+
+            data.unshift(point);
+            !point.y && (point.y = null);
+            if (!point.y) {
+                if (validation === 'SUSPECT' || validation === 'NO_LINKED_DEVICES') {
+                    missedValues.push({
+                        id: interval.start,
+                        from: interval.start,
+                        to: interval.end,
+                        color: validation === 'SUSPECT' ? 'rgba(235, 86, 66, 0.3)' : 'rgba(210,210,210,1)'
+                    });
+                    record.set('plotBand', true);
+                }
+            }
+        });
+
+        return {data: data, missedValues: missedValues};
+    },
+    
+    getValueFromPoint: function (point) {
+        return new Date(point.intervalEnd);
     }
 });

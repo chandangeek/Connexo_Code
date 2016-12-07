@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
     ],
     viewConfig: {
         loadMask: false,
-        enableTextSelection: true
+        enableTextSelection: true,
+        doFocus: Ext.emptyFn // workaround to avoid page jump during row selection
     },
     selModel: {
         mode: 'MULTI'
