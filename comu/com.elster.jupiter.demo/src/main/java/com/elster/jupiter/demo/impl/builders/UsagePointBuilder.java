@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
@@ -59,10 +60,13 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
     @Override
     public UsagePoint create() {
         UsagePoint usagePoint = meteringService.getServiceCategory(serviceKind).get().newUsagePoint(getName(), installationTime)
-                .withLocation(location).withGeoCoordinates(geoCoordinates).create();
+                .withIsVirtual(false)
+                .withIsSdp(true)
+                .withLocation(location)
+                .withGeoCoordinates(geoCoordinates).create();
         switch (usagePoint.getServiceCategory().getKind()){
             case ELECTRICITY:
-                usagePoint.newElectricityDetailBuilder(installationTime).create();
+                usagePoint.newElectricityDetailBuilder(installationTime).withPhaseCode(PhaseCode.S1N).create();
                 break;
             case GAS:
                 usagePoint.newGasDetailBuilder(installationTime).create();
