@@ -193,6 +193,11 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
+    public void assignTo(String type, long userId) {
+        assignTo(userId, null);
+    }
+
+    @Override
     public void assignTo(Long userId, Long workGroupId) {
         getBaseIssue().assignTo(userId, workGroupId);
     }
