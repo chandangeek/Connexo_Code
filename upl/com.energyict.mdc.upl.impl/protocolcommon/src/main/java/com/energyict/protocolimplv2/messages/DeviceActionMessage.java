@@ -25,25 +25,25 @@ import java.util.stream.IntStream;
  */
 public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
 
-    BILLING_RESET(0, "Billing reset") {
+    BILLING_RESET(8001, "Billing reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    BILLING_RESET_CONTRACT_1(1, "Billing reset contract 1") {
+    BILLING_RESET_CONTRACT_1(8030, "Billing reset contract 1") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    BILLING_RESET_CONTRACT_2(2, "Billing reset contract 2") {
+    BILLING_RESET_CONTRACT_2(8031, "Billing reset contract 2") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SET_PASSIVE_EOB_DATETIME(3, "Write the passive end of billing date and time") {
+    SET_PASSIVE_EOB_DATETIME(8032, "Write the passive end of billing date and time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -58,139 +58,139 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    GLOBAL_METER_RESET(4, "Global meter reset") {
+    GLOBAL_METER_RESET(8002, "Global meter reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    DEMAND_RESET(5, "Demand reset") {
+    DEMAND_RESET(8003, "Demand reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    POWER_OUTAGE_RESET(6, "Power outage reset") {
+    POWER_OUTAGE_RESET(8004, "Power outage reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    POWER_QUALITY_RESET(7, "Power quality reset") {
+    POWER_QUALITY_RESET(8005, "Power quality reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ERROR_STATUS_RESET(8, "Error status reset") {
+    ERROR_STATUS_RESET(8006, "Error status reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    REGISTERS_RESET(9, "Registers reset") {
+    REGISTERS_RESET(8007, "Registers reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    LOAD_LOG_RESET(10, "Load log reset") {
+    LOAD_LOG_RESET(8008, "Load log reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    EVENT_LOG_RESET(11, "Event log reset") {
+    EVENT_LOG_RESET(8009, "Event log reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ALARM_REGISTER_RESET(12, "Alarm register reset") {
+    ALARM_REGISTER_RESET(8010, "Alarm register reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ERROR_REGISTER_RESET(13, "Error register reset") {
+    ERROR_REGISTER_RESET(8011, "Error register reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    REBOOT_DEVICE(14, "Reboot the device") {
+    REBOOT_DEVICE(8012, "Reboot the device") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    DISABLE_WEBSERVER(15, "Disable webserver") {
+    DISABLE_WEBSERVER(8013, "Disable webserver") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ENABLE_WEBSERVER(16, "Enable webserver") {
+    ENABLE_WEBSERVER(8014, "Enable webserver") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    RESTORE_FACTORY_SETTINGS(17, "Restore factory settings") {
+    RESTORE_FACTORY_SETTINGS(8015, "Restore factory settings") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SetFTIONReboot(18, "FTION reboot") {
+    SetFTIONReboot(8016, "FTION reboot") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.FTIONReboot, DeviceMessageConstants.FTIONRebootDefaultTranslation));
         }
     },
-    SetFTIONInitialize(19, "FTION initialize") {
+    SetFTIONInitialize(8017, "FTION initialize") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.FTIONInitialize, DeviceMessageConstants.FTIONInitializeDefaultTranslation));
         }
     },
-    SetFTIONMailLog(20, "FTION mail log") {
+    SetFTIONMailLog(8018, "FTION mail log") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.FTIONMailLog, DeviceMessageConstants.FTIONMailLogDefaultTranslation));
         }
     },
-    SetFTIONSaveConfig(21, "FTION save configuration") {
+    SetFTIONSaveConfig(8019, "FTION save configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.FTIONSaveConfig, DeviceMessageConstants.FTIONSaveConfigDefaultTranslation));
         }
     },
-    SetFTIONUpgrade(22, "FTION upgrade") {
+    SetFTIONUpgrade(8020, "FTION upgrade") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.FTIONUpgrade, DeviceMessageConstants.FTIONUpgradeDefaultTranslation));
         }
     },
-    SetFTIONClearMem(23, "FTION clear memory") {
+    SetFTIONClearMem(8021, "FTION clear memory") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.FTIONClearMem, DeviceMessageConstants.FTIONClearMemDefaultTranslation));
         }
     },
-    SetFTIONMailConfig(24, "FTION mail configuration") {
+    SetFTIONMailConfig(8022, "FTION mail configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.FTIONMailConfig, DeviceMessageConstants.FTIONMailConfigDefaultTranslation));
         }
     },
-    SetFTIONModemReset(25, "FTION modem reset") {
+    SetFTIONModemReset(8023, "FTION modem reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.FTIONModemReset, DeviceMessageConstants.FTIONModemResetDefaultTranslation));
         }
     },
-    SetChangeAdminPassword(26, "Change admin password") {
+    SetChangeAdminPassword(8024, "Change admin password") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -199,7 +199,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetAnalogOut(27, "Set analog out") {
+    SetAnalogOut(8029, "Set analog out") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -208,25 +208,25 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         }
     },
 
-    FTIONUpgrade(28, "FTION upgrade") {
+    FTIONUpgrade(8036, "FTION upgrade") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    RtuPlusServerEnterMaintenanceMode(29, "Enter maintenance mode") {
+    RtuPlusServerEnterMaintenanceMode(8037, "Enter maintenance mode") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    RtuPlusServerExitMaintenanceMode(30, "Exit maintenance mode") {
+    RtuPlusServerExitMaintenanceMode(8038, "Exit maintenance mode") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ForceMessageToFailed(31, "Force message to failed state") {
+    ForceMessageToFailed(8039, "Force message to failed state") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -235,97 +235,97 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    FTIONUpgradeAndInit(32, "FTION upgrade and initialize") {
+    FTIONUpgradeAndInit(8040, "FTION upgrade and initialize") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    FTIONUpgradeAndInitWithNewEIServerURL(33, "Upgrade and initialize with new EIServer URL") {
+    FTIONUpgradeAndInitWithNewEIServerURL(8041, "Upgrade and initialize with new EIServer URL") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.servletURL, DeviceMessageConstants.servletURLDefaultTranslation));
         }
     },
-    FTIONUpgradeWithNewEIServerURL(34, "Upgrade with new EIServer URL") {
+    FTIONUpgradeWithNewEIServerURL(8042, "Upgrade with new EIServer URL") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.servletURL, DeviceMessageConstants.servletURLDefaultTranslation));
         }
     },
-    FTIONInitDatabaseKeepConfig(35, "Initialize the database and keep the configuration") {
+    FTIONInitDatabaseKeepConfig(8043, "Initialize the database and keep the configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    FTIONReboot(36, "Reboot") {
+    FTIONReboot(8044, "Reboot") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    FTIONRestart(37, "Restart") {
+    FTIONRestart(8045, "Restart") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    FTIONScanBus(38, "Scan the bus") {
+    FTIONScanBus(8046, "Scan the bus") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SyncMasterdata(39, "Synchronize master data") {
+    SyncMasterdata(8047, "Synchronize master data") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    RebootApplication(40, "Reboot application") {
+    RebootApplication(8033, "Reboot application") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    DemandResetWithForceClock(41, "Demand reset with force clock") {
+    DemandResetWithForceClock(8034, "Demand reset with force clock") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    HardResetDevice(42, "Hard reset the device") {
+    HardResetDevice(8035, "Hard reset the device") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SyncMasterdataForDC(43, "Sync master data for DC") {
+    SyncMasterdataForDC(8048, "Sync master data for DC") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    PauseDCScheduler(44, "Pause DC scheduler") {
+    PauseDCScheduler(8049, "Pause DC scheduler") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ResumeDCScheduler(45, "Resume DC scheduler") {
+    ResumeDCScheduler(8050, "Resume DC scheduler") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SyncDeviceDataForDC(46, "Sync device data for DC") {
+    SyncDeviceDataForDC(8051, "Sync device data for DC") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName, DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeDefaultTranslation, false));
         }
     },
-    SyncOneConfigurationForDC(47, "Sync one configuration for DC") {
+    SyncOneConfigurationForDC(8052, "Sync one configuration for DC") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.deviceConfigurationIDAttributeName, DeviceMessageConstants.deviceConfigurationIDAttributeDefaultTranslation));
@@ -333,7 +333,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
     },
 
     /** Trigger the preliminary protocol (read out serial) for a group of meters. */
-	TRIGGER_PRELIMINARY_PROTOCOL(48, "Trigger the preliminary protocol for a group of meters") {
+	TRIGGER_PRELIMINARY_PROTOCOL(8053, "Trigger the preliminary protocol for a group of meters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceGroupSpec(service, DeviceMessageConstants.deviceGroupAttributeName, DeviceMessageConstants.deviceGroupAttributeDefaultTranslation));
@@ -355,6 +355,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .setDefaultValue(defaultValue)
+                .markRequired()
                 .finish();
     }
 
@@ -363,7 +364,8 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -379,7 +381,8 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -392,6 +395,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
                 .referenceSpec(DeviceGroup.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

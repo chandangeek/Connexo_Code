@@ -18,37 +18,37 @@ import java.util.List;
  */
 public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetMBusEvery(0, "Set MBus every") {
+    SetMBusEvery(23001, "Set MBus every") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetMBusEveryAttributeName, DeviceMessageConstants.SetMBusEveryAttributeDefaultTranslation));
         }
     },
-    SetMBusInterFrameTime(1, "Set MBus inter frame time") {
+    SetMBusInterFrameTime(23002, "Set MBus inter frame time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetMBusInterFrameTimeAttributeName, DeviceMessageConstants.SetMBusInterFrameTimeAttributeDefaultTranslation));
         }
     },
-    SetMBusConfig(2, "Set MBus configuration") {
+    SetMBusConfig(23003, "Set MBus configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetMBusConfigAttributeName, DeviceMessageConstants.SetMBusConfigAttributeDefaultTranslation));
         }
     },
-    SetMBusVIF(3, "Set MBus VIF") {
+    SetMBusVIF(23004, "Set MBus VIF") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.SetMBusVIFAttributeName, DeviceMessageConstants.SetMBusVIFAttributeDefaultTranslation, 16));
         }
     },
-    MBusSetOption(4, "MBus - Set an option") {
+    MBusSetOption(23005, "MBus - Set an option") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
         }
     },
-    MBusClrOption(5, "MBus - Clear an option") {
+    MBusClrOption(23006, "MBus - Clear an option") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
@@ -71,6 +71,7 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -80,6 +81,7 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 .hexStringSpecOfExactLength(length)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

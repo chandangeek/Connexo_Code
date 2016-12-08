@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
  */
 public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetFunction(0, "Set function") {
+    SetFunction(29001, "Set function") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -30,7 +30,7 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
             );
         }
     },
-    SetParameters(1, "Set parameters") {
+    SetParameters(29002, "Set parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -39,7 +39,7 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
             );
         }
     },
-    SetName(2, "Set name") {
+    SetName(29003, "Set name") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -48,7 +48,7 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
             );
         }
     },
-    SetUnit(3, "Set unit") {
+    SetUnit(29004, "Set unit") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -57,7 +57,7 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
             );
         }
     },
-    SetLPDivisor(4, "Set LP divisor") {
+    SetLPDivisor(29005, "Set LP divisor") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -82,7 +82,8 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -91,6 +92,7 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -114,6 +116,7 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

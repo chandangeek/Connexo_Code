@@ -19,7 +19,7 @@ import java.util.List;
  */
 public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetSumMask(0, "Set sum mask") {
+    SetSumMask(30001, "Set sum mask") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -28,7 +28,7 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetSubstractMask(1, "Set subtract mask") {
+    SetSubstractMask(30002, "Set subtract mask") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -37,7 +37,7 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    ClearTotalizers(2, "Clear totalizers") {
+    ClearTotalizers(30003, "Clear totalizers") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
@@ -60,6 +60,7 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecSup
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -69,6 +70,7 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecSup
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

@@ -26,19 +26,19 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public enum AdvancedTestMessage implements DeviceMessageSpecSupplier {
 
-    XML_CONFIG(0, "XML configuration") {
+    XML_CONFIG(32001, "XML configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, xmlConfigAttributeName, xmlConfigAttributeDefaultTranslation));
         }
     },
-    USERFILE_CONFIG(1, "User file configuration") {
+    USERFILE_CONFIG(32002, "User file configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, UserFileConfigAttributeName, UserFileConfigAttributeDefaultTranslation));
         }
     },
-    LogObjectList(2, "Log object list") {
+    LogObjectList(32003, "Log object list") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
@@ -61,6 +61,7 @@ public enum AdvancedTestMessage implements DeviceMessageSpecSupplier {
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -70,6 +71,7 @@ public enum AdvancedTestMessage implements DeviceMessageSpecSupplier {
                 .referenceSpec(DeviceMessageFile.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

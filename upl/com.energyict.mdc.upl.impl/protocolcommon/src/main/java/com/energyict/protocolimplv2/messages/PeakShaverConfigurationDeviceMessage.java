@@ -20,7 +20,7 @@ import java.util.List;
  */
 public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetActiveChannel(0, "Set active channel") {
+    SetActiveChannel(16001, "Set active channel") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -29,7 +29,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetReactiveChannel(1, "Set reactive channel") {
+    SetReactiveChannel(16002, "Set reactive channel") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -38,7 +38,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetTimeBase(2, "Set time base") {
+    SetTimeBase(16003, "Set time base") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -47,7 +47,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetPOut(3, "Set POut") {
+    SetPOut(16004, "Set POut") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -56,7 +56,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetPIn(4, "Set PIn") {
+    SetPIn(16005, "Set PIn") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -65,7 +65,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetDeadTime(5, "Set dead time") {
+    SetDeadTime(16006, "Set dead time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -74,7 +74,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetAutomatic(6, "Set automatic") {
+    SetAutomatic(16007, "Set automatic") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -83,7 +83,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetCyclic(7, "Set cyclic") {
+    SetCyclic(16008, "Set cyclic") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -92,7 +92,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetInvert(8, "Set invert") {
+    SetInvert(16009, "Set invert") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -101,7 +101,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetAdaptSetpoint(9, "Set adapt setpoint") {
+    SetAdaptSetpoint(16010, "Set adapt setpoint") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -110,7 +110,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetInstantAnalogOut(10, "Set instant analog out") {
+    SetInstantAnalogOut(16011, "Set instant analog out") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -119,7 +119,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetPredictedAnalogOut(11, "Set predicted analog out") {
+    SetPredictedAnalogOut(16012, "Set predicted analog out") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -128,7 +128,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetpointAnalogOut(12, "Set setpoint analog out") {
+    SetpointAnalogOut(16013, "Set setpoint analog out") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -137,7 +137,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetDifferenceAnalogOut(13, "Set difference analog out") {
+    SetDifferenceAnalogOut(16014, "Set difference analog out") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -146,7 +146,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetTariff(14, "Set tariff") {
+    SetTariff(16015, "Set tariff") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -155,7 +155,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetResetLoads(15, "Set reset loads") {
+    SetResetLoads(16016, "Set reset loads") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -164,7 +164,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetSetpoint(16, "Set setpoint") {
+    SetSetpoint(16017, "Set setpoint") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -175,7 +175,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetSwitchTime(17, "Set switch time") {
+    SetSwitchTime(16018, "Set switch time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -189,7 +189,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
             );
         }
     },
-    SetLoad(18, "Set load") {
+    SetLoad(16019, "Set load") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -221,6 +221,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -230,6 +231,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

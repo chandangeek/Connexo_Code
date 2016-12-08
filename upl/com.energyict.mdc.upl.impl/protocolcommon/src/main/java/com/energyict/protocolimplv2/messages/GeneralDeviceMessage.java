@@ -25,7 +25,7 @@ import java.util.List;
  */
 public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
 
-    WRITE_RAW_IEC1107_CLASS(0, "Write raw IEC1107 class") {
+    WRITE_RAW_IEC1107_CLASS(11001, "Write raw IEC1107 class") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -35,13 +35,13 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WRITE_FULL_CONFIGURATION(1, "Write full configuration") {
+    WRITE_FULL_CONFIGURATION(11002, "Write full configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.configUserFileAttributeName, DeviceMessageConstants.configUserFileAttributeDefaultTranslation));
         }
     },
-    SEND_XML_MESSAGE(2, "Send XML message") {
+    SEND_XML_MESSAGE(11003, "Send XML message") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.xmlMessageAttributeName, DeviceMessageConstants.xmlMessageAttributeDefaultTranslation));
@@ -64,6 +64,7 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
                 .boundedBigDecimalSpec(lowerLimit, upperLimit)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -73,6 +74,7 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -82,6 +84,7 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
                 .hexStringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -91,6 +94,7 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecSupplier {
                 .referenceSpec(DeviceMessageFile.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

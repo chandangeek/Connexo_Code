@@ -75,10 +75,16 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.power
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.powerLimitThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readingTypeAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readingTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.tariffAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.tariffAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.unitAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.unitAttributeName;
 
 /**
  * Provides a summary of all messages related to
@@ -94,7 +100,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.under
  */
 public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
 
-    WriteControlThresholds(0, "Write control thresholds") {
+    WriteControlThresholds(12001, "Write control thresholds") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -108,13 +114,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetDemandCloseToContractPowerThreshold(1, "Set threshold for demand close to contract power") {
+    SetDemandCloseToContractPowerThreshold(12002, "Set threshold for demand close to contract power") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.DemandCloseToContractPowerThresholdAttributeName, DeviceMessageConstants.DemandCloseToContractPowerThresholdAttributeDefaultTranslation));
         }
     },
-    CONFIGURE_LOAD_LIMIT_PARAMETERS(2, "Configure the load limit parameters") {
+    CONFIGURE_LOAD_LIMIT_PARAMETERS(12003, "Configure the load limit parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -127,7 +133,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(3, "Configure load limit parameters") {
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(12004, "Configure load limit parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -140,7 +146,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS(4, "Configure all load limit parameters") {
+    CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS(12005, "Configure all load limit parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -163,7 +169,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP(5, "Configure load limit parameters for group") {
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP(12006, "Configure load limit parameters for group") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -173,31 +179,31 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SET_EMERGENCY_PROFILE_GROUP_IDS(6, "Set the load limit emergency profiles") {
+    SET_EMERGENCY_PROFILE_GROUP_IDS(12007, "Set the load limit emergency profiles") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.numberLookupSpec(service, emergencyProfileGroupIdListAttributeName, emergencyProfileGroupIdListAttributeDefaultTranslation));
         }
     },
-    CLEAR_LOAD_LIMIT_CONFIGURATION(7, "Clear the load limit configuration") {
+    CLEAR_LOAD_LIMIT_CONFIGURATION(12008, "Clear the load limit configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP(8, "Clear load limit configuration for group") {
+    CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP(12009, "Clear load limit configuration for group") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.loadLimitGroupIDAttributeName, DeviceMessageConstants.loadLimitGroupIDAttributeDefaultTranslation));
         }
     },
-    ENABLE_LOAD_LIMITING(9, "Enable load limiting") {
+    ENABLE_LOAD_LIMITING(12010, "Enable load limiting") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ENABLE_LOAD_LIMITING_FOR_GROUP(10,"Enable load limiting for group") {
+    ENABLE_LOAD_LIMITING_FOR_GROUP(12011,"Enable load limiting for group") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -207,13 +213,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    DISABLE_LOAD_LIMITING(11, "Disable load limiting") {
+    DISABLE_LOAD_LIMITING(12012, "Disable load limiting") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    CONFIGURE_SUPERVISION_MONITOR(12, "Configure supervision monitor") {
+    CONFIGURE_SUPERVISION_MONITOR(12013, "Configure supervision monitor") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -222,19 +228,69 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SET_LOAD_LIMIT_DURATION(13, "Set load limit duration") {
+    SET_LOAD_LIMIT_DURATION(12014, "Set load limit duration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.temporalAmountSpec(service, overThresholdDurationAttributeName, overThresholdDurationAttributeDefaultTranslation));
         }
     },
-    SET_LOAD_LIMIT_THRESHOLD(14, "Set load limit threshold") {
+    SET_LOAD_LIMIT_THRESHOLD(12015, "Set load limit threshold") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, normalThresholdAttributeName, normalThresholdAttributeDefaultTranslation));
         }
     },
-    UPDATE_SUPERVISION_MONITOR(15, "Update supervision monitor") {
+    SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS(12016, "Set load limit threshold with tariffs") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, normalThresholdAttributeName, normalThresholdAttributeDefaultTranslation)
+                            .markRequired()
+                            .finish(),
+                    this.stringSpecBuilder(service, unitAttributeName, unitAttributeDefaultTranslation)
+                            .markRequired()
+                            .finish(),
+                    this.stringSpecBuilder(service, tariffAttributeName, tariffAttributeDefaultTranslation)
+                            .markRequired()
+                            .finish());
+        }
+    },
+    SET_LOAD_LIMIT_MEASUREMENT_VALUE(2018, "Set load limit measurement reading type") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.readingTypeSpec(service, readingTypeAttributeName, readingTypeAttributeDefaultTranslation));
+        }
+    },
+    CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION(12018, "Configure the load limit threshold and duration") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, normalThresholdAttributeName, normalThresholdAttributeDefaultTranslation)
+                            .markRequired()
+                            .finish(),
+                    this.stringSpecBuilder(service, unitAttributeName, unitAttributeDefaultTranslation)
+                            .markRequired()
+                            .finish(),
+                    this.durationSpec(service, overThresholdDurationAttributeName, overThresholdDurationAttributeDefaultTranslation));
+        }
+    },
+    CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS(12019, "Configure the load limit threshold and duration with tariffs") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpecBuilder(service, normalThresholdAttributeName, normalThresholdAttributeDefaultTranslation)
+                            .markRequired()
+                            .finish(),
+                    this.stringSpecBuilder(service, unitAttributeName, unitAttributeDefaultTranslation)
+                            .markRequired()
+                            .finish(),
+                    this.stringSpecBuilder(service, tariffAttributeName, tariffAttributeDefaultTranslation)
+                            .markRequired()
+                            .finish(),
+                    this.durationSpec(service, overThresholdDurationAttributeName, overThresholdDurationAttributeDefaultTranslation));
+        }
+    },
+    UPDATE_SUPERVISION_MONITOR(12020, "Update supervision monitor") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -243,7 +299,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT(16, "Configure supervision monitor thresholds") {
+    CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT(12021, "Configure supervision monitor thresholds") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -269,19 +325,21 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
-    private PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -298,6 +356,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -307,6 +366,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -316,6 +376,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                 .durationSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -325,6 +386,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                 .temporalAmountSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -334,6 +396,17 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                 .referenceSpec(NumberLookup.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
+
+    protected PropertySpec readingTypeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(ReadingType.class)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

@@ -21,43 +21,43 @@ import java.util.List;
  */
 public enum OutputConfigurationMessage implements DeviceMessageSpecSupplier {
 
-    SetOutputOn(0, "Set output on") {
+    SetOutputOn(35001, "Set output on") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.OutputOn, DeviceMessageConstants.OutputOnDefaultTranslation));
         }
     },
-    SetOutputOff(1, "Set output off") {
+    SetOutputOff(35002, "Set output off") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.OutputOff, DeviceMessageConstants.OutputOffDefaultTranslation));
         }
     },
-    SetOutputToggle(2, "Set output toggle") {
+    SetOutputToggle(35003, "Set output toggle") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.OutputToggle, DeviceMessageConstants.OutputToggleDefaultTranslation));
         }
     },
-    SetOutputPulse(3, "Set output pulse") {
+    SetOutputPulse(35004, "Set output pulse") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.OutputPulse, DeviceMessageConstants.OutputPulseDefaultTranslation));
         }
     },
-    OutputOff(4, "Output off") {
+    OutputOff(35005, "Output off") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.output, DeviceMessageConstants.outputDefaultTranslation));
         }
     },
-    OutputOn(5, "Output on") {
+    OutputOn(35006, "Output on") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.output, DeviceMessageConstants.outputDefaultTranslation));
         }
     },
-    AbsoluteDOSwitchRule(6, "Write absolute DO switch rule") {
+    AbsoluteDOSwitchRule(35007, "Write absolute DO switch rule") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -68,7 +68,7 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    DeleteDOSwitchRule(7, "Delete a DO switch rule") {
+    DeleteDOSwitchRule(35008, "Delete a DO switch rule") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -77,7 +77,7 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    RelativeDOSwitchRule(8, "Write a relative DO switch rule") {
+    RelativeDOSwitchRule(35009, "Write a relative DO switch rule") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -87,7 +87,7 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WriteOutputState(9, "Write output state") {
+    WriteOutputState(35010, "Write output state") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -113,6 +113,7 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecSupplier {
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -122,6 +123,7 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecSupplier {
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -131,6 +133,7 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecSupplier {
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

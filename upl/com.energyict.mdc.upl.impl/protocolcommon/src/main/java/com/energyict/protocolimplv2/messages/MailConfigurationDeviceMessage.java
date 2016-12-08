@@ -19,23 +19,24 @@ import java.util.List;
 public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     // Read Mail (POP3) Parameters
-    SetPOPUsername(0, "Set POP username", DeviceMessageConstants.SetPOPUsernameAttributeName, DeviceMessageConstants.SetPOPUsernameAttributeDefaultTranslation),
-    SetPOPPassword(1, "Set POP password", DeviceMessageConstants.SetPOPPasswordAttributeName, DeviceMessageConstants.SetPOPPasswordAttributeDefaultTranslation),
-    SetPOPHost(2, "Set POP host", DeviceMessageConstants.SetPOPHostAttributeName, DeviceMessageConstants.SetPOPHostAttributeDefaultTranslation),
-    SetPOPReadMailEvery(3, "Set POP read mail every", DeviceMessageConstants.SetPOPReadMailEveryAttributeName, DeviceMessageConstants.SetPOPReadMailEveryAttributeDefaultTranslation),
-    SetPOP3Options(4, "Set POP3 options", DeviceMessageConstants.SetPOP3OptionsAttributeName, DeviceMessageConstants.SetPOP3OptionsAttributeDefaultTranslation),
-    SetSMTPTo(6, "Set SMTP to", DeviceMessageConstants.SetSMTPToAttributeName, DeviceMessageConstants.SetSMTPToAttributeDefaultTranslation),
-    SetSMTPConfigurationTo(7, "Set SMTP configuration to", DeviceMessageConstants.SetSMTPConfigurationToAttributeName, DeviceMessageConstants.SetSMTPConfigurationToAttributeDefaultTranslation),
-    SetSMTPServer(8, "Set SMTP server", DeviceMessageConstants.SetSMTPServerAttributeName, DeviceMessageConstants.SetSMTPServerAttributeDefaultTranslation),
-    SetSMTPDomain(9, "Set SMTP domain", DeviceMessageConstants.SetSMTPDomainAttributeName, DeviceMessageConstants.SetSMTPDomainAttributeDefaultTranslation),
-    SetSMTPSendMailEvery(10, "Set SMTP send mail every", DeviceMessageConstants.SetSMTPSendMailEveryAttributeName, DeviceMessageConstants.SetSMTPSendMailEveryAttributeDefaultTranslation),
-    SetSMTPCurrentInterval(11, "Set SMTP current interval", DeviceMessageConstants.SetSMTPCurrentIntervalAttributeName, DeviceMessageConstants.SetSMTPCurrentIntervalAttributeDefaultTranslation),
-    SetSMTPDatabaseID(12, "Set SMTP database ID", DeviceMessageConstants.SetSMTPDatabaseIDAttributeName, DeviceMessageConstants.SetSMTPDatabaseIDAttributeDefaultTranslation),
-    SetSMTPOptions(13, "Set SMTP options", DeviceMessageConstants.SetSMTPOptionsAttributeName, DeviceMessageConstants.SetSMTPOptionsAttributeDefaultTranslation),
-    POP3SetOption(14, "POP3 - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
-    POP3ClrOption(15, "POP3 - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
-    SMTPSetOption(16, "SMTP - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
-    SMTPClrOption(17, "SMTP - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation);
+    SetPOPUsername(17001, "Set POP username", DeviceMessageConstants.SetPOPUsernameAttributeName, DeviceMessageConstants.SetPOPUsernameAttributeDefaultTranslation),
+    SetPOPPassword(17002, "Set POP password", DeviceMessageConstants.SetPOPPasswordAttributeName, DeviceMessageConstants.SetPOPPasswordAttributeDefaultTranslation),
+    SetPOPHost(17003, "Set POP host", DeviceMessageConstants.SetPOPHostAttributeName, DeviceMessageConstants.SetPOPHostAttributeDefaultTranslation),
+    SetPOPReadMailEvery(17004, "Set POP read mail every", DeviceMessageConstants.SetPOPReadMailEveryAttributeName, DeviceMessageConstants.SetPOPReadMailEveryAttributeDefaultTranslation),
+    SetPOP3Options(17005, "Set POP3 options", DeviceMessageConstants.SetPOP3OptionsAttributeName, DeviceMessageConstants.SetPOP3OptionsAttributeDefaultTranslation),
+    SetSMTPFrom(17006, "Set SMTP from", DeviceMessageConstants.SetSMTPFromAttributeName, DeviceMessageConstants.SetSMTPFromAttributeDefaultTranslation),
+    SetSMTPTo(17007, "Set SMTP to", DeviceMessageConstants.SetSMTPToAttributeName, DeviceMessageConstants.SetSMTPToAttributeDefaultTranslation),
+    SetSMTPConfigurationTo(17008, "Set SMTP configuration to", DeviceMessageConstants.SetSMTPConfigurationToAttributeName, DeviceMessageConstants.SetSMTPConfigurationToAttributeDefaultTranslation),
+    SetSMTPServer(17009, "Set SMTP server", DeviceMessageConstants.SetSMTPServerAttributeName, DeviceMessageConstants.SetSMTPServerAttributeDefaultTranslation),
+    SetSMTPDomain(17010, "Set SMTP domain", DeviceMessageConstants.SetSMTPDomainAttributeName, DeviceMessageConstants.SetSMTPDomainAttributeDefaultTranslation),
+    SetSMTPSendMailEvery(17011, "Set SMTP send mail every", DeviceMessageConstants.SetSMTPSendMailEveryAttributeName, DeviceMessageConstants.SetSMTPSendMailEveryAttributeDefaultTranslation),
+    SetSMTPCurrentInterval(17012, "Set SMTP current interval", DeviceMessageConstants.SetSMTPCurrentIntervalAttributeName, DeviceMessageConstants.SetSMTPCurrentIntervalAttributeDefaultTranslation),
+    SetSMTPDatabaseID(17013, "Set SMTP database ID", DeviceMessageConstants.SetSMTPDatabaseIDAttributeName, DeviceMessageConstants.SetSMTPDatabaseIDAttributeDefaultTranslation),
+    SetSMTPOptions(17014, "Set SMTP options", DeviceMessageConstants.SetSMTPOptionsAttributeName, DeviceMessageConstants.SetSMTPOptionsAttributeDefaultTranslation),
+    POP3SetOption(17015, "POP3 - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    POP3ClrOption(17016, "POP3 - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    SMTPSetOption(17017, "SMTP - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    SMTPClrOption(17018, "SMTP - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation);
 
     private final long id;
     private final String defaultNameTranslation;
@@ -74,6 +75,7 @@ public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

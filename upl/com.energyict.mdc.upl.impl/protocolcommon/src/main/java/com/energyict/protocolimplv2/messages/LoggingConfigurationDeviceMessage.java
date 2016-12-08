@@ -19,25 +19,25 @@ import java.util.List;
  */
 public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    DownloadFile(0, "Download file") {
+    DownloadFile(37003, "Download file") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.fileInfo, DeviceMessageConstants.fileInfoDefaultTranslation));
         }
     },
-    PushConfiguration(1, "Push the configuration files") {
+    PushConfiguration(37004, "Push the configuration files") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    PushLogsNow(2, "Push the log files now") {
+    PushLogsNow(37005, "Push the log files now") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SetServerLogLevel(3, "Set server log level") {
+    SetServerLogLevel(37001, "Set server log level") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -47,7 +47,7 @@ public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpecSuppli
                             BigDecimal.ZERO, BigDecimal.valueOf(7)));
         }
     },
-    SetWebPortalLogLevel(4, "Set web portal log level") {
+    SetWebPortalLogLevel(37002, "Set web portal log level") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -78,6 +78,7 @@ public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpecSuppli
                 .boundedBigDecimalSpec(lowerLimit, upperLimit)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -87,6 +88,7 @@ public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpecSuppli
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

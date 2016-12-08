@@ -18,14 +18,14 @@ import java.util.List;
  */
 public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    IEC1107LimitPowerQuality(0, "Limit power quality", DeviceMessageConstants.powerQualityThresholdAttributeName, DeviceMessageConstants.powerQualityThresholdAttributeDefaultTranslation),
-    SetReferenceVoltage(1, "Set reference voltage", DeviceMessageConstants.ReferenceVoltageAttributeName, DeviceMessageConstants.ReferenceVoltageAttributeDefaultTranslation),
-    SetVoltageSagTimeThreshold(2, "Set voltage sag time threshold", DeviceMessageConstants.VoltageSagTimeThresholdAttributeName, DeviceMessageConstants.VoltageSagTimeThresholdAttributeDefaultTranslation),
-    SetVoltageSwellTimeThreshold(3, "Set voltage swell time threshold", DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName, DeviceMessageConstants.VoltageSwellTimeThresholdAttributeDefaultTranslation),
-    SetVoltageSagThreshold(4, "Set voltage sag threshold", DeviceMessageConstants.VoltageSagThresholdAttributeName, DeviceMessageConstants.VoltageSagThresholdAttributeDefaultTranslation),
-    SetVoltageSwellThreshold(5, "Set voltage swell threshold", DeviceMessageConstants.VoltageSwellThresholdAttributeName, DeviceMessageConstants.VoltageSwellThresholdAttributeDefaultTranslation),
-    SetLongPowerFailureTimeThreshold(6, "Set long power failure time threshold", DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName, DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeDefaultTranslation),
-    SetLongPowerFailureThreshold(7, "Set long power failure threshold", DeviceMessageConstants.LongPowerFailureThresholdAttributeName, DeviceMessageConstants.LongPowerFailureThresholdAttributeDefaultTranslation);
+    IEC1107LimitPowerQuality(26001, "Limit power quality", DeviceMessageConstants.powerQualityThresholdAttributeName, DeviceMessageConstants.powerQualityThresholdAttributeDefaultTranslation),
+    SetReferenceVoltage(26002, "Set reference voltage", DeviceMessageConstants.ReferenceVoltageAttributeName, DeviceMessageConstants.ReferenceVoltageAttributeDefaultTranslation),
+    SetVoltageSagTimeThreshold(26003, "Set voltage sag time threshold", DeviceMessageConstants.VoltageSagTimeThresholdAttributeName, DeviceMessageConstants.VoltageSagTimeThresholdAttributeDefaultTranslation),
+    SetVoltageSwellTimeThreshold(26004, "Set voltage swell time threshold", DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName, DeviceMessageConstants.VoltageSwellTimeThresholdAttributeDefaultTranslation),
+    SetVoltageSagThreshold(26005, "Set voltage sag threshold", DeviceMessageConstants.VoltageSagThresholdAttributeName, DeviceMessageConstants.VoltageSagThresholdAttributeDefaultTranslation),
+    SetVoltageSwellThreshold(26006, "Set voltage swell threshold", DeviceMessageConstants.VoltageSwellThresholdAttributeName, DeviceMessageConstants.VoltageSwellThresholdAttributeDefaultTranslation),
+    SetLongPowerFailureTimeThreshold(26007, "Set long power failure time threshold", DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName, DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeDefaultTranslation),
+    SetLongPowerFailureThreshold(26008, "Set long power failure threshold", DeviceMessageConstants.LongPowerFailureThresholdAttributeName, DeviceMessageConstants.LongPowerFailureThresholdAttributeDefaultTranslation);
 
     private final long id;
     private final String defaultNameTranslation;
@@ -53,6 +53,7 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

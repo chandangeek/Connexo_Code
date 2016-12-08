@@ -328,6 +328,12 @@ public final class DeviceMessageConstants {
     public static final String monitoredValueAttributeDefaultName = "Monitored value";
     public static final String normalThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.normalthreshold";
     public static final String normalThresholdAttributeDefaultTranslation = "Normal threshold";
+    public static final String unitAttributeName = "LoadBalanceDeviceMessage.parameters.unit";
+    public static final String unitAttributeDefaultTranslation = "Unit";
+    public static final String tariffAttributeName = "LoadBalanceDeviceMessage.parameters.tariff";
+    public static final String tariffAttributeDefaultTranslation = "Tariff";
+    public static final String readingTypeAttributeName = "LoadBalanceDeviceMessage.parameters.readingType";
+    public static final String readingTypeAttributeDefaultTranslation = "Reading type";
     public static final String controlThreshold1dAttributeName = "LoadBalanceDeviceMessage.controlthreshold1";
     public static final String controlThreshold1dAttributeDefaultTranslation = "Control threshold 1";
     public static final String controlThreshold2dAttributeName = "LoadBalanceDeviceMessage.controlthreshold2";
@@ -553,6 +559,8 @@ public final class DeviceMessageConstants {
     public static final String SetPOPReadMailEveryAttributeDefaultTranslation = "POP read mail every";
     public static final String SetPOP3OptionsAttributeName = "MailConfigurationDeviceMessage.setpop3options";
     public static final String SetPOP3OptionsAttributeDefaultTranslation = "POP3 options";
+    public static final String SetSMTPFromAttributeName = "MailConfigurationDeviceMessage.setsmtpfrom";
+    public static final String SetSMTPFromAttributeDefaultTranslation = "SMTP from";
     public static final String SetSMTPToAttributeName = "MailConfigurationDeviceMessage.setsmtpto";
     public static final String SetSMTPToAttributeDefaultTranslation = "SMTP to";
     public static final String SetSMTPConfigurationToAttributeName = "MailConfigurationDeviceMessage.setsmtpconfigurationto";

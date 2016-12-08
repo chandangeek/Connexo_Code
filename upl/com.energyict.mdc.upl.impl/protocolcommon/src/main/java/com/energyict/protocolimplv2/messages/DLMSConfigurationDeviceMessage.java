@@ -18,10 +18,10 @@ import java.util.List;
  */
 public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetDLMSDeviceID(0, "Set DLMS device ID", DeviceMessageConstants.SetDLMSDeviceIDAttributeName, DeviceMessageConstants.SetDLMSDeviceIDAttributeDefaultTranslation),
-    SetDLMSMeterID(1, "Set DLMS meter ID", DeviceMessageConstants.SetDLMSMeterIDAttributeName, DeviceMessageConstants.SetDLMSMeterIDAttributeDefaultTranslation),
-    SetDLMSPassword(2, "Set DLMS password", DeviceMessageConstants.SetDLMSPasswordAttributeName, DeviceMessageConstants.SetDLMSPasswordAttributeDefaultTranslation),
-    SetDLMSIdleTime(3, "Set DLMS idle time", DeviceMessageConstants.SetDLMSIdleTimeAttributeName, DeviceMessageConstants.SetDLMSIdleTimeAttributeDefaultTranslation);
+    SetDLMSDeviceID(28001, "Set DLMS device ID", DeviceMessageConstants.SetDLMSDeviceIDAttributeName, DeviceMessageConstants.SetDLMSDeviceIDAttributeDefaultTranslation),
+    SetDLMSMeterID(28002, "Set DLMS meter ID", DeviceMessageConstants.SetDLMSMeterIDAttributeName, DeviceMessageConstants.SetDLMSMeterIDAttributeDefaultTranslation),
+    SetDLMSPassword(28003, "Set DLMS password", DeviceMessageConstants.SetDLMSPasswordAttributeName, DeviceMessageConstants.SetDLMSPasswordAttributeDefaultTranslation),
+    SetDLMSIdleTime(28004, "Set DLMS idle time", DeviceMessageConstants.SetDLMSIdleTimeAttributeName, DeviceMessageConstants.SetDLMSIdleTimeAttributeDefaultTranslation);
 
     private final long id;
     private final String defaultNameTranslation;
@@ -49,6 +49,7 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

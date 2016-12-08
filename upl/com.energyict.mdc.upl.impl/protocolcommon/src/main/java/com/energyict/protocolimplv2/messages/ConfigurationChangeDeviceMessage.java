@@ -27,31 +27,31 @@ import java.util.stream.Stream;
  */
 public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplier {
 
-    WriteExchangeStatus(0, "Write exchange status") {
+    WriteExchangeStatus(31001, "Write exchange status") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.WriteExchangeStatus, DeviceMessageConstants.WriteExchangeStatusDefaultTranslation));
         }
     },
-    WriteRadioAcknowledge(1, "Write radio acknowledge") {
+    WriteRadioAcknowledge(31002, "Write radio acknowledge") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.WriteRadioAcknowledge, DeviceMessageConstants.WriteRadioAcknowledgeDefaultTranslation));
         }
     },
-    WriteRadioUserTimeout(2, "Write radio user timeout") {
+    WriteRadioUserTimeout(31003, "Write radio user timeout") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.temporalAmountSpec(service, DeviceMessageConstants.WriteRadioUserTimeout, DeviceMessageConstants.WriteRadioUserTimeoutDefaultTranslation));
         }
     },
-    WriteNewPDRNumber(3, "Write new PDR number") {
+    WriteNewPDRNumber(31004, "Write new PDR number") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecOfExactLength(service, DeviceMessageConstants.newPDRAttributeName, DeviceMessageConstants.newPDRAttributeNameDefaultTranslation, 14));
         }
     },
-    ConfigureConverterMasterData(4, "Configure converter master data") {
+    ConfigureConverterMasterData(31005, "Configure converter master data") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -63,7 +63,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ConfigureGasMeterMasterData(5, "Configure gas meter master data") {
+    ConfigureGasMeterMasterData(31006, "Configure gas meter master data") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -79,7 +79,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ConfigureGasParameters(6, "Configure gas parameters") {
+    ConfigureGasParameters(31007, "Configure gas parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -100,103 +100,103 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         }
     },
     //EIWeb general messages
-    SetDescription(7, "Set description") {
+    SetDescription(31008, "Set description") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDescriptionAttributeName, DeviceMessageConstants.SetDescriptionAttributeDefaultTranslation).finish());
         }
     },
-    SetIntervalInSeconds(8, "Set interval in seconds") {
+    SetIntervalInSeconds(31009, "Set interval in seconds") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetIntervalInSecondsAttributeName, DeviceMessageConstants.SetIntervalInSecondsAttributeDefaultTranslation).finish());
         }
     },
-    SetUpgradeUrl(9, "Set upgrade URL") {
+    SetUpgradeUrl(31010, "Set upgrade URL") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetUpgradeUrlAttributeName, DeviceMessageConstants.SetUpgradeUrlAttributeDefaultTranslation).finish());
         }
     },
-    SetUpgradeOptions(10, "Set upgrade options") {
+    SetUpgradeOptions(31011, "Set upgrade options") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetUpgradeOptionsAttributeName, DeviceMessageConstants.SetUpgradeOptionsAttributeDefaultTranslation).finish());
         }
     },
-    SetDebounceTreshold(11, "Set debounce threshold") {
+    SetDebounceTreshold(31012, "Set debounce threshold") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDebounceTresholdAttributeName, DeviceMessageConstants.SetDebounceTresholdAttributeDefaultTranslation).finish());
         }
     },
-    SetTariffMoment(12, "Set tariff moment") {
+    SetTariffMoment(31013, "Set tariff moment") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetTariffMomentAttributeName, DeviceMessageConstants.SetTariffMomentAttributeDefaultTranslation).finish());
         }
     },
-    SetCommOffset(13, "Set comm offset") {
+    SetCommOffset(31014, "Set comm offset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetCommOffsetAttributeName, DeviceMessageConstants.SetCommOffsetAttributeDefaultTranslation).finish());
         }
     },
-    SetAggIntv(14, "Set aggregation interval") {
+    SetAggIntv(31015, "Set aggregation interval") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetAggIntvAttributeName, DeviceMessageConstants.SetAggIntvAttributeDefaultTranslation).finish());
         }
     },
-    SetPulseTimeTrue(15, "Set pulse time true") {
+    SetPulseTimeTrue(31016, "Set pulse time true") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetPulseTimeTrueAttributeName, DeviceMessageConstants.SetPulseTimeTrueAttributeDefaultTranslation).finish());
         }
     },
-    SetDukePowerID(16, "Set DukePower ID") {
+    SetDukePowerID(31017, "Set DukePower ID") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDukePowerIDAttributeName, DeviceMessageConstants.SetDukePowerIDAttributeDefaultTranslation).finish());
         }
     },
-    SetDukePowerPassword(17, "Set DukePower password") {
+    SetDukePowerPassword(31018, "Set DukePower password") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDukePowerPasswordAttributeName, DeviceMessageConstants.SetDukePowerPasswordAttributeDefaultTranslation).finish());
         }
     },
-    SetDukePowerIdleTime(18, "Set DukePower idle time") {
+    SetDukePowerIdleTime(31019, "Set DukePower idle time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDukePowerIdleTimeAttributeName, DeviceMessageConstants.SetDukePowerIdleTimeAttributeDefaultTranslation).finish());
         }
     },
-    UploadMeterScheme(19, "Upload meter scheme") {
+    UploadMeterScheme(31020, "Upload meter scheme") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.MeterScheme, DeviceMessageConstants.MeterSchemeDefaultTranslation));
         }
     },
-    UploadSwitchPointClockSettings(20, "Upload switch point clock settings") {
+    UploadSwitchPointClockSettings(31021, "Upload switch point clock settings") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.SwitchPointClockSettings, DeviceMessageConstants.SwitchPointClockSettingsDefaultTranslation));
         }
     },
-    UploadSwitchPointClockUpdateSettings(21, "Upload switch point clock update settings") {
+    UploadSwitchPointClockUpdateSettings(31022, "Upload switch point clock update settings") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.SwitchPointClockUpdateSettings, DeviceMessageConstants.SwitchPointClockUpdateSettingsDefaultTranslation));
         }
     },
-    ProgramBatteryExpiryDate(22, "Program battery expiry date") {
+    ProgramBatteryExpiryDate(31023, "Program battery expiry date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateSpec(service, DeviceMessageConstants.ConfigurationChangeDate, DeviceMessageConstants.ConfigurationChangeDateDefaultTranslation));
         }
     },
-    ChangeOfSupplier(23, "Change of supplier") {
+    ChangeOfSupplier(31024, "Change of supplier") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -206,13 +206,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ChangeOfTenancy(24, "Change of Tenancy") {
+    ChangeOfTenancy(31025, "Change of Tenancy") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, DeviceMessageConstants.ConfigurationChangeActivationDate, DeviceMessageConstants.ConfigurationChangeActivationDateDefaultTranslation));
         }
     },
-    SetCalorificValueAndActivationDate(25, "Set conversion factor and activation date") {
+    SetCalorificValueAndActivationDate(31026, "Set conversion factor and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -221,7 +221,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    SetConversionFactorAndActivationDate(26, "Set conversion factor and activation date") {
+    SetConversionFactorAndActivationDate(31027, "Set conversion factor and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -230,7 +230,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    SetAlarmFilter(27, "Set alarm filter") {
+    SetAlarmFilter(31028, "Set alarm filter") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -239,13 +239,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                             4));
         }
     },
-    ChangeDefaultResetWindow(28, "Change default reset window") {
+    ChangeDefaultResetWindow(31029, "Change default reset window") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.DefaultResetWindowAttributeName, DeviceMessageConstants.DefaultResetWindowAttributeDefaultTranslation));
         }
     },
-    ChangeAdministrativeStatus(29, "Change administrative status") {
+    ChangeAdministrativeStatus(31030, "Change administrative status") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -257,67 +257,67 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                             new BigDecimal(3)));
         }
     },
-    BootSyncEnable(30, "Enable sync at boot") {
+    BootSyncEnable(31043, "Enable sync at boot") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.enableBootSync, DeviceMessageConstants.enableBootSyncDefaultTranslation).finish());
         }
     },
-    WhitelistedPhoneNumbers(31, "Write white listed phone numbers") {
+    WhitelistedPhoneNumbers(31044, "Write white listed phone numbers") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.whiteListPhoneNumbersAttributeName, DeviceMessageConstants.whiteListPhoneNumbersAttributeDefaultTranslation).finish());
         }
     },
-    EnableFW(32, "Enable firewall") {
+    EnableFW(31041, "Enable firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    DisableFW(33, "Disable firewall") {
+    DisableFW(31042, "Disable firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    EnableSSL(35, "Enable SSL for the web interface") {
+    EnableSSL(31031, "Enable SSL for the web interface") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.enableSSL, DeviceMessageConstants.enableSSLDefaultTranslation));
         }
     },
-    SetDeviceName(36, "Set device name") {
+    SetDeviceName(31032, "Set device name") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.deviceName, DeviceMessageConstants.deviceNameDefaultTranslation).finish());
         }
     },
-    SetNTPAddress(37, "Set NTP address") {
+    SetNTPAddress(31033, "Set NTP address") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.ntpAddress, DeviceMessageConstants.ntpAddressDefaultTranslation).finish());
         }
     },
-    Clear_Faults_Flags(38, "Clear faults flags") {
+    Clear_Faults_Flags(31036, "Clear faults flags") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    Clear_Statistical_Values(39, "Clear statistical values") {
+    Clear_Statistical_Values(31037, "Clear statistical values") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    SyncNTPServer(40, "Synchronize NTP server") {
+    SyncNTPServer(31034, "Synchronize NTP server") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    ConfigureAutomaticDemandReset(41, "Configure automatic demand reset") {
+    ConfigureAutomaticDemandReset(31035, "Configure automatic demand reset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -331,19 +331,19 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ENABLE_DISCOVERY_ON_POWER_UP(43, "Enable discovery on power up") {
+    ENABLE_DISCOVERY_ON_POWER_UP(31038, "Enable discovery on power up") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    DISABLE_DISCOVERY_ON_POWER_UP(44, "Disable discovery on power up") {
+    DISABLE_DISCOVERY_ON_POWER_UP(31039, "Disable discovery on power up") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    ConfigureMasterBoardParameters(45, "Configure masterboard parameters") {
+    ConfigureMasterBoardParameters(31040, "Configure masterboard parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -362,19 +362,19 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    UpgradeSetOption(46, "Upgrade - Set an option") {
+    UpgradeSetOption(31045, "Upgrade - Set an option") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation).finish());
         }
     },
-    UpgradeClrOption(47, "Upgrade - Clear an option") {
+    UpgradeClrOption(31047, "Upgrade - Clear an option") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation).finish());
         }
     },
-    ConfigureBillingPeriodStartDate(48, "Configure billing period start date") {
+    ConfigureBillingPeriodStartDate(31048, "Configure billing period start date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -393,13 +393,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ConfigureBillingPeriodLength(49, "Configure billing period length") {
+    ConfigureBillingPeriodLength(31049, "Configure billing period length") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.billingPeriodLengthAttributeName, DeviceMessageConstants.billingPeriodLengthAttributeDefaultTranslation));
         }
     },
-    WriteNewOnDemandBillingDate(50, "Write new on demand billing date") {
+    WriteNewOnDemandBillingDate(31050, "Write new on demand billing date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -411,7 +411,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ChangeUnitStatus(51, "Change unit status") {
+    ChangeUnitStatus(31051, "Change unit status") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -422,7 +422,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                             .finish());
         }
     },
-    ConfigureStartOfGasDaySettings(52, "Configure start of gas day settings") {
+    ConfigureStartOfGasDaySettings(31052, "Configure start of gas day settings") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -431,13 +431,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                             Boolean.FALSE));
         }
     },
-    ConfigureStartOfGasDay(53, "Configure start of gas day") {
+    ConfigureStartOfGasDay(31053, "Configure start of gas day") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.timeSpec(service, DeviceMessageConstants.StartOfGasDayAttributeName, DeviceMessageConstants.StartOfGasDayAttributeDefaultTranslation));
         }
     },
-    ConfigureRSSIMultipleSampling(54, "Configure RSSI multiple sampling") {
+    ConfigureRSSIMultipleSampling(31054, "Configure RSSI multiple sampling") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -446,7 +446,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                             Boolean.TRUE));
         }
     },
-    CHANGE_OF_TENANT(55, "Set tenant") {
+    CHANGE_OF_TENANT(31055, "Set tenant") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -457,7 +457,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    CHANGE_OF_TENANT_AND_ACTIVATION_DATE(56, "Set tenant and activation date") {
+    CHANGE_OF_TENANT_AND_ACTIVATION_DATE(31056, "Set tenant and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -469,7 +469,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    CHANGE_OF_SUPPLIER(57, "Set Supplier") {
+    CHANGE_OF_SUPPLIER(31057, "Set Supplier") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -480,7 +480,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    CHANGE_OF_SUPPLIER_AND_ACTIVATION_DATE(58, "Set Supplier and activation date") {
+    CHANGE_OF_SUPPLIER_AND_ACTIVATION_DATE(31058, "Set Supplier and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -492,7 +492,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    CHANGE_OF_SUPPLIER_IMPORT_ENERGY(59, "Set Supplier A+") {
+    CHANGE_OF_SUPPLIER_IMPORT_ENERGY(31059, "Set Supplier A+") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -503,7 +503,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    CHANGE_OF_SUPPLIER_IMPORT_ENERGY_AND_ACTIVATION_DATE(60, "Set Supplier A+ and activation date") {
+    CHANGE_OF_SUPPLIER_IMPORT_ENERGY_AND_ACTIVATION_DATE(31060, "Set Supplier A+ and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -515,7 +515,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    CHANGE_OF_SUPPLIER_EXPORT_ENERGY(61, "Set Supplier A-") {
+    CHANGE_OF_SUPPLIER_EXPORT_ENERGY(31061, "Set Supplier A-") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -526,7 +526,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    CHANGE_OF_SUPPLIER_EXPORT_ENERGY_AND_ACTIVATION_DATE(62, "Set Supplier A- and activation date") {
+    CHANGE_OF_SUPPLIER_EXPORT_ENERGY_AND_ACTIVATION_DATE(31062, "Set Supplier A- and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -538,7 +538,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    SET_ENGINEER_PIN(63, "Set Engineer PIN") {
+    SET_ENGINEER_PIN(31063, "Set Engineer PIN") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -547,7 +547,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    SET_ENGINEER_PIN_AND_ACTIVATION_DATE(64, "Set Engineer PIN and activation date") {
+    SET_ENGINEER_PIN_AND_ACTIVATION_DATE(31064, "Set Engineer PIN and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -557,19 +557,19 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    SetCalorificValue(65, "Set calorific value") {
+    SetCalorificValue(31065, "Set calorific value") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.CalorificValue, DeviceMessageConstants.CalorificValueDefaultTranslation));
         }
     },
-    SetConversionFactor(66, "Set conversion factor") {
+    SetConversionFactor(31066, "Set conversion factor") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.ConversionFactor, DeviceMessageConstants.ConversionFactorDefaultTranslation));
         }
     },
-    ConfigureAllGasParameters(67, "Configure all gas parameters") {
+    ConfigureAllGasParameters(31067, "Configure all gas parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -594,31 +594,31 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ChangeMeterLocation(68, "Change meter location") {
+    ChangeMeterLocation(31068, "Change meter location") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.meterLocationAttributeName, DeviceMessageConstants.meterLocationAttributeDefaultTranslation).finish());
         }
     },
-    SendShortDisplayMessage(69, "Send short display message") {
+    SendShortDisplayMessage(31069, "Send short display message") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SHORT_DISPLAY_MESSAGE, DeviceMessageConstants.SHORT_DISPLAY_MESSAGE_DEFAULT_TRANSLATION).finish());
         }
     },
-    SendLongDisplayMessage(70, "Send long display message") {
+    SendLongDisplayMessage(31070, "Send long display message") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.LONG_DISPLAY_MESSAGE, DeviceMessageConstants.LONG_DISPLAY_MESSAGE_DEFAULT_TRANSLATION).finish());
         }
     },
-    ResetDisplayMessage(71, "Reset display message") {
+    ResetDisplayMessage(31071, "Reset display message") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    ConfigureLCDDisplay(72, "Configure LCD display") {
+    ConfigureLCDDisplay(31072, "Configure LCD display") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -637,7 +637,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ConfigureLoadProfileDataRecording(73, "Configure load profile data recording") {
+    ConfigureLoadProfileDataRecording(31073, "Configure load profile data recording") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -661,8 +661,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-
-    ConfigureSpecialDataMode(74, "Configure special data mode") {
+    ConfigureSpecialDataMode(31074, "Configure special data mode") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -699,7 +698,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ConfigureMaxDemandSettings(75, "Configure maximum demand settings") {
+    ConfigureMaxDemandSettings(31075, "Configure maximum demand settings") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -727,7 +726,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ConfigureConsumptionLimitationsSettings(76, "Configure consumption limitation settings") {
+    ConfigureConsumptionLimitationsSettings(31076, "Configure consumption limitation settings") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -769,7 +768,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ConfigureEmergencyConsumptionLimitation(77, "Configure emergency consumption limitation") {
+    ConfigureEmergencyConsumptionLimitation(31077, "Configure emergency consumption limitation") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -784,7 +783,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ConfigureTariffSettings(78, "Configure tariff settings") {
+    ConfigureTariffSettings(31078, "Configure tariff settings") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -795,13 +794,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    EnableGzipCompression(79, "Enable GZIP Compression") {
+    EnableGzipCompression(31079, "Enable GZIP Compression") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.ENABLE_GZIP_COMPRESSION, DeviceMessageConstants.ENABLE_GZIP_COMPRESSION_DEFAULT_TRANSLATION));
         }
     },
-    SetAuthenticationMechanism(80, "Set Authentication mechanism") {
+    SetAuthenticationMechanism(31080, "Set Authentication mechanism") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -811,31 +810,31 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                             .finish());
         }
     },
-    SetMaxLoginAttempts(81, "Set Max Login Attempts") {
+    SetMaxLoginAttempts(31081, "Set Max Login Attempts") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS_DEFAULT_TRANSLATION).finish());
         }
     },
-    SetLockoutDuration(82, "Set Lockout Duration") {
+    SetLockoutDuration(31082, "Set Lockout Duration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.durationSpec(service, DeviceMessageConstants.SET_LOCKOUT_DURATION, DeviceMessageConstants.SET_LOCKOUT_DURATION_DEFAULT_TRANSLATION, Duration.ofMillis(10000)));
         }
     },
-    ConfigureGeneralLocalPortReadout(83, "Configure general local port readout") {
+    ConfigureGeneralLocalPortReadout(31083, "Configure general local port readout") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.objectDefinitionsAttributeName, DeviceMessageConstants.objectDefinitionsAttributeDefaultTranslation).finish());
         }
     },
-    DISABLE_PUSH_ON_INSTALLATION(84, "Disable push on installation") {
+    DISABLE_PUSH_ON_INSTALLATION(31084, "Disable push on installation") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    ENABLE_PUSH_ON_INTERVAL_OBJECTS(85, "Write execution time for push on interval") {
+    ENABLE_PUSH_ON_INTERVAL_OBJECTS(31085, "Write execution time for push on interval") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -864,6 +863,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 .dateSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -873,6 +873,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 .timeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -882,6 +883,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -892,6 +894,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .setDefaultValue(defaultValue)
+                .markRequired()
                 .finish();
     }
 
@@ -900,7 +903,8 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         return service
                 .temporalAmountSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec temporalAmountSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -917,6 +921,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 .boundedBigDecimalSpec(lowerLimit, upperLimit)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -925,7 +930,8 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpecOfExactLength(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, int length) {
@@ -934,6 +940,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 .stringSpecOfExactLength(length)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -943,6 +950,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 .hexStringSpecOfExactLength(length)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -951,7 +959,8 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         return service
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -967,7 +976,8 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -987,6 +997,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 .referenceSpec(DeviceMessageFile.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

@@ -45,19 +45,19 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.speci
  */
 public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
 
-    ACTIVITY_CALENDAR_READ(0, "Read activity calendar") {
+    ACTIVITY_CALENDAR_READ(1, "Read activity calendar") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    WRITE_CONTRACTS_FROM_XML_USERFILE(1, "Write contracts from XML user file") {
+    WRITE_CONTRACTS_FROM_XML_USERFILE(2, "Write contracts from XML user file") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, contractsXmlUserFileAttributeName, contractsXmlUserFileAttributeDefaultTranslation));
         }
     },
-    ACTIVITY_CALENDER_SEND(2, "Send activity calendar") {
+    ACTIVITY_CALENDER_SEND(3, "Send activity calendar") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -66,7 +66,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME(3, "Send activity calendar with activation date") {
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME(4, "Send activity calendar with activation date") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -76,7 +76,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE(4, "Send activity calendar with activation date and type") {
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE(5, "Send activity calendar with activation date and type") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -87,7 +87,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT(5, "Send activity calendar with activation date and contract") {
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT(11, "Send activity calendar with activation date and contract") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -122,7 +122,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME(9, "Send special days calendar with contract and activation date") {
+    SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME(12, "Send special days calendar with contract and activation date") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -132,25 +132,25 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CLEAR_AND_DISABLE_PASSIVE_TARIFF(10, "Clear and disable passive tariff") {
+    CLEAR_AND_DISABLE_PASSIVE_TARIFF(9, "Clear and disable passive tariff") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ACTIVATE_PASSIVE_CALENDAR(11, "Activate passive calendar") {
+    ACTIVATE_PASSIVE_CALENDAR(10, "Activate passive calendar") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation));
         }
     },
-    SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE(12, "Send special days calendar from XLM user file") {
+    SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE(13, "Send special days calendar from XLM user file") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, XmlUserFileAttributeName, XmlUserFileAttributeDefaultTranslation));
         }
     },
-    ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE(13, "Send activity calendar with activation date from XML user file") {
+    ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE(14, "Send activity calendar with activation date from XML user file") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -159,7 +159,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE(14, "Send activity calendar with activation date and default tariff code") {
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE(15, "Send activity calendar with activation date and default tariff code") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -169,8 +169,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, defaultTariffCodeAttrributeName, defaultTariffCodeAttrributeDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2), BigDecimal.valueOf(3))
             );
         }
-    },
-    ;
+    };
 
     private final long id;
     private final String defaultNameTranslation;
@@ -187,7 +186,8 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -206,7 +206,8 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -226,6 +227,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -235,6 +237,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
                 .referenceSpec(DeviceMessageFile.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -244,6 +247,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
                 .referenceSpec(TariffCalender.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

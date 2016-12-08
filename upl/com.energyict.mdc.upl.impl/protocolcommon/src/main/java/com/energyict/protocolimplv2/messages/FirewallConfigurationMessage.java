@@ -21,19 +21,19 @@ import java.util.List;
  */
 public enum FirewallConfigurationMessage implements DeviceMessageSpecSupplier {
 
-    ActivateFirewall(0, "Activate firewall") {
+    ActivateFirewall(34001, "Activate firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    DeactivateFirewall(1, "Deactivate firewall") {
+    DeactivateFirewall(34002, "Deactivate firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    ConfigureFWWAN(2, "Configure WAN firewall") {
+    ConfigureFWWAN(34003, "Configure WAN firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -43,7 +43,7 @@ public enum FirewallConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ConfigureFWLAN(3, "Configure LAN firewall") {
+    ConfigureFWLAN(34004, "Configure LAN firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -53,7 +53,7 @@ public enum FirewallConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ConfigureFWGPRS(4, "Configure GPRS firewall") {
+    ConfigureFWGPRS(34005, "Configure GPRS firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -63,7 +63,7 @@ public enum FirewallConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetFWDefaultState(5, "Set default state for firewall") {
+    SetFWDefaultState(34006, "Set default state for firewall") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.defaultEnabled, DeviceMessageConstants.defaultEnabledDefaultTranslation));
@@ -86,6 +86,7 @@ public enum FirewallConfigurationMessage implements DeviceMessageSpecSupplier {
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

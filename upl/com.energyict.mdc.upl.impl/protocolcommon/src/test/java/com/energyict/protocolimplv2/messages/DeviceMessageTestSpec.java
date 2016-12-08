@@ -57,6 +57,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -66,6 +67,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -75,6 +77,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -84,6 +87,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
                 .referenceSpec(TariffCalender.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

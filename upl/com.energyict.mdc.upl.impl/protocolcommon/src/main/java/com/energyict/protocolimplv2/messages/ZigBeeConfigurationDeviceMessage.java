@@ -22,19 +22,19 @@ import java.util.List;
  */
 public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    CreateHANNetwork(0, "Create HAN network") {
+    CreateHANNetwork(6001, "Create HAN network") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    RemoveHANNetwork(1, "Remove HAN network") {
+    RemoveHANNetwork(6002, "Remove HAN network") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    JoinZigBeeSlaveDevice(2, "Join ZigBee slave device") {
+    JoinZigBeeSlaveDevice(6003, "Join ZigBee slave device") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -43,7 +43,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    RemoveMirror(3, "Remove mirror") {
+    RemoveMirror(6004, "Remove mirror") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -52,37 +52,37 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    RemoveZigBeeSlaveDevice(4, "Remove ZigBee slave device") {
+    RemoveZigBeeSlaveDevice(6005, "Remove ZigBee slave device") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation));
         }
     },
-    RemoveAllZigBeeSlaveDevices(5, "Remove all ZigBee slave devices") {
+    RemoveAllZigBeeSlaveDevices(6006, "Remove all ZigBee slave devices") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    BackUpZigBeeHANParameters(6, "Backup ZigBee HAN parameters") {
+    BackUpZigBeeHANParameters(6007, "Backup ZigBee HAN parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    RestoreZigBeeHANParameters(7, "Restore ZigBee HAN parameters") {
+    RestoreZigBeeHANParameters(6008, "Restore ZigBee HAN parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.messageFileSpec(service, DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName, DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeDefaultTranslation));
         }
     },
-    ReadZigBeeStatus(8, "Read ZigBee status") {
+    ReadZigBeeStatus(6009, "Read ZigBee status") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ChangeZigBeeHANStartupAttributeSetup(9, "Change ZigBee HAN startup attribute setup") {
+    ChangeZigBeeHANStartupAttributeSetup(6010, "Change ZigBee HAN startup attribute setup") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -93,13 +93,13 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    ZigBeeNCPFirmwareUpdateWithUserFile(10, "ZigBee NCP firmware update with user file") {
+    ZigBeeNCPFirmwareUpdateWithUserFile(6011, "ZigBee NCP firmware update with user file") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.messageFileSpec(service, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName, DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeDefaultTranslation));
         }
     },
-    ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(11, "ZigBee NCP firmware update with user file and activation date") {
+    ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(6012, "ZigBee NCP firmware update with user file and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -108,13 +108,13 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    UpdateLinkKey(12, "Update HAN link key") {
+    UpdateLinkKey(6013, "Update HAN link key") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation));
         }
     },
-    JoinZigBeeSlaveFromDeviceType(13, "Join ZigBee slave device") {
+    JoinZigBeeSlaveFromDeviceType(6014, "Join ZigBee slave device") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -138,7 +138,8 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -150,7 +151,8 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -163,6 +165,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -172,6 +175,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .passwordSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -181,6 +185,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -190,6 +195,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -199,6 +205,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .referenceSpec(DeviceMessageFile.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

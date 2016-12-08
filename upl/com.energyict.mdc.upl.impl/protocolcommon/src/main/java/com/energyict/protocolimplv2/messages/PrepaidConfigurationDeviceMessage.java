@@ -21,7 +21,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.prepa
  */
 public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    AddPrepaidCredit(0, "Add prepaid credit") {
+    AddPrepaidCredit(27001, "Add prepaid credit") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             TranslationKeyImpl translationKey = new TranslationKeyImpl(prepaidCreditAttributeName, prepaidCreditAttributeNameDefaultTranslation);
@@ -30,16 +30,17 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecSuppli
                     .bigDecimalSpec()
                     .named(prepaidCreditAttributeName, translationKey)
                     .describedAs(translationKey.description())
+                    .markRequired()
                     .finish());
         }
     },
-    DisablePrepaid(1, "Disable prepaid") {
+    DisablePrepaid(27002, "Disable prepaid") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    EnablePrepaid(2, "Enable prepaid") {
+    EnablePrepaid(27003, "Enable prepaid") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();

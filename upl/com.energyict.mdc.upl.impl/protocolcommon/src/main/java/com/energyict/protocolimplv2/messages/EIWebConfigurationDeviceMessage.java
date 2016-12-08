@@ -22,7 +22,7 @@ import java.util.List;
  */
 public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetEIWebPassword(0, "Set EIWeb password") {
+    SetEIWebPassword(18001, "Set EIWeb password") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -31,7 +31,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
             );
         }
     },
-    SetEIWebPage(1, "Set EIWeb web page") {
+    SetEIWebPage(18002, "Set EIWeb web page") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -40,7 +40,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
             );
         }
     },
-    SetEIWebFallbackPage(2, "Set EIWeb fallback page") {
+    SetEIWebFallbackPage(18003, "Set EIWeb fallback page") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -49,7 +49,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
             );
         }
     },
-    SetEIWebSendEvery(3, "Set EIWeb send every") {
+    SetEIWebSendEvery(18004, "Set EIWeb send every") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -58,7 +58,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
             );
         }
     },
-    SetEIWebCurrentInterval(4, "Set EIWeb current interval") {
+    SetEIWebCurrentInterval(18005, "Set EIWeb current interval") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -67,7 +67,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
             );
         }
     },
-    SetEIWebDatabaseID(5, "Set EIWeb database ID") {
+    SetEIWebDatabaseID(18006, "Set EIWeb database ID") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -76,7 +76,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
             );
         }
     },
-    SetEIWebOptions(6, "Set EIWeb web options") {
+    SetEIWebOptions(18007, "Set EIWeb web options") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -85,19 +85,19 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
             );
         }
     },
-    UpdateEIWebSSLCertificate(7, "Update the SSL certificate for EIWeb+") {
+    UpdateEIWebSSLCertificate(18008, "Update the SSL certificate for EIWeb+") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.sslCertificateUserFile, DeviceMessageConstants.sslCertificateUserFileDefaultTranslation));
         }
     },
-    EIWebSetOption(8, "EIWeb - Set an option") {
+    EIWebSetOption(18009, "EIWeb - Set an option") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
         }
     },
-    EIWebClrOption(21, "EIWeb - Clear an option") {
+    EIWebClrOption(18010, "EIWeb - Clear an option") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
@@ -120,6 +120,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
                 .referenceSpec(DeviceMessageFile.class)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -129,6 +130,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -137,7 +139,8 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

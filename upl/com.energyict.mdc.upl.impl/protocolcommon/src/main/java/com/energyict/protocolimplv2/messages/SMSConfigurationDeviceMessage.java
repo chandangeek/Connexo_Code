@@ -18,14 +18,14 @@ import java.util.List;
  */
 public enum SMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetSmsDataNbr(0, "Set sms data number", DeviceMessageConstants.SetSmsDataNbrAttributeName, DeviceMessageConstants.SetSmsDataNbrAttributeDefaultTranslation),
-    SetSmsAlarmNbr(1, "Set sms alarm number", DeviceMessageConstants.SetSmsAlarmNbrAttributeName, DeviceMessageConstants.SetSmsAlarmNbrAttributeDefaultTranslation),
-    SetSmsEvery(2, "Set sms every", DeviceMessageConstants.SetSmsEveryAttributeName, DeviceMessageConstants.SetSmsEveryAttributeDefaultTranslation),
-    SetSmsNbr(3, "Set sms number", DeviceMessageConstants.SetSmsNbrAttributeName, DeviceMessageConstants.SetSmsNbrAttributeDefaultTranslation),
-    SetSmsCorrection(4, "Set sms correction", DeviceMessageConstants.SetSmsCorrectionAttributeName, DeviceMessageConstants.SetSmsCorrectionAttributeDefaultTranslation),
-    SetSmsConfig(5, "Set sms configuration", DeviceMessageConstants.SetSmsConfigAttributeName, DeviceMessageConstants.SetSmsConfigAttributeDefaultTranslation),
-    SMSSetOption(6, "SMS - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
-    SMSClrOption(7, "SMS - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation);
+    SetSmsDataNbr(21001, "Set sms data number", DeviceMessageConstants.SetSmsDataNbrAttributeName, DeviceMessageConstants.SetSmsDataNbrAttributeDefaultTranslation),
+    SetSmsAlarmNbr(21002, "Set sms alarm number", DeviceMessageConstants.SetSmsAlarmNbrAttributeName, DeviceMessageConstants.SetSmsAlarmNbrAttributeDefaultTranslation),
+    SetSmsEvery(21003, "Set sms every", DeviceMessageConstants.SetSmsEveryAttributeName, DeviceMessageConstants.SetSmsEveryAttributeDefaultTranslation),
+    SetSmsNbr(21004, "Set sms number", DeviceMessageConstants.SetSmsNbrAttributeName, DeviceMessageConstants.SetSmsNbrAttributeDefaultTranslation),
+    SetSmsCorrection(21005, "Set sms correction", DeviceMessageConstants.SetSmsCorrectionAttributeName, DeviceMessageConstants.SetSmsCorrectionAttributeDefaultTranslation),
+    SetSmsConfig(21006, "Set sms configuration", DeviceMessageConstants.SetSmsConfigAttributeName, DeviceMessageConstants.SetSmsConfigAttributeDefaultTranslation),
+    SMSSetOption(21007, "SMS - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    SMSClrOption(21008, "SMS - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation);
 
     private final long id;
     private final String defaultNameTranslation;
@@ -53,6 +53,7 @@ public enum SMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
