@@ -209,7 +209,7 @@ Ext.define('Uni.view.widget.WorkList', {
             } else if (type == 'datetime') {
                 tooltip += '<tr><td><b>' + label + ':</b></td>';
                 if (item[name] != '') {
-                    tooltip += '<td>' + Uni.DateTime.formatDateTimeLong(new Date(item[name] / 1000)) + '</td></tr>';
+                    tooltip += '<td>' + Uni.DateTime.formatDateTimeLong(new Date(Number(item[name]))) + '</td></tr>';
                 }
                 else {
                     tooltip += '<td>-</td></tr>';
