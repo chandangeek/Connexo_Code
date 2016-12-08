@@ -53,7 +53,6 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
                             .finish());
         }
     },
-    CHANGE_ENCRYPTION_KEY(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY, "Change encryption key"),
     CHANGE_CLIENT_PASSWORDS(DeviceMessageId.SECURITY_CHANGE_CLIENT_PASSWORDS, "Change client passwords") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -106,7 +105,6 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
                         .finish());
         }
     },
-    CHANGE_AUTHENTICATION_KEY(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY, "Change authentication key"),
     CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY, "Change authentication key with the value") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -323,19 +321,6 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
                             .finish());
         }
     },
-    DISABLE_DLMS_AUTHENTICATION_LEVEL_P1(DeviceMessageId.SECURITY_DISABLE_DLMS_AUTHENTICATION_LEVEL_P1, "Disable authentication level P1") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(
-                    propertySpecService
-                            .stringSpec()
-                            .named(DeviceMessageAttributes.authenticationLevelAttributeName)
-                            .fromThesaurus(thesaurus)
-                            .markRequired().addValues(DlmsAuthenticationLevelMessageValues.getNames())
-                            .finish());
-        }
-    },
     DISABLE_DLMS_AUTHENTICATION_LEVEL_P3(DeviceMessageId.SECURITY_DISABLE_DLMS_AUTHENTICATION_LEVEL_P3, "Disable authentication level P3") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -350,19 +335,6 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         }
     },
     ENABLE_DLMS_AUTHENTICATION_LEVEL_P0(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P0, "Enable authentication level P0") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(
-                    propertySpecService
-                            .stringSpec()
-                            .named(DeviceMessageAttributes.authenticationLevelAttributeName)
-                            .fromThesaurus(thesaurus)
-                            .markRequired().addValues(DlmsAuthenticationLevelMessageValues.getNames())
-                            .finish());
-        }
-    },
-    ENABLE_DLMS_AUTHENTICATION_LEVEL_P1(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P1, "Enable authentication level P1") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);

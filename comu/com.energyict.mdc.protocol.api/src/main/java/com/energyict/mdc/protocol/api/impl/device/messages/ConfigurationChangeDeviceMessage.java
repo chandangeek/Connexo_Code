@@ -410,7 +410,7 @@ enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
         }
     },
-    SetCalorificValue(DeviceMessageId.CONFIGURATION_CHANGE_SET_CALORIFIC_VALUE, "Set calorific value") {
+    SetCalorificValue(DeviceMessageId.CONFIGURATION_CHANGE_SET_CALORIFIC_VALUE_AND_ACTIVATION_DATE, "Set calorific value") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
@@ -428,7 +428,7 @@ enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
         }
     },
-    SetConversionFactor(DeviceMessageId.CONFIGURATION_CHANGE_SET_CONVERSION_FACTOR, "Set conversion factor") {
+    SetConversionFactor(DeviceMessageId.CONFIGURATION_CHANGE_SET_CONVERSION_FACTOR_AND_ACTIVATION_DATE, "Set conversion factor") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);

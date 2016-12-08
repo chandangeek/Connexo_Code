@@ -76,20 +76,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         }
     },
 
-    SetActiveScanDuration(DeviceMessageId.PLC_CONFIGURATION_SET_ACTIVE_SCAN_DURATION, "Set active scan duration") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(
-                    propertySpecService
-                            .timeDurationSpec()
-                            .named(PLCConfigurationDeviceMessageAttributes.activeScanDurationAttributeName)
-                            .fromThesaurus(thesaurus)
-                            .markRequired()
-                            .finish());
-        }
-    },
-    SetBroadCastLogTableEntryTTL(DeviceMessageId.PLC_CONFIGURATION_SET_BROAD_CAST_LOG_TABLE_ENTRY_TTL, "Set broadcast log table entry TTL") {
+    SetBroadCastLogTableEntryTTL(DeviceMessageId.PLC_CONFIGURATION_SET_BROADCAST_LOG_TABLE_ENTRY_TTL_ATTRIBUTENAME, "Set broadcast log table entry TTL") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
@@ -102,20 +89,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
         }
     },
-    SetDiscoveryAttemptsSpeed(DeviceMessageId.PLC_CONFIGURATION_SET_DISCOVERY_ATTEMPTS_SPEED, "Set discovery attempts speed") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(
-                    propertySpecService
-                            .timeDurationSpec()
-                            .named(PLCConfigurationDeviceMessageAttributes.discoveryAttemptsSpeedAttributeName)
-                            .fromThesaurus(thesaurus)
-                            .markRequired()
-                            .finish());
-        }
-    },
-    SetMaxAgeTime(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_AGE_TIME, "Set maximum age time") {
+    SetMaxJoinTime(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_JOIN_WAIT_TIME, "Set maximum join wait time") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
@@ -128,7 +102,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
         }
     },
-    SetMaxNumberOfHops(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_NUMBER_OF_HOPS, "Set maximum number of hops") {
+    SetMaxNumberOfHops(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_NUMBER_OF_HOPS_ATTRIBUTENAME, "Set maximum number of hops") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
@@ -141,34 +115,14 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
         }
     },
-    SetMaxPANConflictsCount(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_PAN_CONFLICTS_COUNT, "Set maximum PAN conflicts") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PLCConfigurationDeviceMessageAttributes.maxPANConflictsCountAttributeName);
-        }
-    },
-    SetPanConflictWaitTime(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_CONFLICT_WAIT_TIME, "Set PAN conflict wait time") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(
-                    propertySpecService
-                            .timeDurationSpec()
-                            .named(PLCConfigurationDeviceMessageAttributes.panConflictWaitTimeAttributeName)
-                            .fromThesaurus(thesaurus)
-                            .markRequired()
-                            .finish());
-        }
-    },
-    SetToneMask(DeviceMessageId.PLC_CONFIGURATION_SET_TONE_MASK, "Set tone mask") {
+    SetToneMask(DeviceMessageId.PLC_CONFIGURATION_SET_TONE_MASK_ATTRIBUTE_NAME, "Set tone mask") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             this.addStringSpec(propertySpecs, propertySpecService, thesaurus, PLCConfigurationDeviceMessageAttributes.toneMaskAttributeName);
         }
     },
-    SetWeakLQIValue(DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE, "Set weak LQI value") {
+    SetWeakLQIValue(DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE_ATTRIBUTENAME, "Set weak LQI value") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
@@ -196,20 +150,6 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PLCConfigurationDeviceMessageAttributes.G3PanIdAttributename);
         }
     },
-    SetMaxOrphanTimer(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_ORPHAN_TIMER, "Set maximum orphan timeer") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(
-                    propertySpecService
-                            .timeDurationSpec()
-                            .named(PLCConfigurationDeviceMessageAttributes.MaxOrphanTimerAttributeName)
-                            .fromThesaurus(thesaurus)
-                            .markRequired()
-                            .finish());
-        }
-    },
-
     SetSFSKRepeater(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_REPEATER, "Set SFSK repeater") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
