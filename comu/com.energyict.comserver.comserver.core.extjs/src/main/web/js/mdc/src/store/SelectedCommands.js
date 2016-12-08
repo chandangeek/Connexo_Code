@@ -1,5 +1,8 @@
 Ext.define('Mdc.store.SelectedCommands',{
     extend: 'Ext.data.Store',
-    model: 'Mdc.model.Commands',
+    requires: [
+        'Mdc.model.Command'
+    ],
+    model: 'Mdc.model.Command',
     autoLoad: false
 });

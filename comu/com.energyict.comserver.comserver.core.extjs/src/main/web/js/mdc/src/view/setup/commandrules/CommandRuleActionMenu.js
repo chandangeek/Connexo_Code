@@ -6,20 +6,21 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleActionMenu', {
             {
                 text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                 action: 'toggleCommandRuleActivation',
+                privileges: Mdc.privileges.CommandLimitationRules.admin,
                 itemId: 'mdc-command-rule-activation-toggle-menu-item',
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                 action: 'editCommandRule',
-                //privileges: Mdc.privileges.Communication.admin,
+                privileges: Mdc.privileges.CommandLimitationRules.admin,
                 itemId: 'mdc-command-rule-edit-menu-item',
                 section: this.SECTION_EDIT
             },
             {
                 text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                 action: 'removeCommandRule',
-                //privileges: Mdc.privileges.Communication.admin,
+                privileges: Mdc.privileges.CommandLimitationRules.admin,
                 itemId: 'mdc-command-rule-remove-menu-item',
                 section: this.SECTION_REMOVE
             }

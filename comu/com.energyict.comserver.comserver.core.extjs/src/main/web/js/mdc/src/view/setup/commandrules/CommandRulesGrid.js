@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
                 sortable: false,
                 menuDisabled: true,
                 xtype: 'uni-actioncolumn',
-                //privileges: Mdc.privileges.Communication.admin,
+                privileges: Mdc.privileges.CommandLimitationRules.admin,
                 menu: {
                     xtype: 'commandRuleActionMenu'
                 }

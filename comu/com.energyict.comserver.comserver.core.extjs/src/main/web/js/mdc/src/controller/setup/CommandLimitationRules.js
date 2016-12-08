@@ -17,7 +17,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     stores: [
         'Mdc.store.Clipboard',
         'Mdc.store.Commands',
-        'Mdc.store.CommandsForRule'
+        'Mdc.store.CommandsForRule',
+        'Mdc.store.SelectedCommands'
     ],
 
     refs: [
@@ -38,6 +39,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     commandsArray: null,
     ruleModel: null,
     commandsForRuleStore: null,
+    selectedCommandsStore: null,
 
     init: function () {
         var me = this;
@@ -46,7 +48,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 select: me.loadCommandRuleDetail
             },
             'commandRuleActionMenu' : {
-                click: me.onMenuClicked
+                click: me.onRuleActionMenuClicked
             },
             '#mdc-command-rule-addEdit-cancel-link': {
                 click: me.onCancelAddEdit
@@ -67,13 +69,13 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 click: me.onAddCommandsButtonClicked
             },
             '#mdc-command-rule-add-commands-cancelLink': {
-                click: me.forwardToPreviousPage
+                click: me.onCancelAddingCommands
             },
             '#mdc-command-rule-add-commands-addButton': {
                 click: me.onAddChosenCommands
             },
             'commandRuleAddEdit': {
-                render: me.populateStore
+                render: me.initializeStores
             }
         });
     },
@@ -82,6 +84,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         var widget = Ext.widget('commandRulesOverview', {
             router: this.getController('Uni.controller.history.Router')
         });
+        this.commandsArray = [];
         this.getApplication().fireEvent('changecontentevent', widget);
         this.goToRulesOverview = false;
     },
@@ -121,13 +124,19 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    onMenuClicked: function(menu, menuItem) {
+    onRuleActionMenuClicked: function(menu, menuItem) {
+        var me = this,
+            record = menu.record;
         switch(menuItem.action) {
             case 'toggleCommandRuleActivation':
+                if (record.get('active')===false) {
+                    me.activateRule(record);
+                }
                 break;
             case 'editCommandRule':
                 break;
             case 'removeCommandRule':
+                me.removeRule(record);
                 break;
         }
     },
@@ -164,8 +173,11 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     onCancelAddEdit: function() {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            page = me.getRuleEdit(),
+            commandsStore = page.down('#mdc-command-rule-addEdit-commands-grid').getStore();
 
+        commandsStore.removeAll();
         window.location.href = me.goToRulesOverview && me.commandRuleBeingEdited
             ? router.getRoute('administration/commandrules/view').buildUrl({ ruleId: me.commandRuleBeingEdited.get('id') })
             : router.getRoute('administration/commandrules').buildUrl();
@@ -255,6 +267,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 },
                 callback: function () {
                     mainView.setLoading(false);
+                    commandsStore.removeAll();
                 }
             });
         }
@@ -394,20 +407,93 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         var me = this,
             widget = this.getAddCommandsToRuleView(),
             grid = widget.down('#mdc-command-rule-add-commands-grid'),
-            selection = grid.getSelectedItems();
+            selection = grid.getSelectedItems(),
+            selectedStore = Ext.getStore('Mdc.store.SelectedCommands');
 
         if (selection.length > 0) {
             Ext.each(selection, function(record) {
                 me.commandsArray.push(record);
             });
         }
+        selectedStore.removeAll();
         me.forwardToPreviousPage();
     },
 
-    populateStore: function() {
+    onCancelAddingCommands: function() {
+        var me = this,
+            selectedStore = Ext.getStore('Mdc.store.SelectedCommands');
+
+        selectedStore.removeAll();
+        me.forwardToPreviousPage();
+    },
+
+    initializeStores: function() {
         if (Ext.isEmpty(this.commandsForRuleStore)) {
             this.commandsForRuleStore = Ext.getStore('Mdc.store.CommandsForRule');
         }
+        if (Ext.isEmpty(this.selectedCommandsStore)) {
+            this.selectedCommandsStore = Ext.getStore('Mdc.store.SelectedCommands');
+        }
+    },
+
+    activateRule: function (rule) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                confirmation: function () {
+                    me.doActivateRule(rule, this);
+                }
+            });
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('commandRule.activateMsg', 'MDC', 'Two people have to approve the activation. (To be defined).'),
+            title: Uni.I18n.translate('general.activateRuleX', 'MDC', 'Activate "{0}"?', rule.get('name'))
+        });
+    },
+
+    doActivateRule: function(rule, confirmationWindow) {
+        confirmationWindow.destroy();
+    },
+
+    removeRule: function(record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('commandRule.removeMsg', 'MDC', 'Message still to be defined.'),
+            title: Uni.I18n.translate('general.removex', 'MDC', 'Remove {0}?', record.get('name')),
+            config: {
+                confirmText: Uni.I18n.translate('general.remove', 'MDC', 'Remove')
+            },
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.doRemoveRule(record);
+                } else if (state === 'cancel') {
+                    this.destroy();
+                }
+            }
+        });
+    },
+
+    doRemoveRule: function(record) {
+        var me = this;
+
+        record.destroy({
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute('administration/commandrules').forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandRule.remove.succes', 'MDC', 'Command limitation rule removed.'));
+            }
+            //,
+            //failure: function (object, operation) {
+            //    if (operation.response.status === 409) {
+            //        return
+            //    }
+            //    var json = Ext.decode(operation.response.responseText, true);
+            //    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'DES', 'Unknown error occurred');
+            //    if (json && json.errors) {
+            //        errorText = json.errors[0].msg;
+            //    }
+            //}
+        });
     }
 
 });
