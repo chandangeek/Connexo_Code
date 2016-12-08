@@ -994,7 +994,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(DeviceMessageFile.class)
+                .referenceSpec(DeviceMessageFile.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

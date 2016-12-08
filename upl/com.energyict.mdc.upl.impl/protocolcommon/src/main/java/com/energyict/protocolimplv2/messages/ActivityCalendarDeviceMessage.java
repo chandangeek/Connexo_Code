@@ -231,24 +231,22 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected <T> PropertySpec referenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, Class<T> apiClass) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(DeviceMessageFile.class)
+                .referenceSpec(apiClass.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
                 .finish();
     }
 
+    protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, DeviceMessageFile.class);
+    }
+
     protected PropertySpec codeTableSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .referenceSpec(TariffCalender.class)
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
+        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, TariffCalender.class);
     }
 
     private String getNameResourceKey() {

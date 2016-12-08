@@ -467,24 +467,22 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    protected PropertySpec firmwareVersionSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    private <T> PropertySpec referenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, Class<T> apiClass) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(FirmwareVersion.class)
+                .referenceSpec(apiClass.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
                 .finish();
     }
 
+    protected PropertySpec firmwareVersionSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, FirmwareVersion.class);
+    }
+
     protected PropertySpec deviceGroupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .referenceSpec(DeviceGroup.class)
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
+        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, DeviceGroup.class);
     }
 
     private String getNameResourceKey() {

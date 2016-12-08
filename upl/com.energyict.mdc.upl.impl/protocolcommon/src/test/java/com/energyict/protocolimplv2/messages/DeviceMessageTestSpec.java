@@ -84,7 +84,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
     protected PropertySpec tariffCalendarSpec(PropertySpecService service, String deviceMessageConstantKey) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, TRANSLATION);
         return service
-                .referenceSpec(TariffCalender.class)
+                .referenceSpec(TariffCalender.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

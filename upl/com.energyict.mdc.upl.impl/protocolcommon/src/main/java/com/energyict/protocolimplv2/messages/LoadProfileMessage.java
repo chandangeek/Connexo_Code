@@ -167,7 +167,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
     protected PropertySpec loadProfileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(LoadProfile.class)
+                .referenceSpec(LoadProfile.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

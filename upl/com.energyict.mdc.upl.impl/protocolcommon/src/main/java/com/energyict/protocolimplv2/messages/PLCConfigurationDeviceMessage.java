@@ -619,7 +619,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
     protected PropertySpec deviceGroupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(DeviceGroup.class)
+                .referenceSpec(DeviceGroup.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

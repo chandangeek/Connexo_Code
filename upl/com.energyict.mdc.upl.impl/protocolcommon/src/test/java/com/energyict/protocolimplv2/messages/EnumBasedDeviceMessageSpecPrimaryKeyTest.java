@@ -188,7 +188,7 @@ public class EnumBasedDeviceMessageSpecPrimaryKeyTest {
         }
 
         protected PropertySpec tariffCalendarSpec(String name) {
-            return this.finish(Services.propertySpecService().referenceSpec(TariffCalender.class), name);
+            return this.finish(Services.propertySpecService().referenceSpec(TariffCalender.class.getName()), name);
         }
 
         protected PropertySpec dateTimeSpec(String name) {

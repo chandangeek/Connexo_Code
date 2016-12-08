@@ -390,24 +390,22 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    protected PropertySpec numberLookupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    private <T> PropertySpec referenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, Class<T> apiClass) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(NumberLookup.class)
+                .referenceSpec(apiClass.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
                 .finish();
     }
 
+    protected PropertySpec numberLookupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, NumberLookup.class);
+    }
+
     protected PropertySpec readingTypeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .referenceSpec(ReadingType.class)
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
+        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, "com.energyict.mdc.upl.properties.ReadingType");
     }
 
     private String getNameResourceKey() {
