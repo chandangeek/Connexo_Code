@@ -71,13 +71,16 @@ public interface DeviceMessageSpec {
 
     /**
      * Gets the PrimaryKey for this {@link DeviceMessageSpec}.
-     *
+     * @deprecated Retained to support existing environments that are using string based primary keys
+     *             because the globally unique identification mechanism did not exist at that time
      * @return the primary key
+     * @see #getMessageId()
      */
+    @Deprecated
     DeviceMessageSpecPrimaryKey getPrimaryKey();
 
     /**
-     * Gets the message's unique ID.
+     * Gets the globally unique identifier of this DeviceMessageSpec.
      */
     long getMessageId();
 
