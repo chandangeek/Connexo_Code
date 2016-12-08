@@ -62,7 +62,7 @@ public class CommandRuleInfo {
 
     private static void checkBasicChanges(List<DualControlChangeInfo> changes, CommandRule commandRule, CommandRulePendingUpdate pendingUpdate) {
         if(commandRule.isActive() != pendingUpdate.isActive()) {
-            changes.add(new DualControlChangeInfo("Day Limit", String.valueOf(commandRule.isActive()), String.valueOf(pendingUpdate.isActive())));
+            changes.add(new DualControlChangeInfo("Status", String.valueOf(commandRule.isActive()), String.valueOf(pendingUpdate.isActive())));
         }
 
         if(!commandRule.getName().equals(pendingUpdate.getName())) {
