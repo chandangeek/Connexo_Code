@@ -34,16 +34,16 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
     
     /** Generated SerialVersionUID */
 	private static final long serialVersionUID = 4993375627564701564L;
-	private static final int DEBUG=0;
-    private static final long TIMEOUT=60000;
+	protected static final int DEBUG=0;
+    protected static final long TIMEOUT=60000;
     
-    private int timeout;
+    protected int timeout;
     private int maxRetries;
-    private transient ByteArrayOutputStream txOutputStream = new ByteArrayOutputStream();
+    protected transient ByteArrayOutputStream txOutputStream = new ByteArrayOutputStream();
     
     private long sourceId;
     private long destinationId=-1;
-    private int sequenceNr=0xFFFE; // initial sequencenumber
+    protected int sequenceNr=0xFFFE; // initial sequencenumber
     private long forcedDelay;
     
     /** Creates a new instance of AlphaConnection */
@@ -116,7 +116,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
         } // while(true)
     } // public void sendCommand(byte[] cmdData) throws ConnectionException
     
-    private void genSequenceNr() {
+    protected void genSequenceNr() {
         if ((sequenceNr==0) || (sequenceNr==0xFFFF)) {
 			sequenceNr=1;
 		} else {
@@ -142,11 +142,11 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
     }
     
     // multidrop?
-    private boolean isExtendedCommunication() {
+    protected boolean isExtendedCommunication() {
         return (destinationId != -1);
     }
     
-    private void assembleFrame(byte txbyte) {
+    protected void assembleFrame(byte txbyte) {
         txOutputStream.write(txbyte);
     }
     
@@ -156,7 +156,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
     }
     
     
-    private void doSendCommand(byte[] rawData) throws ConnectionException {
+    protected void doSendCommand(byte[] rawData) throws ConnectionException {
         txOutputStream.reset();
         assembleFrame(STX);
         byte[] cmdData=rawData;
