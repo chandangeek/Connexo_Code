@@ -10,12 +10,15 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Optional;
 
+@Component(name = "com.elster.jupiter.dualcontrol", service = {DualControlService.class}, property = {"name=" + DualControlService.COMPONENT_NAME}, immediate = true)
 public class DualControlServiceImpl implements DualControlService {
 
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -34,7 +37,8 @@ public class DualControlServiceImpl implements DualControlService {
         activate();
     }
 
-    private void activate() {
+    @Activate
+    public void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
