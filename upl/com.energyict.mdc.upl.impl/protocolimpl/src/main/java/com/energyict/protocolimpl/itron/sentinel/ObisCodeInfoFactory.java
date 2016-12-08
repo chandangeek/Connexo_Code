@@ -14,6 +14,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.ansi.c12.tables.ActualRegisterTable;
@@ -195,6 +196,11 @@ public class ObisCodeInfoFactory {
             sentinel.getLogger().info("NullPointerException when calling getObisCodeDescriptor(): " + npe);
         } catch (ArrayIndexOutOfBoundsException aioobe) {
             sentinel.getLogger().info("ArrayIndexOutOfBoundsException when calling getObisCodeDescriptor(): " + aioobe);
+        } catch (ProtocolException e) {
+            sentinel.getLogger().info("ProtocolException when calling getObisCodeDescriptor(): " + e);
+            if (!e.getMessage().contains("ArrayIndexOutOfBoundsException")) {
+                throw e;
+            }
         } catch (Throwable t) {
             sentinel.getLogger().info("Unhandled Throwable when calling getObisCodeDescriptor(): " + t);
             throw t;
