@@ -82,6 +82,12 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
         return this;
     }
 
+    CommandRulePendingUpdateImpl initializeRemoval(CommandRule commandRule) {
+        this.initialize(commandRule);
+        this.isRemoval = true;
+        return this;
+    }
+
     @Override
     public long getId() {
         return id;

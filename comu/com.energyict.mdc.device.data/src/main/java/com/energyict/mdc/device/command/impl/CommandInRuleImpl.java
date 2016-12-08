@@ -92,13 +92,11 @@ public class CommandInRuleImpl implements CommandInRule {
             return false;
         }
         CommandInRuleImpl that = (CommandInRuleImpl) o;
-        return commandId == that.commandId &&
-                Objects.equals(commandRule, that.commandRule) &&
-                Objects.equals(commandRulePendingUpdate, that.commandRulePendingUpdate);
+        return commandId == that.commandId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandRule, commandRulePendingUpdate, commandId);
+        return Objects.hash(commandId);
     }
 }

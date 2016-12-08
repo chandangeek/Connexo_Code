@@ -102,6 +102,7 @@ public class CommandRuleIT {
     private static DualControlService dualControlService;
     private static ThreadPrincipalService threadPrincipalService;
     private static JsonService jsonService;
+    private long counter = 0;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -153,14 +154,14 @@ public class CommandRuleIT {
             dualControlService = injector.getInstance(DualControlService.class);
             threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             userService = injector.getInstance(UserService.class);
-            createUserAndChange("TEST_USER");
+            createUserAndChange(1);
             return null;
         });
         jsonService = injector.getInstance(JsonService.class);
     }
 
-    private static void createUserAndChange(String name) {
-        principal = userService.createUser(name, "This user is just to satisfy the foreign key ...");
+    private static void createUserAndChange(long id) {
+        principal = userService.createUser("TEST" + id, "This user is just to satisfy the foreign key ...");
         principal.update();
         threadPrincipalService.set(principal);
     }
@@ -260,7 +261,8 @@ public class CommandRuleIT {
     @Test
     @Transactional
     public void tryActivate() {
-        CommandRule testRule = createRule("test", 10, 11, 12, 1);
+        CommandRule testRule = createRule("test3", 10, 11, 12, 1);
+        createUserAndChange(8);
         assertThat(testRule.isActive()).isFalse();
         testRule.activate();
         assertThat(testRule.isActive()).isFalse();
@@ -274,9 +276,10 @@ public class CommandRuleIT {
         assertThat(testRule.getCommandRulePendingUpdate().get().isActive());
 
         CommandRuleImpl commandRuleImpl = (CommandRuleImpl) testRule;
-        commandRuleImpl.getMonitor().approve(commandRuleImpl);
-        createUserAndChange("TEST_USER_2");
-        commandRuleImpl.getMonitor().approve(commandRuleImpl);
+        createUserAndChange(7);
+        commandRuleImpl.approve();
+        createUserAndChange(2);
+        commandRuleImpl.approve();
         assertThat(testRule.getCommandRulePendingUpdate()).isEmpty();
 
         reloadedRule = commandRuleService.findCommandRule(testRule.getId());
@@ -286,6 +289,68 @@ public class CommandRuleIT {
         assertThat(testRule.getCommandRulePendingUpdate()).isEmpty();
     }
 
+    @Test
+    @Transactional
+    public void tryDeactivate() {
+        createUserAndChange(9);
+        CommandRule testRule = createRule("test4", 10, 11, 12, 1);
+        CommandRuleImpl commandRuleImpl = (CommandRuleImpl) testRule;
+        testRule.activate();
+        createUserAndChange(3);
+        commandRuleImpl.approve();
+        createUserAndChange(4);
+        commandRuleImpl.approve();
+
+        Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isPresent();
+        testRule = reloadedRule.get();
+        assertThat(testRule.isActive()).isTrue();
+        testRule.deactivate();
+        createUserAndChange(5);
+        commandRuleImpl = (CommandRuleImpl) testRule;
+        commandRuleImpl.approve();
+        createUserAndChange(6);
+        commandRuleImpl.approve();
+
+        assertThat(testRule.isActive()).isFalse();
+        reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isPresent();
+        testRule = reloadedRule.get();
+        assertThat(testRule.isActive()).isFalse();
+        assertThat(testRule.getCommandRulePendingUpdate()).isEmpty();
+
+    }
+
+    @Test
+    @Transactional
+    public void tryActivateReject() {
+        createUserAndChange(10);
+        CommandRule testRule = createRule("test4", 10, 11, 12, 1);
+        CommandRuleImpl commandRuleImpl = (CommandRuleImpl) testRule;
+        testRule.activate();
+        createUserAndChange(11);
+        commandRuleImpl.approve();
+        createUserAndChange(12);
+        commandRuleImpl.reject();
+
+        Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isPresent();
+        testRule = reloadedRule.get();
+        assertThat(testRule.isActive()).isFalse();
+        assertThat(testRule.getCommandRulePendingUpdate()).isEmpty();
+
+    }
+
+    @Test
+    @Transactional
+    public void testRemove() {
+        CommandRule testRule = createRule("test4", 10, 11, 12, 1);
+        commandRuleService.deleteRule(testRule);
+
+        Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isEmpty();
+    }
+
     private CommandRule createRule(String name, long dayLimit, long weekLimit, long monthLimit, long numberOfCommands) {
         CommandRuleBuilder builder = commandRuleService.createRule(name).dayLimit(dayLimit).weekLimit(weekLimit).monthLimit(monthLimit);
         for (int i = 0; i < numberOfCommands; i++) {
@@ -293,17 +358,4 @@ public class CommandRuleIT {
         }
         return builder.add();
     }
-
-    private static Privilege mockPrivilege(EditPrivilege privilege1) {
-        Privilege privilege = mock(Privilege.class);
-        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
-        return privilege;
-    }
-
-    private static Privilege mockPrivilege(ViewPrivilege privilege1) {
-        Privilege privilege = mock(Privilege.class);
-        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
-        return privilege;
-    }
-
 }

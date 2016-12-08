@@ -144,6 +144,28 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         getMonitor().request(update, this);
     }
 
+    @Override
+    public void deactivate() {
+        if(!this.isActive()) {
+            throw new IllegalArgumentException("Already inactive");
+        }
+        CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
+        update.initialize(this);
+        update.setActive(false);
+        update.save();
+        getMonitor().request(update, this);
+    }
+
+    @Override
+    public void approve() {
+        this.getMonitor().approve(this);
+    }
+
+    @Override
+    public void reject() {
+        this.getMonitor().reject(this);
+    }
+
     public void save() {
         if (this.getId() > 0) {
             doUpdate();
@@ -163,7 +185,16 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     public void delete() {
         if(!active) {
             dataModel.remove(this);
+        } else {
+            createDeleteUpdate();
         }
+    }
+
+    private void createDeleteUpdate() {
+        CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
+        update.initializeRemoval(this);
+        update.save();
+        getMonitor().request(update, this);
     }
 
     public void setName(String name) {

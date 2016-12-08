@@ -4,6 +4,7 @@ import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -95,6 +96,7 @@ public enum TableSpecs {
                     .references(CLR_COMMANDRULE.name())
                     .map(CommandInRuleImpl.Fields.COMMANDRULE.fieldName())
                     .reverseMap(CommandRuleImpl.Fields.COMMANDS.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
                     .composition()
                     .add();
             table.foreignKey("FK_CLR_CMDINRULE_CMDRULETMPLTE").
@@ -102,6 +104,7 @@ public enum TableSpecs {
                     .references(CLR_CMDRULEPENDINGUPDATE.name())
                     .map(CommandInRuleImpl.Fields.COMMANDRULEPENDINGUPDATE.fieldName())
                     .reverseMap(CommandRulePendingUpdateImpl.Fields.COMMANDS.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
                     .composition()
                     .add();
         }
