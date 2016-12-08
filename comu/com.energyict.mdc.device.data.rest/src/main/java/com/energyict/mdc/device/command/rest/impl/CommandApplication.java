@@ -20,12 +20,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.device.command.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/crr", "app=MDC", "name=" + CommandApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.device.command.rest",
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/crr", "app=MDC", "name=" + CommandApplication.COMPONENT_NAME})
 public class CommandApplication extends javax.ws.rs.core.Application implements TranslationKeyProvider, MessageSeedProvider{
 
     public static final String APP_KEY = "MDC";
@@ -96,8 +98,7 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        return keys;
+        return Arrays.asList(TranslationKeys.values());
     }
 
 
@@ -111,6 +112,7 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(commandRuleService).to(CommandRuleService.class);
+            bind(CommandRuleInfoFactory.class).to(CommandRuleInfoFactory.class);
         }
     }
 }

@@ -34,12 +34,14 @@ public class CommandRuleResource {
 
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final CommandRuleService commandRuleService;
+    private final CommandRuleInfoFactory commandRuleInfoFactory;
 
 
     @Inject
-    public CommandRuleResource(DeviceMessageSpecificationService deviceMessageSpecificationService, CommandRuleService commandRuleService) {
+    public CommandRuleResource(DeviceMessageSpecificationService deviceMessageSpecificationService, CommandRuleService commandRuleService, CommandRuleInfoFactory commandRuleInfoFactory) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.commandRuleService = commandRuleService;
+        this.commandRuleInfoFactory = commandRuleInfoFactory;
     }
 
     @GET
@@ -48,7 +50,7 @@ public class CommandRuleResource {
     public Response getCommandRules(@BeanParam JsonQueryParameters queryParameters) {
         List<CommandRuleInfo> data = commandRuleService.findAllCommandRules()
                 .stream()
-                .map(CommandRuleInfo::create)
+                .map(commandRuleInfoFactory::from)
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromCompleteList("commandrules", data,queryParameters)).build();
     }
@@ -76,7 +78,7 @@ public class CommandRuleResource {
     @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public CommandRuleInfo getCommandRule(@PathParam("id") long id) {
         CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
-        return CommandRuleInfo.createWithChanges(commandRule);
+        return commandRuleInfoFactory.createWithChanges(commandRule);
     }
 
     @PUT
@@ -89,7 +91,7 @@ public class CommandRuleResource {
         if(!commandRule.isActive() && commandRuleInfo.active) {
             commandRule.activate();
         } else if (commandRule.isActive() && !commandRuleInfo.active) {
-            //bla
+            commandRule.deactivate();
         }
         return Response.ok().build();
     }
@@ -104,7 +106,26 @@ public class CommandRuleResource {
         return Response.ok().build();
     }
 
+    @POST
+    @Path("/{id}/accept")
+    @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
+    public Response acceptChanges(@PathParam("id") long id) {
+        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        commandRule.approve();
+        return Response.ok().build();
+    }
 
+
+    @POST
+    @Path("/{id}/reject")
+    @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
+    public Response rejectChanges(@PathParam("id") long id) {
+        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        commandRule.reject();
+        return Response.ok().build();
+    }
 
     @GET
     @Path("/categories")
