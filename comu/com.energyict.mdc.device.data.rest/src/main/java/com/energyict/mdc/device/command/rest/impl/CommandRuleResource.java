@@ -26,12 +26,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/commandrules")
 public class CommandRuleResource {
@@ -52,7 +48,7 @@ public class CommandRuleResource {
     public Response getCommandRules(@BeanParam JsonQueryParameters queryParameters) {
         List<CommandRuleInfo> data = commandRuleService.findAllCommandRules()
                 .stream()
-                .map(CommandRuleInfo::from)
+                .map(CommandRuleInfo::create)
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromCompleteList("commandrules", data,queryParameters)).build();
     }
@@ -80,7 +76,7 @@ public class CommandRuleResource {
     @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public CommandRuleInfo getCommandRule(@PathParam("id") long id) {
         CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
-        return CommandRuleInfo.from(commandRule);
+        return CommandRuleInfo.createWithChanges(commandRule);
     }
 
     @PUT

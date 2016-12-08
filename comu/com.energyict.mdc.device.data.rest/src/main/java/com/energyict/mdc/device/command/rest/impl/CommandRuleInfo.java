@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.command.rest.impl;
 
+import com.elster.jupiter.rest.util.DualControlChangeInfo;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 
@@ -17,8 +18,9 @@ public class CommandRuleInfo {
     public String statusMessage;
     public long version;
     public List<CommandInfo> commands = new ArrayList<>();
+    public List<DualControlChangeInfo> changes;
 
-    static CommandRuleInfo from(CommandRule commandRule) {
+    static CommandRuleInfo create(CommandRule commandRule) {
         CommandRuleInfo commandRuleInfo = new CommandRuleInfo();
         commandRuleInfo.id = commandRule.getId();
         commandRuleInfo.name = commandRule.getName();
@@ -46,5 +48,34 @@ public class CommandRuleInfo {
             }
         }
         return commandRuleInfo;
+    }
+
+    static CommandRuleInfo createWithChanges(CommandRule commandRule) {
+        CommandRuleInfo commandRuleInfo= create(commandRule);
+        if(commandRule.getCommandRulePendingUpdate().isPresent()) {
+            CommandRulePendingUpdate pendingUpdate = commandRule.getCommandRulePendingUpdate().get();
+            commandRuleInfo.changes = new ArrayList<>();
+            checkBasicChanges(commandRuleInfo.changes, commandRule, pendingUpdate);
+        }
+        return commandRuleInfo;
+    }
+
+    private static void checkBasicChanges(List<DualControlChangeInfo> changes, CommandRule commandRule, CommandRulePendingUpdate pendingUpdate) {
+        if(commandRule.isActive() != pendingUpdate.isActive()) {
+            changes.add(new DualControlChangeInfo("Day Limit", String.valueOf(commandRule.isActive()), String.valueOf(pendingUpdate.isActive())));
+        }
+
+        if(!commandRule.getName().equals(pendingUpdate.getName())) {
+            changes.add(new DualControlChangeInfo("Name", commandRule.getName(), pendingUpdate.getName()));
+        }
+        if(commandRule.getDayLimit() != pendingUpdate.getDayLimit()) {
+            changes.add(new DualControlChangeInfo("Day limit", String.valueOf(commandRule.getDayLimit()), String.valueOf(pendingUpdate.getDayLimit())));
+        }
+        if(commandRule.getWeekLimit() != pendingUpdate.getWeekLimit()) {
+            changes.add(new DualControlChangeInfo("Week limit", String.valueOf(commandRule.getWeekLimit()), String.valueOf(pendingUpdate.getWeekLimit())));
+        }
+        if(commandRule.getMonthLimit() != pendingUpdate.getMonthLimit()) {
+            changes.add(new DualControlChangeInfo("Day limit", String.valueOf(commandRule.getMonthLimit()), String.valueOf(pendingUpdate.getMonthLimit())));
+        }
     }
 }
