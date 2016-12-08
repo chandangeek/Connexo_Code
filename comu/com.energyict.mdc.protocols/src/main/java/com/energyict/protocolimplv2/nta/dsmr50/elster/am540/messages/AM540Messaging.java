@@ -6,6 +6,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
 
@@ -45,7 +46,7 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
         am540Messages.add(DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE_ATTRIBUTENAME);
         am540Messages.add(DeviceMessageId.PLC_CONFIGURATION_SET_SECURITY_LEVEL);
         am540Messages.add(DeviceMessageId.PLC_CONFIGURATION_SET_ROUTING_CONFIGURATION);
-        am540Messages.add(DeviceMessageId.PLC_CONFIGURATION_SET_BROAD_CAST_LOG_TABLE_ENTRY_TTL);
+        am540Messages.add(DeviceMessageId.PLC_CONFIGURATION_SET_BROADCAST_LOG_TABLE_ENTRY_TTL_ATTRIBUTENAME);
         am540Messages.add(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_JOIN_WAIT_TIME);
         am540Messages.add(DeviceMessageId.PLC_CONFIGURATION_SET_PATH_DISCOVERY_TIME);
         am540Messages.add(DeviceMessageId.PLC_CONFIGURATION_SET_METRIC_TYPE);

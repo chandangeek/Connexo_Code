@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
@@ -209,10 +209,6 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_FTION_MODEM_RESET, new SimpleEIWebMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_CHANGE_ADMIN_PASSWORD, new ChangeAdminPasswordMessageEntry());
 
-        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_ON, new SimpleEIWebMessageEntry());
-        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_OFF, new SimpleEIWebMessageEntry());
-        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_TOGGLE, new SimpleEIWebMessageEntry());
-        registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_PULSE, new SimpleEIWebMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_SET_ANALOG_OUT, new AnalogOutMessageEntry());
         return registry;
     }

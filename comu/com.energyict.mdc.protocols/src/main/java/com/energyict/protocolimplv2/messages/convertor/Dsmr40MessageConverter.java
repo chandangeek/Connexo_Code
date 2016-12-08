@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 
@@ -38,9 +38,7 @@ public class Dsmr40MessageConverter extends Dsmr23MessageConverter {
         // Authentication and encryption - remove the DSMR2.3 message & replace by 4 new DSMR4.0 messages
         registry.remove(DeviceMessageId.SECURITY_CHANGE_DLMS_AUTHENTICATION_LEVEL);
         registry.put(DeviceMessageId.SECURITY_DISABLE_DLMS_AUTHENTICATION_LEVEL_P0, new MultipleAttributeMessageEntry("Disable_authentication_level_P0", "AuthenticationLevel"));
-        registry.put(DeviceMessageId.SECURITY_DISABLE_DLMS_AUTHENTICATION_LEVEL_P1, new MultipleAttributeMessageEntry("Disable_authentication_level_P1", "AuthenticationLevel"));
         registry.put(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P0, new MultipleAttributeMessageEntry("Enable_authentication_level_P0", "AuthenticationLevel"));
-        registry.put(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P1, new MultipleAttributeMessageEntry("Enable_authentication_level_P1", "AuthenticationLevel"));
     }
 
     @Override

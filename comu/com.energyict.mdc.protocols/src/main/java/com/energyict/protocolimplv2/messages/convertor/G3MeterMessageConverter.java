@@ -101,19 +101,13 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry("CloseMainContactor"));
         registry.put(DeviceMessageId.CONTACTOR_OPEN, new SimpleTagMessageEntry("OpenMainContactor"));
 
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_ACTIVE_SCAN_DURATION, new MultipleAttributeMessageEntry("SetActiveScanDuration", "ActiveScanDuration"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_BROAD_CAST_LOG_TABLE_ENTRY_TTL, new MultipleAttributeMessageEntry("SetBroadcastLogTableEntryTTL", "BroadcastLogTableEntryTTL"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_DISCOVERY_ATTEMPTS_SPEED, new MultipleAttributeMessageEntry("SetDiscoveryAttemptsSpeed", "DiscoveryAttemptsSpeed"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_AGE_TIME, new MultipleAttributeMessageEntry("SetMaxAgeTime", "MaxAgeTime"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_NUMBER_OF_HOPS, new MultipleAttributeMessageEntry("SetMaxHops", "MaxHops"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_PAN_CONFLICTS_COUNT, new MultipleAttributeMessageEntry("SetMaxPanConflictCount", "MaxPanConflictCount"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_CONFLICT_WAIT_TIME, new MultipleAttributeMessageEntry("SetPanConflictWaitTime", "PanConflictWaitTime"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_TONE_MASK, new MultipleAttributeMessageEntry("SetToneMask", "ToneMask"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE, new MultipleAttributeMessageEntry("SetWeakLQIValue", "WeakLQIValue"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_BROADCAST_LOG_TABLE_ENTRY_TTL_ATTRIBUTENAME, new MultipleAttributeMessageEntry("SetBroadcastLogTableEntryTTL", "BroadcastLogTableEntryTTL"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_NUMBER_OF_HOPS_ATTRIBUTENAME, new MultipleAttributeMessageEntry("SetMaxHops", "MaxHops"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_TONE_MASK_ATTRIBUTE_NAME, new MultipleAttributeMessageEntry("SetToneMask", "ToneMask"));
+        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE_ATTRIBUTENAME, new MultipleAttributeMessageEntry("SetWeakLQIValue", "WeakLQIValue"));
         registry.put(DeviceMessageId.PLC_CONFIGURATION_WRITE_PLC_G3_TIMEOUT, new MultipleAttributeMessageEntry("WritePlcG3Timeout", "Timeout_in_minutes"));
         registry.put(DeviceMessageId.PLC_CONFIGURATION_RESET_PLC_OFDM_MAC_COUNTERS, new SimpleTagMessageEntry("ResetPlcOfdmMacCounters"));
         registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID, new MultipleAttributeMessageEntry("SetPanId", "panId"));
-        registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_ORPHAN_TIMER, new MultipleAttributeMessageEntry("SetMaxOrphanTimer", "maxOrphanTimer"));
 
         registry.put(DeviceMessageId.LOG_BOOK_RESET_MAIN_LOGBOOK, new SimpleTagMessageEntry("ResetMainLogbook"));
         registry.put(DeviceMessageId.LOG_BOOK_RESET_COVER_LOGBOOK, new SimpleTagMessageEntry("ResetCoverLogbook"));
@@ -136,8 +130,8 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
 
         registry.put(DeviceMessageId.SECURITY_CHANGE_DLMS_AUTHENTICATION_LEVEL, new MultipleAttributeMessageEntry("ChangeAuthenticationLevel", "Authentication_level"));
         registry.put(DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION, new MultipleAttributeMessageEntry("ActivateSecurityLevel", "Security_level"));
-        registry.put(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY, new SimpleTagMessageEntry("ChangeAuthenticationKey"));
-        registry.put(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY, new SimpleTagMessageEntry("ChangeEncryptionKey"));
+        registry.put(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY, new SimpleTagMessageEntry("ChangeAuthenticationKey"));
+        registry.put(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY, new SimpleTagMessageEntry("ChangeEncryptionKey"));
         registry.put(DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_HEX, new MultipleAttributeMessageEntry("ChangeHLSSecret", "HLS_Secret"));
         registry.put(DeviceMessageId.SECURITY_CHANGE_LLS_SECRET_HEX, new MultipleAttributeMessageEntry("ChangeLLSSecret", "LLS_Secret"));
         registry.put(DeviceMessageId.SECURITY_WRITE_PSK, new MultipleAttributeMessageEntry("WritePlcPsk", "PSK"));

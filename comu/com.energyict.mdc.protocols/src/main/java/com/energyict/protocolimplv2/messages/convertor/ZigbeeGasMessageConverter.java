@@ -6,6 +6,9 @@ import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
+
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
@@ -14,15 +17,15 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileAndActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy IC ZigbeeGas protocol.
@@ -79,8 +82,8 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.CONTACTOR_CLOSE, new SimpleTagMessageEntry("RemoteDisconnect"));
 
         // CV & CF information
-        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_CALORIFIC_VALUE, new MultipleAttributeMessageEntry("SetCalorificValue", "Calorific value", ActivationDate));
-        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_CONVERSION_FACTOR, new MultipleAttributeMessageEntry("SetConversionFactor", "Conversion factor", ActivationDate));
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_CALORIFIC_VALUE_AND_ACTIVATION_DATE, new MultipleAttributeMessageEntry("SetCalorificValue", "Calorific value", ActivationDate));
+        registry.put(DeviceMessageId.CONFIGURATION_CHANGE_SET_CONVERSION_FACTOR_AND_ACTIVATION_DATE, new MultipleAttributeMessageEntry("SetConversionFactor", "Conversion factor", ActivationDate));
 
         // Display
         registry.put(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToDisplay", "Message", "Duration of message", ActivationDate));

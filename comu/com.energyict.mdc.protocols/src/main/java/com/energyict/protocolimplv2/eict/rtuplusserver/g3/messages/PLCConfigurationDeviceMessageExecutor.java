@@ -1,14 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.G3NetworkManagement;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
@@ -22,6 +14,15 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
@@ -29,7 +30,12 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Helper class that groups all logic related to the execution of the (standard) PLC messages. <br/>
@@ -67,7 +73,7 @@ public class PLCConfigurationDeviceMessageExecutor {
             setSecurityLevelpendingMessage(pendingMessage);
         } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_ROUTING_CONFIGURATION)) {
             setRoutingConfiguration(pendingMessage);
-        } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_BROAD_CAST_LOG_TABLE_ENTRY_TTL)) {
+        } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_BROADCAST_LOG_TABLE_ENTRY_TTL_ATTRIBUTENAME)) {
             setBroadCastLogTableEntryTTL(pendingMessage);
         } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_JOIN_WAIT_TIME)) {
             setMaxJoinWaitTime(pendingMessage);
