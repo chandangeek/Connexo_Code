@@ -17,8 +17,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -80,6 +82,33 @@ public class CommandRuleResource {
         CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
         return CommandRuleInfo.from(commandRule);
     }
+
+    @PUT
+    @Path("/{id}")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
+    public Response changeCommandRule(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
+        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        if(!commandRule.isActive() && commandRuleInfo.active) {
+            commandRule.activate();
+        } else if (commandRule.isActive() && !commandRuleInfo.active) {
+            //bla
+        }
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
+    public Response deleteCommandRule(@PathParam("id") long id) {
+        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        commandRuleService.deleteRule(commandRule);
+        return Response.ok().build();
+    }
+
+
 
     @GET
     @Path("/categories")

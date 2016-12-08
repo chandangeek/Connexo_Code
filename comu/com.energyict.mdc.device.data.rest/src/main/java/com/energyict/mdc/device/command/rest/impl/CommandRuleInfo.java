@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.command.rest.impl;
 
 import com.energyict.mdc.device.command.CommandRule;
+import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +29,22 @@ public class CommandRuleInfo {
         commandRuleInfo.commands = commandRule.getCommands()
                 .stream()
                 .map(commandInRule -> new CommandInfo(commandInRule.getCommand().getCategory().getName(), commandInRule.getCommand().getName(), commandInRule.getCommand().getId().name()))
-                .sorted((c1, c2) -> c1.compareTo(c2))
+                .sorted(CommandInfo::compareTo)
                 .collect(Collectors.toList());
 
+
+        if(commandRule.getCommandRulePendingUpdate().isPresent()) {
+            CommandRulePendingUpdate pendingUpdate = commandRule.getCommandRulePendingUpdate().get();
+            if(pendingUpdate.isActivation()) {
+                commandRuleInfo.statusMessage = "pendingActivation";
+            } else if (pendingUpdate.isDeactivation()) {
+                commandRuleInfo.statusMessage = "pendingDeactivation";
+            } else if (pendingUpdate.isRemoval()) {
+                commandRuleInfo.statusMessage = "pendingRemoval";
+            } else if (pendingUpdate.isUpdate()) {
+                commandRuleInfo.statusMessage = "pendingUpdate";
+            }
+        }
         return commandRuleInfo;
     }
 }
