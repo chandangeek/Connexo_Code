@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 
 import java.io.IOException;
@@ -57,14 +58,17 @@ public class UnitOfMeasureEntryTable extends AbstractTable {
     protected void parse(byte[] tableData) throws IOException { 
         int offset=0;
         setUomEntryBitField(new UOMEntryBitField[getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry()]);
-        for (int i=0;i<getUomEntryBitField().length;i++) {
-            getUomEntryBitField()[i] = new UOMEntryBitField(tableData, offset, getTableFactory());
-            offset+=UOMEntryBitField.getSize();
+        try {
+            for (int i = 0; i < getUomEntryBitField().length; i++) {
+                getUomEntryBitField()[i] = new UOMEntryBitField(tableData, offset, getTableFactory());
+                offset += UOMEntryBitField.getSize();
+            }
+        } catch (ProtocolException e) {
+            if (!e.getMessage().contains("ProtocolUtils, getLongLE, ArrayIndexOutOfBoundsException")) {
+                throw e;
+            }
         }
-           
-        
-        
-    }         
+    }
 
     public UOMEntryBitField[] getUomEntryBitField() {
         return uomEntryBitField;
