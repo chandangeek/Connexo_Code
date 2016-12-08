@@ -121,21 +121,21 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     PropertyValueInfoService propertyValueInfoService;
     @Mock
-    private UsagePointCalendarService usagePointCalendarService;
+    UsagePointCalendarService usagePointCalendarService;
     @Mock
-    private CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
+    CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
     @Mock
-    private CalendarService calendarService;
+    CalendarService calendarService;
     @Mock
-    private CalendarInfoFactory calendarInfoFactory;
+    CalendarInfoFactory calendarInfoFactory;
     @Mock
-    private JsonService jsonService;
+    JsonService jsonService;
     @Mock
-    private AppService appService;
+    AppService appService;
     @Mock
-    private SearchService searchService;
+    SearchService searchService;
     @Mock
-    private MessageService messageService;
+    MessageService messageService;
 
     @Override
     protected Application getApplication() {
