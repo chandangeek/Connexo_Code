@@ -1,30 +1,28 @@
-Ext.define('Imt.purpose.model.Reading', {
-    extend: 'Uni.model.Version',
+Ext.define('Imt.purpose.model.RegisterReading', {
+    // extend: 'Uni.model.Version',
+    extend: 'Ext.data.Model',
+    idProperty: 'timeStamp',
     requires: [],
     fields: [
         {name: 'value', type: 'auto', useNull: true},
-        {name: 'interval', type: 'auto', useNull: true},
-        {name: 'readingTime', dateFormat: 'time', type: 'date'},
-        {name: 'dataValidated', type: 'auto'},
-        {name: 'action', type: 'auto'},
-        {name: 'validationResult', type: 'auto'},
-        {name: 'validationRules', type: 'auto'},
-        {name: 'confirmedNotSaved', type: 'auto'},
-        {name: 'removedNotSaved', type: 'auto'},
-        {name: 'confirmed', type: 'auto'},
-        {name: 'calculatedValue', type: 'auto'},
+        {name: 'timeStamp', type: 'auto', useNull: true},
+        {name: 'type', type: 'auto', defaultValue: 'numerical'},
+        {name: 'validationResult', type: 'auto', useNull: true, persist: false},
+        {name: 'validationRules', type: 'auto', useNull: true, persist: false},
         {name: 'isConfirmed', type: 'auto'},
-        {name: 'modificationFlag', type: 'auto'},
-        {name: 'modificationDate', type: 'auto'},
-
-        'plotband',
+        {name: 'calculatedValue', type: 'auto'},
+        {name: 'confirmedNotSaved', type: 'auto', useNull: true, persist: false},
         {
             name: 'readingProperties',
             persist: false,
             mapping: function (data) {
                 var result = {},
-                    validationResult = data.validationResult.split('.')[1];
-                
+                    validationResult;
+
+                if(data.validationResult){
+                    validationResult = data.validationResult.split('.')[1]
+                }
+
                 if (data.validationResult) {
                     result.suspect = validationResult == 'suspect';
                     validationResult == 'notValidated' ? result.notValidated = true : result.notValidated = false;
@@ -37,8 +35,8 @@ Ext.define('Imt.purpose.model.Reading', {
                         result.suspect ? result['informative'] = false : result['informative'] = true;
                     }
                 }
-                
-                return result;                
+
+                return result;
             }
         },
         {
@@ -57,5 +55,10 @@ Ext.define('Imt.purpose.model.Reading', {
                 return result;
             }
         },
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/outputs/{outputId}/registerData',
+        timeout: 300000
+    }
 });

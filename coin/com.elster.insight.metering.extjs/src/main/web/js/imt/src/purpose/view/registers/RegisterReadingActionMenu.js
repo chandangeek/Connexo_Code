@@ -1,6 +1,7 @@
-Ext.define('Imt.purpose.view.DataBulkActionMenu', {
+Ext.define('Imt.purpose.view.registers.RegisterReadingActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.purpose-readings-data-action-menu',
+    alias: 'widget.purpose-register-readings-data-action-menu',
+    router: null,
     plain: true,
     border: false,
     shadow: false,
@@ -8,7 +9,7 @@ Ext.define('Imt.purpose.view.DataBulkActionMenu', {
         {
             itemId: 'confirm-value',
             hidden: true,
-            text: Uni.I18n.translate('general.confirmValue', 'IMT', 'Confirm value'),
+            text: Uni.I18n.translate('general.confirm', 'IMT', 'Confirm'),
             action: 'confirmValue'
         },
         {
@@ -18,15 +19,9 @@ Ext.define('Imt.purpose.view.DataBulkActionMenu', {
             // dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
         },
         {
-            itemId: 'estimate-value',
-            hidden: true,
-            text: Uni.I18n.translate('general.estimateValue', 'IMT', 'Estimate value'),
-            action: 'estimateValue'
-        },
-        {
             itemId: 'reset-value',
             hidden: true,
-            text: Uni.I18n.translate('general.resetReadings', 'IMT', 'Reset readings'),
+            text: Uni.I18n.translate('general.reset', 'IMT', 'Reset'),
             action: 'resetValue'
         }
     ]

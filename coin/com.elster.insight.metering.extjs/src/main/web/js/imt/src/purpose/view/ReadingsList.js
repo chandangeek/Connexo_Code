@@ -31,12 +31,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 ptype: 'cellediting',
                 clicksToEdit: 1,
-                pluginId: 'cellplugin',
-                listeners: {
-                    'beforeedit': function (e, f) {
-                        return !f.record.get('slaveChannel');
-                    }
-                }
+                pluginId: 'cellplugin'
             }
         ];
 
@@ -45,10 +40,10 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval',
                 renderer: function (interval) {
-                    return  interval.end
+                    return interval.end
                         ? Uni.I18n.translate(
                         'general.dateAtTime', 'IMT', '{0} at {1}',
-                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))] )
+                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
                         : '';
                 },
                 flex: 1
@@ -85,7 +80,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 }
             }
         ];
-        
+
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -95,18 +90,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 usesExactCount: true,
                 isFullTotalCount: true,
                 displayMsg: Uni.I18n.translate('reading.pagingtoolbartop.displayMsg', 'IMT', '{1} reading(s)'),
-                items: me.addTopToolbarButtons(me.output.get('outputType'))
-            }
-        ];
-
-        me.callParent(arguments);
-    },
-
-    addTopToolbarButtons: function (outputType) {
-        var buttons;
-        switch(outputType){
-            case 'channel': {
-                buttons = [
+                items: [
                     {
                         xtype: 'button',
                         itemId: 'save-changes-button',
@@ -129,26 +113,17 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                         }
                     }
                 ]
-            } break;
-            case 'register':{
-                buttons = [
-                    {
-                        xtype: 'button',
-                        itemId: 'add-reading-button',
-                        text: Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'),
-                        disabled: true
-                    }
-                ]
-            } break;
-        }
-        return buttons;
+            }
+        ];
+
+        me.callParent(arguments);
     },
 
     formatColumn: function (v, metaData, record) {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
             icon = '';
-
+        console.log(v);
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
@@ -157,6 +132,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         } else if (status === 'suspect') {
             icon = '<span class="icon-flag5" style="margin-left:10px; color:red; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
+        }
+        if (record.get('isConfirmed') && !record.isModified('value')) {
+            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
         }
         return value + icon;
     }

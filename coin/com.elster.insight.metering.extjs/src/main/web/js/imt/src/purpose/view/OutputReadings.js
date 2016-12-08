@@ -8,7 +8,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
         'Imt.purpose.view.ReadingsList',
         'Imt.purpose.view.ReadingPreview',
         'Imt.purpose.view.NoReadingsFoundPanel',
-        'Imt.purpose.view.RegisterDataGrid'
+        'Imt.purpose.view.registers.RegisterDataGrid'
     ],
     dataStore: null,
 
@@ -92,6 +92,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'register-data-grid',
+                        router: me.router,
                         output: me.output
                     },
                     emptyComponent: emptyComponent,

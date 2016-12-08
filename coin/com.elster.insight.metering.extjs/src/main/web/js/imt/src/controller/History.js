@@ -258,6 +258,32 @@ Ext.define('Imt.controller.History', {
                                             return true;
                                         }, {single: true});
                                         return this;
+                                    },
+                                    items: {
+                                        addregisterdata: {
+                                            title: Uni.I18n.translate('general.label.addReading', 'IMT', 'Add reading'),
+                                            route: 'add',
+                                            controller: 'Imt.purpose.controller.RegisterData',
+                                            action: 'showAddRegisterData',
+                                            // privileges:
+                                            // Uni.Auth.checkPrivileges(Imt.privileges.MetrologyConfig.view)
+                                            // &&  Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.view),
+                                            // callback: function (route) {
+                                            //     this.getApplication().on('output-loaded', function (output) {
+                                            //         if (output) {
+                                            //             route.setTitle(output.get('name'));
+                                            //         }
+                                            //         return true;
+                                            //     }, {single: true});
+                                            //     return this;
+                                            // }
+                                        },
+                                        editregisterdata: {
+                                            title: Uni.I18n.translate('general.label.editReading', 'IMT', 'Edit reading'),
+                                            route: '{timestamp}/edit',
+                                            controller: 'Imt.purpose.controller.RegisterData',
+                                            action: 'showEditRegisterData',
+                                        }
                                     }
                                 }
                             }

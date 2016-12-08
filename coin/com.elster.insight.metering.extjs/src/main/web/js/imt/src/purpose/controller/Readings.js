@@ -9,7 +9,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.view.ReadingsList',
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.view.SingleReadingActionMenu',
-        'Imt.purpose.view.MultipleReadingsActionMenu'
+        'Imt.purpose.view.MultipleReadingsActionMenu',
+        'Imt.purpose.view.ReadingEstimationWindow'
     ],
 
     stores: [
@@ -17,7 +18,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.store.Readings',
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.store.RegisterReadings',
-        'Imt.usagepointmanagement.store.UsagePointTypes'
+        'Imt.usagepointmanagement.store.UsagePointTypes',
+        'Imt.purpose.store.Estimators'
     ],
 
     models: [
@@ -26,7 +28,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.usagepointmanagement.model.ValidationInfo',
         'Imt.usagepointmanagement.model.SuspectReason',
         'Imt.usagepointmanagement.model.Purpose',
-        'Imt.usagepointmanagement.model.UsagePoint'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.purpose.model.ChannelDataEstimate'
     ],
 
     views: [
@@ -43,22 +46,32 @@ Ext.define('Imt.purpose.controller.Readings', {
         {
             ref: 'readingsGraph',
             selector: '#output-readings #readings-graph'
+        },
+        {
+            ref: 'readingPreviewPanel',
+            selector: 'output-channel-main reading-preview'
+        },
+        {
+            ref: 'readingEstimationWindow',
+            selector: 'reading-estimation-window'
         }
     ],
 
     init: function () {
         this.control({
             '#readings-list': {
-                // select: this.showPreview,
-                // beforeedit: this.beforeEditRecord,
                 edit: this.resumeEditorFieldValidation,
                 canceledit: this.resumeEditorFieldValidation,
-                selectionchange: this.onDataGridSelectionChange
-                // selectionchange: this.onDataGridSelectionChange
+                selectionchange: this.onDataGridSelectionChange,
+                select: function (selectionModel, record) {
+                    if (selectionModel.getSelection().length === 1) {
+                        this.getReadingPreviewPanel().updateForm(record);
+                    }
+                }
             },
-            // '#readings-list #purpose-readings-data-bulk-action-menu': {
-            //     click: this.chooseBulkAction
-            // },
+            'purpose-bulk-action-menu': {
+                click: this.chooseBulkAction
+            },
             'purpose-readings-data-action-menu': {
                 beforeshow: this.checkSuspect,
                 click: this.chooseAction
@@ -72,22 +85,22 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
     },
 
-    // chooseBulkAction: function (menu, item) {
-    //     var me = this,
-    //         records = me.getReadingsList().getSelectionModel().getSelection();
-    //
-    //     switch (item.action) {
-    //         case 'estimateValue':
-    //             // me.estimateValue(records);
-    //             break;
-    //         case 'confirmValue':
-    //             me.confirmValue(records, true);
-    //             break;
-    //         case 'removeReadings':
-    //             // me.removeReadings(records, true);
-    //             break;
-    //     }
-    // },
+    chooseBulkAction: function (menu, item) {
+        var me = this,
+            records = me.getReadingsList().getSelectionModel().getSelection();
+
+        switch (item.action) {
+            case 'estimateValue':
+                me.estimateValue(records);
+                break;
+            case 'confirmValue':
+                me.confirmValue(records, true);
+                break;
+            case 'resetValue':
+                me.resetReadings(records, true);
+                break;
+        }
+    },
 
     chooseAction: function (menu, item) {
         var me = this;
@@ -97,10 +110,10 @@ Ext.define('Imt.purpose.controller.Readings', {
                 me.getReadingsList().getPlugin('cellplugin').startEdit(menu.record, 1);
                 break;
             case 'resetValue':
-                me.removeReadings(menu.record);
+                me.resetReadings(menu.record);
                 break;
             case 'estimateValue':
-                // me.estimateValue(menu.record);
+                me.estimateValue(menu.record);
                 break;
             case 'confirmValue':
                 me.confirmValue(menu.record, false);
@@ -157,7 +170,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
 
         if (menu.down('#reset-value')) {
-            menu.down('#reset-value').setVisible(menu.record.get('value'));
+            menu.down('#reset-value').setVisible(menu.record.get('calculatedValue'));
         }
     },
 
@@ -178,8 +191,9 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (event.record.isModified('value')) {
             grid.down('#save-changes-button').isDisabled() && me.showButtons();
 
-            if (!event.record.get('value')) {
+            if (!value) {
                 point.update({y: null});
+                event.record.set('value', '0');
             } else {
                 if (event.record.get('plotBand')) {
                     chart.xAxis[0].removePlotBand(event.record.get('interval').start);
@@ -188,7 +202,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 updatedObj = {
                     y: parseFloat(value),
                     color: 'rgba(112,187,81,0.3)',
-                    value: value  // Change value or not?
+                    value: value
                 };
                 point.update(updatedObj);
             }
@@ -248,7 +262,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         viewport.setLoading();
         if (!Ext.isEmpty(changedData)) {
             Ext.Ajax.request({
-                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.deviceId), router.arguments.channelId),
+                url: Ext.String.format('/api/udr/usagepoints/{0}/purposes/{1}/outputs/{2}/channelData', router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,
@@ -262,7 +276,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     //     var failureResponseText = Ext.decode(response.responseText, true);
                     //     if (failureResponseText && failureResponseText.error !== 'cannotAddChannelValueWhenLinkedToSlave') {
                     //         Ext.create('Uni.view.window.Confirmation', {
-                    //             confirmText: Uni.I18n.translate('general.retry', 'MDC', 'Retry'),
+                    //             confirmText: Uni.I18n.translate('general.retry', 'IMT', 'Retry'),
                     //             closeAction: 'destroy',
                     //             confirmation: function () {
                     //                 this.close();
@@ -274,9 +288,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                     //             }
                     //         }).show({
                     //             msg: failureResponseText.message ? failureResponseText.message :
-                    //                 Uni.I18n.translate('general.emptyField', 'MDC', 'Value field can not be empty'),
+                    //                 Uni.I18n.translate('general.emptyField', 'IMT', 'Value field can not be empty'),
                     //             title: failureResponseText.error ? failureResponseText.error :
-                    //                 Uni.I18n.translate('general.during.editing', 'MDC', 'Error during editing')
+                    //                 Uni.I18n.translate('general.during.editing', 'IMT', 'Error during editing')
                     //         });
                     //     }
                     // }
@@ -290,7 +304,13 @@ Ext.define('Imt.purpose.controller.Readings', {
             confirmedObj;
 
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
-            if (record.get('confirmed')) {
+            if (record.get('removedNotSaved')) {
+                confirmedObj = {
+                    interval: record.get('interval'),
+                    value: null
+                };
+                changedData.push(confirmedObj);
+            } else if (record.get('confirmed')) {
                 confirmedObj = {
                     interval: record.get('interval'),
                     isConfirmed: record.get('confirmedNotSaved') || false
@@ -308,30 +328,39 @@ Ext.define('Imt.purpose.controller.Readings', {
 
     onDataGridSelectionChange: function (selectionModel, selectedRecords) {
         var me = this,
+            canEstimate = false,
+            canConfirm = false,
+            canReset = false,
             button = me.getReadingsList().down('#readings-bulk-action-button'),
             menu = button.down('menu');
 
+        selectedRecords.forEach(function(record){
+            if(canEstimate && canConfirm && canReset){
+                return false;
+            }
+            if(!canEstimate && record.get('validationResult') == 'validationStatus.suspect'){
+                canEstimate = true;
+                if(!canConfirm && !record.get('isConfirmed') && !record.isModified('value')){
+                    canConfirm = true;
+                }
+            }
+            if(!canReset && record.get('calculatedValue')){
+                canReset = true;
+            }
+        });
+
         Ext.suspendLayouts();
-        var suspects = selectedRecords.filter(function (record) {
-            return record.get('validationResult') == 'validationStatus.suspect';
-        });
-        menu.down('#estimate-value').setVisible(suspects.length);
-
-        var confirms = suspects.filter(function (record) {
-            return !record.get('confirmed') && !record.isModified('value')
-        });
-
-        menu.down('#confirm-value').setVisible(confirms.length);
-        menu.down('#reset-value').setVisible(_.find(selectedRecords, function (record) {
-            return record.get('value') || record.get('collectedValue')
-        }));
+        menu.down('#estimate-value').setVisible(canEstimate);
+        menu.down('#confirm-value').setVisible(canConfirm);
+        menu.down('#reset-value').setVisible(canReset);
         button.setDisabled(!menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
     },
 
-    removeReadings: function (records) {
+    resetReadings: function (records) {
         var me = this,
             point,
+            calculatedValue,
             grid = me.getReadingsList(),
             store = grid.getStore(),
             gridView = grid.getView(),
@@ -339,22 +368,145 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         Ext.suspendLayouts();
         Ext.Array.each(records, function (record) {
-            record.beginEdit();
-            record.set('value', null);
-            // if (record.get('intervalFlags').length) {
-            //     record.set('intervalFlags', []);
-            // }
-            if (record.get('confirmed')) {
-                record.set('confirmed', false);
+            calculatedValue = record.get('calculatedValue');
+            if(calculatedValue){
+                record.beginEdit();
+                record.set('removedNotSaved', true);
+                record.set('value', calculatedValue);
+                if (record.get('confirmed')) {
+                    record.set('confirmed', false);
+                }
+                record.set('validationResult','validationStatus.ok');
+                record.endEdit(true);
+                gridView.refreshNode(store.indexOf(record));
+                point = chart.get(record.get('interval').start);
+                point.update({y: parseFloat(calculatedValue), color: 'rgba(112,187,81,0.3)', value:calculatedValue});
             }
-            record.set('validationResult','validationStatus.ok');
-            record.endEdit(true);
-            gridView.refreshNode(store.indexOf(record));
-            point = chart.get(record.get('interval').start);
-            point.update({y: null}, false);
         });
         chart.redraw();
         me.showButtons();
         Ext.resumeLayouts(true);
+    },
+
+    estimateValue: function (record) {
+        var me = this;
+        //     bothSuspected = false,
+        //     mainValueSuspect = false,
+        //     bulkValueSuspect = false;
+        //
+        // if (!Ext.isArray(record)) {
+        //     bothSuspected = record.get('validationResult') &&
+        //         record.get('validationResult').main == 'suspect' &&
+        //         record.get('validationResult').bulk == 'suspect';
+        // } else {
+        //     Ext.Array.findBy(record, function (item) {
+        //         mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
+        //         return mainValueSuspect;
+        //     });
+        //     Ext.Array.findBy(record, function (item) {
+        //         bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
+        //         return bulkValueSuspect;
+        //     });
+        //     bothSuspected = mainValueSuspect && bulkValueSuspect;
+        // }
+        // me.getPage().setLoading();
+        me.getStore('Imt.purpose.store.Estimators').load(function () {
+            // me.getPage().setLoading(false);
+            Ext.widget('reading-estimation-window', {
+                itemId: 'channel-reading-estimation-window',
+                record: record
+            }).show();
+        });
+    },
+
+    estimateReading: function () {
+        var me = this,
+            propertyForm = me.getReadingEstimationWindow().down('#property-form'),
+            model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
+            estimateBulk = false,
+            record = me.getReadingEstimationWindow().record,
+            intervalsArray = [];
+
+        !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
+        !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
+        propertyForm.clearInvalid();
+
+        if (propertyForm.getRecord()) {
+            propertyForm.updateRecord();
+            model.set('estimatorImpl', me.getReadingEstimationWindow().down('#estimator-field').getValue());
+            model.propertiesStore = propertyForm.getRecord().properties();
+        }
+        if (!Ext.isArray(record)) {
+            intervalsArray.push({
+                start: record.get('interval').start,
+                end: record.get('interval').end
+            });
+        } else {
+            Ext.Array.each(record, function (item) {
+                intervalsArray.push({
+                    start: item.get('interval').start,
+                    end: item.get('interval').end
+                });
+            });
+        }
+        model.set('intervals', intervalsArray);
+        me.saveChannelDataEstimateModel(model, record);
+    },
+
+    //TODO
+    saveChannelDataEstimateModel: function (record, readings) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        record.getProxy().setParams(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
+        me.getReadingEstimationWindow().setLoading();
+        Ext.Ajax.suspendEvent('requestexception');
+        record.save({
+            callback: function (rec, operation, success) {
+                Ext.Ajax.resumeEvent('requestexception');
+                var responseText = Ext.decode(operation.response.responseText, true),
+                    chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
+
+                Ext.suspendLayouts();
+                if (success && responseText[0]) {
+                    if (!Ext.isArray(readings)) {
+                        me.updateEstimatedValues(record, readings, responseText[0]);
+                    } else {
+                        Ext.Array.each(responseText, function (estimatedReading) {
+                            Ext.Array.findBy(readings, function (reading) {
+                                if (estimatedReading.interval.start == reading.get('interval').start) {
+                                    me.updateEstimatedValues(record, reading, estimatedReading);
+                                    return true;
+                                }
+                            });
+                        });
+                    }
+                    me.getReadingEstimationWindow().destroy();
+                    me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
+                } else {
+                    me.getReadingEstimationWindow().setLoading(false);
+                    if (responseText) {
+                        if (responseText.message) {
+                            me.getReadingEstimationWindow().down('#error-label').show();
+                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                        } else if (responseText.readings) {
+                            me.getReadingEstimationWindow().down('#error-label').show();
+                            var listOfFailedReadings = [];
+                            Ext.Array.each(responseText.readings, function (readingTimestamp) {
+                                listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
+                            });
+                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
+                                Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
+                                    [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                        } else if (responseText.errors) {
+                            me.getReadingEstimationWindow().down('#form-errors').show();
+                            me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+                        }
+                    }
+
+                }
+                Ext.resumeLayouts(true);
+            }
+        });
     },
 });
