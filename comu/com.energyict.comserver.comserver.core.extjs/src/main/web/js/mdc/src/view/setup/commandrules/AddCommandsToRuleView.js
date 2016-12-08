@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleView', {
                         },
                         items: [
                             {
-                                text: Uni.I18n.translate('general.add', 'DES', 'Add'),
+                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                 name: 'add',
                                 itemId: 'mdc-command-rule-add-commands-addButton',
                                 action: 'addCommands',
@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleView', {
                             {
                                 name: 'cancel',
                                 itemId: 'mdc-command-rule-add-commands-cancelLink',
-                                text: Uni.I18n.translate('general.cancel', 'DES', 'Cancel'),
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 ui: 'link'
                             }
                         ]
