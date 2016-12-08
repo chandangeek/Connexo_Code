@@ -583,6 +583,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
+
+
     estimateReading: function () {
         var me = this,
             propertyForm = me.getReadingEstimationWindow().down('#property-form'),
