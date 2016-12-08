@@ -161,31 +161,31 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         this.threadPrincipalService = threadPrincipalService;
     }
 
-    @Reference
+    @Reference(name = "ZZZOrmService")
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
-        dataModel = ormService.newDataModel("CLR", "MultiSense Command limitation rule");
+        dataModel = ormService.newDataModel(CommandRuleService.COMPONENT_NAME, "MultiSense Command limitation rule");
         for (TableSpecs each : TableSpecs.values()) {
             each.addTo(dataModel);
         }
     }
 
-    @Reference
+    @Reference(name = "AAANlsService")
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(CommandRuleService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    @Reference
+    @Reference(name = "AAADeviceMessageSpecificationService")
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-    @Reference
+    @Reference(name = "AAAUpgradeService")
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
 
-    @Reference
+    @Reference(name = "AAAUserService")
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -194,7 +194,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         return dataModel;
     }
 
-    @Reference
+    @Reference(name = "AAADualControl")
     public void setDualControlService(DualControlService dualControlService) {
         this.dualControlService = dualControlService;
     }
