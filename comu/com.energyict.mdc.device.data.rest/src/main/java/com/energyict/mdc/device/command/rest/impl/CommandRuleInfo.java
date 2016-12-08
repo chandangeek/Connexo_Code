@@ -23,5 +23,4 @@ public class CommandRuleInfo {
     public List<CommandInfo> commands = new ArrayList<>();
     public List<DualControlChangeInfo> changes;
 
-
 }

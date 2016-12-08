@@ -90,7 +90,7 @@ public class CommandRuleInfoFactory {
 
     private void checkBasicChanges(List<DualControlChangeInfo> changes, CommandRule commandRule, CommandRulePendingUpdate pendingUpdate) {
         if (commandRule.isActive() != pendingUpdate.isActive()) {
-            changes.add(new DualControlChangeInfo(translate(TranslationKeys.ACTIVE),
+            changes.add(new DualControlChangeInfo(translate(TranslationKeys.STATUS),
                     translate(TranslationKeys.fromActive(commandRule.isActive())),
                     translate(TranslationKeys.fromActive(pendingUpdate.isActive()))));
         }
