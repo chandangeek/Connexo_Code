@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -9,12 +11,15 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.dualcontrol.DualControlService;
+import com.elster.jupiter.dualcontrol.impl.DualControlModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -23,12 +28,18 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserImpl;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -44,7 +55,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -60,7 +73,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.energyict.mdc.device.command.CommandRuleService.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommandRuleIT {
@@ -68,9 +85,10 @@ public class CommandRuleIT {
     protected static InMemoryIntegrationPersistence inMemoryPersistence;
 
     private static Injector injector;
+    private static User principal;
+    private static UserService userService;
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(transactionService);
-    ;
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
 
@@ -81,6 +99,8 @@ public class CommandRuleIT {
     private static CommandRuleService commandRuleService;
     private static TransactionService transactionService;
     private static DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private static DualControlService dualControlService;
+    private static ThreadPrincipalService threadPrincipalService;
     private static JsonService jsonService;
 
     private static class MockModule extends AbstractModule {
@@ -92,8 +112,13 @@ public class CommandRuleIT {
         }
     }
 
+    public User getMockedUser() {
+        return this.principal;
+    }
+
     @BeforeClass
     public static void setUp() throws SQLException {
+
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -102,10 +127,11 @@ public class CommandRuleIT {
                     new DomainUtilModule(),
                     new OrmModule(),
                     new UtilModule(),
+                    new DualControlModule(),
                     new TimeModule(),
-                    new ThreadSecurityModule(),
                     new PubSubModule(),
                     new TransactionModule(),
+                    new ThreadSecurityModule(),
                     new NlsModule(),
                     new TaskModule(),
                     new EventsModule(),
@@ -119,13 +145,24 @@ public class CommandRuleIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             commandRuleService = injector.getInstance(CommandRuleService.class);
             deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
+            dualControlService = injector.getInstance(DualControlService.class);
+            threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+            userService = injector.getInstance(UserService.class);
+            createUserAndChange("TEST_USER");
             return null;
         });
         jsonService = injector.getInstance(JsonService.class);
+    }
+
+    private static void createUserAndChange(String name) {
+        principal = userService.createUser(name, "This user is just to satisfy the foreign key ...");
+        principal.update();
+        threadPrincipalService.set(principal);
     }
 
     @AfterClass
@@ -220,12 +257,53 @@ public class CommandRuleIT {
                 .add();
     }
 
+    @Test
+    @Transactional
+    public void tryActivate() {
+        CommandRule testRule = createRule("test", 10, 11, 12, 1);
+        assertThat(testRule.isActive()).isFalse();
+        testRule.activate();
+        assertThat(testRule.isActive()).isFalse();
+        assertThat(testRule.getCommandRulePendingUpdate().isPresent());
+
+        Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isPresent();
+        testRule = reloadedRule.get();
+        assertThat(testRule.isActive()).isFalse();
+        assertThat(testRule.getCommandRulePendingUpdate().isPresent());
+        assertThat(testRule.getCommandRulePendingUpdate().get().isActive());
+
+        CommandRuleImpl commandRuleImpl = (CommandRuleImpl) testRule;
+        commandRuleImpl.getMonitor().approve(commandRuleImpl);
+        createUserAndChange("TEST_USER_2");
+        commandRuleImpl.getMonitor().approve(commandRuleImpl);
+        assertThat(testRule.getCommandRulePendingUpdate()).isEmpty();
+
+        reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isPresent();
+        testRule = reloadedRule.get();
+        assertThat(testRule.isActive()).isTrue();
+        assertThat(testRule.getCommandRulePendingUpdate()).isEmpty();
+    }
+
     private CommandRule createRule(String name, long dayLimit, long weekLimit, long monthLimit, long numberOfCommands) {
         CommandRuleBuilder builder = commandRuleService.createRule(name).dayLimit(dayLimit).weekLimit(weekLimit).monthLimit(monthLimit);
         for (int i = 0; i < numberOfCommands; i++) {
             builder.command(DeviceMessageId.values()[i].name());
         }
         return builder.add();
+    }
+
+    private static Privilege mockPrivilege(EditPrivilege privilege1) {
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
+        return privilege;
+    }
+
+    private static Privilege mockPrivilege(ViewPrivilege privilege1) {
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(privilege1.getPrivilege());
+        return privilege;
     }
 
 }

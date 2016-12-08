@@ -27,7 +27,9 @@ public interface CommandRuleService {
 
     Optional<CommandRule> findCommandRuleByName(String name);
 
-    Optional<CommandRuleTemplate> findCommandTemplateRuleByName(String name);
+    Optional<CommandRulePendingUpdate> findCommandTemplateRuleByName(String name);
+
+    void deleteRule(CommandRule commandRule);
 
 
     @ProviderType

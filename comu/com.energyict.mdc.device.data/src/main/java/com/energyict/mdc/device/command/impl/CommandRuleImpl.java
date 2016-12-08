@@ -2,11 +2,14 @@ package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.dualcontrol.DualControlService;
+import com.elster.jupiter.dualcontrol.Monitor;
+import com.elster.jupiter.dualcontrol.UnderDualControl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
-import com.energyict.mdc.device.command.CommandRuleTemplate;
+import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasUniqueCommands;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
 import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
@@ -26,16 +29,18 @@ import java.util.Optional;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_NAME + "}")
 @HasValidLimits(groups = {Save.Create.class, Save.Update.class})
 @HasUniqueCommands(groups= {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMMAND + "}")
-public class CommandRuleImpl implements CommandRule {
+public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRulePendingUpdate> {
 
     public enum Fields {
 
         NAME("name"),
+        ACTIVE("active"),
         DAYLIMIT("dayLimit"),
         WEEKLIMIT("weekLimit"),
         MONTHLIMIT("monthLimit"),
         COMMANDS("commands"),
-        COMMANDRULETEMPLATE("commandRuleTemplate");
+        COMMANDRULETEMPLATE("commandRulePendingUpdate"),
+        MONITOR("monitor");
 
         private final String javaFieldName;
 
@@ -48,24 +53,27 @@ public class CommandRuleImpl implements CommandRule {
         }
 
     }
-    private long id;
 
     private final DataModel dataModel;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private DualControlService dualControlService;
+
+    private long id;
     @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String name;
     private long dayLimit;
     private long weekLimit;
     private long monthLimit;
-    private Reference<CommandRuleTemplate> commandRuleTemplate;
+    private boolean active = false;
+
+    private Reference<Monitor> monitor = Reference.empty();
+    private Reference<CommandRulePendingUpdate> commandRulePendingUpdate = Reference.empty();
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_COMMAND_REQUIRED + "}")
     @Valid
     private List<CommandInRule> commands = new ArrayList<>();
-
     @SuppressWarnings("unused")
     private String userName;
-
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -74,9 +82,10 @@ public class CommandRuleImpl implements CommandRule {
     private Instant modTime;
 
     @Inject
-    public CommandRuleImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public CommandRuleImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService, DualControlService dualControlService) {
         this.dataModel = dataModel;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.dualControlService = dualControlService;
     }
 
     @Override
@@ -109,9 +118,8 @@ public class CommandRuleImpl implements CommandRule {
         return commands;
     }
 
-    @Override
-    public Optional<CommandRuleTemplate> getCommandRuleTemplate() {
-        return commandRuleTemplate.getOptional();
+    public Optional<CommandRulePendingUpdate> getCommandRulePendingUpdate() {
+        return commandRulePendingUpdate.getOptional();
     }
 
     @Override
@@ -120,6 +128,22 @@ public class CommandRuleImpl implements CommandRule {
     }
 
     @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void activate() {
+        if(this.isActive()) {
+            throw new IllegalArgumentException("Already active");
+        }
+        CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
+        update.initialize(this);
+        update.setActive(true);
+        update.save();
+        getMonitor().request(update, this);
+    }
+
     public void save() {
         if (this.getId() > 0) {
             doUpdate();
@@ -136,9 +160,10 @@ public class CommandRuleImpl implements CommandRule {
         Save.UPDATE.save(dataModel, this);
     }
 
-    @Override
     public void delete() {
-
+        if(!active) {
+            dataModel.remove(this);
+        }
     }
 
     public void setName(String name) {
@@ -160,6 +185,51 @@ public class CommandRuleImpl implements CommandRule {
     public void addCommand(DeviceMessageSpec deviceMessageSpec) {
         CommandInRuleImpl commandInRule = this.dataModel.getInstance(CommandInRuleImpl.class).initialize(deviceMessageSpec, this);
         this.commands.add(commandInRule);
+    }
+
+    @Override
+    public Monitor getMonitor() {
+        if (!monitor.isPresent()) {
+            monitor.set(dualControlService.createMonitor());
+        }
+        return monitor.get();
+    }
+
+    @Override
+    public Optional<CommandRulePendingUpdate> getPendingUpdate() {
+       return commandRulePendingUpdate.getOptional();
+    }
+
+    @Override
+    public void setPendingUpdate(CommandRulePendingUpdate commandRuleTemplate) {
+        this.commandRulePendingUpdate.set(commandRuleTemplate);
+        this.save();
+    }
+
+    @Override
+    public void applyUpdate() {
+        getPendingUpdate().ifPresent(commandRulePendingUpdate -> {
+            if (commandRulePendingUpdate.isRemoval()) {
+                this.delete();
+                return;
+            }
+            name = commandRulePendingUpdate.getName();
+            dayLimit = commandRulePendingUpdate.getDayLimit();
+            weekLimit = commandRulePendingUpdate.getWeekLimit();
+            monthLimit = commandRulePendingUpdate.getMonthLimit();
+            active = commandRulePendingUpdate.isActive();
+        });
+        this.save();
+    }
+
+    @Override
+    public void clearUpdate() {
+        if(commandRulePendingUpdate.isPresent()) {
+            CommandRulePendingUpdate entity = commandRulePendingUpdate.get();
+            commandRulePendingUpdate.setNull();
+            this.save();
+            dataModel.remove(entity);
+        }
     }
 
     @Override

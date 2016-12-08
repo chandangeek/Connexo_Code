@@ -4,7 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
-import com.energyict.mdc.device.command.CommandRuleTemplate;
+import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -19,7 +19,7 @@ public class CommandInRuleImpl implements CommandInRule {
 
         COMMAND("command"),
         COMMANDRULE("commandRule"),
-        COMMANDRULETEMPLATE("commandRuleTemplate"),
+        COMMANDRULEPENDINGUPDATE("commandRulePendingUpdate"),
         COMMANDID("commandId");
 
         private final String javaFieldName;
@@ -38,7 +38,7 @@ public class CommandInRuleImpl implements CommandInRule {
 
     private DeviceMessageSpec command;
     private Reference<CommandRule> commandRule = Reference.empty();
-    private Reference<CommandRuleTemplate> commandRuleTemplate = Reference.empty();
+    private Reference<CommandRulePendingUpdate> commandRulePendingUpdate = Reference.empty();
     private long commandId;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DataModel dataModel;
@@ -60,9 +60,9 @@ public class CommandInRuleImpl implements CommandInRule {
         this.commandRule.set(commandRule);
         return this;
     };
-    CommandInRuleImpl initialize(DeviceMessageSpec command, CommandRule commandRule, CommandRuleTemplate commandRuleTemplate) {
+    CommandInRuleImpl initialize(DeviceMessageSpec command, CommandRule commandRule, CommandRulePendingUpdate commandRuleTemplate) {
         this.initialize(command, commandRule);
-        this.commandRuleTemplate.set(commandRuleTemplate);
+        this.commandRulePendingUpdate.set(commandRuleTemplate);
         return this;
     }
 
@@ -79,9 +79,8 @@ public class CommandInRuleImpl implements CommandInRule {
         return commandRule.get();
     }
 
-    @Override
-    public Optional<CommandRuleTemplate> getCommandRuleTemplate() {
-        return this.commandRuleTemplate.getOptional();
+    public Optional<CommandRulePendingUpdate> getCommandRulePendingUpdate() {
+        return this.commandRulePendingUpdate.getOptional();
     }
 
     @Override
@@ -95,11 +94,11 @@ public class CommandInRuleImpl implements CommandInRule {
         CommandInRuleImpl that = (CommandInRuleImpl) o;
         return commandId == that.commandId &&
                 Objects.equals(commandRule, that.commandRule) &&
-                Objects.equals(commandRuleTemplate, that.commandRuleTemplate);
+                Objects.equals(commandRulePendingUpdate, that.commandRulePendingUpdate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandRule, commandRuleTemplate, commandId);
+        return Objects.hash(commandRule, commandRulePendingUpdate, commandId);
     }
 }

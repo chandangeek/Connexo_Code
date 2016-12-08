@@ -10,4 +10,6 @@ public interface ServerCommandRule extends HasId, HasName {
     long getWeekLimit();
     long getMonthLimit();
     List<CommandInRule> getCommands();
+    boolean isActive();
+    long getVersion();
 }

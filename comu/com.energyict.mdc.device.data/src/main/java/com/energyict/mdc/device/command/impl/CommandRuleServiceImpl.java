@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.command.impl;
 
+import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -15,7 +16,7 @@ import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
-import com.energyict.mdc.device.command.CommandRuleTemplate;
+import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -50,6 +51,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UpgradeService upgradeService;
     private volatile UserService userService;
+    private volatile DualControlService dualControlService;
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
@@ -59,7 +61,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Inject
-    CommandRuleServiceImpl(OrmService ormService, NlsService nlsService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService, DeviceMessageSpecificationService deviceMessageSpecificationService, UpgradeService upgradeService, UserService userService) {
+    CommandRuleServiceImpl(OrmService ormService, NlsService nlsService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService, DeviceMessageSpecificationService deviceMessageSpecificationService, UpgradeService upgradeService, UserService userService, DualControlService dualControlService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
@@ -67,6 +69,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setUpgradeService(upgradeService);
         setUserService(userService);
+        setDualControlService(dualControlService);
         activate(bundleContext);
     }
 
@@ -93,9 +96,14 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Override
-    public Optional<CommandRuleTemplate> findCommandTemplateRuleByName(String name) {
-        List<CommandRuleTemplate> commandRuleTemplates = dataModel.mapper(CommandRuleTemplate.class).select(where(CommandRuleTemplateImpl.Fields.NAME.fieldName()).isEqualToIgnoreCase(name));
+    public Optional<CommandRulePendingUpdate> findCommandTemplateRuleByName(String name) {
+        List<CommandRulePendingUpdate> commandRuleTemplates = dataModel.mapper(CommandRulePendingUpdate.class).select(where(CommandRulePendingUpdateImpl.Fields.NAME.fieldName()).isEqualToIgnoreCase(name));
         return commandRuleTemplates.isEmpty() ? Optional.empty() : Optional.of(commandRuleTemplates.get(0));
+    }
+
+    @Override
+    public void deleteRule(CommandRule commandRule) {
+        ((CommandRuleImpl) commandRule).delete();
     }
 
     @Override
@@ -135,6 +143,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                     bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                     bind(UserService.class).toInstance(userService);
                     bind(CommandRuleService.class).toInstance(commandRuleService);
+                    bind(DualControlService.class).toInstance(dualControlService);
                 }
             });
 
@@ -185,11 +194,16 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         return dataModel;
     }
 
+    @Reference
+    public void setDualControlService(DualControlService dualControlService) {
+        this.dualControlService = dualControlService;
+    }
+
     private class CommandRuleBuilderImpl implements CommandRuleBuilder {
         private CommandRuleImpl commandRule;
 
         public CommandRuleBuilderImpl(String name) {
-            this.commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService);
+            this.commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService);
             commandRule.setName(name);
         }
 

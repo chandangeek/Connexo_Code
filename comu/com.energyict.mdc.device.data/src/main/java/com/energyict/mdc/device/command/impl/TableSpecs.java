@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.command.impl;
 
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -9,7 +9,7 @@ import static com.elster.jupiter.orm.Version.version;
 
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
-import com.energyict.mdc.device.command.CommandRuleTemplate;
+import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 
 /**
  * Models the database tables that hold the data of the
@@ -19,22 +19,26 @@ import com.energyict.mdc.device.command.CommandRuleTemplate;
 public enum TableSpecs {
 
 
-    CLR_COMMANDRULETEMPLATE {
+    CLR_CMDRULEPENDINGUPDATE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<CommandRuleTemplate> table = dataModel.addTable(name(), CommandRuleTemplate.class);
+            Table<CommandRulePendingUpdate> table = dataModel.addTable(name(), CommandRulePendingUpdate.class);
             table.since(version(10, 3));
-            table.map(CommandRuleTemplateImpl.class);
+            table.map(CommandRulePendingUpdateImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.setJournalTableName("CLR_CMDRULETEMPLATEJRNL");
-            table.column("NAME").varChar(Table.NAME_LENGTH).notNull().map(CommandRuleTemplateImpl.Fields.NAME.fieldName()).add();
-            table.column("DAYLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleTemplateImpl.Fields.DAYLIMIT.fieldName()).add();
-            table.column("WEEKLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleTemplateImpl.Fields.WEEKLIMIT.fieldName()).add();
-            table.column("MONTHLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleTemplateImpl.Fields.MONTHLIMIT.fieldName()).add();
+            table.setJournalTableName("CLR_CMDRULEPENDINGUPDATE_JRNL");
+            table.column("NAME").varChar(Table.NAME_LENGTH).notNull().map(CommandRulePendingUpdateImpl.Fields.NAME.fieldName()).add();
+            table.column("DAYLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRulePendingUpdateImpl.Fields.DAYLIMIT.fieldName()).add();
+            table.column("WEEKLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRulePendingUpdateImpl.Fields.WEEKLIMIT.fieldName()).add();
+            table.column("MONTHLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRulePendingUpdateImpl.Fields.MONTHLIMIT.fieldName()).add();
+            table.column("ACTIVE").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ACTIVE.fieldName()).add();
+            table.column("ISACTIVATION").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISACTIVATION.fieldName()).add();
+            table.column("ISDEACTIVATION").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISDEACTIVATION.fieldName()).add();
+            table.column("ISREMOVAL").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISREMOVAL.fieldName()).add();
 
-            table.primaryKey("PK_CLR_CMDRULETEMPLATE").on(idColumn).add();
+            table.primaryKey("PK_CLR_CMDRULETPU").on(idColumn).add();
         }
     },
 
@@ -52,15 +56,23 @@ public enum TableSpecs {
             table.column("DAYLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleImpl.Fields.DAYLIMIT.fieldName()).add();
             table.column("WEEKLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleImpl.Fields.WEEKLIMIT.fieldName()).add();
             table.column("MONTHLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleImpl.Fields.MONTHLIMIT.fieldName()).add();
+            table.column("ACTIVE").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRuleImpl.Fields.ACTIVE.fieldName()).add();
             Column commandRuleTemplate = table.column("COMMANDRULETEMPLATEID").number().add();
+            Column monitor = table.column("MONITOR").number().add();
 
             table.primaryKey("PK_CLR_COMMANDRULE").on(idColumn).add();
             table.unique("CLR_U_COMMANDRULE_NAME").on(nameColumn).add();
 
-            table.foreignKey("FK_CLR_COMMAND_RULE_TAMPLATE")
+            table.foreignKey("FK_CLR_COMMAND_PU")
                     .on(commandRuleTemplate)
-                    .references(CommandRuleTemplate.class)
+                    .references(CommandRulePendingUpdate.class)
                     .map(CommandRuleImpl.Fields.COMMANDRULETEMPLATE.fieldName())
+                    .add();
+
+            table.foreignKey("FK_CLR_COMMAND_RULE_MONITOR")
+                    .on(monitor)
+                    .references(Monitor.class)
+                    .map(CommandRuleImpl.Fields.MONITOR.fieldName())
                     .add();
         }
     },
@@ -87,9 +99,9 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_CLR_CMDINRULE_CMDRULETMPLTE").
                     on(commandRuleTemplate)
-                    .references(CLR_COMMANDRULETEMPLATE.name())
-                    .map(CommandInRuleImpl.Fields.COMMANDRULETEMPLATE.fieldName())
-                    .reverseMap(CommandRuleTemplateImpl.Fields.COMMANDS.fieldName())
+                    .references(CLR_CMDRULEPENDINGUPDATE.name())
+                    .map(CommandInRuleImpl.Fields.COMMANDRULEPENDINGUPDATE.fieldName())
+                    .reverseMap(CommandRulePendingUpdateImpl.Fields.COMMANDS.fieldName())
                     .composition()
                     .add();
         }

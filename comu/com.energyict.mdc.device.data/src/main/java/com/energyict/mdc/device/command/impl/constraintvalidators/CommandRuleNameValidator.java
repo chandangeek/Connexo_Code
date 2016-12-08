@@ -2,7 +2,7 @@ package com.energyict.mdc.device.command.impl.constraintvalidators;
 
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
-import com.energyict.mdc.device.command.CommandRuleTemplate;
+import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.ServerCommandRule;
 import com.energyict.mdc.device.command.impl.CommandRuleImpl;
 
@@ -29,7 +29,7 @@ public class CommandRuleNameValidator implements ConstraintValidator<UniqueName,
     @Override
     public boolean isValid(ServerCommandRule commandRule, ConstraintValidatorContext constraintValidatorContext) {
         Optional<CommandRule> other = this.commandRuleService.findCommandRuleByName(commandRule.getName());
-        Optional<CommandRuleTemplate> otherTemplate = this.commandRuleService.findCommandTemplateRuleByName(commandRule.getName());
+        Optional<CommandRulePendingUpdate> otherTemplate = this.commandRuleService.findCommandTemplateRuleByName(commandRule.getName());
         if (other.isPresent() && other.get().getId() != commandRule.getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate(constraintValidatorContext.getDefaultConstraintMessageTemplate())
