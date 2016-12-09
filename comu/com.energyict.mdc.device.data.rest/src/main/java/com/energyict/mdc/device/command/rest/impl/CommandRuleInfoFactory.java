@@ -58,11 +58,12 @@ public class CommandRuleInfoFactory {
         if (commandRule.getCommandRulePendingUpdate().isPresent()) {
             CommandRulePendingUpdate pendingUpdate = commandRule.getCommandRulePendingUpdate().get();
             DualControlInfo dualControlInfo = new DualControlInfo();
-           List<DualControlChangeInfo> changes = new ArrayList<>();
+            List<DualControlChangeInfo> changes = new ArrayList<>();
+            commandRuleInfo.dualControl = dualControlInfo;
             dualControlInfo.changes = changes;
             dualControlInfo.hasCurrentUserAccepted = commandRule.hasCurrentUserAccepted();
             dualControlInfo.pendingChangesType = PendingChangesType.getCorrectType(pendingUpdate);
-            if(pendingUpdate.isRemoval()) {
+            if (pendingUpdate.isRemoval()) {
                 changes.add(new DualControlChangeInfo(translate(TranslationKeys.STATUS), translate(TranslationKeys.ACTIVE), translate(TranslationKeys.REMOVED)));
                 return commandRuleInfo;
             }
