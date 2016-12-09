@@ -188,14 +188,14 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         super.setProperties(properties);
         try {
-            securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0").trim());  //Default
-            this.profileRequestBlockSize = Integer.parseInt(properties.getProperty(PROFILE_REQUEST_BLOCK_SIZE, "10"));
-            this.disableAutoLogoff = Integer.parseInt(properties.getProperty(DISABLE_AUTO_LOGOFF, "0")) > 0;
-            suppressWakeupSequence = Integer.parseInt(properties.getProperty(SUPPRESS_WAKEUP_SEQUENCE, "0")) != 0;
+            securityLevel = Integer.parseInt(properties.getTypedProperty("SecurityLevel", "0").trim());  //Default
+            this.profileRequestBlockSize = Integer.parseInt(properties.getTypedProperty(PROFILE_REQUEST_BLOCK_SIZE, "10"));
+            this.disableAutoLogoff = Integer.parseInt(properties.getTypedProperty(DISABLE_AUTO_LOGOFF, "0")) > 0;
+            suppressWakeupSequence = Integer.parseInt(properties.getTypedProperty(SUPPRESS_WAKEUP_SEQUENCE, "0")) != 0;
 
         /* check for lock to open... */
             usedLock = LockObject.CustomerLock;
-            final String lockName = properties.getProperty(USE_LOCK, "");
+            final String lockName = properties.getTypedProperty(USE_LOCK, "");
             if (!lockName.isEmpty()) {
                 usedLock = null;
                 for (LockObject lock : getLockObjects())
@@ -228,8 +228,8 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
             }
 
         /* check which archive to readout... */
-            String strMeterIndex = properties.getProperty(METER_INDEX, "");
-            String strArchive = properties.getProperty(ARCHIVE_TO_READOUT, "");
+            String strMeterIndex = properties.getTypedProperty(METER_INDEX, "");
+            String strArchive = properties.getTypedProperty(ARCHIVE_TO_READOUT, "");
 
         /* property MeterIndex set ? */
             if ((strMeterIndex != null) && (!strMeterIndex.isEmpty())) {
@@ -242,14 +242,14 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
             }
 
         /* check if archive structure is given by property */
-            String struct = properties.getProperty(ARCHIVE_STRUCTURE, "");
+            String struct = properties.getTypedProperty(ARCHIVE_STRUCTURE, "");
             if ((struct != null) && (!struct.isEmpty())) {
                 archiveStructure = struct;
             }
 
-            archiveIntervalAddr = properties.getProperty(ARCHIVE_INTERVAL_ADDRESS, "");
+            archiveIntervalAddr = properties.getTypedProperty(ARCHIVE_INTERVAL_ADDRESS, "");
 
-            delayAfterCheck = Integer.parseInt(properties.getProperty(DELAY_AFTER_CHECK, "0"));
+            delayAfterCheck = Integer.parseInt(properties.getTypedProperty(DELAY_AFTER_CHECK, "0"));
         }
         catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");

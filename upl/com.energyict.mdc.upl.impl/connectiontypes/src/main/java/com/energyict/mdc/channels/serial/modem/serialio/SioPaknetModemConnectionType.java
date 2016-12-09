@@ -35,7 +35,7 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
          */
         ComChannel comChannel = super.connect();
         try {
-            paknetModemComponent.connect(getComPortName(properties), comChannel);
+            paknetModemComponent.connect(getComPortName(getAllProperties()), comChannel);
         } catch (Throwable e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             if (e instanceof ModemException) {

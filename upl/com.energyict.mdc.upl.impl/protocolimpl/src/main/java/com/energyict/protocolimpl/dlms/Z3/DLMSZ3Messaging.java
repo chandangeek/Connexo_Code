@@ -230,18 +230,18 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
     @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        this.password = properties.getProperty(PASSWORD.getName(), "");
-        this.securityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "0"));
-        this.connectionMode = Integer.parseInt(properties.getProperty("ConnectionMode", "1"));
-        this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
-        this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
-        this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
+        this.password = properties.getTypedProperty(PASSWORD.getName(), "");
+        this.securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "0"));
+        this.connectionMode = Integer.parseInt(properties.getTypedProperty("ConnectionMode", "1"));
+        this.clientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "16"));
+        this.serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "1"));
+        this.serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "17"));
         // if HDLC set default timeout to 10s, if TCPIP set default timeout to 60s
-        this.timeout = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), (this.connectionMode == 0) ? "10000" : "60000"));
-        this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "100"));
-        this.retries = Integer.parseInt(properties.getProperty(RETRIES.getName(), "3"));
-        this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
-        this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
+        this.timeout = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), (this.connectionMode == 0) ? "10000" : "60000"));
+        this.forceDelay = Integer.parseInt(properties.getTypedProperty("ForceDelay", "100"));
+        this.retries = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "3"));
+        this.addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "2"));
+        this.requestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0"));
     }
 
     @Override

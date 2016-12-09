@@ -56,7 +56,7 @@ public class A1800 extends AbstractDLMS {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", LOAD_PROFILE_PULSES.toString())));
+        setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty("LoadProfileObisCode", LOAD_PROFILE_PULSES.toString())));
         applyMultiplier = !"0".equals(properties.getProperty(PROPERTY_LP_MULTIPLIER, "0"));
 
         String password = getInfoTypePassword();

@@ -18,6 +18,7 @@ import com.energyict.protocol.RegisterValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
@@ -84,7 +85,7 @@ public class SampleProtocol implements SmartMeterProtocol {
 
     }
 
-    public Object getCache() {
+    public Serializable getCache() {
         return null;
     }
 

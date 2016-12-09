@@ -125,9 +125,9 @@ public class A1 extends Dlms {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        archiveStructure = properties.getProperty(Dlms.ARCHIVESTRUCTURE, "");
-        logStructure = properties.getProperty(Dlms.LOGSTRUCTURE, "");
-        String s = properties.getProperty(PROP_SCALERVALUE, "");
+        archiveStructure = properties.getTypedProperty(Dlms.ARCHIVESTRUCTURE, "");
+        logStructure = properties.getTypedProperty(Dlms.LOGSTRUCTURE, "");
+        String s = properties.getTypedProperty(PROP_SCALERVALUE, "");
         if (!s.isEmpty()) {
             globalScaler = s;
         }

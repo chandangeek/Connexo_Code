@@ -38,12 +38,12 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     private static final String DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS = "ATS0=0E0V1";   // Auto-answer disabled: modem will not answer incoming calls
     private static final String DEFAULT_AT_MODEM_INIT_STRINGS = "";
     private static final BigDecimal DEFAULT_AT_COMMAND_TRIES = new BigDecimal(3);
-    private static final TemporalAmount DEFAULT_AT_COMMAND_TIMEOUT = Duration.ofSeconds(5);
-    private static final TemporalAmount DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
-    private static final TemporalAmount DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
-    private static final TemporalAmount DEFAULT_AT_CONNECT_TIMEOUT = Duration.ofSeconds(60);
+    private static final Duration DEFAULT_AT_COMMAND_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
+    private static final Duration DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
+    private static final Duration DEFAULT_AT_CONNECT_TIMEOUT = Duration.ofSeconds(60);
     private static final String DEFAULT_AT_MODEM_DIAL_PREFIX = "";
-    private static final TemporalAmount DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
+    private static final Duration DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
 
     private TypedProperties properties;
 
@@ -72,7 +72,7 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
 
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
+        this.properties = properties;
     }
 
     @Override
@@ -165,19 +165,19 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     public static PropertySpec atModemAddressSelectorSpec() {
-        return UPLPropertySpecFactory.string(AT_MODEM_ADDRESS_SELECTOR, DEFAULT_AT_MODEM_ADDRESS_SELECTOR, false);
+        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_ADDRESS_SELECTOR, false, DEFAULT_AT_MODEM_ADDRESS_SELECTOR);
     }
 
     public static PropertySpec atModemPostDialCommandsSpec() {
-        return UPLPropertySpecFactory.string(AT_MODEM_POST_DIAL_COMMANDS, DEFAULT_AT_MODEM_POST_DIAL_COMMANDS, false);
+        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_POST_DIAL_COMMANDS, false, DEFAULT_AT_MODEM_POST_DIAL_COMMANDS);
     }
 
     public static PropertySpec atGlobalModemInitStringSpec() {
-        return UPLPropertySpecFactory.string(AT_MODEM_GLOBAL_INIT_STRINGS, DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS, false);
+        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_GLOBAL_INIT_STRINGS, false, DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS);
     }
 
     public static PropertySpec atModemInitStringSpec() {
-        return UPLPropertySpecFactory.string(AT_MODEM_INIT_STRINGS, DEFAULT_AT_MODEM_INIT_STRINGS, false);
+        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_INIT_STRINGS, false, DEFAULT_AT_MODEM_INIT_STRINGS);
     }
 
     public static PropertySpec atCommandTriesSpec() {
@@ -185,27 +185,27 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     public static PropertySpec atCommandTimeoutSpec() {
-        return UPLPropertySpecFactory.timeDuration(AT_COMMAND_TIMEOUT, DEFAULT_AT_COMMAND_TIMEOUT, false, true);
+        return UPLPropertySpecFactory.duration(AT_COMMAND_TIMEOUT, false, DEFAULT_AT_COMMAND_TIMEOUT);
     }
 
     public static PropertySpec delayBeforeSendSpec() {
-        return UPLPropertySpecFactory.timeDuration(DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND, false, true);
+        return UPLPropertySpecFactory.duration(DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
     }
 
     public static PropertySpec delayAfterConnectSpec() {
-        return UPLPropertySpecFactory.timeDuration(DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT, false, true);
+        return UPLPropertySpecFactory.duration(DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
     public static PropertySpec atConnectTimeoutSpec() {
-        return UPLPropertySpecFactory.timeDuration(AT_CONNECT_TIMEOUT, DEFAULT_AT_CONNECT_TIMEOUT, false, true);
+        return UPLPropertySpecFactory.duration(AT_CONNECT_TIMEOUT, false, DEFAULT_AT_CONNECT_TIMEOUT);
     }
 
     public static PropertySpec atCommandPrefixSpec() {
-        return UPLPropertySpecFactory.string(AT_MODEM_DIAL_PREFIX, DEFAULT_AT_MODEM_DIAL_PREFIX, false);
+        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_DIAL_PREFIX, false, DEFAULT_AT_MODEM_DIAL_PREFIX);
     }
 
     public static PropertySpec dtrToggleDelaySpec() {
-        return UPLPropertySpecFactory.timeDuration(DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY, false, true);
+        return UPLPropertySpecFactory.duration(DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
     public static PropertySpec phoneNumberSpec() {

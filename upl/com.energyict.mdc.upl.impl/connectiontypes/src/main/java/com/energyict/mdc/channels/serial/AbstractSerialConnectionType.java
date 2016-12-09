@@ -37,23 +37,23 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         return Arrays.asList(baudRatePropertySpec(), parityPropertySpec(), nrOfStopBitsPropertySpec(), nrOfDataBitsPropertySpec(), flowControlPropertySpec());
     }
 
-    protected PropertySpec<String> flowControlPropertySpec() {
+    protected PropertySpec flowControlPropertySpec() {
         return  UPLPropertySpecFactory.stringWithDefault(SerialPortConfiguration.FLOW_CONTROL_NAME, false, FlowControl.NONE.getFlowControl(), FlowControl.getTypedValues());
     }
 
-    protected PropertySpec<BigDecimal> nrOfDataBitsPropertySpec() {
+    protected PropertySpec nrOfDataBitsPropertySpec() {
         return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, true, NrOfDataBits.EIGHT.getNrOfDataBits(), NrOfDataBits.getTypedValues());
     }
 
-    protected PropertySpec<BigDecimal> nrOfStopBitsPropertySpec() {
+    protected PropertySpec nrOfStopBitsPropertySpec() {
         return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.getTypedValues());
     }
 
-    protected PropertySpec<String> parityPropertySpec() {
+    protected PropertySpec parityPropertySpec() {
         return UPLPropertySpecFactory.stringWithDefault(SerialPortConfiguration.PARITY_NAME, true, Parities.NONE.getParity(), Parities.getTypedValues());
     }
 
-    protected PropertySpec<BigDecimal> baudRatePropertySpec() {
+    protected PropertySpec baudRatePropertySpec() {
         return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(), BaudrateValue.getTypedValues());
     }
 

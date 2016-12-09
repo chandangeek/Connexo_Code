@@ -94,16 +94,16 @@ public class Trimaran extends AbstractProtocol {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","300").trim())); // TE
-        setInfoTypeHalfDuplex(Integer.parseInt(properties.getProperty("HalfDuplex","50").trim())); // TC
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay","300").trim())); // TE
+        setInfoTypeHalfDuplex(Integer.parseInt(properties.getTypedProperty("HalfDuplex","50").trim())); // TC
 
         // KV_DEBUG
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(TIMEOUT.getName(),"22000").trim())); // TSE (session layer)
-        setAckTimeout(Integer.parseInt(properties.getProperty("ACKTimeoutTL","5000").trim())); // TL (datalink layer)
-        setInterKarTimeout(Integer.parseInt(properties.getProperty("InterCharTimeout","400").trim())); //
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(),"22000").trim())); // TSE (session layer)
+        setAckTimeout(Integer.parseInt(properties.getTypedProperty("ACKTimeoutTL","5000").trim())); // TL (datalink layer)
+        setInterKarTimeout(Integer.parseInt(properties.getTypedProperty("InterCharTimeout","400").trim())); //
 
-        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","3000").trim())); // Command retry timeout
-        setFlushTimeout(Integer.parseInt(properties.getProperty("FlushTimeout","500").trim())); // Timeout to wait befor sending a new command for receiving duplicate frames send by meter
+        setCommandTimeout(Integer.parseInt(properties.getTypedProperty("CommandTimeout","3000").trim())); // Command retry timeout
+        setFlushTimeout(Integer.parseInt(properties.getTypedProperty("FlushTimeout","500").trim())); // Timeout to wait befor sending a new command for receiving duplicate frames send by meter
     }
 
     @Override

@@ -1033,24 +1033,24 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "10").trim());
-            iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "0").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty("Timeout", "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty("Retries", "10").trim());
+            iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty("SecurityLevel", "0").trim());
+            iRequestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty("RoundtripCorrection", "0").trim());
 
-            iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
-            firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
-            nodeId = properties.getProperty(NODEID.getName(), "");
+            iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "16").trim());
+            iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "1").trim());
+            iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "0").trim());
+            firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
+            nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
+            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
 
-            int loadProfileIdPropertyValue = Integer.parseInt(properties.getProperty("LoadProfileId", "1"));
+            int loadProfileIdPropertyValue = Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1"));
             if (loadProfileIdPropertyValue == 1) {
                 loadProfileObisCode = loadProfileObisCode1;
             } else if (loadProfileIdPropertyValue == 2) {
@@ -1059,8 +1059,8 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 loadProfileObisCode = loadProfileObisCode97;
             }
 
-            addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
-            connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
+            addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "-1"));
+            connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, "Flex: validation of properties failed before");
         }

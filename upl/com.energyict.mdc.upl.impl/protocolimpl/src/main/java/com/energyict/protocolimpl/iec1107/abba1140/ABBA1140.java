@@ -57,7 +57,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -228,47 +227,47 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     @Override
     public void setProperties(TypedProperties p) throws MissingPropertyException, InvalidPropertyException {
         try {
-            if (p.getProperty(ADDRESS.getName()) != null) {
-                pAddress = p.getProperty(ADDRESS.getName());
+            if (p.getTypedProperty(ADDRESS.getName()) != null) {
+                pAddress = p.getTypedProperty(ADDRESS.getName());
             }
 
-            if (p.getProperty(NODEID.getName()) != null) {
-                pNodeId = p.getProperty(NODEID.getName());
+            if (p.getTypedProperty(NODEID.getName()) != null) {
+                pNodeId = p.getTypedProperty(NODEID.getName());
             }
 
-            if (p.getProperty(SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getProperty(SERIALNUMBER.getName());
+            if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
+                pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
             }
 
-            if (p.getProperty(PASSWORD.getName()) != null) {
-                pPassword = p.getProperty(PASSWORD.getName());
+            if (p.getTypedProperty(PASSWORD.getName()) != null) {
+                pPassword = p.getTypedProperty(PASSWORD.getName());
             }
 
-            if (p.getProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
+            if (p.getTypedProperty(PK_TIMEOUT) != null) {
+                pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
             }
 
-            if (p.getProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
+            if (p.getTypedProperty(PK_RETRIES) != null) {
+                pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
             }
 
-            if (p.getProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                pRoundTripCorrection = Integer.parseInt(p.getProperty(ROUNDTRIPCORRECTION.getName()));
+            if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+                pRoundTripCorrection = Integer.parseInt(p.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
             }
 
-            if (p.getProperty(CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getProperty(CORRECTTIME.getName()));
+            if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
+                pCorrectTime = Integer.parseInt(p.getTypedProperty(CORRECTTIME.getName()));
             }
 
-            if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = Integer.parseInt(p.getProperty(PK_EXTENDED_LOGGING));
+            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+                pExtendedLogging = Integer.parseInt(p.getTypedProperty(PK_EXTENDED_LOGGING));
             }
 
-            if (p.getProperty(PK_DELAY_BEFORE_CONNECT) != null) {
-                pDelayBeforeConnect = Integer.parseInt(p.getProperty(PK_DELAY_BEFORE_CONNECT));
+            if (p.getTypedProperty(PK_DELAY_BEFORE_CONNECT) != null) {
+                pDelayBeforeConnect = Integer.parseInt(p.getTypedProperty(PK_DELAY_BEFORE_CONNECT));
             }
 
-            pSecurityLevel = Integer.parseInt(p.getProperty(PK_SECURITY_LEVEL, "2").trim());
+            pSecurityLevel = Integer.parseInt(p.getTypedProperty(PK_SECURITY_LEVEL, "2").trim());
             if (pSecurityLevel != 0) {
                 if (pPassword == null || pPassword.isEmpty()) {
                     throw InvalidPropertyException.forNameAndValue(PASSWORD.getName(), null);
@@ -278,22 +277,22 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                 }
             }
 
-            if (p.getProperty(PK_ECHO_CANCELING) != null) {
-                pEchoCancelling = Integer.parseInt(p.getProperty(PK_ECHO_CANCELING));
+            if (p.getTypedProperty(PK_ECHO_CANCELING) != null) {
+                pEchoCancelling = Integer.parseInt(p.getTypedProperty(PK_ECHO_CANCELING));
             }
 
-            if (p.getProperty(PK_IEC1107_COMPATIBLE) != null) {
-                pIEC1107Compatible = Integer.parseInt(p.getProperty(PK_IEC1107_COMPATIBLE));
+            if (p.getTypedProperty(PK_IEC1107_COMPATIBLE) != null) {
+                pIEC1107Compatible = Integer.parseInt(p.getTypedProperty(PK_IEC1107_COMPATIBLE));
             }
 
-            this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
+            this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
 
-            this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getProperty("DisableLogOffCommand", "0"));
+            this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty("DisableLogOffCommand", "0"));
             this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
 
-            this.extendedProfileStatus = !"0".equalsIgnoreCase(p.getProperty("ExtendedProfileStatus", "0"));
+            this.extendedProfileStatus = !"0".equalsIgnoreCase(p.getTypedProperty("ExtendedProfileStatus", "0"));
 
-            this.useSelectiveAccessByFromAndToDate = "1".equals(p.getProperty("UseSelectiveAccessByFromAndToDate", "1"));
+            this.useSelectiveAccessByFromAndToDate = "1".equals(p.getTypedProperty("UseSelectiveAccessByFromAndToDate", "1"));
 
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, "ABBA1140: validation of properties failed before");
@@ -534,7 +533,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
-        Properties properties = new Properties();
+        TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
         properties.setProperty("SecurityLevel", "0");
         properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");

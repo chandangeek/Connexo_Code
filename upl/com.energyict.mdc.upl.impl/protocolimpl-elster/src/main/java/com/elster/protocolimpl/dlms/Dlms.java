@@ -211,45 +211,45 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         try {
-            strPassword = properties.getProperty(PASSWORD.getName());
-            protocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
-            serialNumber = properties.getProperty(Property.SERIALNUMBER.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+            serialNumber = properties.getTypedProperty(Property.SERIALNUMBER.getName());
 
-            clientID = getPropertyAsInteger(properties.getProperty(Dlms.CLIENTID));
-            serverAddress = getPropertyAsInteger(properties.getProperty(Dlms.SERVERADDRESS, "5959"));
-            logicalDevice = getPropertyAsInteger(properties.getProperty(Dlms.LOGICALDEVICE, "0"));
+            clientID = getPropertyAsInteger(properties.getTypedProperty(Dlms.CLIENTID));
+            serverAddress = getPropertyAsInteger(properties.getTypedProperty(Dlms.SERVERADDRESS, "5959"));
+            logicalDevice = getPropertyAsInteger(properties.getTypedProperty(Dlms.LOGICALDEVICE, "0"));
 
-            timeout = getPropertyAsInteger(properties.getProperty("Timeout", "-1"));
+            timeout = getPropertyAsInteger(properties.getTypedProperty("Timeout", "-1"));
 
-            String dsl = properties.getProperty(Dlms.DLMSSECURITYLEVEL);
+            String dsl = properties.getTypedProperty(Dlms.DLMSSECURITYLEVEL);
             securityData = new SecurityData(dsl);
-            securityData.setEncryptionKey(properties.getProperty(Dlms.ENCRYPTIONKEY, ""));
-            securityData.setAuthenticationKey(properties.getProperty(Dlms.AUTHENTICATIONKEY, ""));
+            securityData.setEncryptionKey(properties.getTypedProperty(Dlms.ENCRYPTIONKEY, ""));
+            securityData.setAuthenticationKey(properties.getTypedProperty(Dlms.AUTHENTICATIONKEY, ""));
             String msg = securityData.checkSecurityData();
             if (!msg.isEmpty()) {
                 throw new InvalidPropertyException("Security data: " + msg);
             }
 
-            useModeE = getPropertyAsInteger(properties.getProperty(Dlms.USEMODEE, "0")) == 1;
+            useModeE = getPropertyAsInteger(properties.getTypedProperty(Dlms.USEMODEE, "0")) == 1;
 
             // debugging tools...
-            retrieveOffset = getPropertyAsInteger(properties.getProperty(Dlms.RETRIEVEOFFSET, "0"));
+            retrieveOffset = getPropertyAsInteger(properties.getTypedProperty(Dlms.RETRIEVEOFFSET, "0"));
 
-            String archiveStructurePropertyValue = properties.getProperty(Dlms.ARCHIVESTRUCTURE);
+            String archiveStructurePropertyValue = properties.getTypedProperty(Dlms.ARCHIVESTRUCTURE);
             if ((archiveStructurePropertyValue != null) && (!archiveStructurePropertyValue.isEmpty())) {
                 archiveStructure = archiveStructurePropertyValue;
             }
-            String logStructurePropertyValue = properties.getProperty(Dlms.LOGSTRUCTURE);
+            String logStructurePropertyValue = properties.getTypedProperty(Dlms.LOGSTRUCTURE);
             if ((logStructurePropertyValue != null) && (!logStructurePropertyValue.isEmpty())) {
                 this.logStructure = logStructurePropertyValue;
             }
 
             // check if an obis code for interval profile is defined
-            String ocIntervalProfile = properties.getProperty(Dlms.OC_INTERVALPROFILE, "");
+            String ocIntervalProfile = properties.getTypedProperty(Dlms.OC_INTERVALPROFILE, "");
             if ((ocIntervalProfile != null) && (!ocIntervalProfile.isEmpty())) {
                 this.ocIntervalProfile = new ObisCode(ocIntervalProfile);
             }
-            String ocLogProfile = properties.getProperty(Dlms.OC_LOGPROFILE, "");
+            String ocLogProfile = properties.getTypedProperty(Dlms.OC_LOGPROFILE, "");
             if ((ocLogProfile != null) && (!ocLogProfile.isEmpty())) {
                 this.ocLogProfile = new ObisCode(ocLogProfile);
             }
@@ -258,7 +258,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                 throw new InvalidPropertyException(" validateProperties, no obis code for interval profile defined");
             }
 
-            clientMaxReceivePduSize = getPropertyAsInteger(properties.getProperty(Dlms.MAXPDUSIZE, "0"));
+            clientMaxReceivePduSize = getPropertyAsInteger(properties.getTypedProperty(Dlms.MAXPDUSIZE, "0"));
 
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");

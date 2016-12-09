@@ -252,11 +252,11 @@ public class Opus extends AbstractProtocol {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress"));
-		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
-		this.timeOut = Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "5000"));
-		this.attempts = Integer.parseInt(properties.getProperty(PROP_RETRIES, "3"));
-		this.oldPassword = properties.getProperty("Password");
+        this.outstationID = Integer.parseInt(properties.getTypedProperty("NodeAddress"));
+		this.channelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap","1"));
+		this.timeOut = Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "5000"));
+		this.attempts = Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "3"));
+		this.oldPassword = properties.getTypedProperty("Password");
 		this.newPassword = this.oldPassword;
 	}
 

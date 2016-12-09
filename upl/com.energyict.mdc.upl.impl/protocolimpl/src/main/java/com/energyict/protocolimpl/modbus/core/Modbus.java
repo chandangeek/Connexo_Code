@@ -148,22 +148,22 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "10").trim()));
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "15").trim()));
-        setNetworkId(properties.getProperty("NetworkId", ""));
-        setVirtualLoadProfile(Integer.parseInt(properties.getProperty("VirtualLoadProfile", "0").trim())==1);
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "15").trim()));
+        setNetworkId(properties.getTypedProperty("NetworkId", ""));
+        setVirtualLoadProfile(Integer.parseInt(properties.getTypedProperty("VirtualLoadProfile", "0").trim())==1);
 
-        physicalLayer = Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "0").trim());
-        responseTimeout = Integer.parseInt(properties.getProperty(PK_RESPONSE_TIMEOUT, "200").trim());
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "2000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "2").trim()));
+        physicalLayer = Integer.parseInt(properties.getTypedProperty(PK_PHYSICAL_LAYER, "0").trim());
+        responseTimeout = Integer.parseInt(properties.getTypedProperty(PK_RESPONSE_TIMEOUT, "200").trim());
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "2000").trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "2").trim()));
 
-        setRegisterOrderFixedPoint(Integer.parseInt(properties.getProperty("RegisterOrderFixedPoint", "1").trim()));
-        setRegisterOrderFloatingPoint(Integer.parseInt(properties.getProperty("RegisterOrderFloatingPoint", "1").trim()));
-        firstTimeDelay = Integer.parseInt(properties.getProperty(PK_FIRST_TIME_DELAY, "0").trim());
-        meterFirmwareVersion = properties.getProperty(PK_METER_FIRMWARE_VERSION, "");
-        connection = Integer.parseInt(properties.getProperty("Connection", "0").trim());
-        nodeAddress = Integer.parseInt(properties.getProperty("NodeAddress", "255").trim());    // Only used in Modbus TCP/IP mode
+        setRegisterOrderFixedPoint(Integer.parseInt(properties.getTypedProperty("RegisterOrderFixedPoint", "1").trim()));
+        setRegisterOrderFloatingPoint(Integer.parseInt(properties.getTypedProperty("RegisterOrderFloatingPoint", "1").trim()));
+        firstTimeDelay = Integer.parseInt(properties.getTypedProperty(PK_FIRST_TIME_DELAY, "0").trim());
+        meterFirmwareVersion = properties.getTypedProperty(PK_METER_FIRMWARE_VERSION, "");
+        connection = Integer.parseInt(properties.getTypedProperty("Connection", "0").trim());
+        nodeAddress = Integer.parseInt(properties.getTypedProperty("NodeAddress", "255").trim());    // Only used in Modbus TCP/IP mode
     }
 
     @Override

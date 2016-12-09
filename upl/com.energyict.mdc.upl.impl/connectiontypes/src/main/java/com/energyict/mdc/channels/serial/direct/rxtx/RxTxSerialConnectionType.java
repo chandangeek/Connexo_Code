@@ -25,7 +25,7 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
     @Override
     public ComChannel connect() throws ConnectionException {
 
-        SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(getComPortName(properties), getBaudRateValue(), getNrOfDataBitsValue(),
+        SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(getComPortName(getAllProperties()), getBaudRateValue(), getNrOfDataBitsValue(),
                 getNrOfStopBitsValue(), getParityValue(), getFlowControlValue());
 
         if (getPortOpenTimeOutValue() != null) {
@@ -50,7 +50,7 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
      *
      * @return the property spec fo the RxTx flowControl property
      */
-    protected PropertySpec<String> flowControlPropertySpec() {
+    protected PropertySpec flowControlPropertySpec() {
         return UPLPropertySpecFactory.string(SerialPortConfiguration.FLOW_CONTROL_NAME, false,
                 FlowControl.NONE.getFlowControl(),
                 FlowControl.RTSCTS.getFlowControl(), FlowControl.XONXOFF.getFlowControl());

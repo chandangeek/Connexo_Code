@@ -71,8 +71,8 @@ public class Generic extends Modbus {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        validateAndSetCustomStartRegisterMap(properties.getProperty(START_REGISTERS));
-        validateAndSetStartRegistesZeroBasedFlag(properties.getProperty(START_REGISTERS_ZERO_BASED, "1"));
+        validateAndSetCustomStartRegisterMap(properties.getTypedProperty(START_REGISTERS));
+        validateAndSetStartRegistesZeroBasedFlag(properties.getTypedProperty(START_REGISTERS_ZERO_BASED, "1"));
     }
 
     private void validateAndSetCustomStartRegisterMap(String registerMap) throws InvalidPropertyException {

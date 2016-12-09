@@ -121,17 +121,17 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        clientAddress = Integer.parseInt(properties.getProperty("ClientAddress", "254"));
-        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "01"));
-        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0").trim()));
-        setMassMemoryId(Integer.parseInt(properties.getProperty("MassMemoryId", "0").trim()));
+        clientAddress = Integer.parseInt(properties.getTypedProperty("ClientAddress", "254"));
+        setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "01"));
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
+        setMassMemoryId(Integer.parseInt(properties.getTypedProperty("MassMemoryId", "0").trim()));
         if (getMassMemoryId()>1) {
             setMassMemoryId(1);
         }
-        setApplyDemandRegisterMultiplier(Boolean.parseBoolean(properties.getProperty(PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER, "true")));
-        setApplyEnergyRegisterMultiplier(Boolean.parseBoolean(properties.getProperty(PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER, "true")));
-        setApplySelfReadRegisterMultiplier(Boolean.parseBoolean(properties.getProperty(PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER, "true")));
-        setSupportsIdentifyCommand(Boolean.parseBoolean(properties.getProperty(PROPERTY_SUPPORTS_IDENTIFY_COMMAND, "true")));
+        setApplyDemandRegisterMultiplier(Boolean.parseBoolean(properties.getTypedProperty(PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER, "true")));
+        setApplyEnergyRegisterMultiplier(Boolean.parseBoolean(properties.getTypedProperty(PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER, "true")));
+        setApplySelfReadRegisterMultiplier(Boolean.parseBoolean(properties.getTypedProperty(PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER, "true")));
+        setSupportsIdentifyCommand(Boolean.parseBoolean(properties.getTypedProperty(PROPERTY_SUPPORTS_IDENTIFY_COMMAND, "true")));
     }
 
     public boolean isApplySelfReadRegisterMultiplier() {

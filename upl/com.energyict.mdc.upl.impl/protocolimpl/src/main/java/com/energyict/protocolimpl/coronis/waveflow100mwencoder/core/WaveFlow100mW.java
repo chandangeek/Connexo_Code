@@ -208,13 +208,13 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "40000").trim()));
-        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, "0.0.99.1.0.255")));
-        readLoadProfile = "1".equals(properties.getProperty(READ_LOAD_PROFILE_PROPERTY, "1"));
-        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
-        verifyProfileInterval = Boolean.parseBoolean(properties.getProperty(VERIFY_PROFILE_INTERVAL_PROPERTY, "false"));
-        serialNumberA = properties.getProperty(SERIAL_NUMBER_A);
-        serialNumberB = properties.getProperty(SERIAL_NUMBER_B);
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "40000").trim()));
+        setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, "0.0.99.1.0.255")));
+        readLoadProfile = "1".equals(properties.getTypedProperty(READ_LOAD_PROFILE_PROPERTY, "1"));
+        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
+        verifyProfileInterval = Boolean.parseBoolean(properties.getTypedProperty(VERIFY_PROFILE_INTERVAL_PROPERTY, "false"));
+        serialNumberA = properties.getTypedProperty(SERIAL_NUMBER_A);
+        serialNumberB = properties.getTypedProperty(SERIAL_NUMBER_B);
     }
 
     @Override

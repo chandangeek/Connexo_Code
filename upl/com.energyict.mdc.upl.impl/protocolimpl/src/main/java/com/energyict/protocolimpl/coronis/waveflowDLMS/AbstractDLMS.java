@@ -321,16 +321,16 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "40000").trim()));
-        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
-        correctWaveflowTime = Integer.parseInt(properties.getProperty("correctWaveflowTime", "0"));
-        verifyProfileInterval = Boolean.parseBoolean(properties.getProperty("verifyProfileInterval", "false"));
-        isOldFirmware = "1".equalsIgnoreCase(properties.getProperty("isOldFirmware", "0"));
-        optimizeChangeContactorStatus = "1".equalsIgnoreCase(properties.getProperty("optimizeChangeContactorStatus", "0"));
-        serialNumberA = properties.getProperty("SerialNumberA", "");
-        maxNumberOfIntervals = Integer.parseInt(properties.getProperty("MaxNumberOfIntervals", "0"));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "40000").trim()));
+        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
+        correctWaveflowTime = Integer.parseInt(properties.getTypedProperty("correctWaveflowTime", "0"));
+        verifyProfileInterval = Boolean.parseBoolean(properties.getTypedProperty("verifyProfileInterval", "false"));
+        isOldFirmware = "1".equalsIgnoreCase(properties.getTypedProperty("isOldFirmware", "0"));
+        optimizeChangeContactorStatus = "1".equalsIgnoreCase(properties.getTypedProperty("optimizeChangeContactorStatus", "0"));
+        serialNumberA = properties.getTypedProperty("SerialNumberA", "");
+        maxNumberOfIntervals = Integer.parseInt(properties.getTypedProperty("MaxNumberOfIntervals", "0"));
 
-        String temp = properties.getProperty("WavenisEncryptionKey");
+        String temp = properties.getTypedProperty("WavenisEncryptionKey");
         if (temp != null) {
             try {
                 encryptor = new Encryption(WaveflowProtocolUtils.getArrayFromStringHexNotation(temp), getLogger());

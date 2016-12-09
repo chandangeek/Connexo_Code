@@ -95,15 +95,15 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         super.setProperties(properties);
         try {
-            this.deviceId = properties.getProperty(ADDRESS.getName());
-            this.passWord = properties.getProperty(PASSWORD.getName(), "4281602592");
+            this.deviceId = properties.getTypedProperty(ADDRESS.getName());
+            this.passWord = properties.getTypedProperty(PASSWORD.getName(), "4281602592");
             if("".equalsIgnoreCase(this.passWord)){
                 this.passWord = "4281602592";
             }
             //TODO set the level in the encryptor
-            this.securityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(),"2").trim());
-            this.nodeAddress = properties.getProperty(NODEID.getName(),"");
-            this.channelMap = Integer.parseInt(properties.getProperty("ChannelMap","1"));
+            this.securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(),"2").trim());
+            this.nodeAddress = properties.getTypedProperty(NODEID.getName(),"");
+            this.channelMap = Integer.parseInt(properties.getTypedProperty("ChannelMap","1"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

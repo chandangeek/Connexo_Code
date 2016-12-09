@@ -500,49 +500,49 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
             if ((strPassword.length() != 5) && (strPassword.length() != 8)) {
                 throw new InvalidPropertyException("Password (SCTM ID) must have a length of 5 or 8!");
             }
-            nodeId = properties.getProperty(NODEID.getName());
+            nodeId = properties.getTypedProperty(NODEID.getName());
             if (nodeId == null) {
                 nodeId = strPassword;
             }
-            iSCTMTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "2").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iProfileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "900").trim()); // configured profile interval in seconds
-            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            strMeterClass = properties.getProperty("MeterClass", "20");
-            halfDuplex = Integer.parseInt(properties.getProperty("HalfDuplex", "0").trim());
-            removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals", "0").trim()) == 1;
-            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "100"));
-            setIntervalStatusBehaviour(Integer.parseInt(properties.getProperty("IntervalStatusBehaviour", "0")));
+            iSCTMTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "2").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iProfileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "900").trim()); // configured profile interval in seconds
+            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
+            strMeterClass = properties.getTypedProperty("MeterClass", "20");
+            halfDuplex = Integer.parseInt(properties.getTypedProperty("HalfDuplex", "0").trim());
+            removePowerOutageIntervals = Integer.parseInt(properties.getTypedProperty("RemovePowerOutageIntervals", "0").trim()) == 1;
+            forcedDelay = Integer.parseInt(properties.getTypedProperty("ForcedDelay", "100"));
+            setIntervalStatusBehaviour(Integer.parseInt(properties.getTypedProperty("IntervalStatusBehaviour", "0")));
 
-            if (properties.getProperty("ChannelMap") == null) {
+            if (properties.getTypedProperty("ChannelMap") == null) {
                 if (getDefaultChannelMap() == null) {
                     channelMap = null;
                 } else {
                     channelMap = new ChannelMap(getDefaultChannelMap());
                 }
             } else {
-                channelMap = new ChannelMap(properties.getProperty("ChannelMap"));
+                channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap"));
             }
 
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
+            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
 
-            if (properties.getProperty("LogBookReadCommand", "E4").compareTo("E6") == 0) {
+            if (properties.getTypedProperty("LogBookReadCommand", "E4").compareTo("E6") == 0) {
                 logbookReadCommand = SiemensSCTM.BUFENQ2; // E6
             } else {
                 logbookReadCommand = SiemensSCTM.BUFENQ1; // E4
             }
 
-            setAutoBillingPointNrOfDigits(Integer.parseInt(properties.getProperty("AutoBillingPointNrOfDigits", "1")));
+            setAutoBillingPointNrOfDigits(Integer.parseInt(properties.getTypedProperty("AutoBillingPointNrOfDigits", "1")));
 
-            timeSetMethod = Integer.parseInt(properties.getProperty("TimeSetMethod", "0").trim());
+            timeSetMethod = Integer.parseInt(properties.getTypedProperty("TimeSetMethod", "0").trim());
 
-            software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+            software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
 
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");

@@ -233,10 +233,10 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         super.setProperties(properties);
         try {
-            statusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel", "0"));
-            readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay", "0"));
-            emptyNodeAddress = Integer.parseInt(properties.getProperty("EmptyNodeAddress", "0"));
-            setNodeId(properties.getProperty(NODEID.getName(), emptyNodeAddress==0?"001":""));
+            statusFlagChannel = Integer.parseInt(properties.getTypedProperty("StatusFlagChannel", "0"));
+            readCurrentDay = Integer.parseInt(properties.getTypedProperty("ReadCurrentDay", "0"));
+            emptyNodeAddress = Integer.parseInt(properties.getTypedProperty("EmptyNodeAddress", "0"));
+            setNodeId(properties.getTypedProperty(NODEID.getName(), emptyNodeAddress==0?"001":""));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

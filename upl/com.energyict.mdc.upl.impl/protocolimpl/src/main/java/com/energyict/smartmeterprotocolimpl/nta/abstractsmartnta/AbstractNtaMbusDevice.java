@@ -4,8 +4,6 @@ import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -15,7 +13,6 @@ import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
@@ -156,12 +153,6 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
        the SmartMeterProtocol interface, so we can define these classes as 'pluggable' classes
     */
 
-
-    @Override
-    public void validateProperties() throws InvalidPropertyException, MissingPropertyException {
-        //nothing to validate
-    }
-
     @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         // nothing to init
@@ -215,6 +206,36 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     @Override
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         throw new UnsupportedException("The Mbus device does not read his own loadProfiles, his master will do this for him");
+    }
+
+    @Override
+    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
+        throw new UnsupportedException("The Mbus device does not read his own registers, his master will do this.");
+    }
+
+    @Override
+    public void setCache(Serializable cacheObject) {
+
+    }
+
+    @Override
+    public Serializable getCache() {
+        return null;
+    }
+
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        return null;
+    }
+
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+
+    }
+
+    @Override
+    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
+        throw new UnsupportedException("The Mbus device does not read his own events, his master will do this for him.");
     }
 
     /**

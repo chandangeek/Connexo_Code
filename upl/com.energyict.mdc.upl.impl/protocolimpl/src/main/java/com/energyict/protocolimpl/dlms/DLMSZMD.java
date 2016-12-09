@@ -4,6 +4,7 @@ package com.energyict.protocolimpl.dlms;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -46,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -371,12 +371,12 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     }
 
     @Override
-    protected void doSetProperties(Properties properties) throws PropertyValidationException {
+    protected void doSetProperties(TypedProperties properties) throws PropertyValidationException {
         super.doSetProperties(properties);
-        this.setClientMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32").trim()));
-        this.setServerUpperMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1").trim()));
-        this.setServerLowerMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
-        eventIdIndex = Integer.parseInt(properties.getProperty(PROPNAME_EVENT_ID_INDEX, "-1").trim()); // ZMD=1, ZMQ=2
+        this.setClientMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32").trim()));
+        this.setServerUpperMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1").trim()));
+        this.setServerLowerMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
+        eventIdIndex = Integer.parseInt(properties.getTypedProperty(PROPNAME_EVENT_ID_INDEX, "-1").trim()); // ZMD=1, ZMQ=2
     }
 
     @Override

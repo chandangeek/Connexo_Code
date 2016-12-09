@@ -1,7 +1,6 @@
 package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

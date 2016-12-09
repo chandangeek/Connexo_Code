@@ -98,13 +98,13 @@ public abstract class MBus extends AbstractProtocol implements Discover {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "3000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "2").trim()));
-        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0").trim()));
-        setSecondaryAddressing(Integer.parseInt(properties.getProperty("SecondaryAddressing","0")));
-        setUseZeroBased(Integer.parseInt(properties.getProperty("DataQuantitiesAreZeroBased", "0")) == 1);
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "3000").trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "2").trim()));
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
+        setSecondaryAddressing(Integer.parseInt(properties.getTypedProperty("SecondaryAddressing","0")));
+        setUseZeroBased(Integer.parseInt(properties.getTypedProperty("DataQuantitiesAreZeroBased", "0")) == 1);
 
-        String manufCode = properties.getProperty("HeaderManufacturerCode");
+        String manufCode = properties.getTypedProperty("HeaderManufacturerCode");
         if (manufCode == null) {
             setHeaderManufacturerCode(0xFFFF);
         } else {
@@ -116,8 +116,8 @@ public abstract class MBus extends AbstractProtocol implements Discover {
         		setHeaderManufacturerCode(CIField72h.getManufacturerCode(manufCode));
         	}
         }
-        setHeaderMedium(Integer.parseInt(properties.getProperty("HeaderMedium","FF"),16));
-        setHeaderVersion(Integer.parseInt(properties.getProperty("HeaderVersion","FF"),16));
+        setHeaderMedium(Integer.parseInt(properties.getTypedProperty("HeaderMedium","FF"),16));
+        setHeaderVersion(Integer.parseInt(properties.getTypedProperty("HeaderVersion","FF"),16));
     }
 
     @Override

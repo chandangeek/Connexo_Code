@@ -106,17 +106,17 @@ public class Trimaran extends AbstractProtocol {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "300").trim())); // TE
-        setInfoTypeHalfDuplex(Integer.parseInt(properties.getProperty(PROP_HALF_DUPLEX, "50").trim())); // TC
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "300").trim())); // TE
+        setInfoTypeHalfDuplex(Integer.parseInt(properties.getTypedProperty(PROP_HALF_DUPLEX, "50").trim())); // TC
 
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "22000").trim())); // TSE (session layer)
-        setAckTimeout(Integer.parseInt(properties.getProperty("ACKTimeoutTL", "5000").trim())); // TL (datalink layer)
-        setInterKarTimeout(Integer.parseInt(properties.getProperty("InterCharTimeout", "400").trim())); //
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "22000").trim())); // TSE (session layer)
+        setAckTimeout(Integer.parseInt(properties.getTypedProperty("ACKTimeoutTL", "5000").trim())); // TL (datalink layer)
+        setInterKarTimeout(Integer.parseInt(properties.getTypedProperty("InterCharTimeout", "400").trim())); //
 
-        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout", "3000").trim())); // Command retry timeout
-        setFlushTimeout(Integer.parseInt(properties.getProperty("FlushTimeout", "500").trim())); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
+        setCommandTimeout(Integer.parseInt(properties.getTypedProperty("CommandTimeout", "3000").trim())); // Command retry timeout
+        setFlushTimeout(Integer.parseInt(properties.getTypedProperty("FlushTimeout", "500").trim())); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
 
-        setMeterVersion(properties.getProperty("MeterVersion", "V1")); // Select the meterVersion, V2 is NOT TESTED YET!
+        setMeterVersion(properties.getTypedProperty("MeterVersion", "V1")); // Select the meterVersion, V2 is NOT TESTED YET!
 
     }
 

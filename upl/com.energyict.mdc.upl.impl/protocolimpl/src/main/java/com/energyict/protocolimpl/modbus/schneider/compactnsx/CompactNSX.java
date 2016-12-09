@@ -37,7 +37,7 @@ public class CompactNSX extends Modbus {
 	@Override
 	public void setProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setProperties(properties);
-		 setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
+		 setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
 		 setInfoTypePhysicalLayer(1);
 	}
 

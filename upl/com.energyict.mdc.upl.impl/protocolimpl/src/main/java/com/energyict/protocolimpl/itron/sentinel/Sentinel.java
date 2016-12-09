@@ -158,14 +158,14 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
         try {
-            setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "10").trim()));
-            setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0"));
-            c12User = properties.getProperty("C12User","");
-            c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
-            maxNrPackets = Integer.parseInt(properties.getProperty("MaxNrPackets", "1"), 16);
-            readLoadProfilesChunked = Boolean.parseBoolean(properties.getProperty("ReadLoadProfilesChunked", "false"));
-            chunkSize = Integer.parseInt(properties.getProperty("ChunkSize", "19"));
-            convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getProperty("ConvertRegisterReadsToKiloUnits", "false"));
+            setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
+            setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
+            c12User = properties.getTypedProperty("C12User","");
+            c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId","0").trim());
+            maxNrPackets = Integer.parseInt(properties.getTypedProperty("MaxNrPackets", "1"), 16);
+            readLoadProfilesChunked = Boolean.parseBoolean(properties.getTypedProperty("ReadLoadProfilesChunked", "false"));
+            chunkSize = Integer.parseInt(properties.getTypedProperty("ChunkSize", "19"));
+            convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getTypedProperty("ConvertRegisterReadsToKiloUnits", "false"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

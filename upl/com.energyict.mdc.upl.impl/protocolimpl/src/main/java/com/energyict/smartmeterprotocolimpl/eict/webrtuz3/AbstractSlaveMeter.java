@@ -2,13 +2,25 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -18,11 +30,6 @@ import java.util.logging.Logger;
  * Time: 11:39
  */
 public abstract class AbstractSlaveMeter implements SmartMeterProtocol {
-
-    @Override
-    public void validateProperties() throws InvalidPropertyException, MissingPropertyException {
-        // nothing to do
-    }
 
     @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -67,5 +74,45 @@ public abstract class AbstractSlaveMeter implements SmartMeterProtocol {
     @Override
     public void release() throws IOException {
         // nothing to do
+    }
+
+    @Override
+    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setCache(Serializable cacheObject) {
+
+    }
+
+    @Override
+    public Serializable getCache() {
+        return null;
+    }
+
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+        return null;
+    }
+
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+
     }
 }

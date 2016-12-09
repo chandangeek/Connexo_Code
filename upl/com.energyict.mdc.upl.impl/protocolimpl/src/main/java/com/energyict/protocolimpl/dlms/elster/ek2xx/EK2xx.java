@@ -162,27 +162,27 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         try {
-            this.strID = properties.getProperty(ADDRESS.getName());
-            this.nodeId = properties.getProperty(NODEID.getName(), "");
+            this.strID = properties.getTypedProperty(ADDRESS.getName());
+            this.nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            this.serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
-            this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
-            this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-            this.strPassword = properties.getProperty(PASSWORD.getName(), "");
-            this.iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
-            this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
-            this.iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterfail", "3000").trim());
-            this.iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
-            this.iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
-            this.iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            this.iSecurityLevelProperty = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "0").trim());
-            this.iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16").trim());
-            this.iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
-            this.iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
+            this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            this.extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
+            this.addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "-1"));
+            this.connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
+            this.strPassword = properties.getTypedProperty(PASSWORD.getName(), "");
+            this.iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
+            this.iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+            this.iDelayAfterFailProperty = Integer.parseInt(properties.getTypedProperty("DelayAfterfail", "3000").trim());
+            this.iRequestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0").trim());
+            this.iRequestClockObject = Integer.parseInt(properties.getTypedProperty("RequestClockObject", "0").trim());
+            this.iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty("RoundtripCorrection", "0").trim());
+            this.iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "0").trim());
+            this.iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "16").trim());
+            this.iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "1").trim());
+            this.iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "0").trim());
             if (DEBUG >= 1) {
                 System.out.println();
-                properties.list(System.out);
+                properties.toStringProperties().list(System.out);
                 System.out.println();
             }
         } catch (NumberFormatException e) {

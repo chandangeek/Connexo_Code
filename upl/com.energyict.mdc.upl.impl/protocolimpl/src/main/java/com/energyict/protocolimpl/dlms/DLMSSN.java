@@ -733,47 +733,47 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         try {
             this.doSetProperties(properties);
-            this.properties = properties;
+            this.properties = properties.toStringProperties();
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
     }
 
-    protected void doSetProperties(Properties properties) throws PropertyValidationException {
-        nodeId = properties.getProperty(NODEID.getName(), "");
-        strID = properties.getProperty(ADDRESS.getName());
-        strPassword = properties.getProperty(PASSWORD.getName());
-        iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
-        iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
-        iDelayAfterFailProperty = Integer.parseInt(properties.getProperty(PROPNAME_DELAY_AFTERFAIL, "3000").trim());
-        iRequestTimeZone = Integer.parseInt(properties.getProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim());
-        iRequestClockObject = Integer.parseInt(properties.getProperty(PROPNAME_REQUEST_CLOCK_OBJECT, "0").trim());
-        iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+    protected void doSetProperties(TypedProperties properties) throws PropertyValidationException {
+        nodeId = properties.getTypedProperty(NODEID.getName(), "");
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
+        iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
+        iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+        iDelayAfterFailProperty = Integer.parseInt(properties.getTypedProperty(PROPNAME_DELAY_AFTERFAIL, "3000").trim());
+        iRequestTimeZone = Integer.parseInt(properties.getTypedProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim());
+        iRequestClockObject = Integer.parseInt(properties.getTypedProperty(PROPNAME_REQUEST_CLOCK_OBJECT, "0").trim());
+        iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
         // KV 19012004 get the serialNumber
-        configuredSerialNumber = properties.getProperty(SERIALNUMBER.getName(), "");
-        extendedLogging = Integer.parseInt(properties.getProperty(PROPNAME_EXTENDED_LOGGING, "0"));
-        addressingMode = Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "-1"));
-        connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
-        if ("".equalsIgnoreCase(properties.getProperty(PROPNAME_CHANNEL_MAP, ""))) {
+        configuredSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
+        extendedLogging = Integer.parseInt(properties.getTypedProperty(PROPNAME_EXTENDED_LOGGING, "0"));
+        addressingMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, "-1"));
+        connectionMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_CONNECTION, "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
+        if ("".equalsIgnoreCase(properties.getTypedProperty(PROPNAME_CHANNEL_MAP, ""))) {
             channelMap = null;
         } else {
-            channelMap = new ProtocolChannelMap(properties.getProperty(PROPNAME_CHANNEL_MAP));
+            channelMap = new ProtocolChannelMap(((String) properties.getTypedProperty(PROPNAME_CHANNEL_MAP)));
         }
-        String[] securityLevel = properties.getProperty(SECURITYLEVEL.getName(), "1").split(":");
+        String[] securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), "1").split(":");
         this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
         if (securityLevel.length == 2) {
             this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
         } else if (securityLevel.length == 1) {
             this.datatransportSecurityLevel = 0;
         } else {
-            throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "1"));
+            throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getTypedProperty("SecurityLevel", "1"));
         }
-        iiapInvokeId = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
-        iiapPriority = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_PRIORITY, "1"));
-        iiapServiceClass = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
-        cipheringType = Integer.parseInt(properties.getProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(CipheringType.GLOBAL.getType())));
-        maxPduSize = Integer.parseInt(properties.getProperty(PROPNAME_MAX_PDU_SIZE, MAX_PDU_SIZE));
-        iForceDelay = Integer.parseInt(properties.getProperty(PROPNAME_IFORCEDELAY_BEFORE_SEND, "100"));
+        iiapInvokeId = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
+        iiapPriority = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_PRIORITY, "1"));
+        iiapServiceClass = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
+        cipheringType = Integer.parseInt(properties.getTypedProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(CipheringType.GLOBAL.getType())));
+        maxPduSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAX_PDU_SIZE, MAX_PDU_SIZE));
+        iForceDelay = Integer.parseInt(properties.getTypedProperty(PROPNAME_IFORCEDELAY_BEFORE_SEND, "100"));
     }
 
     @Override

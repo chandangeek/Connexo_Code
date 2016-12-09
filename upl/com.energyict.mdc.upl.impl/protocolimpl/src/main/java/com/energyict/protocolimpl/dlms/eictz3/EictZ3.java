@@ -137,7 +137,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2.
- * There is also a generic protocol implementation {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol}.
+ * There is also a generic protocol implementation AbstractNTAProtocol.
  */
 @Deprecated
 public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, SerialNumberSupport {
@@ -452,7 +452,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private TimeZone timeZone;
 
     /**
-     * The meter configuration used here is the one from the {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol} meter.
+     * The meter configuration used here is the one from the AbstractNTAProtocol meter.
      */
     private final DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
 
@@ -1386,13 +1386,13 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     @Override
     public final void setProperties(final TypedProperties properties) throws InvalidPropertyException {
         try {
-            this.deviceId = properties.getProperty(ADDRESS.getName());
-            this.password = properties.getProperty(PASSWORD.getName());
-            this.hdlcTimeout = Integer.parseInt(properties.getProperty(PROPNAME_TIMEOUT, "10000").trim());
-            this.protocolRetries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "5").trim());
+            this.deviceId = properties.getTypedProperty(ADDRESS.getName());
+            this.password = properties.getTypedProperty(PASSWORD.getName());
+            this.hdlcTimeout = Integer.parseInt(properties.getTypedProperty(PROPNAME_TIMEOUT, "10000").trim());
+            this.protocolRetries = Integer.parseInt(properties.getTypedProperty(PROPNAME_RETRIES, "5").trim());
 
             /* the format of the securityLevel is changed, now authenticationSecurityLevel and dataTransportSecurityLevel are in one */
-            String securityLevel = properties.getProperty(PROPNAME_SECURITY_LEVEL, "1").trim();
+            String securityLevel = properties.getTypedProperty(PROPNAME_SECURITY_LEVEL, "1").trim();
             if (securityLevel.contains(":")) {
                 this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(0, securityLevel.indexOf(":"))));
                 this.encryptionLevel = EncryptionLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(securityLevel.indexOf(":") + 1)));
@@ -1401,45 +1401,45 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                 this.encryptionLevel = EncryptionLevel.getByPropertyValue(0);
             }
 
-            this.requestTimeZone = Integer.parseInt(properties.getProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim()) != 0;
-            this.roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
-            this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
-            this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17").trim());
-            this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "17").trim());
-            this.nodeAddress = properties.getProperty(NODEID.getName(), "");
-            this.serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "-1")));
-            this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "0")));
-            this.loadProfileObisCode = properties.containsKey(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;
-            this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
-            this.maximumNumberOfMBusDevices = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, "4"));
+            this.requestTimeZone = Integer.parseInt(properties.getTypedProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim()) != 0;
+            this.roundtripCorrection = Integer.parseInt(properties.getTypedProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
+            this.clientMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
+            this.serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17").trim());
+            this.serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "17").trim());
+            this.nodeAddress = properties.getTypedProperty(NODEID.getName(), "");
+            this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, "-1")));
+            this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getTypedProperty(PROPNAME_CONNECTION, "0")));
+            this.loadProfileObisCode = properties.hasValueFor(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getTypedProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;
+            this.informationFieldSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
+            this.maximumNumberOfMBusDevices = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, "4"));
             // the NTA meters normally use the global keys to encrypt
-            this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
+            this.cipheringType = Integer.parseInt(properties.getTypedProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
 
         try {
-            this.maximumAPDUSize = Integer.parseInt(properties.getProperty(PROPNAME_MAX_APDU_SIZE, "-1"));
+            this.maximumAPDUSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAX_APDU_SIZE, "-1"));
         } catch (final NumberFormatException e) {
             this.maximumAPDUSize = -1;
         }
 
         try {
-            this.forceDelay = Integer.parseInt(properties.getProperty(PROPNAME_FORCE_DELAY, "0"));
+            this.forceDelay = Integer.parseInt(properties.getTypedProperty(PROPNAME_FORCE_DELAY, "0"));
         } catch (final NumberFormatException e) {
             logger.log(Level.WARNING, "Cannot interpret property [" + PROPNAME_FORCE_DELAY + "] because it is not numeric, defaulting to [" + this.forceDelay + "]");
         }
 
         try {
-            this.clockSetRoundtripTreshold = Integer.parseInt(properties.getProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, String.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
+            this.clockSetRoundtripTreshold = Integer.parseInt(properties.getTypedProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, String.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
         } catch (final NumberFormatException e) {
             logger.log(Level.SEVERE, "Cannot parse the number of roundtrip correction probes to be done, setting to default value of [" + DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD + "]", e);
             this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
         }
 
         try {
-            this.numberOfClocksetTries = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
+            this.numberOfClocksetTries = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
         } catch (final NumberFormatException e) {
             logger.log(Level.SEVERE, "Cannot parse the number of clockset tries to a numeric value, setting to default value of [" + DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES + "]", e);
             this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;

@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +50,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * Integrated Object Network (ION) architecture
- * <p/>
+ * <p>
  * DataRecorder Energy and Demand
  *
  * @author fbl
@@ -146,7 +145,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         Command c = toCmd(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
         try {
             applicationLayer.read(c);
-            return (String)c.getResponse().getValue();
+            return (String) c.getResponse().getValue();
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
         }
@@ -185,13 +184,13 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
-            pNodeId = Integer.parseInt(properties.getProperty(NODEID.getName()));
-            if (properties.getProperty(PK_USER_ID) != null) {
-                pUserId = properties.getProperty(PK_USER_ID);
+            pNodeId = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));
+            if (properties.getTypedProperty(PK_USER_ID) != null) {
+                pUserId = properties.getTypedProperty(PK_USER_ID);
             }
 
-            if (properties.getProperty(PASSWORD.getName()) != null) {
-                pPassword = properties.getProperty(PASSWORD.getName());
+            if (properties.getTypedProperty(PASSWORD.getName()) != null) {
+                pPassword = properties.getTypedProperty(PASSWORD.getName());
             }
 
             try {
@@ -202,48 +201,48 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
                 throw new InvalidPropertyException(e, e.getMessage());
             }
 
-            if (properties.getProperty(PK_SERIALNUMBER) != null) {
-                pSerialNumber = properties.getProperty(PK_SERIALNUMBER);
+            if (properties.getTypedProperty(PK_SERIALNUMBER) != null) {
+                pSerialNumber = properties.getTypedProperty(PK_SERIALNUMBER);
             }
 
-            if (properties.getProperty(PK_PROFILEINTERVAL) != null) {
-                pProfileInterval = Integer.parseInt(properties.getProperty(PK_PROFILEINTERVAL));
+            if (properties.getTypedProperty(PK_PROFILEINTERVAL) != null) {
+                pProfileInterval = Integer.parseInt(properties.getTypedProperty(PK_PROFILEINTERVAL));
             }
 
-            if (properties.getProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(properties.getProperty(PK_TIMEOUT));
+            if (properties.getTypedProperty(PK_TIMEOUT) != null) {
+                pTimeout = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT));
             }
 
-            if (properties.getProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
+            if (properties.getTypedProperty(PK_RETRIES) != null) {
+                pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
             }
 
-            if (properties.getProperty(PK_ROUNDTRIPCORRECTION) != null) {
-                pRountTripCorrection = Integer.parseInt(properties.getProperty(PK_ROUNDTRIPCORRECTION));
+            if (properties.getTypedProperty(PK_ROUNDTRIPCORRECTION) != null) {
+                pRountTripCorrection = Integer.parseInt(properties.getTypedProperty(PK_ROUNDTRIPCORRECTION));
             }
 
-            if (properties.getProperty(PK_CORRECTTIME) != null) {
-                pCorrectTime = Integer.parseInt(properties.getProperty(PK_CORRECTTIME));
+            if (properties.getTypedProperty(PK_CORRECTTIME) != null) {
+                pCorrectTime = Integer.parseInt(properties.getTypedProperty(PK_CORRECTTIME));
             }
 
-            if (properties.getProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = properties.getProperty(PK_EXTENDED_LOGGING);
+            if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+                pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
             }
 
-            if (properties.getProperty(PK_DATA_RECORDER_NAME) != null) {
-                pDataRecorderName = properties.getProperty(PK_DATA_RECORDER_NAME);
+            if (properties.getTypedProperty(PK_DATA_RECORDER_NAME) != null) {
+                pDataRecorderName = properties.getTypedProperty(PK_DATA_RECORDER_NAME);
             }
 
-            if (properties.getProperty(PK_DTR_BEHAVIOUR) != null) {
-                dtrBehaviour = Integer.parseInt(properties.getProperty(PK_DTR_BEHAVIOUR));
+            if (properties.getTypedProperty(PK_DTR_BEHAVIOUR) != null) {
+                dtrBehaviour = Integer.parseInt(properties.getTypedProperty(PK_DTR_BEHAVIOUR));
             }
 
-            if (properties.getProperty(PK_FORCE_DELAY) != null) {
-                pForceDelay = Integer.parseInt(properties.getProperty(PK_FORCE_DELAY));
+            if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
+                pForceDelay = Integer.parseInt(properties.getTypedProperty(PK_FORCE_DELAY));
             }
 
-            if (properties.getProperty(PK_CHANNEL_MAP) != null) {
-                pChannelMap = new ProtocolChannelMap(properties.getProperty(PK_CHANNEL_MAP));
+            if (properties.getTypedProperty(PK_CHANNEL_MAP) != null) {
+                pChannelMap = new ProtocolChannelMap(((String) properties.getTypedProperty(PK_CHANNEL_MAP)));
             }
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
@@ -563,7 +562,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         final String nodeId = discoverInfo.getNodeId();
         final int baudrate = discoverInfo.getBaudrate();
 
-        Properties p = new Properties();
+        TypedProperties p = com.energyict.cpo.TypedProperties.empty();
         p.setProperty("SecurityLevel", "0");
         p.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
 

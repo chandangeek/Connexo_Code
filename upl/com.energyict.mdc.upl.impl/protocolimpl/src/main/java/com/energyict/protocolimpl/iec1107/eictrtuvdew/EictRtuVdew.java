@@ -175,23 +175,23 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "3600").trim());
-            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "0").trim());
+            strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "20000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iSecurityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
+            nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
+            iIEC1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "1").trim());
+            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "3600").trim());
+            requestHeader = Integer.parseInt(properties.getTypedProperty("RequestHeader", "0").trim());
             // KV 07092005 K&P
-            protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0.0 1.1 2.2 3.3 4.4 5.5 6.6 7.7 8.8 9.9 10.10 11.11 12.12 13.13 14.14 15.15 16.16 17.17 18.18 19.19 20.20 21.21 22.22 23.23 24.24 25.25 26.26 27.27 28.28 29.29 30.30 31.31"));
-            scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
-            halfDuplex = Integer.parseInt(properties.getProperty("HalfDuplex", "0").trim());
-            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "0").trim());
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+            protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0.0 1.1 2.2 3.3 4.4 5.5 6.6 7.7 8.8 9.9 10.10 11.11 12.12 13.13 14.14 15.15 16.16 17.17 18.18 19.19 20.20 21.21 22.22 23.23 24.24 25.25 26.26 27.27 28.28 29.29 30.30 31.31"));
+            scaler = Integer.parseInt(properties.getTypedProperty("Scaler", "0").trim());
+            halfDuplex = Integer.parseInt(properties.getTypedProperty("HalfDuplex", "0").trim());
+            forcedDelay = Integer.parseInt(properties.getTypedProperty("ForcedDelay", "0").trim());
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, "DukePower: validation of properties failed before");
         }

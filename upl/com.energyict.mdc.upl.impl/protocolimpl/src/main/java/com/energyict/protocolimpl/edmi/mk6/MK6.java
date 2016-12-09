@@ -94,13 +94,13 @@ public class MK6 extends AbstractProtocol implements Serializable {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-		setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "1"));
-		setEventLogName(properties.getProperty("EventLogName", "Event Log"));
-		setLoadSurveyName(properties.getProperty("LoadSurveyName", "Load_Survey"));
-		setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
-		setStatusFlagChannel(Integer.parseInt(properties.getProperty("StatusFlagChannel", "0").trim()));
-		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff", "0").trim()));
-		setUseOldProfileFromDate("1".equalsIgnoreCase(properties.getProperty("UseOldProfileFromDate", "0")));
+		setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "1"));
+		setEventLogName(properties.getTypedProperty("EventLogName", "Event Log"));
+		setLoadSurveyName(properties.getTypedProperty("LoadSurveyName", "Load_Survey"));
+		setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay","0").trim()));
+		setStatusFlagChannel(Integer.parseInt(properties.getTypedProperty("StatusFlagChannel", "0").trim()));
+		setLogOffDisabled(Integer.parseInt(properties.getTypedProperty("DisableLogOff", "0").trim()));
+		setUseOldProfileFromDate("1".equalsIgnoreCase(properties.getTypedProperty("UseOldProfileFromDate", "0")));
 	}
 
     @Override

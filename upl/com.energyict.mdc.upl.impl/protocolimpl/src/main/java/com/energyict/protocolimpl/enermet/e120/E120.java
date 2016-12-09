@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -32,47 +31,49 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
 /**
  * A 100 Mile high overview of the E120 protocol:
- *
+ * <p>
  * (*) Connection       : Entry point for communication
- *
+ * <p>
  * (*) Message          : Application layer request or response
  * (*) Packet           : Network layer request or response
  * (*) Frame            : Datalink layer request or response
- *
+ * <p>
  * (*) MessageType      : Application layer method (f.g. seriesBasedOnTime)
- *                        Linking of MessageType and message parsers
- *
+ * Linking of MessageType and message parsers
+ * <p>
  * (*) MessageBody      : Markup interface for Message content
  * (*) Request          : Request to meter (Application layer)
  * (*) Response         : Response from meter
  * (*) DefaultResponse  : Response of a single value
  * (*) SeriesResponse   : Response of list of values
- *
+ * <p>
  * (*) NackCode         : Application layer status (Message status)
  * (*) StatCode         : Network layer status (Packet status)
- *
+ * <p>
  * (*) UnitMap          : Maps between E120 unit codes and EIS Units
  * (*) DataType         : Composite datatype parser for application data
  *
  * @author fbo
- *
- * @beginchanges
-   FBL|15012006| initial release
+ * @beginchanges FBL|15012006| initial release
  * @endchanges
  */
 
 public class E120 extends AbstractProtocol implements RegisterProtocol {
 
-    /** Maximum nr of intervals that can be fetched in 1 SeriesOnCount request */
+    /**
+     * Maximum nr of intervals that can be fetched in 1 SeriesOnCount request
+     */
     private static final int FETCH_LIMIT = 306;
 
     static final MessageFormat ERROR_0 = new MessageFormat(
             "Configured profile interval size differs from requested size " +
-            "(configured={0}s, meter={1}s)" );
+                    "(configured={0}s, meter={1}s)");
     static final MessageFormat ERROR_1 = new MessageFormat(
             "Found different nr of entries in: \n {0} \n {1} ");
 
-    /** Property keys specific for E120 protocol. */
+    /**
+     * Property keys specific for E120 protocol.
+     */
     private static final String PK_TIMEOUT = PROP_TIMEOUT;
     private static final String PK_RETRIES = PROP_RETRIES;
     private static final String PK_EXTENDED_LOGGING = PROP_EXTENDED_LOGGING;
@@ -102,18 +103,18 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
         if (getLogger().isLoggable(Level.INFO)) {
             String infoMsg =
-                "E120 protocol init \n"
-                    + " UserId = " + pUserId + ","
-                    + " Password = " + pPassword + ","
-                    + " Retries = " + pRetries + ","
-                    + " Ext. Logging = " + pExtendedLogging + ","
-                    + " TimeZone = " + getTimeZone().getID();
+                    "E120 protocol init \n"
+                            + " UserId = " + pUserId + ","
+                            + " Password = " + pPassword + ","
+                            + " Retries = " + pRetries + ","
+                            + " Ext. Logging = " + pExtendedLogging + ","
+                            + " TimeZone = " + getTimeZone().getID();
 
             getLogger().info(infoMsg);
 
         }
 
-        connection = new Connection(this, inputStream, outputStream );
+        connection = new Connection(this, inputStream, outputStream);
 
         obisCodeMapper = new ObisCodeMapper(this);
         initDataType(getTimeZone());
@@ -122,22 +123,22 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
     }
 
-    void initDataType(TimeZone timeZone){
+    void initDataType(TimeZone timeZone) {
         this.dataType = new DataType(timeZone);
     }
 
     @Override
     protected void doConnect() throws IOException {
 
-        if( !connection.connect(pUserId, pPassword).isOk() ) {
+        if (!connection.connect(pUserId, pPassword).isOk()) {
             throw new IOException("connect failed");
         }
 
-        if (pExtendedLogging==1) {
+        if (pExtendedLogging == 1) {
             getLogger().info(obisCodeMapper.toString());
         }
 
-        if (pExtendedLogging==2) {
+        if (pExtendedLogging == 2) {
             getLogger().info(obisCodeMapper.getExtendedLogging());
         }
 
@@ -159,30 +160,30 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        pUserId = properties.getProperty(PK_USER_ID);
-        pPassword = properties.getProperty(PK_PASSWORD);
-        pChannelMap = new ProtocolChannelMap( properties.getProperty(PK_CHANNEL_MAP) );
+        pUserId = properties.getTypedProperty(PK_USER_ID);
+        pPassword = properties.getTypedProperty(PK_PASSWORD);
+        pChannelMap = new ProtocolChannelMap(((String) properties.getTypedProperty(PK_CHANNEL_MAP)));
         if (propertyExists(properties, PK_RETRIES)) {
-            pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
+            pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
         }
         if (propertyExists(properties, PK_EXTENDED_LOGGING)) {
-            pExtendedLogging = Integer.parseInt(properties.getProperty(PK_EXTENDED_LOGGING));
+            pExtendedLogging = Integer.parseInt(properties.getTypedProperty(PK_EXTENDED_LOGGING));
         }
     }
 
-    private boolean propertyExists(Properties p, String key){
-        String aProperty = p.getProperty(key);
+    private boolean propertyExists(TypedProperties p, String key) {
+        String aProperty = p.getTypedProperty(key);
         return (aProperty != null) && !"".equals(aProperty);
     }
 
-    int getRetries( ){
+    int getRetries() {
         return pRetries;
     }
 
     @Override
     public Date getTime() throws IOException {
         Message mr = connection.send(MessageType.GET_TIME);
-        return (Date)((DefaultResponse)mr.getBody()).getValue();
+        return (Date) ((DefaultResponse) mr.getBody()).getValue();
     }
 
     @Override
@@ -191,9 +192,9 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         c.add(Calendar.MILLISECOND, getInfoTypeRoundtripCorrection());
         ByteArray value = dataType.getTime().construct(c.getTime());
 
-        Response response =(Response)connection.setTime( value ).getBody();
+        Response response = (Response) connection.setTime(value).getBody();
 
-        if( !response.getNackCode().isOk() ) {
+        if (!response.getNackCode().isOk()) {
             String msg = "Set time failed: " + response.getNackCode();
             getLogger().severe(msg);
         }
@@ -201,7 +202,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        if (obisCodeMapper==null) {
+        if (obisCodeMapper == null) {
             obisCodeMapper = new ObisCodeMapper(this);
         }
         return obisCodeMapper.getRegisterInfo(obisCode);
@@ -226,7 +227,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar c = Calendar.getInstance(getTimeZone());
         c.add(Calendar.YEAR, -1);
-        return getProfileData(c.getTime(),includeEvents);
+        return getProfileData(c.getTime(), includeEvents);
     }
 
     @Override
@@ -236,7 +237,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-        throws IOException {
+            throws IOException {
 
         /* if the to-time is after the metertime, to-time becomes metertime
          * (since you can not fetch future data) */
@@ -284,25 +285,29 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         }
     }
 
-    /** ProfileQueryArguments contains the arguments for 1 SeriesOnCount
-     * request. */
+    /**
+     * ProfileQueryArguments contains the arguments for 1 SeriesOnCount
+     * request.
+     */
     private class ProfileQueryArguments {
 
         Date from;
         int nrIntervals;
 
-        ProfileQueryArguments(Date from, int nrIntervals){
+        ProfileQueryArguments(Date from, int nrIntervals) {
             this.from = from;
             this.nrIntervals = nrIntervals;
         }
 
-        public String toString(){
+        public String toString() {
             return "ProfileInterval[" + from + ", " + nrIntervals + "]";
         }
 
     }
 
-    /** Build a List containing all the QueryArguments. */
+    /**
+     * Build a List containing all the QueryArguments.
+     */
     private List<ProfileQueryArguments> getProfileQueryArguments(Date from, Date to) throws IOException {
         List<ProfileQueryArguments> result = new ArrayList<>();
         Calendar fromC = Calendar.getInstance(getTimeZone());
@@ -311,39 +316,40 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         int nrIntvls = nrIntervalsBetween(from, to);
         while (nrIntvls > 0) {
             nrIntvls = Math.min(nrIntvls, FETCH_LIMIT);
-            result.add( new ProfileQueryArguments(fromC.getTime(), nrIntvls) );
-            fromC.add(Calendar.MILLISECOND, nrIntvls*intervalMilli);
+            result.add(new ProfileQueryArguments(fromC.getTime(), nrIntvls));
+            fromC.add(Calendar.MILLISECOND, nrIntvls * intervalMilli);
             nrIntvls = nrIntervalsBetween(fromC.getTime(), to);
         }
         return result;
     }
 
-    /** Calculate the nr of intervals between from and to date.
-     *
+    /**
+     * Calculate the nr of intervals between from and to date.
+     * <p>
      * - Calculate the nr of profileIntervals between the from and to date,
-     *   and add 1 in case of rounding.
-     *
+     * and add 1 in case of rounding.
+     * <p>
      * - By calculating with ms, DST transitions are taken into account
-     *   automatically.
+     * automatically.
      *
      * @return nr of intervals
      * @throws IOException in case of communication problems
      */
     private int nrIntervalsBetween(Date from, Date to) throws IOException {
         long msProfileInterval = getProfileInterval() * 1000;
-        long msFrom = from.getTime() - (from.getTime()%msProfileInterval);
-        long msTo   = to.getTime();
+        long msFrom = from.getTime() - (from.getTime() % msProfileInterval);
+        long msTo = to.getTime();
         long result;
-        result = ( msTo - msFrom ) / msProfileInterval;
-        result += ((( msTo - msFrom ) % msProfileInterval ) > 0 ) ? 1 : 0;
-        return (int)result;
+        result = (msTo - msFrom) / msProfileInterval;
+        result += (((msTo - msFrom) % msProfileInterval) > 0) ? 1 : 0;
+        return (int) result;
     }
 
-    Connection getConnection( ){
+    Connection getConnection() {
         return connection;
     }
 
-    DataType getDataType(){
+    DataType getDataType() {
         return dataType;
     }
 

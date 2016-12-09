@@ -1140,37 +1140,37 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "10").trim());
-            iSecurityLevelProperty = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+            iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "10").trim());
+            iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
+            iRequestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
 
-            iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "100").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "17").trim());
-            firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "100").trim());
+            iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "1").trim());
+            iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "17").trim());
+            firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
+            nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
+            serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
+            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
 
-            if (Integer.parseInt(properties.getProperty("LoadProfileId", "1")) == 1) {
+            if (Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1")) == 1) {
                 loadProfileObisCode = loadProfileObisCode1;
-            } else if (Integer.parseInt(properties.getProperty("LoadProfileId", "1")) == 2) {
+            } else if (Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1")) == 2) {
                 loadProfileObisCode = loadProfileObisCode2;
-            } else if (Integer.parseInt(properties.getProperty("LoadProfileId", "1")) == 97) {
+            } else if (Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1")) == 97) {
                 loadProfileObisCode = loadProfileObisCode97;
             } else {
-                throw new InvalidPropertyException("IskraME37X, validateProperties, invalid LoadProfileId, " + Integer.parseInt(properties.getProperty("LoadProfileId", "1")));
+                throw new InvalidPropertyException("IskraME37X, validateProperties, invalid LoadProfileId, " + Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1")));
             }
 
-            addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
-            connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
+            addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "2"));
+            connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
 
-            rtuType = properties.getProperty("DeviceType", "");
+            rtuType = properties.getTypedProperty("DeviceType", "");
 
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");

@@ -191,15 +191,15 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0"));
-        c12User = properties.getProperty("C12User", "");
-        c12UserId = Integer.parseInt(properties.getProperty("C12UserId", "0").trim());
-        passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary", "0").trim());
-        setRetrieveExtraIntervals(Integer.parseInt(properties.getProperty("RetrieveExtraIntervals", "0").trim()));
-        calledAPTitle = properties.getProperty(CALLED_AP_TITLE, "");
-    	securityKey = properties.getProperty(SECURITY_KEY, "");
-    	securityMode = properties.getProperty(SECURITY_MODE, "");
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "10").trim()));
+        setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
+        c12User = properties.getTypedProperty("C12User", "");
+        c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());
+        passwordBinary = Integer.parseInt(properties.getTypedProperty("PasswordBinary", "0").trim());
+        setRetrieveExtraIntervals(Integer.parseInt(properties.getTypedProperty("RetrieveExtraIntervals", "0").trim()));
+        calledAPTitle = properties.getTypedProperty(CALLED_AP_TITLE, "");
+    	securityKey = properties.getTypedProperty(SECURITY_KEY, "");
+    	securityMode = properties.getTypedProperty(SECURITY_MODE, "");
 
         if (getInfoTypePassword() != null) {
             if (passwordBinary == 0 && getInfoTypePassword().length() > 20) {

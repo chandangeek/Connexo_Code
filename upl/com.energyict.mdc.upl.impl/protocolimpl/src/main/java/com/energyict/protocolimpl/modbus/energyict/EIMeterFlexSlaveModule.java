@@ -45,8 +45,8 @@ public class EIMeterFlexSlaveModule extends Modbus {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        this.setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
-        this.setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty(PK_FIRST_TIME_DELAY, "0").trim()));
+        this.setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
+        this.setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getTypedProperty(PK_FIRST_TIME_DELAY, "0").trim()));
     }
 
     @Override

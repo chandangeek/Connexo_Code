@@ -760,12 +760,12 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            iProtocolTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "1").trim());
-            iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterFail", "3000").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            iProtocolTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "1").trim());
+            iDelayAfterFailProperty = Integer.parseInt(properties.getTypedProperty("DelayAfterFail", "3000").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

@@ -166,19 +166,19 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
-            this.serialNumber = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
+            strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+            strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty("Timeout", "20000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty("Retries", "5").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty("RoundtripCorrection", "0").trim());
+            iSecurityLevel = Integer.parseInt(properties.getTypedProperty("SecurityLevel", "1").trim());
+            nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
+            iIEC1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "1").trim());
+            iProfileInterval = Integer.parseInt(properties.getTypedProperty("ProfileInterval", "3600").trim());
+            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+            this.serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, "Unigas300: validation of properties failed before");
         }

@@ -74,11 +74,11 @@ public class S200 extends AbstractProtocol {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0000000"));
-        setInfoTypePassword(properties.getProperty(PASSWORD.getName(), "0000"));
-        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0")));
-        setCrnInitialValue(Integer.parseInt(properties.getProperty("CRNInitialValue", "-1")));
-        setModeOfOperation(Integer.parseInt(properties.getProperty("ModeOfOperation", "0"), 16));
+        setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0000000"));
+        setInfoTypePassword(properties.getTypedProperty(PASSWORD.getName(), "0000"));
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0")));
+        setCrnInitialValue(Integer.parseInt(properties.getTypedProperty("CRNInitialValue", "-1")));
+        setModeOfOperation(Integer.parseInt(properties.getTypedProperty("ModeOfOperation", "0"), 16));
     }
 
     @Override

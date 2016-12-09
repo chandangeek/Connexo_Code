@@ -149,7 +149,7 @@ public abstract class EnermetBase extends AbstractProtocol{
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
     }
 
     @Override

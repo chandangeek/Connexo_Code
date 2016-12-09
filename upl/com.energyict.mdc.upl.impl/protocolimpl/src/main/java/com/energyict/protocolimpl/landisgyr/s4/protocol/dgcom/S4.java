@@ -110,9 +110,9 @@ public class S4 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0").trim()));
-        setInfoTypeSecurityLevel(Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "0").trim()));
-        modemPassword = properties.getProperty("ModemPassword");
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
+        setInfoTypeSecurityLevel(Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "0").trim()));
+        modemPassword = properties.getTypedProperty("ModemPassword");
     }
 
     @Override

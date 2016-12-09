@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import java.util.Properties;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 /**
  * US variant of the MaxSys protocol
@@ -10,8 +10,8 @@ public class MaxSys extends com.energyict.protocolimpl.landisgyr.maxsys2510.MaxS
     private static final String PD_NODE_PREFIX = "F";   // Standalone (this allows us in the US to interrogate standalone meters)
 
     @Override
-    protected String getpNodePrefix(Properties p) {
-        return p.getProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
+    protected String getpNodePrefix(TypedProperties p) {
+        return p.getTypedProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
     }
 
     @Override

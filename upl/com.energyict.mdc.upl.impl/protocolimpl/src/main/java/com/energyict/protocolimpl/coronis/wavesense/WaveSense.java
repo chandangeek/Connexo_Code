@@ -117,10 +117,10 @@ public class WaveSense extends AbstractProtocol implements MessageProtocol, Prot
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "40000").trim()));
-        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
-        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
-        verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "40000").trim()));
+        setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
+        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
+        verifyProfileInterval = Integer.parseInt(properties.getTypedProperty("verifyProfileInterval", "1")) == 1;
     }
 
     @Override

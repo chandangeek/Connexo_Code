@@ -364,12 +364,12 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
-            this.outstationID = Integer.parseInt(properties.getProperty(NODEID.getName()));
+            this.outstationID = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));
             this.destinationCode = Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));
-            this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "1"));
-            this.timeout = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "5000"));
-            this.retry = Integer.parseInt(properties.getProperty("Retry", "3"));
-            this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0"));
+            this.channelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "1"));
+            this.timeout = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "5000"));
+            this.retry = Integer.parseInt(properties.getTypedProperty("Retry", "3"));
+            this.delayAfterConnect = Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

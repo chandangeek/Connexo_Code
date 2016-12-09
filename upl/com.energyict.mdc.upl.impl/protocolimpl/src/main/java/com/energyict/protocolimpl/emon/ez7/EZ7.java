@@ -34,7 +34,6 @@ import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -118,7 +117,7 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0) && (getInfoTypePassword().length() != 16)) {
             throw new InvalidPropertyException("EZ7, doValidateProperties, password length error! Password must have a length of 16 characters!");
         }
-        setInfoTypeNodeAddress(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "1A"));
+        setInfoTypeNodeAddress(properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "1A"));
     }
 
     @Override
@@ -247,7 +246,8 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
-        Properties properties = new Properties();
+        TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
+
         setProperties(properties);
         init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);
         connect();

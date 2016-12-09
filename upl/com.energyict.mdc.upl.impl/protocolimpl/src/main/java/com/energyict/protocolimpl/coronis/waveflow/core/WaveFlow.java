@@ -244,39 +244,39 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
-        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
-        multiFrame = Integer.parseInt(properties.getProperty("EnableMultiFrameMode", "0")) == 1;
+        setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
+        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
+        multiFrame = Integer.parseInt(properties.getTypedProperty("EnableMultiFrameMode", "0")) == 1;
 
-        verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
+        verifyProfileInterval = Integer.parseInt(properties.getTypedProperty("verifyProfileInterval", "1")) == 1;
 
         // e.g. USED,4,28740,28800,1,0e514a401f25
-        String wavenisBubbleUpInfo = properties.getProperty("WavenisBubbleUpInfo", "USED,1,28800,28800,1,000000000000");
+        String wavenisBubbleUpInfo = properties.getTypedProperty("WavenisBubbleUpInfo", "USED,1,28800,28800,1,000000000000");
         bubbleUpStartMoment = Integer.parseInt(wavenisBubbleUpInfo.split(",")[2]);
-        deviceType = Integer.parseInt(properties.getProperty("ApplicationStatusVariant", "0"));
+        deviceType = Integer.parseInt(properties.getTypedProperty("ApplicationStatusVariant", "0"));
 
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, String.valueOf(DEFAULT_TIMEOUT)).trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, String.valueOf(DEFAULT_RETRIES)).trim()));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, String.valueOf(DEFAULT_TIMEOUT)).trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, String.valueOf(DEFAULT_RETRIES)).trim()));
 
-        Integer scaleA = getIntProperty(properties.getProperty(PROP_SCALE_A));
-        Integer scaleB = getIntProperty(properties.getProperty(PROP_SCALE_B));
-        Integer scaleC = getIntProperty(properties.getProperty(PROP_SCALE_C));
-        Integer scaleD = getIntProperty(properties.getProperty(PROP_SCALE_D));
+        Integer scaleA = getIntProperty(properties.getTypedProperty(PROP_SCALE_A));
+        Integer scaleB = getIntProperty(properties.getTypedProperty(PROP_SCALE_B));
+        Integer scaleC = getIntProperty(properties.getTypedProperty(PROP_SCALE_C));
+        Integer scaleD = getIntProperty(properties.getTypedProperty(PROP_SCALE_D));
 
-        Integer multiplierA = getIntProperty(properties.getProperty(PROP_MULTIPLIER_A));
-        Integer multiplierB = getIntProperty(properties.getProperty(PROP_MULTIPLIER_B));
-        Integer multiplierC = getIntProperty(properties.getProperty(PROP_MULTIPLIER_C));
-        Integer multiplierD = getIntProperty(properties.getProperty(PROP_MULTIPLIER_D));
+        Integer multiplierA = getIntProperty(properties.getTypedProperty(PROP_MULTIPLIER_A));
+        Integer multiplierB = getIntProperty(properties.getTypedProperty(PROP_MULTIPLIER_B));
+        Integer multiplierC = getIntProperty(properties.getTypedProperty(PROP_MULTIPLIER_C));
+        Integer multiplierD = getIntProperty(properties.getTypedProperty(PROP_MULTIPLIER_D));
 
         pulseWeights[0] = createPulseWeight(scaleA, multiplierA, 1);
         pulseWeights[1] = createPulseWeight(scaleB, multiplierB, 2);
         pulseWeights[2] = createPulseWeight(scaleC, multiplierC, 3);
         pulseWeights[3] = createPulseWeight(scaleD, multiplierD, 4);
 
-        initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
-        roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
-        connectionMode = Integer.parseInt(properties.getProperty(CONNECTION_PROPERTY, MUC_WAVECELL_CONNECTION).trim());
-        String nodeIdString = properties.getProperty(ADDRESS.getName(), "-1");
+        initialRFCommand = Integer.parseInt(properties.getTypedProperty("InitialRFCommand", "0").trim());
+        roundDownToNearestInterval = Integer.parseInt(properties.getTypedProperty("RoundDownToNearestInterval", "0").trim()) == 1;
+        connectionMode = Integer.parseInt(properties.getTypedProperty(CONNECTION_PROPERTY, MUC_WAVECELL_CONNECTION).trim());
+        String nodeIdString = properties.getTypedProperty(ADDRESS.getName(), "-1");
         try {
             waveFlowId = Integer.parseInt(nodeIdString.trim().length() == 0 ? "-1" : nodeIdString.trim());   //DeviceId
         } catch (NumberFormatException e) {

@@ -10,13 +10,13 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.AbstractPEMPModemProperties;
 import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
+import com.energyict.mdc.channels.serial.modem.PEMPModemConfiguration;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ModemException;
 import com.energyict.protocol.exceptions.ProtocolExceptionReference;

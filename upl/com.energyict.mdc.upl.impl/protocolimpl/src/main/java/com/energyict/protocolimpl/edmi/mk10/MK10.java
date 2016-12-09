@@ -106,11 +106,11 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         sendDebug("setProperties()");
         super.setProperties(properties);
-		setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "1"));
-		setLoadSurveyNumber(Integer.parseInt(properties.getProperty("LoadSurveyNumber").trim())-1);
-		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff", "0").trim()));
-        setPushProtocol("1".equalsIgnoreCase(properties.getProperty("PushProtocol", "0").trim()));
-        setFullDebugLogging("1".equalsIgnoreCase(properties.getProperty("FullDebug", "0")));
+		setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "1"));
+		setLoadSurveyNumber(Integer.parseInt(((String) properties.getTypedProperty("LoadSurveyNumber")).trim())-1);
+		setLogOffDisabled(Integer.parseInt(properties.getTypedProperty("DisableLogOff", "0").trim()));
+        setPushProtocol("1".equalsIgnoreCase(properties.getTypedProperty("PushProtocol", "0").trim()));
+        setFullDebugLogging("1".equalsIgnoreCase(properties.getTypedProperty("FullDebug", "0")));
 	}
 
     @Override

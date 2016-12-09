@@ -34,7 +34,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
@@ -138,9 +137,9 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 		super.setProperties(properties);
 	}
 
-	private void validateProperties(Properties properties) {
-		this.gmeterSerialnumber = properties.getProperty(SERIALNUMBER.getName(), "");
-		this.emeterSerialnumber = properties.getProperty(NODEID.getName(), "");
+	private void validateProperties(TypedProperties properties) {
+		this.gmeterSerialnumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
+		this.emeterSerialnumber = properties.getTypedProperty(NODEID.getName(), "");
 
 	}
 

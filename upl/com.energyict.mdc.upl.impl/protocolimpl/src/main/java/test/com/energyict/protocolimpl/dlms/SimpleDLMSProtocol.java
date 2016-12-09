@@ -225,38 +225,38 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
-            String[] securityLevel = properties.getProperty(SECURITYLEVEL.getName(), "0").split(":");
+            String[] securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), "0").split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
             if (securityLevel.length == 2) {
                 this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
             } else if (securityLevel.length == 1) {
                 this.datatransportSecurityLevel = 0;
             } else {
-                throw new InvalidPropertyException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
+                throw new InvalidPropertyException("SecurityLevel property contains an illegal value " + properties.getTypedProperty("SecurityLevel", "0"));
             }
 
-            this.nodeId = properties.getProperty(NODEID.getName(), "");
-            this.deviceId = properties.getProperty(ADDRESS.getName(), "");
-            this.serialNumber = properties.getProperty(SERIALNUMBER.getName(), "");
-            this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
-            this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
-            this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
-            this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
-            this.timeOut = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), (this.connectionMode == 0) ? "5000" : "60000"));    // set the HDLC timeout to 5000 for the WebRTU KP
-            this.retries = Integer.parseInt(properties.getProperty(RETRIES.getName(), "3"));
-            this.roundTripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0"));
-            this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "1"));
-            this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
-            this.manufacturer = properties.getProperty("Manufacturer", "WKP");
-            this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize", "-1"));
-            this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
-            this.iiapPriority = Integer.parseInt(properties.getProperty("IIAPPriority", "1"));
-            this.iiapServiceClass = Integer.parseInt(properties.getProperty("IIAPServiceClass", "1"));
-            this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
+            this.nodeId = properties.getTypedProperty(NODEID.getName(), "");
+            this.deviceId = properties.getTypedProperty(ADDRESS.getName(), "");
+            this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
+            this.connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "1"));
+            this.clientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "16"));
+            this.serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "1"));
+            this.serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "17"));
+            this.timeOut = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), (this.connectionMode == 0) ? "5000" : "60000"));    // set the HDLC timeout to 5000 for the WebRTU KP
+            this.retries = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "3"));
+            this.roundTripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0"));
+            this.forceDelay = Integer.parseInt(properties.getTypedProperty("ForceDelay", "1"));
+            this.addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "2"));
+            this.manufacturer = properties.getTypedProperty("Manufacturer", "WKP");
+            this.informationFieldSize = Integer.parseInt(properties.getTypedProperty("InformationFieldSize", "-1"));
+            this.iiapInvokeId = Integer.parseInt(properties.getTypedProperty("IIAPInvokeId", "0"));
+            this.iiapPriority = Integer.parseInt(properties.getTypedProperty("IIAPPriority", "1"));
+            this.iiapServiceClass = Integer.parseInt(properties.getTypedProperty("IIAPServiceClass", "1"));
+            this.cipheringType = Integer.parseInt(properties.getTypedProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-        this.properties = properties;
+        this.properties = properties.toStringProperties();
     }
 
     @Override

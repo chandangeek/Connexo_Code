@@ -57,8 +57,8 @@ public class FP93B extends Modbus {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setTimeZone(properties.getProperty(TIMEZONE, "GMT"));
-        validateAndSetStartRegistesZeroBasedFlag(properties.getProperty(START_REGISTERS_ZERO_BASED, "1"));
+        setTimeZone(properties.getTypedProperty(TIMEZONE, "GMT"));
+        validateAndSetStartRegistesZeroBasedFlag(properties.getTypedProperty(START_REGISTERS_ZERO_BASED, "1"));
     }
 
     @Override

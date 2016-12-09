@@ -6,6 +6,8 @@
 
 package com.energyict.dialer.coreimpl;
 
+import com.energyict.mdc.channels.serial.modem.PEMPModemConfiguration;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.DialerException;
 import com.energyict.dialer.core.DialerTimeoutException;

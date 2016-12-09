@@ -129,12 +129,7 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        for (Object key : properties.keySet()) {
-            if (key instanceof String) {
-                String propertyName = (String) key;
-                getProtocolProperties().setProperty(propertyName, properties.getProperty(propertyName));
-            }
-        }
+        getProtocolProperties().putAll(properties.toStringProperties());
     }
 
     @Override

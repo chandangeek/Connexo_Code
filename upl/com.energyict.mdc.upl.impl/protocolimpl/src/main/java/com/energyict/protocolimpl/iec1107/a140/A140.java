@@ -41,7 +41,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -155,42 +154,42 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     @Override
     public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
-            if (p.getProperty(Property.ADDRESS.getName()) != null) {
-                pAddress = p.getProperty(Property.ADDRESS.getName());
+            if (p.getTypedProperty(Property.ADDRESS.getName()) != null) {
+                pAddress = p.getTypedProperty(Property.ADDRESS.getName());
             }
 
-            if (p.getProperty(Property.NODEID.getName()) != null) {
-                pNodeId = p.getProperty(Property.NODEID.getName());
+            if (p.getTypedProperty(Property.NODEID.getName()) != null) {
+                pNodeId = p.getTypedProperty(Property.NODEID.getName());
             }
 
-            if (p.getProperty(Property.SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getProperty(Property.SERIALNUMBER.getName());
+            if (p.getTypedProperty(Property.SERIALNUMBER.getName()) != null) {
+                pSerialNumber = p.getTypedProperty(Property.SERIALNUMBER.getName());
             }
 
-            if (p.getProperty(Property.PASSWORD.getName()) != null) {
-                pPassword = p.getProperty(Property.PASSWORD.getName());
+            if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
+                pPassword = p.getTypedProperty(Property.PASSWORD.getName());
             }
 
-            if (p.getProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
+            if (p.getTypedProperty(PK_TIMEOUT) != null) {
+                pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
             }
 
-            if (p.getProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
+            if (p.getTypedProperty(PK_RETRIES) != null) {
+                pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
             }
 
-            if (p.getProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
-                pRountTripCorrection = Integer.parseInt(p.getProperty(Property.ROUNDTRIPCORRECTION.getName()));
+            if (p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
+                pRountTripCorrection = Integer.parseInt(p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()));
             }
 
-            if (p.getProperty(Property.CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getProperty(Property.CORRECTTIME.getName()));
+            if (p.getTypedProperty(Property.CORRECTTIME.getName()) != null) {
+                pCorrectTime = Integer.parseInt(p.getTypedProperty(Property.CORRECTTIME.getName()));
             }
 
-            if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
+            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+                pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
             }
-            this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
+            this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
@@ -332,7 +331,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
 
-        Properties p = new Properties();
+        TypedProperties p = com.energyict.cpo.TypedProperties.empty();
         p.setProperty("SecurityLevel", "0");
         p.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         p.setProperty("IEC1107Compatible", "1");

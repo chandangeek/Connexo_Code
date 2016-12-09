@@ -101,12 +101,12 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        channelMapping = properties.getProperty("NexusChannelMapping", "");
+        channelMapping = properties.getTypedProperty("NexusChannelMapping", "");
         if (channelMapping != null && !channelMapping.isEmpty()) {
             chnlpMap = ChannelMappingPropertySpec.parse(channelMapping);
         }
 
-        if ("1".equals(properties.getProperty("Delta Wired", "0"))) {
+        if ("1".equals(properties.getTypedProperty("Delta Wired", "0"))) {
             isDeltaWired = true;
         }
 

@@ -62,7 +62,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -269,32 +268,32 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            this.strID = properties.getProperty(ADDRESS.getName(), "");
-            this.strPassword = properties.getProperty(PASSWORD.getName());
-            this.serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            this.iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "20000").trim());
-            this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
-            this.iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            this.iSecurityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
-            this.nodeId = properties.getProperty(NODEID.getName(), "");
-            this.iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            this.iForceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "0").trim());
-            this.profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
-            this.channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
-            this.requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
-            this.protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
-            this.scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
-            this.dateFormat = properties.getProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-            this.billingDateFormat = properties.getProperty(PROPERTY_BILLING_DATE_FORMAT);
-            this.dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
-            this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            this.vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
-            this.loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
-            this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
-            this.halfDuplex = Integer.parseInt(properties.getProperty("HalfDuplex", "0").trim());
-            this.rs485RtuPlusServer = Integer.parseInt(properties.getProperty("RS485RtuPlusServer", "0").trim());
-            this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
+            this.strID = properties.getTypedProperty(ADDRESS.getName(), "");
+            this.strPassword = properties.getTypedProperty(PASSWORD.getName());
+            this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            this.iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "20000").trim());
+            this.iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+            this.iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            this.iSecurityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
+            this.nodeId = properties.getTypedProperty(NODEID.getName(), "");
+            this.iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
+            this.iForceDelay = Integer.parseInt(properties.getTypedProperty("ForceDelay", "0").trim());
+            this.profileInterval = Integer.parseInt(properties.getTypedProperty("ProfileInterval", "3600").trim());
+            this.channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap", "0"));
+            this.requestHeader = Integer.parseInt(properties.getTypedProperty("RequestHeader", "1").trim());
+            this.protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0:0:0:0:0:0"));
+            this.scaler = Integer.parseInt(properties.getTypedProperty("Scaler", "0").trim());
+            this.dateFormat = properties.getTypedProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+            this.billingDateFormat = properties.getTypedProperty(PROPERTY_BILLING_DATE_FORMAT);
+            this.dataReadoutRequest = Integer.parseInt(properties.getTypedProperty("DataReadout", "0").trim());
+            this.extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
+            this.vdewCompatible = Integer.parseInt(properties.getTypedProperty("VDEWCompatible", "0").trim());
+            this.loadProfileNumber = Integer.parseInt(properties.getTypedProperty("LoadProfileNumber", "1"));
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+            this.failOnUnitMismatch = Integer.parseInt(properties.getTypedProperty("FailOnUnitMismatch", "0"));
+            this.halfDuplex = Integer.parseInt(properties.getTypedProperty("HalfDuplex", "0").trim());
+            this.rs485RtuPlusServer = Integer.parseInt(properties.getTypedProperty("RS485RtuPlusServer", "0").trim());
+            this.limitMaxNrOfDays = Integer.parseInt(properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
             this.invertBillingOrder = getBooleanProperty(properties, INVERT_BILLING_ORDER);
             this.useEquipmentIdentifierAsSerial = getBooleanProperty(properties, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
         } catch (NumberFormatException e) {
@@ -302,8 +301,8 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         }
     }
 
-	private boolean getBooleanProperty(Properties properties, String propertyName) {
-		return "1".equals(properties.getProperty(propertyName, "0").trim());
+	private boolean getBooleanProperty(TypedProperties properties, String propertyName) {
+		return "1".equals(properties.getTypedProperty(propertyName, "0").trim());
     }
 
     protected boolean isDataReadout() {

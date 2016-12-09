@@ -58,7 +58,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         this.iskra = protocol;
         this.hasBreaker = iskra.hasBreaker();
         if (mbus != null) {
-            setProperties(mbus.getProtocolProperties().toStringProperties());
+            setProperties(mbus.getProtocolProperties());
         }
     }
 
@@ -91,7 +91,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      */
     public void addProperties(Properties properties) {
         try {
-            setProperties(properties);
+            setProperties(com.energyict.cpo.TypedProperties.copyOf(properties));
         } catch (InvalidPropertyException e) {
             e.printStackTrace();
         } catch (MissingPropertyException e) {
@@ -105,7 +105,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        rtuType = properties.getProperty("DeviceType", "mbus");
+        rtuType = properties.getTypedProperty("DeviceType", "mbus");
     }
 
     public String getCustomerID() {

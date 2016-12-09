@@ -253,59 +253,59 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
     @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
-            if (properties.getProperty(ADDRESS.getName()) != null) {
-                this.pAddress = properties.getProperty(ADDRESS.getName());
+            if (properties.getTypedProperty(ADDRESS.getName()) != null) {
+                this.pAddress = properties.getTypedProperty(ADDRESS.getName());
             }
 
-            if (properties.getProperty(NODEID.getName()) != null) {
-                this.pNodeId = properties.getProperty(NODEID.getName());
+            if (properties.getTypedProperty(NODEID.getName()) != null) {
+                this.pNodeId = properties.getTypedProperty(NODEID.getName());
             }
 
-            if (properties.getProperty(SERIALNUMBER.getName()) != null) {
-                this.pSerialNumber = properties.getProperty(SERIALNUMBER.getName());
+            if (properties.getTypedProperty(SERIALNUMBER.getName()) != null) {
+                this.pSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
             }
 
-            if (properties.getProperty(PASSWORD.getName()) != null) {
-                this.pPassword = properties.getProperty(PASSWORD.getName());
+            if (properties.getTypedProperty(PASSWORD.getName()) != null) {
+                this.pPassword = properties.getTypedProperty(PASSWORD.getName());
             }
 
-            if (properties.getProperty(PK_OPUS) != null) {
-                this.pOpus = properties.getProperty(PK_OPUS);
+            if (properties.getTypedProperty(PK_OPUS) != null) {
+                this.pOpus = properties.getTypedProperty(PK_OPUS);
             }
 
-            if (properties.getProperty(PK_TIMEOUT) != null) {
-                this.pTimeout = Integer.parseInt(properties.getProperty(PK_TIMEOUT));
+            if (properties.getTypedProperty(PK_TIMEOUT) != null) {
+                this.pTimeout = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT));
             }
 
-            if (properties.getProperty(PK_RETRIES) != null) {
-                this.pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
+            if (properties.getTypedProperty(PK_RETRIES) != null) {
+                this.pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
             }
 
-            if (properties.getProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                this.pRountTripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName()));
+            if (properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+                this.pRountTripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
             }
 
-            if (properties.getProperty(PK_DELAY_AFTER_FAIL) != null) {
-                this.pDelayAfterFail = Integer.parseInt(properties.getProperty(PK_DELAY_AFTER_FAIL));
+            if (properties.getTypedProperty(PK_DELAY_AFTER_FAIL) != null) {
+                this.pDelayAfterFail = Integer.parseInt(properties.getTypedProperty(PK_DELAY_AFTER_FAIL));
             }
 
-            if (properties.getProperty(PK_SECURITY_LEVEL) != null) {
-                this.pRetries = Integer.parseInt(properties.getProperty(PK_SECURITY_LEVEL));
+            if (properties.getTypedProperty(PK_SECURITY_LEVEL) != null) {
+                this.pRetries = Integer.parseInt(properties.getTypedProperty(PK_SECURITY_LEVEL));
             }
 
-            if (properties.getProperty(CORRECTTIME.getName()) != null) {
-                this.pCorrectTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName()));
+            if (properties.getTypedProperty(CORRECTTIME.getName()) != null) {
+                this.pCorrectTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName()));
             }
 
-            if (properties.getProperty(PK_EXTENDED_LOGGING) != null) {
-                this.pExtendedLogging = properties.getProperty(PK_EXTENDED_LOGGING);
+            if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+                this.pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
             }
 
-            if (properties.getProperty(PK_FORCE_DELAY) != null) {
-                this.pForceDelay = Integer.parseInt(properties.getProperty(PK_FORCE_DELAY));
+            if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
+                this.pForceDelay = Integer.parseInt(properties.getTypedProperty(PK_FORCE_DELAY));
             }
 
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

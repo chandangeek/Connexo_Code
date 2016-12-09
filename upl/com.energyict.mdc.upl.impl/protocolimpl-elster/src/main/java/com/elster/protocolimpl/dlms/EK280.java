@@ -246,7 +246,7 @@ public class EK280 extends Dlms {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        String archiveStructureVersion = properties.getProperty(EK280.ARCHIVESTRUCTUREVERSION, "");
+        String archiveStructureVersion = properties.getTypedProperty(EK280.ARCHIVESTRUCTUREVERSION, "");
         if ("V2".equalsIgnoreCase(archiveStructureVersion)) {
             archiveStructure = V2ARCHIVESTRUCTURE;
             ocLogProfile = new ObisCode("7.0.99.98.1.255");

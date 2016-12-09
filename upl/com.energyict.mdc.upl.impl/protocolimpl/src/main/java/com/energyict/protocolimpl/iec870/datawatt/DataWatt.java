@@ -228,14 +228,14 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            iIEC870TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "25000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "3").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iProfileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "3600").trim());
-            channelMap = new ChannelMap(properties.getProperty("ChannelMap", ""));
-            iMeterType = Integer.parseInt(properties.getProperty("MeterType", "0").trim());
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            iIEC870TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "25000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "3").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iProfileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "3600").trim());
+            channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap", ""));
+            iMeterType = Integer.parseInt(properties.getTypedProperty("MeterType", "0").trim());
         } catch (NumberFormatException | IOException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

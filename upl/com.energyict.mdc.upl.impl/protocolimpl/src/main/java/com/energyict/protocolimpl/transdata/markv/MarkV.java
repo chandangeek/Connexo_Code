@@ -45,7 +45,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 
 //import com.energyict.protocolimpl.transdata.markv.core.*;
@@ -121,7 +120,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        verifyTimeDelay=Integer.parseInt(properties.getProperty("VerifyTimeDelay", "2000").trim());
+        verifyTimeDelay=Integer.parseInt(properties.getTypedProperty("VerifyTimeDelay", "2000").trim());
     }
 
     @Override
@@ -177,7 +176,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
 
     @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
-        Properties properties = new Properties();
+        TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
         properties.setProperty("SecurityLevel", "0");
         if ((discoverInfo.getNodeId()!= null) && ("".compareTo(discoverInfo.getNodeId()) != 0)) {
             properties.setProperty(Property.NODEID.getName(), discoverInfo.getNodeId());

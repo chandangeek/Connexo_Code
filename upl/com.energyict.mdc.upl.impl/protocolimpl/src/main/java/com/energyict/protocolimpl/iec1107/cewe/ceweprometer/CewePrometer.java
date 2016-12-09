@@ -244,12 +244,12 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        String v = properties.getProperty(PK_EXTENDED_LOGGING);
+        String v = properties.getTypedProperty(PK_EXTENDED_LOGGING);
         pExtendedLogging = (v == null) ? 0 : Integer.parseInt(v);
 
-        v = properties.getProperty(PK_LOGGER);
+        v = properties.getTypedProperty(PK_LOGGER);
         pLogger = (v == null) ? PD_LOGGER : Integer.parseInt(v);
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
 
     }
 

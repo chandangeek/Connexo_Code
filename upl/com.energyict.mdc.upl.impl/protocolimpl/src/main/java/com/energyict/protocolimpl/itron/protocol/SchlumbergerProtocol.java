@@ -179,20 +179,20 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getProperty(FORCED_DELAY,"0").trim()));
-        setInfoTypeSecurityLevel(Integer.parseInt(properties.getProperty(SECURITY_LEVEL, "1").trim()));
-        setUnitType(properties.getProperty(UNIT_TYPE));
-        setUnitId(properties.getProperty(UNIT_ID));
-        setInfoTypeNodeAddress(properties.getProperty(NODE_ADDRESS));
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "7000").trim()));
-        setDelayAfterConnect(Integer.parseInt(properties.getProperty(DELAY_AFTER_CONNECT, "0").trim()));
-        setBlockSize(Integer.parseInt(properties.getProperty(BLOCK_SIZE, "128").trim()));
-        setDaisyChain(Integer.parseInt(properties.getProperty(DAISY_CHAIN, "0").trim()));
-        setAllowClockSet(Integer.parseInt(properties.getProperty(ALLOW_CLOCK_SET,"0").trim()) == 1);
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty(FORCED_DELAY,"0").trim()));
+        setInfoTypeSecurityLevel(Integer.parseInt(properties.getTypedProperty(SECURITY_LEVEL, "1").trim()));
+        setUnitType(properties.getTypedProperty(UNIT_TYPE));
+        setUnitId(properties.getTypedProperty(UNIT_ID));
+        setInfoTypeNodeAddress(properties.getTypedProperty(NODE_ADDRESS));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "7000").trim()));
+        setDelayAfterConnect(Integer.parseInt(properties.getTypedProperty(DELAY_AFTER_CONNECT, "0").trim()));
+        setBlockSize(Integer.parseInt(properties.getTypedProperty(BLOCK_SIZE, "128").trim()));
+        setDaisyChain(Integer.parseInt(properties.getTypedProperty(DAISY_CHAIN, "0").trim()));
+        setAllowClockSet(Integer.parseInt(properties.getTypedProperty(ALLOW_CLOCK_SET,"0").trim()) == 1);
 
-        setUnitIdMaster(properties.getProperty(UNIT_ID_MASTER));
-        setSecurityLevelMaster(Integer.parseInt(properties.getProperty(SECURITY_LEVEL_MASTER, "1")));
-        setPasswordMaster(properties.getProperty(PASSWORD_MASTER, ""));
+        setUnitIdMaster(properties.getTypedProperty(UNIT_ID_MASTER));
+        setSecurityLevelMaster(Integer.parseInt(properties.getTypedProperty(SECURITY_LEVEL_MASTER, "1")));
+        setPasswordMaster(properties.getTypedProperty(PASSWORD_MASTER, ""));
     }
 
     @Override

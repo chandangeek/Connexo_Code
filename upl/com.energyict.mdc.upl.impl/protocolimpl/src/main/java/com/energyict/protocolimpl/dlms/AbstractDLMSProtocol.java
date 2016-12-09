@@ -379,8 +379,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        this.properties = properties;
-        String securityLevelPropertyValue = properties.getProperty(SECURITYLEVEL.getName(), "0");
+        this.properties = properties.toStringProperties();
+        String securityLevelPropertyValue = properties.getTypedProperty(SECURITYLEVEL.getName(), "0");
         String[] securityLevel = securityLevelPropertyValue.split(":");
         this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
         if (securityLevel.length == 2) {
@@ -391,40 +391,40 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + securityLevelPropertyValue);
         }
 
-        nodeId = properties.getProperty(NODEID.getName(), "");
-        deviceId = properties.getProperty(ADDRESS.getName(), "");
-        serialNumber = properties.getProperty(SERIALNUMBER.getName(), "");
-        connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "1"));
-        clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32"));
-        serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "1"));
-        serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17"));
-        timeOut = Integer.parseInt(properties.getProperty(PROPNAME_TIMEOUT, (this.connectionMode == 0) ? "5000" : "60000"));    // set the HDLC timeout to 5000 for the WebRTU KP
-        forceDelay = Integer.parseInt(properties.getProperty(PROPNAME_FORCE_DELAY, "1"));
-        retries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "3"));
-        addressingMode = Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "2"));
-        manufacturer = properties.getProperty(PROPNAME_MANUFACTURER, "EIT");
-        informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
-        iiapInvokeId = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
-        iiapPriority = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_PRIORITY, "1"));
-        iiapServiceClass = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
-        cipheringType = Integer.parseInt(properties.getProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(CipheringType.GLOBAL.getType())));
+        nodeId = properties.getTypedProperty(NODEID.getName(), "");
+        deviceId = properties.getTypedProperty(ADDRESS.getName(), "");
+        serialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
+        connectionMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_CONNECTION, "1"));
+        clientMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32"));
+        serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "1"));
+        serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17"));
+        timeOut = Integer.parseInt(properties.getTypedProperty(PROPNAME_TIMEOUT, (this.connectionMode == 0) ? "5000" : "60000"));    // set the HDLC timeout to 5000 for the WebRTU KP
+        forceDelay = Integer.parseInt(properties.getTypedProperty(PROPNAME_FORCE_DELAY, "1"));
+        retries = Integer.parseInt(properties.getTypedProperty(PROPNAME_RETRIES, "3"));
+        addressingMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, "2"));
+        manufacturer = properties.getTypedProperty(PROPNAME_MANUFACTURER, "EIT");
+        informationFieldSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
+        iiapInvokeId = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
+        iiapPriority = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_PRIORITY, "1"));
+        iiapServiceClass = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
+        cipheringType = Integer.parseInt(properties.getTypedProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(CipheringType.GLOBAL.getType())));
 
         try {
-            this.numberOfClocksetTries = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
+            this.numberOfClocksetTries = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
         } catch (final NumberFormatException e) {
             logger.log(Level.SEVERE, "Cannot parse the number of clockset tries to a numeric value, setting to default value of [" + DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES + "]", e);
             this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
         }
         try {
             this.clockSetRoundtripTreshold = 0;
-            clockSetRoundtripTreshold = Integer.parseInt(properties.getProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, String.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
+            clockSetRoundtripTreshold = Integer.parseInt(properties.getTypedProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, String.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
         } catch (final NumberFormatException e) {
             logger.log(Level.SEVERE, "Cannot parse the number of roundtrip correction probes to be done, setting to default value of [" + DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD + "]", e);
             this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
         }
-        this.maxRecPduSize = Integer.parseInt(properties.getProperty(MAX_REC_PDU_SIZE, Integer.toString(MAX_PDU_SIZE)));
-        this.iskraWrapper = Integer.parseInt(properties.getProperty(ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT));
-        this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getProperty(INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
+        this.maxRecPduSize = Integer.parseInt(properties.getTypedProperty(MAX_REC_PDU_SIZE, Integer.toString(MAX_PDU_SIZE)));
+        this.iskraWrapper = Integer.parseInt(properties.getTypedProperty(ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT));
+        this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getTypedProperty(INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
     }
 
     @Override

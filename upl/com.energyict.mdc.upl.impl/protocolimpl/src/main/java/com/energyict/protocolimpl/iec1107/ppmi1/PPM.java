@@ -254,47 +254,47 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
     }
 
     public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
-        if (p.getProperty(ADDRESS.getName()) != null) {
-            this.pAddress = p.getProperty(ADDRESS.getName());
+        if (p.getTypedProperty(ADDRESS.getName()) != null) {
+            this.pAddress = p.getTypedProperty(ADDRESS.getName());
         }
 
-        if (p.getProperty(NODEID.getName()) != null) {
-            pNodeId = p.getProperty(NODEID.getName());
+        if (p.getTypedProperty(NODEID.getName()) != null) {
+            pNodeId = p.getTypedProperty(NODEID.getName());
         }
 
-        if (p.getProperty(SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getProperty(SERIALNUMBER.getName());
+        if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
         }
 
-        if (p.getProperty(PROFILEINTERVAL.getName()) != null) {
-            pProfileInterval = p.getProperty(PROFILEINTERVAL.getName());
+        if (p.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = p.getTypedProperty(PROFILEINTERVAL.getName());
         }
 
-        if (p.getProperty(PASSWORD.getName()) != null) {
-            pPassword = p.getProperty(PASSWORD.getName());
+        if (p.getTypedProperty(PASSWORD.getName()) != null) {
+            pPassword = p.getTypedProperty(PASSWORD.getName());
         }
 
-        if (p.getProperty(PK_OPUS) != null) {
-            pOpus = p.getProperty(PK_OPUS);
+        if (p.getTypedProperty(PK_OPUS) != null) {
+            pOpus = p.getTypedProperty(PK_OPUS);
         }
 
-        if (p.getProperty(PK_TIMEOUT) != null) {
-            pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
+        if (p.getTypedProperty(PK_TIMEOUT) != null) {
+            pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
         }
 
-        if (p.getProperty(PK_RETRIES) != null) {
-            pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
+        if (p.getTypedProperty(PK_RETRIES) != null) {
+            pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
         }
 
-        if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
+        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
         }
 
-        if (p.getProperty(PK_FORCE_DELAY) != null) {
-            pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
+        if (p.getTypedProperty(PK_FORCE_DELAY) != null) {
+            pForceDelay = Integer.parseInt(p.getTypedProperty(PK_FORCE_DELAY));
         }
 
-        this.software7E1 = !"0".equalsIgnoreCase(p.getProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
     }
 
     @Override

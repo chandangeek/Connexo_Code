@@ -61,11 +61,11 @@ public class Enerium200 extends Modbus implements SerialNumberSupport {
     @Override
 	public void setProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setProperties(properties);
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "500").trim()));
-        setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty(PK_PHYSICAL_LAYER, "1").trim()));
-        setInfoTypeResponseTimeout(Integer.parseInt(properties.getProperty(PK_RESPONSE_TIMEOUT, "2000").trim()));
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(TIMEOUT.getName(),"5000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim()));
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "500").trim()));
+        setInfoTypePhysicalLayer(Integer.parseInt(properties.getTypedProperty(PK_PHYSICAL_LAYER, "1").trim()));
+        setInfoTypeResponseTimeout(Integer.parseInt(properties.getTypedProperty(PK_RESPONSE_TIMEOUT, "2000").trim()));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(),"5000").trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim()));
 
 		try {
 			Integer.parseInt(getInfoTypeDeviceID());

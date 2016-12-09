@@ -185,26 +185,26 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            iec1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
-            protocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
-            roundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            securityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
-            nodeId = properties.getProperty(NODEID.getName(), "");
-            echoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            iec1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            if (properties.getProperty("ChannelMap") != null) {
-                channelMap = new ChannelMap(properties.getProperty("ChannelMap"));
-                protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            iec1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
+            protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+            roundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
+            nodeId = properties.getTypedProperty(NODEID.getName(), "");
+            echoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
+            iec1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "1").trim());
+            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
+            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            if (properties.getTypedProperty("ChannelMap") != null) {
+                channelMap = new ChannelMap(((String) properties.getTypedProperty("ChannelMap")));
+                protocolChannelMap = new ProtocolChannelMap(((String) properties.getTypedProperty("ChannelMap")));
             }
-            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "900").trim());
-            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "0").trim());
-            scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
-            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "300").trim());
-            software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "900").trim());
+            requestHeader = Integer.parseInt(properties.getTypedProperty("RequestHeader", "0").trim());
+            scaler = Integer.parseInt(properties.getTypedProperty("Scaler", "0").trim());
+            forcedDelay = Integer.parseInt(properties.getTypedProperty("ForcedDelay", "300").trim());
+            software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

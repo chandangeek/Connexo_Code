@@ -58,7 +58,7 @@ public class Generic extends MBus {
     	if (discoverResults==null) {
     		discoverResults = new ArrayList<>();
 	        try {
-	            setProperties(discoverTools.getProperties());
+                setProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
 	            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
 
 	            getMBusConnection().setRTUAddress(253);
@@ -160,7 +160,7 @@ public class Generic extends MBus {
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMBUS();
         try {
-            setProperties(discoverTools.getProperties());
+            setProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
             init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             connect();
 

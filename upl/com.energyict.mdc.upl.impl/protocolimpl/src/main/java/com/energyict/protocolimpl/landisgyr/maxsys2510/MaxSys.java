@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -193,12 +192,12 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
 
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        if (properties.getProperty(PK_SERIALNUMBER) != null) {
-            pSerialNumber = properties.getProperty(PK_SERIALNUMBER);
+        if (properties.getTypedProperty(PK_SERIALNUMBER) != null) {
+            pSerialNumber = properties.getTypedProperty(PK_SERIALNUMBER);
         }
 
-        if (properties.getProperty(PK_NODEID) != null) {
-            pNodeId = getpNodePrefix(properties) + properties.getProperty(PK_NODEID);
+        if (properties.getTypedProperty(PK_NODEID) != null) {
+            pNodeId = getpNodePrefix(properties) + properties.getTypedProperty(PK_NODEID);
 
             //Replace integer.parse because of overflow, REGEX is cleaner as well
             Pattern pattern = Pattern.compile("[[A-F][a-f]\\d]*");
@@ -208,8 +207,8 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
             }
         }
 
-        if (properties.getProperty(PK_PASSWORD) != null) {
-            String pwd = properties.getProperty(PK_PASSWORD, "    ");
+        if (properties.getTypedProperty(PK_PASSWORD) != null) {
+            String pwd = properties.getTypedProperty(PK_PASSWORD, "    ");
             pPassword = new byte[4];
             pPassword[0] = pwd.getBytes()[0];
             pPassword[1] = pwd.getBytes()[1];
@@ -217,36 +216,36 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
             pPassword[3] = pwd.getBytes()[3];
         }
 
-        if (properties.getProperty(PK_TIMEOUT) != null) {
-            pTimeout = Integer.parseInt(properties.getProperty(PK_TIMEOUT));
+        if (properties.getTypedProperty(PK_TIMEOUT) != null) {
+            pTimeout = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT));
         }
 
-        if (properties.getProperty(PK_RETRIES) != null) {
-            pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
+        if (properties.getTypedProperty(PK_RETRIES) != null) {
+            pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
         }
 
-        if (properties.getProperty(PK_ROUNDTRIPCORRECTION) != null) {
-            pRountTripCorrection = Integer.parseInt(properties.getProperty(PK_ROUNDTRIPCORRECTION));
+        if (properties.getTypedProperty(PK_ROUNDTRIPCORRECTION) != null) {
+            pRountTripCorrection = Integer.parseInt(properties.getTypedProperty(PK_ROUNDTRIPCORRECTION));
         }
 
-        if (properties.getProperty(PK_CORRECTTIME) != null) {
-            pCorrectTime = Integer.parseInt(properties.getProperty(PK_CORRECTTIME));
+        if (properties.getTypedProperty(PK_CORRECTTIME) != null) {
+            pCorrectTime = Integer.parseInt(properties.getTypedProperty(PK_CORRECTTIME));
         }
 
-        if (properties.getProperty(PK_FORCE_DELAY) != null) {
-            pForceDelay = Integer.parseInt(properties.getProperty(PK_FORCE_DELAY));
+        if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
+            pForceDelay = Integer.parseInt(properties.getTypedProperty(PK_FORCE_DELAY));
         }
 
-        if (properties.getProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = properties.getProperty(PK_EXTENDED_LOGGING);
+        if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
         }
 
-        if (properties.getProperty(PK_SHOULD_DISCONNECT) != null) {
-            pShouldDisconnect = "1".equals(properties.getProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT));
+        if (properties.getTypedProperty(PK_SHOULD_DISCONNECT) != null) {
+            pShouldDisconnect = "1".equals(properties.getTypedProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT));
         }
 
-        readUnit1SerialNumber = "1".equals(properties.getProperty(PK_READ_UNIT1_SERIALNUMBER));
-        readProfileDataBeforeConfigChange = !"0".equals(properties.getProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
+        readUnit1SerialNumber = "1".equals(properties.getTypedProperty(PK_READ_UNIT1_SERIALNUMBER));
+        readProfileDataBeforeConfigChange = !"0".equals(properties.getTypedProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
     }
 
     /**
@@ -267,8 +266,8 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
      *     <liF -> Standalone (this allows us in the US to interrogate standalone meters)></li>
      * </ul>
      */
-    protected String getpNodePrefix(Properties p) {
-         return p.getProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
+    protected String getpNodePrefix(TypedProperties p) {
+         return p.getTypedProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
     }
 
     Date getBeginningOfRecording() throws IOException {

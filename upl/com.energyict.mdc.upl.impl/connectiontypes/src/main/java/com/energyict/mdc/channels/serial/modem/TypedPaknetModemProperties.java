@@ -5,6 +5,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
@@ -30,12 +32,12 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
 
     private static final String DEFAULT_MODEM_INIT_STRINGS = "1:0;2:0;3:0;4:10;5:0;6:5";
     private static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(5);
-    private static final TemporalAmount DEFAULT_COMMAND_TIMEOUT = Duration.ofSeconds(10);
-    private static final TemporalAmount DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
-    private static final TemporalAmount DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
-    private static final TemporalAmount DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
+    private static final Duration DEFAULT_COMMAND_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
+    private static final Duration DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
+    private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
     private static final String DEFAULT_MODEM_DIAL_PREFIX = "";
-    private static final TemporalAmount DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
+    private static final Duration DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
 
     private TypedProperties properties;
     private Map<String, PropertySpec> propertySpecs;
@@ -58,13 +60,14 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
                 atModemInitStringSpec(),
                 atCommandPrefixSpec(),
                 atConnectTimeoutSpec(),
+                dtrToggleDelaySpec(),
                 delayAfterConnectSpec()
         );
     }
 
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        this.properties = com.energyict.cpo.TypedProperties.copyOf(properties);
+        this.properties = properties;
     }
 
     @Override
@@ -143,38 +146,38 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
     }
 
     public static PropertySpec atModemInitStringSpec() {
-        return PropertySpecFactory.stringPropertySpec(MODEM_INIT_STRINGS, DEFAULT_MODEM_INIT_STRINGS);
+        return UPLPropertySpecFactory.stringWithDefault(MODEM_INIT_STRINGS, false, DEFAULT_MODEM_INIT_STRINGS);
     }
 
     public static PropertySpec atCommandTriesSpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(COMMAND_TRIES, DEFAULT_COMMAND_TRIES);
+        return UPLPropertySpecFactory.bigDecimal(COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
     }
 
     public static PropertySpec atCommandTimeoutSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(COMMAND_TIMEOUT, DEFAULT_COMMAND_TIMEOUT);
+        return UPLPropertySpecFactory.duration(COMMAND_TIMEOUT, false, DEFAULT_COMMAND_TIMEOUT);
     }
 
     public static PropertySpec delayBeforeSendSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND);
+        return UPLPropertySpecFactory.duration(DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
     }
 
     public static PropertySpec delayAfterConnectSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT);
+        return UPLPropertySpecFactory.duration(DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
     public static PropertySpec atConnectTimeoutSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+        return UPLPropertySpecFactory.duration(CONNECT_TIMEOUT, false, DEFAULT_CONNECT_TIMEOUT);
     }
 
     public static PropertySpec atCommandPrefixSpec() {
-        return PropertySpecFactory.stringPropertySpec(MODEM_DIAL_PREFIX, DEFAULT_MODEM_DIAL_PREFIX);
+        return UPLPropertySpecFactory.stringWithDefault(MODEM_DIAL_PREFIX, false, DEFAULT_MODEM_DIAL_PREFIX);
     }
 
     public static PropertySpec dtrToggleDelaySpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY);
+        return UPLPropertySpecFactory.duration(DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
     public static PropertySpec phoneNumberSpec() {
-        return PropertySpecFactory.stringPropertySpec(PHONE_NUMBER_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(PHONE_NUMBER_PROPERTY_NAME, false);
     }
 }

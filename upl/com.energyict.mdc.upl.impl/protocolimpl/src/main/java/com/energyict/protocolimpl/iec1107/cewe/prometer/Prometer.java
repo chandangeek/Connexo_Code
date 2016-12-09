@@ -533,12 +533,12 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        String extendedLogging = properties.getProperty(PK_EXTENDED_LOGGING);
+        String extendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
         pExtendedLogging = (extendedLogging == null) ? 0 : Integer.parseInt(extendedLogging);
 
-        String logger = properties.getProperty(PK_LOGGER);
+        String logger = properties.getTypedProperty(PK_LOGGER);
         pLogger = (logger == null) ? PD_LOGGER : Integer.parseInt(logger);
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
     }
 
     @Override

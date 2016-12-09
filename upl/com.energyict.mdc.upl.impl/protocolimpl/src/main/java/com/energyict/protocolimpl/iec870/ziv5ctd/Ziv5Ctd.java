@@ -32,7 +32,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -135,52 +134,52 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     @Override
     public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
-            if (p.getProperty(ADDRESS.getName()) != null) {
-                pAddress = p.getProperty(ADDRESS.getName());
+            if (p.getTypedProperty(ADDRESS.getName()) != null) {
+                pAddress = p.getTypedProperty(ADDRESS.getName());
             }
 
-            if (p.getProperty(NODEID.getName()) != null) {
-                pNodeId = p.getProperty(NODEID.getName());
+            if (p.getTypedProperty(NODEID.getName()) != null) {
+                pNodeId = p.getTypedProperty(NODEID.getName());
             }
 
-            if (p.getProperty(SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getProperty(SERIALNUMBER.getName());
+            if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
+                pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
             }
 
-            if (p.getProperty(PROFILEINTERVAL.getName()) != null) {
-                pProfileInterval = Integer.parseInt(p.getProperty(PROFILEINTERVAL.getName()));
+            if (p.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
+                pProfileInterval = Integer.parseInt(p.getTypedProperty(PROFILEINTERVAL.getName()));
             }
 
-            if (p.getProperty(Property.PASSWORD.getName()) != null) {
-                pPassword = Integer.parseInt(p.getProperty(Property.PASSWORD.getName()));
+            if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
+                pPassword = Integer.parseInt(p.getTypedProperty(Property.PASSWORD.getName()));
             }
 
-            if (p.getProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
+            if (p.getTypedProperty(PK_TIMEOUT) != null) {
+                pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
             }
 
-            if (p.getProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
+            if (p.getTypedProperty(PK_RETRIES) != null) {
+                pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
             }
 
-            if (p.getProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                pRountTripCorrection = Integer.parseInt(p.getProperty(ROUNDTRIPCORRECTION.getName()));
+            if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+                pRountTripCorrection = Integer.parseInt(p.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
             }
 
-            if (p.getProperty(CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getProperty(CORRECTTIME.getName()));
+            if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
+                pCorrectTime = Integer.parseInt(p.getTypedProperty(CORRECTTIME.getName()));
             }
 
-            if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
+            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+                pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
             }
 
-            if (p.getProperty(PK_FETCH_PROGRAM_PROFILE) != null) {
-                pFetchProgramProfile = p.getProperty(PK_FETCH_PROGRAM_PROFILE);
+            if (p.getTypedProperty(PK_FETCH_PROGRAM_PROFILE) != null) {
+                pFetchProgramProfile = p.getTypedProperty(PK_FETCH_PROGRAM_PROFILE);
             }
 
-            if (p.getProperty(PK_CUMULATIVE_PROFILE) != null) {
-                pCumulativeProfile = ("1".equals(p.getProperty(PK_CUMULATIVE_PROFILE)));
+            if (p.getTypedProperty(PK_CUMULATIVE_PROFILE) != null) {
+                pCumulativeProfile = ("1".equals(p.getTypedProperty(PK_CUMULATIVE_PROFILE)));
             }
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
@@ -309,7 +308,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
 
-        Properties p = new Properties();
+        TypedProperties p = com.energyict.cpo.TypedProperties.empty();
         p.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
         setProperties(p);
 

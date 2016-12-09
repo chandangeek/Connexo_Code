@@ -112,22 +112,22 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setT1Timeout(Integer.parseInt(properties.getProperty("T1Timeout", "5000").trim())); // T1 (datalink layer)
-        setSourceTransportAddress(Integer.parseInt(properties.getProperty("STSAP", "0").trim()));
-        setDestinationTransportAddress(Integer.parseInt(properties.getProperty("DTSAP", "2").trim()));
+        setT1Timeout(Integer.parseInt(properties.getTypedProperty("T1Timeout", "5000").trim())); // T1 (datalink layer)
+        setSourceTransportAddress(Integer.parseInt(properties.getTypedProperty("STSAP", "0").trim()));
+        setDestinationTransportAddress(Integer.parseInt(properties.getTypedProperty("DTSAP", "2").trim()));
 
         setAPSEParameters(new APSEParameters());
-        getAPSEParameters().setClientType(Integer.parseInt(properties.getProperty("ClientType", "40967").trim())); // 0xA007
-        getAPSEParameters().setCallingPhysicalAddress(properties.getProperty("CallingPhysicalAddress", "30")); // APSE calling physical address, enter as string of even length, containing HEX karakters, default 0x30
-        getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getProperty("ProposedAppCtxName", "0").trim())); // APSE proposed App context name, default 0
-        setInfoTypePassword(properties.getProperty(PASSWORD.getName(), "0000000000000000"));
+        getAPSEParameters().setClientType(Integer.parseInt(properties.getTypedProperty("ClientType", "40967").trim())); // 0xA007
+        getAPSEParameters().setCallingPhysicalAddress(properties.getTypedProperty("CallingPhysicalAddress", "30")); // APSE calling physical address, enter as string of even length, containing HEX karakters, default 0x30
+        getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getTypedProperty("ProposedAppCtxName", "0").trim())); // APSE proposed App context name, default 0
+        setInfoTypePassword(properties.getTypedProperty(PASSWORD.getName(), "0000000000000000"));
 
-        this.safetyTimeout = Integer.parseInt(properties.getProperty("SafetyTimeOut", "300000")); // Safety timeout in the transport layer
+        this.safetyTimeout = Integer.parseInt(properties.getTypedProperty("SafetyTimeOut", "300000")); // Safety timeout in the transport layer
 
-        if (Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1) {
+        if (Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "0")) == 1) {
 			delayAfterConnect = 6000;
 		} else {
-			delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0").trim());
+			delayAfterConnect = Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "0").trim());
 		}
 
         try {

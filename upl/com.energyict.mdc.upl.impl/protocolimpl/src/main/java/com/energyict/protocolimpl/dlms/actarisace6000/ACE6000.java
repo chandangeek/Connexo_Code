@@ -1352,25 +1352,25 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty(PK_TIMEOUT, "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(PK_RETRIES, "5").trim());
-            iSecurityLevelProperty = Integer.parseInt(properties.getProperty(PK_SECURITYLEVEL, "1").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT, "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(PK_RETRIES, "5").trim());
+            iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty(PK_SECURITYLEVEL, "1").trim());
+            iRequestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
 
-            iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "1").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "17").trim());
-            firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
-            nodeId = properties.getProperty(NODEID.getName(), "");
+            iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "1").trim());
+            iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "17").trim());
+            iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "17").trim());
+            firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
+            nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
-            serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            extendedLogging = Integer.parseInt(properties.getProperty(PK_EXTENDED_LOGGING, "0"));
-            addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
-            connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-            alarmStatusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel", "0"));
+            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            extendedLogging = Integer.parseInt(properties.getTypedProperty(PK_EXTENDED_LOGGING, "0"));
+            addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "-1"));
+            connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
+            alarmStatusFlagChannel = Integer.parseInt(properties.getTypedProperty("StatusFlagChannel", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

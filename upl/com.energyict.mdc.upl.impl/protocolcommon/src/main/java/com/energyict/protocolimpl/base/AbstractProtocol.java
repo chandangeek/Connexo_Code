@@ -266,30 +266,30 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "10000").trim()));
-            setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "5").trim()));
-            roundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            securityLevel = Integer.parseInt(properties.getProperty(PROP_SECURITY_LEVEL, "1").trim());
-            nodeId = properties.getProperty(NODEID.getName(), "");
-            echoCancelling = Integer.parseInt(properties.getProperty(PROP_ECHO_CANCELING, "0").trim());
-            protocolCompatible = Integer.parseInt(properties.getProperty(PROP_PROTOCOL_COMPATIBLE, "1").trim());
-            extendedLogging = Integer.parseInt(properties.getProperty(PROP_EXTENDED_LOGGING, "0").trim());
-            serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            channelMap = properties.getProperty(PROP_CHANNEL_MAP);
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "10000").trim()));
+            setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "5").trim()));
+            roundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            securityLevel = Integer.parseInt(properties.getTypedProperty(PROP_SECURITY_LEVEL, "1").trim());
+            nodeId = properties.getTypedProperty(NODEID.getName(), "");
+            echoCancelling = Integer.parseInt(properties.getTypedProperty(PROP_ECHO_CANCELING, "0").trim());
+            protocolCompatible = Integer.parseInt(properties.getTypedProperty(PROP_PROTOCOL_COMPATIBLE, "1").trim());
+            extendedLogging = Integer.parseInt(properties.getTypedProperty(PROP_EXTENDED_LOGGING, "0").trim());
+            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            channelMap = properties.getTypedProperty(PROP_CHANNEL_MAP);
             if (channelMap != null) {
                 protocolChannelMap = new ProtocolChannelMap(channelMap);
             }
-            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "900").trim());
-            requestHeader = Integer.parseInt(properties.getProperty(PROP_REQUEST_HEADER, "0").trim());
-            scaler = Integer.parseInt(properties.getProperty(PROP_SCALER, "0").trim());
-            setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, defaultForcedDelayPropertyValue()).trim()));
-            halfDuplex = Integer.parseInt(properties.getProperty(PROP_HALF_DUPLEX, "0").trim());
-            setDtrBehaviour(Integer.parseInt(properties.getProperty(PROP_DTR_BEHAVIOUR, "2").trim()));
+            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "900").trim());
+            requestHeader = Integer.parseInt(properties.getTypedProperty(PROP_REQUEST_HEADER, "0").trim());
+            scaler = Integer.parseInt(properties.getTypedProperty(PROP_SCALER, "0").trim());
+            setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, defaultForcedDelayPropertyValue()).trim()));
+            halfDuplex = Integer.parseInt(properties.getTypedProperty(PROP_HALF_DUPLEX, "0").trim());
+            setDtrBehaviour(Integer.parseInt(properties.getTypedProperty(PROP_DTR_BEHAVIOUR, "2").trim()));
 
-            adjustChannelMultiplier = new BigDecimal(properties.getProperty(PROP_ADJUST_CHANNEL_MULTIPLIER, "1").trim());
-            adjustRegisterMultiplier = new BigDecimal(properties.getProperty(PROP_ADJUST_REGISTER_MULTIPLIER, "1").trim());
+            adjustChannelMultiplier = new BigDecimal(properties.getTypedProperty(PROP_ADJUST_CHANNEL_MULTIPLIER, "1").trim());
+            adjustRegisterMultiplier = new BigDecimal(properties.getTypedProperty(PROP_ADJUST_REGISTER_MULTIPLIER, "1").trim());
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
@@ -427,7 +427,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         return meterType;
     }
 
-    protected ProtocolChannelMap getProtocolChannelMap() {
+    public ProtocolChannelMap getProtocolChannelMap() {
         return protocolChannelMap;
     }
 
@@ -443,11 +443,11 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         return dataReadout;
     }
 
-    protected Logger getLogger() {
+    public Logger getLogger() {
         return logger;
     }
 
-    protected int getInfoTypeRoundtripCorrection() {
+    public int getInfoTypeRoundtripCorrection() {
         return roundtripCorrection;
     }
 

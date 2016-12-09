@@ -117,8 +117,8 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-    	extendedLogging=Integer.parseInt(properties.getProperty(PROP_EXTENDED_LOGGING, "0").trim());
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
+    	extendedLogging=Integer.parseInt(properties.getTypedProperty(PROP_EXTENDED_LOGGING, "0").trim());
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
     }
 
     @Override

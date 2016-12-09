@@ -224,28 +224,28 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim());
-            nodeId = properties.getProperty(NODEID.getName(), "");
-            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            iIEC1107Compatible = Integer.parseInt(properties.getProperty("IEC1107Compatible", "1").trim());
-            profileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "3600").trim());
-            channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
-            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
-            protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
-            dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
-            vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "1").trim());
-            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "0").trim());
-            serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
-            this.MaxNrOfDaysProfileData = Integer.parseInt(properties.getProperty("MaxNrOfDaysProfileData", "0").trim());
-            strDateFormat = properties.getProperty("DateFormat", "yy/MM/dd").trim();
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "20000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iSecurityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
+            nodeId = properties.getTypedProperty(NODEID.getName(), "");
+            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
+            iIEC1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "1").trim());
+            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "3600").trim());
+            channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap", "0"));
+            requestHeader = Integer.parseInt(properties.getTypedProperty("RequestHeader", "1").trim());
+            protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0,0,0,0"));
+            dataReadoutRequest = Integer.parseInt(properties.getTypedProperty("DataReadout", "0").trim());
+            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
+            vdewCompatible = Integer.parseInt(properties.getTypedProperty("VDEWCompatible", "1").trim());
+            forcedDelay = Integer.parseInt(properties.getTypedProperty("ForcedDelay", "0").trim());
+            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            iFirmwareVersion = properties.getTypedProperty("FirmwareVersion", "3.03").trim();
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+            this.MaxNrOfDaysProfileData = Integer.parseInt(properties.getTypedProperty("MaxNrOfDaysProfileData", "0").trim());
+            strDateFormat = properties.getTypedProperty("DateFormat", "yy/MM/dd").trim();
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

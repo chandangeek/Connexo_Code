@@ -94,14 +94,14 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "10").trim()));
-        setInfoTypeNodeAddress(properties.getProperty(NODEID.getName(), "0"));
-        c12User = properties.getProperty("C12User", "");
-        c12UserId = Integer.parseInt(properties.getProperty("C12UserId", "0").trim());
-        passwordBinary = Integer.parseInt(properties.getProperty("PasswordBinary", "0").trim());
-        setRetrieveExtraIntervals(Integer.parseInt(properties.getProperty("RetrieveExtraIntervals", "0").trim()));
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "10").trim()));
+        setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
+        c12User = properties.getTypedProperty("C12User", "");
+        c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());
+        passwordBinary = Integer.parseInt(properties.getTypedProperty("PasswordBinary", "0").trim());
+        setRetrieveExtraIntervals(Integer.parseInt(properties.getTypedProperty("RetrieveExtraIntervals", "0").trim()));
 
-		this.rs485RtuPlusServer = Integer.parseInt(properties.getProperty("RS485RtuPlusServer", "0").trim());
+		this.rs485RtuPlusServer = Integer.parseInt(properties.getTypedProperty("RS485RtuPlusServer", "0").trim());
     }
 
 	protected void doDisconnect() throws IOException {

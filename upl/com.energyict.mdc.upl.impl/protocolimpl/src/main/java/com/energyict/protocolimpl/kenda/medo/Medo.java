@@ -276,12 +276,12 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException {
         try {
-            this.outstationID = Integer.parseInt(properties.getProperty(NODEID.getName()));
+            this.outstationID = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));
             this.destinationCode = Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));
-            this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "1"));
-            this.timeout = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000"));
-            this.retry = Integer.parseInt(properties.getProperty("Retry", "3"));
-            this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "500"));
+            this.channelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "1"));
+            this.timeout = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000"));
+            this.retry = Integer.parseInt(properties.getTypedProperty("Retry", "3"));
+            this.delayAfterConnect = Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "500"));
         } catch (NumberFormatException e) {
             throw new NumberFormatException("The node address field has not been filled in");
         }

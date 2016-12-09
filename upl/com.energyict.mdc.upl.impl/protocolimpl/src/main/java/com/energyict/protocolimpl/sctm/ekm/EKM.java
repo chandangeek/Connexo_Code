@@ -61,7 +61,7 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        billingTimeStampId = properties.getProperty(BILLING_TIME_STAMP_ID);
+        billingTimeStampId = properties.getTypedProperty(BILLING_TIME_STAMP_ID);
     }
 
     @Override

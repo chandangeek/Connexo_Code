@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -178,12 +177,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     @Override
     public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
-            if (p.getProperty(SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getProperty(SERIALNUMBER.getName());
+            if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
+                pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
             }
 
-            if (p.getProperty(NODEID.getName()) != null) {
-                pNodeId = getpNodePrefix(p) + p.getProperty(NODEID.getName());
+            if (p.getTypedProperty(NODEID.getName()) != null) {
+                pNodeId = getpNodePrefix(p) + p.getTypedProperty(NODEID.getName());
                 //Replace integer.parse because of overflow, REGEX is cleaner as well
                 Pattern pattern = Pattern.compile("[[A-F][a-f]\\d]*");
                 Matcher matcher = pattern.matcher(pNodeId);
@@ -192,12 +191,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
                 }
             }
 
-            if (p.getProperty(PROFILEINTERVAL.getName()) != null) {
-                pProfileInterval = Integer.parseInt(p.getProperty(PROFILEINTERVAL.getName()));
+            if (p.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
+                pProfileInterval = Integer.parseInt(p.getTypedProperty(PROFILEINTERVAL.getName()));
             }
 
-            if (p.getProperty(Property.PASSWORD.getName()) != null) {
-                String pwd = p.getProperty(Property.PASSWORD.getName());
+            if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
+                String pwd = p.getTypedProperty(Property.PASSWORD.getName());
                 pPassword = new byte[4];
                 pPassword[0] = pwd.getBytes()[0];
                 pPassword[1] = pwd.getBytes()[1];
@@ -205,36 +204,36 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
                 pPassword[3] = pwd.getBytes()[3];
             }
 
-            if (p.getProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
+            if (p.getTypedProperty(PK_TIMEOUT) != null) {
+                pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
             }
 
-            if (p.getProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
+            if (p.getTypedProperty(PK_RETRIES) != null) {
+                pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
             }
 
-            if (p.getProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
-                pRountTripCorrection = Integer.parseInt(p.getProperty(Property.ROUNDTRIPCORRECTION.getName()));
+            if (p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
+                pRountTripCorrection = Integer.parseInt(p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()));
             }
 
-            if (p.getProperty(Property.CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getProperty(Property.CORRECTTIME.getName()));
+            if (p.getTypedProperty(Property.CORRECTTIME.getName()) != null) {
+                pCorrectTime = Integer.parseInt(p.getTypedProperty(Property.CORRECTTIME.getName()));
             }
 
-            if (p.getProperty(PK_FORCE_DELAY) != null) {
-                pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
+            if (p.getTypedProperty(PK_FORCE_DELAY) != null) {
+                pForceDelay = Integer.parseInt(p.getTypedProperty(PK_FORCE_DELAY));
             }
 
-            if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
+            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+                pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
             }
 
-            if (p.getProperty(PK_SHOULD_DISCONNECT) != null) {
-                pShouldDisconnect = p.getProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT) == "1";
+            if (p.getTypedProperty(PK_SHOULD_DISCONNECT) != null) {
+                pShouldDisconnect = p.getTypedProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT) == "1";
             }
 
-            readUnit1SerialNumber = "1".equals(p.getProperty(PK_READ_UNIT1_SERIALNUMBER));
-            readProfileDataBeforeConfigChange = !"0".equals(p.getProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
+            readUnit1SerialNumber = "1".equals(p.getTypedProperty(PK_READ_UNIT1_SERIALNUMBER));
+            readProfileDataBeforeConfigChange = !"0".equals(p.getTypedProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
@@ -258,8 +257,8 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      *     <liF -> Standalone (this allows us in the US to interrogate standalone meters)></li>
      * </ul>
      */
-    private String getpNodePrefix(Properties p) {
-         return p.getProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
+    private String getpNodePrefix(TypedProperties p) {
+         return p.getTypedProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
     }
 
     Date getBeginningOfRecording() throws IOException {

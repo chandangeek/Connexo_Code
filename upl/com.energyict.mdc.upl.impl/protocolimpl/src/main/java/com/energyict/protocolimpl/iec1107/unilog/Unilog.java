@@ -138,54 +138,54 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException {
         try {
-            if (properties.getProperty(ADDRESS.getName()) != null) {
-                pAddress = properties.getProperty(ADDRESS.getName());
+            if (properties.getTypedProperty(ADDRESS.getName()) != null) {
+                pAddress = properties.getTypedProperty(ADDRESS.getName());
             }
 
-            if (properties.getProperty(NODEID.getName()) != null) {
-                pNodeId = properties.getProperty(NODEID.getName());
+            if (properties.getTypedProperty(NODEID.getName()) != null) {
+                pNodeId = properties.getTypedProperty(NODEID.getName());
             }
 
-            if (properties.getProperty(SERIALNUMBER.getName()) != null) {
-                pSerialNumber = properties.getProperty(SERIALNUMBER.getName());
+            if (properties.getTypedProperty(SERIALNUMBER.getName()) != null) {
+                pSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
             }
 
-            if (properties.getProperty(PASSWORD.getName()) != null) {
-                pPassword = properties.getProperty(PASSWORD.getName());
+            if (properties.getTypedProperty(PASSWORD.getName()) != null) {
+                pPassword = properties.getTypedProperty(PASSWORD.getName());
             }
 
-            if (properties.getProperty(PROFILEINTERVAL.getName()) != null) {
-                pProfileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName()));
+            if (properties.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
+                pProfileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName()));
             }
 
-            if (properties.getProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(properties.getProperty(PK_TIMEOUT));
+            if (properties.getTypedProperty(PK_TIMEOUT) != null) {
+                pTimeout = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT));
             }
 
-            if (properties.getProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(properties.getProperty(PK_RETRIES));
+            if (properties.getTypedProperty(PK_RETRIES) != null) {
+                pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
             }
 
-            if (properties.getProperty(PK_FORCE_DELAY) != null) {
-                pForceDelay = Integer.parseInt(properties.getProperty(PK_FORCE_DELAY));
+            if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
+                pForceDelay = Integer.parseInt(properties.getTypedProperty(PK_FORCE_DELAY));
             }
 
-            if (properties.getProperty(PK_ECHO_CANCELLING) != null) {
-                pEchoCanceling = Integer.parseInt(properties.getProperty(PK_ECHO_CANCELLING));
+            if (properties.getTypedProperty(PK_ECHO_CANCELLING) != null) {
+                pEchoCanceling = Integer.parseInt(properties.getTypedProperty(PK_ECHO_CANCELLING));
             }
 
-            if (properties.getProperty(PK_IEC1107_COMPATIBLE) != null) {
-                pIec1107Compatible = Integer.parseInt(properties.getProperty(PK_IEC1107_COMPATIBLE));
+            if (properties.getTypedProperty(PK_IEC1107_COMPATIBLE) != null) {
+                pIec1107Compatible = Integer.parseInt(properties.getTypedProperty(PK_IEC1107_COMPATIBLE));
             }
 
-            if (properties.getProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                pRountTripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName()));
+            if (properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+                pRountTripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
             }
 
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty(PK_SOFTWARE_7E1, "0"));
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(PK_SOFTWARE_7E1, "0"));
 
-            if (properties.getProperty(Unilog.PK_CHANNEL_MAP) != null) {
-                this.pChannelMap = properties.getProperty(Unilog.PK_CHANNEL_MAP);
+            if (properties.getTypedProperty(Unilog.PK_CHANNEL_MAP) != null) {
+                this.pChannelMap = properties.getTypedProperty(Unilog.PK_CHANNEL_MAP);
             }
             protocolChannelMap = new ProtocolChannelMap(pChannelMap);
         } catch (NumberFormatException e) {

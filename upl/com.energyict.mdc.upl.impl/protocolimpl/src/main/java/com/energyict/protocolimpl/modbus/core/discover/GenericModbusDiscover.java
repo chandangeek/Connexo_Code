@@ -47,7 +47,7 @@ public class GenericModbusDiscover extends Modbus {
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
     }
 
     @Override
@@ -216,7 +216,7 @@ public class GenericModbusDiscover extends Modbus {
         discoverResult.setProtocolMODBUS();
 
         try {
-            setProperties(discoverTools.getProperties());
+            setProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
             if (getInfoTypeHalfDuplex() != 0) {
                 setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
             }

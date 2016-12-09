@@ -1,6 +1,5 @@
 package com.energyict.mdc.channels.serial.modem.rxtx;
 
-import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
@@ -30,7 +29,7 @@ public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
     @Override
     public ComChannel connect() throws ConnectionException {
 
-        this.atModemComponent = SerialComponentFactory.instance.get().newAtModemComponent(new TypedAtModemProperties(getAllProperties()));
+        this.atModemComponent = new AtModemComponent(new TypedAtModemProperties(getAllProperties()));
         /*
         create the serial ComChannel and set all property values
          */

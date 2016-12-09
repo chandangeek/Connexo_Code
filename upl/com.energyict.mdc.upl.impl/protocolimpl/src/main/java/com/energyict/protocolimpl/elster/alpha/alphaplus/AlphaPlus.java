@@ -51,7 +51,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -131,10 +130,10 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getProperty(PROP_FORCED_DELAY, "0").trim()));
-        whoAreYouTimeout = Integer.parseInt(properties.getProperty("WhoAreYouTimeout", "300").trim());
-        totalRegisterRate = Integer.parseInt(properties.getProperty("TotalRegisterRate", "1").trim());
-        opticalHandshakeOverModemport =  Integer.parseInt(properties.getProperty("OpticalHandshakeOverModemport", "0").trim());
+        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
+        whoAreYouTimeout = Integer.parseInt(properties.getTypedProperty("WhoAreYouTimeout", "300").trim());
+        totalRegisterRate = Integer.parseInt(properties.getTypedProperty("TotalRegisterRate", "1").trim());
+        opticalHandshakeOverModemport =  Integer.parseInt(properties.getTypedProperty("OpticalHandshakeOverModemport", "0").trim());
     }
 
     @Override
@@ -216,7 +215,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
             String password = passwords.get(i);
 //            while(true) {
                 try {
-                    Properties properties = new Properties();
+                    TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
                     properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), password);
                     setProperties(properties);
                     init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);

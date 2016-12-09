@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -302,14 +301,14 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "3").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            nodeId = properties.getProperty(NODEID.getName(), ""); // KV 13082003
-            serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay", "0"))); // KV 27022006
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "3").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            nodeId = properties.getTypedProperty(NODEID.getName(), ""); // KV 13082003
+            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "0"))); // KV 27022006
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
@@ -364,7 +363,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
-        Properties properties = new Properties();
+        TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
         properties.setProperty(PASSWORD.getName(), "PASS");
         setProperties(properties);
         init(commChannel.getInputStream(), commChannel.getOutputStream(), null, null);

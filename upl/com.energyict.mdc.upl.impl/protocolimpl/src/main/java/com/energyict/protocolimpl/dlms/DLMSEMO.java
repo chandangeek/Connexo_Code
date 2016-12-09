@@ -15,6 +15,7 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
@@ -32,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
@@ -167,12 +167,12 @@ public class DLMSEMO extends DLMSSN {
     }
 
     @Override
-    protected void doSetProperties(Properties properties) throws PropertyValidationException {
+    protected void doSetProperties(TypedProperties properties) throws PropertyValidationException {
         super.doSetProperties(properties);
-        this.setSecurityLevelProperty(Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim()));
-        this.setClientMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "58").trim()));
-        this.setServerUpperMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "74").trim()));
-        this.setServerLowerMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
+        this.setSecurityLevelProperty(Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim()));
+        this.setClientMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, "58").trim()));
+        this.setServerUpperMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "74").trim()));
+        this.setServerLowerMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
     }
 
     @Override

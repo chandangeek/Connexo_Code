@@ -97,8 +97,8 @@ public abstract class AbstractWaveTalk extends AbstractProtocol implements Proto
     @Override
 	public void setProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setProperties(properties);
-		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "20000").trim()));
-		correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
+		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "20000").trim()));
+		correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
 	}
 
 	@Override

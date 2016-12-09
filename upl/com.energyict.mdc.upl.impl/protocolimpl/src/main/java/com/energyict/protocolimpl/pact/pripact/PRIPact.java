@@ -271,40 +271,40 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            strID = properties.getProperty(ADDRESS.getName());
-            strPassword = properties.getProperty(PASSWORD.getName());
-            serialNumber = properties.getProperty(SERIALNUMBER.getName());
-            protocolTimeout = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "30000").trim());
-            maxRetries = Integer.parseInt(properties.getProperty(RETRIES.getName(), "10").trim());
-            roundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            securityLevel = Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "2").trim());
-            nodeId = properties.getProperty(NODEID.getName(), "001");
-            echoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
+            strID = properties.getTypedProperty(ADDRESS.getName());
+            strPassword = properties.getTypedProperty(PASSWORD.getName());
+            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+            protocolTimeout = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "30000").trim());
+            maxRetries = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "10").trim());
+            roundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "2").trim());
+            nodeId = properties.getTypedProperty(NODEID.getName(), "001");
+            echoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
             try {
-                channelMap = new ChannelMap(properties.getProperty("ChannelMap"));
+                channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap"));
             } catch (IOException e) {
                 throw new InvalidPropertyException(e, "PRIPremier, setProperties");
             }
 
-            highKey = properties.getProperty("HighKey");
-            highKeyRef = properties.getProperty("HighKeyRef");
-            lowKey = properties.getProperty("LowKey");
+            highKey = properties.getTypedProperty("HighKey");
+            highKeyRef = properties.getTypedProperty("HighKeyRef");
+            lowKey = properties.getTypedProperty("LowKey");
 
             pactMode = new PACTMode(
-                    Integer.parseInt(properties.getProperty("PAKNET", "0")),
-                    Integer.parseInt(properties.getProperty("PACTLAN", "0")));
-            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
-            if (properties.getProperty("RegisterTimeZone") == null) {
+                    Integer.parseInt(properties.getTypedProperty("PAKNET", "0")),
+                    Integer.parseInt(properties.getTypedProperty("PACTLAN", "0")));
+            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
+            if (properties.getTypedProperty("RegisterTimeZone") == null) {
                 registerTimeZone = null;
             } else {
-                registerTimeZone = TimeZone.getTimeZone(properties.getProperty("RegisterTimeZone"));
+                registerTimeZone = TimeZone.getTimeZone(((String) properties.getTypedProperty("RegisterTimeZone")));
             }
 
-            statusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel", "0"));
-            keyInfoRequired = Integer.parseInt(properties.getProperty("KeyInfoRequired", "1"));
-            forcedRequestExtraDays = Integer.parseInt(properties.getProperty("ForcedRequestExtraDays", "0"));
-            modulo = Integer.parseInt(properties.getProperty("Modulo", "10000000"));
-            setMeterType(Integer.parseInt(properties.getProperty("MeterType", "0")));
+            statusFlagChannel = Integer.parseInt(properties.getTypedProperty("StatusFlagChannel", "0"));
+            keyInfoRequired = Integer.parseInt(properties.getTypedProperty("KeyInfoRequired", "1"));
+            forcedRequestExtraDays = Integer.parseInt(properties.getTypedProperty("ForcedRequestExtraDays", "0"));
+            modulo = Integer.parseInt(properties.getTypedProperty("Modulo", "10000000"));
+            setMeterType(Integer.parseInt(properties.getTypedProperty("MeterType", "0")));
 
             if (pactMode.isPAKNET()) {
                 channelMap.reverse();

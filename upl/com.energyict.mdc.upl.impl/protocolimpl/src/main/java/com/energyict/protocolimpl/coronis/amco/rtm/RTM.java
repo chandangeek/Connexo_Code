@@ -192,19 +192,19 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
         super.setProperties(properties);
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout", "40000").trim()));
-        correctTime = Integer.parseInt(properties.getProperty(CORRECTTIME.getName(), "0"));
-        verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
-        multiFrame = Integer.parseInt(properties.getProperty("EnableMultiFrameMode", "0")) == 1;
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty("Timeout", "40000").trim()));
+        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
+        verifyProfileInterval = Integer.parseInt(properties.getTypedProperty("verifyProfileInterval", "1")) == 1;
+        multiFrame = Integer.parseInt(properties.getTypedProperty("EnableMultiFrameMode", "0")) == 1;
 
         // e.g. USED,4,28740,28800,1,0e514a401f25
-        String[] wavenisBubbleUpInfo = properties.getProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",");
+        String[] wavenisBubbleUpInfo = properties.getTypedProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",");
         bubbleUpStartMoment = Integer.parseInt(wavenisBubbleUpInfo[2]);
 
         // e.g. USED,4,28740,28800,1,0e514a401f25
         bubbleUpEndHour = Integer.parseInt(wavenisBubbleUpInfo[3]);
-        initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
-        roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
+        initialRFCommand = Integer.parseInt(properties.getTypedProperty("InitialRFCommand", "0").trim());
+        roundDownToNearestInterval = Integer.parseInt(properties.getTypedProperty("RoundDownToNearestInterval", "0").trim()) == 1;
     }
 
     @Override
