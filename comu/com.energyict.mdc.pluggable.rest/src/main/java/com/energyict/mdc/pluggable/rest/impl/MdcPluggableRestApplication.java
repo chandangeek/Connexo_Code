@@ -26,13 +26,13 @@ import com.energyict.mdc.pluggable.rest.impl.properties.FirmwareVersionPropertyV
 import com.energyict.mdc.pluggable.rest.impl.properties.HexStringPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.LoadProfilePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.LoadProfileTypePropertyValueConverter;
+import com.energyict.mdc.pluggable.rest.impl.properties.LocalTimePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.LogbookPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ObisCodePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.PasswordPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ReadingTypePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.RegisterPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TemporalAmountPropertyValueConverter;
-import com.energyict.mdc.pluggable.rest.impl.properties.TimeOfDayPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeZoneInUsePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.UsagePointPropertyValueConverter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -104,7 +104,7 @@ public class MdcPluggableRestApplication extends Application implements MessageS
         propertyValueInfoService.addPropertyValueInfoConverter(new RegisterPropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new DurationPropertyValueConverter(thesaurus));
         propertyValueInfoService.addPropertyValueInfoConverter(new TemporalAmountPropertyValueConverter(thesaurus));
-        propertyValueInfoService.addPropertyValueInfoConverter(new TimeOfDayPropertyValueConverter());
+        propertyValueInfoService.addPropertyValueInfoConverter(new LocalTimePropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new TimeZoneInUsePropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new UsagePointPropertyValueConverter());
         propertyValueInfoService.addPropertyValueInfoConverter(new DatePropertyValueConverter());
