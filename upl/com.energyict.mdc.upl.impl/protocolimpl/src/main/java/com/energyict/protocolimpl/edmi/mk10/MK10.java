@@ -61,15 +61,16 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 
 	private static final int DEBUG				= 0;
 	private static final boolean USE_HARD_INFO 	= true;
-
 	private MK10Connection mk10Connection		= null;
-	private CommandFactory commandFactory		= null;
-	private ObisCodeFactory obisCodeFactory		= null;
-	MK10Profile mk10Profile						= null;
-	private int loadSurveyNumber				= 0;
-	private boolean pushProtocol				= false;
-	private boolean logOffDisabled				= true;
+    private CommandFactory commandFactory		= null;
+    private ObisCodeFactory obisCodeFactory		= null;
+    MK10Profile mk10Profile						= null;
+    private int loadSurveyNumber				= 0;
+    private boolean pushProtocol				= false;
+    private boolean logOffDisabled				= true;
     private boolean fullDebugLogging            = false;
+    private int connectionType;
+    private static final int MINI_E_CONNECTION_TYPE	 = 1;
 
     /** Creates a new instance of MK10 */
 	public MK10() {
@@ -77,7 +78,8 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 
 	protected void doConnect() throws IOException {
 		sendDebug("doConnect()");
-		if (!isPushProtocol()) {
+		if (!isPushProtocol() && !isMiniEConnection()) {
+//		if (!isPushProtocol()) {
 			getCommandFactory().enterCommandLineMode();
 		}
 		getCommandFactory().logon(getInfoTypeDeviceID(),getInfoTypePassword());
@@ -101,6 +103,7 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff","0").trim()));
         setPushProtocol(properties.getProperty("PushProtocol", "0").trim().equalsIgnoreCase("1"));
         setFullDebugLogging(properties.getProperty("FullDebug", "0").equalsIgnoreCase("1"));
+        setConnectionType(Integer.parseInt(properties.getProperty("MiniEConnection", "0")));
 	}
 
 	public int getProfileInterval() throws UnsupportedException, IOException {
@@ -120,6 +123,7 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 		result.add("DisableLogOff");
         result.add("PushProtocol");
         result.add("FullDebug");
+        result.add("MiniEConnection");
 		return result;
 	}
 
@@ -132,8 +136,11 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
         OutputStream mk10OutputStream = isPushProtocol()
                 ? new MK10PushOutputStream(outputStream, isFullDebugLogging() ? getLogger() : null)
                 : outputStream;
-
-        mk10Connection = new MK10Connection(mk10InputStream, mk10OutputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
+        if (isMiniEConnection()) {
+            mk10Connection = new MK10MiniEConnection(mk10InputStream, mk10OutputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
+        } else {
+            mk10Connection = new MK10Connection(mk10InputStream, mk10OutputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
+        }
 		commandFactory = new CommandFactory(this);
 		mk10Profile = new MK10Profile(this);
 
@@ -153,7 +160,7 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 
 	public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
-		return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
+		return "$Date: Mon Nov 30 10:55:54 2015 +0100 $";
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -272,5 +279,13 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 
     public void setFullDebugLogging(boolean fullDebugLogging) {
         this.fullDebugLogging = fullDebugLogging;
+    }
+
+    public void setConnectionType(int connectionType) {
+        this.connectionType = connectionType;
+    }
+
+    public boolean isMiniEConnection(){
+        return this.connectionType == MINI_E_CONNECTION_TYPE;
     }
 }
