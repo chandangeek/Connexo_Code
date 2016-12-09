@@ -460,7 +460,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('commandRule.removeMsg', 'MDC', 'Message still to be defined.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', 'Remove {0}?', record.get('name')),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", record.get('name')),
             config: {
                 confirmText: Uni.I18n.translate('general.remove', 'MDC', 'Remove')
             },
@@ -488,7 +488,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             //        return
             //    }
             //    var json = Ext.decode(operation.response.responseText, true);
-            //    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'DES', 'Unknown error occurred');
+            //    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
             //    if (json && json.errors) {
             //        errorText = json.errors[0].msg;
             //    }
