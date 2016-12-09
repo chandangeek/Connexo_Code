@@ -11,7 +11,6 @@
 package com.energyict.protocolimpl.transdata.markv.core.connection;
 
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
-import com.energyict.protocolimpl.transdata.markv.core.commands.*;
 
 /**
  *
@@ -27,10 +26,18 @@ public class ResponseFrame {
     static private final int DISABLED=4;
     
     String strData;
+
+    // Binary data received by using xmodem protocol
+    byte[] xmodemProtocolData;
     
     /** Creates a new instance of ResponseFrame */
     public ResponseFrame(String strData) {
         this.strData=strData;
+    }
+
+    public ResponseFrame(String strData, byte[] xmodemProtocolData) {
+        this.strData=strData;
+        this.xmodemProtocolData = xmodemProtocolData;
     }
     
     public boolean isOK() {
@@ -65,5 +72,12 @@ public class ResponseFrame {
     public void setStrData(String strData) {
         this.strData = strData;
     }
-    
+
+    public byte[] getXmodemProtocolData() {
+        return xmodemProtocolData;
+    }
+
+    public void setXmodemProtocolData(byte[] xmodemProtocolData) {
+        this.xmodemProtocolData = xmodemProtocolData;
+    }
 }
