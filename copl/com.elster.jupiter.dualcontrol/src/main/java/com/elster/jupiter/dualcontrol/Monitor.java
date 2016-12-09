@@ -15,4 +15,6 @@ public interface Monitor {
     List<UserOperation> getOperations();
 
     long getId();
+
+    boolean hasCurrentUserAccepted();
 }
