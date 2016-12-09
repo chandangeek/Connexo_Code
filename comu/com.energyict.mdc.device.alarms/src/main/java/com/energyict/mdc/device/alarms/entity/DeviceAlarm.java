@@ -9,7 +9,7 @@ public interface DeviceAlarm extends Issue {
 
     List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents();
 
-    Boolean getClearedStatus();
+    Boolean isStatusCleared();
 
     void setClearedStatus();
 }

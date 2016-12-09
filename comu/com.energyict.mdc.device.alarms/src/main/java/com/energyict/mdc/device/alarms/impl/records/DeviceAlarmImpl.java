@@ -161,7 +161,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
-    public Boolean getClearedStatus() {
+    public Boolean isStatusCleared() {
         return clearedStatus;
     }
 
