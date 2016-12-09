@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
@@ -31,6 +32,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -177,10 +179,16 @@ public class UsagePointLifeCycleResource {
     @Path("/microChecks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public PagedInfoList getAllMicroChecks(@BeanParam JsonQueryParameters queryParams) {
+    public PagedInfoList getAllMicroChecks(@BeanParam JsonQueryParameters queryParams,
+                                           @QueryParam("fromState") long fromStateId,
+                                           @QueryParam("toState") long toStateId) {
+        UsagePointState fromState = this.resourceHelper.getStateByIdOrThrowException(fromStateId);
+        UsagePointState toState = this.resourceHelper.getStateByIdOrThrowException(toStateId);
         List<MicroActionAndCheckInfo> privileges = this.usagePointLifeCycleConfigurationService.getMicroChecks()
                 .stream()
-                .map(this.microActionAndCheckInfoFactory::optional)
+                .map(check -> check.isMandatoryForTransition(fromState, toState)
+                        ? this.microActionAndCheckInfoFactory.required(check)
+                        : this.microActionAndCheckInfoFactory.optional(check))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("microChecks", privileges, queryParams);
     }
@@ -189,22 +197,18 @@ public class UsagePointLifeCycleResource {
     @Path("/microActions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public PagedInfoList getAllMicroActions(@BeanParam JsonQueryParameters queryParams) {
+    public PagedInfoList getAllMicroActions(@BeanParam JsonQueryParameters queryParams,
+                                            @QueryParam("fromState") long fromStateId,
+                                            @QueryParam("toState") long toStateId) {
+        UsagePointState fromState = this.resourceHelper.getStateByIdOrThrowException(fromStateId);
+        UsagePointState toState = this.resourceHelper.getStateByIdOrThrowException(toStateId);
         List<MicroActionAndCheckInfo> privileges = this.usagePointLifeCycleConfigurationService.getMicroActions()
                 .stream()
-                .map(this.microActionAndCheckInfoFactory::optional)
+                .map(action -> action.isMandatoryForTransition(fromState, toState)
+                        ? this.microActionAndCheckInfoFactory.required(action)
+                        : this.microActionAndCheckInfoFactory.optional(action))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("microActions", privileges, queryParams);
-    }
-
-    @Path("{lid}/states")
-    public UsagePointLifeCycleStatesResource getStates() {
-        return this.statesResourceProvider.get();
-    }
-
-    @Path("{lid}/transitions")
-    public UsagePointLifeCycleTransitionsResource getTransitions() {
-        return this.transitionsResourceProvider.get();
     }
 
     @GET
@@ -217,5 +221,15 @@ public class UsagePointLifeCycleResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("stages", stages, queryParameters);
+    }
+
+    @Path("{lid}/states")
+    public UsagePointLifeCycleStatesResource getStates() {
+        return this.statesResourceProvider.get();
+    }
+
+    @Path("{lid}/transitions")
+    public UsagePointLifeCycleTransitionsResource getTransitions() {
+        return this.transitionsResourceProvider.get();
     }
 }

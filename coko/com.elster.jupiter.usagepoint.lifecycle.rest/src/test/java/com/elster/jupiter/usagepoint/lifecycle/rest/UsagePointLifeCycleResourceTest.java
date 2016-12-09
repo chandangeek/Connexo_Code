@@ -337,6 +337,8 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
 
     @Test
     public void testGetAllMicroActions() {
+        UsagePointState usagePointState = mock(UsagePointState.class);
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(23L)).thenReturn(Optional.of(usagePointState));
         MicroAction microAction = mock(MicroAction.class);
         when(usagePointLifeCycleConfigurationService.getMicroActions()).thenReturn(Collections.singleton(microAction));
         when(microAction.getKey()).thenReturn("actionKey");
@@ -345,7 +347,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         when(microAction.getCategory()).thenReturn("categoryKey");
         when(microAction.getCategoryName()).thenReturn("categoryName");
 
-        String response = target("/lifecycle/microActions").request().get(String.class);
+        String response = target("/lifecycle/microActions").queryParam("fromState", "23").queryParam("toState", "23").request().get(String.class);
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
@@ -360,6 +362,8 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
 
     @Test
     public void testGetAllMicroChecks() {
+        UsagePointState usagePointState = mock(UsagePointState.class);
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(23L)).thenReturn(Optional.of(usagePointState));
         MicroCheck microCheck = mock(MicroCheck.class);
         when(usagePointLifeCycleConfigurationService.getMicroChecks()).thenReturn(Collections.singleton(microCheck));
         when(microCheck.getKey()).thenReturn("checkKey");
@@ -368,7 +372,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         when(microCheck.getCategory()).thenReturn("categoryKey");
         when(microCheck.getCategoryName()).thenReturn("categoryName");
 
-        String response = target("/lifecycle/microChecks").request().get(String.class);
+        String response = target("/lifecycle/microChecks").queryParam("fromState", "23").queryParam("toState", "23").request().get(String.class);
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
