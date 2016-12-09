@@ -4,13 +4,13 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.HexString;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
+import com.energyict.mdc.upl.properties.HexString;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 
 /**
  * Provides services to build {@link PropertySpec}s.
@@ -51,7 +51,17 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      *
      * @return The PropertySpecBuilder
      */
-    PropertySpecBuilderWizard.NlsOptions<TimeDuration> timeDurationSpec();
+    PropertySpecBuilderWizard.NlsOptions<TimeDuration> temporalAmountSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link TimeDuration} values that will
+     * use only time units smaller than a day.
+     * For clarity's sake, this means hour, minute, second and millisecond.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<TimeDuration> durationSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -60,6 +70,15 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link HexString} values that need to be
+     * an exact number of characters in length.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpecOfExactLength(int length);
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom

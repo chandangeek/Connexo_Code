@@ -14,7 +14,7 @@ import java.sql.Types;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:39)
  */
-public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration> {
+public class TemporalAmountValueFactory extends AbstractValueFactory<TimeDuration> {
 
     public static final String VALUE_UNIT_SEPARATOR = ":";
 
@@ -29,25 +29,24 @@ public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration>
     }
 
     @Override
-    public TimeDuration valueFromDatabase (Object object) {
+    public TimeDuration valueFromDatabase(Object object) {
         return this.getValueFromObject(object);
     }
 
     @Override
-    public Object valueToDatabase (TimeDuration duration) {
+    public Object valueToDatabase(TimeDuration duration) {
         return getObjectFromValue(duration);
     }
 
     private TimeDuration getValueFromObject(final Object object) {
         if (object == null) {
             return null;
-        }
-        else {
+        } else {
             String value = (String) object;
             String[] valueAndUnit = value.split(VALUE_UNIT_SEPARATOR);
             int timeUnits = Integer.parseInt(valueAndUnit[0]);
             int unit = TimeDuration.TimeUnit.SECONDS.getCode();
-            if(valueAndUnit.length>1){
+            if (valueAndUnit.length > 1) {
                 unit = Integer.parseInt(valueAndUnit[1]);
             }
             return new TimeDuration(timeUnits, unit);
@@ -57,8 +56,7 @@ public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration>
     private String getObjectFromValue(final TimeDuration duration) {
         if (duration == null) {
             return null;
-        }
-        else {
+        } else {
             return duration.getCount() + VALUE_UNIT_SEPARATOR + duration.getTimeUnitCode();
         }
     }
@@ -78,8 +76,7 @@ public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration>
     public void bind(SqlBuilder builder, TimeDuration value) {
         if (value != null) {
             builder.addObject(valueToDatabase(value));
-        }
-        else {
+        } else {
             builder.addNull(this.getJdbcType());
         }
     }
@@ -89,8 +86,7 @@ public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration>
 
         if (value != null) {
             statement.setObject(offset, valueToDatabase(value));
-        }
-        else {
+        } else {
             statement.setNull(offset, this.getJdbcType());
         }
     }
