@@ -32,4 +32,13 @@ public interface MicroAction extends HasName {
     default List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
+
+    /**
+     * Marks micro action as mandatory for specific transition between two states
+     *
+     * @return true if micro action is mandatory
+     */
+    default boolean isMandatoryForTransition(UsagePointState fromState, UsagePointState toState) {
+        return false;
+    }
 }

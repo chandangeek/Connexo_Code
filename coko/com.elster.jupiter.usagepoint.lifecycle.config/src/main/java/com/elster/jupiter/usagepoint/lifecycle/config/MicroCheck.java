@@ -17,4 +17,13 @@ public interface MicroCheck extends HasName {
     String getCategory();
 
     String getCategoryName();
+
+    /**
+     * Marks micro check as mandatory for specific transition between two states
+     *
+     * @return true if micro check is mandatory
+     */
+    default boolean isMandatoryForTransition(UsagePointState fromState, UsagePointState toState) {
+        return false;
+    }
 }

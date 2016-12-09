@@ -37,4 +37,13 @@ public enum DefaultTransition {
                         && !transition.getTriggeredBy().isPresent())
                 .findFirst();
     }
+
+    public static Optional<DefaultTransition> getDefaultTransition(UsagePointState fromState, UsagePointState toState) {
+        if (fromState == null || toState == null) {
+            return Optional.empty();
+        }
+        return Stream.of(values())
+                .filter(candidate -> fromState.isDefault(candidate.getFromState()) && toState.isDefault(candidate.getToState()))
+                .findFirst();
+    }
 }
