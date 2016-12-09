@@ -12,6 +12,7 @@ Ext.define('Imt.purpose.model.RegisterReading', {
         {name: 'isConfirmed', type: 'auto'},
         {name: 'calculatedValue', type: 'auto'},
         {name: 'confirmedNotSaved', type: 'auto', useNull: true, persist: false},
+        {name: 'readingQualities', type: 'auto', defaultValue: null},
         {
             name: 'readingProperties',
             persist: false,

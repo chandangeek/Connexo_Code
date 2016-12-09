@@ -18,10 +18,33 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 header: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
                 flex: 1,
                 dataIndex: 'timeStamp',
-                renderer: function (value) {
-                    return value
-                        ? Uni.DateTime.formatDateTimeShort(new Date(value))
-                        : '-'
+                renderer: function (value, metaData, record) {
+                    if (Ext.isEmpty(value)) {
+                        return '-';
+                    }
+                    var date = new Date(value),
+                        showDeviceQualityIcon = false,
+                        tooltipContent = '',
+                        icon = '';
+
+                    if (!Ext.isEmpty(record.get('readingQualities'))) {
+                        Ext.Array.forEach(record.get('readingQualities'), function (readingQualityObject) {
+                            if (readingQualityObject.cimCode.startsWith('1.')) {
+                                showDeviceQualityIcon |= true;
+                                tooltipContent += readingQualityObject.indexName + '<br>';
+                            }
+                        });
+                        if (tooltipContent.length > 0) {
+                            tooltipContent += '<br>';
+                            tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'IMT', 'View reading quality details for more information.');
+                        }
+                        if (showDeviceQualityIcon) {
+                            icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
+                                + Uni.I18n.translate('general.deviceQuality', 'IMT', 'Device quality') + '" data-qtip="'
+                                + tooltipContent + '"></span>';
+                        }
+                    }
+                    return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]) + icon;
                 }
             },
             {

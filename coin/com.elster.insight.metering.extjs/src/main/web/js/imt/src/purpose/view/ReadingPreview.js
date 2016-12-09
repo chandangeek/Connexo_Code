@@ -32,6 +32,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         me.down('#general-panel').loadRecord(record);
         me.down('#values-panel').loadRecord(record);
         me.down('#formula-field').setValue(me.output.get('formula').description);
+        me.setDataQuality(record.get('readingQualities'));
         Ext.resumeLayouts(true);
     },
 
@@ -86,10 +87,73 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         return validationResultText;
     },
 
+    setDataQuality: function(dataQualities) {
+        var me = this;
+        me.down('#noReadings-msg').setVisible(Ext.isEmpty(dataQualities));        
+        me.setDataQualityFields(me.down('#device-quality'), me.down('#multiSense-quality'), me.down('#insight-quality'), me.down('#insight-quality'), me.down('#thirdParty-quality'));
+    },
+
+    setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
+        var me = this,
+            showDeviceQuality = false,
+            showMultiSenseQuality = false,
+            showInsightQuality = false,
+            show3rdPartyQuality = false,
+            field = undefined;
+
+        deviceQualityField.setValue('');
+        multiSenseQualityField.setValue('');
+        insightQualityField.setValue('');
+        thirdPartyQualityField.setValue('');
+
+        if (!Ext.isEmpty(dataQualities)) {
+            Ext.Array.forEach(dataQualities, function (readingQuality) {
+                if (Ext.String.startsWith(readingQuality.cimCode, '1.')) {
+                    showDeviceQuality |= true;
+                    field = deviceQualityField;
+                } else if (Ext.String.startsWith(readingQuality.cimCode, '2.')) {
+                    showMultiSenseQuality |= true;
+                    field = multiSenseQualityField;
+                } else if (Ext.String.startsWith(readingQuality.cimCode, '3.')) {
+                    showInsightQuality |= true;
+                    field = insightQualityField;
+                } else if (Ext.String.startsWith(readingQuality.cimCode, '4.') || Ext.String.startsWith(readingQuality.cimCode, '5.')) {
+                    show3rdPartyQuality |= true;
+                    field = thirdPartyQualityField;
+                }
+                if (!Ext.isEmpty(field)) {
+                    field.setValue(field.getValue()
+                        + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
+                        + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
+                        + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                        + me.getTooltip(readingQuality.systemName, readingQuality.categoryName, readingQuality.indexName) + '"></span>'
+                    );
+                }
+            });
+        }
+
+        deviceQualityField.setVisible(showDeviceQuality);
+        multiSenseQualityField.setVisible(showMultiSenseQuality);
+        insightQualityField.setVisible(showInsightQuality);
+        thirdPartyQualityField.setVisible(show3rdPartyQuality);
+    },
+
+    getTooltip: function(systemName, categoryName, indexName) {
+        var tooltip = '<table><tr><td>';
+        tooltip += '<b>' + Uni.I18n.translate('general.system', 'IMT', 'System') + ':</b></td>';
+        tooltip += '<td>' + systemName + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.category', 'IMT', 'Category') + ':</b></td>';
+        tooltip += '<td>' + categoryName + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.index', 'IMT', 'Index') + ':</b></td>';
+        tooltip += '<td>' + indexName + '</td></tr></table>';
+        return tooltip;
+    },
+
     initComponent: function () {
         var me = this,
             generalItems = [],
             valuesItems = [],
+            qualityItems = [],
             generalTimeField;
 
         switch(me.output.get('outputType')){
@@ -173,6 +237,31 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             }
         );
 
+        qualityItems.push(
+            {
+                xtype: 'uni-form-info-message',
+                itemId: 'noReadings-msg',
+                text: Uni.I18n.translate('general.noDataQualitiesMsg', 'IMT', 'There are no reading qualities for this data.'),
+                padding: '10'
+            },
+            {
+                fieldLabel: Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality'),
+                itemId: 'device-quality'
+            },
+            {                
+                fieldLabel: Uni.I18n.translate('general.MDCQuality', 'MDC', 'MDC quality'),
+                itemId: 'multiSense-quality'
+            },
+            {                
+                fieldLabel: Uni.I18n.translate('general.MDMQuality', 'MDC', 'MDM quality'),
+                itemId: 'insight-quality'
+            },
+            {                
+                fieldLabel: Uni.I18n.translate('general.thirdPartyQuality', 'MDC', 'Third party quality'),
+                itemId: 'thirdParty-quality'
+            }
+        );
+
         me.items = [
             {
                 title: Uni.I18n.translate('reading.generaltab.title', 'IMT', 'General'),
@@ -202,6 +291,21 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                         labelWidth: 200
                     },
                     items: valuesItems
+                }
+            },
+            {
+                title: Uni.I18n.translate('general.readingQuality', 'IMT', 'Reading quality'),
+                items: {
+                    xtype: 'form',
+                    itemId: 'qualities-panel',
+                    frame: true,
+                    items: qualityItems,
+                    defaults: {
+                        xtype: 'displayfield',
+                        labelWidth: 200,
+                        htmlEncode: false
+                    },
+                    layout: 'vbox'
                 }
             }
         ];

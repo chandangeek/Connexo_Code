@@ -14,9 +14,10 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'confirmed', type: 'auto'},
         {name: 'calculatedValue', type: 'auto'},
         {name: 'isConfirmed', type: 'auto'},
+        {name: 'estimatedByRule', type: 'auto'},
+        {name: 'readingQualities', type: 'auto', defaultValue: null},
         {name: 'modificationFlag', type: 'auto'},
         {name: 'modificationDate', type: 'auto'},
-
         'plotband',
         {
             name: 'readingProperties',

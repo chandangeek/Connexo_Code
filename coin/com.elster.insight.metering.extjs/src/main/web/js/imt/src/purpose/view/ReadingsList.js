@@ -41,12 +41,27 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval',
-                renderer: function (interval) {
-                    return  interval.end
-                        ? Uni.I18n.translate(
-                        'general.dateAtTime', 'IMT', '{0} at {1}',
-                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))] )
-                        : '';
+                renderer: function (interval, metaData, record) {
+                    var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
+                        text = interval.end
+                            ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
+                            : '-',
+                        tooltipContent = '',
+                        icon = '';
+
+                    if (readingQualitiesPresent) {
+                        Ext.Array.forEach(record.get('readingQualities'), function (readingQualityName) {
+                            tooltipContent += (readingQualityName + '<br>');
+                        });
+                        if (tooltipContent.length > 0) {
+                            tooltipContent += '<br>';
+                            tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'IMT', 'View reading quality details for more information.');
+
+                            icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
+                                + Uni.I18n.translate('general.deviceQuality', 'IMT', 'Device quality') + '" data-qtip="' + tooltipContent + '"></span>';
+                        }
+                    }
+                    return text + icon;
                 },
                 flex: 1
             },
@@ -135,7 +150,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             icon = '<span class="icon-flag5" style="margin-left:10px; color:red; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
         }
-        if (record.get('isConfirmed') && !record.isModified('value')) {
+        if (record.get('estimatedByRule') && !record.isModified('value')) {
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
+        } else if (record.get('isConfirmed') && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
         }
         return value + icon;
