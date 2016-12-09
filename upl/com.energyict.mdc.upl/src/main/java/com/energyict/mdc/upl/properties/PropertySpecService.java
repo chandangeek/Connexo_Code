@@ -140,6 +140,14 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of Date values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<Date> dateSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of LocalTime values.
      *
      * @return The PropertySpecBuilder
@@ -173,10 +181,16 @@ public interface PropertySpecService {
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of persistent instances of the specified api class.
+     * We specifically use the name of the class to avoid that we need
+     * to add an interface class each time a protocol needs a reference
+     * to a business object for the first time (i.e. that business object
+     * has not been used by any other protocol before) as that would
+     * require an API change of the universal protocol layer
+     * and that should be as stable as possible.
      *
      * @return The PropertySpecBuilder
      */
-    <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass);
+    <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(String apiClassName);
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom {@link PropertySpec} of

@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.tasks;
 
+import javax.xml.bind.annotation.XmlAttribute;
+
 /**
  * Models the configuration options of the data collection engine.
  *
@@ -8,20 +10,27 @@ package com.energyict.mdc.upl.tasks;
  */
 public interface DataCollectionConfiguration {
 
+    @XmlAttribute
     boolean isConfiguredToCollectRegisterData();
 
+    @XmlAttribute
     boolean isConfiguredToCollectLoadProfileData();
 
+    @XmlAttribute
     boolean isConfiguredToRunBasicChecks();
 
+    @XmlAttribute
     boolean isConfiguredToCheckClock();
 
+    @XmlAttribute
     boolean isConfiguredToCollectEvents();
 
+    @XmlAttribute
     boolean isConfiguredToSendMessages();
 
+    @XmlAttribute
     boolean isConfiguredToReadStatusInformation();
 
+    @XmlAttribute
     boolean isConfiguredToUpdateTopology();
-
 }
