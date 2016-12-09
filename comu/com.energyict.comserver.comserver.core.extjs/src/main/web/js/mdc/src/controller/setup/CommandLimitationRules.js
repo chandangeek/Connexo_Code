@@ -509,33 +509,19 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     doRemoveRule: function(record, confirmationWindow) {
         var me = this;
-
         record.destroy({
             success: function () {
                 me.router.getRoute('administration/commandrules').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandRule.remove.succes', 'MDC', 'Command limitation rule removed.'));
                 confirmationWindow.destroy();
             }
-            //,
-            //failure: function (object, operation) {
-            //    if (operation.response.status === 409) {
-            //        return
-            //    }
-            //    var json = Ext.decode(operation.response.responseText, true);
-            //    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
-            //    if (json && json.errors) {
-            //        errorText = json.errors[0].msg;
-            //    }
-            //}
         });
     },
 
     onAcceptPendingChanges: function() {
-        debugger;
     },
 
     onRejectPendingChanges: function() {
-        debugger;
     },
 
     addToClipBoard: function(itemToStore) {
