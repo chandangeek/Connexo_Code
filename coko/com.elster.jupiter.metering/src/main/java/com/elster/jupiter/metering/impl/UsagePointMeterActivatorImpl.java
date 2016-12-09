@@ -31,7 +31,6 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -798,8 +797,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         @Override
         public void meterActiveOnDifferentUsagePoint(Meter meter, MeterRole currentRole, MeterRole desiredRole, UsagePoint meterCurrentUsagePoint, Range<Instant> conflictActivationRange) {
             this.valid = false;
-            String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT).format();
-            errorMessage = MessageFormat.format(errorMessage, meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
+            String errorMessage = this.thesaurus.getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
+                    .format(meter.getName(), meterCurrentUsagePoint.getName(), currentRole.getDisplayName());
             this.context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(desiredRole.getKey()).addConstraintViolation();
         }
 

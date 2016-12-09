@@ -64,6 +64,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                                   MeteringTranslationService meteringTranslationService,
                                   ServerMetrologyConfigurationService metrologyConfigurationService,
                                   Clock clock,
+                                  LicenseService licenseService,
                                   UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this();
         this.setPropertySpecService(propertySpecService);
@@ -71,6 +72,7 @@ public class UsagePointSearchDomain implements SearchDomain {
         this.setMeteringTranslationService(meteringTranslationService);
         this.setServerMetrologyConfigurationService(metrologyConfigurationService);
         this.setClock(clock);
+        this.setLicenseService(licenseService);
         this.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
     }
 
