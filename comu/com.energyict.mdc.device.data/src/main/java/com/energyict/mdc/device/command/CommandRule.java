@@ -13,4 +13,6 @@ public interface CommandRule extends ServerCommandRule {
     void approve();
 
     void reject();
+
+    boolean hasCurrentUserAccepted();
 }

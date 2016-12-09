@@ -166,6 +166,11 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         this.getMonitor().reject(this);
     }
 
+    @Override
+    public boolean hasCurrentUserAccepted() {
+        return this.commandRulePendingUpdate.isPresent() && this.getMonitor().hasCurrentUserAccepted();
+    }
+
     public void save() {
         if (this.getId() > 0) {
             doUpdate();
