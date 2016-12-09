@@ -52,12 +52,12 @@ public class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDeviceAl
     }
 
     @Override
-    public void addOpenDeviceAlarm(EndDeviceEvent event, Instant timeStamp){
+    public void addRelatedAlarmEvent(long endDeviceEventTrecordId){
 
     }
 
     @Override
-    public void removeOpenDeviceAlarm(EndDeviceEvent event, Instant timeStamp) {
+    public void removeRelatedAlarmEvent(EndDeviceEvent event, Instant timeStamp) {
 
     }
 }

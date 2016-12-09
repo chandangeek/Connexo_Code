@@ -167,10 +167,6 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         }
     }
 
-    public DataModel getDataModel() {
-        return this.dataModel;
-    }
-
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
