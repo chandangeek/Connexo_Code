@@ -5,7 +5,6 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 
 import com.elster.protocolimpl.dlms.A1;
 import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeOfDay;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocol.MessageEntry;
@@ -22,6 +21,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -248,7 +248,7 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.IgnoreDSTAttributeName:
                     return false;
                 case DeviceMessageConstants.StartOfGasDayAttributeName:
-                    return new TimeOfDay(23400);
+                    return LocalTime.ofSecondOfDay(23400);
                 case DeviceMessageConstants.enableRSSIMultipleSampling:
                     return true;
                 case DeviceMessageConstants.XmlUserFileAttributeName:
