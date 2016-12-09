@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -118,6 +119,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private UsagePointState usagePointState;
     @Mock
     private UsagePointLifeCycle usagePointLifeCycle;
+    @Mock
+    private UsagePointStage usagePointStage;
 
     @Before
     public void setUp1() {
@@ -150,6 +153,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
+        when(usagePointStage.getKey()).thenReturn(UsagePointStage.Stage.OPERATIONAL);
+        when(usagePointStage.getDisplayName()).thenReturn(UsagePointStage.Stage.OPERATIONAL.name());
+        when(usagePointState.getStage()).thenReturn(usagePointStage);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.getCreateDate()).thenReturn(Instant.now().minusSeconds(60 * 60 * 24));
         when(usagePoint.getModificationDate()).thenReturn(Instant.now().minusSeconds(60 * 60 * 5));
@@ -481,7 +487,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(model.<String>get("$.meterActivations[0].meter.mRID")).isEqualTo("00000000-0000-0000-0000-0000000000ff");
         assertThat(model.<String>get("$.meterActivations[0].meter.name")).isEqualTo("meter1");
         assertThat(model.<String>get("$.meterActivations[0].meterRole.id")).isEqualTo("key1");
-        assertThat(model.<Object>get("$.meterActivations[1].meter")).isNull();
+        assertThat(model.get("$.meterActivations[1].meter")).isNull();
         assertThat(model.<String>get("$.meterActivations[1].meterRole.id")).isEqualTo("key2");
     }
 
