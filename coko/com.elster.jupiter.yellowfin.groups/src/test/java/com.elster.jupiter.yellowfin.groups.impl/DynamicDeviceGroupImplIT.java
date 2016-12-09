@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.groups.impl.SimpleEndDeviceQueryProvider;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.search.enddevice.EndDeviceSearchDomain;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -131,7 +132,8 @@ public class DynamicDeviceGroupImplIT {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(YellowfinGroupsService.class);
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            meteringGroupsService.addQueryProvider(new SimpleEndDeviceQueryProvider());
+            SimpleEndDeviceQueryProvider queryProvider = injector.getInstance(SimpleEndDeviceQueryProvider.class);
+            meteringGroupsService.addQueryProvider(queryProvider);
 
             return null;
         });
@@ -154,9 +156,8 @@ public class DynamicDeviceGroupImplIT {
         QueryEndDeviceGroup queryEndDeviceGroup;
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            SearchDomain searchDomain = mockSearchDomain(EndDevice.class);
+            SearchDomain searchDomain = registerSearchDomain();
             SearchableProperty name = mockSearchableProperty("name");
-            when(searchDomain.getProperties()).thenReturn(Collections.singletonList(name));
             queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
                     .setMRID("mine")
                     .setName("mine")
@@ -183,12 +184,11 @@ public class DynamicDeviceGroupImplIT {
         assertThat(entries.get(0).getDeviceId()).isEqualTo(endDevice.getId());
     }
 
-    private SearchDomain mockSearchDomain(Class<?> clazz) {
+    private SearchDomain registerSearchDomain() {
         SearchService searchService = injector.getInstance(SearchService.class);
-        SearchDomain searchDomain = mock(SearchDomain.class);
-        when(searchDomain.getId()).thenReturn(clazz.getName());
-        searchService.register(searchDomain);
-        return searchDomain;
+        EndDeviceSearchDomain endDeviceSearchDomain = injector.getInstance(EndDeviceSearchDomain.class);
+        searchService.register(endDeviceSearchDomain);
+        return endDeviceSearchDomain;
     }
 
     private SearchableProperty mockSearchableProperty(String name) {
