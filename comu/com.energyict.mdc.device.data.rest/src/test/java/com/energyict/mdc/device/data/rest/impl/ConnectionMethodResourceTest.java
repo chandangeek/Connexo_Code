@@ -21,7 +21,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask.SuccessIndicator;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
@@ -173,7 +173,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.properties = Collections.singletonList(
                 new PropertyInfo("connectionTimeout", "connectionTimeout",
                         new PropertyValueInfo<>(new TimeDuration("15 seconds"), null, null, null),
-                        new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                        new PropertyTypeInfo(SimplePropertyType.TEMPORALAMOUNT, null, null, null),
                         false));
         info.version = connectionTask.getVersion();
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
@@ -191,7 +191,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
                 new PropertyValueInfo("", "", null, null),
-                new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                new PropertyTypeInfo(SimplePropertyType.TEMPORALAMOUNT, null, null, null),
                 false);
         info.properties = Collections.singletonList(propertyInfo);
         Device.ScheduledConnectionTaskBuilder connectionTaskBuilder = mock(Device.ScheduledConnectionTaskBuilder.class);
@@ -214,7 +214,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
                 new PropertyValueInfo(null, new TimeDurationInfo(new TimeDuration("15 minutes")), null, null),
-                new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                new PropertyTypeInfo(SimplePropertyType.TEMPORALAMOUNT, null, null, null),
                 false);
         info.properties = Collections.singletonList(propertyInfo);
         Device.ScheduledConnectionTaskBuilder connectionTaskBuilder = mock(Device.ScheduledConnectionTaskBuilder.class);
@@ -233,7 +233,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
                 new PropertyValueInfo<>(null, null, null, null),
-                new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                new PropertyTypeInfo(SimplePropertyType.TEMPORALAMOUNT, null, null, null),
                 false);
         info.properties = Collections.singletonList(propertyInfo);
         info.version = connectionTask.getVersion();
@@ -254,7 +254,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
                 new PropertyValueInfo<>(null, new TimeDurationInfo(new TimeDuration("15 minutes")), null, null),
-                new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                new PropertyTypeInfo(SimplePropertyType.TEMPORALAMOUNT, null, null, null),
                 false);
         info.properties = Collections.singletonList(propertyInfo);
         info.version = connectionTask.getVersion();
@@ -305,7 +305,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(propertySpec.getName()).thenReturn("connectionTimeout");
         when(propertySpec.getDisplayName()).thenReturn("Connection timeout");
         when(propertySpec.isRequired()).thenReturn(false);
-        when(propertySpec.getValueFactory()).thenReturn(new TimeDurationValueFactory());
+        when(propertySpec.getValueFactory()).thenReturn(new TemporalAmountValueFactory());
         when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
         when(connectionTask.isDefault()).thenReturn(true);
