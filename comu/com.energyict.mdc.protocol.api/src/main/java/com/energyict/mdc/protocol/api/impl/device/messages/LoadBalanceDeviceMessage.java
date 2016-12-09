@@ -81,7 +81,7 @@ enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -102,7 +102,7 @@ enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.readFrequencyInMinutesAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -116,7 +116,7 @@ enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .finish());
@@ -166,7 +166,7 @@ enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             Stream.of(DeviceMessageAttributes.overThresholdDurationAttributeName, DeviceMessageAttributes.underThresholdDurationAttributeName)
                     .map(attributeName -> propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(attributeName)
                             .fromThesaurus(thesaurus)
                             .finish())
@@ -195,7 +195,7 @@ enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.emergencyProfileDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -313,7 +313,7 @@ enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -400,7 +400,7 @@ enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .finish());
@@ -433,7 +433,7 @@ enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
                             .finish());

@@ -60,7 +60,7 @@ enum LoadProfileMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.capturePeriodAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -73,7 +73,7 @@ enum LoadProfileMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.capturePeriodAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()

@@ -53,7 +53,7 @@ enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.WriteRadioUserTimeout)
                             .fromThesaurus(thesaurus)
                             .markRequired()

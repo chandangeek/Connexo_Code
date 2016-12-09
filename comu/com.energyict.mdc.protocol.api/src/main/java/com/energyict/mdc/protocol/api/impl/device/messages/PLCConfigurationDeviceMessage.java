@@ -82,7 +82,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(PLCConfigurationDeviceMessageAttributes.broadCastLogTableEntryTTLAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -95,7 +95,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(PLCConfigurationDeviceMessageAttributes.maxAgeTimeAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -108,7 +108,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(PLCConfigurationDeviceMessageAttributes.maxNumberOfHopsAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -135,7 +135,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(PLCConfigurationDeviceMessageAttributes.plcG3TimeoutAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -172,7 +172,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(PLCConfigurationDeviceMessageAttributes.TIME_OUT_NOT_ADDRESSEDAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -311,7 +311,7 @@ enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(PLCConfigurationDeviceMessageAttributes.broadCastLogTableEntryTTLAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
