@@ -36,7 +36,6 @@ public class CommandRuleInfoFactory {
                 .sorted(CommandInfo::compareTo)
                 .collect(Collectors.toList());
         commandRuleInfo.active = commandRule.isActive();
-        commandRuleInfo.hasCurrentUserAccepted = commandRule.hasCurrentUserAccepted();
 
 
         if (commandRule.getCommandRulePendingUpdate().isPresent()) {
@@ -58,13 +57,17 @@ public class CommandRuleInfoFactory {
         CommandRuleInfo commandRuleInfo = from(commandRule);
         if (commandRule.getCommandRulePendingUpdate().isPresent()) {
             CommandRulePendingUpdate pendingUpdate = commandRule.getCommandRulePendingUpdate().get();
-            commandRuleInfo.changes = new ArrayList<>();
+            DualControlInfo dualControlInfo = new DualControlInfo();
+           List<DualControlChangeInfo> changes = new ArrayList<>();
+            dualControlInfo.changes = changes;
+            dualControlInfo.hasCurrentUserAccepted = commandRule.hasCurrentUserAccepted();
+            dualControlInfo.pendingChangesType = PendingChangesType.getCorrectType(pendingUpdate);
             if(pendingUpdate.isRemoval()) {
-                commandRuleInfo.changes.add(new DualControlChangeInfo(translate(TranslationKeys.STATUS), translate(TranslationKeys.ACTIVE), translate(TranslationKeys.REMOVED)));
+                changes.add(new DualControlChangeInfo(translate(TranslationKeys.STATUS), translate(TranslationKeys.ACTIVE), translate(TranslationKeys.REMOVED)));
                 return commandRuleInfo;
             }
-            checkBasicChanges(commandRuleInfo.changes, commandRule, pendingUpdate);
-            checkCommandChanges(commandRuleInfo.changes, commandRule, pendingUpdate);
+            checkBasicChanges(changes, commandRule, pendingUpdate);
+            checkCommandChanges(changes, commandRule, pendingUpdate);
         }
         return commandRuleInfo;
     }
