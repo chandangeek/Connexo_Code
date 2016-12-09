@@ -85,12 +85,12 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
                                 .map(effectiveMetrologyConfiguration::getChannelsContainer)
                                 .flatMap(Functions.asStream())
                 )
-                .flatMap(this::readingTypeDataExportItems)
+                .flatMap(channelsContainer -> readingTypeDataExportItems(channelsContainer, exportInterval))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ChannelsContainer channelsContainer) {
-        return getReadingTypes().stream()
+    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ChannelsContainer channelsContainer, Range<Instant> exportInterval) {
+        return getFilteredReadingTypes(channelsContainer, exportInterval)
                 .map(r -> getExportItems().stream()
                         .map(IReadingTypeDataExportItem.class::cast)
                         .filter(item -> r.equals(item.getReadingType()))
@@ -98,6 +98,11 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
                         .findAny()
                         .orElseGet(() -> addExportItem(channelsContainer, r))
                 );
+    }
+
+    private Stream<ReadingType> getFilteredReadingTypes(ChannelsContainer channelsContainer, Range<Instant> exportInterval) {
+        Set<ReadingType> providingReadingTypes = channelsContainer.getReadingTypes(exportInterval);
+        return getReadingTypes().stream().filter(providingReadingTypes::contains);
     }
 
     @Override

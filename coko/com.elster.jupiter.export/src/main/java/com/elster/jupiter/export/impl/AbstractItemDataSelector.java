@@ -168,7 +168,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
 
     void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy,
                                    List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
-        if (validationService.getEvaluator().isValidationEnabled(item.getReadingContainer(), item.getReadingType())) {
+        if (!readings.isEmpty()) {
             switch (strategy.getValidatedDataOption()) {
                 case EXCLUDE_INTERVAL:
                     handleExcludeInterval(item, readings, interval, itemDescription);

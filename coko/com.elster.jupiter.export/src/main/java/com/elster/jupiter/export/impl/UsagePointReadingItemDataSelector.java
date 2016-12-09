@@ -19,6 +19,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
 
@@ -39,10 +41,15 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
 
     @Override
     List<BaseReadingRecord> getReadings(IReadingTypeDataExportItem item, Range<Instant> exportInterval) {
+        List<BaseReadingRecord> readings;
         // data aggregation engine requires to wrap getReadings() call in transaction
         try (TransactionContext context = getTransactionService().getContext()) {
-            return super.getReadings(item, exportInterval);
+            readings = super.getReadings(item, exportInterval);
         }
+        Set<Instant> instants = new TreeSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
+        return readings.stream()
+                .filter(reading -> instants.contains(reading.getTimeStamp()))
+                .collect(Collectors.toList());
     }
 
     @Override

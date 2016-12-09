@@ -21,7 +21,6 @@ import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
@@ -512,43 +511,5 @@ public class MeterReadingDataSelectorImplTest {
         when(readingType.getFullAliasName()).thenReturn("Odium humani generis");
 
         assertThat(item.getDescription()).isEqualTo("PeriMeter:Odium humani generis");
-    }
-
-    private static class FakeRefAny implements RefAny {
-        private final Object value;
-
-        public FakeRefAny(Object value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean isPresent() {
-            return value != null;
-        }
-
-        @Override
-        public Object get() {
-            return value;
-        }
-
-        @Override
-        public Optional<?> getOptional() {
-            return Optional.ofNullable(value);
-        }
-
-        @Override
-        public String getComponent() {
-            return "";
-        }
-
-        @Override
-        public String getTableName() {
-            return "";
-        }
-
-        @Override
-        public Object[] getPrimaryKey() {
-            return new Object[0];
-        }
     }
 }
