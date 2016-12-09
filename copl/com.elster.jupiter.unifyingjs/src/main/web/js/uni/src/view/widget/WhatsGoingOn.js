@@ -95,7 +95,11 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         me.store.load({
             callback: function(){
                 me.store.clearFilter();
-                me.down('tabpanel').removeAll();
+                if (me.down('tabpanel')) {
+                    me.down('tabpanel').removeAll();
+                } else {
+                    return;
+                }
                 if (type !== 'all' && type !== '' && type !== undefined) {
                     me.store.filter([
                         {
