@@ -328,7 +328,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         } while (retries > 0);
 
         testDlmsSession.disconnect();
-        getLogger().warning("Could not validate the frame counter, seems that it's out-of synch whith the device. You'll have to read a fresh one.");
+        getLogger().warning("Could not validate the frame counter, seems that it's out-of-sync with the device. You'll have to read a fresh one.");
         return false;
     }
 
@@ -379,7 +379,9 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     protected ObisCode getFrameCounterForClient(int clientId) {
         // handle some special frame-counters for EVN
         if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
-            return new ObisCode(0, 0, 43, 1, clientId, 255);
+            if (clientId != IDIS2_CLIENT_PUBLIC) { // for public client fall back to standard IDIS
+                return new ObisCode(0, 0, 43, 1, clientId, 255);
+            }
         } else {
             switch (clientId) {
                 case EVN_CLIENT_DATA_READOUT:
