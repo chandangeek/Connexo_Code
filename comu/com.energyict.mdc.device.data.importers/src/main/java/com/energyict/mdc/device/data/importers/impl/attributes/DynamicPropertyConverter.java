@@ -17,7 +17,7 @@ import com.energyict.mdc.dynamic.Ean18Factory;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 
 import org.joda.time.DateTimeConstants;
@@ -97,7 +97,7 @@ public enum DynamicPropertyConverter {
             return thesaurus.getFormat(TranslationKeys.OBIS_CODE_FORMAT).format();
         }
     },
-    TIME_DURATION(TimeDurationValueFactory.class) {
+    TIME_DURATION(TemporalAmountValueFactory.class) {
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
             return thesaurus.getFormat(TranslationKeys.INTEGER_FORMAT).format();
