@@ -35,6 +35,7 @@ public class CommandRuleInfoFactory {
                 .map(commandInRule -> new CommandInfo(commandInRule.getCommand().getCategory().getName(), commandInRule.getCommand().getName(), commandInRule.getCommand().getId().name()))
                 .sorted(CommandInfo::compareTo)
                 .collect(Collectors.toList());
+        commandRuleInfo.active = commandRule.isActive();
 
 
         if (commandRule.getCommandRulePendingUpdate().isPresent()) {
