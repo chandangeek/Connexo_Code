@@ -11,10 +11,11 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     ],
     selModel: {
         mode: 'MULTI'
-    },
+    },    
     viewConfig: {
         loadMask: false,
-        enableTextSelection: true
+        enableTextSelection: true,
+        doFocus: Ext.emptyFn // workaround to avoid page jump during row selection
     },
     store: 'Imt.purpose.store.Readings',
 
@@ -22,6 +23,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         var me = this,
             readingType = me.output.get('readingType'),
             unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
+        
         me.plugins = [
             {
                 ptype: 'bufferedrenderer',
@@ -40,10 +42,10 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval',
                 renderer: function (interval) {
-                    return interval.end
+                    return  interval.end
                         ? Uni.I18n.translate(
                         'general.dateAtTime', 'IMT', '{0} at {1}',
-                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
+                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))] )
                         : '';
                 },
                 flex: 1
@@ -123,7 +125,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
             icon = '';
-        console.log(v);
+        
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
