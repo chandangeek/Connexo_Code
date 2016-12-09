@@ -5,13 +5,13 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         'Cfg.view.field.ReadingQualities'        
     ],
     outputType: null,
-    output: null,
-    withOutAppName: false,
+    output: null,    
     frame: false,
 
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('readingTime'),
+            dataQualities = record.get('readingQualities'),
             title;
 
         switch(me.output.get('outputType')){
@@ -29,10 +29,12 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         Ext.suspendLayouts();
         me.down('#general-panel').setTitle(title);
         me.down('#values-panel').setTitle(me.output.get('name'));
+        me.down('#qualities-panel').setTitle(title);
         me.down('#general-panel').loadRecord(record);
         me.down('#values-panel').loadRecord(record);
         me.down('#formula-field').setValue(me.output.get('formula').description);
-        me.setDataQuality(record.get('readingQualities'));
+        me.down('#noReadings-msg').setVisible(Ext.isEmpty(dataQualities));
+        me.setDataQualityFields(me.down('#device-quality'), me.down('#multiSense-quality'), me.down('#insight-quality'), me.down('#thirdParty-quality'), dataQualities);
         Ext.resumeLayouts(true);
     },
 
@@ -85,12 +87,6 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         }
 
         return validationResultText;
-    },
-
-    setDataQuality: function(dataQualities) {
-        var me = this;
-        me.down('#noReadings-msg').setVisible(Ext.isEmpty(dataQualities));        
-        me.setDataQualityFields(me.down('#device-quality'), me.down('#multiSense-quality'), me.down('#insight-quality'), me.down('#insight-quality'), me.down('#thirdParty-quality'));
     },
 
     setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
@@ -233,7 +229,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 itemId: 'reading-qualities-field',
                 usedInInsight: true,
                 name: 'validationRules',
-                withOutAppName: me.withOutAppName
+                withOutAppName: true
             }
         );
 
@@ -295,6 +291,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             },
             {
                 title: Uni.I18n.translate('general.readingQuality', 'IMT', 'Reading quality'),
+                itemId: 'qualities-tab',
                 items: {
                     xtype: 'form',
                     itemId: 'qualities-panel',
