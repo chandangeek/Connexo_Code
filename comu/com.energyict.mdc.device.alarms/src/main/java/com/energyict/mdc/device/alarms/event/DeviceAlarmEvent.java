@@ -11,19 +11,17 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
+import com.energyict.mdc.device.alarms.impl.ModuleConstants;
+import com.energyict.mdc.device.alarms.impl.event.EventDescription;
+import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.alarms.DeviceAlarmService;
-import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
-import com.energyict.mdc.device.alarms.impl.ModuleConstants;
-import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
-import com.energyict.mdc.device.alarms.impl.event.EventDescription;
-import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 
 import com.google.inject.Injector;
 
@@ -31,7 +29,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {

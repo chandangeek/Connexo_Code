@@ -30,6 +30,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
@@ -80,6 +81,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile DeviceService deviceService;
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
+    private volatile UserService userService;
 
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
@@ -88,14 +90,15 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     // For unit testing
     @Inject
     public DeviceAlarmServiceImpl(IssueService issueService,
-                                          MessageService messageService,
-                                          NlsService nlsService,
-                                          OrmService ormService,
-                                          QueryService queryService,
-                                          TopologyService topologyService,
-                                          DeviceService deviceService,
-                                          EventService eventService,
-                                          UpgradeService upgradeService
+                                  MessageService messageService,
+                                  NlsService nlsService,
+                                  OrmService ormService,
+                                  QueryService queryService,
+                                  TopologyService topologyService,
+                                  DeviceService deviceService,
+                                  EventService eventService,
+                                  UpgradeService upgradeService,
+                                  UserService userService
     ) {
         this();
         setMessageService(messageService);
@@ -107,6 +110,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setDeviceService(deviceService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
+        setUserService(userService);
 
         activate();
     }
@@ -125,11 +129,13 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(EventService.class).toInstance(eventService);
+                bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                version(10, 3), UpgraderV10_3.class
-        ));
+        upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap
+                .of(
+                        version(10, 3), UpgraderV10_3.class
+                ));
     }
 
     @Reference
@@ -146,6 +152,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public final void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Reference

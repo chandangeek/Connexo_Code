@@ -46,6 +46,7 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
         return this;
     }
 
+    @Override
     public EndDeviceEventRecord getEventRecord() {
         return eventRecord.get();
     }
