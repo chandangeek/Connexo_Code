@@ -9,6 +9,7 @@ import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySelectionMode;
@@ -26,6 +27,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -109,6 +111,16 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpec() {
+        return new NlsOptionsAdapter<>(this.actual.hexStringSpec());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpecOfExactLength(int length) {
+        return new NlsOptionsAdapter<>(this.actual.hexStringSpecOfExactLength(length));
+    }
+
+    @Override
     public PropertySpecBuilderWizard.NlsOptions<String> encryptedStringSpec() {
         return new NlsOptionsAdapter<>(this.actual.specForValuesOf(new EncryptedStringFactory(this.dataVaultService)));
     }
@@ -150,13 +162,18 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec() {
+    public PropertySpecBuilderWizard.NlsOptions<TimeZone> timeZoneSpec() {
         return new NlsOptionsAdapter<>(this.actual.timezoneSpec());
     }
 
     @Override
     public PropertySpecBuilderWizard.NlsOptions<Duration> durationSpec() {
-        return new DurationNlsOptionsAdapter(this.actual.timeDurationSpec());
+        return new DurationNlsOptionsAdapter(this.actual.durationSpec());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<TemporalAmount> temporalAmountSpec() {
+        return new DurationNlsOptionsAdapter(this.actual.temporalAmountSpec());
     }
 
     @Override
@@ -305,13 +322,8 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
         }
 
         @Override
-        public PropertySpecBuilderWizard.ThesaurusBased<Duration> describedAs(TranslationKey descriptionTranslationKey) {
+        public PropertySpecBuilder<Duration> describedAs(TranslationKey descriptionTranslationKey) {
             this.actual.describedAs(new ConnexoTranslationKeyAdapter(descriptionTranslationKey));
-            return this;
-        }
-
-        @Override
-        public PropertySpecBuilder<Duration> fromThesaurus(Thesaurus thesaurus) {
             return new DurationPropertySpecBuilderAdapter(this.actual.fromThesaurus(new ConnexoThesaurusAdapter(thesaurus)));
         }
     }
