@@ -22,8 +22,8 @@ import java.io.OutputStream;
  */
 public class MK10Connection extends Connection  implements ProtocolConnection {
 
-	private static final int DEBUG=0;
-	private static final long TIMEOUT=60000;
+	protected static final int DEBUG=0;
+    protected static final long TIMEOUT=60000;
 
 	int timeout;
 	int maxRetries;
@@ -105,7 +105,7 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 		} // while(true)
 	} // public void sendCommand(byte[] cmdData) throws ConnectionException
 
-	private void genSequenceNr() {
+	protected void genSequenceNr() {
 		if ((sequenceNr==0) || (sequenceNr>=0x7FFF)) {
 			sequenceNr=1;
 		} else {
@@ -131,20 +131,20 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 	}
 
 	// multidrop?
-	private boolean isExtendedCommunication() {
+	protected boolean isExtendedCommunication() {
 		return (destinationId != -1);
 	}
 
-	private void assembleFrame(byte txbyte) {
+	protected void assembleFrame(byte txbyte) {
 		txOutputStream.write(txbyte);
 	}
 
-	private void sendFrame() throws ConnectionException {
+    protected void sendFrame() throws ConnectionException {
 		sendOut(txOutputStream.toByteArray());
 	}
 
 
-	private void doSendCommand(byte[] rawData) throws ConnectionException {
+	protected void doSendCommand(byte[] rawData) throws ConnectionException {
 		txOutputStream.reset();
 		assembleFrame(STX);
 		byte[] cmdData=rawData;

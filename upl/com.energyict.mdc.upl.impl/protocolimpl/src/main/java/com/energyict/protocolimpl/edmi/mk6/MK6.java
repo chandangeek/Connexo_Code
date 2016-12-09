@@ -52,13 +52,17 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	private boolean logOffDisabled = true;
 	private TimeZone timeZone;
 	private boolean useOldProfileFromDate;
+	private int connectionType;
+	private static final int MINI_E_CONNECTION_TYPE	 = 1;
 	
 	/** Creates a new instance of MK6 */
 	public MK6() {
 	}
 
 	protected void doConnect() throws IOException {
-		getCommandFactory().enterCommandLineMode();
+		if(!isMiniEConnection()){
+			getCommandFactory().enterCommandLineMode();
+		}
 		getCommandFactory().logon(getInfoTypeDeviceID(),getInfoTypePassword());
 	}
 
@@ -78,6 +82,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 		setStatusFlagChannel(Integer.parseInt(properties.getProperty("StatusFlagChannel","0").trim()));
 		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff","0").trim()));
 		setUseOldProfileFromDate(properties.getProperty("UseOldProfileFromDate","0").equalsIgnoreCase("1"));
+		setConnectionType(Integer.parseInt(properties.getProperty("MiniEConnection", "0")));
 	}
 
 	public int getProfileInterval() throws IOException {
@@ -95,11 +100,17 @@ public class MK6 extends AbstractProtocol implements Serializable{
 		result.add("StatusFlagChannel");
 		result.add("DisableLogOff");
 		result.add("UseOldProfileFromDate");
+		result.add("MiniEConnection");
 		return result;
 	}
 
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-		this.mk6Connection = new MK6Connection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
+		if (isMiniEConnection()) {
+			mk6Connection = new MK6MiniEConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
+		} else {
+			this.mk6Connection = new MK6Connection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
+		}
+
 		this.commandFactory = new CommandFactory(this);
 		this.mk6Profile = new MK6Profile(this);
 		return getMk6Connection();
@@ -236,5 +247,13 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	 */
 	public void setUseOldProfileFromDate(boolean useOldProfileFromDate) {
 		this.useOldProfileFromDate = useOldProfileFromDate;
+	}
+
+	public void setConnectionType(int connectionType) {
+		this.connectionType = connectionType;
+	}
+
+	public boolean isMiniEConnection(){
+		return this.connectionType == MINI_E_CONNECTION_TYPE;
 	}
 }
