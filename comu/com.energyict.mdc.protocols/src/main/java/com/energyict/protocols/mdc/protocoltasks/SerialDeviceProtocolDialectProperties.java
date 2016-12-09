@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 
@@ -132,7 +133,7 @@ public class SerialDeviceProtocolDialectProperties extends CommonDeviceProtocolD
 
         protected PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, TimeDuration defaultValue) {
             return propertySpecService
-                    .timeDurationSpec()
+                    .temporalAmountSpec()
                     .named(this.propertySpecName, this.translationKey)
                     .fromThesaurus(thesaurus)
                     .setDefaultValue(defaultValue)

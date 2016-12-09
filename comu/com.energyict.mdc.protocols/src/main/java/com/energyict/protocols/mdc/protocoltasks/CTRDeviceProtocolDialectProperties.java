@@ -156,7 +156,7 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
         protected PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, TimeDuration defaultValue) {
             return propertySpecService
-                    .timeDurationSpec()
+                    .temporalAmountSpec()
                     .named(this.propertySpecName(), this.nameTranslationKey())
                     .fromThesaurus(thesaurus)
                     .setDefaultValue(defaultValue)

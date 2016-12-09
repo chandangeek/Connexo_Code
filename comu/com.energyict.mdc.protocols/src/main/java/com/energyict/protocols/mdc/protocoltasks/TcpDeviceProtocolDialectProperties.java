@@ -96,7 +96,7 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
         protected PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, TimeDuration defaultValue) {
             return propertySpecService
-                    .timeDurationSpec()
+                    .temporalAmountSpec()
                     .named(this.propertySpecName, this.translationKey)
                     .fromThesaurus(thesaurus)
                     .setDefaultValue(defaultValue)

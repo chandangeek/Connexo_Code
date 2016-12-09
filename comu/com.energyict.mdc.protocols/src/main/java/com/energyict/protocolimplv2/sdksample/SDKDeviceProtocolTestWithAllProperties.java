@@ -12,13 +12,11 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -34,6 +32,8 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
@@ -236,7 +236,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .timeDurationSpec()
+                        .temporalAmountSpec()
                         .named(SDKTranslationKeys.SDKTIMEDURATIONPROPERTY)
                         .fromThesaurus(this.getThesaurus())
                         .finish());

@@ -54,7 +54,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties {
 
     private PropertySpec delayAfterErrorPropertySpec() {
         return propertySpecService
-                .timeDurationSpec()
+                .temporalAmountSpec()
                 .named(DELAY_AFTER_ERROR, CommonV2TranslationKeys.DELAY_AFTER_ERROR)
                 .fromThesaurus(this.thesaurus)
                 .setDefaultValue(this.getDefaultDelayAfterError())
@@ -67,7 +67,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties {
 
     public PropertySpec forcedDelayPropertySpec() {
         return propertySpecService
-                .timeDurationSpec()
+                .temporalAmountSpec()
                 .named(FORCED_DELAY, CommonV2TranslationKeys.FORCED_DELAY)
                 .fromThesaurus(this.thesaurus)
                 .setDefaultValue(this.getDefaultForcedDelay())
@@ -101,7 +101,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties {
 
     private PropertySpec timeOutPropertySpec() {
         return propertySpecService
-                .timeDurationSpec()
+                .temporalAmountSpec()
                 .named(TIMEOUT, CommonV2TranslationKeys.TIMEOUT)
                 .fromThesaurus(this.thesaurus)
                 .setDefaultValue(this.getDefaultTimeout())

@@ -4,9 +4,9 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames;
+import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
@@ -78,7 +78,7 @@ public class DSMR50Properties extends G3Properties {
 
     private PropertySpec aarqTimeoutPropertySPec() {
         return getPropertySpecService()
-                .timeDurationSpec()
+                .temporalAmountSpec()
                 .named(AARQ_TIMEOUT_PROPERTY, TranslationKeys.AARQ_TIMEOUT_PROPERTY)
                 .fromThesaurus(getThesaurus())
                 .setDefaultValue(DEFAULT_AARQ_TIMEOUT_PROPERTY)

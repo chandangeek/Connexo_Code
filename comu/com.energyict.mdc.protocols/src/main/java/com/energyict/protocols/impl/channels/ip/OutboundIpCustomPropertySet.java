@@ -7,7 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.TranslationKeys;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
@@ -99,7 +99,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
 
     protected PropertySpec connectionTimeoutPropertySpec() {
         return this.getPropertySpecService()
-                .specForValuesOf(new TimeDurationValueFactory())
+                .specForValuesOf(new TemporalAmountValueFactory())
                 .named(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT)
                 .fromThesaurus(this.thesaurus)
                 .setDefaultValue(OutboundIpConnectionType.DEFAULT_CONNECTION_TIMEOUT)

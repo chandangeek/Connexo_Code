@@ -62,7 +62,7 @@ public class G3GatewayProperties extends G3Properties {
 
     private PropertySpec aarqTimeoutPropertySpec() {
         return getPropertySpecService()
-                .timeDurationSpec()
+                .temporalAmountSpec()
                 .named(G3GatewayProperties.AARQ_TIMEOUT_PROP_NAME, DlmsTranslationKeys.AARQ_TIMEOUT_PROP_NAME)
                 .fromThesaurus(this.getThesaurus())
                 .setDefaultValue(G3GatewayProperties.AARQ_TIMEOUT_DEFAULT)

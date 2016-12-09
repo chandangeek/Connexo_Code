@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.properties.HexString;
+
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
@@ -15,7 +16,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.openKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.transferKeyAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy EictZ3 protocol
@@ -25,7 +30,6 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  * Time: 16:26
  */
 public class EictZ3MessageConverter extends AbstractMessageConverter {
-
 
     /**
      * Default constructor for at-runtime instantiation
