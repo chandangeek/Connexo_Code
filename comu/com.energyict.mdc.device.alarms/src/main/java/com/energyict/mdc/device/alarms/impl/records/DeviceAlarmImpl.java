@@ -9,7 +9,6 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -19,12 +18,9 @@ import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class DeviceAlarmImpl implements DeviceAlarm {
 
@@ -160,20 +156,8 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
-    public List<EndDeviceEvent> getEndDeviceRelatedEvents() {
-        return deviceAlarmRelatedEvents.stream()
-                .map(DeviceAlarmRelatedEvent::getEventRecord)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents(){
         return deviceAlarmRelatedEvents;
-    }
-
-    @Override
-    public EndDeviceEvent getCurrentEvent() {
-        return Collections.max(getEndDeviceRelatedEvents(), Comparator.comparing(EndDeviceEvent::getCreatedDateTime));
     }
 
     @Override
