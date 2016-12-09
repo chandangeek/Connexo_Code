@@ -259,7 +259,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        this.getDlmsSessionProperties().setProperties(properties);
+        this.getDlmsSessionProperties().addProperties(properties);
     }
 
     @Override

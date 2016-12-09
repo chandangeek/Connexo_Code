@@ -12,7 +12,6 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -111,7 +110,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
                 .durationSpec()
                 .named(FORCED_DELAY, FORCED_DELAY)
                 .describedAs("Description for " + FORCED_DELAY)
-                .setDefaultValue(Duration.ofMillis(DEFAULT_FORCED_DELAY.longValue()))
+                .setDefaultValue(DEFAULT_FORCED_DELAY)
                 .finish();
     }
 
@@ -148,7 +147,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
      *
      * @return	The property specification.
      */
-    protected final PropertySpec<Boolean> publicClientPreEstablishedPropertySpec() {
+    protected final PropertySpec publicClientPreEstablishedPropertySpec() {
         return this.booleanSpecBuilder(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED).finish();
     }
 

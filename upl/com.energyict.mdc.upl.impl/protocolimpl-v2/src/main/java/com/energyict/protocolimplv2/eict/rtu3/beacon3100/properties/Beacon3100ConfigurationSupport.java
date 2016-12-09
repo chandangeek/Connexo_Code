@@ -1,15 +1,16 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,66 +30,67 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = new ArrayList<>(super.getOptionalProperties());
-        optionalProperties.add(readCachePropertySpec());
-        optionalProperties.add(dlmsKEKPropertySpec());
-        optionalProperties.add(dlmsWANKEKPropertySpec());
-        optionalProperties.add(pskEncryptionKeyPropertySpec());
-        optionalProperties.add(generalCipheringKeyTypePropertySpec());
-        optionalProperties.add(pollingDelayPropertySpec());
-        optionalProperties.add(requestAuthenticatedFrameCounter());
-        optionalProperties.add(clientPrivateSigningKeyPropertySpec());
-        optionalProperties.add(clientPrivateKeyAgreementKeyPropertySpec());
-        optionalProperties.add(serverTLSCertificate());
-        optionalProperties.add(callingAPTitlePropertySpec());
-        optionalProperties.add(publicClientPreEstablishedPropertySpec());
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(readCachePropertySpec());
+        propertySpecs.add(dlmsKEKPropertySpec());
+        propertySpecs.add(dlmsWANKEKPropertySpec());
+        propertySpecs.add(pskEncryptionKeyPropertySpec());
+        propertySpecs.add(generalCipheringKeyTypePropertySpec());
+        propertySpecs.add(pollingDelayPropertySpec());
+        propertySpecs.add(requestAuthenticatedFrameCounter());
+        propertySpecs.add(clientPrivateSigningKeyPropertySpec());
+        propertySpecs.add(clientPrivateKeyAgreementKeyPropertySpec());
+        propertySpecs.add(serverTLSCertificate());
+        propertySpecs.add(callingAPTitlePropertySpec());
+        propertySpecs.add(publicClientPreEstablishedPropertySpec());
 
-        optionalProperties.remove(ntaSimulationToolPropertySpec());
-        optionalProperties.remove(manufacturerPropertySpec());
-        optionalProperties.remove(fixMbusHexShortIdPropertySpec());
-        optionalProperties.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
-        optionalProperties.remove(deviceId());
+        propertySpecs.remove(ntaSimulationToolPropertySpec());
+        propertySpecs.remove(manufacturerPropertySpec());
+        propertySpecs.remove(fixMbusHexShortIdPropertySpec());
+        propertySpecs.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
+        propertySpecs.remove(deviceId());
 
-        return optionalProperties;
+        return propertySpecs;
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {
-        return PropertySpecFactory.booleanPropertySpec(REQUEST_AUTHENTICATED_FRAME_COUNTER);
+        return UPLPropertySpecFactory.booleanValue(REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
     }
 
     private PropertySpec pollingDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(POLLING_DELAY, new TimeDuration(0));
+        return UPLPropertySpecFactory.duration(POLLING_DELAY, false, Duration.ZERO);
     }
 
     private PropertySpec callingAPTitlePropertySpec() {
-        return PropertySpecFactory.fixedLengthHexStringPropertySpec(IDIS.CALLING_AP_TITLE, 8);
+        return UPLPropertySpecFactory.hexStringSpecOfExactLength(IDIS.CALLING_AP_TITLE, false, 8);
     }
 
     /**
      * The private key of the client (the ComServer) used for digital signature (ECDSA)
      */
     private PropertySpec clientPrivateSigningKeyPropertySpec() {
-        return PropertySpecFactory.privateKeyAliasPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        return UPLPropertySpecFactory.privateKeyAlias(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, false);
     }
 
     /**
      * The TLS certificate of the server. Not actively used in the protocols.
      */
     private PropertySpec serverTLSCertificate() {
-        return PropertySpecFactory.certificateWrapperIdPropertySpec(DlmsSessionProperties.SERVER_TLS_CERTIFICATE);
+        return UPLPropertySpecFactory.certificateAlias(DlmsSessionProperties.SERVER_TLS_CERTIFICATE, false);
     }
 
     /**
      * The private key of the client (the ComServer) used for key agreement (ECDH)
      */
     private PropertySpec clientPrivateKeyAgreementKeyPropertySpec() {
-        return PropertySpecFactory.privateKeyAliasPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
+        return UPLPropertySpecFactory.privateKeyAlias(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY, false);
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
-        return PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
+        return UPLPropertySpecFactory.stringWithDefault(
                 DlmsProtocolProperties.CIPHERING_TYPE,
+                false,
                 CipheringType.GLOBAL.getDescription(),      //Default
                 CipheringType.GLOBAL.getDescription(),
                 CipheringType.DEDICATED.getDescription(),
@@ -99,8 +101,9 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec generalCipheringKeyTypePropertySpec() {
-        return PropertySpecFactory.stringPropertySpecWithValues(
+        return UPLPropertySpecFactory.string(
                 DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE,
+                false,
                 GeneralCipheringKeyType.IDENTIFIED_KEY.getDescription(),
                 GeneralCipheringKeyType.WRAPPED_KEY.getDescription(),
                 GeneralCipheringKeyType.AGREED_KEY.getDescription()
@@ -111,24 +114,24 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The KEK of the Beacon. Use this to wrap the AK/EK of the Beacon device itself
      */
     private PropertySpec dlmsWANKEKPropertySpec() {
-        return PropertySpecFactory.encryptedStringPropertySpec(DLMS_WAN_KEK);
+        return UPLPropertySpecFactory.encryptedString(DLMS_WAN_KEK, false);
     }
 
     private PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(READCACHE_PROPERTY, false);
+        return UPLPropertySpecFactory.booleanValue(READCACHE_PROPERTY, false, false);
     }
 
     /**
      * A key used to encrypt DLMS keys of slave meters (aka a key encryption key, KEK)
      */
     private PropertySpec dlmsKEKPropertySpec() {
-        return PropertySpecFactory.encryptedStringPropertySpec(DLMS_METER_KEK);
+        return UPLPropertySpecFactory.encryptedString(DLMS_METER_KEK, false);
     }
 
     /**
      * Key used to wrap PSK keys before sending them to the Beacon device.
      */
     private PropertySpec pskEncryptionKeyPropertySpec() {
-        return PropertySpecFactory.encryptedStringPropertySpec(PSK_ENCRYPTION_KEY);
+        return UPLPropertySpecFactory.encryptedString(PSK_ENCRYPTION_KEY, false);
     }
 }

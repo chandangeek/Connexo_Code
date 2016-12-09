@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.migration;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -12,6 +13,7 @@ import com.energyict.protocol.ProfileData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
@@ -36,12 +38,7 @@ public class DummyProtocol implements MeterProtocol {
     }
 
     @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -117,7 +114,7 @@ public class DummyProtocol implements MeterProtocol {
         throw new UnsupportedOperationException();
     }
 
-    public Object getCache() {
+    public Serializable getCache() {
         throw new UnsupportedOperationException();
     }
 

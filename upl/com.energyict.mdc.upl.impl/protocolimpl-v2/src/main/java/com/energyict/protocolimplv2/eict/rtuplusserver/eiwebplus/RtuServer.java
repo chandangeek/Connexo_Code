@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.EiWebPlusDialect;

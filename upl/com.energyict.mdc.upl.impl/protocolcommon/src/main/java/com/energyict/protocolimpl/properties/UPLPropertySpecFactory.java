@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.properties;
 
 import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.CertificateAlias;
+import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.mdc.upl.properties.PrivateKeyAlias;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -137,6 +140,23 @@ public final class UPLPropertySpecFactory {
         return new HexStringPropertySpec(name, required);
     }
 
+    public static PropertySpec hexString(String name, boolean required, HexString hexString) {
+        PropertySpecBuilder<HexString> hexStringPropertySpecBuilder = Services.propertySpecService().hexStringSpec().named(name, name).describedAs(name);
+        if(required){
+            hexStringPropertySpecBuilder.markRequired();
+        }
+        hexStringPropertySpecBuilder.setDefaultValue(hexString);
+        return hexStringPropertySpecBuilder.finish();
+    }
+
+    public static PropertySpec hexStringSpecOfExactLength(String name, boolean required, int length) {
+        PropertySpecBuilder<HexString> hexStringPropertySpecBuilder = Services.propertySpecService().hexStringSpecOfExactLength(length).named(name, name).describedAs(name);
+        if(required){
+            hexStringPropertySpecBuilder.markRequired();
+        }
+        return hexStringPropertySpecBuilder.finish();
+    }
+
     public static PropertySpec character(String name, boolean required) {
         return new CharPropertySpec(name, required);
     }
@@ -189,7 +209,7 @@ public final class UPLPropertySpecFactory {
         return builder;
     }
 
-    public static PropertySpec<Duration> duration(String name, boolean required, Duration defaultValue) {
+    public static PropertySpec duration(String name, boolean required, Duration defaultValue) {
         PropertySpecBuilder<Duration> durationPropertySpecBuilder = specBuilder(name, required, () -> Services.propertySpecService().durationSpec());
         durationPropertySpecBuilder.setDefaultValue(defaultValue);
         if (required) {
@@ -197,6 +217,30 @@ public final class UPLPropertySpecFactory {
         }
 
         return durationPropertySpecBuilder.finish();
+    }
+
+    public static PropertySpec privateKeyAlias(String name, boolean required) {
+        PropertySpecBuilder<PrivateKeyAlias> privateKeyAliasPropertySpecBuilder = Services.propertySpecService().privateKeyAliasSpec().named(name, name).describedAs(name);
+        if(required){
+            privateKeyAliasPropertySpecBuilder.markRequired();
+        }
+        return privateKeyAliasPropertySpecBuilder.finish();
+    }
+
+    public static PropertySpec certificateAlias(String name, boolean required) {
+        PropertySpecBuilder<CertificateAlias> certificateAliasPropertySpecBuilder = Services.propertySpecService().certificateAliasSpec().named(name, name).describedAs(name);
+        if(required){
+            certificateAliasPropertySpecBuilder.markRequired();
+        }
+        return certificateAliasPropertySpecBuilder.finish();
+    }
+
+    public static PropertySpec encryptedString(String name, boolean required) {
+        PropertySpecBuilder<String> encryptedStringPropertySpecBuilder = Services.propertySpecService().encryptedStringSpec().named(name, name).describedAs(name);
+        if(required){
+            encryptedStringPropertySpecBuilder.markRequired();
+        }
+        return encryptedStringPropertySpecBuilder.finish();
     }
 
     // Hide utility class constructor

@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.dlms.g3.properties;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
@@ -26,53 +26,53 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
     public static final String GATEWAY_LOGICAL_DEVICE_ID = "GatewayLogicalDeviceId";
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = new ArrayList<>(super.getOptionalProperties());
-        optionalProperties.add(pskPropertySpec());
-        optionalProperties.add(aarqTimeoutPropertySpec());
-        optionalProperties.add(aarqRetriesPropertySpec());
-        optionalProperties.add(readCachePropertySpec());
-        optionalProperties.add(callHomeIdPropertySpec());
-        optionalProperties.add(mirrorLogicalDeviceIdPropertySpec());
-        optionalProperties.add(actualLogicalDeviceIdPropertySpec());
-        optionalProperties.remove(ntaSimulationToolPropertySpec());
-        optionalProperties.remove(serverUpperMacAddressPropertySpec());
-        optionalProperties.remove(serverLowerMacAddressPropertySpec());
-        optionalProperties.remove(manufacturerPropertySpec());
-        optionalProperties.remove(fixMbusHexShortIdPropertySpec());
-        optionalProperties.remove(deviceId());
-        return optionalProperties;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+        propertySpecs.add(pskPropertySpec());
+        propertySpecs.add(aarqTimeoutPropertySpec());
+        propertySpecs.add(aarqRetriesPropertySpec());
+        propertySpecs.add(readCachePropertySpec());
+        propertySpecs.add(callHomeIdPropertySpec());
+        propertySpecs.add(mirrorLogicalDeviceIdPropertySpec());
+        propertySpecs.add(actualLogicalDeviceIdPropertySpec());
+        propertySpecs.remove(ntaSimulationToolPropertySpec());
+        propertySpecs.remove(serverUpperMacAddressPropertySpec());
+        propertySpecs.remove(serverLowerMacAddressPropertySpec());
+        propertySpecs.remove(manufacturerPropertySpec());
+        propertySpecs.remove(fixMbusHexShortIdPropertySpec());
+        propertySpecs.remove(deviceId());
+        return propertySpecs;
     }
 
     private PropertySpec callHomeIdPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        return UPLPropertySpecFactory.string(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false);
     }
 
     private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MIRROR_LOGICAL_DEVICE_ID);
+        return UPLPropertySpecFactory.bigDecimal(MIRROR_LOGICAL_DEVICE_ID, false);
     }
 
     private PropertySpec actualLogicalDeviceIdPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(GATEWAY_LOGICAL_DEVICE_ID);
+        return UPLPropertySpecFactory.bigDecimal(GATEWAY_LOGICAL_DEVICE_ID, false);
     }
 
     private PropertySpec pskPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(G3Properties.PSK);
+        return UPLPropertySpecFactory.hexString(G3Properties.PSK, false);
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(Dsmr50Properties.AARQ_TIMEOUT_PROPERTY, BigDecimal.ZERO);
+        return UPLPropertySpecFactory.bigDecimal(Dsmr50Properties.AARQ_TIMEOUT_PROPERTY, false, BigDecimal.ZERO);
     }
 
     private PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(READCACHE_PROPERTY, false);
+        return UPLPropertySpecFactory.booleanValue(READCACHE_PROPERTY, false, false);
     }
 
     private PropertySpec aarqRetriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(Dsmr50Properties.AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2));
+        return UPLPropertySpecFactory.bigDecimal(Dsmr50Properties.AARQ_RETRIES_PROPERTY, false, BigDecimal.valueOf(2));
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, AS330DProperties.DEFAULT_MAX_REC_PDU_SIZE);
+        return UPLPropertySpecFactory.bigDecimal(MAX_REC_PDU_SIZE, false, AS330DProperties.DEFAULT_MAX_REC_PDU_SIZE);
     }
 }
