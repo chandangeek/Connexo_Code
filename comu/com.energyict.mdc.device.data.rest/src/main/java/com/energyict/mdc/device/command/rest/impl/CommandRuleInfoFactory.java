@@ -36,6 +36,7 @@ public class CommandRuleInfoFactory {
                 .sorted(CommandInfo::compareTo)
                 .collect(Collectors.toList());
         commandRuleInfo.active = commandRule.isActive();
+        commandRuleInfo.hasCurrentUserAccepted = commandRule.hasCurrentUserAccepted();
 
 
         if (commandRule.getCommandRulePendingUpdate().isPresent()) {

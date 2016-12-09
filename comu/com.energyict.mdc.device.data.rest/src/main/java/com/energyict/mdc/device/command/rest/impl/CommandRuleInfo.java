@@ -15,6 +15,7 @@ public class CommandRuleInfo {
     public long id;
     public String name;
     public boolean active;
+    public boolean hasCurrentUserAccepted;
     public long dayLimit;
     public long weekLimit;
     public long monthLimit;
