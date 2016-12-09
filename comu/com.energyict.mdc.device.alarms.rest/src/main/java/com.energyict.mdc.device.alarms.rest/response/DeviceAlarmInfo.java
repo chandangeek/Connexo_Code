@@ -1,20 +1,41 @@
 package com.energyict.mdc.device.alarms.rest.response;
 
-import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
-import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
+import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 
-public class DeviceAlarmInfo<T extends DeviceInfo> extends IssueInfo<T, DeviceAlarm> {
+import java.util.List;
 
-    public String deviceMRID;
-    public String usagePointMRID;
-    public String location;
+public class DeviceAlarmInfo {
+
+    public long id;
+    public String alarmId;
+    public IdWithNameInfo reason;
+    public IdWithNameInfo status;
+    public long dueDate;
+    public IssueAssigneeInfo workGroupAssignee;
+    public IssueAssigneeInfo userAssignee;
+    public String title;
+    public long creationDate;
     public boolean clearedStatus;
-    public IdWithNameInfo logBook;
+    public long version;
 
-    public DeviceAlarmInfo(DeviceAlarm deviceAlarm, Class<T> deviceInfoClass){
-        super(deviceAlarm, deviceInfoClass);
+    public DeviceInfo device;
+    public IdWithNameInfo logBook;
+    public List<RelatedEventsInfo> relatedEvents;
+
+    public DeviceAlarmInfo(DeviceAlarm deviceAlarm){
+        this.id = deviceAlarm.getId();
+        this.alarmId = deviceAlarm.getIssueId();
+        this.reason = new IdWithNameInfo(deviceAlarm.getReason().getId(), deviceAlarm.getReason().getName());
+        this.status = new IdWithNameInfo(deviceAlarm.getStatus().getId(), deviceAlarm.getStatus().getName());
+        this.dueDate = deviceAlarm.getDueDate() != null ? deviceAlarm.getDueDate().toEpochMilli() : 0;
+        this.workGroupAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("WORKGROUP", deviceAlarm.getAssignee()) : null);
+        this.userAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("USER", deviceAlarm.getAssignee()) : null);
+        this.title = deviceAlarm.getTitle();
+        this.creationDate = deviceAlarm.getCreateTime().toEpochMilli();
+        this.version = deviceAlarm.getVersion();
+        this.clearedStatus = deviceAlarm.isStatusCleared();
     }
 
 }

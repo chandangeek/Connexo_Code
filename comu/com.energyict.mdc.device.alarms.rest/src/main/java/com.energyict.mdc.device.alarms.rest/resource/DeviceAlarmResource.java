@@ -2,7 +2,6 @@ package com.energyict.mdc.device.alarms.rest.resource;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
-import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -56,8 +55,8 @@ public class DeviceAlarmResource{
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
         List<? extends DeviceAlarm> deviceAlarms = finder.find();
-        List<DeviceAlarmInfo<?>> deviceAlarmInfos = deviceAlarms.stream()
-                .map(alarm -> deviceAlarmInfoFactory.asInfo(alarm, DeviceInfo.class))
+        List<DeviceAlarmInfo> deviceAlarmInfos = deviceAlarms.stream()
+                .map(deviceAlarmInfoFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", deviceAlarmInfos, queryParams);
     }
@@ -67,7 +66,7 @@ public class DeviceAlarmResource{
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getAlarmById(@PathParam("id") long id) {
         Optional<? extends DeviceAlarm> deviceAlarm = deviceAlarmService.findAlarm(id);
-        return deviceAlarm.map(i -> Response.ok().entity(deviceAlarmInfoFactory.asInfo(i, DeviceInfo.class)).build())
+        return deviceAlarm.map(i -> Response.ok().entity(deviceAlarmInfoFactory.asInfo(i)).build())
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
