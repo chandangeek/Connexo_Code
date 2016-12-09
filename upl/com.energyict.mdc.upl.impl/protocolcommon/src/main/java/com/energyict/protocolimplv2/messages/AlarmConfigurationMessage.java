@@ -24,19 +24,19 @@ import java.util.stream.Stream;
  */
 public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
 
-    RESET_ALL_ALARM_BITS(0, "Reset all alarm bits") {
+    RESET_ALL_ALARM_BITS(2001, "Reset all alarm bits") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    WRITE_ALARM_FILTER(1, "Write alarm filter") {
+    WRITE_ALARM_FILTER(2002, "Write alarm filter") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.alarmFilterAttributeName, DeviceMessageConstants.alarmFilterAttributeDefaultTranslation));
         }
     },
-    CONFIGURE_PUSH_EVENT_NOTIFICATION(2, "Configure push event notification") {
+    CONFIGURE_PUSH_EVENT_NOTIFICATION(2004, "Configure push event notification") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -46,13 +46,13 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    RESET_ALL_ERROR_BITS(3, "Reset all error bits") {
+    RESET_ALL_ERROR_BITS(2003, "Reset all error bits") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    RESET_DESCRIPTOR_FOR_ALARM_REGISTER_1_OR_2(4, "Reset alarm descriptor") {
+    RESET_DESCRIPTOR_FOR_ALARM_REGISTER_1_OR_2(2005, "Reset alarm descriptor") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -61,13 +61,13 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    RESET_BITS_IN_ALARM_REGISTER_1_OR_2(5, "Reset alarm bits") {
+    RESET_BITS_IN_ALARM_REGISTER_1_OR_2(2006, "Reset alarm bits") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.alarmRegisterAttribute(service));
         }
     },
-    WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2(6, "Write alarm filter") {
+    WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2(2007, "Write alarm filter") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -76,7 +76,7 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION(7, "Configure push event notifications") {
+    FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION(2008, "Configure push event notifications") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -88,7 +88,7 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONFIGURE_PUSH_EVENT_NOTIFICATION_OBJECT_DEFINITIONS(8, "Configure push event notification object definitions") {
+    CONFIGURE_PUSH_EVENT_NOTIFICATION_OBJECT_DEFINITIONS(2009, "Configure push event notification object definitions") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -97,7 +97,7 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONFIGURE_PUSH_EVENT_NOTIFICATION_SEND_DESTINATION(9, "Configure push event notification destination") {
+    CONFIGURE_PUSH_EVENT_NOTIFICATION_SEND_DESTINATION(2010, "Configure push event notification destination") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -108,13 +108,13 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ENABLE_EVENT_NOTIFICATIONS(10, "Enable event notifications") {
+    ENABLE_EVENT_NOTIFICATIONS(2011, "Enable event notifications") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.EnableEventNotifications, DeviceMessageConstants.EnableEventNotificationsDefaultTranslation));
         }
     },
-    RESET_DESCRIPTOR_FOR_ALARM_REGISTER(11, "Reset alarm descriptor") {
+    RESET_DESCRIPTOR_FOR_ALARM_REGISTER(2012, "Reset alarm descriptor") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -123,13 +123,13 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    RESET_BITS_IN_ALARM_REGISTER(12, "Reset alarm bits") {
+    RESET_BITS_IN_ALARM_REGISTER(2013, "Reset alarm bits") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.alarmRegisterAttributeFor3Objects(service));
         }
     },
-    WRITE_FILTER_FOR_ALARM_REGISTER(13, "Write alarm filter") {
+    WRITE_FILTER_FOR_ALARM_REGISTER(2014, "Write alarm filter") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -220,10 +220,10 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
         }
     }
 
-    private final int id;
+    private final long id;
     private final String defaultNameTranslation;
 
-    AlarmConfigurationMessage(int id, String defaultNameTranslation) {
+    AlarmConfigurationMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }
@@ -249,7 +249,8 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -265,7 +266,8 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -285,6 +287,7 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

@@ -31,13 +31,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relay
  */
 public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
 
-    CONTACTOR_OPEN(0, "Contactor open") {
+    CONTACTOR_OPEN(1001, "Contactor open") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    CONTACTOR_OPEN_WITH_OUTPUT(1, "Contactor open with output") {
+    CONTACTOR_OPEN_WITH_OUTPUT(1002, "Contactor open with output") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -47,31 +47,31 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
                             BigDecimal.ONE, BigDecimal.valueOf(2)));
         }
     },
-    CONTACTOR_OPEN_WITH_ACTIVATION_DATE(2, "Contactor open with activation date") {
+    CONTACTOR_OPEN_WITH_ACTIVATION_DATE(1003, "Contactor open with activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation));
         }
     },
-    CONTACTOR_ARM(3, "Contactor arm") {
+    CONTACTOR_ARM(1004, "Contactor arm") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    CONTACTOR_ARM_WITH_ACTIVATION_DATE(4, "Contactor arm with activation date") {
+    CONTACTOR_ARM_WITH_ACTIVATION_DATE(1005, "Contactor arm with activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation));
         }
     },
-    CONTACTOR_CLOSE(5, "Contactor close") {
+    CONTACTOR_CLOSE(1006, "Contactor close") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    CONTACTOR_CLOSE_WITH_OUTPUT(6, "Contactor close with output") {
+    CONTACTOR_CLOSE_WITH_OUTPUT(1007, "Contactor close with output") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -81,13 +81,13 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
                             BigDecimal.ONE, BigDecimal.valueOf(2)));
         }
     },
-    CONTACTOR_CLOSE_WITH_ACTIVATION_DATE(7, "Contactor close with activation date") {
+    CONTACTOR_CLOSE_WITH_ACTIVATION_DATE(1008, "Contactor close with activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation));
         }
     },
-    CHANGE_CONNECT_CONTROL_MODE(8, "Change the connect control mode") {
+    CHANGE_CONNECT_CONTROL_MODE(1009, "Change the connect control mode") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -99,7 +99,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CLOSE_RELAY(9, "Close relay") {
+    CLOSE_RELAY(1010, "Close relay") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -109,7 +109,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
                             BigDecimal.ONE, new BigDecimal("2")));
         }
     },
-    OPEN_RELAY(10, "Open relay") {
+    OPEN_RELAY(1011, "Open relay") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -119,7 +119,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
                             BigDecimal.ONE, new BigDecimal("2")));
         }
     },
-    SET_RELAY_CONTROL_MODE(11, "Set relay control mode") {
+    SET_RELAY_CONTROL_MODE(1012, "Set relay control mode") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -135,7 +135,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONTACTOR_OPEN_WITH_OUTPUT_AND_ACTIVATION_DATE(12, "Open contactor with output ID and activation date") {
+    CONTACTOR_OPEN_WITH_OUTPUT_AND_ACTIVATION_DATE(1013, "Open contactor with output ID and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -144,7 +144,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONTACTOR_CLOSE_WITH_OUTPUT_AND_ACTIVATION_DATE(13, "Close contactor with output ID and activation date") {
+    CONTACTOR_CLOSE_WITH_OUTPUT_AND_ACTIVATION_DATE(1014, "Close contactor with output ID and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -157,7 +157,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    ContactorDeviceMessage(int id, String defaultNameTranslation) {
+    ContactorDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }
@@ -172,6 +172,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
                 .describedAs(translationKey.description())
                 .addValues(possibleValues)
                 .markExhaustive()
+                .markRequired()
                 .finish();
     }
 
@@ -181,6 +182,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

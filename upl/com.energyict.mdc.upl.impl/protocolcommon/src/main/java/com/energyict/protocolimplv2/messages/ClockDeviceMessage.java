@@ -24,25 +24,25 @@ import java.util.List;
  */
 public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SET_TIME(0, "Set time") {
+    SET_TIME(15001, "Set time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, DeviceMessageConstants.meterTimeAttributeName, DeviceMessageConstants.meterTimeAttributeDefaultTranslation));
         }
     },
-    SET_TIMEZONE(1, "Set time zone") {
+    SET_TIMEZONE(15002, "Set time zone") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName, DeviceMessageConstants.TimeZoneOffsetInHoursAttributeDefaultTranslation));
         }
     },
-    EnableOrDisableDST(2, "Enable or disable DST") {
+    EnableOrDisableDST(15003, "Enable or disable DST") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.enableDSTAttributeName, DeviceMessageConstants.enableDSTAttributeDefaultTranslation));
         }
     },
-    SetEndOfDST(3, "Set end of DST") {
+    SetEndOfDST(15004, "Set end of DST") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -53,7 +53,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetStartOfDST(4, "Set start of DST") {
+    SetStartOfDST(15005, "Set start of DST") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -64,7 +64,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetStartOfDSTWithoutHour(5, "Set start of DST without hour") {
+    SetStartOfDSTWithoutHour(15006, "Set start of DST without hour") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -74,7 +74,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetEndOfDSTWithoutHour(6, "Set end of DST without hour") {
+    SetEndOfDSTWithoutHour(15007, "Set end of DST without hour") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -84,7 +84,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetDSTAlgorithm(7, "Set DST algorithm") {
+    SetDSTAlgorithm(15008, "Set DST algorithm") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -95,55 +95,55 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
     },
 
     //EIWeb messages
-    SetDST(8, "Set DST") {
+    SetDST(15009, "Set DST") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetDSTAttributeName, DeviceMessageConstants.SetDSTAttributeDefaultTranslation));
         }
     },
-    SetTimezone(9, "Set time zone") {
+    SetTimezone(15010, "Set time zone") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetTimezoneAttributeName, DeviceMessageConstants.SetTimezoneAttributeDefaultTranslation));
         }
     },
-    SetTimeAdjustment(10, "Set time adjustment") {
+    SetTimeAdjustment(15011, "Set time adjustment") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetTimeAdjustmentAttributeName, DeviceMessageConstants.SetTimeAdjustmentAttributeDefaultTranslation));
         }
     },
-    SetNTPServer(11, "Set NTP server") {
+    SetNTPServer(15012, "Set NTP server") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetNTPServerAttributeName, DeviceMessageConstants.SetNTPServerAttributeDefaultTranslation));
         }
     },
-    SetRefreshClockEvery(12, "Set refresh clock every") {
+    SetRefreshClockEvery(15013, "Set refresh clock every") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetRefreshClockEveryAttributeName, DeviceMessageConstants.SetRefreshClockEveryAttributeDefaultTranslation));
         }
     },
-    SetNTPOptions(13, "Set NTP options") {
+    SetNTPOptions(15014, "Set NTP options") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetNTPOptionsAttributeName, DeviceMessageConstants.SetNTPOptionsAttributeDefaultTranslation));
         }
     },
-    FTIONForceTimeSync(14, "Force time synchronization") {
+    FTIONForceTimeSync(15018, "Force time synchronization") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SyncTime(15, "Force synchronize clock") {
+    SyncTime(15015, "Force synchronize clock") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ConfigureDST(17, "Configure DST") {
+    ConfigureDST(15016, "Configure DST") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -153,7 +153,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ConfigureDSTWithoutHour(18, "Configure DST without hour") {
+    ConfigureDSTWithoutHour(15017, "Configure DST without hour") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -163,19 +163,19 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    NTPSetOption(19, "NTP - Set an option") {
+    NTPSetOption(15019, "NTP - Set an option") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
         }
     },
-    NTPClrOption(20, "NTP - Clear an option") {
+    NTPClrOption(15020, "NTP - Clear an option") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
         }
     },
-    ConfigureClock(21, "Configure clock") {
+    ConfigureClock(15021, "Configure clock") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -190,7 +190,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    ClockDeviceMessage(int id, String defaultNameTranslation) {
+    ClockDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }
@@ -200,7 +200,8 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -213,6 +214,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -221,7 +223,8 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -234,6 +237,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -243,6 +247,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
                 .timeZoneSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

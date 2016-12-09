@@ -1,5 +1,16 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
+import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
@@ -13,9 +24,13 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 
@@ -60,7 +75,7 @@ import java.util.List;
 /**
  * The AM540 is a PLC E-meter designed according to IDIS package 2 specifications <br/>
  * The protocol is an extension of the AM130 protocol (which is the GPRS variant designed according to IDIS P2)
- * <p/>
+ * <p>
  * The protocol supports also EVN Netz-NO Companion standard specification (security-related).
  *
  * @author sva
@@ -157,7 +172,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-19 13:39:27 +0200 (Wed, 19 Oct 2016)$";
+        return "$Date: 2016-12-06 14:40:33 +0100 (Tue, 06 Dec 2016)$";
     }
 
     /**
@@ -255,7 +270,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     /**
      * Get the frame counter from the cache, for the given clientId.
      * If no frame counter is available in the cache (value -1), use the configured InitialFC property.
-     * <p/>
+     * <p>
      * Additionally, the FC value can be validated with ValidateCachedFrameCounterAndFallback
      */
     protected boolean getCachedFrameCounter(ComChannel comChannel, int clientId) {
@@ -555,5 +570,29 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         );
 
         return super.getDeviceTopology();
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+
+        ObisCode firmwareVersionObisCode = ObisCode.fromString("1.1.0.2.0.255");
+        try {
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getRegister(firmwareVersionObisCode).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveMeterFirmwareVersion(fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = MdcManager.getIssueFactory().createProblem(firmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }   //Else a communication exception is thrown
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
     }
 }

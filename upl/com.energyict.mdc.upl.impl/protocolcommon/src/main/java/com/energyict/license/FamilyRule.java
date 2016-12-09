@@ -1,6 +1,6 @@
 package com.energyict.license;
 
-import com.energyict.mdw.core.ProtocolFamily;
+import com.energyict.mdc.protocol.ProtocolFamily;
 
 /**
  * Models the known groups of protocols that are united by a significant shared characteristic.

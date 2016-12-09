@@ -18,12 +18,12 @@ import java.util.List;
  */
 public enum OpusConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetOpusOSNbr(0, "Set opus OS number", DeviceMessageConstants.SetOpusOSNbrAttributeName, DeviceMessageConstants.SetOpusOSNbrAttributeDefaultTranslation),
-    SetOpusPassword(1, "Set opus password", DeviceMessageConstants.SetOpusPasswordAttributeName, DeviceMessageConstants.SetOpusPasswordAttributeDefaultTranslation),
-    SetOpusTimeout(2, "Set opus timeout", DeviceMessageConstants.SetOpusTimeoutAttributeName, DeviceMessageConstants.SetOpusTimeoutAttributeDefaultTranslation),
-    SetOpusConfig(3, "Set opus configuration", DeviceMessageConstants.SetOpusConfigAttributeName, DeviceMessageConstants.SetOpusConfigAttributeDefaultTranslation),
-    OpusSetOption(4, "Opus - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
-    OpusClrOption(5, "Opus - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation);
+    SetOpusOSNbr(25001, "Set opus OS number", DeviceMessageConstants.SetOpusOSNbrAttributeName, DeviceMessageConstants.SetOpusOSNbrAttributeDefaultTranslation),
+    SetOpusPassword(25002, "Set opus password", DeviceMessageConstants.SetOpusPasswordAttributeName, DeviceMessageConstants.SetOpusPasswordAttributeDefaultTranslation),
+    SetOpusTimeout(25003, "Set opus timeout", DeviceMessageConstants.SetOpusTimeoutAttributeName, DeviceMessageConstants.SetOpusTimeoutAttributeDefaultTranslation),
+    SetOpusConfig(25004, "Set opus configuration", DeviceMessageConstants.SetOpusConfigAttributeName, DeviceMessageConstants.SetOpusConfigAttributeDefaultTranslation),
+    OpusSetOption(25005, "Opus - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    OpusClrOption(25006, "Opus - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation);
 
     private final long id;
     private final String defaultNameTranslation;
@@ -62,6 +62,7 @@ public enum OpusConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

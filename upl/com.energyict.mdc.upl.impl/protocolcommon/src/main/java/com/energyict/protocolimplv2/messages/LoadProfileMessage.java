@@ -41,7 +41,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
  */
 public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
 
-    PARTIAL_LOAD_PROFILE_REQUEST(0, "Partial load profile request") {
+    PARTIAL_LOAD_PROFILE_REQUEST(13001, "Partial load profile request") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -51,49 +51,49 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ResetActiveImportLP(1, "Reset active import load profile") {
+    ResetActiveImportLP(13002, "Reset active import load profile") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ResetActiveExportLP(2, "Reset active export load profile") {
+    ResetActiveExportLP(13002, "Reset active export load profile") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ResetDailyProfile(3, "Reset daily load profile") {
+    ResetDailyProfile(13004, "Reset daily load profile") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    ResetMonthlyProfile(4, "Reset monthly load profile") {
+    ResetMonthlyProfile(13005, "Reset monthly load profile") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    WRITE_CAPTURE_PERIOD_LP1(5, "Write capture period of load profile 1") {
+    WRITE_CAPTURE_PERIOD_LP1(13006, "Write capture period of load profile 1") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.durationSpec(service, capturePeriodAttributeName, capturePeriodAttributeDefaultTranslation));
         }
     },
-    WRITE_CAPTURE_PERIOD_LP2(6, "Write capture period of load profile 2") {
+    WRITE_CAPTURE_PERIOD_LP2(13007, "Write capture period of load profile 2") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.durationSpec(service, capturePeriodAttributeName, capturePeriodAttributeDefaultTranslation));
         }
     },
-    WriteConsumerProducerMode(7, "Write consumer producer mode") {
+    WriteConsumerProducerMode(13008, "Write consumer producer mode") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, consumerProducerModeAttributeName, consumerProducerModeAttributeDefaultTranslation, LoadProfileMode.getAllDescriptions()));
         }
     },
-    LOAD_PROFILE_REGISTER_REQUEST(8, "Load profile register request") {
+    LOAD_PROFILE_REGISTER_REQUEST(13009, "Load profile register request") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -102,7 +102,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    READ_PROFILE_DATA(9, "Read profile data") {
+    READ_PROFILE_DATA(13010, "Read profile data") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -111,13 +111,13 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    LOAD_PROFILE_OPT_IN_OUT(10, "Load profile Opt In/Opt Out") {
+    LOAD_PROFILE_OPT_IN_OUT(13011, "Load profile Opt In/Opt Out") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, loadProfileOptInOutModeAttributeName, loadProfileOptInOutModeAttributeDefaultTranslation, LoadProfileOptInOut.getScriptNames()));
         }
     },
-    SET_DISPLAY_ON_OFF(11, "Set display on/off") {
+    SET_DISPLAY_ON_OFF(13012, "Set display on/off") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, setDisplayOnOffModeAttributeName, setDisplayOnOffModeAttributeDefaultTranslation, SetDisplayMode.getModeNames()));
@@ -127,7 +127,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    LoadProfileMessage(int id, String defaultNameTranslation) {
+    LoadProfileMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }
@@ -140,6 +140,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
                 .describedAs(translationKey.description())
                 .addValues(exhaustiveValues)
                 .markExhaustive()
+                .markRequired()
                 .finish();
     }
 
@@ -149,6 +150,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
                 .durationSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -158,15 +160,17 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
     protected PropertySpec loadProfileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(LoadProfile.class)
+                .referenceSpec(LoadProfile.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

@@ -1,5 +1,13 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -14,27 +22,38 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,7 +64,7 @@ import java.util.List;
  * E.g. the requested object does not exist, or it is not allowed to be read/written, etc.
  * These exceptions need to be caught and handled first! They all extend from IOException.
  * After that, all remaining IOExceptions are related to communication problems (e.g. timeout, connection broken,...).
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/10/13
  * Time: 11:40
@@ -54,11 +73,11 @@ import java.util.List;
 public class WebRTUKP extends AbstractDlmsProtocol {
 
     protected Dsmr23Messaging dsmr23Messaging;
+    protected ComChannel comChannel;
+    protected HHUSignOnV2 hhuSignOn;
     private Dsmr23LogBookFactory logBookFactory;
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr23RegisterFactory registerFactory;
-    protected ComChannel comChannel;
-    protected HHUSignOnV2 hhuSignOn;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -159,6 +178,56 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     }
 
     @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        CollectedBreakerStatus result = super.getBreakerStatus();
+
+        try {
+            Disconnector disconnector = getDlmsSession().getCosemObjectFactory().getDisconnector();
+            TypeEnum controlState = disconnector.doReadControlState();
+            switch (controlState.getValue()) {
+                case 0:
+                    result.setBreakerStatus(BreakerStatus.DISCONNECTED);
+                    break;
+                case 1:
+                    result.setBreakerStatus(BreakerStatus.CONNECTED);
+                    break;
+                case 2:
+                    result.setBreakerStatus(BreakerStatus.ARMED);
+                    break;
+                default:
+                    ObisCode source = Disconnector.getDefaultObisCode();
+                    result.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(source, "issue.protocol.readingOfBreakerStateFailed", "received value '" + controlState.getValue() + "', expected either 0, 1 or 2."));
+                    break;
+            }
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                ObisCode source = Disconnector.getDefaultObisCode();
+                result.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(source, "issue.protocol.readingOfBreakerStateFailed", e.toString()));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+
+        ObisCode firmwareVersionObisCode = ObisCode.fromString("1.1.0.2.0.255");
+        try {
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getRegister(firmwareVersionObisCode).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveMeterFirmwareVersion(fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = MdcManager.getIssueFactory().createProblem(firmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }   //Else a communication exception is thrown
+        }
+
+        return result;
+    }
+
+    @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         return getDsmr23Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
@@ -187,7 +256,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
+        return "$Date: 2016-12-06 14:40:26 +0100 (Tue, 06 Dec 2016)$";
     }
 
     @Override

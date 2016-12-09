@@ -22,13 +22,13 @@ import java.util.List;
  */
 public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    ForceManualRescanPLCBus(0, "Force manual rescan of PLC bus") {
+    ForceManualRescanPLCBus(3001, "Force manual rescan of PLC bus") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SetMulticastAddresses(1, "Set multicast addresses") {
+    SetMulticastAddresses(3002, "Set multicast addresses") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -38,13 +38,13 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetActivePlcChannel(2, "Set active PLC channel") {
+    SetActivePlcChannel(3003, "Set active PLC channel") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.ActiveChannelAttributeName, DeviceMessageConstants.ActiveChannelAttributeDefaultTranslation));
         }
     },
-    SetPlcChannelFrequencies(3, "Set PLC channel frequencies") {
+    SetPlcChannelFrequencies(3004, "Set PLC channel frequencies") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -63,146 +63,146 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetSFSKInitiatorPhase(4, "Set SFSK initiator phase") {
+    SetSFSKInitiatorPhase(3005, "Set SFSK initiator phase") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName, DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeDefaultTranslation));
         }
     },
-    SetSFSKMaxFrameLength(5, "Set SFSK maximum frame length") {
+    SetSFSKMaxFrameLength(3006, "Set SFSK maximum frame length") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.MAX_FRAME_LENGTHAttributeName, DeviceMessageConstants.MAX_FRAME_LENGTHAttributeDefaultTranslation));
         }
     },
 
-    SetBroadCastLogTableEntryTTLAttributeName(7, "Set broadcast log table entry TTL") {
+    SetBroadCastLogTableEntryTTLAttributeName(3030, "Set broadcast log table entry TTL") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.durationSpec(service, DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName, DeviceMessageConstants.broadCastLogTableEntryTTLAttributeDefaultTranslation));
         }
     },
-    SetMaxJoinWaitTime(8, "Set maximum join wait time") {
+    SetMaxJoinWaitTime(3031, "Set maximum join wait time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.maxJoinWaitTime, DeviceMessageConstants.maxJoinWaitTimeDefaultTranslation));
         }
     },
-    SetPathDiscoveryTime(9, "Set path discovery time") {
+    SetPathDiscoveryTime(3032, "Set path discovery time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.pathDiscoveryTime, DeviceMessageConstants.pathDiscoveryTimeDefaultTranslation));
         }
     },
-    SetMaxNumberOfHopsAttributeName(10, "Set maximum number of hops") {
+    SetMaxNumberOfHopsAttributeName(3026, "Set maximum number of hops") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.maxNumberOfHopsAttributeName, DeviceMessageConstants.maxNumberOfHopsAttributeDefaultTranslation));
         }
     },
-    SetMetricType(11, "Set metric type") {
+    SetMetricType(3033, "Set metric type") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.metricType, DeviceMessageConstants.metricTypeDefaultTranslation));
         }
     },
-    SetCoordShortAddress(12, "Set coord short address") {
+    SetCoordShortAddress(3059, "Set coord short address") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.coordShortAddress, DeviceMessageConstants.coordShortAddressDefaultTranslation));
         }
     },
-    SetToneMaskAttributeName(13, "Set tone mask") {
+    SetToneMaskAttributeName(3062, "Set tone mask") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.toneMaskAttributeName, DeviceMessageConstants.toneMaskAttributeDefaultTranslation));
         }
     },
-    SetTMRTTL(35, "Set maximum valid time of tone map parameters in the neighbour table") {
+    SetTMRTTL(3034, "Set maximum valid time of tone map parameters in the neighbour table") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.TMRTTL, DeviceMessageConstants.TMRTTLDefaultTranslation));
         }
     },
-    SetMaxFrameRetries(36, "Set maximum frame retries") {
+    SetMaxFrameRetries(3035, "Set maximum frame retries") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.MaxFrameRetries, DeviceMessageConstants.MaxFrameRetriesDefaultTranslation));
         }
     },
-    SetNeighbourTableEntryTTL(37, "Set time to live of the neighbour table entries") {
+    SetNeighbourTableEntryTTL(3036, "Set time to live of the neighbour table entries") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.NeighbourTableEntryTTL, DeviceMessageConstants.NeighbourTableEntryTTLDefaultTranslation));
         }
     },
-    SetHighPriorityWindowSize(38, "Set high priority window size") {
+    SetHighPriorityWindowSize(3037, "Set high priority window size") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.HighPriorityWindowSize, DeviceMessageConstants.HighPriorityWindowSizeDefaultTranslation));
         }
     },
-    SetCSMAFairnessLimit(39, "Set CSMA fairness limit") {
+    SetCSMAFairnessLimit(3038, "Set CSMA fairness limit") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.CSMAFairnessLimit, DeviceMessageConstants.CSMAFairnessLimitDefaultTranslation));
         }
     },
-    SetBeaconRandomizationWindowLength(40, "Set beacon randomization window length") {
+    SetBeaconRandomizationWindowLength(3039, "Set beacon randomization window length") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.BeaconRandomizationWindowLength, DeviceMessageConstants.BeaconRandomizationWindowLengthDefaultTranslation));
         }
     },
-    SetMacA(41, "Set adaptive CW linear decrease") {
+    SetMacA(3040, "Set adaptive CW linear decrease") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.MacA, DeviceMessageConstants.MacADefaultTranslation));
         }
     },
-    SetMacK(42, "Set rate adaptation factor for channel access fairness limit") {
+    SetMacK(3041, "Set rate adaptation factor for channel access fairness limit") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.MacK, DeviceMessageConstants.MacKDefaultTranslation));
         }
     },
-    SetMinimumCWAttempts(43, "Set minimum CW attempts") {
+    SetMinimumCWAttempts(3042, "Set minimum CW attempts") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.MinimumCWAttempts, DeviceMessageConstants.MinimumCWAttemptsDefaultTranslation));
         }
     },
-    SetMaxBe(44, "Set maximum value of backoff exponent") {
+    SetMaxBe(3043, "Set maximum value of backoff exponent") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.maxBe, DeviceMessageConstants.maxBeDefaultTranslation));
         }
     },
-    SetMaxCSMABackOff(45, "Set maximum number of backoff attempts") {
+    SetMaxCSMABackOff(3044, "Set maximum number of backoff attempts") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.maxCSMABackOff, DeviceMessageConstants.maxCSMABackOffDefaultTranslation));
         }
     },
-    SetMinBe(46, "Set minimum value of backoff exponent") {
+    SetMinBe(3045, "Set minimum value of backoff exponent") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.minBe, DeviceMessageConstants.minBeDefaultTranslation));
         }
     },
-    PathRequest(47, "Execute path request") {
+    PathRequest(3046, "Execute path request") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.deviceGroupSpec(service, DeviceMessageConstants.deviceGroupAttributeName, DeviceMessageConstants.deviceGroupAttributeDefaultTranslation));
         }
     },
-    SetSecurityLevel(48, "Set security level for adaptation frames") {
+    SetSecurityLevel(3028, "Set security level for adaptation frames") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.plcSecurityLevel, DeviceMessageConstants.plcSecurityLevelDefaultTranslation));
         }
     },
-    SetRoutingConfiguration(49, "Set routing configuration") {
+    SetRoutingConfiguration(3029, "Set routing configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -224,49 +224,49 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetPanId(50, "Set PAN id") {
+    SetPanId(3019, "Set PAN id") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.G3PanIdAttributename, DeviceMessageConstants.G3PanIdAttributeDefaultTranslation));
         }
     },
-    SetWeakLQIValueAttributeName(14, "Set weak LQI value") {
+    SetWeakLQIValueAttributeName(3027, "Set weak LQI value") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.weakLQIValueAttributeName, DeviceMessageConstants.weakLQIValueAttributeDefaultTranslation));
         }
     },
-    WritePlcG3Timeout(15, "Write PLC G3 timeout") {
+    WritePlcG3Timeout(3017, "Write PLC G3 timeout") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.plcG3TimeoutAttributeName, DeviceMessageConstants.plcG3TimeoutAttributeDefaultTranslation));
         }
     },
-    ResetPlcOfdmMacCounters(16, "Reset PLC OFDM mac counters") {
+    ResetPlcOfdmMacCounters(3018, "Reset PLC OFDM mac counters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    SetDisableDefaultRouting(17, "Disable default routing") {
+    SetDisableDefaultRouting(3060, "Disable default routing") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.disableDefaultRouting, DeviceMessageConstants.disableDefaultRoutingDefaultTranslation));
         }
     },
-    SetDeviceType(18, "Set device type") {
+    SetDeviceType(3061, "Set device type") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.deviceType, DeviceMessageConstants.deviceTypeDefaultTranslation));
         }
     },
-    SetSFSKRepeater(19, "Set SFSK repeater") {
+    SetSFSKRepeater(3021, "Set SFSK repeater") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.REPEATERAttributeName, DeviceMessageConstants.REPEATERAttributeDefaultTranslation));
         }
     },
-    SetSFSKGain(20, "Set SFSK gain") {
+    SetSFSKGain(3022, "Set SFSK gain") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -276,13 +276,13 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetTimeoutNotAddressed(21, "Set timeout not addressed") {
+    SetTimeoutNotAddressed(3023, "Set timeout not addressed") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.durationSpec(service, DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName, DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeDefaultTranslation));
         }
     },
-    SetSFSKMacTimeouts(22, "Set SFSK mac timeouts") {
+    SetSFSKMacTimeouts(3024, "Set SFSK mac timeouts") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -293,7 +293,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetPlcChannelFreqSnrCredits(23, "Set PLC channel frequency SNR credits") {
+    SetPlcChannelFreqSnrCredits(3025, "Set PLC channel frequency SNR credits") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -324,62 +324,62 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    PLCPrimeCancelFirmwareUpgrade(24, "Cancel firmware upgrade") {
+    PLCPrimeCancelFirmwareUpgrade(3065, "Cancel firmware upgrade") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    PLCPrimeReadPIB(25, "Read PIB value of a node") {
+    PLCPrimeReadPIB(3066, "Read PIB value of a node") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.macAddress, DeviceMessageConstants.macAddressDefaultTranslation));
         }
     },
-    PLCPrimeRequestFirmwareVersion(26, "Request the firmware version of a node") {
+    PLCPrimeRequestFirmwareVersion(3067, "Request the firmware version of a node") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.macAddress, DeviceMessageConstants.macAddressDefaultTranslation));
         }
     },
-    PLCPrimeWritePIB(27, "Write PIB value of a node") {
+    PLCPrimeWritePIB(3068, "Write PIB value of a node") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.macAddress, DeviceMessageConstants.macAddressDefaultTranslation));
         }
     },
-    PLCEnableDisable(28, "Enable or disable PLC") {
+    PLCEnableDisable(3069, "Enable or disable PLC") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.enablePLC, DeviceMessageConstants.enablePLCDefaultTranslation));
         }
     },
-    PLCFreqPairSelection(29, "PLC frequency pair selection") {
+    PLCFreqPairSelection(3070, "PLC frequency pair selection") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.frequencyPair, DeviceMessageConstants.frequencyPairDefaultTranslation));
         }
     },
-    PLCRequestConfig(30, "PLC request configuration event") {
+    PLCRequestConfig(3071, "PLC request configuration event") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
     },
-    CIASEDiscoveryMaxCredits(31, "Set the maximum number of discovery credits") {
+    CIASEDiscoveryMaxCredits(3072, "Set the maximum number of discovery credits") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.discoveryMaxCredits, DeviceMessageConstants.discoveryMaxCreditsDefaultTranslation));
         }
     },
-    PLCChangeMacAddress(32, "Change PLC MAC address") {
+    PLCChangeMacAddress(3073, "Change PLC MAC address") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.macAddress, DeviceMessageConstants.macAddressDefaultTranslation));
         }
     },
 
-    IDISDiscoveryConfiguration(33, "Discovery configuration") {
+    IDISDiscoveryConfiguration(3074, "Discovery configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -387,7 +387,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, DeviceMessageConstants.duration, DeviceMessageConstants.durationDefaultTranslation));
         }
     },
-    IDISRepeaterCallConfiguration(34, "IDIS repeater call configuration") {
+    IDISRepeaterCallConfiguration(3075, "IDIS repeater call configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -398,7 +398,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         }
     },
     //Configuration of G3 interface on RTU+Server2
-    SetAutomaticRouteManagement(51, "Set automatic route management") {
+    SetAutomaticRouteManagement(3047, "Set automatic route management") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -408,97 +408,97 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    EnableSNR(52, "Enable SNR") {
+    EnableSNR(3048, "Enable SNR") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.EnableSNR, DeviceMessageConstants.EnableSNRDefaultTranslation));
         }
     },
-    SetSNRPacketInterval(53, "Set SNR packet interval") {
+    SetSNRPacketInterval(3049, "Set SNR packet interval") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.SNRPacketInterval, DeviceMessageConstants.SNRPacketIntervalDefaultTranslation));
         }
     },
-    SetSNRQuietTime(54, "Set SNR quiet time") {
+    SetSNRQuietTime(3050, "Set SNR quiet time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.SNRQuietTime, DeviceMessageConstants.SNRQuietTimeDefaultTranslation));
         }
     },
-    SetSNRPayload(55, "Set SNR payload") {
+    SetSNRPayload(3051, "Set SNR payload") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.SNRPayload, DeviceMessageConstants.SNRPayloadDefaultTranslation));
         }
     },
-    EnableKeepAlive(56, "Enable keep alive") {
+    EnableKeepAlive(3052, "Enable keep alive") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.EnableKeepAlive, DeviceMessageConstants.EnableKeepAliveDefaultTranslation));
         }
     },
-    SetKeepAliveScheduleInterval(57, "Set interval for keep alive schedule") {
+    SetKeepAliveScheduleInterval(3053, "Set interval for keep alive schedule") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.KeepAliveScheduleInterval, DeviceMessageConstants.KeepAliveScheduleIntervalDefaultTranslation));
         }
     },
-    SetKeepAliveBucketSize(58, "Set bucket size for keep alive") {
+    SetKeepAliveBucketSize(3054, "Set bucket size for keep alive") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.KeepAliveBucketSize, DeviceMessageConstants.KeepAliveBucketSizeDefaultTranslation));
         }
     },
-    SetMinInactiveMeterTime(59, "Set minimum inactive meter time") {
+    SetMinInactiveMeterTime(3055, "Set minimum inactive meter time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.minInactiveMeterTime, DeviceMessageConstants.minInactiveMeterTimeDefaultTranslation));
         }
     },
-    SetMaxInactiveMeterTime(60, "Set maximum inactive meter time") {
+    SetMaxInactiveMeterTime(3056, "Set maximum inactive meter time") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.maxInactiveMeterTime, DeviceMessageConstants.maxInactiveMeterTimeDefaultTranslation));
         }
     },
-    SetKeepAliveRetries(61, "Set retries for keep alive") {
+    SetKeepAliveRetries(3057, "Set retries for keep alive") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.KeepAliveRetries, DeviceMessageConstants.KeepAliveRetriesDefaultTranslation));
         }
     },
-    SetKeepAliveTimeout(62, "Set timeout for keep alive") {
+    SetKeepAliveTimeout(3058, "Set timeout for keep alive") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.KeepAliveTimeout, DeviceMessageConstants.KeepAliveTimeoutDefaultTranslation));
         }
     },
-    EnableG3PLCInterface(63, "Enable G3 PLC interface") {
+    EnableG3PLCInterface(3063, "Enable G3 PLC interface") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.enablePLC, DeviceMessageConstants.enablePLCDefaultTranslation));
         }
     },
-    IDISRunRepeaterCallNow(64, "IDIS Run repeater call now") {
+    IDISRunRepeaterCallNow(3076, "IDIS Run repeater call now") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    IDISRunNewMeterDiscoveryCallNow(65, "IDIS Run new meter discovery now") {
+    IDISRunNewMeterDiscoveryCallNow(3077, "IDIS Run new meter discovery now") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    IDISRunAlarmDiscoveryCallNow(66, "IDIS Run alarm discovery now") {
+    IDISRunAlarmDiscoveryCallNow(3078, "IDIS Run alarm discovery now") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList() ;
         }
     },
-    IDISWhitelistConfiguration(67, "IDIS Local whitelist configuration") {
+    IDISWhitelistConfiguration(3079, "IDIS Local whitelist configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -507,7 +507,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    IDISOperatingWindowConfiguration(68, "IDIS Operating window configuration") {
+    IDISOperatingWindowConfiguration(3080, "IDIS Operating window configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -517,7 +517,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    IDISPhyConfiguration(69, "IDIS phy configuration") {
+    IDISPhyConfiguration(3081, "IDIS phy configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -528,7 +528,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    IDISCreditManagementConfiguration(70, "IDIS Credit management configuration") {
+    IDISCreditManagementConfiguration(3082, "IDIS Credit management configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -537,7 +537,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    ConfigurePLcG3KeepAlive(71, "Configure PLC G3 keep alive") {
+    ConfigurePLcG3KeepAlive(3064, "Configure PLC G3 keep alive") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -547,7 +547,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    PingMeter(72, "Ping meter") {
+    PingMeter(3083, "Ping meter") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -556,25 +556,25 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    AddMetersToBlackList(73, "Add meters to blacklist") {
+    AddMetersToBlackList(3084, "Add meters to blacklist") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.macAddresses, DeviceMessageConstants.macAddressesDefaultTranslation));
         }
     },
-    RemoveMetersFromBlackList(74, "Remove meters from blacklist") {
+    RemoveMetersFromBlackList(3085, "Remove meters from blacklist") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.macAddresses, DeviceMessageConstants.macAddressesDefaultTranslation));
         }
     },
-    KickMeter(75, "Kick meter from network") {
+    KickMeter(3086, "Kick meter from network") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.macAddress, DeviceMessageConstants.macAddressDefaultTranslation));
         }
     },
-    PathRequestWithTimeout(76, "Execute path request") {
+    PathRequestWithTimeout(3087, "Execute path request") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -583,13 +583,13 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetLowLQIValueAttributeName(77, "Set Low LQI Value") {
+    SetLowLQIValueAttributeName(3088, "Set Low LQI Value") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.lowLQIValueAttributeName, DeviceMessageConstants.lowLQIValueAttributeDefaultTranslation));
         }
     },
-    SetHighLQIValueAttributeName(78, "Set High LQI Value") {
+    SetHighLQIValueAttributeName(3089, "Set High LQI Value") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.highLQIValueAttributeName, DeviceMessageConstants.highLQIValueAttributeDefaultTranslation));
@@ -612,15 +612,17 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
     protected PropertySpec deviceGroupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(DeviceGroup.class)
+                .referenceSpec(DeviceGroup.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -630,6 +632,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                 .durationSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -639,6 +642,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                 .boundedBigDecimalSpec(lowerLimit, upperLimit)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -647,7 +651,8 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -660,6 +665,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -669,6 +675,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                 .hexStringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

@@ -1,107 +1,155 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides a summary of all messages related to general Device Actions
+ * Provides a summary of all messages related to general Device Actions.
  * <p/>
  * Copyrights EnergyICT
  * Date: 11/03/13
  * Time: 11:59
  */
-public enum OutputConfigurationMessage implements DeviceMessageSpec {
+public enum OutputConfigurationMessage implements DeviceMessageSpecSupplier {
 
-    SetOutputOn(0, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOn)),
-    SetOutputOff(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOff)),
-    SetOutputToggle(2, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputToggle)),
-    SetOutputPulse(3, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputPulse)),
-    OutputOff(4, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.output)),
-    OutputOn(5, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.output)),
-    AbsoluteDOSwitchRule(6,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.id),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.startTime),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.endTime),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.outputBitMap)
-    ),
-    DeleteDOSwitchRule(7,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.id),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.delete)
-    ),
-    RelativeDOSwitchRule(8,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.id),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.duration),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.outputBitMap)
-    ),
-    WriteOutputState(9,
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.outputId),
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.newState)
-    ),;
+    SetOutputOn(35001, "Set output on") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.OutputOn, DeviceMessageConstants.OutputOnDefaultTranslation));
+        }
+    },
+    SetOutputOff(35002, "Set output off") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.OutputOff, DeviceMessageConstants.OutputOffDefaultTranslation));
+        }
+    },
+    SetOutputToggle(35003, "Set output toggle") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.OutputToggle, DeviceMessageConstants.OutputToggleDefaultTranslation));
+        }
+    },
+    SetOutputPulse(35004, "Set output pulse") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.OutputPulse, DeviceMessageConstants.OutputPulseDefaultTranslation));
+        }
+    },
+    OutputOff(35005, "Output off") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.output, DeviceMessageConstants.outputDefaultTranslation));
+        }
+    },
+    OutputOn(35006, "Output on") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.output, DeviceMessageConstants.outputDefaultTranslation));
+        }
+    },
+    AbsoluteDOSwitchRule(35007, "Write absolute DO switch rule") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.startTime, DeviceMessageConstants.startTimeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.endTime, DeviceMessageConstants.endTimeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.outputBitMap, DeviceMessageConstants.outputBitMapDefaultTranslation)
+            );
+        }
+    },
+    DeleteDOSwitchRule(35008, "Delete a DO switch rule") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.delete, DeviceMessageConstants.deleteDefaultTranslation)
+            );
+        }
+    },
+    RelativeDOSwitchRule(35009, "Write a relative DO switch rule") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.duration, DeviceMessageConstants.durationDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.outputBitMap, DeviceMessageConstants.outputBitMapDefaultTranslation)
+            );
+        }
+    },
+    WriteOutputState(35010, "Write output state") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.outputId, DeviceMessageConstants.outputIdDefaultTranslation),
+                    this.booleanSpec(service, DeviceMessageConstants.newState, DeviceMessageConstants.newStateDefaultTranslation)
+            );
+        }
+    };
 
-    private final int id;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    public int getMessageId() {
-        return id;
-    }
-
-    private static final DeviceMessageCategory category = DeviceMessageCategories.OUTPUT_CONFIGURATION;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-
-    private OutputConfigurationMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    OutputConfigurationMessage(long id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    private static String translate(final String key) {
-        return UserEnvironment.getDefault().getTranslation(key);
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .booleanSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return category;
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
     }
 
-    @Override
-    public String getName() {
-        return translate(this.getNameResourceKey());
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
     private String getNameResourceKey() {
         return OutputConfigurationMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.OUTPUT_CONFIGURATION,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
-    }
 }

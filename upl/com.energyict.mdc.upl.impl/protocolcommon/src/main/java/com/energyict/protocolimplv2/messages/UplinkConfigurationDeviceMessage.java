@@ -18,25 +18,25 @@ import java.util.List;
  */
 public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    EnableUplinkPing(0, "Enable uplink ping") {
+    EnableUplinkPing(36001, "Enable uplink ping") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.enableUplinkPing, DeviceMessageConstants.enableUplinkPingDefaultTranslation));
         }
     },
-    WriteUplinkPingDestinationAddress(1, "Write destination address for uplink ping") {
+    WriteUplinkPingDestinationAddress(36002, "Write destination address for uplink ping") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.uplinkPingDestinationAddress, DeviceMessageConstants.uplinkPingDestinationAddressDefaultTranslation));
         }
     },
-    WriteUplinkPingInterval(2, "Write interval for uplink ping") {
+    WriteUplinkPingInterval(36003, "Write interval for uplink ping") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.uplinkPingInterval, DeviceMessageConstants.uplinkPingIntervalDefaultTranslation));
         }
     },
-    WriteUplinkPingTimeout(3, "Write timeout for uplink ping") {
+    WriteUplinkPingTimeout(36004, "Write timeout for uplink ping") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.uplinkPingTimeout, DeviceMessageConstants.uplinkPingTimeoutDefaultTranslation));
@@ -59,6 +59,7 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -68,6 +69,7 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -77,6 +79,7 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

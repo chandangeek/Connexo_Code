@@ -1,15 +1,18 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,85 +20,153 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetEIWebPassword(0,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebPasswordAttributeName)),
-    SetEIWebPage(1,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebPageAttributeName)),
-    SetEIWebFallbackPage(2,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebFallbackPageAttributeName)),
-    SetEIWebSendEvery(3,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebSendEveryAttributeName)),
-    SetEIWebCurrentInterval(4,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebCurrentIntervalAttributeName)),
-    SetEIWebDatabaseID(5,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebDatabaseIDAttributeName)),
-    SetEIWebOptions(6,
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetEIWebOptionsAttributeName)),
-    UpdateEIWebSSLCertificate(7, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.sslCertificateUserFile)),
-    EIWebSetOption(8, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
-    EIWebClrOption(21, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
+    SetEIWebPassword(18001, "Set EIWeb password") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.stringSpec(service, DeviceMessageConstants.SetEIWebPasswordAttributeName, DeviceMessageConstants.SetEIWebPasswordAttributeDefaultTranslation)
+            );
+        }
+    },
+    SetEIWebPage(18002, "Set EIWeb web page") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.stringSpec(service, DeviceMessageConstants.SetEIWebPageAttributeName, DeviceMessageConstants.SetEIWebPageAttributeDefaultTranslation)
+            );
+        }
+    },
+    SetEIWebFallbackPage(18003, "Set EIWeb fallback page") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.stringSpec(service, DeviceMessageConstants.SetEIWebFallbackPageAttributeName, DeviceMessageConstants.SetEIWebFallbackPageAttributeDefaultTranslation)
+            );
+        }
+    },
+    SetEIWebSendEvery(18004, "Set EIWeb send every") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.stringSpec(service, DeviceMessageConstants.SetEIWebSendEveryAttributeName, DeviceMessageConstants.SetEIWebSendEveryAttributeDefaultTranslation)
+            );
+        }
+    },
+    SetEIWebCurrentInterval(18005, "Set EIWeb current interval") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.stringSpec(service, DeviceMessageConstants.SetEIWebCurrentIntervalAttributeName, DeviceMessageConstants.SetEIWebCurrentIntervalAttributeDefaultTranslation)
+            );
+        }
+    },
+    SetEIWebDatabaseID(18006, "Set EIWeb database ID") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.stringSpec(service, DeviceMessageConstants.SetEIWebDatabaseIDAttributeName, DeviceMessageConstants.SetEIWebDatabaseIDAttributeDefaultTranslation)
+            );
+        }
+    },
+    SetEIWebOptions(18007, "Set EIWeb web options") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
+                    this.stringSpec(service, DeviceMessageConstants.SetEIWebOptionsAttributeName, DeviceMessageConstants.SetEIWebOptionsAttributeDefaultTranslation)
+            );
+        }
+    },
+    UpdateEIWebSSLCertificate(18008, "Update the SSL certificate for EIWeb+") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.deviceMessageFileSpec(service, DeviceMessageConstants.sslCertificateUserFile, DeviceMessageConstants.sslCertificateUserFileDefaultTranslation));
+        }
+    },
+    EIWebSetOption(18009, "EIWeb - Set an option") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
+        }
+    },
+    EIWebClrOption(18010, "EIWeb - Clear an option") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
+        }
+    };
 
-    private static final DeviceMessageCategory eiWebCategory = DeviceMessageCategories.EIWEB_PARAMETERS;
+    private final long id;
+    private final String defaultNameTranslation;
 
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private EIWebConfigurationDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    EIWebConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        this.defaultNameTranslation = defaultNameTranslation;
     }
 
-    @Override
-    public DeviceMessageCategory getCategory() {
-        return eiWebCategory;
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(DeviceMessageFile.class.getName())
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
     }
 
-    @Override
-    public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .stringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
     }
 
-    /**
-     * Gets the resource key that determines the name
-     * of this category to the user's language settings.
-     *
-     * @return The resource key
-     */
+    protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired();
+    }
+
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
+    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... exhaustiveValues) {
+        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .addValues(exhaustiveValues)
+                .markExhaustive()
+                .finish();
+    }
+
     private String getNameResourceKey() {
         return EIWebConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+    public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        return new DeviceMessageSpecImpl(
+                this.id,
+                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
+                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                DeviceMessageCategories.EIWEB_PARAMETERS,
+                this.getPropertySpecs(propertySpecService),
+                propertySpecService, nlsService);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new EnumBasedDeviceMessageSpecPrimaryKey(this, name());
-    }
-
-    @Override
-    public int getMessageId() {
-        return id;
-    }
 }

@@ -182,7 +182,7 @@ public enum DeviceSecurityProperty {
     protected static PropertySpecBuilder<Certificate> certificatePropertySpecBuilder(SecurityPropertySpecName name) {
         return Services
                 .propertySpecService()
-                .referenceSpec(Certificate.class)
+                .referenceSpec(Certificate.class.getName())
                 .named(name.toString(), name.toString())
                 .describedAs("Description for " + name.toString());
     }

@@ -45,7 +45,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thres
  */
 public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SET_RELAY_OPERATING_MODE(0, "Set relay operating mode") {
+    SET_RELAY_OPERATING_MODE(33001, "Set relay operating mode") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -54,7 +54,7 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SET_TIME_SWITCHING_TABLE(1, "Write the time switching table") {
+    SET_TIME_SWITCHING_TABLE(33002, "Write the time switching table") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -63,25 +63,25 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SET_THRESHOLD_OVER_CONSUMPTION(2, "Set the threshold for over consumption") {
+    SET_THRESHOLD_OVER_CONSUMPTION(33003, "Set the threshold for over consumption") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, threshold, thresholdDefaultTranslation));
         }
     },
-    SET_OVERALL_MINIMUM_THRESHOLD(3, "Set overall minimum threshold") {
+    SET_OVERALL_MINIMUM_THRESHOLD(33004, "Set overall minimum threshold") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, threshold, thresholdDefaultTranslation));
         }
     },
-    SET_OVERALL_MAXIMUM_THRESHOLD(4, "Set overall maximum threshold") {
+    SET_OVERALL_MAXIMUM_THRESHOLD(33005, "Set overall maximum threshold") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, threshold, thresholdDefaultTranslation));
         }
     },
-    SET_RELAY_TIME_OFFSETS_TABLE(5, "Write relay offsets table") {
+    SET_RELAY_TIME_OFFSETS_TABLE(33006, "Write relay offsets table") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -93,7 +93,7 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WRITE_GPS_COORDINATES(6, "Write the GPS coordinates") {
+    WRITE_GPS_COORDINATES(33007, "Write the GPS coordinates") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -119,6 +119,7 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -127,7 +128,8 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -144,9 +146,10 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
     protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(DeviceMessageFile.class)
+                .referenceSpec(DeviceMessageFile.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

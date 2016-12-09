@@ -24,27 +24,25 @@ final class EnumBasedPrimaryKeySupport {
      */
     static String cleanUpClassName(String dirtyClassName) {
         String[] parts = dirtyClassName.split(DOLLAR_REGEX);
-        if (isGivenStringNumeric(parts[parts.length - 1])) {
+        if (isNumeric(parts[parts.length - 1])) {
             return dirtyClassName.substring(0, dirtyClassName.lastIndexOf(DOLLAR_SIGN));
         } else {
             return dirtyClassName;
         }
     }
 
-    private static boolean isGivenStringNumeric(String possibleInt) {
+    private static boolean isNumeric(String possibleInt) {
         if (possibleInt != null) {
             try {
                 Double.parseDouble(possibleInt);
                 return true;
             } catch (NumberFormatException e) {
-                // we eat it because this determines that the given string is not a number ...
                 return false;
             }
         } else {
             return false;
         }
     }
-
 
     // Hide utility class constructor
     private EnumBasedPrimaryKeySupport() {}

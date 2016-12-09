@@ -1,7 +1,7 @@
 package com.energyict.license;
 
-import com.energyict.mdw.core.LicensedProtocol;
-import com.energyict.mdw.core.ProtocolFamily;
+import com.energyict.mdc.protocol.LicensedProtocol;
+import com.energyict.mdc.protocol.ProtocolFamily;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -412,4 +412,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
         return this.families;
     }
 
+    @Override
+    public String getName() {
+        return name();
+    }
 }

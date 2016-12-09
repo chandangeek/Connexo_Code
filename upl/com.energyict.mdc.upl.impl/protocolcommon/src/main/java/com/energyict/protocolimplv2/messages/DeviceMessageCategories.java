@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -66,7 +65,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
     PLC_CONFIGURATION(4, "PLC configuration", "The category for all messages that relate to setting up a complete PLC network") {
         @Override
         protected List<DeviceMessageSpecSupplier> factories() {
-            return Arrays.<DeviceMessageSpec>asList(PLCConfigurationDeviceMessage.values());
+            return Arrays.asList(PLCConfigurationDeviceMessage.values());
         }
     },
     /**
@@ -84,7 +83,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
     NETWORK_AND_CONNECTIVITY(6, "Network and connectivity", "The category for all messages that will change the connectivity setup of a device (e.g. GPRS settings)") {
         @Override
         protected List<DeviceMessageSpecSupplier> factories() {
-            return Arrays.<DeviceMessageSpec>asList(NetworkConnectivityMessage.values());
+            return Arrays.asList(NetworkConnectivityMessage.values());
         }
     },
     /**
@@ -93,7 +92,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
     ZIGBEE_CONFIGURATION(7, "ZigBee configuration", "The category for all messages that relate to setting up and configuring a ZigBee network (e.g. configure HAN, add slave,...)") {
         @Override
         protected List<DeviceMessageSpecSupplier> factories() {
-            return Arrays.<DeviceMessageSpec>asList(ZigBeeConfigurationDeviceMessage.values());
+            return Arrays.asList(ZigBeeConfigurationDeviceMessage.values());
         }
     },
 
@@ -103,7 +102,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
     SECURITY(8, "Security", "The category for all messages that relate to authentication, authorization and encryption.") {
         @Override
         protected List<DeviceMessageSpecSupplier> factories() {
-            return Arrays.<DeviceMessageSpec>asList(SecurityMessage.values());
+            return Arrays.asList(SecurityMessage.values());
         }
     },
 
@@ -131,7 +130,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
     PRICING_INFORMATION(11, "Pricing information", "The category for all messages that relate to a pricing information") {
         @Override
         protected List<DeviceMessageSpecSupplier> factories() {
-            return Arrays.<DeviceMessageSpec>asList(PricingInformationMessage.values());
+            return Arrays.asList(PricingInformationMessage.values());
         }
     },
     /**

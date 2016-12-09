@@ -21,25 +21,25 @@ import java.util.List;
  */
 public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
 
-    CONSUMER_MESSAGE_CODE_TO_PORT_P1(0, "Send a code message to the P1 port") {
+    CONSUMER_MESSAGE_CODE_TO_PORT_P1(10001, "Send a code message to the P1 port") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.p1InformationAttributeName, DeviceMessageConstants.p1InformationAttributeDefaultTranslation));
         }
     },
-    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(1, "Send a text message to the P1 port") {
+    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(10002, "Send a text message to the P1 port") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.p1InformationAttributeName, DeviceMessageConstants.p1InformationAttributeDefaultTranslation));
         }
     },
-    SET_DISPLAY_MESSAGE(2, "Set display message") {
+    SET_DISPLAY_MESSAGE(10003, "Set display message") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.DisplayMessageAttributeName, DeviceMessageConstants.DisplayMessageAttributeDefaultTranslation));
         }
     },
-    SET_DISPLAY_MESSAGE_WITH_OPTIONS(3, "Set display message with options") {
+    SET_DISPLAY_MESSAGE_WITH_OPTIONS(10004, "Set display message with options") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -49,7 +49,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(4, "Set display message on IHD with options") {
+    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(10005, "Set display message on IHD with options") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -59,7 +59,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CLEAR_DISPLAY_MESSAGE(5, "Clear display message") {
+    CLEAR_DISPLAY_MESSAGE(10006, "Clear display message") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
@@ -82,6 +82,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -91,6 +92,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -100,6 +102,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.RegisterValue;
@@ -732,12 +734,11 @@ public class ObjectFactory {
 
     /**
      * Request the firmware versions of the meter
-     *
-     * @throws java.io.IOException when the communication fails
      */
-    public void sendFirmwareRequest() throws IOException {
+    public void sendFirmwareRequest() {
         log(Level.INFO, "Sending firmware version request" + getRetryDescription());
         getFirmwareVersion().request();
+        addRequestToOverview(RequestType.CurrentRegisters);
     }
 
     public ACE4000 getAce4000() {
@@ -1076,5 +1077,18 @@ public class ObjectFactory {
             allEvents.add(announceEvent);
         }
         return allEvents;
+    }
+
+    public CollectedFirmwareVersion createCollectedFirmwareVersions() {
+        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
+        result.setActiveMeterFirmwareVersion(getFirmwareVersion().getMetrologyFirmwareVersion());
+        result.setActiveCommunicationFirmwareVersion(getFirmwareVersion().getAuxiliaryFirmwareVersion());
+        return result;
+    }
+
+    public CollectedFirmwareVersion createFailedFirmwareVersions(Issue issue) {
+        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
+        result.setFailureInformation(ResultType.DataIncomplete, issue);
+        return result;
     }
 }

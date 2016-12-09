@@ -17,13 +17,13 @@ import java.util.Collections;
  */
 public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetDialCommand(0, DeviceMessageConstants.SetDialCommandAttributeName, DeviceMessageConstants.SetDialCommandAttributeDefaultTranslation),
-    SetModemInit1(1, DeviceMessageConstants.SetModemInit1AttributeName, DeviceMessageConstants.SetModemInit1AttributeDefaultTranslation),
-    SetModemInit2(2, DeviceMessageConstants.SetModemInit2AttributeName, DeviceMessageConstants.SetModemInit2AttributeDefaultTranslation),
-    SetModemInit3(3, DeviceMessageConstants.SetModemInit3AttributeName, DeviceMessageConstants.SetModemInit3AttributeDefaultTranslation),
-    SetPPPBaudRate(4, DeviceMessageConstants.SetPPPBaudRateAttributeName, DeviceMessageConstants.SetPPPBaudRateAttributeDefaultTranslation),
-    SetModemtype(5, DeviceMessageConstants.SetModemtypeAttributeName, DeviceMessageConstants.SetModemtypeAttributeDefaultTranslation),
-    SetResetCycle(6, DeviceMessageConstants.SetResetCycleAttributeName, DeviceMessageConstants.SetResetCycleAttributeDefaultTranslation);
+    SetDialCommand(20001, DeviceMessageConstants.SetDialCommandAttributeName, DeviceMessageConstants.SetDialCommandAttributeDefaultTranslation),
+    SetModemInit1(20002, DeviceMessageConstants.SetModemInit1AttributeName, DeviceMessageConstants.SetModemInit1AttributeDefaultTranslation),
+    SetModemInit2(20003, DeviceMessageConstants.SetModemInit2AttributeName, DeviceMessageConstants.SetModemInit2AttributeDefaultTranslation),
+    SetModemInit3(20004, DeviceMessageConstants.SetModemInit3AttributeName, DeviceMessageConstants.SetModemInit3AttributeDefaultTranslation),
+    SetPPPBaudRate(20005, DeviceMessageConstants.SetPPPBaudRateAttributeName, DeviceMessageConstants.SetPPPBaudRateAttributeDefaultTranslation),
+    SetModemtype(20006, DeviceMessageConstants.SetModemtypeAttributeName, DeviceMessageConstants.SetModemtypeAttributeDefaultTranslation),
+    SetResetCycle(20007, DeviceMessageConstants.SetResetCycleAttributeName, DeviceMessageConstants.SetResetCycleAttributeDefaultTranslation);
 
     private final long id;
     private final String deviceMessageConstantKey;
@@ -48,6 +48,7 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecSupplier
                 .stringSpec()
                 .named(this.deviceMessageConstantKey, this.getNameTranslationKey())
                 .describedAs(this.getNameTranslationKey().description())
+                .markRequired()
                 .finish();
     }
 

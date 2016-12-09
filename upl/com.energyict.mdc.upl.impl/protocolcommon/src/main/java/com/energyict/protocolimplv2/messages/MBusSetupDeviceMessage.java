@@ -22,31 +22,31 @@ import java.util.List;
  */
 public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
 
-    Decommission(0, "Decommission") {
+    Decommission(24001, "Decommission") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
-    DataReadout(1, "Data readout") {
+    DataReadout(24002, "Data readout") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
-    Commission(2, "Commission") {
+    Commission(24003, "Commission") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
-    DecommissionAll(3, "Decommission all") {
+    DecommissionAll(24004, "Decommission all") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
-    SetEncryptionKeys(4, "Set encryption key") {
+    SetEncryptionKeys(24005, "Set encryption key") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
@@ -55,25 +55,25 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SetEncryptionKeysUsingCryptoserver(5, "Set encryption key using cryptoserver") {
+    SetEncryptionKeysUsingCryptoserver(24006, "Set encryption key using cryptoserver") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.defaultKeyAttributeName, DeviceMessageConstants.defaultKeyAttributeDefaultTranslation));
         }
     },
-    UseCorrectedValues(6, "Use corrected values") {
+    UseCorrectedValues(24007, "Use corrected values") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
-    UseUncorrectedValues(7, "Use uncorrected values") {
+    UseUncorrectedValues(24008, "Use uncorrected values") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
-    WriteCaptureDefinition(8, "Write MBus capture definition") {
+    WriteCaptureDefinition(24012, "Write MBus capture definition") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
@@ -82,7 +82,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    Commission_With_Channel(9, "Install MBus device") {
+    Commission_With_Channel(24009, "Install MBus device") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(
@@ -99,13 +99,13 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    Reset_MBus_Client(10, "Reset MBus client") {
+    Reset_MBus_Client(24013, "Reset MBus client") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.mbusSerialNumber, DeviceMessageConstants.mbusSerialNumberDefaultTranslation));
         }
     },
-    WriteCaptureDefinitionForAllInstances(11, "Write MBus capture definitions") {
+    WriteCaptureDefinitionForAllInstances(24010, "Write MBus capture definitions") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
@@ -120,13 +120,13 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WriteMBusCapturePeriod(12, "Write MBus capture period") {
+    WriteMBusCapturePeriod(24011, "Write MBus capture period") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.durationSpec(service, DeviceMessageConstants.capturePeriodAttributeName, DeviceMessageConstants.capturePeriodAttributeDefaultTranslation));
         }
     },
-    ChangeMBusAttributes(13, "Change MBus attributes") {
+    ChangeMBusAttributes(24014, "Change MBus attributes") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
@@ -146,7 +146,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientDeviceType, DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientDeviceTypeDefaultTranslation));
         }
     },
-    MBusClientRemoteCommission(14, "MBus client remote commission") {
+    MBusClientRemoteCommission(24015, "MBus client remote commission") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
@@ -168,7 +168,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
     private final long id;
     private final String defaultNameTranslation;
 
-    MBusSetupDeviceMessage(int id, String defaultNameTranslation) {
+    MBusSetupDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
     }
@@ -182,7 +182,8 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .bigDecimalSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -190,7 +191,8 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -202,7 +204,8 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
         return service
                 .hexStringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -219,6 +222,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
                 .passwordSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 
@@ -228,6 +232,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
                 .durationSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

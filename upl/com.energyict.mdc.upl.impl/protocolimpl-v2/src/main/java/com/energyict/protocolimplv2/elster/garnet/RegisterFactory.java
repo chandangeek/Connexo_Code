@@ -70,6 +70,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private static final Unit REACTIVE_ENERGY_UNIT = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
 
     private final GarnetConcentrator meterProtocol;
+    private String firmwareVersion = null;
 
     public RegisterFactory(GarnetConcentrator meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -145,6 +146,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
         return collectedRegister;
     }
 
+    public String readFirmwareVersion() throws GarnetException {
+        if(this.firmwareVersion == null){
+            firmwareVersion = getRequestFactory().readConcentratorVersion().getFirmwareVersion().getFirmwareVersion();
+        }
+        return firmwareVersion;
+    }
 
     private CollectedRegister readEMeterRegister(OfflineRegister register) throws GarnetException {
         CollectedRegister collectedRegister = createDeviceRegister(register);

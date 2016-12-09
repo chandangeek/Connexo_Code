@@ -12,7 +12,6 @@ import com.energyict.mdc.tasks.ComTaskEnablement;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.tasks.ServerComTask;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 
@@ -392,11 +391,8 @@ public class MasterDataSerializer {
         return schedulables;
     }
 
-    /**
-     * We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
-     */
     private static boolean isConfiguredToCollectLoadProfileData(ComTaskEnablement comTaskEnablement) {
-        return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectLoadProfileData();
+        return comTaskEnablement.getComTask().isConfiguredToCollectLoadProfileData();
     }
 
     private static boolean isReadMeterDataTask(List<ObisCode> loadProfileObisCodes, List<ObisCode> registerObisCodes, List<ObisCode> logBookObisCodes) {
@@ -448,11 +444,8 @@ public class MasterDataSerializer {
         return new ArrayList<>(logBookObisCodes);
     }
 
-    /**
-     * We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
-     */
     private static boolean isConfiguredToCollectEvents(ComTaskEnablement comTaskEnablement) {
-        return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectEvents();
+        return comTaskEnablement.getComTask().isConfiguredToCollectEvents();
     }
 
     private static List<ObisCode> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
@@ -487,11 +480,8 @@ public class MasterDataSerializer {
         return filterOutUnwantedRegisterObisCodes(registerObisCodes);
     }
 
-    /**
-     * We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
-     */
     private static boolean isConfiguredToCollectRegisterData(ComTaskEnablement comTaskEnablement) {
-        return ((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectRegisterData();
+        return comTaskEnablement.getComTask().isConfiguredToCollectRegisterData();
     }
 
     private static List<ObisCode> filterOutUnwantedRegisterObisCodes(Set<ObisCode> obisCodes) {

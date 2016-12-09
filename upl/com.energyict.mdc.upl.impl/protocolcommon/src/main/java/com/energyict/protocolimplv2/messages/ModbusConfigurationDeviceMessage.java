@@ -20,12 +20,12 @@ import java.util.List;
  */
 public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    SetMmEvery(0, "Set Mm every", DeviceMessageConstants.SetMmEveryAttributeName, DeviceMessageConstants.SetMmEveryAttributeDefaultTranslation),
-    SetMmTimeout(1, "Set Mm timeout", DeviceMessageConstants.SetMmTimeoutAttributeName, DeviceMessageConstants.SetMmTimeoutAttributeDefaultTranslation),
-    SetMmInstant(2, "Set Mm instant", DeviceMessageConstants.SetMmInstantAttributeName, DeviceMessageConstants.SetMmInstantAttributeDefaultTranslation),
-    SetMmOverflow(3, "Set Mm overflow", DeviceMessageConstants.SetMmOverflowAttributeName, DeviceMessageConstants.SetMmOverflowAttributeDefaultTranslation),
-    SetMmConfig(4, "Set Mm configuration", DeviceMessageConstants.SetMmConfigAttributeName, DeviceMessageConstants.SetMmConfigAttributeDefaultTranslation),
-    WriteSingleRegisters(5, "Write single registers") {
+    SetMmEvery(22001, "Set Mm every", DeviceMessageConstants.SetMmEveryAttributeName, DeviceMessageConstants.SetMmEveryAttributeDefaultTranslation),
+    SetMmTimeout(22002, "Set Mm timeout", DeviceMessageConstants.SetMmTimeoutAttributeName, DeviceMessageConstants.SetMmTimeoutAttributeDefaultTranslation),
+    SetMmInstant(22003, "Set Mm instant", DeviceMessageConstants.SetMmInstantAttributeName, DeviceMessageConstants.SetMmInstantAttributeDefaultTranslation),
+    SetMmOverflow(22004, "Set Mm overflow", DeviceMessageConstants.SetMmOverflowAttributeName, DeviceMessageConstants.SetMmOverflowAttributeDefaultTranslation),
+    SetMmConfig(22005, "Set Mm configuration", DeviceMessageConstants.SetMmConfigAttributeName, DeviceMessageConstants.SetMmConfigAttributeDefaultTranslation),
+    WriteSingleRegisters(22006, "Write single registers") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -35,7 +35,7 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    WriteMultipleRegisters(6, "Write multiple registers") {
+    WriteMultipleRegisters(22007, "Write multiple registers") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -45,9 +45,9 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    MmSetOption(7, "Modbus - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
-    MmClrOption(8, "Modbus - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
-    WriteMultipleCoils(9, "Write multiple coils") {
+    MmSetOption(22008, "Modbus - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    MmClrOption(22009, "Modbus - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
+    WriteMultipleCoils(22010, "Write multiple coils") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -57,7 +57,7 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
             );
         }
     },
-    WriteSingleCoil(10, "Write single coil") {
+    WriteSingleCoil(22011, "Write single coil") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -73,11 +73,11 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
     private final String propertyName;
     private final String propertyNameDefaultTranslation;
 
-    ModbusConfigurationDeviceMessage(int id, String defaultNameTranslation) {
+    ModbusConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this(id, defaultNameTranslation, "NA" , "NA");
     }
 
-    ModbusConfigurationDeviceMessage(int id, String defaultNameTranslation, String propertyName, String propertyNameDefaultTranslation) {
+    ModbusConfigurationDeviceMessage(long id, String defaultNameTranslation, String propertyName, String propertyNameDefaultTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
         this.propertyName = propertyName;
@@ -93,7 +93,8 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description());
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -113,6 +114,7 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .hexStringSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

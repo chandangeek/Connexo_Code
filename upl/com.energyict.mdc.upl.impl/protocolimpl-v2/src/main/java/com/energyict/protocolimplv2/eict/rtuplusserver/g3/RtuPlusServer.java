@@ -1,5 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.io.ConnectionType;
@@ -14,12 +22,17 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -29,16 +42,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.energyict.cbo.ObservationTimestampProperties;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.SAPAssignmentItem;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -98,7 +102,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-24 17:55:37 +0100 (Thu, 24 Mar 2016)$";
+        return "$Date: 2016-12-06 13:29:40 +0100 (Tue, 06 Dec 2016)$";
     }
 
     public DlmsSession getDlmsSession() {
@@ -267,7 +271,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
      * - the configuredLastSeenDate in EIServer is still empty
      * - the read out last seen date is empty (==> always update EIServer, by design)
      * - the read out last seen date is the same, or newer, compared to the configuredLastSeenDate in EIServer
-     * <p/>
+     * <p>
      * If true, the gateway link in EIServer will be created and the properties will be set.
      * If false, the gateway link (if it exists at all) will be removed.
      */
@@ -493,5 +497,46 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
             logger = Logger.getLogger(this.getClass().getName());
         }
         return logger;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
+        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(deviceIdentifier);
+
+        try {
+            result.setActiveMeterFirmwareVersion(getG3GatewayRegisters().getFirmwareVersionString(G3GatewayRegisters.FW_APPLICATION));
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue issue = MdcManager.getIssueFactory().createWarning(deviceIdentifier, "Could not read the active meter firmware version: " + e.getMessage());
+                result.setFailureInformation(ResultType.DataIncomplete, issue);
+            } //Else throws communication exception
+        }
+
+        try {
+            result.setActiveCommunicationFirmwareVersion(getG3GatewayRegisters().getFirmwareVersionString(G3GatewayRegisters.FW_UPPER_MAC));
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue issue = MdcManager.getIssueFactory().createWarning(deviceIdentifier, "Could not read the active upper mac communication firmware version: " + e.getMessage());
+                result.setFailureInformation(ResultType.DataIncomplete, issue);
+            } //Else throws communication exception
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 }
