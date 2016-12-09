@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 
 import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeOfDay;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -23,6 +22,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -123,8 +123,8 @@ public class A1MessageConverter extends AbstractMessageConverter {
                 (propertySpec.getName().equals(IgnoreDSTAttributeName))) {
             return (boolean) messageAttribute ? "1" : "0";
         } else if (propertySpec.getName().equals(StartOfGasDayAttributeName)) {
-            TimeOfDay timeOfDay = (TimeOfDay) messageAttribute;
-            return String.format("%02d", timeOfDay.getHoursPart()) + ":" + String.format("%02d", timeOfDay.getMinutesPart()) + ":" + String.format("%02d", timeOfDay.getSecondsPart());
+            LocalTime timeOfDay = (LocalTime) messageAttribute;
+            return String.format("%02d", timeOfDay.getHour()) + ":" + String.format("%02d", timeOfDay.getMinute()) + ":" + String.format("%02d", timeOfDay.getSecond());
         } else if (propertySpec.getName().equals(XmlUserFileAttributeName) || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             UserFile userFile = (UserFile) messageAttribute;
             return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
