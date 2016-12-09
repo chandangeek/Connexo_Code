@@ -2,7 +2,6 @@ package com.energyict.mdc.upl.properties;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;
 import java.util.Date;
 import java.util.TimeZone;
@@ -181,10 +180,25 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom {@link PropertySpec} of
-     * persistent instances of the specified api class.
+     * PrivateKeyAlias values
      *
      * @return the PropertySpecBuilder
      */
-    PropertySpecBuilderWizard.NlsOptions<Temporal> temporalSpec();
+    PropertySpecBuilderWizard.NlsOptions<PrivateKeyAlias> privateKeyAliasSpec();
 
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom {@link PropertySpec}
+     * for a Certificate alias
+     *
+     * @return the PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<CertificateAlias> certificateAliasSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom {@link PropertySpec}
+     * for a TimeZone alias
+     *
+     * @return the PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
 }
