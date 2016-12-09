@@ -12,6 +12,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.collect.Range;
@@ -20,6 +21,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -55,6 +57,8 @@ public class LoggingItemExporterTest {
     private ZonedDateTime to;
     private Range<Instant> range;
 
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
     @Mock
     private ItemExporter decorated;
     private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
@@ -94,8 +98,9 @@ public class LoggingItemExporterTest {
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(readingDataSelectorConfig));
         when(readingDataSelectorConfig.getStrategy()).thenReturn(dataExportStrategy);
         when(dataExportStrategy.adjustedExportPeriod(occurrence, item)).thenReturn(range);
+        when(threadPrincipalService.getLocale()).thenReturn(Locale.US);
 
-        loggingItemExporter = new LoggingItemExporter(thesaurus, transactionService, logger, decorated);
+        loggingItemExporter = new LoggingItemExporter(thesaurus, transactionService, logger, decorated, threadPrincipalService);
     }
 
     @Test

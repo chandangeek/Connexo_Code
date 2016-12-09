@@ -12,6 +12,7 @@ import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
@@ -37,8 +38,12 @@ import static com.elster.jupiter.util.streams.ExtraCollectors.toImmutableRangeSe
 class MeterReadingItemDataSelector extends AbstractItemDataSelector {
 
     @Inject
-    MeterReadingItemDataSelector(Clock clock, ValidationService validationService, Thesaurus thesaurus, TransactionService transactionService) {
-        super(clock, validationService, thesaurus, transactionService);
+    MeterReadingItemDataSelector(Clock clock,
+                                 ValidationService validationService,
+                                 Thesaurus thesaurus,
+                                 TransactionService transactionService,
+                                 ThreadPrincipalService threadPrincipalService) {
+        super(clock, validationService, thesaurus, transactionService, threadPrincipalService);
     }
 
     @Override

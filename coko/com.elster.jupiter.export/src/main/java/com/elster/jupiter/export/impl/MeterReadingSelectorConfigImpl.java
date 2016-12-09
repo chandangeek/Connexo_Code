@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.Membership;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
@@ -100,8 +102,19 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
                 .stream())
                 .map(Membership::getMember)
                 .filterSubType(Meter.class)
-                .flatMap(super::readingTypeDataExportItems)
+                .flatMap(this::readingTypeDataExportItems)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer) {
+        return getReadingTypes().stream()
+                .map(r -> getExportItems().stream()
+                        .map(IReadingTypeDataExportItem.class::cast)
+                        .filter(item -> r.equals(item.getReadingType()))
+                        .filter(i -> i.getReadingContainer().is(readingContainer))
+                        .findAny()
+                        .orElseGet(() -> addExportItem(readingContainer, r))
+                );
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -40,6 +41,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -54,22 +56,26 @@ import static com.elster.jupiter.export.impl.ReadingImpl.reading;
 
 abstract class AbstractItemDataSelector implements ItemDataSelector {
 
-    private final static DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.longDate().withLongTime().build().withZone(ZoneId.systemDefault());
-
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final ValidationService validationService;
     private final TransactionService transactionService;
+    private final DateTimeFormatter timeFormatter;
 
     private int exportCount;
     private Logger logger;
 
     @Inject
-    AbstractItemDataSelector(Clock clock, ValidationService validationService, Thesaurus thesaurus, TransactionService transactionService) {
+    AbstractItemDataSelector(Clock clock,
+                             ValidationService validationService,
+                             Thesaurus thesaurus,
+                             TransactionService transactionService,
+                             ThreadPrincipalService threadPrincipalService) {
         this.clock = clock;
         this.validationService = validationService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
+        this.timeFormatter = getTimeFormatter(threadPrincipalService.getLocale());
     }
 
     AbstractItemDataSelector init(Logger logger) {
@@ -131,6 +137,10 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
     }
 
+    private DateTimeFormatter getTimeFormatter(Locale locale) {
+        return DefaultDateTimeFormatters.longDate(locale).withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(locale);
+    }
+
     private Optional<? extends ReadingDataSelectorConfig> getDataSelectorConfig(DataExportOccurrence occurrence) {
         return ((IExportTask) occurrence.getTask()).getReadingDataSelectorConfig();
     }
@@ -158,7 +168,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
 
     void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy,
                                    List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
-        if (validationService.getEvaluator().isValidationEnabled(item.getReadingContainer(), item.getReadingType())) {
+        if (!readings.isEmpty()) {
             switch (strategy.getValidatedDataOption()) {
                 case EXCLUDE_INTERVAL:
                     handleExcludeInterval(item, readings, interval, itemDescription);

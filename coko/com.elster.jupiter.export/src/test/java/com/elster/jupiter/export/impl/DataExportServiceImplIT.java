@@ -135,6 +135,8 @@ public class DataExportServiceImplIT {
     private Injector injector;
 
     @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
@@ -305,7 +307,7 @@ public class DataExportServiceImplIT {
             exportTask.triggerNow();
             RecurrentTask recurrentTask = extractOccurrence(exportTask);
             occurrence = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.<Instant>all()).stream().findFirst().get();
-            new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, CLOCK).execute(occurrence);
+            new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, CLOCK, threadPrincipalService).execute(occurrence);
 
             context.commit();
         }

@@ -7,6 +7,7 @@ import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -17,6 +18,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.Range;
 
@@ -24,10 +26,10 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
@@ -81,11 +83,26 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
                 .flatMap(effectiveMetrologyConfiguration ->
                         effectiveMetrologyConfiguration.getMetrologyConfiguration().getContracts().stream()
                                 .map(effectiveMetrologyConfiguration::getChannelsContainer)
-                                .filter(Optional::isPresent)
-                                .map(Optional::get)
+                                .flatMap(Functions.asStream())
                 )
-                .flatMap(this::readingTypeDataExportItems)
+                .flatMap(channelsContainer -> readingTypeDataExportItems(channelsContainer, exportInterval))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ChannelsContainer channelsContainer, Range<Instant> exportInterval) {
+        return getFilteredReadingTypes(channelsContainer, exportInterval)
+                .map(r -> getExportItems().stream()
+                        .map(IReadingTypeDataExportItem.class::cast)
+                        .filter(item -> r.equals(item.getReadingType()))
+                        .filter(i -> i.getDomainObject().equals(channelsContainer.getUsagePoint().get()))
+                        .findAny()
+                        .orElseGet(() -> addExportItem(channelsContainer, r))
+                );
+    }
+
+    private Stream<ReadingType> getFilteredReadingTypes(ChannelsContainer channelsContainer, Range<Instant> exportInterval) {
+        Set<ReadingType> providingReadingTypes = channelsContainer.getReadingTypes(exportInterval);
+        return getReadingTypes().stream().filter(providingReadingTypes::contains);
     }
 
     @Override

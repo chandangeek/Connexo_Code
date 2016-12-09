@@ -17,6 +17,7 @@ import com.elster.jupiter.export.SimpleFormattedData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -45,13 +46,20 @@ class DataExportTaskExecutor implements TaskExecutor {
     private final Thesaurus thesaurus;
     private final LocalFileWriter localFileWriter;
     private final Clock clock;
+    private final ThreadPrincipalService threadPrincipalService;
 
-    DataExportTaskExecutor(IDataExportService dataExportService, TransactionService transactionService, LocalFileWriter localFileWriter, Thesaurus thesaurus, Clock clock) {
+    DataExportTaskExecutor(IDataExportService dataExportService,
+                           TransactionService transactionService,
+                           LocalFileWriter localFileWriter,
+                           Thesaurus thesaurus,
+                           Clock clock,
+                           ThreadPrincipalService threadPrincipalService) {
         this.dataExportService = dataExportService;
         this.transactionService = transactionService;
         this.localFileWriter = localFileWriter;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
@@ -149,7 +157,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         DefaultItemExporter defaultItemExporter = new DefaultItemExporter(dataFormatter);
         FatalExceptionGuardItemExporter exceptionGuardItemExporter = new FatalExceptionGuardItemExporter(defaultItemExporter);
         ItemExporter itemExporter = new TransactionItemExporter(transactionService, exceptionGuardItemExporter);
-        return new LoggingItemExporter(thesaurus, transactionService, logger, itemExporter);
+        return new LoggingItemExporter(thesaurus, transactionService, logger, itemExporter, threadPrincipalService);
     }
 
     private LoggingExceptions loggingExceptions(Logger logger, Runnable runnable) {

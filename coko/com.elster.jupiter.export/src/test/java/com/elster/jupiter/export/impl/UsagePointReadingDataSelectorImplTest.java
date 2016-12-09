@@ -20,10 +20,11 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -42,6 +43,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,6 +78,8 @@ public class UsagePointReadingDataSelectorImplTest {
 
     private TransactionService transactionService;
 
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -125,13 +129,14 @@ public class UsagePointReadingDataSelectorImplTest {
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
         doAnswer(invocation -> new UsagePointReadingSelector(dataModel, transactionService, thesaurus))
                 .when(dataModel).getInstance(UsagePointReadingSelector.class);
-        doAnswer(invocation -> new UsagePointReadingItemDataSelector(clock, validationService, thesaurus, transactionService))
+        doAnswer(invocation -> new UsagePointReadingItemDataSelector(clock, validationService, thesaurus, transactionService, threadPrincipalService))
                 .when(dataModel).getInstance(UsagePointReadingItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
 
         mockThesaurus();
 
+        when(threadPrincipalService.getLocale()).thenReturn(Locale.US);
         doReturn(Optional.of(occurrence)).when(occurrence).getDefaultSelectorOccurrence();
         when(occurrence.getTask()).thenReturn(task);
         doReturn(EXPORT_INTERVAL).when((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
@@ -176,6 +181,7 @@ public class UsagePointReadingDataSelectorImplTest {
         when(channelContainer.getRange()).thenReturn(EXPORT_INTERVAL);
         when(channelContainer.toList(readingType, EXPORT_INTERVAL)).thenReturn(Arrays.asList(START.toInstant(), END.toInstant()));
         when(channelContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
+        when(channelContainer.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType));
         when(channel.getChannelsContainer()).thenReturn(channelContainer);
         doReturn(Arrays.asList(readings)).when(channelContainer).getReadings(EXPORT_INTERVAL, readingType);
         when(validationEvaluator.isValidationEnabled(channelContainer, readingType)).thenReturn(true);
@@ -358,41 +364,33 @@ public class UsagePointReadingDataSelectorImplTest {
         verify(logger).log(expectedLogLevel, expectedLogMessage);
     }
 
-    private static class FakeRefAny implements RefAny {
-        private final Object value;
+    @Test
+    public void testSelectDataExcludingAggregatedReadingsInTheMiddleOfInterval() {
+        List<Membership<UsagePoint>> memberships = Collections.singletonList(mockUsagePointMember(usagePoint1));
+        when(usagePointGroup.getMembers(EXPORT_INTERVAL)).thenReturn(memberships);
+        ZonedDateTime MIDDLE = ZonedDateTime.of(2014, 6, 19, 12, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+        ReadingRecord middleRecord = mock(ReadingRecord.class);
+        when(middleRecord.getTimeStamp()).thenReturn(MIDDLE.toInstant());
+        doReturn(Arrays.asList(readingRecord1, middleRecord, readingRecord2)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType);
 
-        public FakeRefAny(Object value) {
-            this.value = value;
-        }
+        UsagePointReadingSelectorConfigImpl selectorConfig = UsagePointReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setUsagePointGroup(usagePointGroup)
+                .addReadingType(readingType)
+                .setExportOnlyIfComplete(false)
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .complete();
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        @Override
-        public boolean isPresent() {
-            return value != null;
-        }
+        // Business method
+        List<ExportData> exportData = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
-        @Override
-        public Object get() {
-            return value;
-        }
-
-        @Override
-        public Optional<?> getOptional() {
-            return Optional.ofNullable(value);
-        }
-
-        @Override
-        public String getComponent() {
-            return "";
-        }
-
-        @Override
-        public String getTableName() {
-            return "";
-        }
-
-        @Override
-        public Object[] getPrimaryKey() {
-            return new Object[0];
-        }
+        // Asserts
+        assertThat(exportData).hasSize(1);
+        MeterReadingData data = (MeterReadingData) exportData.get(0);
+        List<Reading> exportedReadings = data.getMeterReading().getReadings();
+        assertThat(exportedReadings).hasSize(2);
+        assertThat(exportedReadings.get(0).getTimeStamp()).isEqualTo(START.toInstant());
+        assertThat(exportedReadings.get(1).getTimeStamp()).isEqualTo(END.toInstant());
     }
 }

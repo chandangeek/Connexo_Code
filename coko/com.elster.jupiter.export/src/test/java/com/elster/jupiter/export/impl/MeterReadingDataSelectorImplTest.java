@@ -21,7 +21,7 @@ import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -40,6 +40,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -83,6 +84,8 @@ public class MeterReadingDataSelectorImplTest {
     private Clock clock = Clock.systemDefaultZone();
     private TransactionService transactionService;
 
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
     @Mock
     private MeteringService meteringService;
     @Mock
@@ -132,10 +135,11 @@ public class MeterReadingDataSelectorImplTest {
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
         doAnswer(invocation -> new MeterReadingSelector(dataModel, transactionService, thesaurus))
                 .when(dataModel).getInstance(MeterReadingSelector.class);
-        doAnswer(invocation -> new MeterReadingItemDataSelector(clock, validationService, thesaurus, transactionService))
+        doAnswer(invocation -> new MeterReadingItemDataSelector(clock, validationService, thesaurus, transactionService, threadPrincipalService))
                 .when(dataModel).getInstance(MeterReadingItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
 
+        when(threadPrincipalService.getLocale()).thenReturn(Locale.US);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
             NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
             when(messageFormat.format(anyVararg())).thenAnswer(invocation1 -> {
@@ -507,43 +511,5 @@ public class MeterReadingDataSelectorImplTest {
         when(readingType.getFullAliasName()).thenReturn("Odium humani generis");
 
         assertThat(item.getDescription()).isEqualTo("PeriMeter:Odium humani generis");
-    }
-
-    private static class FakeRefAny implements RefAny {
-        private final Object value;
-
-        public FakeRefAny(Object value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean isPresent() {
-            return value != null;
-        }
-
-        @Override
-        public Object get() {
-            return value;
-        }
-
-        @Override
-        public Optional<?> getOptional() {
-            return Optional.ofNullable(value);
-        }
-
-        @Override
-        public String getComponent() {
-            return "";
-        }
-
-        @Override
-        public String getTableName() {
-            return "";
-        }
-
-        @Override
-        public Object[] getPrimaryKey() {
-            return new Object[0];
-        }
     }
 }

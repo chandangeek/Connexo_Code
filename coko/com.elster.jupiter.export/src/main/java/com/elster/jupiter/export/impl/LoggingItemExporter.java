@@ -7,6 +7,7 @@ import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 class LoggingItemExporter implements ItemExporter {
@@ -25,13 +27,18 @@ class LoggingItemExporter implements ItemExporter {
     private final Logger logger;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
-    private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.longDate().withLongTime().build().withZone(ZoneId.systemDefault());
+    private final DateTimeFormatter timeFormatter;
 
-    public LoggingItemExporter(Thesaurus thesaurus, TransactionService transactionService, Logger logger, ItemExporter decorated) {
+    public LoggingItemExporter(Thesaurus thesaurus,
+                               TransactionService transactionService,
+                               Logger logger,
+                               ItemExporter decorated,
+                               ThreadPrincipalService threadPrincipalService) {
         this.transactionService = transactionService;
         this.logger = logger;
         this.decorated = decorated;
         this.thesaurus = thesaurus;
+        this.timeFormatter = getTimeFormatter(threadPrincipalService.getLocale());
     }
 
     @Override
@@ -59,5 +66,9 @@ class LoggingItemExporter implements ItemExporter {
     @Override
     public void done() {
         decorated.done();
+    }
+
+    private DateTimeFormatter getTimeFormatter(Locale locale) {
+        return DefaultDateTimeFormatters.longDate(locale).withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(locale);
     }
 }
