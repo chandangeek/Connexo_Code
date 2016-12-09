@@ -73,17 +73,34 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
      */
     private final com.energyict.mdc.upl.DeviceProtocol deviceProtocol;
     private final Thesaurus thesaurus;
-    private final PropertySpecService propertySpecService;
+    private final PropertySpecService mdcPropertySpecService;
+    private final com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private final Injector injector;
 
-    public static UPLDeviceProtocolAdapter adapt(com.energyict.mdc.upl.DeviceProtocol deviceProtocol, Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        return new UPLDeviceProtocolAdapter(deviceProtocol, thesaurus, propertySpecService);
+    public static Services adapt(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
+        return new Services(deviceProtocol);
     }
 
-    private UPLDeviceProtocolAdapter(com.energyict.mdc.upl.DeviceProtocol deviceProtocol, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public static final class Services {
+        private final com.energyict.mdc.upl.DeviceProtocol deviceProtocol;
+
+        public Services(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
+            this.deviceProtocol = deviceProtocol;
+        }
+
+        UPLDeviceProtocolAdapter with(
+                Thesaurus thesaurus,
+                com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
+                com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService) {
+            return new UPLDeviceProtocolAdapter(this.deviceProtocol, thesaurus, mdcPropertySpecService, jupiterPropertySpecService);
+        }
+    }
+
+    private UPLDeviceProtocolAdapter(com.energyict.mdc.upl.DeviceProtocol deviceProtocol, Thesaurus thesaurus, PropertySpecService mdcPropertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
         this.deviceProtocol = deviceProtocol;
         this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
+        this.mdcPropertySpecService = mdcPropertySpecService;
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
         this.injector = Guice.createInjector(this.getModule());
     }
 
@@ -91,7 +108,8 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
         return new AbstractModule() {
             @Override
             public void configure() {
-                this.bind(PropertySpecService.class).toInstance(propertySpecService);
+                this.bind(PropertySpecService.class).toInstance(mdcPropertySpecService);
+                this.bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
                 this.bind(Thesaurus.class).toInstance(thesaurus);
             }
         };
