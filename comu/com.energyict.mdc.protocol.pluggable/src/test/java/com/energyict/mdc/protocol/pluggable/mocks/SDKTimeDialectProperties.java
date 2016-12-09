@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
 /**
@@ -45,7 +45,7 @@ class SDKTimeDialectProperties extends CommonDeviceProtocolDialectProperties {
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
             return propertySpecService
-                    .specForValuesOf(new TimeDurationValueFactory())
+                    .specForValuesOf(new TemporalAmountValueFactory())
                     .named(this.propertySpecName(), this.propertySpecName())
                     .describedAs(this.propertySpecName())
                     .finish();
