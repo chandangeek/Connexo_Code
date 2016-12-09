@@ -522,7 +522,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             //        return
             //    }
             //    var json = Ext.decode(operation.response.responseText, true);
-            //    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'DES', 'Unknown error occurred');
+            //    var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
             //    if (json && json.errors) {
             //        errorText = json.errors[0].msg;
             //    }
