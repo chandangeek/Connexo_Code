@@ -52,7 +52,10 @@ public enum SecurityPropertySpecName implements TranslationKey {
     AUTHENTICATION_KEY_EXT_DATA("AuthenticationKeyExtData", "Extra dta authentication key"),
     AUTHENTICATION_KEY_MANAGEMENT("AuthenticationKeyManagement", "Management client authentication key"),
     AUTHENTICATION_KEY_FIRMWARE("AuthenticationKeyFirmware", "Firmware client authentication key"),
-    AUTHENTICATION_KEY_MANUFACTURER("AuthenticationKeyManufacturer", "Manufacturer authentication key");
+    AUTHENTICATION_KEY_MANUFACTURER("AuthenticationKeyManufacturer", "Manufacturer authentication key"),
+
+    SERVER_SIGNING_CERTIFICATE("ServerSigningCertificate"), // Translation in eiServer is the same as the key
+    SERVER_KEY_AGREEMENT_CERTIFICATE("ServerKeyAgreementCertificate"); // Translation in eiServer is the same as the key
 
     private final String key;
     private final String defaultFormat;

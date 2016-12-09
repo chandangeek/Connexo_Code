@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.upl.security.Certificate;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
@@ -225,8 +226,37 @@ public enum DeviceSecurityProperty {
         public String javaName() {
             return SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.getKey();
         }
-    }
-    ;
+    },
+    SERVER_SIGNING_CERTIFICATE {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .referenceSpec(Certificate.class)
+                    .named(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE)
+                    .fromThesaurus(thesaurus)
+                    .finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.getKey();
+        }
+    },
+    SERVER_KEY_AGREEMENT_CERTIFICATE {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return propertySpecService
+                    .referenceSpec(Certificate.class)
+                    .named(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE)
+                    .fromThesaurus(thesaurus)
+                    .finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.getKey();
+        }
+    };
 
     private PropertySpec cachedPropertySpec;
 

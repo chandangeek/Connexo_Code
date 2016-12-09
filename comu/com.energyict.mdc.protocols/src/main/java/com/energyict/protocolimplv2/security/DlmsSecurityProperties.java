@@ -79,10 +79,10 @@ public class DlmsSecurityProperties extends CommonBaseDeviceSecurityProperties {
 
         public void addTo(Table table) {
             table
-                    .column(this.databaseName())
-                    .varChar()
-                    .map(this.javaName())
-                    .add();
+                .column(this.databaseName())
+                .varChar()
+                .map(this.javaName())
+                .add();
         }
 
     }
