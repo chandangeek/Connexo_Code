@@ -1,5 +1,6 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -57,7 +58,8 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -83,7 +85,7 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     }
 
     private void addMicroActionMappings() {
-        addMicroActionMapping(SetConnectedConnectionStateAction.class);
+        addMicroActionMapping(SetConnectionStateAction.class);
     }
 
     private void addMicroActionMapping(Class<? extends ExecutableMicroAction> clazz) {

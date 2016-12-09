@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroActionException;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckException;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeException;
@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRequest {
     public enum Fields {
@@ -56,7 +58,6 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     private final Clock clock;
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
-    private final ThreadPrincipalService threadPrincipalService;
     private final UsagePointLifeCycleConfigurationService lifeCycleConfigurationService;
     private final ServerUsagePointLifeCycleService lifeCycleService;
 
@@ -83,13 +84,11 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     public UsagePointStateChangeRequestImpl(Clock clock,
                                             DataModel dataModel,
                                             Thesaurus thesaurus,
-                                            ThreadPrincipalService threadPrincipalService,
                                             UsagePointLifeCycleConfigurationService lifeCycleConfigurationService,
                                             ServerUsagePointLifeCycleService lifeCycleService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
-        this.threadPrincipalService = threadPrincipalService;
         this.lifeCycleConfigurationService = lifeCycleConfigurationService;
         this.lifeCycleService = lifeCycleService;
     }
@@ -134,15 +133,17 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     private void initProperties(Map<String, Object> properties) {
+        Set<PropertySpec> allMicroActionPropertySpecs = this.lifeCycleConfigurationService.getMicroActions().stream()
+                .flatMap(microAction -> microAction.getPropertySpecs().stream())
+                .collect(Collectors.toSet());
         for (Map.Entry<String, Object> parameter : properties.entrySet()) {
             if (parameter.getValue() == null) {
                 continue;
             }
-            this.lifeCycleConfigurationService.getMicroActionByKey(parameter.getKey())
-                    .flatMap(action -> action.getPropertySpecs().stream()
-                            .filter(propertySpec -> propertySpec.getName().equals(parameter.getKey()))
-                            .findAny())
+            allMicroActionPropertySpecs.stream()
+                    .filter(propertySpec -> propertySpec.getName().equals(parameter.getKey()))
                     .map(propertySpec -> propertySpec.getValueFactory().toStringValue(parameter.getValue()))
+                    .findAny()
                     .ifPresent(value -> this.properties.add(this.dataModel.getInstance(UsagePointStateChangePropertyImpl.class)
                             .init(this, parameter.getKey(), value)));
         }
@@ -213,13 +214,17 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     public Map<String, Object> getProperties() {
         if (this.propertiesMap == null) {
             this.propertiesMap = new HashMap<>();
-            for (UsagePointStateChangePropertyImpl parameter : this.properties) {
-                this.lifeCycleConfigurationService.getMicroActionByKey(parameter.getKey())
-                        .flatMap(action -> action.getPropertySpecs().stream()
-                                .filter(propertySpec -> propertySpec.getName().equals(parameter.getKey()))
-                                .findAny())
-                        .map(propertySpec -> propertySpec.getValueFactory().fromStringValue(parameter.getDatabaseValue()))
-                        .ifPresent(value -> this.propertiesMap.put(parameter.getKey(), value));
+            if (!this.properties.isEmpty()) {
+                Set<PropertySpec> allMicroActionPropertySpecs = this.lifeCycleConfigurationService.getMicroActions().stream()
+                        .flatMap(microAction -> microAction.getPropertySpecs().stream())
+                        .collect(Collectors.toSet());
+                for (UsagePointStateChangePropertyImpl parameter : this.properties) {
+                    allMicroActionPropertySpecs.stream()
+                            .filter(propertySpec -> propertySpec.getName().equals(parameter.getKey()))
+                            .map(propertySpec -> propertySpec.getValueFactory().fromStringValue(parameter.getDatabaseValue()))
+                            .findAny()
+                            .ifPresent(value -> this.propertiesMap.put(parameter.getKey(), value));
+                }
             }
         }
         return Collections.unmodifiableMap(this.propertiesMap);

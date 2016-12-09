@@ -5,12 +5,15 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,5 +39,8 @@ public class MeterRolesAreSpecifiedCheck extends TranslatableCheck {
         return Optional.empty();
     }
 
-
+    @Override
+    protected Set<DefaultTransition> getTransitionCandidates() {
+        return EnumSet.of(DefaultTransition.INSTALL_ACTIVE, DefaultTransition.INSTALL_INACTIVE);
+    }
 }

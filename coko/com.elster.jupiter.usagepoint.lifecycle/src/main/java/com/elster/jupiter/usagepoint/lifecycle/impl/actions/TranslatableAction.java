@@ -4,11 +4,15 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroActionException;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategoryTranslationKeys;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class TranslatableAction implements ExecutableMicroAction {
     private Thesaurus thesaurus;
@@ -52,6 +56,18 @@ public abstract class TranslatableAction implements ExecutableMicroAction {
     }
 
     protected abstract void doExecute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties);
+
+    @Override
+    public boolean isMandatoryForTransition(UsagePointState fromState, UsagePointState toState) {
+        Set<DefaultTransition> candidates = getTransitionCandidates();
+        return candidates != null
+                && !candidates.isEmpty()
+                && DefaultTransition.getDefaultTransition(fromState, toState).filter(candidates::contains).isPresent();
+    }
+
+    protected Set<DefaultTransition> getTransitionCandidates() {
+        return EnumSet.noneOf(DefaultTransition.class);
+    }
 
     @Override
     public boolean equals(Object o) {

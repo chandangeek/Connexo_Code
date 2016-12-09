@@ -22,7 +22,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectedConnectionStateAction;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
@@ -105,9 +105,9 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     @Test
     public void testMicroActionFactoryCanFindByCorrectKey() {
         assertThat(get(UsagePointMicroActionFactoryImpl.class)
-                .from(SetConnectedConnectionStateAction.class.getSimpleName())
+                .from(SetConnectionStateAction.class.getSimpleName())
                 .map(MicroAction::getKey))
-                .contains(SetConnectedConnectionStateAction.class.getSimpleName());
+                .contains(SetConnectionStateAction.class.getSimpleName());
     }
 
     @Test
@@ -120,7 +120,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         assertThat(get(UsagePointMicroActionFactoryImpl.class).getAllActions()
                 .stream()
                 .map(MicroAction::getKey)
-                .collect(Collectors.toList())).containsExactly(SetConnectedConnectionStateAction.class.getSimpleName());
+                .collect(Collectors.toList())).containsExactly(SetConnectionStateAction.class.getSimpleName());
     }
 
     @Test

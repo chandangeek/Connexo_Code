@@ -22,12 +22,16 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeException;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
+import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
+import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -35,6 +39,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -352,6 +357,23 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
 
     @Override
     public void accept(UsagePointLifeCycle usagePointLifeCycle) {
-        // todo add default micro actions and checks
+        usagePointLifeCycle.getTransitions().forEach(transition -> {
+            DefaultTransition.getDefaultTransition(transition).ifPresent(defaultTransition -> {
+                switch (defaultTransition) {
+                    case INSTALL_ACTIVE:
+                        transition.startUpdate()
+                                .withChecks(ImmutableSet.of(MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), MeterRolesAreSpecifiedCheck.class.getSimpleName()))
+                                .withActions(Collections.singleton(SetConnectionStateAction.class.getSimpleName()))
+                                .complete();
+                        break;
+                    case INSTALL_INACTIVE:
+                        transition.startUpdate()
+                                .withChecks(ImmutableSet.of(MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), MeterRolesAreSpecifiedCheck.class.getSimpleName()))
+                                .withActions(Collections.singleton(SetConnectionStateAction.class.getSimpleName()))
+                                .complete();
+                        break;
+                }
+            });
+        });
     }
 }
