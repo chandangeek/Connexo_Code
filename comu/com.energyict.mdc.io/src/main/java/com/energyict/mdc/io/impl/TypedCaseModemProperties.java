@@ -168,7 +168,7 @@ public class TypedCaseModemProperties implements CaseModemProperties, HasDynamic
 
     private PropertySpec timeDurationPropertySpec(TranslationKeys name, TimeDuration defaultValue) {
         return this.propertySpecService
-                .timeDurationSpec()
+                .temporalAmountSpec()
                 .named(name)
                 .fromThesaurus(this.thesaurus)
                 .setDefaultValue(defaultValue)
