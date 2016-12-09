@@ -6,31 +6,29 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 
 import java.util.LinkedHashMap;
 
 /**
  * Created by mbarinov on 31.08.2016.
  */
-public class TimeDurationPropertyValueConverter implements PropertyValueConverter {
-    private  Thesaurus thesaurus;
+public class TemporalAmountPropertyValueConverter implements PropertyValueConverter {
 
-    public TimeDurationPropertyValueConverter(){
-    }
+    private final Thesaurus thesaurus;
 
-    public TimeDurationPropertyValueConverter(Thesaurus thesaurus){
+    public TemporalAmountPropertyValueConverter(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && propertySpec.getValueFactory() instanceof TimeDurationValueFactory;
+        return propertySpec != null && propertySpec.getValueFactory() instanceof TemporalAmountValueFactory;
     }
 
     @Override
     public SimplePropertyType getPropertyType(PropertySpec propertySpec) {
-        return SimplePropertyType.TIMEDURATION;
+        return SimplePropertyType.TEMPORALAMOUNT;
     }
 
     @Override
@@ -39,8 +37,7 @@ public class TimeDurationPropertyValueConverter implements PropertyValueConverte
         String timeUnit = (String) ((LinkedHashMap<String, Object>) infoValue).get("timeUnit");
         try {
             return new TimeDuration("" + count + " " + timeUnit);
-        }
-        catch (LocalizedFieldValidationException e) {
+        } catch (LocalizedFieldValidationException e) {
             throw new LocalizedFieldValidationException(e.getMessageSeed(), propertySpec.getName() + "." + e.getViolatingProperty(), e.getArgs());
         }
     }
