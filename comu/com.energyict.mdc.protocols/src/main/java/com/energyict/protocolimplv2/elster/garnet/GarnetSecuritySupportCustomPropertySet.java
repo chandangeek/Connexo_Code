@@ -9,6 +9,7 @@ import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import com.energyict.protocolimplv2.security.CustomPropertySetTranslationKeys;
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
+import com.google.inject.Inject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +25,7 @@ public class GarnetSecuritySupportCustomPropertySet extends SecurityCustomProper
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
+    @Inject
     public GarnetSecuritySupportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;

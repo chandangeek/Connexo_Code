@@ -2,14 +2,14 @@ package com.energyict.protocols.mdc.adapter;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
@@ -19,7 +19,9 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -29,13 +31,26 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.ProvisionException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * Adapter between a {@link com.energyict.mdc.upl.DeviceProtocol} and a {@link DeviceProtocol}.
@@ -47,18 +62,39 @@ import java.util.Set;
  */
 public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter implements DeviceProtocol {
 
+    private static final Logger LOGGER = Logger.getLogger(UPLDeviceProtocolAdapter.class.getName());
+    private static final String MAPPING_PROPERTIES_FILE_NAME = "custom-property-set-mapping.properties";
+
+    private static CustomPropertySetNameDetective customPropertySetNameDetective;
+
     /**
      * The UPL deviceProtocol instance {@link com.energyict.mdc.upl.DeviceProtocol} that needs to be wrapped (adapted)
      * so it is compliant with the Connexo DeviceProtocol interface: {@link DeviceProtocol}
      */
     private final com.energyict.mdc.upl.DeviceProtocol deviceProtocol;
+    private final Thesaurus thesaurus;
+    private final PropertySpecService propertySpecService;
+    private final Injector injector;
 
-    private UPLDeviceProtocolAdapter(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
-        this.deviceProtocol = deviceProtocol;
+    public static UPLDeviceProtocolAdapter adapt(com.energyict.mdc.upl.DeviceProtocol deviceProtocol, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        return new UPLDeviceProtocolAdapter(deviceProtocol, thesaurus, propertySpecService);
     }
 
-    public static UPLDeviceProtocolAdapter adapt(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
-        return new UPLDeviceProtocolAdapter(deviceProtocol);
+    private UPLDeviceProtocolAdapter(com.energyict.mdc.upl.DeviceProtocol deviceProtocol, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        this.deviceProtocol = deviceProtocol;
+        this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
+        this.injector = Guice.createInjector(this.getModule());
+    }
+
+    private Module getModule() {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                this.bind(PropertySpecService.class).toInstance(propertySpecService);
+                this.bind(Thesaurus.class).toInstance(thesaurus);
+            }
+        };
     }
 
     @Override
@@ -208,7 +244,33 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return null;
+        this.ensureCustomPropertySetNameMappingLoaded();
+        return Optional
+                    .ofNullable(customPropertySetNameDetective.customPropertySetClassNameFor(this.deviceProtocol.getClass()))
+                    .map(this::loadClass)
+                    .map(this::toCustomPropertySet);
+    }
+
+    private CustomPropertySet toCustomPropertySet(Class cpsClass) {
+        try {
+            return (CustomPropertySet) this.injector.getInstance(cpsClass);
+        } catch (ConfigurationException | ProvisionException e) {
+            throw new UnableToCreateCustomPropertySet(e, cpsClass);
+        }
+    }
+
+    private Class loadClass(String className) {
+        try {
+            return this.getClass().getClassLoader().loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new UnableToLoadCustomPropertySetClass(e, className);
+        }
+    }
+
+    private void ensureCustomPropertySetNameMappingLoaded() {
+        if (customPropertySetNameDetective == null) {
+            customPropertySetNameDetective = new CustomPropertySetNameDetective();
+        }
     }
 
     @Override
@@ -250,4 +312,79 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     public boolean supportsCommunicationFirmwareVersion() {
         return deviceProtocol.supportsCommunicationFirmwareVersion();
     }
+
+    private static class CustomPropertySetNameDetective {
+        private final Map<String, String> customPropertySetClassNameMap = new ConcurrentHashMap<>();
+
+        private CustomPropertySetNameDetective() {
+            super();
+            this.loadCustomPropertySetNameMapping();
+        }
+
+        private void loadCustomPropertySetNameMapping() {
+            Properties mappings = new Properties();
+            try (InputStream inputStream = this.getClass().getResourceAsStream(MAPPING_PROPERTIES_FILE_NAME)) {
+                if (inputStream == null) {
+                    LOGGER.severe("CustomPropertySetNameMapping properties file location is probably not correct " + MAPPING_PROPERTIES_FILE_NAME);
+                    throw new IllegalArgumentException("CustomPropertySetNameMapping - Could not load the properties from " + MAPPING_PROPERTIES_FILE_NAME);
+                }
+                mappings.load(inputStream);
+                mappings.entrySet().forEach(entry -> this.customPropertySetClassNameMap.put((String) entry.getKey(), (String) entry.getValue()));
+            } catch (IOException e) {
+                LOGGER.severe("Could not load the properties from " + MAPPING_PROPERTIES_FILE_NAME);
+                throw new IllegalArgumentException("CustomPropertySetNameMapping - Could not load the properties from " + MAPPING_PROPERTIES_FILE_NAME);
+            }
+        }
+
+        String customPropertySetClassNameFor(Class deviceProtocolClass) {
+            /* Would be nice to use computeIfAbsent (especially because this is a ConcurrentHashMap.
+             * However: the function that calculates the value if it is absent is a recursive call.
+             * A ConcurrentHashMap deadlocks itself in that case. */
+            String customPropertySetClassName = this.customPropertySetClassNameMap.get(deviceProtocolClass.getName());
+            if (customPropertySetClassName == null) {
+                return this.customPropertySetClassNameForSuperclass(deviceProtocolClass);
+            } else if (customPropertySetClassName.startsWith("@")) {
+                return this.customPropertySetClassNameForReferencedClass(deviceProtocolClass, customPropertySetClassName.substring(1));
+            } else {
+                return customPropertySetClassName;
+            }
+        }
+
+        private String customPropertySetClassNameForSuperclass(Class deviceProtocolClass) {
+            Class superclass = deviceProtocolClass.getSuperclass();
+            if (superclass != null) {
+                String customPropertyClassName = this.customPropertySetClassNameFor(superclass);
+                // Cache the class name at this level of the class hierarchy
+                this.customPropertySetClassNameMap.put(deviceProtocolClass.getName(), customPropertyClassName);
+                return customPropertyClassName;
+            } else {
+                throw new IllegalArgumentException("Unable to determine custom property set class name for protocol class " + deviceProtocolClass.getName());
+            }
+        }
+
+        private String customPropertySetClassNameForReferencedClass(Class deviceProtocolClass, String referencedClassName) {
+            try {
+                Class<?> referencedClass = Class.forName(referencedClassName);
+                String customPropertyClassName = this.customPropertySetClassNameFor(referencedClass);
+                // Cache the class name for the class that references another
+                this.customPropertySetClassNameMap.put(deviceProtocolClass.getName(), customPropertyClassName);
+                return customPropertyClassName;
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Unable to determine custom property set class name for protocol class " + deviceProtocolClass.getName() + " because referenced class " + referencedClassName + " could not be found", e);
+            }
+        }
+    }
+
+    private static class UnableToLoadCustomPropertySetClass extends RuntimeException {
+        private UnableToLoadCustomPropertySetClass(ClassNotFoundException cause, String className) {
+            super("Unable to load class " + className + " that was configured in mapping file " + MAPPING_PROPERTIES_FILE_NAME, cause);
+        }
+    }
+
+    private static class UnableToCreateCustomPropertySet extends RuntimeException {
+        private UnableToCreateCustomPropertySet(Throwable cause, Class cpsClass) {
+            super("Unable to create instance of class " + cpsClass.getName() + " that was configured in mapping file " + MAPPING_PROPERTIES_FILE_NAME, cause);
+        }
+    }
+
 }
