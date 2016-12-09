@@ -113,7 +113,7 @@ public class CommandRuleResource {
     public Response acceptChanges(@PathParam("id") long id) {
         CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
         commandRule.approve();
-        return Response.ok().build();
+        return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
 
 
@@ -124,7 +124,7 @@ public class CommandRuleResource {
     public Response rejectChanges(@PathParam("id") long id) {
         CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
         commandRule.reject();
-        return Response.ok().build();
+        return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
 
     @GET
