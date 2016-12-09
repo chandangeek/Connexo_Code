@@ -4,6 +4,9 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface UsagePointBuilder {
 
     UsagePointBuilder withAliasName(String aliasName);
