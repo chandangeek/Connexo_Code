@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -265,7 +266,7 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
         this.ensureCustomPropertySetNameMappingLoaded();
         return Optional
                     .ofNullable(customPropertySetNameDetective.customPropertySetClassNameFor(this.deviceProtocol.getClass()))
-                    .map(this::loadClass)
+                    .flatMap(this::loadClass)
                     .map(this::toCustomPropertySet);
     }
 
@@ -277,11 +278,15 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
         }
     }
 
-    private Class loadClass(String className) {
-        try {
-            return this.getClass().getClassLoader().loadClass(className);
-        } catch (ClassNotFoundException e) {
-            throw new UnableToLoadCustomPropertySetClass(e, className);
+    private Optional<Class> loadClass(String className) {
+        if (Checks.is(className).emptyOrOnlyWhiteSpace()) {
+            return Optional.empty();
+        } else {
+            try {
+                return Optional.of(this.getClass().getClassLoader().loadClass(className));
+            } catch (ClassNotFoundException e) {
+                throw new UnableToLoadCustomPropertySetClass(e, className);
+            }
         }
     }
 
