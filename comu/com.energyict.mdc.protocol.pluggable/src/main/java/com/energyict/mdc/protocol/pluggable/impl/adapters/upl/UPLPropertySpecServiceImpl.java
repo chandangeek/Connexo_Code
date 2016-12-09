@@ -5,6 +5,9 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.DateFactory;
+import com.energyict.mdc.dynamic.LocalTimeFactory;
 import com.energyict.mdc.dynamic.impl.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.pluggable.impl.IntegerFactory;
@@ -28,7 +31,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Stream;
@@ -160,6 +165,21 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
     @Override
     public PropertySpecBuilderWizard.NlsOptions<TemporalAmount> temporalAmountSpec() {
         return new TemporalAmountNlsOptionsAdapter(this.actual.temporalAmountSpec(), this.protocolPluggableService.protocolsThesaurus());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<Date> dateTimeSpec() {
+        return new NlsOptionsAdapter<>(this.actual.specForValuesOf(new DateAndTimeFactory()), this.protocolPluggableService.protocolsThesaurus());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<Date> dateSpec() {
+        return new NlsOptionsAdapter<>(this.actual.specForValuesOf(new DateFactory()), this.protocolPluggableService.protocolsThesaurus());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<LocalTime> timeSpec() {
+        return new NlsOptionsAdapter<>(this.actual.specForValuesOf(new LocalTimeFactory()), this.protocolPluggableService.protocolsThesaurus());
     }
 
     @SuppressWarnings("unchecked")
