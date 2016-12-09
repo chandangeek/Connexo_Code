@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*;
-
-import com.energyict.protocolimpl.transdata.markv.MarkV;
+import com.energyict.cbo.Utils;
 import com.energyict.protocolimpl.transdata.markv.core.connection.ResponseFrame;
+
+import java.io.IOException;
 
 /**
  *
@@ -24,9 +24,14 @@ abstract public class AbstractCommand {
     private static final int DEBUG=0;
     
     private CommandFactory commandFactory;
-    
-    abstract protected void parse(String strData) throws IOException;
+
     abstract protected CommandIdentification getCommandIdentification();
+
+    abstract protected void parse(String strData) throws IOException;
+
+    protected void parse(String strData, byte[] xmodemData) throws IOException {
+        throw new IOException(Utils.format("Command parsing using xmodem data is not supported for command '{0}'", new Object[]{getClass().getSimpleName()}));
+    }
     
     /** Creates a new instance of AbstractCommand */
     public AbstractCommand(CommandFactory commandFactory) {
@@ -47,7 +52,11 @@ abstract public class AbstractCommand {
             }
             
             if (DEBUG>=1) System.out.println("KV_DEBUG> getCommandIdentification()="+getCommandIdentification()+", received data="+responseFrame.getStrData());
-            parse(responseFrame.getStrData());
+            if (responseFrame.getXmodemProtocolData() != null) {
+                parse(responseFrame.getStrData(), responseFrame.getXmodemProtocolData());
+            } else {
+                parse(responseFrame.getStrData());
+            }
         }
         else getCommandFactory().getMarkV().getMarkVConnection().sendCommand(getCommandIdentification());
     }

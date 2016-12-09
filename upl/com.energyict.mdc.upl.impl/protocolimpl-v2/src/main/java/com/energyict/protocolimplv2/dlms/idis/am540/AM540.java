@@ -328,7 +328,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         } while (retries > 0);
 
         testDlmsSession.disconnect();
-        getLogger().warning("Could not validate the frame counter, seems that it's out-of synch whith the device. You'll have to read a fresh one.");
+        getLogger().warning("Could not validate the frame counter, seems that it's out-of-sync with the device. You'll have to read a fresh one.");
         return false;
     }
 

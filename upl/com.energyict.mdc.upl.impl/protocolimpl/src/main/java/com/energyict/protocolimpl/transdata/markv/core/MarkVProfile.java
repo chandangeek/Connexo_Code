@@ -10,23 +10,23 @@
 
 package com.energyict.protocolimpl.transdata.markv.core;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
-
-import com.energyict.cbo.*;
-import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-
-import com.energyict.protocolimpl.transdata.markv.core.connection.*;
-import com.energyict.protocolimpl.transdata.markv.core.commands.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.transdata.markv.MarkV;
-import com.energyict.protocol.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.MdcManager;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -74,14 +74,15 @@ public class MarkVProfile {
                 intervalData.addValue(new Integer(channelValues[channel]), protocolStatus, eiStatus);
             }
             
-            // all interval tuime correction marked intervals are informative 
+            // all interval time correction marked intervals are informative
             // see communications manual for the MarkV meter at page 6
-            if (protocolStatus != INTERVAL_TIME_CORRECTION) { 
-                intervalTimeCorrection=false;
+            if (protocolStatus != INTERVAL_TIME_CORRECTION) {
+                intervalTimeCorrection = false;
                 profileData.addInterval(intervalData);
-                cal.add(Calendar.SECOND,(-1)*markV.getProfileInterval());
+                cal.add(Calendar.SECOND, (-1) * markV.getProfileInterval());
+            } else {
+                intervalTimeCorrection = true;
             }
-            else intervalTimeCorrection=true;
         }
 
         if (includeEvents) {
