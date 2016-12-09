@@ -20,6 +20,8 @@ public enum LogBookIdentifierType {
      * returns the DeviceIdentifier of the owning Device
      * and the ObisCode that relates to the log book.
      */
-    DeviceIdentifierAndObisCode;
+    DeviceIdentifierAndObisCode,
+
+    ActualLogBook;
 
 }

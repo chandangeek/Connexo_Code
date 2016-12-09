@@ -1,7 +1,6 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
 import com.energyict.mdc.upl.meterdata.LoadProfile;
-
 import com.energyict.obis.ObisCode;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -49,5 +48,10 @@ public interface LoadProfileIdentifier extends Serializable {
     String getXmlType();
 
     void setXmlType(String ignore);
+
+    /**
+     * @return the DeviceIdentifier for this LoadProfileIdentifier
+     */
+    public DeviceIdentifier getDeviceIdentifier();
 
 }

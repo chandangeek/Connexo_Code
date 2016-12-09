@@ -4,7 +4,7 @@ package com.energyict.mdc.upl.meterdata.identifiers;
  * Enumerates the known types of DeviceIdentifier and allows for
  * inspection of the DeviceIdentifier by third party components
  * when used in combination with {@link DeviceIdentifier#getIdentifier()}.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  *
  * @author khe
@@ -31,6 +31,9 @@ public enum DeviceIdentifierType {
      * Indicates that the {@link DeviceIdentifier#getIdentifier()}
      * returns the value of the (legacy) general property "callHomeId".
      */
-    CallHomeId;
+    CallHomeId,
 
+    ActualDevice,
+
+    Other;
 }

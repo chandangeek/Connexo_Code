@@ -49,6 +49,11 @@ public interface RegisterIdentifier extends Serializable {
      */
     List<Object> getParts();
 
+    /**
+     * @return the DeviceIdentifier for this RegisterIdentifier
+     */
+    DeviceIdentifier getDeviceIdentifier();
+
     // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")
     String getXmlType();

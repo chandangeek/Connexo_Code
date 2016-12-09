@@ -2,6 +2,7 @@ package com.energyict.mdc.upl.offline;
 
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -115,6 +116,11 @@ public interface OfflineRegister extends Offline {
      * @return the deviceIdentifier
      */
     DeviceIdentifier getDeviceIdentifier();
+
+    /**
+     * The identifier that uniquely identifies this {@link OfflineRegister}
+     */
+    RegisterIdentifier getRegisterIdentifier();
 
     /**
      * Returns the MRID of the ReadingType of the Kore channel that will store the data.

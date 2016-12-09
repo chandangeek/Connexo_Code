@@ -22,6 +22,8 @@ public enum RegisterIdentifierType {
      */
     DeviceIdentifierAndObisCode,
 
-    PrimeRegisterForChannel;
+    PrimeRegisterForChannel,
+
+    ActualRegister;
 
 }

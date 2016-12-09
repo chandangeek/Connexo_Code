@@ -27,6 +27,10 @@ public enum LoadProfileIdentifierType {
      * returns the DeviceIdentifier of the owning Device
      * and it suffices to take the first load profile.
      */
-    FistLoadProfileOnDevice;
+    FistLoadProfileOnDevice,
+
+    Other,
+
+    ActualLoadProfile
 
 }

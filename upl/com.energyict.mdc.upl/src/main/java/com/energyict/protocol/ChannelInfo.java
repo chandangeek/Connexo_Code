@@ -9,7 +9,6 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.IOException;
 import java.math.BigDecimal;
 
 
@@ -373,12 +372,8 @@ public class ChannelInfo implements java.io.Serializable {
      *
      * @return the <CODE>ObisCode</CODE> of this channel
      */
-    public ObisCode getChannelObisCode() throws IOException {
-        try {
-            return ObisCode.fromString(this.name);
-        } catch (IllegalArgumentException e) {
-            throw new IOException("The name of the channelInfo is not a valid Obiscode [" + this.name + "]");
-        }
+    public ObisCode getChannelObisCode() throws IllegalArgumentException {
+        return ObisCode.fromString(this.name);
     }
 
     /**

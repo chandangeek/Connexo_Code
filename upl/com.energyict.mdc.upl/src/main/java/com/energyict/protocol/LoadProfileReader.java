@@ -1,5 +1,7 @@
 package com.energyict.protocol;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.obis.ObisCode;
 
 import java.util.Date;
@@ -9,7 +11,7 @@ import java.util.List;
  * <p>
  * Straightforward ValueObject representing a meters's LoadProfile to read.
  * </p>
- * <p/>
+ * <p>
  * The 'Date' strategy:<br>
  * <li>If the startDate is null, then we will read data from up to a month ago (current Date - 1 month)
  * <li>If the endDate is null, then we will use the current Date
@@ -46,6 +48,10 @@ public class LoadProfileReader {
      */
     private final List<ChannelInfo> channelInfos;
 
+    private final DeviceIdentifier deviceIdentifier;
+
+    private final LoadProfileIdentifier loadProfileIdentifier;
+
 
     /**
      * Default constructor
@@ -56,7 +62,7 @@ public class LoadProfileReader {
      * @param meterSerialNumber the serialNumber of the meter for which this <CODE>ObisCode</CODE> and <CODE>LoadProfile</CODE> is mapped
      * @param channelInfos      the <CODE>List</CODE> of <CODE>ChannelInfo</CODE> representing the channels to read from the profile in the meter
      */
-    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, int loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos) {
+    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, int loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos, DeviceIdentifier deviceIdentifier, LoadProfileIdentifier loadProfileIdentifier) {
         this.profileObisCode = profileObisCode;
         if (endReadingTime == null) {
             this.endReadingTime = new Date();
@@ -71,6 +77,16 @@ public class LoadProfileReader {
         this.loadProfileId = loadProfileId;
         this.meterSerialNumber = meterSerialNumber;
         this.channelInfos = channelInfos;
+        this.deviceIdentifier = deviceIdentifier;
+        this.loadProfileIdentifier = loadProfileIdentifier;
+    }
+
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    public LoadProfileIdentifier getLoadProfileIdentifier() {
+        return loadProfileIdentifier;
     }
 
     /**
@@ -134,7 +150,7 @@ public class LoadProfileReader {
      * be a concise but informative representation that is easy for a
      * person to read.
      * It is recommended that all subclasses override this method.
-     * <p/>
+     * <p>
      * The <code>toString</code> method for class <code>Object</code>
      * returns a string consisting of the name of the class of which the
      * object is an instance, the at-sign character `<code>@</code>', and
