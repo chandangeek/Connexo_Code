@@ -1,7 +1,5 @@
 package com.energyict.mdc.channels.serial;
 
-import com.energyict.cpo.Environment;
-
 /**
  * Provide predefined values for the FlowControl
  */
@@ -43,6 +41,6 @@ public enum FlowControl {
 
     @Override
     public String toString() {
-        return Environment.getDefault().getTranslation(getFlowControl());
+        return flowControl; //TODO find a way to get the translations in here
     }
 }

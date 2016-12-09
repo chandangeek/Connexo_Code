@@ -1,7 +1,5 @@
 package com.energyict.mdc.channels.serial;
 
-import com.energyict.cpo.Environment;
-
 /**
  * Provide predefined values for the used parity
  */
@@ -37,7 +35,7 @@ public enum Parities {
         return abbreviation;
     }
 
-    public static Parities valueFor (String strValue) {
+    public static Parities valueFor(String strValue) {
         for (Parities parity : values()) {
             if (parity.getParity().equals(strValue)) {
                 return parity;
@@ -58,6 +56,6 @@ public enum Parities {
 
     @Override
     public String toString() {
-        return Environment.getDefault().getTranslation(getParity());
+        return parity; //TODO find a way to get the translations in here
     }
 }

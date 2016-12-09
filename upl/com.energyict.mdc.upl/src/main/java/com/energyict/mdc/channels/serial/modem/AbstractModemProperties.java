@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.serial.modem;
 
 import java.math.BigDecimal;
-import java.time.temporal.TemporalAmount;
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -31,28 +31,28 @@ public abstract class AbstractModemProperties {
      *
      * @return the timeout for the connect command
      */
-    protected abstract TemporalAmount getConnectTimeout();
+    protected abstract Duration getConnectTimeout();
 
     /**
      * Getter for the delay to wait after a connect command has been received
      *
      * @return the delay to wait after a connect command has been received
      */
-    protected abstract TemporalAmount getDelayAfterConnect();
+    protected abstract Duration getDelayAfterConnect();
 
     /**
      * Getter for the delay to wait before sending out the next command
      *
      * @return the delay to wait before sending out the next command
      */
-    protected abstract TemporalAmount getDelayBeforeSend();
+    protected abstract Duration getDelayBeforeSend();
 
     /**
      * Getter for the timeout applicable for regular commands
      *
      * @return the timeout for regular commands
      */
-    protected abstract TemporalAmount getCommandTimeOut();
+    protected abstract Duration getCommandTimeOut();
 
     /**
      * Getter for the number of attempts a command should be send to the modem
@@ -86,6 +86,6 @@ public abstract class AbstractModemProperties {
      *
      * @return the delay between DTR line toggles
      */
-    protected abstract TemporalAmount getLineToggleDelay();
+    protected abstract Duration getLineToggleDelay();
 
 }
