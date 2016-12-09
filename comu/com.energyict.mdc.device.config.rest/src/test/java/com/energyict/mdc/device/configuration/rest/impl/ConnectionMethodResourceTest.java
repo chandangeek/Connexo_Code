@@ -14,7 +14,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -105,7 +105,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         timeDurationInfo.timeUnit="1"; // INVALID
         propertyInfo.propertyValueInfo = new PropertyValueInfo<TimeDurationInfo>(timeDurationInfo,null,null,true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
-        propertyInfo.propertyTypeInfo.simplePropertyType = SimplePropertyType.TIMEDURATION;
+        propertyInfo.propertyTypeInfo.simplePropertyType = SimplePropertyType.TEMPORALAMOUNT;
         info.properties.add(propertyInfo);
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(12L, OK_VERSION);
@@ -179,7 +179,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("connectionTimeOut");
         when(propertySpec.isRequired()).thenReturn(false);
-        when(propertySpec.getValueFactory()).thenReturn(new TimeDurationValueFactory());
+        when(propertySpec.getValueFactory()).thenReturn(new TemporalAmountValueFactory());
         when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.findPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
