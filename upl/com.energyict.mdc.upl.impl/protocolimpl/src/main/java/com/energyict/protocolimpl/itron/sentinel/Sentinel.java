@@ -70,7 +70,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     boolean readDemandsAndCoincidents = true;
     boolean readTiers = true;
     boolean limitRegisterReadSize = false;
-    boolean readUomTableMinusOne;
+    int reduceMaxNumberOfUomEntryBy;
     int chunkSize;
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
@@ -288,8 +288,8 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
 //        return user.replace(' ', '\0');
     }
 
-    public boolean isReadUomTableMinusOne() {
-        return readUomTableMinusOne;
+    public int reduceMaxNumberOfUomEntryBy() {
+        return reduceMaxNumberOfUomEntryBy;
     }
 
     protected void doDisConnect() throws IOException {
@@ -308,7 +308,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         readDemandsAndCoincidents = Boolean.parseBoolean(properties.getProperty("ReadDemandsAndCoincidents", "true"));
         readTiers = Boolean.parseBoolean(properties.getProperty("ReadTiers", "true"));
         limitRegisterReadSize = Boolean.parseBoolean(properties.getProperty("LimitRegisterReadSize", "false"));
-        readUomTableMinusOne = Boolean.parseBoolean(properties.getProperty("ReadUomTableMinusOne", "false"));
+        reduceMaxNumberOfUomEntryBy = Integer.parseInt(properties.getProperty("ReduceMaxNumberOfUomEntryBy", "0"));
     }
 
     protected List doGetOptionalKeys() {
@@ -322,7 +322,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         result.add("ReadDemandsAndCoincidents");
         result.add("ReadTiers");
         result.add("LimitRegisterReadSize");
-        result.add("ReadUomTableMinusOne");
+        result.add("ReduceMaxNumberOfUomEntryBy");
         return result;
     }
 
