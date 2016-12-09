@@ -127,9 +127,11 @@ Ext.define('Imt.controller.Search', {
                 selector = me.getObjectSelector(),
                 state, isStateChange;
 
-            me.service.initState();
-            state = me.service.getState();
-            isStateChange = !!(state && state.domain);
+            if (!!router.queryParams.restore === true) {
+                me.service.initState();
+                state = me.service.getState();
+                isStateChange = !!(state && state.domain);
+            }
 
             if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
                 selector.setValue(value, isStateChange);
