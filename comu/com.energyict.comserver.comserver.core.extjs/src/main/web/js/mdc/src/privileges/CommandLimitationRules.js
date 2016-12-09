@@ -10,5 +10,9 @@ Ext.define('Mdc.privileges.CommandLimitationRules', {
     },
     canView: function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.CommandLimitationRules.view );
+    },
+    canAcceptReject: function() {
+        // TODO: later on, an extra Accept/Reject privilege should be used here
+        return Uni.Auth.checkPrivileges(Mdc.privileges.CommandLimitationRules.admin );
     }
 });

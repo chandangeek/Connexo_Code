@@ -2268,7 +2268,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     changes: {
                                         title: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),
                                         route: 'changes',
-                                        //privileges: Mdc.privileges.Communication.view,
+                                        privileges: Mdc.privileges.CommandLimitationRules.view,
                                         controller: 'Mdc.controller.setup.CommandLimitationRules',
                                         action: 'showCommandRulePendingChanges'
                                     }
