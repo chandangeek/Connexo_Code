@@ -470,7 +470,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpec finish() {
-            return new PropertSpecAdapter(this.actual.finish());
+            return new ConnexoToUPLPropertSpecAdapter(this.actual.finish());
         }
     }
 

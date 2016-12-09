@@ -123,6 +123,6 @@ class TemporalAmountPropertySpecBuilderAdapter implements PropertySpecBuilder<Te
 
     @Override
     public PropertySpec finish() {
-        return new PropertSpecAdapter(this.actual.finish());
+        return new ConnexoToUPLPropertSpecAdapter(this.actual.finish());
     }
 }

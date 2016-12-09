@@ -9,16 +9,16 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import java.util.Optional;
 
 /**
- * Adapter between {@link com.elster.jupiter.properties.PropertySpec jupiter}
+ * Adapter between {@link com.elster.jupiter.properties.PropertySpec Connexo}
  * and {@link PropertySpec upl} PropertySpec interfaces.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-09 (11:45)
  */
-class PropertSpecAdapter implements PropertySpec {
+class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
     private final com.elster.jupiter.properties.PropertySpec actual;
 
-    PropertSpecAdapter(com.elster.jupiter.properties.PropertySpec actual) {
+    ConnexoToUPLPropertSpecAdapter(com.elster.jupiter.properties.PropertySpec actual) {
         this.actual = actual;
     }
 
