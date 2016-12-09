@@ -27,7 +27,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(getComPortName(properties), properties);
+        SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(getComPortName(getAllProperties()), getAllProperties());
         ComChannel comChannel = newSioSerialConnection(serialPortConfiguration);
         comChannel.addProperties(createTypeProperty(ComChannelType.SerialComChannel));
         return comChannel;
@@ -53,7 +53,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
      * @return the property spec for the SerialIO baudrate property
      */
     @Override
-    protected PropertySpec<BigDecimal> baudRatePropertySpec() {
+    protected PropertySpec baudRatePropertySpec() {
         return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
                 BaudrateValue.BAUDRATE_150.getBaudrate(),
                 BaudrateValue.BAUDRATE_300.getBaudrate(),
@@ -76,7 +76,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
      * @return the property spec for the SerialIO nrOfStopBits property
      */
     @Override
-    protected PropertySpec<BigDecimal> nrOfStopBitsPropertySpec() {
+    protected PropertySpec nrOfStopBitsPropertySpec() {
         return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.TWO.getNrOfStopBits());
     }
 

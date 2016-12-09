@@ -29,13 +29,13 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect() throws ConnectionException {
 
-        this.caseModemComponent = SerialComponentFactory.instance.get().newCaseModemComponent(new TypedCaseModemProperties(properties));
+        this.caseModemComponent = SerialComponentFactory.instance.get().newCaseModemComponent(new TypedCaseModemProperties(getAllProperties()));
         /*
        create the serial ComChannel and set all property values
         */
         ComChannel comChannel = super.connect();
         try {
-            caseModemComponent.connect(getComPortName(properties), comChannel);
+            caseModemComponent.connect(getComPortName(getAllProperties()), comChannel);
         } catch (Throwable e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             if (e instanceof ModemException) {

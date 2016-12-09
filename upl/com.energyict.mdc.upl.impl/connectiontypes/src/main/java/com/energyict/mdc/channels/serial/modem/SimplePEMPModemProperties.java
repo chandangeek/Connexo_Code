@@ -1,8 +1,7 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.cbo.TimeDuration;
-
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,16 +13,16 @@ public class SimplePEMPModemProperties extends AbstractPEMPModemProperties {
 
     private String phoneNumber;
     private String commandPrefix;
-    private TimeDuration connectTimeout;
-    private TimeDuration delayAfterConnect;
-    private TimeDuration delayBeforeSend;
-    private TimeDuration commandTimeout;
+    private Duration connectTimeout;
+    private Duration delayAfterConnect;
+    private Duration delayBeforeSend;
+    private Duration commandTimeout;
     private BigDecimal commandTry;
     private String modemInitStrings;
-    private TimeDuration lineToggleDelay;
+    private Duration lineToggleDelay;
     private PEMPModemConfiguration modemConfiguration;
 
-    public SimplePEMPModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, String modemInitStrings, TimeDuration lineToggleDelay, PEMPModemConfiguration modemConfiguration) {
+    public SimplePEMPModemProperties(String phoneNumber, String commandPrefix, Duration connectTimeout, Duration delayAfterConnect, Duration delayBeforeSend, Duration commandTimeout, BigDecimal commandTry, String modemInitStrings, Duration lineToggleDelay, PEMPModemConfiguration modemConfiguration) {
         this.phoneNumber = phoneNumber;
         this.commandPrefix = commandPrefix;
         this.connectTimeout = connectTimeout;
@@ -47,22 +46,22 @@ public class SimplePEMPModemProperties extends AbstractPEMPModemProperties {
     }
 
     @Override
-    protected TimeDuration getConnectTimeout() {
+    protected Duration getConnectTimeout() {
         return this.connectTimeout;
     }
 
     @Override
-    protected TimeDuration getDelayAfterConnect() {
+    protected Duration getDelayAfterConnect() {
         return this.delayAfterConnect;
     }
 
     @Override
-    protected TimeDuration getDelayBeforeSend() {
+    protected Duration getDelayBeforeSend() {
         return this.delayBeforeSend;
     }
 
     @Override
-    protected TimeDuration getCommandTimeOut() {
+    protected Duration getCommandTimeOut() {
         return this.commandTimeout;
     }
 
@@ -84,7 +83,7 @@ public class SimplePEMPModemProperties extends AbstractPEMPModemProperties {
     }
 
     @Override
-    protected TimeDuration getLineToggleDelay() {
+    protected Duration getLineToggleDelay() {
         return this.lineToggleDelay;
     }
 

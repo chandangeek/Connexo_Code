@@ -9,7 +9,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,27 +82,27 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     @Override
-    protected TemporalAmount getConnectTimeout() {
+    protected Duration getConnectTimeout() {
         Object value = getProperty(CONNECT_TIMEOUT);
-        return value != null ? (TemporalAmount) value : DEFAULT_CONNECT_TIMEOUT;
+        return value != null ? (Duration) value : DEFAULT_CONNECT_TIMEOUT;
     }
 
     @Override
-    protected TemporalAmount getDelayAfterConnect() {
+    protected Duration getDelayAfterConnect() {
         Object value = getProperty(DELAY_AFTER_CONNECT);
-        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_AFTER_CONNECT;
+        return value != null ? (Duration) value : DEFAULT_DELAY_AFTER_CONNECT;
     }
 
     @Override
-    protected TemporalAmount getDelayBeforeSend() {
+    protected Duration getDelayBeforeSend() {
         Object value = getProperty(DELAY_BEFORE_SEND);
-        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_BEFORE_SEND;
+        return value != null ? (Duration) value : DEFAULT_DELAY_BEFORE_SEND;
     }
 
     @Override
-    protected TemporalAmount getCommandTimeOut() {
+    protected Duration getCommandTimeOut() {
         Object value = getProperty(COMMAND_TIMEOUT);
-        return value != null ? (TemporalAmount) value : DEFAULT_COMMAND_TIMEOUT;
+        return value != null ? (Duration) value : DEFAULT_COMMAND_TIMEOUT;
     }
 
     @Override
@@ -129,9 +128,9 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     @Override
-    protected TemporalAmount getLineToggleDelay() {
+    protected Duration getLineToggleDelay() {
         Object value = getProperty(DTR_TOGGLE_DELAY);
-        return value != null ? (TemporalAmount) value : DEFAULT_DTR_TOGGLE_DELAY;
+        return value != null ? (Duration) value : DEFAULT_DTR_TOGGLE_DELAY;
     }
 
     @Override

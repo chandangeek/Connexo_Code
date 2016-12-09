@@ -1,11 +1,10 @@
 package com.energyict.mdc.channels.serial.modem;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -87,7 +86,7 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     @Override
-    protected TemporalAmount getConnectTimeout() {
+    protected Duration getConnectTimeout() {
         Object value = this.properties.getTypedProperty(AT_CONNECT_TIMEOUT);
         return value != null ? (TemporalAmount) value : DEFAULT_AT_CONNECT_TIMEOUT;
     }
@@ -165,50 +164,61 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     public static PropertySpec atModemAddressSelectorSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_ADDRESS_SELECTOR, false, DEFAULT_AT_MODEM_ADDRESS_SELECTOR);
+        return Services.propertySpecService().stringSpec().named(AT_MODEM_ADDRESS_SELECTOR, AT_MODEM_ADDRESS_SELECTOR).describedAs(AT_MODEM_ADDRESS_SELECTOR)
+                .setDefaultValue(DEFAULT_AT_MODEM_ADDRESS_SELECTOR).finish();
     }
 
     public static PropertySpec atModemPostDialCommandsSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_POST_DIAL_COMMANDS, false, DEFAULT_AT_MODEM_POST_DIAL_COMMANDS);
+        return Services.propertySpecService().stringSpec().named(AT_MODEM_POST_DIAL_COMMANDS, AT_MODEM_POST_DIAL_COMMANDS).describedAs(AT_MODEM_POST_DIAL_COMMANDS)
+                .setDefaultValue(DEFAULT_AT_MODEM_POST_DIAL_COMMANDS).finish();
     }
 
     public static PropertySpec atGlobalModemInitStringSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_GLOBAL_INIT_STRINGS, false, DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS);
+        return Services.propertySpecService().stringSpec().named(AT_MODEM_GLOBAL_INIT_STRINGS, AT_MODEM_GLOBAL_INIT_STRINGS).describedAs(AT_MODEM_GLOBAL_INIT_STRINGS)
+                .setDefaultValue(DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS).finish();
     }
 
     public static PropertySpec atModemInitStringSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_INIT_STRINGS, false, DEFAULT_AT_MODEM_INIT_STRINGS);
+        return Services.propertySpecService().stringSpec().named(AT_MODEM_INIT_STRINGS, AT_MODEM_INIT_STRINGS).describedAs(AT_MODEM_INIT_STRINGS)
+                .setDefaultValue(DEFAULT_AT_MODEM_INIT_STRINGS).finish();
     }
 
     public static PropertySpec atCommandTriesSpec() {
-        return UPLPropertySpecFactory.bigDecimal(AT_COMMAND_TRIES, false, DEFAULT_AT_COMMAND_TRIES);
+        return Services.propertySpecService().bigDecimalSpec().named(AT_COMMAND_TRIES, AT_COMMAND_TRIES).describedAs(AT_COMMAND_TRIES)
+                .setDefaultValue(DEFAULT_AT_COMMAND_TRIES).finish();
     }
 
     public static PropertySpec atCommandTimeoutSpec() {
-        return UPLPropertySpecFactory.duration(AT_COMMAND_TIMEOUT, false, DEFAULT_AT_COMMAND_TIMEOUT);
+        return Services.propertySpecService().durationSpec().named(AT_COMMAND_TIMEOUT, AT_COMMAND_TIMEOUT).describedAs(AT_COMMAND_TIMEOUT)
+                .setDefaultValue(DEFAULT_AT_COMMAND_TIMEOUT).finish();
     }
 
     public static PropertySpec delayBeforeSendSpec() {
-        return UPLPropertySpecFactory.duration(DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
+        return Services.propertySpecService().durationSpec().named(DELAY_BEFORE_SEND, DELAY_BEFORE_SEND).describedAs(DELAY_BEFORE_SEND)
+                .setDefaultValue(DEFAULT_DELAY_BEFORE_SEND).finish();
     }
 
     public static PropertySpec delayAfterConnectSpec() {
-        return UPLPropertySpecFactory.duration(DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
+        return Services.propertySpecService().durationSpec().named(DELAY_AFTER_CONNECT, DELAY_AFTER_CONNECT).describedAs(DELAY_AFTER_CONNECT)
+                .setDefaultValue(DEFAULT_DELAY_AFTER_CONNECT).finish();
     }
 
     public static PropertySpec atConnectTimeoutSpec() {
-        return UPLPropertySpecFactory.duration(AT_CONNECT_TIMEOUT, false, DEFAULT_AT_CONNECT_TIMEOUT);
+        return Services.propertySpecService().durationSpec().named(AT_CONNECT_TIMEOUT, AT_CONNECT_TIMEOUT).describedAs(AT_CONNECT_TIMEOUT)
+                .setDefaultValue(DEFAULT_AT_COMMAND_TIMEOUT).finish();
     }
 
     public static PropertySpec atCommandPrefixSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(AT_MODEM_DIAL_PREFIX, false, DEFAULT_AT_MODEM_DIAL_PREFIX);
+        return Services.propertySpecService().stringSpec().named(AT_MODEM_DIAL_PREFIX, AT_MODEM_DIAL_PREFIX).describedAs(AT_MODEM_DIAL_PREFIX)
+                .setDefaultValue(DEFAULT_AT_MODEM_DIAL_PREFIX).finish();
     }
 
     public static PropertySpec dtrToggleDelaySpec() {
-        return UPLPropertySpecFactory.duration(DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
+        return Services.propertySpecService().durationSpec().named(DTR_TOGGLE_DELAY, DTR_TOGGLE_DELAY).describedAs(DTR_TOGGLE_DELAY)
+                .setDefaultValue(DEFAULT_DTR_TOGGLE_DELAY).finish();
     }
 
     public static PropertySpec phoneNumberSpec() {
-        return UPLPropertySpecFactory.string(PHONE_NUMBER_PROPERTY_NAME, true);
+        return Services.propertySpecService().durationSpec().named(PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER_PROPERTY_NAME).describedAs(PHONE_NUMBER_PROPERTY_NAME).finish();
     }
 }

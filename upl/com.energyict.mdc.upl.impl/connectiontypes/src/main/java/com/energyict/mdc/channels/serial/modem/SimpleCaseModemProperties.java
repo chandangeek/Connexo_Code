@@ -1,29 +1,28 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.cbo.TimeDuration;
-
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
 
 /**
  * @author sva
  * @since 30/04/13 - 13:23
  */
-public class SimpleCaseModemProperties extends AbstractCaseModemProperties{
+public class SimpleCaseModemProperties extends AbstractCaseModemProperties {
 
     private String phoneNumber;
     private String commandPrefix;
-    private TimeDuration connectTimeout;
-    private TimeDuration delayAfterConnect;
-    private TimeDuration delayBeforeSend;
-    private TimeDuration commandTimeout;
+    private Duration connectTimeout;
+    private Duration delayAfterConnect;
+    private Duration delayBeforeSend;
+    private Duration commandTimeout;
     private BigDecimal commandTry;
     private List<String> globalModemInitStrings;
     private List<String> modemInitStrings;
     private String addressSelector;
-    private TimeDuration lineToggleDelay;
+    private Duration lineToggleDelay;
 
-    public SimpleCaseModemProperties(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> globalModemInitStrings, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay) {
+    public SimpleCaseModemProperties(String phoneNumber, String commandPrefix, Duration connectTimeout, Duration delayAfterConnect, Duration delayBeforeSend, Duration commandTimeout, BigDecimal commandTry, List<String> globalModemInitStrings, List<String> modemInitStrings, String addressSelector, Duration lineToggleDelay) {
         this.phoneNumber = phoneNumber;
         this.commandPrefix = commandPrefix;
         this.connectTimeout = connectTimeout;
@@ -48,22 +47,22 @@ public class SimpleCaseModemProperties extends AbstractCaseModemProperties{
     }
 
     @Override
-    protected TimeDuration getConnectTimeout() {
+    protected Duration getConnectTimeout() {
         return this.connectTimeout;
     }
 
     @Override
-    protected TimeDuration getDelayAfterConnect() {
+    protected Duration getDelayAfterConnect() {
         return this.delayAfterConnect;
     }
 
     @Override
-    protected TimeDuration getDelayBeforeSend() {
+    protected Duration getDelayBeforeSend() {
         return this.delayBeforeSend;
     }
 
     @Override
-    protected TimeDuration getCommandTimeOut() {
+    protected Duration getCommandTimeOut() {
         return this.commandTimeout;
     }
 
@@ -88,7 +87,7 @@ public class SimpleCaseModemProperties extends AbstractCaseModemProperties{
     }
 
     @Override
-    protected TimeDuration getLineToggleDelay() {
+    protected Duration getLineToggleDelay() {
         return this.lineToggleDelay;
     }
 }

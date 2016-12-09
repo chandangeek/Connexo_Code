@@ -29,13 +29,13 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect() throws ConnectionException {
 
-        pempModemComponent = SerialComponentFactory.instance.get().newPEMPModemComponent(new TypedPEMPModemProperties(properties));
+        pempModemComponent = SerialComponentFactory.instance.get().newPEMPModemComponent(new TypedPEMPModemProperties(getAllProperties()));
         /*
        create the serial ComChannel and set all property values
         */
         ComChannel comChannel = super.connect();
         try {
-            pempModemComponent.connect(getComPortName(properties), comChannel);
+            pempModemComponent.connect(getComPortName(getAllProperties()), comChannel);
         } catch (Throwable e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             if (e instanceof ModemException) {

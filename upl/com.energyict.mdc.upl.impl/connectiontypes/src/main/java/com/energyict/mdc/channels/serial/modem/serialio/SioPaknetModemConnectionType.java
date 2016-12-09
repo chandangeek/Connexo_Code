@@ -29,7 +29,7 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect() throws ConnectionException {
 
-        paknetModemComponent = SerialComponentFactory.instance.get().newPaknetModemComponent(new TypedPaknetModemProperties(properties));
+        paknetModemComponent = SerialComponentFactory.instance.get().newPaknetModemComponent(new TypedPaknetModemProperties(getAllProperties()));
         /*
         create the serial ComChannel and set all property values
          */

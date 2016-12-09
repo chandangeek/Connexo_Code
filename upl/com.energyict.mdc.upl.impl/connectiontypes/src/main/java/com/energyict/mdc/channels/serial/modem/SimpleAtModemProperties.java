@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.serial.modem;
 
 import java.math.BigDecimal;
-import java.time.temporal.TemporalAmount;
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -12,18 +12,18 @@ public class SimpleAtModemProperties extends AbstractAtModemProperties {
 
     private String phoneNumber;
     private String atCommandPrefix;
-    private TemporalAmount connectTimeout;
-    private TemporalAmount delayAfterConnect;
-    private TemporalAmount delayBeforeSend;
-    private TemporalAmount atCommandTimeout;
+    private Duration connectTimeout;
+    private Duration delayAfterConnect;
+    private Duration delayBeforeSend;
+    private Duration atCommandTimeout;
     private BigDecimal atCommandTry;
     private List<String> globalModemInitStrings;
     private List<String> modemInitStrings;
     private String addressSelector;
-    private TemporalAmount lineToggleDelay;
+    private Duration lineToggleDelay;
     private String postDialCommands;
 
-    public SimpleAtModemProperties(String phoneNumber, String atCommandPrefix, TemporalAmount connectTimeout, TemporalAmount delayAfterConnect, TemporalAmount delayBeforeSend, TemporalAmount atCommandTimeout, BigDecimal atCommandTry, List<String> globalModemInitStrings, List<String> modemInitStrings, String addressSelector, TemporalAmount lineToggleDelay ,String postDialCommands) {
+    public SimpleAtModemProperties(String phoneNumber, String atCommandPrefix, Duration connectTimeout, Duration delayAfterConnect, Duration delayBeforeSend, Duration atCommandTimeout, BigDecimal atCommandTry, List<String> globalModemInitStrings, List<String> modemInitStrings, String addressSelector, Duration lineToggleDelay ,String postDialCommands) {
         this.phoneNumber = phoneNumber;
         this.atCommandPrefix = atCommandPrefix;
         this.connectTimeout = connectTimeout;
@@ -49,22 +49,22 @@ public class SimpleAtModemProperties extends AbstractAtModemProperties {
     }
 
     @Override
-    protected TemporalAmount getConnectTimeout() {
+    protected Duration getConnectTimeout() {
         return connectTimeout;
     }
 
     @Override
-    protected TemporalAmount getDelayAfterConnect() {
+    protected Duration getDelayAfterConnect() {
         return delayAfterConnect;
     }
 
     @Override
-    protected TemporalAmount getDelayBeforeSend() {
+    protected Duration getDelayBeforeSend() {
         return delayBeforeSend;
     }
 
     @Override
-    protected TemporalAmount getCommandTimeOut() {
+    protected Duration getCommandTimeOut() {
         return atCommandTimeout;
     }
 
@@ -94,7 +94,7 @@ public class SimpleAtModemProperties extends AbstractAtModemProperties {
     }
 
     @Override
-    protected TemporalAmount getLineToggleDelay() {
+    protected Duration getLineToggleDelay() {
         return this.lineToggleDelay;
     }
 }

@@ -19,7 +19,6 @@ import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        SerialPortConfiguration serialConfiguration = super.createSerialConfiguration(getComPortName(properties), properties);
+        SerialPortConfiguration serialConfiguration = super.createSerialConfiguration(getComPortName(getAllProperties()), getAllProperties());
         serialConfiguration.setFlowControl(FlowControl.NONE);
         SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
         ServerSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialConfiguration);
@@ -90,7 +89,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    protected PropertySpec<BigDecimal> baudRatePropertySpec() {
+    protected PropertySpec baudRatePropertySpec() {
         return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
                 BaudrateValue.BAUDRATE_9600.getBaudrate(),
                 BaudrateValue.BAUDRATE_19200.getBaudrate(),

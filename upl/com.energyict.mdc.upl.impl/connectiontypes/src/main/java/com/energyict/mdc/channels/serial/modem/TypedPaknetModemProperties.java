@@ -82,7 +82,7 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
     }
 
     @Override
-    protected TemporalAmount getConnectTimeout() {
+    protected Duration getConnectTimeout() {
         Object value = getProperty(CONNECT_TIMEOUT);
         return value != null ? (TemporalAmount) value : DEFAULT_CONNECT_TIMEOUT;
     }

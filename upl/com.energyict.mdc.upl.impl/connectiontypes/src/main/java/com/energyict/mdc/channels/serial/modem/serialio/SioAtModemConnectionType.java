@@ -30,13 +30,13 @@ public class SioAtModemConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect() throws ConnectionException {
 
-        this.atModemComponent = SerialComponentFactory.instance.get().newAtModemComponent(new TypedAtModemProperties(properties));
+        this.atModemComponent = SerialComponentFactory.instance.get().newAtModemComponent(new TypedAtModemProperties(getAllProperties()));
         /*
         create the serial ComChannel and set all property values
          */
         ComChannel comChannel = super.connect();
         try {
-            atModemComponent.connect(getComPortName(properties), comChannel);
+            atModemComponent.connect(getComPortName(getAllProperties()), comChannel);
         } catch (Throwable e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             if (e instanceof ModemException) {
