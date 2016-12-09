@@ -9,75 +9,78 @@ import static com.elster.jupiter.util.Checks.is;
  * User: gde
  * Date: 17/04/13
  */
-public class HexString implements Comparable, Serializable {
+public class HexString implements com.energyict.mdc.upl.properties.HexString, Comparable<com.energyict.mdc.upl.properties.HexString>, Serializable {
 
     private String content;
+    private Number value;
 
-    public HexString () {
+    public HexString() {
         super();
     }
 
-    public HexString (String hexString) {
+    public HexString(String hexString) {
         if (!is(hexString).emptyOrOnlyWhiteSpace()) {
             try {
-                new BigInteger(hexString.toUpperCase(), 16);
+                this.value = new BigInteger(hexString.toUpperCase(), 16);
                 setContent(hexString);
-            }
-            catch (NumberFormatException x) {
+            } catch (NumberFormatException x) {
                 throw new IllegalArgumentException("Invalid HexString");
             }
         }
     }
 
-    protected void setContent(String hexString){
+    protected void setContent(String hexString) {
         content = hexString.toUpperCase();
     }
 
-    public boolean isValid(){
+    public boolean isValid() {
         return true;
     }
 
-    public String getContent () {
+    public String getContent() {
         return content;
     }
 
-    public boolean isEmpty(){
+    @Override
+    public Number getValue() {
+        return value;
+    }
+
+    public boolean isEmpty() {
         return content == null || content.isEmpty();
     }
 
-    public int lenght(){
-        return (content == null ? 0 : content.length());    }
+    public int length() {
+        return (content == null ? 0 : content.length());
+    }
 
-    public int compareTo (Object o) {
-        HexString other = (HexString) o;
+    public int compareTo(com.energyict.mdc.upl.properties.HexString other) {
         if (getContent() == null) {
             if (other.getContent() == null) {
                 return 0;
-            }
-            else {
+            } else {
                 return -1;
             }
-        }
-        if (other.getContent() == null) {
+        } else if (other.getContent() == null) {
             if (getContent() == null) {
                 return 0;
-            }
-            else {
+            } else {
                 return 1;
             }
+        } else {
+            return getContent().compareTo(other.getContent());
         }
-        return getContent().compareTo(other.getContent());
     }
 
     @Override
-    public boolean equals (Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof HexString)) {
+        if (o == null || !(o instanceof com.energyict.mdc.upl.properties.HexString)) {
             return false;
         }
-        HexString other = (HexString) o;
+        com.energyict.mdc.upl.properties.HexString other = (com.energyict.mdc.upl.properties.HexString) o;
         if (getContent() == null) {
             return other.getContent() == null;
         }
@@ -88,17 +91,16 @@ public class HexString implements Comparable, Serializable {
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         if (content != null) {
             return content.hashCode();
-        }
-        else {
+        } else {
             return 0;
         }
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         return getContent();
     }
 
