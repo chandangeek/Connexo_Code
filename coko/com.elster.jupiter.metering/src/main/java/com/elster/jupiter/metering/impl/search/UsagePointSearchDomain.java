@@ -57,13 +57,17 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     // For Testing purposes
     @Inject
-    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, MeteringTranslationService meteringTranslationService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
+    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService,
+                                  MeteringTranslationService meteringTranslationService,
+                                  ServerMetrologyConfigurationService metrologyConfigurationService,
+                                  Clock clock, LicenseService licenseService) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
         this.setMeteringTranslationService(meteringTranslationService);
         this.setServerMetrologyConfigurationService(metrologyConfigurationService);
         this.setClock(clock);
+        this.setLicenseService(licenseService);
     }
 
     @Reference
