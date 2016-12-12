@@ -30,11 +30,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +105,7 @@ public class UsagePointCalendarResource {
 
     @POST
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS})
     public Response addCalendarToUsagePoint(
             @PathParam("name") String usagePointName,
@@ -116,7 +116,7 @@ public class UsagePointCalendarResource {
                 .orElse(null);
         Instant start = Instant.ofEpochMilli(calendarOnUsagePointInfo.fromTime);
         CalendarOnUsagePoint calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
-                    .addCalendar(start, calendar);
+                .addCalendar(start, calendar);
         return Response.ok(calendarOnUsagePointInfoFactory.from(calendarOnUsagePoint)).build();
     }
 

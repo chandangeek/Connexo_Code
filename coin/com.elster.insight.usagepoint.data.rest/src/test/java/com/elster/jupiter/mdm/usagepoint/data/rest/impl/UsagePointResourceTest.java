@@ -543,7 +543,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Test
     public void testGetValidationTasksOnUsagePoint() throws Exception {
 
-        Response response = target("usagepoints/" +  USAGE_POINT_NAME + "/validationtasks").request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationtasks").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);

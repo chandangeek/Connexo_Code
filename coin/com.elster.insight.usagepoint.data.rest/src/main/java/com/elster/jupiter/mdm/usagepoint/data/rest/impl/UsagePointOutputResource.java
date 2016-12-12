@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -99,7 +98,7 @@ public class UsagePointOutputResource {
         List<PurposeInfo> purposeInfoList;
         if (effectiveMetrologyConfiguration.isPresent()) {
             purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
-                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract))
+                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract, withValidationTasks))
                     .sorted(Comparator.comparing(info -> info.name))
                     .collect(Collectors.toList());
         } else {

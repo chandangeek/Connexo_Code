@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
@@ -14,7 +13,6 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import java.util.Collections;
 
 public class PurposeInfoFactory {
     private final ValidationStatusFactory validationStatusFactory;
@@ -23,7 +21,7 @@ public class PurposeInfoFactory {
     private final Clock clock;
 
     @Inject
-    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, Thesaurus thesaurus, ValidationService validationService, TimeService timeService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory, Clock clock) {
+    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, ValidationService validationService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory, Clock clock) {
         this.validationStatusFactory = validationStatusFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.validationService = validationService;
