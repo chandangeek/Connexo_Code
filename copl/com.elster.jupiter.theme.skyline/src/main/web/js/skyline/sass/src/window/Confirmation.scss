@@ -1,28 +1,24 @@
-.uni-confirmation-window {
-    .#{$prefix}toolbar {
-        // TODO Enable this again when the buttons are not center aligned anymore.
-//        margin-left: 42px;
-    }
-
-    *[class*='#{$prefix}message-box-'] {
-//        background-image: url('images/shared/icon-confirm.png');
-    }
+@mixin confirmationWindow($cnfWindowMainColor) {
+  .#{$prefix}toolbar {
+    // TODO Enable this again when the buttons are not center aligned anymore.
+    //        margin-left: 42px;
+  }
 
   .#{$prefix}dlg-icon{
     font-size: 22px;
-    color: #eb5642;
+    color: $cnfWindowMainColor;
   }
 
   *[class*='#{$prefix}window-'] {
-        .#{$prefix}header-text {
-          font-weight: bold;
-          font-size: 16px;
-          color: #eb5642;
-        }
+    .#{$prefix}header-text {
+      font-weight: bold;
+      font-size: 16px;
+      color: $cnfWindowMainColor;
+    }
 
     .#{$prefix}form-display-field {
       margin-top: 16px;
-      color: #686868;
+      color: $color-grey;
     }
 
     *[class*='#{$prefix}message-box-'] {
@@ -31,8 +27,24 @@
   }
 }
 
-.confirmation-window .x-panel-body {
-	color: #eb5642;
-    padding: 0 0 15px 65px;    
+.uni-confirmation-window {
+  @include confirmationWindow($color-red);
 }
 
+.uni-confirmation-window-green {
+  @include confirmationWindow($color-green-1);
+}
+
+
+@mixin confirmationWindowBody($cnfWindowBodyColor) {
+  color: $cnfWindowBodyColor;
+  padding: 0 0 15px 65px;
+}
+
+.confirmation-window .x-panel-body {
+  @include confirmationWindowBody($color-red);
+}
+
+.confirmation-window-green .x-panel-body {
+  @include confirmationWindowBody($color-green-1);
+}
