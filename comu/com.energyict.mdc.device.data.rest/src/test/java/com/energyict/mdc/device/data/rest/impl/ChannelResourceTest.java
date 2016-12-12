@@ -988,7 +988,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl)).thenReturn(Optional.of(estimator));
         when(estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl, new HashMap<>())).thenReturn(Optional.of(estimator));
-        when(estimationService.previewEstimate(eq(QualityCodeSystem.MDC), any(MeterActivation.class), any(Range.class), any(ReadingType.class), any(Estimator.class))).thenReturn(estimationResult);
+        when(estimationService.previewEstimate(eq(QualityCodeSystem.MDC), any(ChannelsContainer.class), any(Range.class), any(ReadingType.class), any(Estimator.class))).thenReturn(estimationResult);
 
         Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/data/issue/estimate").request().post(Entity.json(estimateChannelDataInfo));
         verify(channelDataUpdater).complete();

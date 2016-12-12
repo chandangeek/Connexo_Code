@@ -86,7 +86,7 @@ public class EstimationHelper {
                 .filter(ma -> ma.getInterval().toOpenClosedRange().contains(range.upperEndpoint()))
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METER_ACTIVATION_NOT_FOUND));
-        return estimationService.previewEstimate(system, meterActivation, range, readingType, estimator);
+        return estimationService.previewEstimate(system, meterActivation.getChannelsContainer(), range, readingType, estimator);
     }
 
     List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results) {
