@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.alarms.impl;
 
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventHandlerFactory;

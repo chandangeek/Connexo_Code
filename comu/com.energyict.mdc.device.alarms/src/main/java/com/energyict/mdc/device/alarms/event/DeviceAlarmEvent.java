@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.alarms.event;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -11,30 +12,28 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
-import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.inject.Injector;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
-    protected static final Logger LOG = Logger.getLogger(DeviceAlarmEvent.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(DeviceAlarmEvent.class.getName());
 
     private final DeviceAlarmService deviceAlarmService;
+    private final IssueService issueService;
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final TopologyService topologyService;
@@ -46,14 +45,17 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private Optional<? extends OpenIssue> existingIssue;
     private Injector injector;
 
-    public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
+    public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
         this.deviceAlarmService = deviceAlarmService;
+        this.issueService = issueService;
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.thesaurus = thesaurus;
         this.injector = injector;
     }
+
+    public abstract void init(Map<?, ?> jsonPayload);
 
     protected DeviceAlarmService getDeviceAlarmService() {
         return deviceAlarmService;
@@ -98,7 +100,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         this.timestamp = timestamp;
     }
 
-    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription, Device device){
+   /* public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription, Device device){
         this.eventDescription = eventDescription;
         if(device != null){
             this.device = device;
@@ -106,11 +108,11 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
             getEventDevice(rawEvent);
         }
         getEventTimestamp(rawEvent);
-        wrapInternal(rawEvent, eventDescription);
+        wrapInternal(rawEvent, eventDescorription);
     }
 
     protected abstract void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription);
-
+*/
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
         device = getDeviceService().findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
@@ -159,7 +161,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                                 Interval.startAt(start));
             }
         } catch (RuntimeException ex){
-            LOG.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
+            LOGGER.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
         }
         return numberOfDevicesWithEvents;
     }
@@ -168,13 +170,13 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     /*public double computeCurrentThreshold() {
         Optional<Device> concentrator = this.topologyService.getPhysicalGateway(this.device);
         if (!concentrator.isPresent()) {
-            LOG.log(Level.WARNING, "Concentrator for device[id={0}] is not found", device.getId());
+            LOGGER.log(Level.WARNING, "Concentrator for device[id={0}] is not found", device.getId());
             return -1;
         }
         int numberOfEvents = getNumberOfDevicesWithEvents(concentrator.get());
         int numberOfConnectedDevices = this.topologyService.findPhysicalConnectedDevices(concentrator.get()).size();
         if (numberOfConnectedDevices == 0) {
-            LOG.log(Level.WARNING, "Number of connected devices for concentrator[id={0}] equals 0", concentrator.get().getId());
+            LOGGER.log(Level.WARNING, "Number of connected devices for concentrator[id={0}] equals 0", concentrator.get().getId());
             return -1;
         }
         return (double) numberOfEvents / (double) numberOfConnectedDevices * 100.0;
@@ -196,16 +198,15 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
 
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
-        if (existingIssue == null) {
-            Query<OpenDeviceAlarm> query = getDeviceAlarmService().query(OpenDeviceAlarm.class, ConnectionTask.class, ComTaskExecution.class, ComSession.class);
-            List<OpenDeviceAlarm> theSameIssues = query.select(getConditionForExistingIssue());
-            if (!theSameIssues.isEmpty()) {
-                existingIssue = Optional.of(theSameIssues.get(0));
-            } else {
-                existingIssue = Optional.empty();
-            }
+        DeviceAlarmFilter filter = new DeviceAlarmFilter();
+        getEndDevice().ifPresent(filter::addDevice);
+        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
+        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+        Optional<? extends DeviceAlarm> foundIssue = deviceAlarmService.findAlarms(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
+        if (foundIssue.isPresent()) {
+            return Optional.of((OpenIssue)foundIssue.get());
         }
-        return existingIssue;
+        return Optional.empty();
     }
 
     protected abstract Condition getConditionForExistingIssue();

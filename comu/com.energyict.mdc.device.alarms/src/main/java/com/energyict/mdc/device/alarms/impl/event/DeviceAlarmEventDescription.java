@@ -79,19 +79,11 @@ public enum DeviceAlarmEventDescription implements EventDescription {
         return requestedObj == null;
     }
 	
-	//not needed - will handle just one event for the time being
+	//will handle just one event for the time being
 
-    protected List<Map<?, ?>> splitEventsByKey(Map<?, ?> map, String key) {
-        String[] failedTasks = String.class.cast(map.get(key)).split(",");
-        List<Map<?, ?>> eventDataList = new ArrayList<>(failedTasks.length);
-        for (String task : failedTasks) {
-            if (!is(task).emptyOrOnlyWhiteSpace()) {
-                Map<Object, Object> data = new HashMap<>(map);
-                data.put(key, task);
-                eventDataList.add(data);
-            }
-        }
-        return eventDataList;
+    public boolean matches(Map<?, ?> map) {
+        String topic = (String) map.get(EventConstants.EVENT_TOPIC);
+        return this.topic.equalsIgnoreCase(topic);
     }
 
     public String getTopic() {

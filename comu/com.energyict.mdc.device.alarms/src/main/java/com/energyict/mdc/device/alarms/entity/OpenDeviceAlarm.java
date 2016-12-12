@@ -10,8 +10,8 @@ public interface OpenDeviceAlarm extends OpenIssue, DeviceAlarm {
     
     HistoricalDeviceAlarm close(IssueStatus status);
 
-    void addOpenDeviceAlarm(EndDeviceEvent event, Instant timeStamp);
+    void addRelatedAlarmEvent(long endDeviceEventTrecordId);
 
-    void removeOpenDeviceAlarm(EndDeviceEvent event, Instant timeStamp);
+    void removeRelatedAlarmEvent(EndDeviceEvent event, Instant timeStamp);
     
 }
