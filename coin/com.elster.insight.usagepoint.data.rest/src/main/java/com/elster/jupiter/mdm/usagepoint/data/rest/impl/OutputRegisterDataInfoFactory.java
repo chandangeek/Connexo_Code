@@ -1,6 +1,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.config.DeliverableType;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -19,12 +22,11 @@ public class OutputRegisterDataInfoFactory {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
     }
 
-    public OutputRegisterDataInfo createRegisterDataInfo(ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus) {
-        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+    public OutputRegisterDataInfo createRegisterDataInfo(ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus, ReadingTypeDeliverable deliverable) {
+
+        OutputRegisterDataInfo info = createRegisterDataInfo(readingWithValidationStatus, deliverable.getType());
         info.timeStamp = readingWithValidationStatus.getTimeStamp();
-        info.value = readingWithValidationStatus.getValue();
         info.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
-        info.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
         readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
             info.modificationFlag = modificationFlag.getFirst();
             info.editedInApp = modificationFlag.getLast()
@@ -35,7 +37,9 @@ public class OutputRegisterDataInfoFactory {
             info.modificationDate = modificationFlag.getLast().getTimestamp();
         });
 
-        if (readingWithValidationStatus.getValidationStatus().isPresent()) {
+        if ((deliverable.getType().equals(DeliverableType.NUMERICAL) || deliverable.getType()
+                .equals(DeliverableType.BILLING))
+                && readingWithValidationStatus.getValidationStatus().isPresent()) {
             DataValidationStatus status = readingWithValidationStatus.getValidationStatus().get();
             info.validationResult = ValidationStatus.forResult(status.getValidationResult());
             info.dataValidated = status.completelyValidated();
@@ -47,7 +51,7 @@ public class OutputRegisterDataInfoFactory {
                     .sorted(Comparator.reverseOrder())
                     .findFirst()
                     .orElse(null);
-            info.isConfirmed = status.getReadingQualities()
+            ((NumericalOutputRegisterDataInfo) info).isConfirmed = status.getReadingQualities()
                     .stream()
                     .filter(quality -> quality.getType().isConfirmed())
                     .findFirst()
@@ -56,5 +60,33 @@ public class OutputRegisterDataInfoFactory {
         }
 
         return info;
+    }
+
+    private OutputRegisterDataInfo createRegisterDataInfo(ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus, DeliverableType deliverableType) {
+        switch (deliverableType) {
+            case BILLING:
+                BillingOutputRegisterDataInfo billingOutputRegisterDataInfo = new BillingOutputRegisterDataInfo();
+                billingOutputRegisterDataInfo.value = readingWithValidationStatus.getValue();
+                billingOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue()
+                        .orElse(null);
+                billingOutputRegisterDataInfo.interval = readingWithValidationStatus.getTimePeriod()
+                        .map(IntervalInfo::from)
+                        .orElse(null);
+                return billingOutputRegisterDataInfo;
+            case TEXT:
+                TextOutputRegisterDataInfo textOutputRegisterDataInfo = new TextOutputRegisterDataInfo();
+                textOutputRegisterDataInfo.value = readingWithValidationStatus.getText().orElse(null);
+                return textOutputRegisterDataInfo;
+            case FLAGS:
+                FlagsOutputRegisterDataInfo flagsOutputRegisterDataInfo = new FlagsOutputRegisterDataInfo();
+                flagsOutputRegisterDataInfo.value = readingWithValidationStatus.getValue().longValue();
+                return flagsOutputRegisterDataInfo;
+            default:
+                NumericalOutputRegisterDataInfo numericalOutputRegisterDataInfo = new NumericalOutputRegisterDataInfo();
+                numericalOutputRegisterDataInfo.value = readingWithValidationStatus.getValue();
+                numericalOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue()
+                        .orElse(null);
+                return numericalOutputRegisterDataInfo;
+        }
     }
 }

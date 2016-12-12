@@ -35,5 +35,8 @@ public abstract class OutputInfo {
 
     public static class RegisterOutputInfo extends OutputInfo {
 
+        public UsagePointValidationStatusInfo validationInfo;
+
+        public String deliverableType;
     }
 }
