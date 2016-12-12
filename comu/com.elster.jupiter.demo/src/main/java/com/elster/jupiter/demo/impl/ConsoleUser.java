@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -224,6 +225,11 @@ public class ConsoleUser implements User {
         @Override
         public void delete() {
             throw new UnsupportedOperationException("Delete is not supported");
+        }
+
+        @Override
+        public PrivilegeCategory getCategory() {
+            return null;
         }
 
         @Override
