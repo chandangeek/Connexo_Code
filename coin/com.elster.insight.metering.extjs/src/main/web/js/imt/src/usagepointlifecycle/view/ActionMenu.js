@@ -8,7 +8,7 @@ Ext.define('Imt.usagepointlifecycle.view.ActionMenu', {
             {
                 text: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
                 itemId: 'clone-action',
-                action: 'edit',
+                action: 'clone',
                 section: me.SECTION_ACTION
             },
             {
