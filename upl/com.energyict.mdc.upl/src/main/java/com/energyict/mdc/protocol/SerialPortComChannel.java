@@ -1,11 +1,12 @@
 package com.energyict.mdc.protocol;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 
 /**
  * Implementers of this interface allow protocols to change the baud rate and the line control parameters of this ComChannel.
  * This is e.g. necessary for doing an IEC1107 HHU sign on.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/11/13
  * Time: 13:56
@@ -27,4 +28,8 @@ public interface SerialPortComChannel extends ComChannel {
      */
     public SerialPortConfiguration getSerialPortConfiguration();
 
+    /**
+     * @return the serialport for this ComChannel
+     */
+    public ServerSerialPort getSerialPort();
 }

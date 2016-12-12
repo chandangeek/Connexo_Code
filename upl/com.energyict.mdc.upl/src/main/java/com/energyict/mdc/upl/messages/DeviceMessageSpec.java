@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the specification of a {@link DeviceMessage},
@@ -59,20 +60,27 @@ public interface DeviceMessageSpec {
      * Gets the {@link PropertySpec} with the specified name.
      *
      * @param name The name
-     * @return The PropertySpec or <code>null</code>
-     * if no such PropertySpec exists
+     * @return The PropertySpec or <code>Optional.empty()</code> if no such PropertySpec exists
      */
-    PropertySpec getPropertySpec(String name);
+    default Optional<PropertySpec> getPropertySpec(String name) {
+        return getPropertySpecs()
+                    .stream()
+                    .filter(each -> each.getName().equals(name))
+                    .findAny();
+    }
 
     /**
      * Gets the PrimaryKey for this {@link DeviceMessageSpec}.
-     *
+     * @deprecated Retained to support existing environments that are using string based primary keys
+     *             because the globally unique identification mechanism did not exist at that time
      * @return the primary key
+     * @see #getMessageId()
      */
+    @Deprecated
     DeviceMessageSpecPrimaryKey getPrimaryKey();
 
     /**
-     * Gets the message's unique ID.
+     * Gets the globally unique identifier of this DeviceMessageSpec.
      */
     long getMessageId();
 

@@ -141,11 +141,11 @@ public enum DeviceMessageStatus {
 
     abstract Set<DeviceMessageStatus> successors();
 
-    boolean isSuccessorOf(DeviceMessageStatus other) {
+    public boolean isSuccessorOf(DeviceMessageStatus other) {
         return predecessors().contains(other);
     }
 
-    boolean isPredecessorOf(DeviceMessageStatus other) {
+    public boolean isPredecessorOf(DeviceMessageStatus other) {
         return successors().contains(other);
     }
 

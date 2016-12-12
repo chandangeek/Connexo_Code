@@ -17,6 +17,6 @@ public interface ConnectionTypeSupport {
      *
      * @return the list of supported {@link ConnectionType connectionTypes}
      */
-    public List<ConnectionType> getSupportedConnectionTypes();
+    List<ConnectionType> getSupportedConnectionTypes();
 
 }
