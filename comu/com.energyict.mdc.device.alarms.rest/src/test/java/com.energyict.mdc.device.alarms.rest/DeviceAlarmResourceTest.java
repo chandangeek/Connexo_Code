@@ -1,9 +1,12 @@
 package com.energyict.mdc.device.alarms.rest;
 
 
+import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,8 +14,11 @@ import java.util.Optional;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest{
@@ -33,6 +39,24 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest{
 
         Response response = target("/alarms/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testGetAllAlarms(){
+        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
+        Finder<? extends DeviceAlarm> alarmFinder = mock(Finder.class);
+        doReturn(alarmFinder).when(deviceAlarmService).findAlarms(any(DeviceAlarmFilter.class), anyVararg());
+        List<? extends DeviceAlarm> alarms = Collections.singletonList(getDefaultAlarm());
+        doReturn(alarms).when(alarmFinder).find();
+
+        Map<?, ?> map = target("/alarms").queryParam("start", "0").queryParam("limit", "1").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(1);
+
+        List<?> data = (List<?>) map.get("data");
+        assertThat(data).hasSize(1);
+
+        Map<?, ?> alarmMap = (Map<?, ?>) data.get(0);
+        assertDefaultAlarmMap(alarmMap);
     }
 
     private void assertDefaultAlarmMap(Map<?, ?> alarmMap) {
