@@ -9,7 +9,7 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
     stores: [
     ],
     views: [
-        'Mdc.networkvisualiser.view.NetworkVisualiser'
+        'Mdc.networkvisualiser.view.NetworkVisualiserView'
     ],
     refs: [
 
