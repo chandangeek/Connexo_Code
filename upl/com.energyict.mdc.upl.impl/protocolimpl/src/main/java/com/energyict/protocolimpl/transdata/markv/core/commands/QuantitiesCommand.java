@@ -10,12 +10,14 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
-import java.util.*;
-
-import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author koen
@@ -39,27 +41,23 @@ abstract public class QuantitiesCommand extends AbstractCommand {
         }
         return strBuff.toString();
     }
-    
-    protected void parse(String strData) throws IOException {
-        
-        
-//System.out.println(strData);
 
+    @Override
+    protected void parse(String strData, byte[] xmodemData) throws IOException {
+        parse(strData); // Not sure if/how to use the xmodemData
+    }
+
+    protected void parse(String strData) throws IOException {
         BufferedReader br = new BufferedReader(new StringReader(strData));
         registerIdentifications = new ArrayList();
-        while(true) {
+        while (true) {
             String register = br.readLine();
-            if ((register == null) || (register.length() > QUANTITIES_STRING_LENGTH) || (register.getBytes()[0] == 0))
+            if ((register == null) || (register.length() > QUANTITIES_STRING_LENGTH) || (register.getBytes()[0] == 0)) {
                 break;
-//           if (register.length() != QUANTITIES_STRING_LENGTH)
-//                continue;
-//            if ((register == null) || (register.length() != QUANTITIES_STRING_LENGTH))
-//                break;;
-            //parseRegister(register);
-            RegisterIdentification gri = new RegisterIdentification(register,getCommandFactory().getMarkV().getTimeZone());
-//System.out.println("parse "+register+" to "+gri);            
+            }
+            RegisterIdentification gri = new RegisterIdentification(register, getCommandFactory().getMarkV().getTimeZone());
             registerIdentifications.add(gri);
-        } // while(true)
+        }
     }
     
     
