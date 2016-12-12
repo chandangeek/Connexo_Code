@@ -24,16 +24,25 @@ Ext.define('Idc.controller.Detail', {
         'Idc.view.ConnectionIssueDetailsForm'
     ],
 
-    refs: [
-        {
-            ref: 'page',
-            selector: 'data-collection-issue-detail'
-        },
-        {
-            ref: 'commentsPanel',
-            selector: 'data-collection-issue-detail #data-collection-issue-comments'
-        }
-    ],
+    constructor: function () {
+        var me = this;
+        me.refs = [
+            {
+                ref: 'page',
+                selector: 'data-collection-issue-detail'
+            },
+            {
+                ref: 'commentsPanel',
+                selector: 'data-collection-issue-detail #data-collection-issue-comments'
+            },
+            {
+                ref: 'actionMenu',
+                selector: 'data-collection-issue-detail #issue-detail-action-menu'
+            }
+        ]
+        me.callParent(arguments);
+    },
+
 
     init: function () {
         this.control({
