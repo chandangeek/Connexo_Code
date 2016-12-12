@@ -113,7 +113,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.metrologyconfiguration.controller.ListView',
         'Mdc.metrologyconfiguration.controller.AddView',
         'Mdc.usagepointmanagement.controller.UsagePointHistory',
-        'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities'
+        'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
+        'Mdc.networkvisualiser.controller.NetworkVisualiser'
     ],
 
     stores: [
@@ -159,6 +160,11 @@ Ext.define('Mdc.controller.Main', {
                         text: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
                         href: '#/devices/devicegroups',
                         route: 'devicegroups'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.visualiser', 'MDC', 'Network visualiser'),
+                        href: '#/visualiser',
+                        route: 'visualiser'
                     }
                 ]
             });

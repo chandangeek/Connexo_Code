@@ -18,7 +18,13 @@ Ext.define('Mdc.controller.history.Setup', {
     },
 
     routeConfig: {
-
+        visualiser: {
+            title: Uni.I18n.translate('networkVisualiser.title', 'MDC', 'Network visualiser'),
+            route: 'visualiser',
+            controller: 'Mdc.networkvisualiser.controller.NetworkVisualiser',
+            // privileges: Mdc.privileges.Device.administrateDevice,
+            action: 'showVisualiser'
+        },
         devices: {
             title: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
             route: 'devices',
