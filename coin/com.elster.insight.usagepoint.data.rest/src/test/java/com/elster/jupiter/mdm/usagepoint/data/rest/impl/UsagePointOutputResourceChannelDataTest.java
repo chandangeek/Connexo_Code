@@ -2,6 +2,10 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.estimation.Estimatable;
+import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -103,6 +107,21 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(meterActivation.getRange()).thenReturn(Range.atLeast(interval_1.lowerEndpoint()));
 
         when(validationService.getLastChecked(any(Channel.class))).thenReturn(Optional.of(timeStamp));
+        Estimator estimator = mock(Estimator.class);
+        EstimationResult estimationResult = mock(EstimationResult.class);
+        EstimationBlock estimationBlock = mock(EstimationBlock.class);
+        Estimatable estimatable = mock(Estimatable.class);
+
+
+        when(estimator.getPropertySpecs()).thenReturn(Collections.emptyList());
+        when(estimator.estimate(anyListOf(EstimationBlock.class), any(QualityCodeSystem.class))).thenReturn(estimationResult);
+        when(estimationResult.estimated()).thenReturn(Collections.singletonList(estimationBlock));
+        doReturn(Collections.singletonList(estimatable)).when(estimationBlock).estimatables();
+        when(estimatable.getTimestamp()).thenReturn(interval_3.upperEndpoint());
+        when(estimatable.getEstimation()).thenReturn(BigDecimal.valueOf(327L));
+        when(estimationService.getEstimator("com.elster.jupiter.estimators.impl.ValueFillEstimator")).thenReturn(Optional.of(estimator));
+        when(estimationService.getEstimator(eq("com.elster.jupiter.estimators.impl.ValueFillEstimator"), any())).thenReturn(Optional.of(estimator));
+        when(estimationService.previewEstimate(any(QualityCodeSystem.class), eq(channelsContainer), any(), any(), eq(estimator))).thenReturn(estimationResult);
     }
 
     private String buildFilter() throws UnsupportedEncodingException {
@@ -328,6 +347,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Number>get("$[0].readingTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$[0].value")).isEqualTo("327");
     }
 
     @Test
