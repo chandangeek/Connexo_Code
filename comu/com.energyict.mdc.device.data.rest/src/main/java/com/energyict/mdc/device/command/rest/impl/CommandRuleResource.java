@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.command.rest.impl;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -35,29 +36,33 @@ public class CommandRuleResource {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final CommandRuleService commandRuleService;
     private final CommandRuleInfoFactory commandRuleInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
 
     @Inject
-    public CommandRuleResource(DeviceMessageSpecificationService deviceMessageSpecificationService, CommandRuleService commandRuleService, CommandRuleInfoFactory commandRuleInfoFactory) {
+    public CommandRuleResource(DeviceMessageSpecificationService deviceMessageSpecificationService, CommandRuleService commandRuleService, CommandRuleInfoFactory commandRuleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.commandRuleService = commandRuleService;
         this.commandRuleInfoFactory = commandRuleInfoFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE, Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public Response getCommandRules(@BeanParam JsonQueryParameters queryParameters) {
         List<CommandRuleInfo> data = commandRuleService.findAllCommandRules()
                 .stream()
+                .sorted((r1, r2) -> r1.getName().compareTo(r2.getName()))
                 .map(commandRuleInfoFactory::from)
                 .collect(Collectors.toList());
-        return Response.ok(PagedInfoList.fromCompleteList("commandrules", data,queryParameters)).build();
+        return Response.ok(PagedInfoList.fromCompleteList("commandrules", data, queryParameters)).build();
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response addCommandRule(CommandRuleInfo commandRuleInfo) {
         CommandRuleBuilder builder = commandRuleService.createRule(commandRuleInfo.name);
@@ -68,14 +73,13 @@ public class CommandRuleResource {
         commandRuleInfo.commands.stream()
                 .forEach(commandInfo -> builder.command(commandInfo.commandName));
 
-        builder.add();
-        return Response.ok().build();
+        return Response.ok(commandRuleInfoFactory.from(builder.add())).build();
     }
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE, Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public CommandRuleInfo getCommandRule(@PathParam("id") long id) {
         CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
         return commandRuleInfoFactory.createWithChanges(commandRule);
@@ -84,11 +88,12 @@ public class CommandRuleResource {
     @PUT
     @Path("/{id}")
     @Transactional
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response changeCommandRule(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
-        if(!commandRule.isActive() && commandRuleInfo.active) {
+        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        if (!commandRule.isActive() && commandRuleInfo.active) {
             commandRule.activate();
         } else if (commandRule.isActive() && !commandRuleInfo.active) {
             commandRule.deactivate();
@@ -99,9 +104,11 @@ public class CommandRuleResource {
     @DELETE
     @Path("/{id}")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
-    public Response deleteCommandRule(@PathParam("id") long id) {
-        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+    public Response deleteCommandRule(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
+        CommandRule commandRule =  commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
         commandRuleService.deleteRule(commandRule);
         return Response.ok().build();
     }
@@ -109,9 +116,11 @@ public class CommandRuleResource {
     @POST
     @Path("/{id}/accept")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
-    public Response acceptChanges(@PathParam("id") long id) {
-        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+    public Response acceptChanges(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
+        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
         commandRule.approve();
         return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
@@ -120,16 +129,18 @@ public class CommandRuleResource {
     @POST
     @Path("/{id}/reject")
     @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
-    public Response rejectChanges(@PathParam("id") long id) {
-        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+    public Response rejectChanges(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
+        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
         commandRule.reject();
         return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
 
     @GET
     @Path("/categories")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response getCategories() {
         List<IdWithNameInfo> categories = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
@@ -144,7 +155,7 @@ public class CommandRuleResource {
     @GET
     @Path("/commands")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getCommands(@BeanParam JsonQueryFilter jsonQueryFilter) {
         List<String> alreadySelectedCommands = jsonQueryFilter.getStringList("selectedcommands");
         List<Integer> selectedCategories = jsonQueryFilter.getIntegerList("categories");
@@ -163,7 +174,12 @@ public class CommandRuleResource {
         return Response.ok(commands).build();
     }
 
-
+    private CommandRule findAndLockCommandRule(long id,CommandRuleInfo info) {
+        return commandRuleService.findAndLockCommandRule(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> commandRuleService.findCommandRule(id).map(CommandRule::getVersion).orElse(null))
+                        .supplier());
+    }
 
 }
 

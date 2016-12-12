@@ -11,6 +11,7 @@ import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,18 +39,29 @@ public class CommandRuleInfoFactory {
         commandRuleInfo.active = commandRule.isActive();
 
 
+
+        commandRuleInfo.availableActions = EnumSet.allOf(AvailableActions.class);
+        if(commandRuleInfo.active) {
+            commandRuleInfo.availableActions.remove(AvailableActions.ACTIVATE);
+        } else {
+            commandRuleInfo.availableActions.remove(AvailableActions.DEACTIVATE);
+        }
         if (commandRule.getCommandRulePendingUpdate().isPresent()) {
             CommandRulePendingUpdate pendingUpdate = commandRule.getCommandRulePendingUpdate().get();
             if (pendingUpdate.isActivation()) {
-                commandRuleInfo.statusMessage = "pendingActivation";
+                commandRuleInfo.availableActions.remove(AvailableActions.ACTIVATE);
+                commandRuleInfo.statusMessage = translate(TranslationKeys.PENDING_ACTIVATION);
             } else if (pendingUpdate.isDeactivation()) {
-                commandRuleInfo.statusMessage = "pendingDeactivation";
+                commandRuleInfo.availableActions.remove(AvailableActions.DEACTIVATE);
+                commandRuleInfo.statusMessage = translate(TranslationKeys.PENDING_DEACTIVATION);;
             } else if (pendingUpdate.isRemoval()) {
-                commandRuleInfo.statusMessage = "pendingRemoval";
+                commandRuleInfo.availableActions.remove(AvailableActions.REMOVE);
+                commandRuleInfo.statusMessage = translate(TranslationKeys.PENDING_REMOVAL);
             } else if (pendingUpdate.isUpdate()) {
-                commandRuleInfo.statusMessage = "pendingUpdate";
+                commandRuleInfo.statusMessage = translate(TranslationKeys.PENDING_UPDATE);
             }
         }
+
         return commandRuleInfo;
     }
 

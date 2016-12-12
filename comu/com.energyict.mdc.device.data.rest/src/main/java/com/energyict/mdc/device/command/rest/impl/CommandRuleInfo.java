@@ -8,6 +8,7 @@ import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,6 @@ public class CommandRuleInfo {
     public String statusMessage;
     public List<CommandInfo> commands = new ArrayList<>();
     public DualControlInfo dualControl;
-
+    public EnumSet<AvailableActions> availableActions;
 
 }
