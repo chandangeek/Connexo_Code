@@ -24,7 +24,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
                 width: '100%'
             }
         }
-    ],      
+    ],
 
     createTooltip: function (tooltip) {
         var me = this,

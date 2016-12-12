@@ -1,7 +1,7 @@
 Ext.define('Imt.usagepointmanagement.store.ActiveCalendars', {
     extend: 'Ext.data.Store',
     model: 'Imt.usagepointmanagement.model.ActiveCalendar',
-  //  fields: ['fromTime','toTime','next','calendar'],
+    //  fields: ['fromTime','toTime','next','calendar'],
     proxy: {
         type: 'rest',
         urlTpl: '/api/udr/usagepoints/{usagePointMRID}/calendars',

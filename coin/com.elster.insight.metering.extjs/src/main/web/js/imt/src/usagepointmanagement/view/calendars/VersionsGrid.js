@@ -13,7 +13,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.VersionsGrid', {
                 header: Uni.I18n.translate('general.Category', 'IMT', 'Category'),
                 dataIndex: 'category',
                 flex: 1,
-                renderer: function(a,b,record){
+                renderer: function (a, b, record) {
                     return record.getCalendar().get('category').displayName;
                 }
             },
@@ -21,7 +21,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.VersionsGrid', {
                 header: Uni.I18n.translate('general.Calendar', 'IMT', 'Calendar'),
                 dataIndex: 'calendar',
                 flex: 1,
-                renderer: function(calendar){
+                renderer: function (calendar) {
                     return calendar.name;
                 }
             },
@@ -29,7 +29,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.VersionsGrid', {
                 header: Uni.I18n.translate('general.Period', 'IMT', 'Period'),
                 dataIndex: 'fromTime',
                 flex: 1,
-                renderer: function(value, meta, record) {
+                renderer: function (value, meta, record) {
                     var from = record.get('fromTime'),
                         to = record.get('toTime');
 

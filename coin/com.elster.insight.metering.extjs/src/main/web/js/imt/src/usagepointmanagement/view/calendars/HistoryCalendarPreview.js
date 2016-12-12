@@ -15,33 +15,33 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
                 labelWidth: 250
             },
             items: [
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('general.period', 'IMT', 'Period'),
-                            itemId: 'fromUntil',
-                            htmlEncode: false
-                        },
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'IMT', 'Start of calculations'),
-                            name: 'startYear'
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('general.periods', 'IMT', 'Periods'),
-                            itemId: 'periodField'
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('general.dayTypes', 'IMT', 'Day types'),
-                            itemId: 'dayTypesField'
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('general.eventTypes', 'IMT', 'Event types'),
-                            itemId: 'tariffsField'
-                        }
-                    ]
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.period', 'IMT', 'Period'),
+                    itemId: 'fromUntil',
+                    htmlEncode: false
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'IMT', 'Start of calculations'),
+                    name: 'startYear'
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('general.periods', 'IMT', 'Periods'),
+                    itemId: 'periodField'
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('general.dayTypes', 'IMT', 'Day types'),
+                    itemId: 'dayTypesField'
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('general.eventTypes', 'IMT', 'Event types'),
+                    itemId: 'tariffsField'
+                }
+            ]
         };
         me.callParent(arguments);
     },
@@ -86,15 +86,15 @@ Ext.define('Imt.usagepointmanagement.view.calendars.HistoryCalendarPreview', {
             );
         });
 
-            var from = calendarRecord.get('fromTime'),
-                to = calendarRecord.get('toTime');
-            var fromTo = to ? Uni.I18n.translate('general.period.fromUntil', 'IMT', 'From {0} until {1}', [
-                Uni.DateTime.formatDateTimeShort(from),
-                Uni.DateTime.formatDateTimeShort(to)
-            ])
-                : Uni.I18n.translate('general.period.from', 'IMT', 'From {0}', [
-                Uni.DateTime.formatDateTimeShort(from)
-            ]);
+        var from = calendarRecord.get('fromTime'),
+            to = calendarRecord.get('toTime');
+        var fromTo = to ? Uni.I18n.translate('general.period.fromUntil', 'IMT', 'From {0} until {1}', [
+            Uni.DateTime.formatDateTimeShort(from),
+            Uni.DateTime.formatDateTimeShort(to)
+        ])
+            : Uni.I18n.translate('general.period.from', 'IMT', 'From {0}', [
+            Uni.DateTime.formatDateTimeShort(from)
+        ]);
         this.down('#fromUntil').setValue(fromTo);
         me.doComponentLayout();
         Ext.resumeLayouts(true);

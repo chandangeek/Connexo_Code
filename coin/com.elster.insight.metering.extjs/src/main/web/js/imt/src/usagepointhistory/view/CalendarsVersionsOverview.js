@@ -34,7 +34,7 @@ Ext.define('Imt.usagepointhistory.view.CalendarsVersionsOverview', {
             previewComponent: {
                 xtype: 'historyCalendarPreview',
                 itemId: 'historyCalendarPreview',
-               // type: me.type,
+                // type: me.type,
                 hideAction: true
             }
         };

@@ -24,10 +24,10 @@ Ext.define('Imt.privileges.UsagePoint', {
     hasFullAdministrateTimeSlicedCps: function(){
         return Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.adminTimeSlicedCps) && Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.admin);
     },
-    canAdministrateCalendars: function(){
+    canAdministrateCalendars: function () {
         return Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.adminCalendars) && Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.admin)
     },
-    hasBulkActionPrivileges: function(){
+    hasBulkActionPrivileges: function () {
         return Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.adminCalendars) && Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.admin)
     }
 });
