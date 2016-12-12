@@ -37,4 +37,36 @@ public class SecurityLevelPropertySpec extends AbstractPropertySpec {
         return true;
     }
 
+    @Override
+    public com.energyict.mdc.upl.properties.ValueFactory getValueFactory() {
+        return new ValueFactory();
+    }
+
+    private static class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
+        @Override
+        public Object fromStringValue(String stringValue) {
+            return stringValue;
+        }
+
+        @Override
+        public String toStringValue(Object object) {
+            return String.valueOf(object);
+        }
+
+        @Override
+        public String getValueTypeName() {
+            return String.class.getName();
+        }
+
+        @Override
+        public Object valueToDatabase(Object object) {
+            return object;
+        }
+
+        @Override
+        public Object valueFromDatabase(Object databaseValue) {
+            return databaseValue;
+        }
+    }
+
 }

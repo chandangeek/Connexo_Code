@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.properties.AbstractPropertySpec;
 
 /**
@@ -38,6 +39,39 @@ public class PasswordPropertySpec extends AbstractPropertySpec {
         if (value.length() != this.length) {
             throw new InvalidPropertyException("Password must be exactly " + this.length + " character(s)");
         }
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.ValueFactory getValueFactory() {
+        return new ValueFactory();
+    }
+
+    private static class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
+        @Override
+        public Object fromStringValue(String stringValue) {
+            return stringValue;
+        }
+
+        @Override
+        public String toStringValue(Object object) {
+            return String.valueOf(object);
+        }
+
+        @Override
+        public String getValueTypeName() {
+            return ObisCode.class.getName();
+        }
+
+        @Override
+        public Object valueToDatabase(Object object) {
+            return object;
+        }
+
+        @Override
+        public Object valueFromDatabase(Object databaseValue) {
+            return databaseValue;
+        }
+
     }
 
 }

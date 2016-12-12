@@ -23,23 +23,12 @@ public class LIS200Utils {
      *         otherwise returns false
      */
     public static boolean isValidLis200Address(String objectAddress) {
-        String[] addressPart = objectAddress.split(":");
-        if (addressPart.length != 2) {
-            return false;
-        }
-
         try {
-            Integer.parseInt(addressPart[0]);
-        } catch (Exception e) {
+            Lis200Address.from(objectAddress);
+            return true;
+        } catch (IllegalArgumentException e) {
             return false;
         }
-
-        String[] addressPart2 = addressPart[1].split("[.]");
-        if (addressPart2.length != 2) {
-            return false;
-        }
-
-        return (!addressPart2[0].isEmpty()) && (!addressPart2[1].isEmpty());
     }
 
     /**
@@ -154,6 +143,42 @@ public class LIS200Utils {
         return new LIS200AddressPropertySpec(name, required);
     }
 
+    private static class Lis200Address {
+        private final int c, d, e;
+
+        static Lis200Address from(String objectAddress) {
+            String[] addressPart = objectAddress.split(":");
+            if (addressPart.length != 2) {
+                throw new IllegalArgumentException();
+            }
+            try {
+                int c = Integer.parseInt(addressPart[0]);
+                String[] addressPart2 = addressPart[1].split("[.]");
+                if (addressPart2.length != 2) {
+                    throw new IllegalArgumentException();
+                } else {
+                    int d = Integer.parseInt(addressPart2[0]);
+                    int e = Integer.parseInt(addressPart2[1]);
+                    return new Lis200Address(c, d, e);
+                }
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        private Lis200Address(int c, int d, int e) {
+            this.c = c;
+            this.d = d;
+            this.e = e;
+        }
+
+        @Override
+        public String toString() {
+            return this.c + ":" + this.d + "." + this.e;
+        }
+
+    }
+
     private static class LIS200AddressPropertySpec implements PropertySpec {
         private final String name;
         private final boolean required;
@@ -210,6 +235,43 @@ public class LIS200Utils {
         @Override
         public boolean supportsMultiValues() {
             return false;
+        }
+
+        @Override
+        public com.energyict.mdc.upl.properties.ValueFactory getValueFactory() {
+            return new ValueFactory();
+        }
+
+    }
+
+    static final class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
+        @Override
+        public Object fromStringValue(String stringValue) {
+            return Lis200Address.from(stringValue);
+        }
+
+        @Override
+        public String toStringValue(Object object) {
+            return null;
+        }
+
+        private String toStringValue(Lis200Address lis200Address) {
+            return lis200Address.toString();
+        }
+
+        @Override
+        public String getValueTypeName() {
+            return Lis200Address.class.getName();
+        }
+
+        @Override
+        public Object valueToDatabase(Object object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public Object valueFromDatabase(Object databaseValue) {
+            return this.fromStringValue((String) databaseValue);
         }
     }
 

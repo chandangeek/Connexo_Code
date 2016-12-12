@@ -9,6 +9,7 @@ import com.energyict.protocolimpl.properties.AbstractPropertySpec;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Insert your comments here.
@@ -53,4 +54,51 @@ class ChannelMappingPropertySpec extends AbstractPropertySpec {
         }
         return ret;
     }
+
+    @Override
+    public ValueFactory getValueFactory() {
+        return null;
+    }
+
+    private class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
+        @Override
+        public Object fromStringValue(String stringValue) {
+            try {
+                return parse(stringValue);
+            } catch (InvalidPropertyException e) {
+                e.printStackTrace(System.err);
+                return null;
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public String toStringValue(Object object) {
+            return this.toStringValue((List<LinePoint>) object);
+        }
+
+        private String toStringValue(List<LinePoint> linePoints) {
+            return linePoints.stream().map(this::toString).collect(Collectors.joining(","));
+        }
+
+        private String toString(LinePoint linePoint) {
+            return linePoint.getChannel() + "=" + linePoint.getLine() + "." + linePoint.getPoint();
+        }
+
+        @Override
+        public String getValueTypeName() {
+            return LinePoint.class.getName();
+        }
+
+        @Override
+        public Object valueToDatabase(Object object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public Object valueFromDatabase(Object databaseValue) {
+            return this.fromStringValue((String) databaseValue);
+        }
+    }
+
 }

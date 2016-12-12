@@ -51,7 +51,7 @@ public class ProtocolChannelMap {
         if (sequence && (channelConfig.contains("."))) { // KV 06092005 K&P
             mappedChannels = true;
         }
-        protocolChannels = new ArrayList();
+        protocolChannels = new ArrayList<>();
         parse(sequence ? convert2NonSequence(channelConfig) : channelConfig);
     }
 
@@ -284,6 +284,45 @@ public class ProtocolChannelMap {
             }
         }
 
+        @Override
+        public com.energyict.mdc.upl.properties.ValueFactory getValueFactory() {
+            return new ValueFactory();
+        }
+    }
+
+    static class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
+        @Override
+        public Object fromStringValue(String stringValue) {
+            try {
+                return new ProtocolChannelMap(stringValue);
+            } catch (InvalidPropertyException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public String toStringValue(Object object) {
+            return null;
+        }
+
+        private String toStringValue(ProtocolChannelMap protocolChannelMap) {
+            return protocolChannelMap.toString();
+        }
+
+        @Override
+        public String getValueTypeName() {
+            return ProtocolChannelMap.class.getName();
+        }
+
+        @Override
+        public Object valueToDatabase(Object object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public Object valueFromDatabase(Object databaseValue) {
+            return this.fromStringValue((String) databaseValue);
+        }
     }
 
 }
