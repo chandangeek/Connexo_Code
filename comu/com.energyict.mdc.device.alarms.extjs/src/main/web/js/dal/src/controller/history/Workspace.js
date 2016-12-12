@@ -33,14 +33,14 @@ Ext.define('Dal.controller.history.Workspace', {
             //privileges: Isu.privileges.Issue.viewAdminProcesses
         }
         /*    "workspace/issues/view/startProcess": {
-         title: Uni.I18n.translate('general.startProcess','IDC','Start process'),
+         title: Uni.I18n.translate('general.startProcess','DAL','Start process'),
          route: 'workspace/issues/{issueId}/startProcess',
          controller: 'Isu.controller.StartProcess',
          action: 'showStartProcess',
          privileges: Isu.privileges.Issue.viewAdminProcesses
          },
          "workspace/issues/view/viewProcesses": {
-         title: Uni.I18n.translate('general.processes','IDC','Processes'),
+         title: Uni.I18n.translate('general.processes','DAL','Processes'),
          route: 'workspace/issues/{issueId}/processes',
          controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
          action: 'showProcesses',
