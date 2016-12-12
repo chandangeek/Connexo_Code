@@ -42,7 +42,7 @@ public class MetrologyContractEstimationRuleSetResolverTest {
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterActivation.getChannelsContainer().getUsagePoint()).thenReturn(Optional.empty());
-        List<EstimationRuleSet> estimationRuleSets = testInstance().resolve(meterActivation);
+        List<EstimationRuleSet> estimationRuleSets = testInstance().resolve(meterActivation.getChannelsContainer());
 
         assertThat(estimationRuleSets).isEmpty();
     }
@@ -65,8 +65,7 @@ public class MetrologyContractEstimationRuleSetResolverTest {
 
         List<EstimationRuleSet> estimationRuleSets = Collections.singletonList(mock(EstimationRuleSet.class));
         when(usagePointConfigurationService.getEstimationRuleSets(metrologyContract)).thenReturn(estimationRuleSets);
-
-        List<EstimationRuleSet> resolvedEstimationRuleSets = testInstance().resolve(meterActivation);
+        List<EstimationRuleSet> resolvedEstimationRuleSets = testInstance().resolve(meterActivation.getChannelsContainer());
 
         assertThat(resolvedEstimationRuleSets).isNotEmpty();
     }

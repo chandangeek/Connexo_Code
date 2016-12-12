@@ -4,6 +4,7 @@ import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Priority;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -33,9 +34,9 @@ public class MetrologyContractEstimationRuleSetResolver implements EstimationRes
     }
 
     @Override
-    public List<EstimationRuleSet> resolve(MeterActivation meterActivation) {
-        if (meterActivation.getChannelsContainer().getUsagePoint().isPresent()) {
-            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = meterActivation.getChannelsContainer()
+    public List<EstimationRuleSet> resolve(ChannelsContainer channelsContainer) {
+        if (channelsContainer.getUsagePoint().isPresent()) {
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = channelsContainer
                     .getUsagePoint()
                     .get()
                     .getCurrentEffectiveMetrologyConfiguration()
@@ -49,7 +50,6 @@ public class MetrologyContractEstimationRuleSetResolver implements EstimationRes
             }
         }
         return Collections.emptyList();
-
     }
 
     @Override
