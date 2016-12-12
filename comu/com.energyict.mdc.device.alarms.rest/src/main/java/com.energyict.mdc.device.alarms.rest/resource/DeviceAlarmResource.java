@@ -12,7 +12,9 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
+import com.energyict.mdc.device.alarms.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -47,6 +49,7 @@ public class DeviceAlarmResource{
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getAllDeviceAlarms(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter){
         validateMandatory(params, START, LIMIT);
         Finder<? extends DeviceAlarm> finder = deviceAlarmService.findAlarms(new DeviceAlarmFilter()); //FixMe implement filter;
@@ -63,6 +66,7 @@ public class DeviceAlarmResource{
 
     @GET @Transactional
     @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getAlarmById(@PathParam("id") long id) {
         Optional<? extends DeviceAlarm> deviceAlarm = deviceAlarmService.findAlarm(id);
