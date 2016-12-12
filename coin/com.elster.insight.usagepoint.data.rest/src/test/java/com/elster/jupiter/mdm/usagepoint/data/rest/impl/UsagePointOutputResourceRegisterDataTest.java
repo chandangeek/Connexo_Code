@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityFetcher;
@@ -13,6 +14,10 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.AbstractCimChannel;
+import com.elster.jupiter.metering.impl.BaseReadingRecordImpl;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -23,9 +28,11 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -41,9 +48,11 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRestApplicationJerseyTest {
@@ -91,6 +100,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC)),
                 any(Channel.class), any(), eq(Range.openClosed(readingTimeStamp1, readingTimeStamp3))))
                 .thenReturn(Collections.emptyList());
+
+        when(validationService.getLastChecked(any(Channel.class))).thenReturn(Optional.of(readingTimeStamp3));
     }
 
     private String buildFilter() throws UnsupportedEncodingException {
@@ -262,6 +273,100 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(jsonModel.<String>get("$registerData[2].validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<Integer>get("$registerData[2].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$registerData[2].validationRules[0].name")).isEqualTo("MinMax");
+    }
+
+    @Test
+    public void testEditRegisterData() throws Exception {
+        AggregatedChannel channel = mock(AggregatedChannel.class);
+        when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
+        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
+                .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
+        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
+        ReadingQualityFetcher fetcher = mock(ReadingQualityFetcher.class);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
+        when(fetcher.atTimestamp(any(Instant.class))).thenReturn(fetcher);
+        when(fetcher.sorted()).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(Collections.emptyList());
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
+
+
+        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+        info.value = BigDecimal.valueOf(101L);
+        info.timeStamp = readingTimeStamp3;
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/registerData/"+readingTimeStamp3.toEpochMilli())
+                .request().put(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(channel).editReadings(eq(QualityCodeSystem.MDM),anyListOf(BaseReading.class));
+    }
+
+    @Test
+    public void testConfirmRegisterData() throws Exception {
+        AggregatedChannel channel = mock(AggregatedChannel.class);
+        when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
+        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
+                .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
+        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
+        ReadingQualityFetcher fetcher = mock(ReadingQualityFetcher.class);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
+        when(fetcher.atTimestamp(any(Instant.class))).thenReturn(fetcher);
+        when(fetcher.sorted()).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(Collections.emptyList());
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
+
+        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+        info.isConfirmed = true;
+        info.timeStamp = readingTimeStamp3;
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/registerData/"+readingTimeStamp3.toEpochMilli())
+                .request().put(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM),anyListOf(IntervalReadingImpl.class));
+    }
+
+    @Test
+    public void testRemoveRegisterData() throws Exception {
+        AggregatedChannel channel = mock(AggregatedChannel.class);
+        when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
+        when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3)))
+                .thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
+        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
+        ReadingQualityFetcher fetcher = mock(ReadingQualityFetcher.class);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
+        when(channel.getReading(readingTimeStamp3)).thenReturn(Optional.of(readingRecord3));
+        when(fetcher.atTimestamp(any(Instant.class))).thenReturn(fetcher);
+        when(fetcher.sorted()).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(Collections.emptyList());
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
+
+        NumericalOutputRegisterDataInfo info = new NumericalOutputRegisterDataInfo();
+        info.value = BigDecimal.valueOf(101L);
+        info.timeStamp = readingTimeStamp3;
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/registerData/"+readingTimeStamp3.toEpochMilli())
+                .request().method("DELETE", Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        List<BaseReadingRecord> record = Collections.singletonList(channel.getReading(readingTimeStamp3).get());
+        verify(channel).removeReadings(eq(QualityCodeSystem.MDM),eq(record));
+        verify(validationService).updateLastChecked(eq(channel), any(Instant.class));
     }
 
     private void mockReadingsWithValidationResult(Channel channel) {
