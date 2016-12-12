@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -37,11 +38,13 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     private final ServerMetrologyConfiguration metrologyConfiguration;
     private final ReadingType readingType;
     private final CustomPropertySetService customPropertySetService;
+    private final DeliverableType deliverableType;
 
-    ReadingTypeDeliverableBuilderImpl(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
+    ReadingTypeDeliverableBuilderImpl(ServerMetrologyConfiguration metrologyConfiguration, String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
         this.formulaBuilder = new FormulaBuilderImpl(mode, dataModel, thesaurus);
         this.name = name;
         this.metrologyConfiguration = metrologyConfiguration;
+        this.deliverableType = deliverableType;
         this.readingType = readingType;
         this.customPropertySetService = customPropertySetService;
     }
@@ -259,7 +262,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (metrologyConfiguration.getDeliverables().stream().filter(deliverable -> deliverable.getReadingType().equals(readingType)).findAny().isPresent()) {
             throw new ReadingTypeAlreadyUsedOnMetrologyConfiguration(formulaBuilder.getThesaurus());
         }
-        return metrologyConfiguration.addReadingTypeDeliverable(name, readingType, formulaBuilder.build());
+        return metrologyConfiguration.addReadingTypeDeliverable(name, deliverableType, readingType, formulaBuilder.build());
     }
 
     private class FormulaAndExpressionNodeBuilder implements FormulaBuilder, ExpressionNodeBuilder {

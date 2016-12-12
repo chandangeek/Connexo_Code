@@ -299,6 +299,26 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
                 .done();
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.BATTERY_STATUS)
+                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INSTANTANEOUS)
+                .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.DEVICE)
+                .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGIZATION)
+                .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.NOTAPPLICABLE)
+                .done();
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_FLOW_IRREGULAR)
+                .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
+                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
+                .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.NATURALGAS)
+                .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
+                .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETERPERHOUR)
+                .done();
     }
 
     private static class Template {

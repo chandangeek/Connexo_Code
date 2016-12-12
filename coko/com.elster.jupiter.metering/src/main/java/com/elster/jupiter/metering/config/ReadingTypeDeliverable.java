@@ -42,6 +42,8 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
      */
     ReadingType getReadingType();
 
+    DeliverableType getType();
+
     Updater startUpdate();
 
     @ProviderType
