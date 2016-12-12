@@ -194,11 +194,13 @@ public class UsagePointOutputResource {
                     ReadingWithValidationStatus<IntervalReadingRecord> readingWithValidationStatus = preFilledChannelDataMap
                             .get(intervalReadingRecordTimestamp);
                     if (readingWithValidationStatus != null) {
-                        if(persistedIntervalReadings.containsKey(intervalReadingRecordTimestamp) && persistedIntervalReadings.get(intervalReadingRecordTimestamp).getValue()!=null) {
+                        if (persistedIntervalReadings.containsKey(intervalReadingRecordTimestamp) && persistedIntervalReadings
+                                .get(intervalReadingRecordTimestamp)
+                                .getValue() != null) {
                             readingWithValidationStatus.setReadingRecord(persistedIntervalReadings.get(intervalReadingRecordTimestamp));
                             readingWithValidationStatus.setCalculatedReadingRecord(intervalReadings.get(intervalReadingRecordTimestamp));
                             readingWithValidationStatus.setPersistedReadingRecord(persistedIntervalReadings.get(intervalReadingRecordTimestamp));
-                        } else if (intervalReadings.containsKey(intervalReadingRecordTimestamp)){
+                        } else if (intervalReadings.containsKey(intervalReadingRecordTimestamp)) {
                             readingWithValidationStatus.setReadingRecord(intervalReadings.get(intervalReadingRecordTimestamp));
                         }
                     }
@@ -489,7 +491,8 @@ public class UsagePointOutputResource {
                                 .collect(Collectors.toList()))
                 .stream().findFirst().ifPresent(readingWithValidationStatus::setValidationStatus);
 
-        return Response.ok(outputRegisterDataInfoFactory.createRegisterDataInfo(readingWithValidationStatus, readingTypeDeliverable)).build();
+        return Response.ok(outputRegisterDataInfoFactory.createRegisterDataInfo(readingWithValidationStatus, readingTypeDeliverable))
+                .build();
     }
 
     @PUT

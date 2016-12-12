@@ -4,7 +4,8 @@ class PropertyErrorInfo {
     public String id;
     public String msg;
 
-    PropertyErrorInfo() {}
+    PropertyErrorInfo() {
+    }
 
     PropertyErrorInfo(String id, String msg) {
         this.id = id;
