@@ -43,8 +43,8 @@ public class GasDayRelativePeriodCreator {
 
     private void createDefaultRelativePeriods(GasDayOptions gasDayOptions) {
         Arrays
-            .stream(DefaultRelativePeriodDefinition.values())
-            .forEach(definition -> definition.create(this.timeService, gasDayOptions));
+                .stream(DefaultRelativePeriodDefinition.values())
+                .forEach(definition -> definition.create(this.timeService, gasDayOptions));
     }
 
 }

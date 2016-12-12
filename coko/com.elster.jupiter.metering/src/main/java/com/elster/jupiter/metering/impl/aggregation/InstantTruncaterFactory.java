@@ -23,9 +23,9 @@ public class InstantTruncaterFactory {
     InstantTruncater truncaterFor(ReadingType readingType) {
         if (VirtualReadingType.isGas(readingType.getCommodity())) {
             return this.meteringService
-                        .getGasDayOptions()
-                        .<InstantTruncater>map(GasDayTruncater::new)
-                        .orElseGet(SimpleTruncater::new);
+                    .getGasDayOptions()
+                    .<InstantTruncater>map(GasDayTruncater::new)
+                    .orElseGet(SimpleTruncater::new);
         } else {
             return new SimpleTruncater();
         }

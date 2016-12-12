@@ -2,30 +2,15 @@ package com.elster.jupiter.metering.impl.upgraders;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.impl.DefaultTranslationKey;
-import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.EnumSet;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.upgrade.Upgrader;
-
-import org.osgi.framework.BundleContext;
-
-import javax.inject.Inject;
 
 import static com.elster.jupiter.orm.Version.version;
 

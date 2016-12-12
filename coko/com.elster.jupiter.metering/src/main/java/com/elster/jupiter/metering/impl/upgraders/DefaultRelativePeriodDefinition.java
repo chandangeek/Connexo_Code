@@ -31,10 +31,10 @@ public enum DefaultRelativePeriodDefinition {
         protected RelativeDate fromWith(GasDayOptions gasDayOptions) {
             return new RelativeDate(
                     Stream
-                        .concat(
-                            Stream.of(DAY.minus(7)),
-                            startOfDayOperations(gasDayOptions))
-                        .collect(Collectors.toList()));
+                            .concat(
+                                    Stream.of(DAY.minus(7)),
+                                    startOfDayOperations(gasDayOptions))
+                            .collect(Collectors.toList()));
         }
 
         @Override
@@ -117,14 +117,14 @@ public enum DefaultRelativePeriodDefinition {
         protected RelativeDate fromWith(GasDayOptions gasDayOptions) {
             return new RelativeDate(
                     Stream
-                        .concat(
-                            Stream.of(
-                                HOUR.minus(gasDayOptions.getYearStart().getHour()),
-                                MONTH.minus(gasDayOptions.getYearStart().getMonthValue() - 1),
-                                MONTH.equalTo(gasDayOptions.getYearStart().getMonthValue()),
-                                DAY.equalTo(1)),
-                            startOfDayOperations(gasDayOptions))
-                        .collect(Collectors.toList()));
+                            .concat(
+                                    Stream.of(
+                                            HOUR.minus(gasDayOptions.getYearStart().getHour()),
+                                            MONTH.minus(gasDayOptions.getYearStart().getMonthValue() - 1),
+                                            MONTH.equalTo(gasDayOptions.getYearStart().getMonthValue()),
+                                            DAY.equalTo(1)),
+                                    startOfDayOperations(gasDayOptions))
+                            .collect(Collectors.toList()));
         }
 
         @Override
@@ -148,30 +148,31 @@ public enum DefaultRelativePeriodDefinition {
     }
 
     protected abstract RelativeDate fromWith(GasDayOptions gasDayOptions);
+
     protected abstract RelativeDate toWith(GasDayOptions gasDayOptions);
 
     private static RelativeDate onFirstDayOfWeek(GasDayOptions gasDayOptions, RelativeOperation... operations) {
         return new RelativeDate(
                 Stream
-                    .concat(
-                        Stream.concat(
-                            Stream.of(
-                                HOUR.minus(gasDayOptions.getYearStart().getHour()),
-                                DAY_OF_WEEK.equalTo(getFirstDayOfWeek().getValue())),
-                            Stream.of(operations)),
-                        startOfDayOperations(gasDayOptions))
-                    .collect(Collectors.toList()));
+                        .concat(
+                                Stream.concat(
+                                        Stream.of(
+                                                HOUR.minus(gasDayOptions.getYearStart().getHour()),
+                                                DAY_OF_WEEK.equalTo(getFirstDayOfWeek().getValue())),
+                                        Stream.of(operations)),
+                                startOfDayOperations(gasDayOptions))
+                        .collect(Collectors.toList()));
     }
 
     private static RelativeDate atStartOfDay(GasDayOptions gasDayOptions, RelativeOperation... operations) {
         return new RelativeDate(
                 Stream
-                    .concat(
-                        Stream.concat(
-                            Stream.of(HOUR.minus(gasDayOptions.getYearStart().getHour())),
-                            Stream.of(operations)),
-                        startOfDayOperations(gasDayOptions))
-                    .collect(Collectors.toList()));
+                        .concat(
+                                Stream.concat(
+                                        Stream.of(HOUR.minus(gasDayOptions.getYearStart().getHour())),
+                                        Stream.of(operations)),
+                                startOfDayOperations(gasDayOptions))
+                        .collect(Collectors.toList()));
     }
 
     private static Stream<RelativeOperation> startOfDayOperations(GasDayOptions gasDayOptions) {

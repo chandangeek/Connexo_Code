@@ -67,10 +67,10 @@ class GasDayOptionsImpl implements GasDayOptions {
     @Override
     public List<RelativePeriod> getRelativePeriods() {
         return Stream
-                    .of(DefaultRelativePeriodDefinition.values())
-                    .map(def -> this.timeService.findRelativePeriodByName(def.getPeriodName()))
-                    .flatMap(Functions.asStream())
-                    .collect(Collectors.toList());
+                .of(DefaultRelativePeriodDefinition.values())
+                .map(def -> this.timeService.findRelativePeriodByName(def.getPeriodName()))
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toList());
     }
 
 }
