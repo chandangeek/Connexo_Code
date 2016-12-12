@@ -1,5 +1,7 @@
 package com.energyict.mdc.channels.serial;
 
+import java.util.stream.Stream;
+
 /**
  * Provide predefined values for the used parity
  */
@@ -19,12 +21,10 @@ public enum Parities {
     }
 
     public static String[] getTypedValues() {
-        String[] typedValues = new String[values().length];
-        int i = 0;
-        for (Parities parity : values()) {
-            typedValues[i++] = parity.getParity();
-        }
-        return typedValues;
+        return Stream
+                .of(values())
+                .map(Parities::getParity)
+                .toArray(String[]::new);
     }
 
     public String getParity() {
@@ -35,13 +35,12 @@ public enum Parities {
         return abbreviation;
     }
 
-    public static Parities valueFor(String strValue) {
-        for (Parities parity : values()) {
-            if (parity.getParity().equals(strValue)) {
-                return parity;
-            }
-        }
-        return null;
+    public static Parities valueFor (String strValue) {
+        return Stream
+                .of(values())
+                .filter(each -> each.getParity().equals(strValue))
+                .findAny()
+                .orElse(null);
     }
 
     public static Parities valueFor(Character abbreviation) {

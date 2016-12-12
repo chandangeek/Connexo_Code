@@ -3,6 +3,7 @@ package com.energyict.mdc.channels.serial;
 import Serialio.SerialConfig;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 /**
  * Provide predefined values for the used BaudRate
@@ -100,22 +101,18 @@ public enum BaudrateValue {
     }
 
     public static BigDecimal[] getTypedValues() {
-        BigDecimal[] typedValues = new BigDecimal[values().length];
-        int i = 0;
-        for (BaudrateValue baudrate : values()) {
-            typedValues[i] = baudrate.getBaudrate();
-            i++;
-        }
-        return typedValues;
+        return Stream
+                    .of(values())
+                    .map(BaudrateValue::getBaudrate)
+                    .toArray(BigDecimal[]::new);
     }
 
-    public static BaudrateValue valueFor(BigDecimal numercialValue) {
-        for (BaudrateValue baudrateValue : values()) {
-            if (baudrateValue.getBaudrate().equals(numercialValue)) {
-                return baudrateValue;
-            }
-        }
-        return null;
+    public static BaudrateValue valueFor (BigDecimal numercialValue) {
+        return Stream
+                    .of(values())
+                    .filter(each -> each.getBaudrate().compareTo(numercialValue) == 0)
+                    .findAny()
+                    .orElse(null);
     }
 
     public static int getSioBaudrateFor(BigDecimal baudrate) {

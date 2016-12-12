@@ -1,5 +1,8 @@
 package com.energyict.mdc.channels.serial;
 
+import java.math.BigDecimal;
+import java.util.stream.Stream;
+
 /**
  * Provide predefined values for the FlowControl
  */
@@ -13,17 +16,15 @@ public enum FlowControl {
 
     private final String flowControl;
 
-    private FlowControl(String flowControl) {
+    FlowControl(String flowControl) {
         this.flowControl = flowControl;
     }
 
     public static String[] getTypedValues() {
-        String[] typedValues = new String[values().length];
-        int i = 0;
-        for (FlowControl flowControl : values()) {
-            typedValues[i++] = flowControl.getFlowControl();
-        }
-        return typedValues;
+        return Stream
+                .of(values())
+                .map(FlowControl::getFlowControl)
+                .toArray(String[]::new);
     }
 
     public String getFlowControl() {
@@ -31,12 +32,11 @@ public enum FlowControl {
     }
 
     public static FlowControl valueFor (String strValue) {
-        for (FlowControl flowControl : values()) {
-            if (flowControl.getFlowControl().equals(strValue)) {
-                return flowControl;
-            }
-        }
-        return null;
+        return Stream
+                .of(values())
+                .filter(each -> each.getFlowControl().equals(strValue))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
