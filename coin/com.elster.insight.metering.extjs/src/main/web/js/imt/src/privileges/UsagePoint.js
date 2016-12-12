@@ -6,6 +6,7 @@ Ext.define('Imt.privileges.UsagePoint', {
     view: ['privilege.administer.anyUsagePoint', 'privilege.view.anyUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.view.ownUsagePoint'],
     admin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     adminTimeSlicedCps: ['privilege.administer.usage.point.time.sliced.cps'],
+    adminCalendars: ['privilege.administrate.touCalendars'],
     manageAttributes: ['privilege.administer.usage.point.manage.attributes'],
 
     all: function() {
@@ -22,5 +23,11 @@ Ext.define('Imt.privileges.UsagePoint', {
     },
     hasFullAdministrateTimeSlicedCps: function(){
         return Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.adminTimeSlicedCps) && Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.admin);
+    },
+    canAdministrateCalendars: function(){
+        return Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.adminCalendars) && Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.admin)
+    },
+    hasBulkActionPrivileges: function(){
+        return Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.adminCalendars) && Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.admin)
     }
 });

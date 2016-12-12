@@ -127,9 +127,11 @@ Ext.define('Imt.controller.Search', {
                 selector = me.getObjectSelector(),
                 state, isStateChange;
 
-            me.service.initState();
-            state = me.service.getState();
-            isStateChange = !!(state && state.domain);
+            if (!!router.queryParams.restore === true) {
+                me.service.initState();
+                state = me.service.getState();
+                isStateChange = !!(state && state.domain);
+            }
 
             if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
                 selector.setValue(value, isStateChange);
@@ -138,15 +140,17 @@ Ext.define('Imt.controller.Search', {
             }
         }});
 
-//        var grid = me.getResultsGrid();
-//
-//        grid.down('pagingtoolbartop').insert(3, {
-//            xtype: 'button',
-//            text: 'Bulk actions',
-//            itemId: 'search-bulk-actions-button',
-//            handler: me.showBulkAction,
-//            scope: me
-//        });
+        var grid = me.getResultsGrid();
+
+        grid.down('pagingtoolbartop').insert(3, {
+            xtype: 'button',
+            text: 'Bulk actions',
+            itemId: 'search-bulk-actions-button',
+            handler: me.showBulkAction,
+            privileges: Imt.privileges.UsagePoint.hasBulkActionPrivileges(),
+            scope: me
+        });
+
         var listeners = me.service.on({
             change: me.availableClearAll,
             reset: me.availableClearAll,
@@ -157,6 +161,15 @@ Ext.define('Imt.controller.Search', {
             listeners.destroy();
         }, me);
     },
+
+    showBulkAction: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('search/bulkaction').forward();
+    },
+
+
     availableClearAll: function () {
         var me = this,
             searchOverview = me.getSearchOverview(),
