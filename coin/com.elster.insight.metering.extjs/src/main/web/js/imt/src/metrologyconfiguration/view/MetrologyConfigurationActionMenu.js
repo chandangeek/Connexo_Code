@@ -1,7 +1,7 @@
 Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.metrology-configuration-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.activate', 'IMT', 'Activate'),

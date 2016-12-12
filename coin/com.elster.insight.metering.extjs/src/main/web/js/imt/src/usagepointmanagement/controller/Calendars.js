@@ -128,20 +128,23 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars').forward({mRID: btn.usagePointname});
             },
             failure: function (response) {
-                    var responseText = Ext.decode(response.responseText, true);
-                    if (responseText && Ext.isArray(responseText.errors)) {
-                        me.getForm().form.markInvalid(responseText.errors);
-                        me.getForm().down('#form-errors').show();
-                    }
+                var responseText = Ext.decode(response.responseText, true);
+                if (responseText && Ext.isArray(responseText.errors)) {
+                    me.getForm().form.markInvalid(responseText.errors);
+                    me.getForm().down('#form-errors').show();
+                }
             }
         });
     },
 
-    chooseAction: function(menu,item){
+    chooseAction: function (menu, item) {
         var record = this.getCalendarGrid().getSelectionModel().getLastSelected();
-        switch(item.action){
+        switch (item.action) {
             case 'viewPreview':
-                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars/preview').forward({mRID: this.usagePoint.get('name'), calendarId: record.getCalendar().get('id')})
+                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars/preview').forward({
+                    mRID: this.usagePoint.get('name'),
+                    calendarId: record.getCalendar().get('id')
+                })
                 break;
             case 'viewTimeline':
                 this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/history').forward({mRID: this.usagePoint.get('name')});
@@ -149,7 +152,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
         }
     },
 
-    previewCalendar: function(usagePointname,calendarId){
+    previewCalendar: function (usagePointname, calendarId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
@@ -161,7 +164,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 calendars.setMrid(usagePointname);
                 calendars.load();
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usagepoint-view-calendar-setup', {
-                    url: '/api/udr/usagepoints/'+ usagePointname +'/calendars/',
+                    url: '/api/udr/usagepoints/' + usagePointname + '/calendars/',
                     calendarId: calendarId,
                     router: router,
                     usagePoint: usagePoint

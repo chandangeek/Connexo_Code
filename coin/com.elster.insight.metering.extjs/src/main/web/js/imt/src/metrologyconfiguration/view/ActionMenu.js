@@ -1,7 +1,7 @@
 Ext.define('Imt.metrologyconfiguration.view.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.metrologyConfigurationActionMenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'edit',

@@ -13,7 +13,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
     usagePoint: null,
     initComponent: function () {
         var me = this;
-       // me.calendarStore = Ext.getStore('Imt.usagepointmanagement.store.ActiveCalendars') || Ext.create('Imt.usagepointmanagement.store.ActiveCalendars');
+        // me.calendarStore = Ext.getStore('Imt.usagepointmanagement.store.ActiveCalendars') || Ext.create('Imt.usagepointmanagement.store.ActiveCalendars');
         me.content = [
             {
                 title: Uni.I18n.translate('general.label.addCalendars', 'IMT', 'Add calendar'),
@@ -91,12 +91,12 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                     vertical: true,
                                     width: 100,
                                     defaults: {
-                                    name: 'activateCalendar',
-                                    style: {
-                                        overflowX: 'visible',
-                                        whiteSpace: 'nowrap'
-                                    }
-                                },
+                                        name: 'activateCalendar',
+                                        style: {
+                                            overflowX: 'visible',
+                                            whiteSpace: 'nowrap'
+                                        }
+                                    },
                                     listeners: {
                                         change: function (field, newValue, oldValue) {
                                             me.down('#activation-date-values').setDisabled(newValue.activateCalendar !== 'on-date-activation');

@@ -2,8 +2,8 @@ Ext.define('Imt.usagepointmanagement.model.ActiveCalendar', {
     extend: 'Ext.data.Model',
     requires: ['Uni.model.timeofuse.Calendar'],
     fields: [
-        {name: 'fromTime', dateFormat: 'time',type: 'date'},
-        {name: 'toTime', dateFormat: 'time',type: 'date'},
+        {name: 'fromTime', dateFormat: 'time', type: 'date'},
+        {name: 'toTime', dateFormat: 'time', type: 'date'},
         {name: 'usagePointId'},
         {name: 'next'},
         {name: 'calendar'}

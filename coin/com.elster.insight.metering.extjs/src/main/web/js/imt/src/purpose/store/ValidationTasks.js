@@ -11,7 +11,7 @@ Ext.define('Imt.purpose.store.ValidationTasks', {
             type: 'json',
             root: 'dataValidationTasks'
         },
-        setUrl: function(mRID){
+        setUrl: function (mRID) {
             this.url = this.tplUrl.replace('{mRID}', encodeURIComponent(mRID))
         }
     }
