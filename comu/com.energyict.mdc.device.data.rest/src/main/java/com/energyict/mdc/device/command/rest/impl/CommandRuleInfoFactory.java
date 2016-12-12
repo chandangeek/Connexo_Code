@@ -86,10 +86,8 @@ public class CommandRuleInfoFactory {
     }
 
     private void checkCommandChanges(List<DualControlChangeInfo> changes, CommandRule commandRule, CommandRulePendingUpdate pendingUpdate) {
-        List<CommandInRule> copyOriginal = new ArrayList<>();
-        List<CommandInRule> copyUpdate = new ArrayList<>();
-        Collections.copy(commandRule.getCommands(), copyOriginal);
-        Collections.copy(pendingUpdate.getCommands(), copyUpdate);
+        List<CommandInRule> copyOriginal = new ArrayList<>(commandRule.getCommands());
+        List<CommandInRule> copyUpdate = new ArrayList<>(pendingUpdate.getCommands());
         copyUpdate.removeAll(commandRule.getCommands());
         copyOriginal.removeAll(pendingUpdate.getCommands());
 
