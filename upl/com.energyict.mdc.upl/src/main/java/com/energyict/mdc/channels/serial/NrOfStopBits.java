@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.serial;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 /**
  * Provide predefined values for the used number of stop bits
@@ -17,12 +18,10 @@ public enum NrOfStopBits {
     }
 
     public static BigDecimal[] getTypedValues() {
-        BigDecimal[] typedValues = new BigDecimal[values().length];
-        int i = 0;
-        for (NrOfStopBits stopBits : values()) {
-            typedValues[i++] = stopBits.getNrOfStopBits();
-        }
-        return typedValues;
+        return Stream
+                .of(values())
+                .map(NrOfStopBits::getNrOfStopBits)
+                .toArray(BigDecimal[]::new);
     }
 
     public BigDecimal getNrOfStopBits() {
@@ -30,12 +29,11 @@ public enum NrOfStopBits {
     }
 
     public static NrOfStopBits valueFor (BigDecimal numercialValue) {
-        for (NrOfStopBits stopBitsValue : values()) {
-            if (stopBitsValue.getNrOfStopBits().equals(numercialValue)) {
-                return stopBitsValue;
-            }
-        }
-        return null;
+        return Stream
+                .of(values())
+                .filter(each -> each.getNrOfStopBits().compareTo(numercialValue) == 0)
+                .findAny()
+                .orElse(null);
     }
 
     @Override

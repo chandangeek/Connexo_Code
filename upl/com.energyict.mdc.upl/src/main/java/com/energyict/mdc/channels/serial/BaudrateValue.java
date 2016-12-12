@@ -1,9 +1,9 @@
 package com.energyict.mdc.channels.serial;
 
 import Serialio.SerialConfig;
-import com.energyict.cbo.ApplicationException;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 /**
  * Provide predefined values for the used BaudRate
@@ -101,35 +101,31 @@ public enum BaudrateValue {
     }
 
     public static BigDecimal[] getTypedValues() {
-        BigDecimal[] typedValues = new BigDecimal[values().length];
-        int i = 0;
-        for (BaudrateValue baudrate : values()) {
-            typedValues[i] = baudrate.getBaudrate();
-            i++;
-        }
-        return typedValues;
+        return Stream
+                    .of(values())
+                    .map(BaudrateValue::getBaudrate)
+                    .toArray(BigDecimal[]::new);
     }
 
     public static BaudrateValue valueFor (BigDecimal numercialValue) {
-        for (BaudrateValue baudrateValue : values()) {
-            if (baudrateValue.getBaudrate().equals(numercialValue)) {
-                return baudrateValue;
-            }
-        }
-        return null;
+        return Stream
+                    .of(values())
+                    .filter(each -> each.getBaudrate().compareTo(numercialValue) == 0)
+                    .findAny()
+                    .orElse(null);
     }
 
     public static int getSioBaudrateFor (BigDecimal baudrate) {
         BaudrateValue baudrateValue = valueFor(baudrate);
         if (baudrateValue == null) {
-            throw new ApplicationException("Baudrate " + baudrate + " is not supported by this driver.");
+            throw new IllegalArgumentException("Baudrate " + baudrate + " is not supported by this driver.");
         }
         else {
             try {
                 return baudrateValue.sioBaudRate();
             }
             catch (NotSupportedBySio e) {
-                throw new ApplicationException("Baudrate " + baudrate + " is not supported by this driver.");
+                throw new IllegalArgumentException("Baudrate " + baudrate + " is not supported by this driver.");
             }
         }
     }

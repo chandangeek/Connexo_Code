@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.serial;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 /**
  * Provide predefined values for the used number of data bits
@@ -19,12 +20,10 @@ public enum NrOfDataBits {
     }
 
     public static BigDecimal[] getTypedValues(){
-        BigDecimal[] typedValues = new BigDecimal[values().length];
-        int i = 0;
-        for (NrOfDataBits dataBits : values()) {
-            typedValues[i++] = dataBits.getNrOfDataBits();
-        }
-        return typedValues;
+        return Stream
+                .of(values())
+                .map(NrOfDataBits::getNrOfDataBits)
+                .toArray(BigDecimal[]::new);
     }
 
     public BigDecimal getNrOfDataBits() {
@@ -32,12 +31,11 @@ public enum NrOfDataBits {
     }
 
     public static NrOfDataBits valueFor (BigDecimal numercialValue) {
-        for (NrOfDataBits dataBitsValues : values()) {
-            if (dataBitsValues.getNrOfDataBits().equals(numercialValue)) {
-                return dataBitsValues;
-            }
-        }
-        return null;
+        return Stream
+                .of(values())
+                .filter(each -> each.getNrOfDataBits().compareTo(numercialValue) == 0)
+                .findAny()
+                .orElse(null);
     }
 
     @Override
