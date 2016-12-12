@@ -5,8 +5,8 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -28,8 +28,8 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class EstimationEngine {
 
-    List<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
-        return meterActivation.getChannelsContainer().getChannels().stream()
+    List<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType) {
+        return channelsContainer.getChannels().stream()
                 .filter(Channel::isRegular)
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
                 .flatMap(channel -> findBlocksToEstimate(system, channel, period, readingType))

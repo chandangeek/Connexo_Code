@@ -92,7 +92,7 @@ public class ConsoleCommands {
                 QualityCodeSystem system = QualityCodeSystem.of(qualityCodeSystem);
                 meterActivation.getChannelsContainer().getChannels().stream()
                         .flatMap(channel -> channel.getReadingTypes().stream())
-                        .flatMap(readingType -> estimationEngine.findBlocksToEstimate(system, meterActivation,
+                        .flatMap(readingType -> estimationEngine.findBlocksToEstimate(system, meterActivation.getChannelsContainer(),
                                 Range.all(), readingType).stream())
                         .map(this::print)
                         .forEach(System.out::println);
@@ -288,7 +288,8 @@ public class ConsoleCommands {
         System.out.println("Handling channel id " + channel.getId());
         for (ReadingType readingType : channel.getReadingTypes()) {
             System.out.println("Handling reading type " + readingType.getAliasName());
-            List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(system, meterActivation, Range.all(), readingType);
+            List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(system, meterActivation.getChannelsContainer(), Range
+                    .all(), readingType);
             estimator.init(Logger.getLogger(ConsoleCommands.class.getName()));
             EstimationResult result = estimator.estimate(blocks, system);
             List<EstimationBlock> estimated = result.estimated();
@@ -315,7 +316,8 @@ public class ConsoleCommands {
     public void estimate(long meterId, String qualityCodeSystem) {
         Meter meter = meteringService.findMeterById(meterId).orElseThrow(IllegalArgumentException::new);
         meter.getCurrentMeterActivation()
-                .map(meterActivation -> estimationService.estimate(QualityCodeSystem.of(qualityCodeSystem), meterActivation, Range.all()))
+                .map(meterActivation -> estimationService.estimate(QualityCodeSystem.of(qualityCodeSystem), meterActivation
+                        .getChannelsContainer(), Range.all()))
                 .map(EstimationReport::getResults)
                 .ifPresent(map -> {
                     map.entrySet().stream()

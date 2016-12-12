@@ -55,6 +55,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -191,7 +192,7 @@ public class EstimationServiceImplTest {
         when(factory.createTemplate(estimator2Name)).thenReturn(estimator2);
 
         doReturn(Arrays.asList(readingType1, readingType2)).when(meterActivation).getReadingTypes();
-        doReturn(Collections.singletonList(ruleSet)).when(resolver).resolve(meterActivation);
+        doReturn(Collections.singletonList(ruleSet)).when(resolver).resolve(channelsContainer);
         doReturn(QualityCodeSystem.MDC).when(ruleSet).getQualityCodeSystem();
         doReturn(Priority.NORMAL).when(resolver).getPriority();
         doReturn(Arrays.asList(rule1, rule2)).when(ruleSet).getRules();
@@ -221,6 +222,7 @@ public class EstimationServiceImplTest {
         doReturn(true).when(rule2).isActive();
         doReturn(channelsContainer).when(channel).getChannelsContainer();
         doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
+        when(channelsContainer.getReadingTypes(any())).thenReturn(new HashSet<>(Arrays.asList(readingType1, readingType2)));
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
@@ -277,7 +279,7 @@ public class EstimationServiceImplTest {
 
     @Test
     public void testPreviewEstimate() {
-        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), LOGGER);
+        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, channelsContainer, Range.all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
@@ -291,7 +293,7 @@ public class EstimationServiceImplTest {
 
     @Test
     public void testPreviewEstimateFromOtherSystem() {
-        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDM, meterActivation, Range.all(), LOGGER);
+        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDM, channelsContainer, Range.all(), LOGGER);
         assertThat(report.getResults()).isEmpty(); // no suspects, no rules
     }
 
@@ -300,7 +302,7 @@ public class EstimationServiceImplTest {
         doReturn(false).when(rule1).isActive();
         doReturn(false).when(rule2).isActive();
 
-        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), LOGGER);
+        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, channelsContainer, Range.all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);

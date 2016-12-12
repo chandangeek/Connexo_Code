@@ -32,6 +32,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -317,8 +318,9 @@ public class ReadingEstimateTest {
 
         final EstimationRuleSet resolved = ruleSet;
         estimationService.addEstimationResolver(new EstimationResolver() {
+
             @Override
-            public List<EstimationRuleSet> resolve(MeterActivation meterActivation) {
+            public List<EstimationRuleSet> resolve(ChannelsContainer channelsContainer) {
                 return Collections.singletonList(resolved);
             }
 
@@ -339,7 +341,9 @@ public class ReadingEstimateTest {
         });
 
         try (TransactionContext ctx = transactionService.getContext()) {
-            estimationService.estimate(QualityCodeSystem.MDM, meter.getCurrentMeterActivation().get(), Range.all());
+            estimationService.estimate(QualityCodeSystem.MDM, meter.getCurrentMeterActivation()
+                    .get()
+                    .getChannelsContainer(), Range.all());
             ctx.commit();
         }
         // existDate qualities

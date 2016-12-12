@@ -112,7 +112,8 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereAreNoSuspects() {
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
+                .getChannelsContainer(), Range.all(), readingType);
         assertThat(blocksToEstimate).isEmpty();
         verify(cimChannel1).findReadingQualities();
         verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
@@ -128,7 +129,8 @@ public class EstimationEngineTest {
         when(fetcher.collect()).thenReturn(Collections.singletonList(readingQualityRecord2));
         when(readingQualityRecord2.getBaseReadingRecord()).thenReturn(Optional.empty());
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
+                .getChannelsContainer(), Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 
@@ -146,7 +148,8 @@ public class EstimationEngineTest {
     public void testFindBlocksWhenThereIsOneSuspectForReading() {
         when(fetcher.collect()).thenReturn(Collections.singletonList(readingQualityRecord2));
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
+                .getChannelsContainer(), Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 
@@ -164,7 +167,8 @@ public class EstimationEngineTest {
     public void testFindBlocksWhenThereIsOneBlockOfSuspectForReading() {
         when(fetcher.collect()).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation
+                .getChannelsContainer(), Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 

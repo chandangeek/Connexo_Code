@@ -93,7 +93,7 @@ class EstimationTaskExecutor implements TaskExecutor {
     private void doEstimateTransactional(MeterActivation meterActivation, QualityCodeSystem system, RelativePeriod relativePeriod, Instant triggerTime, Logger taskLogger) {
         try {
             try (TransactionContext transactionContext = transactionService.getContext()) {
-                estimationService.estimate(system, meterActivation, period(meterActivation, relativePeriod, triggerTime), taskLogger);
+                estimationService.estimate(system, meterActivation.getChannelsContainer(), period(meterActivation, relativePeriod, triggerTime), taskLogger);
                 transactionContext.commit();
             }
         } catch (Exception ex) {

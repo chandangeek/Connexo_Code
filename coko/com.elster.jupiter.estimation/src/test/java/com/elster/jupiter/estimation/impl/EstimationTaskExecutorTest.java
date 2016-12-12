@@ -93,6 +93,8 @@ public class EstimationTaskExecutorTest {
     @Mock
     private com.elster.jupiter.metering.MeterActivation meter2Activation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private RelativePeriod relativePeriod;
     @Mock
     private com.elster.jupiter.transaction.TransactionContext transactionContext;
@@ -122,7 +124,7 @@ public class EstimationTaskExecutorTest {
             }
 
             @Override
-            public List<EstimationRuleSet> resolve(MeterActivation meterActivation) {
+            public List<EstimationRuleSet> resolve(ChannelsContainer channelsContainer) {
                 return Collections.emptyList();
             }
 
@@ -139,7 +141,7 @@ public class EstimationTaskExecutorTest {
         doReturn(Optional.of(meter2Activation)).when(meter2).getMeterActivation(eq(triggerTime.toInstant()));
         when(meter2Activation.getMeter()).thenReturn(Optional.of(meter2));
         when(meter2.getMRID()).thenReturn("meter2");
-        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        channelsContainer = mock(ChannelsContainer.class);
         when(meter2Activation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(estimationTask.getPeriod()).thenReturn(Optional.of(relativePeriod));
@@ -167,19 +169,20 @@ public class EstimationTaskExecutorTest {
         verify(transactionService, times(1)).getContext();
         verify(transactionContext, times(1)).commit();
         verify(transactionContext, times(1)).close();
-        verify(estimationService, times(1)).estimate(eq(QUALITY_CODE_SYSTEM), eq(meter2Activation), eq(periodRange), any(Logger.class));
+        verify(estimationService, times(1)).estimate(eq(QUALITY_CODE_SYSTEM), eq(channelsContainer), eq(periodRange), any(Logger.class));
         verify(transactionService, times(1)).run(any(Runnable.class));
         verify(estimationTask, times(1)).updateLastRun(eq(triggerTime.toInstant()));
     }
 
     @Test
     public void testUnSuccessfullRun() {
-        when(estimationService.estimate(eq(QUALITY_CODE_SYSTEM), eq(meter2Activation), eq(periodRange), any(Logger.class))).thenThrow(new NullPointerException());
+        when(estimationService.estimate(eq(QUALITY_CODE_SYSTEM), eq(channelsContainer), eq(periodRange), any(Logger.class)))
+                .thenThrow(new NullPointerException());
         EstimationTaskExecutor executor = new EstimationTaskExecutor(estimationService, transactionService, meteringService,
                 timeService, threadPrincipleService, estimationUser);
         executor.postExecute(occurrence);
         verify(transactionService, times(1)).getContext();
-        verify(estimationService, times(1)).estimate(eq(QUALITY_CODE_SYSTEM), eq(meter2Activation), eq(periodRange), any(Logger.class));
+        verify(estimationService, times(1)).estimate(eq(QUALITY_CODE_SYSTEM), eq(channelsContainer), eq(periodRange), any(Logger.class));
         verify(transactionContext, times(0)).commit();
         verify(transactionContext, times(1)).close();
         verify(transactionService, times(2)).run(any(Runnable.class));

@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
@@ -37,13 +38,13 @@ public interface EstimationService {
 
     Optional<Estimator> getEstimator(String implementation, Map<String, Object> props);
 
-    EstimationReport estimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period);
+    EstimationReport estimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period);
 
-    EstimationReport previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period);
+    EstimationReport previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period);
 
-    EstimationReport previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType);
+    EstimationReport previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType);
 
-    EstimationResult previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator);
+    EstimationResult previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType, Estimator estimator);
 
     EstimationRuleSet createEstimationRuleSet(String name, QualityCodeSystem qualityCodeSystem);
 
