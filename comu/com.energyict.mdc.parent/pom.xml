@@ -312,6 +312,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.alarms.extjs</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datavalidation.rest</artifactId>
                 <version>1.2.0${revision}</version>
                 <scope>provided</scope>
@@ -641,6 +647,7 @@
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
                 <module>../com.energyict.mdc.issue.datavalidation</module>
                 <module>../com.energyict.mdc.issue.datavalidation.extjs</module>
+                <module>../com.energyict.mdc.device.alarms.extjs</module>
                 <module>../com.energyict.mdc.issue.datavalidation.rest</module>
                 <module>../com.energyict.mdc.issues</module>
                 <module>../com.energyict.mdc.masterdata</module>
