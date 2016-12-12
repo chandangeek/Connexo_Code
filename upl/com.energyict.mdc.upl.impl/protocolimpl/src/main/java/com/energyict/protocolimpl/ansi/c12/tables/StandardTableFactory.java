@@ -403,9 +403,9 @@ public class StandardTableFactory extends TableFactory {
         return unitOfMeasureEntryTable;
     }
 
-    public UnitOfMeasureEntryTable getUnitOfMeasureEntryTable(boolean forceFullRead, boolean readUOMTableMinusOne) throws IOException {
+    public UnitOfMeasureEntryTable getUnitOfMeasureEntryTable(boolean forceFullRead, int reduceMaxNumberOfUomEntryBy) throws IOException {
         if (unitOfMeasureEntryTable==null) {
-            unitOfMeasureEntryTable = new UnitOfMeasureEntryTable(this, readUOMTableMinusOne);
+            unitOfMeasureEntryTable = new UnitOfMeasureEntryTable(this, reduceMaxNumberOfUomEntryBy);
             unitOfMeasureEntryTable.setForceFullRead(forceFullRead);
             unitOfMeasureEntryTable.build();
         }

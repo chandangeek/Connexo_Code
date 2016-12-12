@@ -35,7 +35,7 @@ public class SourceInfo {
         if (sentinel.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[dataControlEntryIndex]) {
             StandardTableFactory tableFactory = sentinel.getStandardTableFactory();
             if (tableFactory != null) {
-                UnitOfMeasureEntryTable uomTable = tableFactory.getUnitOfMeasureEntryTable(false, sentinel.isReadUomTableMinusOne());
+                UnitOfMeasureEntryTable uomTable = tableFactory.getUnitOfMeasureEntryTable(false, sentinel.reduceMaxNumberOfUomEntryBy());
                 if (uomTable != null) {
                     UOMEntryBitField[] uomFields = uomTable.getUomEntryBitField();
                     if (uomFields != null) {
@@ -65,7 +65,7 @@ public class SourceInfo {
 
     public Unit getUnit(int dataControlEntryIndex) throws IOException {
         if (sentinel.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[dataControlEntryIndex]) {
-            UOMEntryBitField uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable(false, sentinel.isReadUomTableMinusOne()).getUomEntryBitField()[dataControlEntryIndex];
+            UOMEntryBitField uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable(false, sentinel.reduceMaxNumberOfUomEntryBy()).getUomEntryBitField()[dataControlEntryIndex];
             return uomEntryBitField.getUnit();
         }
         return null; // KV_TO_DO ??
@@ -79,7 +79,7 @@ public class SourceInfo {
         UOMEntryBitField uomEntryBitField=null;
 
         if (sentinel.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[sourceIndex]) {
-            uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable(false, sentinel.isReadUomTableMinusOne()).getUomEntryBitField()[sourceIndex];
+            uomEntryBitField = sentinel.getStandardTableFactory().getUnitOfMeasureEntryTable(false, sentinel.reduceMaxNumberOfUomEntryBy()).getUomEntryBitField()[sourceIndex];
 
             //System.out.println("basic2engineering value is " + bd + ", uomEntryBitField is " + uomEntryBitField);
 

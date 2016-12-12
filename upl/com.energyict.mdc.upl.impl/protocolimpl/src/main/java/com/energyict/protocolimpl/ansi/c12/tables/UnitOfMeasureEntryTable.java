@@ -23,12 +23,12 @@ public class UnitOfMeasureEntryTable extends AbstractTable {
     
     private UOMEntryBitField[] uomEntryBitField;
 
-    boolean readUOMTableMinusOne = false;
+    int reduceMaxNumberOfUomEntryBy = 0;
 
     /** Creates a new instance of UnitOfMeasureEntryTable */
-    public UnitOfMeasureEntryTable(StandardTableFactory tableFactory, boolean readUOMTableMinusOne) {
+    public UnitOfMeasureEntryTable(StandardTableFactory tableFactory, int reduceMaxNumberOfUomEntryBy) {
         this(tableFactory);
-        this.readUOMTableMinusOne = readUOMTableMinusOne;
+        this.reduceMaxNumberOfUomEntryBy = reduceMaxNumberOfUomEntryBy;
     }
 
     public UnitOfMeasureEntryTable(StandardTableFactory tableFactory) {
@@ -45,11 +45,10 @@ public class UnitOfMeasureEntryTable extends AbstractTable {
 
     protected void prepareBuild() throws IOException {
         int size;
-        if (readUOMTableMinusOne) {
-            size = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry() - 1 * UOMEntryBitField.getSize();
-        } else {
-            size = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry() * UOMEntryBitField.getSize();
-        }
+        int numUomEntries = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry();
+        numUomEntries -= reduceMaxNumberOfUomEntryBy;
+        size = numUomEntries * UOMEntryBitField.getSize();
+
         PartialReadInfo partialReadInfo = new PartialReadInfo(0,size);
         setPartialReadInfo(partialReadInfo);
     }
@@ -57,7 +56,9 @@ public class UnitOfMeasureEntryTable extends AbstractTable {
     
     protected void parse(byte[] tableData) throws IOException { 
         int offset=0;
-        setUomEntryBitField(new UOMEntryBitField[getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry()]);
+        int numUomEntries = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry();
+        numUomEntries -= reduceMaxNumberOfUomEntryBy;
+        setUomEntryBitField(new UOMEntryBitField[numUomEntries]);
         try {
             for (int i = 0; i < getUomEntryBitField().length; i++) {
                 getUomEntryBitField()[i] = new UOMEntryBitField(tableData, offset, getTableFactory());
