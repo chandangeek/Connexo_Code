@@ -13,6 +13,20 @@ Ext.define('Isu.view.issues.Overview', {
     ],
     router: null,
     groupingType: null,
+    emptyComponent: {
+        xtype: 'no-issues-found-panel',
+        itemId: 'no-issues-found-panel'
+    },
+    previewComponent: {
+        xtype: 'issues-preview',
+        itemId: 'issues-preview'
+    },
+    grid: {
+        store: 'Isu.store.Issues',
+        xtype: 'issues-grid',
+        itemId: 'issues-grid'
+    },
+
     initComponent: function () {
         var me = this;
 
@@ -20,11 +34,12 @@ Ext.define('Isu.view.issues.Overview', {
             {
                 title: Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues'),
                 ui: 'large',
+                itemId: 'issue-panel',
                 items: [
                     {
                         xtype: 'isu-view-issues-issuefilter',
                         itemId: 'isu-view-issues-issuefilter',
-                        store: 'Isu.store.Issues'
+                        store: me.grid.store
                     },
                     {
                         xtype: 'issues-grouping-toolbar',
@@ -50,24 +65,24 @@ Ext.define('Isu.view.issues.Overview', {
                         xtype: 'issues-sorting-toolbar',
                         itemId: 'issues-sorting-toolbar',
                         hideEmpty: false,
-                        store: 'Isu.store.Issues'
+                        store: me.grid.store
                     },
                     {
                         xtype: 'preview-container',
                         itemId: 'issues-preview-container',
                         grid: {
-                            xtype: 'issues-grid',
-                            itemId: 'issues-grid',
-                            store: 'Isu.store.Issues',
+                            xtype: me.grid.xtype,
+                            itemId: me.grid.itemId,
+                            store: me.grid.store,
                             router: me.router
                         },
                         emptyComponent: {
-                            xtype: 'no-issues-found-panel',
-                            itemId: 'no-issues-found-panel'
+                            xtype: me.emptyComponent.xtype,
+                            itemId: me.emptyComponent.itemId
                         },
                         previewComponent: {
-                            xtype: 'issues-preview',
-                            itemId: 'issues-preview',
+                            xtype: me.previewComponent.xtype,
+                            itemId: me.previewComponent.itemId,
                             router: me.router
                         }
                     }

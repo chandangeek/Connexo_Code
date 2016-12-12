@@ -59,6 +59,10 @@ Ext.define('Isu.controller.IssuesOverview', {
         {
             ref: 'issuesGrid',
             selector: 'issues-overview #issues-grid'
+        },
+        {
+            ref: 'previewActionMenu',
+            selector: '#issues-preview issues-action-menu'
         }
     ],
 
@@ -143,12 +147,17 @@ Ext.define('Isu.controller.IssuesOverview', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPreview();
+        var me = this,
+            preview = me.getPreview(),
+            previewActionMenu = me.getPreviewActionMenu();
         Ext.getStore('Isu.store.Clipboard').set('issue', record);
         Ext.getStore('Isu.store.Clipboard').set('latest-issues-filter', Uni.util.QueryString.getQueryStringValues(false));
         Ext.suspendLayouts();
         preview.loadRecord(record);
-        preview.down('issues-action-menu').record = record;
+
+        if (previewActionMenu) {
+            previewActionMenu.record = record;
+        }
         preview.setTitle(record.get('title'));
         Ext.resumeLayouts(true);
     },

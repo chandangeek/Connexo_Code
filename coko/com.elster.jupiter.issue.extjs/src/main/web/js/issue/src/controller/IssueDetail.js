@@ -14,6 +14,8 @@ Ext.define('Isu.controller.IssueDetail', {
         'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
 
+    itemUrl: '/api/isu/issues/',
+
     showOverview: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -46,6 +48,9 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if (issueType === 'datavalidation') {
             widgetXtype = 'data-validation-issue-detail';
             issueModel = 'Idv.model.Issue';
+        } else {
+            widgetXtype = me.widgetXtype;
+            issueModel = me.issueModel;
         }
 
         widget = Ext.widget(widgetXtype, {
@@ -70,10 +75,12 @@ Ext.define('Isu.controller.IssueDetail', {
                     if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {
-                        widget.down('#issue-detail-form').loadRecord(record);
+                        me.getIssueDetailForm().loadRecord(record);
                     }
                     Ext.resumeLayouts(true);
-                    widget.down('issues-action-menu').record = record;
+                    if (me.getActionMenu()) {
+                        me.getActionMenu().record = record;
+                    }
                     me.loadComments(record, issueType);
                 }
             },
@@ -152,7 +159,7 @@ Ext.define('Isu.controller.IssueDetail', {
             commentsStore = record.comments(),
             router = this.getController('Uni.controller.history.Router');
 
-        commentsStore.getProxy().url = '/api/isu/issues/' + record.getId() + '/comments';
+        commentsStore.getProxy().url = me.itemUrl + record.getId() + '/comments';
         commentsStore.sort('creationDate', 'DESC');
         commentsView.bindStore(commentsStore);
         commentsView.setLoading(true);
@@ -163,7 +170,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && Isu.privileges.Issue.canComment());
-                if (issueType === 'datacollection') {
+                if ((issueType === 'datacollection') || (issueType === 'alarm')) {
                     me.loadTimeline(commentsStore);
                 }
                 Ext.resumeLayouts(true);
@@ -171,7 +178,7 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
         if (router.queryParams.addComment) {
-            if (issueType === 'datacollection') {
+            if ((issueType === 'datacollection') || (issueType === 'alarm')) {
                 this.showCommentForm();
             } else {
                 this.showCommentFormValidation();
@@ -273,7 +280,7 @@ Ext.define('Isu.controller.IssueDetail', {
 
         actionModel.setId(action.getId());
         actionModel.set('parameters', {});
-        actionModel.getProxy().url = '/api/isu/issues/' + issue.getId() + '/actions';
+        actionModel.getProxy().url = me.itemUrl + issue.getId() + '/actions';
         actionModel.save({
             callback: function (model, operation, success) {
                 var responseText = Ext.decode(operation.response.responseText, true);
@@ -413,6 +420,9 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if (issueType === 'datavalidation') {
             issueModel = 'Idv.model.Issue';
         }
+        else {
+            issueModel = me.issueModel;
+        }
 
         widget.setLoading(true);
 
@@ -429,10 +439,12 @@ Ext.define('Isu.controller.IssueDetail', {
                     if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {
-                        widget.down('#issue-detail-form').loadRecord(record);
+                        me.getIssueDetailForm().loadRecord(record);
                     }
                     Ext.resumeLayouts(true);
-                    widget.down('issues-action-menu').record = record;
+                    if (me.getActionMenu()) {
+                        me.getActionMenu().record = record;
+                    }
                     me.loadComments(record, issueType);
                 }
             }
