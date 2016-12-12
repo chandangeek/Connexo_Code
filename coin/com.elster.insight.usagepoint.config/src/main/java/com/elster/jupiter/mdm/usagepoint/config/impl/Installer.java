@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -60,6 +61,8 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private static final String ACTIVE_ENERGY_TOU1 = "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
     private static final String ACTIVE_ENERGY_TOU2 = "13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
     private static final String DELTA_A_PLUS_WH = "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String BATTERY_STATUS = "0.0.0.12.0.41.11.0.0.0.0.0.0.0.0.-2.0.0";
+    private static final String GAS_FLOW = "0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0";
 
     @Inject
     Installer(DataModel dataModel, UserService userService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
@@ -90,6 +93,8 @@ class Installer implements FullInstaller, PrivilegesProvider {
         residentialConsumerWith4ToU();
         waterConfigurationCI();
         residentialGas();
+        residentialNonSmartInsatallation();
+        residentialGasNonSmartInsatallation();
     }
 
     private void residentialProsumerWith1Meter() {
@@ -331,6 +336,87 @@ class Installer implements FullInstaller, PrivilegesProvider {
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusWh, requirementAplus, "Monthly A+ kWh"));
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh, requirementAplus, "15-min A+ kWh"));
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAplusWh, requirementAplusRegister, "A+ kWh"));
+    }
+
+    private void residentialNonSmartInsatallation() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential non-smart installation")
+                .isPresent()) {
+            return;
+        }
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential non-smart installation", serviceCategory)
+                .withDescription("Registers of different types (textual, numeric)").create();
+
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
+                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
+                .name()));
+
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
+        config.addMeterRole(meterRole);
+
+        ReadingType readingTypeBatteryStatus = meteringService.findReadingTypes(Collections.singletonList(BATTERY_STATUS))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(BATTERY_STATUS, "Battery status"));
+        ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(DELTA_A_PLUS_WH))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(DELTA_A_PLUS_WH, "A+"));
+
+        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
+
+        ReadingTypeRequirement requirementTextual = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.BATTERY_STATUS.getNameTranslation()
+                .getDefaultFormat(), meterRole)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.BATTERY_STATUS));
+
+        ReadingTypeRequirement requirementNumerical = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.DELTA_A_PLUS.getNameTranslation()
+                .getDefaultFormat(), meterRole)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.DELTA_A_PLUS));
+
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, DeliverableType.TEXT, readingTypeBatteryStatus, requirementTextual, "Battery status"));
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, DeliverableType.NUMERICAL, readingTypeAplusWh, requirementNumerical, "A+ kWh"));
+    }
+
+    private void residentialGasNonSmartInsatallation() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential gas non-smart installation")
+                .isPresent()) {
+            return;
+        }
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential gas non-smart installation", serviceCategory)
+                .withDescription("Billing register").create();
+
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.GAS
+                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
+                .name()));
+
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
+        config.addMeterRole(meterRole);
+
+        ReadingType readingTypeGasFlow = meteringService.findReadingTypes(Collections.singletonList(GAS_FLOW))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(GAS_FLOW, "Gas flow"));
+
+        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
+
+        ReadingTypeRequirement requirementBilling = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.GAS_FLOW_IRREGULAR.getNameTranslation()
+                .getDefaultFormat(), meterRole)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.GAS_FLOW_IRREGULAR));
+
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, DeliverableType.BILLING, readingTypeGasFlow, requirementBilling, "Billing Gas flow m3/h"));
     }
 
     private void threePhasedConsumerWith2ToU() {
@@ -614,6 +700,11 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
+        return builder.build(builder.requirement(requirement));
+    }
+
+    private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, DeliverableType deliverableType, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, deliverableType, readingType, deliverableType.equals(DeliverableType.TEXT) ? Formula.Mode.EXPERT : Formula.Mode.AUTO);
         return builder.build(builder.requirement(requirement));
     }
 
