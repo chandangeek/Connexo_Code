@@ -14,11 +14,11 @@ Ext.define('Dal.model.Alarm', {
             persist: false,
             mapping: function (data) {
                 if (data.device) {
-                    return data.issueId + ': ' + data.reason.name + ' ' + data.device.name;
+                    return data.alarmId + ': ' + data.reason.name + ' ' + data.device.name;
                 } else if (data.deviceName) {
-                    return data.issueId + ': ' + data.reason.name + ' ' + data.deviceName;
+                    return data.alarmId + ': ' + data.reason.name + ' ' + data.deviceName;
                 } else {
-                    return data.issueId + ': ' + data.reason.name;
+                    return data.alarmId + ': ' + data.reason.name;
                 }
             }
         },
@@ -78,7 +78,7 @@ Ext.define('Dal.model.Alarm', {
         {name: 'version', type: 'int'},
         {name: 'device', type: 'auto'},
         {name: 'issueType', type: 'auto'},
-        {name: 'alarmId', type: 'string', mapping: 'issueId',},
+        {name: 'alarmId', type: 'string'},
         {name: 'issueType_name', persist: false, mapping: 'issueType.name'},
 
         {name: 'status_name', persist: false, mapping: 'status.name'},
@@ -142,7 +142,7 @@ Ext.define('Dal.model.Alarm', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/idc/issues',
+        url: '/api/dal/alarms',
         reader: {
             type: 'json',
             root: 'data'

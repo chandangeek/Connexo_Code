@@ -5,7 +5,7 @@ Ext.define('Dal.store.Alarms', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/isu/issues',
+        url: '/api/dal/alarms',
         reader: {
             type: 'json',
             root: 'data'
