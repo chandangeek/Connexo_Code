@@ -192,7 +192,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         if(!active) {
             actualDelete();
         } else {
-            createDeleteUpdate();
+            createDeleteRequest();
         }
     }
 
@@ -200,7 +200,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         dataModel.remove(this);
     }
 
-    private void createDeleteUpdate() {
+    private void createDeleteRequest() {
         CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
         update.initializeRemoval(this);
         update.save();
@@ -259,8 +259,8 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
             weekLimit = commandRulePendingUpdate.getWeekLimit();
             monthLimit = commandRulePendingUpdate.getMonthLimit();
             active = commandRulePendingUpdate.isActive();
+            this.save();
         });
-        this.save();
     }
 
     @Override
@@ -268,7 +268,9 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         if(commandRulePendingUpdate.isPresent()) {
             CommandRulePendingUpdate entity = commandRulePendingUpdate.get();
             commandRulePendingUpdate.setNull();
-            this.save();
+            if(!entity.isRemoval()) {
+                this.save();
+            }
             dataModel.remove(entity);
         }
     }

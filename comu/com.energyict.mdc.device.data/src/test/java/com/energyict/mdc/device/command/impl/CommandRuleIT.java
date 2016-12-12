@@ -54,6 +54,9 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import javax.swing.text.html.Option;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Optional;
@@ -346,6 +349,26 @@ public class CommandRuleIT {
     public void testRemove() {
         CommandRule testRule = createRule("test4", 10, 11, 12, 1);
         commandRuleService.deleteRule(testRule);
+
+        Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveDualControl() throws Exception {
+        createUserAndChange(13);
+        CommandRuleImpl testRule = (CommandRuleImpl) createRule("test4", 10, 11, 12, 1);
+        testRule.save();
+        testRule.activate();
+        testRule.approve();
+        createUserAndChange(14);
+        testRule.approve();
+
+        testRule.delete();
+        testRule.approve();
+        createUserAndChange(15);
+        testRule.approve();
 
         Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
         assertThat(reloadedRule).isEmpty();
