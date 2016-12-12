@@ -215,6 +215,35 @@ Ext.define('Imt.controller.History', {
                                 }
                             }
                         },
+                        calendars: {
+                            title: Uni.I18n.translate('general.label.calendars', 'IMT', 'Calendars'),
+                            route: 'calendars',
+                            controller: 'Imt.usagepointmanagement.controller.Calendars',
+                            action: 'showCalendars',
+                            items: {
+                                addcalendar: {
+                                    title: Uni.I18n.translate('general.label.addCalendar', 'IMT', 'Add calendar'),
+                                    route: 'add',
+                                    controller: 'Imt.usagepointmanagement.controller.Calendars',
+                                    action: 'addCalendar',
+                                    privileges: Imt.privileges.UsagePoint.adminCalendars
+                                },
+                                preview: {
+                                    title: Uni.I18n.translate('general.label.previewCalendar', 'IMT', 'Preview calendar'),
+                                    route: 'preview/{calendarId}',
+                                    controller: 'Imt.usagepointmanagement.controller.Calendars',
+                                    action: 'previewCalendar',
+                                    callback: function (route) {
+                                        this.getApplication().on('calendarLoaded', function (record) {
+                                            route.setTitle(record.get('mRID'));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                }
+                            }
+                        },
                         definemetrology: {
                             title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
@@ -355,6 +384,22 @@ Ext.define('Imt.controller.History', {
                                             privileges: Imt.privileges.MetrologyConfig.adminValidation
 	                                    }
 	                                }
+                                },
+                                estimation: {
+                                    title: Uni.I18n.translate('usagepoint.estimation.estimationConfiguration', 'IMT', 'Estimation configuration'),
+                                    route: 'estimation/:tab:',
+                                    controller: 'Imt.metrologyconfiguration.controller.EstimationConfiguration',
+                                    action: 'showEstimationConfiguration',
+                                    privileges: Imt.privileges.MetrologyConfig.viewEstimation,
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('estimation.addRuleSet', 'IMT', 'Add estimation rule set'),
+                                            route: 'add',
+                                            controller: 'Imt.metrologyconfiguration.controller.EstimationConfiguration',
+                                            action: 'showAddEstimationRuleSets',
+                                            privileges: Imt.privileges.MetrologyConfig.adminEstimation
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -370,10 +415,19 @@ Ext.define('Imt.controller.History', {
             }
         },
         search: {
-            title: Uni.I18n.translate('general.label.search','IMT','Search'),
+            title: Uni.I18n.translate('general.label.search', 'IMT', 'Search'),
             route: 'search',
             controller: 'Imt.controller.Search',
-            action: 'showOverview'
+            action: 'showOverview',
+            items: {
+                bulkaction: {
+                    title: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
+                    route: 'bulk',
+                    controller: 'Imt.controller.SearchItemsBulkAction',
+                //    privileges: Mdc.privileges.Device.administrateDeviceOrDeviceCommunication,
+                    action: 'showBulkAction'
+                }
+            }
         }
     }
 });

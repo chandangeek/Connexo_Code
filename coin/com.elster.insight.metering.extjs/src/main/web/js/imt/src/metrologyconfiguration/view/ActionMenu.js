@@ -1,20 +1,21 @@
 Ext.define('Imt.metrologyconfiguration.view.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.metrologyConfigurationActionMenu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'edit',
-            text: Uni.I18n.translate('general.menu.edit', 'IMT', 'Edit'),
-            action: 'editMetrologyConfiguration'
-        },
-        {
-            itemId: 'remove',
-            text: Uni.I18n.translate('general.menu.remove', 'IMT', 'Remove'),
-//            privileges: Cfg.privileges.Validation.validateManual,
-           action: 'removeMetrologyConfiguration'
-        }
-    ]
+    initComponent: function() {
+        this.items = [
+            {
+                itemId: 'edit',
+                text: Uni.I18n.translate('general.menu.edit', 'IMT', 'Edit'),
+                action: 'editMetrologyConfiguration',
+                section: this.SECTION_EDIT
+            },
+            {
+                itemId: 'remove',
+                text: Uni.I18n.translate('general.menu.remove', 'IMT', 'Remove'),
+                action: 'removeMetrologyConfiguration',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

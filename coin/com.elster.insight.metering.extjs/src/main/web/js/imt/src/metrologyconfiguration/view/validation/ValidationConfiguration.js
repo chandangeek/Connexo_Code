@@ -42,15 +42,6 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationConfiguration',
                         activate: me.controller.showRulesTab,
                         scope: me.controller
                     }
-                },
-                {
-                    title: Uni.I18n.translate('general.schedule', 'IMT', 'Schedule'),
-                    itemId: 'metrology-configuration-schedule',
-                    metrologyConfig: me.metrologyConfig,
-                    listeners: {
-                        activate: me.controller.showScheduleTab,
-                        scope: me.controller
-                    }
                 }
             ]
         };

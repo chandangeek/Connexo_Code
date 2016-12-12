@@ -1,7 +1,8 @@
 Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
     extend: 'Ext.data.Model',
     requires: [
-        'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
+        'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
+        'Imt.util.UsagePointType'
     ],
     idProperty: 'name',
     fields: [
@@ -23,48 +24,12 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {
             name: 'typeOfUsagePoint',
             persist: false,
-            mapping: function(data){
-                if (data.isSdp && data.isVirtual) {
-                    return 'UNMEASURED_SDP';
-                }
-                if (data.isSdp && !data.isVirtual) {
-                    return 'MEASURED_SDP';
-                }
-                if (!data.isSdp && !data.isVirtual) {
-                    return 'MEASURED_NON_SDP';
-                }
-                if (!data.isSdp && data.isVirtual) {
-                    return 'UNMEASURED_NON_SDP';
-                }
+            mapping: function () {
+                return Imt.util.UsagePointType.mapping.apply(this, arguments);
             },
             // workaround for broken functionality of 'Ext.data.Field.serialize' in 'Uni.override.JsonWriterOverride.getRecordData'
-            convert: function (value, record) {
-                record.beginEdit();
-                if (value) {
-                    switch (value) {
-                        case 'UNMEASURED_SDP':
-                            record.set('isSdp', true);
-                            record.set('isVirtual', true);
-                            break;
-                        case 'MEASURED_SDP':
-                            record.set('isSdp', true);
-                            record.set('isVirtual', false);
-                            break;
-                        case 'MEASURED_NON_SDP':
-                            record.set('isSdp', false);
-                            record.set('isVirtual', false);
-                            break;
-                        case 'UNMEASURED_NON_SDP':
-                            record.set('isSdp', false);
-                            record.set('isVirtual', true);
-                            break;
-                    }
-                } else {
-                    record.set('isSdp', null);
-                    record.set('isVirtual', null);
-                }
-                record.endEdit();
-                return value;
+            convert: function () {
+                return Imt.util.UsagePointType.convert.apply(this, arguments);
             }
         },
         {name: 'isSdp', type: 'boolean', useNull: true},

@@ -14,7 +14,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.Readings',
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.store.RegisterReadings',
-        'Imt.usagepointmanagement.store.UsagePointTypes'
+        'Imt.usagepointmanagement.store.UsagePointTypes',
+        'Imt.purpose.store.ValidationTasks'
     ],
 
     models: [
@@ -78,8 +79,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     success: function (usagePoint) {
                         app.fireEvent('usagePointLoaded', usagePoint);
                         purposesStore.getProxy().extraParams = {
-                            usagePointId: usagePointId,
-                            withValidationTasks: true
+                            usagePointId: usagePointId
                         };
                         purposesStore.load(function(purposes) {
                             usagePoint.set('purposes', purposes);

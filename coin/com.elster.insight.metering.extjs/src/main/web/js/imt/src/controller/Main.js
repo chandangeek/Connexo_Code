@@ -45,7 +45,10 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails',
         'Imt.metrologyconfiguration.controller.ValidationConfiguration',
         'Imt.usagepointgroups.controller.AddUsagePointGroupAction',
-        'Imt.usagepointgroups.controller.UsagePointGroups'
+        'Imt.metrologyconfiguration.controller.EstimationConfiguration',
+        'Imt.usagepointgroups.controller.UsagePointGroups',
+        'Imt.usagepointmanagement.controller.Calendars',
+        'Imt.controller.SearchItemsBulkAction'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
