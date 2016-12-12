@@ -98,6 +98,11 @@ public class CommandRuleResource {
             commandRule.activate();
         } else if (commandRule.isActive() && !commandRuleInfo.active) {
             commandRule.deactivate();
+        } else {
+            List<String> commands = commandRuleInfo.commands.stream()
+                    .map(commandInfo -> commandInfo.commandName)
+                    .collect(Collectors.toList());
+            commandRule.update(commandRuleInfo.name, commandRuleInfo.dayLimit, commandRuleInfo.weekLimit, commandRuleInfo.monthLimit, commands);
         }
         return Response.ok().build();
     }
