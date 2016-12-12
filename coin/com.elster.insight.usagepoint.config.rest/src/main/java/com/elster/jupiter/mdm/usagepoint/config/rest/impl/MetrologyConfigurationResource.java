@@ -6,6 +6,8 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
@@ -50,6 +52,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,6 +63,7 @@ public class MetrologyConfigurationResource {
 
     private final ResourceHelper resourceHelper;
     private final ValidationService validationService;
+    private final EstimationService estimationService;
     private final MeteringService meteringService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final CustomPropertySetService customPropertySetService;
@@ -70,13 +74,14 @@ public class MetrologyConfigurationResource {
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
 
     @Inject
-    public MetrologyConfigurationResource(ResourceHelper resourceHelper, MeteringService meteringService, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService,
+    public MetrologyConfigurationResource(ResourceHelper resourceHelper, MeteringService meteringService, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, EstimationService estimationService,
                                           CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
                                           MetrologyConfigurationService metrologyConfigurationService, ReadingTypeDeliverableFactory readingTypeDeliverableFactory, DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.meteringService = meteringService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.validationService = validationService;
+        this.estimationService = estimationService;
         this.customPropertySetService = customPropertySetService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
@@ -211,8 +216,14 @@ public class MetrologyConfigurationResource {
                     validationRuleSetInfos.add(validationRuleSetInfo);
                 }
             }
+            List<EstimationRuleSetInfo> estimationRuleSetInfos = usagePointConfigurationService
+                    .getEstimationRuleSets(metrologyContract)
+                    .stream()
+                    .map(EstimationRuleSetInfo::new)
+                    .collect(Collectors.toList());
             MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-            metrologyContractInfo.addValidationRuleSets(validationRuleSetInfos);
+            metrologyContractInfo.validationRuleSets = validationRuleSetInfos;
+            metrologyContractInfo.estimationRuleSets = estimationRuleSetInfos;
             metrologyContractInfos.add(metrologyContractInfo);
         }
         return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);
@@ -227,12 +238,28 @@ public class MetrologyConfigurationResource {
         metrologyContractInfo.id = contractId;
         MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
         if (action != null && action.equals("remove")) {
-            ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(metrologyContractInfo.validationRuleSets.stream().findFirst().get().id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-            usagePointConfigurationService.removeValidationRuleSet(metrologyContract, validationRuleSet);
+            if (!metrologyContractInfo.validationRuleSets.isEmpty()) {
+                ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(metrologyContractInfo.validationRuleSets
+                        .stream()
+                        .findFirst()
+                        .get().id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                usagePointConfigurationService.removeValidationRuleSet(metrologyContract, validationRuleSet);
+            } else if (!metrologyContractInfo.estimationRuleSets.isEmpty()) {
+                EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(metrologyContractInfo.estimationRuleSets
+                        .stream()
+                        .findFirst()
+                        .get().id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                usagePointConfigurationService.removeEstimationRuleSet(metrologyContract, estimationRuleSet);
+            }
         } else {
             for (ValidationRuleSetInfo validationRuleSetInfo : metrologyContractInfo.validationRuleSets) {
                 ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetInfo.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
                 usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
+            }
+            for (EstimationRuleSetInfo estimationRuleSetInfo : metrologyContractInfo.estimationRuleSets) {
+                EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSetInfo.id)
+                        .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                usagePointConfigurationService.addEstimationRuleSet(metrologyContract, estimationRuleSet);
             }
         }
         return Response.status(Response.Status.OK).build();
@@ -251,8 +278,16 @@ public class MetrologyConfigurationResource {
                         usagePointConfigurationService.getValidationRuleSets(metrologyContract)))
                 .map(ValidationRuleSetInfo::new)
                 .collect(Collectors.toList());
+        List<EstimationRuleSetInfo> linkableEstimationRuleSets = estimationService.getEstimationRuleSets()
+                .stream()
+                .filter(estimationRuleSet -> estimationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
+                .filter(estimationRuleSet -> usagePointConfigurationService.isLinkableEstimationRuleSet(metrologyContract, estimationRuleSet,
+                        usagePointConfigurationService.getEstimationRuleSets(metrologyContract)))
+                .map(EstimationRuleSetInfo::new)
+                .collect(Collectors.toList());
         MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-        metrologyContractInfo.addValidationRuleSets(linkableValidationRuleSets);
+        metrologyContractInfo.validationRuleSets = linkableValidationRuleSets;
+        metrologyContractInfo.estimationRuleSets = linkableEstimationRuleSets;
         return metrologyContractInfo;
     }
 
@@ -331,26 +366,5 @@ public class MetrologyConfigurationResource {
             metrologyConfiguration.removeCustomPropertySet(customPropertySet);
         }
         return metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
-    }
-
-    @GET
-    @Path("/{id}/schedule")
-    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getValidationScheduleOnMetrologyConfiguration(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        List<MetrologyContractInfo> metrologyContractInfos = new ArrayList<>();
-        for (MetrologyContract metrologyContract : resourceHelper.getMetrologyConfigOrThrowException(id).getContracts()) {
-            List<DataValidationTaskMinimalInfo> dataValidationTaskInfos = validationService.findValidationTasks()
-                    .stream()
-                    .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
-                    .filter(task -> task.getMetrologyContract().isPresent())
-                    .filter(task -> task.getMetrologyContract().get().getId() == metrologyContract.getId())
-                    .map(dataValidationTaskInfoFactory::asMinimalInfo)
-                    .collect(Collectors.toList());
-            MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-            metrologyContractInfo.addValidationTasks(dataValidationTaskInfos);
-            metrologyContractInfos.add(metrologyContractInfo);
-        }
-        return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);
     }
 }

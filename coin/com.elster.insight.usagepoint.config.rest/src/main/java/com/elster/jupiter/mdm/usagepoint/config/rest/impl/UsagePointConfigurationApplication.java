@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.metering.MeteringService;
@@ -47,6 +48,7 @@ public class UsagePointConfigurationApplication extends Application implements T
     private volatile Clock clock;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile MeteringService meteringService;
     private volatile TimeService timeService;
     private volatile CustomPropertySetService customPropertySetService;
@@ -98,6 +100,11 @@ public class UsagePointConfigurationApplication extends Application implements T
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference
@@ -153,6 +160,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(clock).to(Clock.class);
             bind(usagePointConfigurationService).to(UsagePointConfigurationService.class);
             bind(validationService).to(ValidationService.class);
+            bind(estimationService).to(EstimationService.class);
             bind(meteringService).to(MeteringService.class);
             bind(timeService).to(TimeService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);

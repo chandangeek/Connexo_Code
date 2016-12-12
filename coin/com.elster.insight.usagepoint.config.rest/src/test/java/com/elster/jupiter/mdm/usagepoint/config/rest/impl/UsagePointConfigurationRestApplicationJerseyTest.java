@@ -13,6 +13,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -40,6 +41,8 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
     @Mock
     ValidationService validationService;
     @Mock
+    EstimationService estimationService;
+    @Mock
     UsagePointConfigurationService usagePointConfigurationService;
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
@@ -59,6 +62,7 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
         application.setTransactionService(transactionService);
         application.setJsonService(jsonService);
         application.setValidationService(validationService);
+        application.setEstimationService(estimationService);
         application.setClockService(clock);
         application.setUsagePointConfigurationService(usagePointConfigurationService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
