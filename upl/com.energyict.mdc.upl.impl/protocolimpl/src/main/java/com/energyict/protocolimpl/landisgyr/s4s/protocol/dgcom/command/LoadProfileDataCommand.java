@@ -10,8 +10,14 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.util.Equality;
 
 import java.io.IOException;
@@ -114,8 +120,6 @@ RXS4 32k 122k
     private final int STATE_VALUE_PARTIAL=2;
     
     protected void parse(byte[] data) throws IOException {
-        
-        meterEvents = new ArrayList();
         intervalDatas = collect(data);
         validate(intervalDatas);
         
@@ -265,10 +269,6 @@ RXS4 32k 122k
                 // KV 07082007
                 // if calendar is older then previous, remove already collected intervals
                 Calendar temp = getDateStamp(value);
-                if ((cal != null) && (temp.getTime().before(cal.getTime()))) {
-                    intervalDatas = new ArrayList();
-                    if (DEBUG>=2) System.out.println("KV_DEBUG> Trash all received intervals until now...");   
-                }
                 cal = temp;
                         
                 if (dateStamp)
@@ -286,31 +286,25 @@ RXS4 32k 122k
                 if ((!dateStamp) && (!timeStamp)) {
                     timeStamp = true;
                     intervalStateBits |= IntervalStateBits.POWERDOWN;
-                    meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERDOWN));
-//System.out.println("POWERDOWN AT "+cal.getTime());                    
+                    getMeterEvents().add(new MeterEvent(cal.getTime(),MeterEvent.POWERDOWN));
                 }
                 else if ((dateStamp) && (!timeStamp)) {
                     
                     if (!((intervalStateBits&IntervalStateBits.SHORTLONG) == IntervalStateBits.SHORTLONG)) {
                         intervalStateBits |= IntervalStateBits.SHORTLONG;
-//System.out.println("TIMESET BEFORE "+cal.getTime());   
-                        meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.SETCLOCK_BEFORE));
+                        getMeterEvents().add(new MeterEvent(cal.getTime(),MeterEvent.SETCLOCK_BEFORE));
                         
                     }
                     else {
-//System.out.println("TIMESET AFTER "+cal.getTime());   
-                        meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.SETCLOCK_AFTER));
+                        getMeterEvents().add(new MeterEvent(cal.getTime(),MeterEvent.SETCLOCK_AFTER));
     
                     }
-                 
-                    //timeStamp = true;
                 }
                 else if (timeStamp) {
                     intervalStateBits |= IntervalStateBits.POWERUP;
                     dateStamp=false;
                     timeStamp=false;
-//System.out.println("POWERUP AT "+cal.getTime());                    
-                    meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERUP));
+                    getMeterEvents().add(new MeterEvent(cal.getTime(),MeterEvent.POWERUP));
                 }
                 
                 ParseUtils.roundDown2nearestInterval(cal, getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getProfileInterval());
@@ -345,6 +339,7 @@ RXS4 32k 122k
             
             interval++;
         } //  while (offset<length)
+        intervalDatas = ProtocolTools.mergeDuplicateIntervals(intervalDatas);
         return intervalDatas;
     } // protected void parse(byte[] data) throws IOException
     
@@ -406,6 +401,9 @@ RXS4 32k 122k
     }
 
     public List getMeterEvents() {
+        if (meterEvents == null){
+            meterEvents = new ArrayList(0);
+        }
         return meterEvents;
     }
 
