@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.ValueFactory;
 
 import java.util.Optional;
 
@@ -70,4 +71,10 @@ class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
     public boolean supportsMultiValues() {
         return this.actual.supportsMultiValues();
     }
+
+    @Override
+    public ValueFactory getValueFactory() {
+        return ConnexoToUPLValueFactoryAdapter.adapt(this.actual.getValueFactory());
+    }
+
 }
