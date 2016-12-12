@@ -1,6 +1,8 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -8,6 +10,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -25,6 +28,8 @@ import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -34,6 +39,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -59,6 +65,7 @@ import java.util.stream.Stream;
 public class UsagePointOutputResource {
 
     private final ResourceHelper resourceHelper;
+    private final EstimationHelper estimationHelper;
     private final ExceptionFactory exceptionFactory;
 
     private final ValidationService validationService;
@@ -74,15 +81,17 @@ public class UsagePointOutputResource {
 
     @Inject
     UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
-                                    ValidationService validationService,
-                                    OutputInfoFactory outputInfoFactory,
-                                    OutputChannelDataInfoFactory outputChannelDataInfoFactory,
-                                    OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
-                                    PurposeInfoFactory purposeInfoFactory,
-                                    ValidationStatusFactory validationStatusFactory,
-                                    Clock clock) {
+                             EstimationHelper estimationHelper,
+                             ValidationService validationService,
+                             OutputInfoFactory outputInfoFactory,
+                             OutputChannelDataInfoFactory outputChannelDataInfoFactory,
+                             OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
+                             PurposeInfoFactory purposeInfoFactory,
+                             ValidationStatusFactory validationStatusFactory,
+                             Clock clock) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
+        this.estimationHelper = estimationHelper;
         this.validationService = validationService;
         this.outputInfoFactory = outputInfoFactory;
         this.outputChannelDataInfoFactory = outputChannelDataInfoFactory;
@@ -173,30 +182,33 @@ public class UsagePointOutputResource {
                         .collect(Collectors.toMap(Function.identity(), timeStamp -> builder.from(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
 
                 // add readings to pre filled channel data map
-                List<IntervalReadingRecord> intervalReadings = channel.getCalculatedIntervalReadings(requestedInterval);
+                Map<Instant, IntervalReadingRecord> intervalReadings = channel.getCalculatedIntervalReadings(requestedInterval)
+                        .stream()
+                        .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
+                                .identity()));
                 Map<Instant, IntervalReadingRecord> persistedIntervalReadings = channel.getPersistedIntervalReadings(requestedInterval)
                         .stream()
                         .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
                                 .identity()));
-                for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
+                for (Instant intervalReadingRecordTimestamp : preFilledChannelDataMap.keySet()) {
                     ReadingWithValidationStatus<IntervalReadingRecord> readingWithValidationStatus = preFilledChannelDataMap
-                            .get(intervalReadingRecord.getTimeStamp());
+                            .get(intervalReadingRecordTimestamp);
                     if (readingWithValidationStatus != null) {
-                        if(persistedIntervalReadings.containsKey(intervalReadingRecord.getTimeStamp()) && persistedIntervalReadings.get(intervalReadingRecord.getTimeStamp()).getValue()!=null) {
-                            readingWithValidationStatus.setReadingRecord(persistedIntervalReadings.get(intervalReadingRecord
-                                    .getTimeStamp()));
-                            readingWithValidationStatus.setCalculatedReadingRecord(intervalReadingRecord);
-                            readingWithValidationStatus.setPersistedReadingRecord(persistedIntervalReadings.get(intervalReadingRecord
-                                    .getTimeStamp()));
-                        } else {
-                            readingWithValidationStatus.setReadingRecord(intervalReadingRecord);
+                        if(persistedIntervalReadings.containsKey(intervalReadingRecordTimestamp) && persistedIntervalReadings.get(intervalReadingRecordTimestamp).getValue()!=null) {
+                            readingWithValidationStatus.setReadingRecord(persistedIntervalReadings.get(intervalReadingRecordTimestamp));
+                            readingWithValidationStatus.setCalculatedReadingRecord(intervalReadings.get(intervalReadingRecordTimestamp));
+                            readingWithValidationStatus.setPersistedReadingRecord(persistedIntervalReadings.get(intervalReadingRecordTimestamp));
+                        } else if (intervalReadings.containsKey(intervalReadingRecordTimestamp)){
+                            readingWithValidationStatus.setReadingRecord(intervalReadings.get(intervalReadingRecordTimestamp));
                         }
                     }
                 }
 
                 // add validation statuses to pre filled channel data map
                 List<DataValidationStatus> dataValidationStatuses = evaluator
-                        .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, requestedInterval);
+                        .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, Stream
+                                .concat(persistedIntervalReadings.values().stream(), intervalReadings.values().stream())
+                                .collect(Collectors.toList()), requestedInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     ReadingWithValidationStatus<IntervalReadingRecord> readingWithValidationStatus = preFilledChannelDataMap
                             .get(dataValidationStatus.getReadingTimestamp());
@@ -301,6 +313,49 @@ public class UsagePointOutputResource {
         return Optional.empty();
     }
 
+    @POST
+    @Transactional
+    @Path("/{purposeId}/outputs/{outputId}/channelData/estimate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public List<OutputChannelDataInfo> previewEstimateChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                                          EstimateChannelDataInfo estimateChannelDataInfo) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+        if (!readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+        }
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .get();
+        ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
+                .get();
+        Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
+
+        return previewEstimate(QualityCodeSystem.MDM, channelsContainer, channel, estimateChannelDataInfo);
+    }
+
+    private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
+        ReadingType readingType = channel.getMainReadingType();
+        List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
+                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                .collect(Collectors.toList());
+        ImmutableSet<Range<Instant>> blocks = ranges.stream()
+                .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
+                .build()
+                .asRanges();
+
+        List<EstimationResult> results = new ArrayList<>();
+        for (Range<Instant> block : blocks) {
+            results.add(estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator));
+        }
+        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
+    }
+
+
     @GET
     @Transactional
     @Path("/{purposeId}/outputs/{outputId}/registerData")
@@ -349,8 +404,8 @@ public class UsagePointOutputResource {
                 for (Instant timeStamp : preFilledChannelDataMap.keySet()) {
                     ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus = preFilledChannelDataMap.get(timeStamp);
                     if (readingWithValidationStatus != null) {
-                        if (persistedReadings.containsKey(timeStamp) && persistedReadings.get(timeStamp)
-                                .getValue() != null) {
+                        if (persistedReadings.containsKey(timeStamp) && (persistedReadings.get(timeStamp)
+                                .getValue() != null || persistedReadings.get(timeStamp).getText() != null)) {
                             readingWithValidationStatus.setReadingRecord(persistedReadings.get(timeStamp));
                             readingWithValidationStatus.setCalculatedReadingRecord(readings.get(timeStamp));
                             readingWithValidationStatus.setPersistedReadingRecord(persistedReadings.get(timeStamp));
@@ -376,7 +431,7 @@ public class UsagePointOutputResource {
                 outputRegisterData = preFilledChannelDataMap.entrySet().stream()
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
-                        .map(outputRegisterDataInfoFactory::createRegisterDataInfo)
+                        .map(reading -> outputRegisterDataInfoFactory.createRegisterDataInfo(reading, readingTypeDeliverable))
                         .collect(Collectors.toList());
             }
         }
@@ -434,7 +489,7 @@ public class UsagePointOutputResource {
                                 .collect(Collectors.toList()))
                 .stream().findFirst().ifPresent(readingWithValidationStatus::setValidationStatus);
 
-        return Response.ok(outputRegisterDataInfoFactory.createRegisterDataInfo(readingWithValidationStatus)).build();
+        return Response.ok(outputRegisterDataInfoFactory.createRegisterDataInfo(readingWithValidationStatus, readingTypeDeliverable)).build();
     }
 
     @PUT

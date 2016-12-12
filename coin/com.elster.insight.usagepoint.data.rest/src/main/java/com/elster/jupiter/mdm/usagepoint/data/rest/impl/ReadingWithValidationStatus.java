@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 
@@ -103,6 +104,13 @@ public class ReadingWithValidationStatus<T extends BaseReadingRecord> {
 
     public BigDecimal getValue() {
         return readingRecord.map(BaseReading::getValue).orElse(null);
+    }
+
+    public Optional<String> getText() {
+        return readingRecord
+                .filter(readingRecord -> readingRecord instanceof Reading)
+                .map(Reading.class::cast)
+                .map(Reading::getText);
     }
 
     public Optional<BigDecimal> getPersistedValue() {

@@ -7,6 +7,7 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -65,6 +66,16 @@ public class OutputChannelDataInfoFactory {
                 outputChannelDataInfo.dataValidated = false;
             }
         }
+        return outputChannelDataInfo;
+    }
+
+    public OutputChannelDataInfo createEstimatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal estimatedValue) {
+        OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
+        outputChannelDataInfo.readingTime = readingRecord.getTimeStamp();
+        outputChannelDataInfo.interval = readingRecord.getTimePeriod()
+                .map(IntervalInfo::from)
+                .orElse(null);
+        outputChannelDataInfo.value = estimatedValue;
         return outputChannelDataInfo;
     }
 }

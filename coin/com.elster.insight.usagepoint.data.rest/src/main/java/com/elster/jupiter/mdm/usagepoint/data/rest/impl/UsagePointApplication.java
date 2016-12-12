@@ -96,7 +96,9 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointOutputResource.class,
                 GoingOnResource.class,
                 RestValidationExceptionMapper.class,
-                UsagePointGroupResource.class
+                UsagePointGroupResource.class,
+                EstimationErrorExceptionMapper.class,
+                EstimatorPropertiesExceptionMapper.class
         );
     }
 
@@ -292,6 +294,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(licenseService).to(LicenseService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(EstimationHelper.class).to(EstimationHelper.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);

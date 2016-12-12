@@ -39,7 +39,7 @@ public class OutputInfoFactory {
         if (readingTypeDeliverable.getReadingType().isRegular()) {
             return asChannelOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
         } else {
-            return asRegisterOutputInfo(readingTypeDeliverable);
+            return asRegisterOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
         }
     }
 
@@ -47,7 +47,7 @@ public class OutputInfoFactory {
         if (readingTypeDeliverable.getReadingType().isRegular()) {
             return asFullChannelOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
         } else {
-            return asRegisterOutputInfo(readingTypeDeliverable);
+            return asRegisterOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
         }
     }
 
@@ -58,9 +58,19 @@ public class OutputInfoFactory {
         outputInfo.formula = readingTypeDeliverable.getFormula() != null ? FormulaInfo.asInfo(readingTypeDeliverableFactory.asInfo(readingTypeDeliverable).formula.description) : null;
     }
 
-    private RegisterOutputInfo asRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable) {
+    private RegisterOutputInfo asRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
         RegisterOutputInfo outputInfo = new RegisterOutputInfo();
         setCommonFields(outputInfo, readingTypeDeliverable);
+        Optional<ChannelsContainer> channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract);
+        outputInfo.deliverableType = readingTypeDeliverable.getType().getName();
+        channelsContainer
+                .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
+                .ifPresent(outputChannel -> {
+                    outputInfo.validationInfo = new UsagePointValidationStatusInfo();
+                    outputInfo.validationInfo.hasSuspects = validationStatusFactory.hasSuspects(Collections.singletonList(outputChannel), channelsContainer
+                            .get()
+                            .getRange());
+                });
         return outputInfo;
     }
 

@@ -38,7 +38,10 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_SUSPENDED(37, Keys.PROCESS_STATUS_SUSPENDED, "Suspended"),
     USAGE_POINT_SEARCH_DOMAIN_NOT_REGISTERED(38, "UsagePointSearchDomainNotRegistered", "Usage point search domain is not registered"),
     AT_LEAST_ONE_SEARCH_CRITERION(39, "AtLeastOneCriterion" , "At least one search criterion has to be provided"),
-    SEARCHABLE_PROPERTY_INVALID_VALUE(40, "SearchablePropertyInvalidValue", "Invalid value");
+    SEARCHABLE_PROPERTY_INVALID_VALUE(40, "SearchablePropertyInvalidValue", "Invalid value"),
+    INVALID_ESTIMATOR_PROPERTY_VALUE(41, "invalidEstimatorPropertyValue", "Invalid property value"),
+    ESTIMATOR_REQUIRED(42, "EstimatorRequired", "Please select an estimator"),
+    ESTIMATOR_NOT_FOUND(43, "EstimatorNotValid", "Provided estimator is not valid");
 
     private final int number;
     private final String key;

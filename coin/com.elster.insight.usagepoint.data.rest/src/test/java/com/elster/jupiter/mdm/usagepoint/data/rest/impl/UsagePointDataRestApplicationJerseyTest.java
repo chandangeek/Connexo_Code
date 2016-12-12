@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -252,6 +253,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(deliverable.getReadingType()).thenReturn(readingType);
         Formula formula = mockFormula(readingType, metrologyConfiguration);
         when(deliverable.getFormula()).thenReturn(formula);
+        when(deliverable.getType()).thenReturn(DeliverableType.NUMERICAL);
         return deliverable;
     }
 
