@@ -196,10 +196,25 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom {@link PropertySpec} of
-     * persistent instances of the specified api class.
+     * PrivateKeyAlias values
      *
      * @return the PropertySpecBuilder
      */
-    PropertySpecBuilderWizard.NlsOptions<Temporal> temporalSpec();
+    PropertySpecBuilderWizard.NlsOptions<PrivateKeyAlias> privateKeyAliasSpec();
 
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom {@link PropertySpec}
+     * for a Certificate alias
+     *
+     * @return the PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<CertificateAlias> certificateAliasSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom {@link PropertySpec}
+     * for a TimeZone alias
+     *
+     * @return the PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec();
 }

@@ -53,4 +53,8 @@ public enum Parities {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return parity; //TODO find a way to get the translations in here
+    }
 }

@@ -1,6 +1,5 @@
 package com.energyict.mdc.channels.serial.modem.postdialcommand;
 
-import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.protocol.ComChannel;
 
 /**
@@ -13,7 +12,7 @@ public abstract class AbstractAtPostDialCommand {
 
     public abstract void initAndVerifyCommand();
 
-    public abstract void execute(AtModemComponent modemComponent, ComChannel comChannel);
+    public abstract void execute(ModemComponent modemComponent, ComChannel comChannel);
 
     protected AbstractAtPostDialCommand(String command) {
         if (command.length() > 2) {

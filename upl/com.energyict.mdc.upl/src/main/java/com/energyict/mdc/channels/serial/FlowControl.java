@@ -39,4 +39,8 @@ public enum FlowControl {
                 .orElse(null);
     }
 
+    @Override
+    public String toString() {
+        return flowControl; //TODO find a way to get the translations in here
+    }
 }

@@ -3,10 +3,9 @@ package com.energyict.mdc.channels.serial.modem.postdialcommand;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 
 import java.math.BigDecimal;
 
@@ -43,10 +42,10 @@ public class AtSerialCommunicationSettingsCommand extends AbstractAtPostDialComm
     }
 
     @Override
-    public void execute(AtModemComponent modemComponent, ComChannel comChannel) {
+    public void execute(ModemComponent modemComponent, ComChannel comChannel) {
 
         // Do the actual parity switch. Baud rate is not changed and data is not flushed.
-        SerialPortConfiguration portConfiguration = ((SerialComChannel) comChannel).getSerialPort().getSerialPortConfiguration();
+        SerialPortConfiguration portConfiguration = ((SerialPortComChannel) comChannel).getSerialPort().getSerialPortConfiguration();
         portConfiguration.setParity(getParity());
         portConfiguration.setNrOfDataBits(getNrOfDataBits());
         portConfiguration.setNrOfStopBits(getNrOfStopBits());

@@ -6,10 +6,7 @@ import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractCaseModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractPEMPModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractPaknetModemProperties;
-import com.energyict.mdc.channels.serial.modem.AtModemComponent;
-import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
-import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
-import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,12 +31,12 @@ public interface SerialComponentFactory {
 
     public SerialPortComChannel newSerialComChannel(ServerSerialPort serialPort);
 
-    public AtModemComponent newAtModemComponent(AbstractAtModemProperties properties);
+    public ModemComponent newAtModemComponent(AbstractAtModemProperties properties);
 
-    public PaknetModemComponent newPaknetModemComponent(AbstractPaknetModemProperties properties);
+    public ModemComponent newPaknetModemComponent(AbstractPaknetModemProperties properties);
 
-    public PEMPModemComponent newPEMPModemComponent(AbstractPEMPModemProperties properties);
+    public ModemComponent newPEMPModemComponent(AbstractPEMPModemProperties properties);
 
-    public CaseModemComponent newCaseModemComponent(AbstractCaseModemProperties properties);
+    public ModemComponent newCaseModemComponent(AbstractCaseModemProperties properties);
 
 }
