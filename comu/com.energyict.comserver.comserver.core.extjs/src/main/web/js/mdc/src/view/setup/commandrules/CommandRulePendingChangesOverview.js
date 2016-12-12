@@ -13,15 +13,19 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePendingChangesOverview', {
 
     initComponent: function () {
         var me = this;
-
         me.content = {
             xtype: 'container',
             items: [
                 {
                     xtype: 'pendingChangesPanel',
                     itemId: 'mdc-command-rule-pending-changes-pnl',
-                    store: me.commandRuleRecord.changes(),
-                    acceptRejectAllowed: Mdc.privileges.CommandLimitationRules.canAcceptReject()
+                    store: Ext.isEmpty(me.commandRuleRecord.getDualControl())
+                        ? Ext.create('Uni.store.PendingChanges')
+                        : me.commandRuleRecord.getDualControl().changes(),
+                    acceptRejectButtonsVisible: Mdc.privileges.CommandLimitationRules.canAcceptReject(),
+                    acceptButtonDisabled: Ext.isEmpty(me.commandRuleRecord.getDualControl())
+                        ? false
+                        : me.commandRuleRecord.getDualControl().get('hasCurrentUserAccepted')
                 }
             ]
         };

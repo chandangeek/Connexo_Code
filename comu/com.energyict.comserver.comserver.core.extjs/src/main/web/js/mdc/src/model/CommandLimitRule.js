@@ -2,7 +2,7 @@ Ext.define('Mdc.model.CommandLimitRule',{
     extend: 'Uni.model.Version',
 
     requires: [
-        'Uni.model.PendingChange'
+        'Mdc.model.DualControlInfo'
     ],
 
     fields: [
@@ -14,6 +14,7 @@ Ext.define('Mdc.model.CommandLimitRule',{
         {name:'monthLimit', type: 'int'},
         {name:'commands', type: 'auto'},
         {name:'statusMessage', type: 'string', useNull: true},
+        {name: 'availableActions', type: 'auto'},
 
         {
             name: 'statusWithMessage',
@@ -30,14 +31,12 @@ Ext.define('Mdc.model.CommandLimitRule',{
 
     associations: [
         {
-            name: 'changes',
-            type: 'hasMany',
-            model: 'Uni.model.PendingChange',
-            associationKey: 'changes',
-            foreignKey: 'changes',
-            getTypeDiscriminator: function (node) {
-                return 'Uni.model.PendingChange';
-            }
+            name: 'dualControl',
+            type: 'hasOne',
+            model: 'Mdc.model.DualControlInfo',
+            associationKey: 'dualControl',
+            getterName: 'getDualControl',
+            setterName: 'setDualControl'
         }
     ],
 

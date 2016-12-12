@@ -151,6 +151,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             case menu.ACTION_TOGGLE_ACTIVATION:
                 if (record.get('active')===false) {
                     me.activateRule(record);
+                } else {
+                    me.deactivateRule(record);
                 }
                 break;
             case menu.ACTION_EDIT_RULE:
@@ -295,15 +297,15 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     },
 
     onDayLimitChange: function(radioGroup, newValue, oldValue) {
-        this.getDayLimitNumberField().setDisabled( newValue.dayLimit );
+        this.getDayLimitNumberField().setDisabled( newValue.noDayLimit );
     },
 
     onWeekLimitChange: function(radioGroup, newValue, oldValue) {
-        this.getWeekLimitNumberField().setDisabled( newValue.weekLimit );
+        this.getWeekLimitNumberField().setDisabled( newValue.noWeekLimit );
     },
 
     onMonthLimitChange: function(radioGroup, newValue, oldValue) {
-        this.getMonthLimitNumberField().setDisabled( newValue.monthLimit );
+        this.getMonthLimitNumberField().setDisabled( newValue.noMonthLimit );
     },
 
     onAddCommandsButtonClicked: function() {
@@ -493,17 +495,57 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     },
 
+    deactivateRule: function (rule) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
+                confirmation: function () {
+                    me.doDeactivateRule(rule, this);
+                }
+            });
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('commandRule.deactivateMsg', 'MDC', '[TBD] Two people have to approve the deactivation.'),
+            title: Uni.I18n.translate('general.deactivateRuleX', 'MDC', 'Deactivate "{0}"?', rule.get('name'))
+        });
+    },
+
+    doDeactivateRule: function(rule, confirmationWindow) {
+        var me = this;
+        rule.beginEdit();
+        rule.set('active', false);
+        rule.endEdit();
+        rule.save({
+            backUrl: me.router.getRoute('administration/commandrules').buildUrl(),
+            success: function () {
+                me.router.getRoute('administration/commandrules').forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.deactivate.success', 'MDC', 'Command limitation rule pending deactivation.'));
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                }
+            },
+            callback: function () {
+                confirmationWindow.destroy();
+            }
+        });
+
+    },
+
     removeRule: function(record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                 confirmation: function () {
-                    me.doRemoveRule(rule, this);
+                    me.doRemoveRule(record, this);
                 }
             });
         confirmationWindow.show({
-            msg: Uni.I18n.translate('commandRule.removeMsg', 'MDC', 'Message still to be defined.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', 'Remove {0}?', record.get('name'))
+            msg:  record.get('active')
+                ? Uni.I18n.translate('commandRule.removeActive.msg', 'MDC', 'The creation of commands will no longer be limited by this command limitation rule.')
+                : Uni.I18n.translate('commandRule.removeInactive.msg', 'MDC', 'The creation of commands will no longer be limited by this command limitation rule.'),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", record.get('name'))
         });
     },
 
@@ -519,9 +561,40 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     },
 
     onAcceptPendingChanges: function() {
+        this.performAcceptOrReject('accept');
     },
 
     onRejectPendingChanges: function() {
+        this.performAcceptOrReject('reject');
+    },
+
+    performAcceptOrReject: function(action) {
+        var me = this,
+            commandRuleId = me.commandRuleBeingEdited.get('id');
+
+        Ext.Ajax.request({
+            url: '/api/crr/commandrules/' + commandRuleId + '/' + action,
+            method: 'POST',
+            jsonData: me.commandRuleBeingEdited.getData(),
+            success: function (response) {
+                var jsonResponse = Ext.decode(response.responseText, true);
+                if (Ext.isEmpty(jsonResponse.dualControl)) { // No more pending changes
+                    if (me.commandRuleBeingEdited.getDualControl().get('pendingChangesType') === 'REMOVAL') { // Removal accepted, so
+                        me.router.getRoute('administration/commandrules').forward(); // navigate to the rules overview
+                    } else {
+                        if (action === 'accept') {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.accept.success', 'MDC', '[TBD] Command limitation rule saved.'));
+                        } else { // this was a reject
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.reject.success', 'MDC', '[TBD] Rejected message.'));
+                        }
+                        me.router.getRoute('administration/commandrules/view').forward({ruleId: commandRuleId}); // navigate to the rule's detail page
+                    }
+                } else {
+                    // Still others to accept, so refresh current page
+                    me.router.getRoute(me.router.currentRoute).forward();
+                }
+            }
+        });
     },
 
     addToClipBoard: function(itemToStore) {

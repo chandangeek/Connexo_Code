@@ -44,13 +44,25 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleActionMenu', {
     listeners: {
         beforeshow: function(menu) {
             var isActive = menu.record.get('active'),
-                toggleActivationMenuItem = menu.down('#mdc-command-rule-activation-toggle-menu-item');
+                availableActions = menu.record.get('availableActions'),
+                toggleActivationMenuItem = menu.down('#mdc-command-rule-activation-toggle-menu-item'),
+                editMenuItem = menu.down('#mdc-command-rule-edit-menu-item'),
+                removeMenuItem = menu.down('#mdc-command-rule-remove-menu-item');
 
             Ext.suspendLayouts();
             if (toggleActivationMenuItem) {
                 toggleActivationMenuItem.setText(isActive
                     ? Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate')
                     : Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
+                toggleActivationMenuItem.setDisabled(
+                    availableActions.indexOf(isActive ? 'DEACTIVATE' : 'ACTIVATE') === -1
+                );
+            }
+            if (editMenuItem) {
+                editMenuItem.setDisabled( availableActions.indexOf('EDIT') === -1 );
+            }
+            if (removeMenuItem) {
+                removeMenuItem.setDisabled( availableActions.indexOf('REMOVE') === -1 );
             }
             Ext.resumeLayouts(true);
         }
