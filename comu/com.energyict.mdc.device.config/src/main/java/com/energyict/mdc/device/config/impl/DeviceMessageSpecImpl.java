@@ -97,8 +97,7 @@ class DeviceMessageSpecImpl implements DeviceMessageSpec {
     }
 
     private boolean relatesToDeviceMessageFile(ValueFactory valueFactory) {
-        return valueFactory.isReference()
-                && com.energyict.mdc.protocol.api.DeviceMessageFile.class.isAssignableFrom(valueFactory.getValueType());
+        return com.energyict.mdc.protocol.api.DeviceMessageFile.class.isAssignableFrom(valueFactory.getValueType());
     }
 
 }
