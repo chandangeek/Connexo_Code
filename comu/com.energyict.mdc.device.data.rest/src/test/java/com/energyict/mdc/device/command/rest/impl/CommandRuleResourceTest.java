@@ -17,6 +17,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
@@ -30,6 +31,7 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -125,8 +127,9 @@ public class CommandRuleResourceTest extends FelixRestApplicationJerseyTest {
         CommandRule commandRule = mockCommandRule();
         CommandRuleInfo commandRuleInfo = new CommandRuleInfo();
         commandRuleInfo.active = true;
+        commandRuleInfo.version = 1L;
         when(commandRule.isActive()).thenReturn(false);
-        when(commandRuleService.findCommandRule(1L)).thenReturn(Optional.of(commandRule));
+        when(commandRuleService.findAndLockCommandRule(1L,1L)).thenReturn(Optional.of(commandRule));
         Entity<CommandRuleInfo> json = Entity.json(commandRuleInfo);
         target("/commandrules/1").request().put(json);
         verify(commandRule).activate();
@@ -137,8 +140,9 @@ public class CommandRuleResourceTest extends FelixRestApplicationJerseyTest {
         CommandRule commandRule = mockCommandRule();
         CommandRuleInfo commandRuleInfo = new CommandRuleInfo();
         commandRuleInfo.active = false;
+        commandRuleInfo.version = 1L;
         when(commandRule.isActive()).thenReturn(true);
-        when(commandRuleService.findCommandRule(1L)).thenReturn(Optional.of(commandRule));
+        when(commandRuleService.findAndLockCommandRule(1L, 1L)).thenReturn(Optional.of(commandRule));
         Entity<CommandRuleInfo> json = Entity.json(commandRuleInfo);
         target("/commandrules/1").request().put(json);
         verify(commandRule).deactivate();

@@ -25,6 +25,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -81,7 +82,7 @@ public class CommandRuleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE, Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public CommandRuleInfo getCommandRule(@PathParam("id") long id) {
-        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return commandRuleInfoFactory.createWithChanges(commandRule);
     }
 
@@ -92,7 +93,7 @@ public class CommandRuleResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response changeCommandRule(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         if (!commandRule.isActive() && commandRuleInfo.active) {
             commandRule.activate();
         } else if (commandRule.isActive() && !commandRuleInfo.active) {
@@ -108,7 +109,7 @@ public class CommandRuleResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response deleteCommandRule(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule =  commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        CommandRule commandRule =  commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         commandRuleService.deleteRule(commandRule);
         return Response.ok().build();
     }
@@ -120,7 +121,7 @@ public class CommandRuleResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response acceptChanges(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         commandRule.approve();
         return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
@@ -133,7 +134,7 @@ public class CommandRuleResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response rejectChanges(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new IllegalArgumentException("No command rule with given id"));
+        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         commandRule.reject();
         return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
