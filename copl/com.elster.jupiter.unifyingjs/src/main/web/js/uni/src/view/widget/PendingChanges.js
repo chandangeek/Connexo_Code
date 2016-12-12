@@ -10,7 +10,8 @@ Ext.define('Uni.view.widget.PendingChanges', {
 
     title: Uni.I18n.translate('general.pendingChanges', 'UNI', 'Pending changes'),
     ui: 'large',
-    acceptRejectAllowed: true,
+    acceptRejectButtonsVisible: true,
+    acceptButtonDisabled: false,
 
     initComponent: function() {
         var me = this;
@@ -29,17 +30,18 @@ Ext.define('Uni.view.widget.PendingChanges', {
             {
                 xtype: 'container',
                 itemId: 'uni-pendingChangesPnl-button-container',
-                hidden: !me.acceptRejectAllowed,
+                hidden: !me.acceptRejectButtonsVisible,
                 defaults: {
                     xtype: 'button'
                 },
                 items: [
                     {
-                        text: Uni.I18n.translate('general.accept', 'MDC', 'Accept'),
-                        itemId: 'uni-pendingChangesPnl-accept'
+                        text: Uni.I18n.translate('general.accept', 'UNI', 'Accept'),
+                        itemId: 'uni-pendingChangesPnl-accept',
+                        disabled: me.acceptButtonDisabled
                     },
                     {
-                        text: Uni.I18n.translate('general.reject', 'MDC', 'Reject'),
+                        text: Uni.I18n.translate('general.reject', 'UNI', 'Reject'),
                         itemId: 'uni-pendingChangesPnl-reject'
                     }
                 ]
@@ -60,9 +62,14 @@ Ext.define('Uni.view.widget.PendingChanges', {
                 message.setText(Uni.I18n.translate('general.noPendingChanges', 'UNI', 'No pending changes found.'));
                 message.show();
             } else {
-                message.hide();
+                if (panel.acceptButtonDisabled) {
+                    message.setText(Uni.I18n.translate('general.waitingForOtherAcceptances', 'UNI', '[TBD] Other people have to accept.'));
+                    message.show();
+                } else {
+                    message.hide();
+                }
             }
-            buttonContainer.setVisible(panel.acceptRejectAllowed && changesCount > 0);
+            buttonContainer.setVisible(panel.acceptRejectButtonsVisible && changesCount > 0);
         }
     }
 });
