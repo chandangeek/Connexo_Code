@@ -58,7 +58,9 @@ import javax.swing.text.html.Option;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -379,5 +381,25 @@ public class CommandRuleIT {
             builder.command(DeviceMessageId.values()[i].name());
         }
         return builder.add();
+    }
+
+    @Test
+    @Transactional
+    public void testEditInactive() {
+        CommandRule testRule = createRule("test4", 10, 11, 12, 1);
+        Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isPresent();
+        List<String> commandNames = Collections.singletonList(DeviceMessageId.values()[5].name());
+
+        testRule.update("test2",5 , 8, 10, commandNames);
+        reloadedRule = commandRuleService.findCommandRule(testRule.getId());
+        assertThat(reloadedRule).isPresent();
+        testRule = reloadedRule.get();
+        assertThat(testRule.getName()).isEqualTo("test2");
+        assertThat(testRule.getDayLimit()).isEqualTo(5);
+        assertThat(testRule.getWeekLimit()).isEqualTo(8);
+        assertThat(testRule.getMonthLimit()).isEqualTo(10);
+        assertThat(testRule.getCommands().size()).isEqualTo(1);
+        assertThat(testRule.getCommands().get(0).getCommand().getId().name()).isEqualTo(DeviceMessageId.values()[5].name());
     }
 }

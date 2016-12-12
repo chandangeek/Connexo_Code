@@ -5,7 +5,10 @@ import com.elster.jupiter.domain.util.Save;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
+import com.energyict.mdc.device.command.impl.constraintvalidators.HasUniqueCommands;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
+import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.elster.jupiter.dualcontrol.PendingUpdate;
 import com.elster.jupiter.orm.DataModel;
 
@@ -16,7 +19,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_NAME + "}")
 @HasValidLimits(groups = {Save.Create.class, Save.Update.class})
+@HasUniqueCommands(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMMAND + "}")
 public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
 
     enum Fields {
@@ -40,7 +45,6 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
         String fieldName() {
             return javaFieldName;
         }
-
     }
 
     private final DataModel dataModel;
@@ -58,6 +62,7 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
     private boolean isDeactivation = false;
     private boolean isRemoval = false;
     private List<CommandInRule> commands = new ArrayList<>();
+    private CommandRule commandRule;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -79,6 +84,9 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
         this.weekLimit = commandRule.getWeekLimit();
         this.monthLimit = commandRule.getMonthLimit();
         this.active = commandRule.isActive();
+        this.commandRule = commandRule;
+        commandRule.getCommands().stream()
+                .forEach(commandInRule -> this.addCommand(commandInRule.getCommand()));
         return this;
     }
 
@@ -86,6 +94,20 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
         this.initialize(commandRule);
         this.isRemoval = true;
         return this;
+    }
+
+    public void setNewValues(String name, long dayLimit, long weekLimit, long monthLimit, List<DeviceMessageSpec> commands) {
+        this.name = name;
+        this.dayLimit = dayLimit;
+        this.weekLimit = weekLimit;
+        this.monthLimit = monthLimit;
+        commands.clear();
+        commands.stream().forEach(this::addCommand);
+    }
+
+    public void addCommand(DeviceMessageSpec deviceMessageSpec) {
+        CommandInRuleImpl commandInRule = this.dataModel.getInstance(CommandInRuleImpl.class).initialize(deviceMessageSpec, this);
+        this.commands.add(commandInRule);
     }
 
     @Override
@@ -152,5 +174,9 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
     @Override
     public boolean isRemoval() {
         return isRemoval;
+    }
+
+    public CommandRule getCommandRule() {
+        return commandRule;
     }
 }

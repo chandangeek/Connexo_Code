@@ -15,6 +15,7 @@ import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits
 import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.google.inject.Inject;
 
@@ -25,10 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_NAME + "}")
 @HasValidLimits(groups = {Save.Create.class, Save.Update.class})
-@HasUniqueCommands(groups= {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMMAND + "}")
+@HasUniqueCommands(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMMAND + "}")
 public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRulePendingUpdate> {
 
     public enum Fields {
@@ -134,23 +136,28 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     @Override
     public void activate() {
-        if(this.isActive()) {
+        if (this.isActive()) {
             throw new IllegalArgumentException("Already active");
         }
-        CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
-        update.initialize(this);
+        CommandRulePendingUpdateImpl update = createNewPendingUpdate();
         update.setActive(true);
         update.save();
         getMonitor().request(update, this);
     }
 
-    @Override
-    public void deactivate() {
-        if(!this.isActive()) {
-            throw new IllegalArgumentException("Already inactive");
-        }
+    private CommandRulePendingUpdateImpl createNewPendingUpdate() {
+        clearUpdate();
         CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
         update.initialize(this);
+        return update;
+    }
+
+    @Override
+    public void deactivate() {
+        if (!this.isActive()) {
+            throw new IllegalArgumentException("Already inactive");
+        }
+        CommandRulePendingUpdateImpl update = createNewPendingUpdate();
         update.setActive(false);
         update.save();
         getMonitor().request(update, this);
@@ -171,6 +178,28 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         return this.commandRulePendingUpdate.isPresent() && this.getMonitor().hasCurrentUserAccepted();
     }
 
+    @Override
+    public void update(String name, long dayLimit, long weekLimit, long monthLimit, List<String> commands) {
+        List<DeviceMessageSpec> deviceMessageSpecs = commands.stream()
+                .map(command -> deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.valueOf(command).dbValue()).get())
+                .collect(Collectors.toList());
+        clearUpdate();
+        if (!isActive()) {
+            this.name = name;
+            this.dayLimit = dayLimit;
+            this.weekLimit = weekLimit;
+            this.monthLimit = monthLimit;
+            this.commands.clear();
+            deviceMessageSpecs.stream().forEach(this::addCommand);
+            save();
+        } else {
+            CommandRulePendingUpdateImpl update = createNewPendingUpdate();
+            update.setNewValues(name, dayLimit, weekLimit, monthLimit, deviceMessageSpecs);
+            update.save();
+            getMonitor().request(update, this);
+        }
+    }
+
     public void save() {
         if (this.getId() > 0) {
             doUpdate();
@@ -189,7 +218,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     }
 
     public void delete() {
-        if(!active) {
+        if (!active) {
             actualDelete();
         } else {
             createDeleteRequest();
@@ -238,7 +267,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     @Override
     public Optional<CommandRulePendingUpdate> getPendingUpdate() {
-       return commandRulePendingUpdate.getOptional();
+        return commandRulePendingUpdate.getOptional();
     }
 
     @Override
@@ -259,16 +288,20 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
             weekLimit = commandRulePendingUpdate.getWeekLimit();
             monthLimit = commandRulePendingUpdate.getMonthLimit();
             active = commandRulePendingUpdate.isActive();
+            this.commands.clear();
+            commandRulePendingUpdate.getCommands()
+                    .stream()
+                    .forEach(commandInRule -> this.addCommand(commandInRule.getCommand()));
             this.save();
         });
     }
 
     @Override
     public void clearUpdate() {
-        if(commandRulePendingUpdate.isPresent()) {
+        if (commandRulePendingUpdate.isPresent()) {
             CommandRulePendingUpdate entity = commandRulePendingUpdate.get();
             commandRulePendingUpdate.setNull();
-            if(!entity.isRemoval()) {
+            if (!entity.isRemoval()) {
                 this.save();
             }
             dataModel.remove(entity);

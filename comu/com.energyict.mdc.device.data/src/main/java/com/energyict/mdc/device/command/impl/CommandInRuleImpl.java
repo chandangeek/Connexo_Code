@@ -59,9 +59,11 @@ public class CommandInRuleImpl implements CommandInRule {
         this.commandId = command.getId().dbValue();
         this.commandRule.set(commandRule);
         return this;
-    };
-    CommandInRuleImpl initialize(DeviceMessageSpec command, CommandRule commandRule, CommandRulePendingUpdate commandRuleTemplate) {
-        this.initialize(command, commandRule);
+    }
+
+    CommandInRuleImpl initialize(DeviceMessageSpec command, CommandRulePendingUpdate commandRuleTemplate) {
+        this.command = command;
+        this.commandId = command.getId().dbValue();
         this.commandRulePendingUpdate.set(commandRuleTemplate);
         return this;
     }

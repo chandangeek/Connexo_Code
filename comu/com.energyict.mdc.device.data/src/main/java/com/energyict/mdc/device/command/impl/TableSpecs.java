@@ -87,7 +87,7 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.column("COMMAND").number().conversion(ColumnConversion.NUMBER2INT).map(CommandInRuleImpl.Fields.COMMANDID.fieldName()).notNull().add();
-            Column commandRule = table.column("COMMANDRULEID").number().notNull().add();
+            Column commandRule = table.column("COMMANDRULEID").number().add();
             Column commandRuleTemplate = table.column("COMMANDRULETEMPLATEID").number().add();
 
             table.primaryKey("PK_CLR_CMDINRULE").on(idColumn).add();
