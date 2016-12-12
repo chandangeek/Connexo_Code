@@ -1,17 +1,12 @@
 package com.energyict.mdc.device.command.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.DualControlChangeInfo;
-import com.energyict.mdc.device.command.CommandRule;
-import com.energyict.mdc.device.command.CommandRulePendingUpdate;
-
-import com.google.inject.Inject;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CommandRuleInfo {
     public long id;
     public String name;
