@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.channels.SynchroneousComChannel;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DeviceLogBook;
 import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.SynchroneousComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;

@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.serial.rf;
 
+import com.energyict.mdc.channels.SynchroneousComChannel;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.protocol.SynchroneousComChannel;
 
 import java.io.InputStream;
 import java.io.OutputStream;
