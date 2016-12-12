@@ -6,11 +6,27 @@ Ext.define('Imt.purpose.model.RegisterReading', {
     fields: [
         {name: 'value', type: 'auto', useNull: true},
         {name: 'timeStamp', type: 'auto', useNull: true},
-        {name: 'type', type: 'auto', defaultValue: 'numerical'},
+        {name: 'type', type: 'auto'},
         {name: 'validationResult', type: 'auto', useNull: true, persist: false},
         {name: 'validationRules', type: 'auto', useNull: true, persist: false},
         {name: 'isConfirmed', type: 'auto'},
         {name: 'calculatedValue', type: 'auto'},
+        {name: 'reportedDateTime', type: 'auto'},
+        {name: 'interval', type:'auto', useNull: true},
+        {
+            name: 'interval.end',
+            // persist: false,
+            // mapping: 'interval.end',
+            defaultValue: null,
+            useNull: true
+        },
+        {
+            name: 'interval.start',
+            // persist: false,
+            // mapping: 'interval.start',
+            defaultValue: null,
+            useNull: true
+        },
         {name: 'confirmedNotSaved', type: 'auto', useNull: true, persist: false},
         {
             name: 'readingProperties',

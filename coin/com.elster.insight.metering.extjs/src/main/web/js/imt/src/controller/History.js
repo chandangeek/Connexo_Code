@@ -294,24 +294,14 @@ Ext.define('Imt.controller.History', {
                                             route: 'add',
                                             controller: 'Imt.purpose.controller.RegisterData',
                                             action: 'showAddRegisterData',
-                                            // privileges:
-                                            // Uni.Auth.checkPrivileges(Imt.privileges.MetrologyConfig.view)
-                                            // &&  Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.view),
-                                            // callback: function (route) {
-                                            //     this.getApplication().on('output-loaded', function (output) {
-                                            //         if (output) {
-                                            //             route.setTitle(output.get('name'));
-                                            //         }
-                                            //         return true;
-                                            //     }, {single: true});
-                                            //     return this;
-                                            // }
+                                            privileges: Imt.privileges.UsagePoint.admin
                                         },
                                         editregisterdata: {
                                             title: Uni.I18n.translate('general.label.editReading', 'IMT', 'Edit reading'),
                                             route: '{timestamp}/edit',
                                             controller: 'Imt.purpose.controller.RegisterData',
                                             action: 'showEditRegisterData',
+                                            privileges: Imt.privileges.UsagePoint.admin
                                         }
                                     }
                                 }

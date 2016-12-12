@@ -1,5 +1,5 @@
-Ext.define('Imt.purpose.view.registers.billing.Edit', {
-    extend: 'Imt.purpose.view.registers.MainEdit',
+Ext.define('Imt.purpose.view.registers.billing.AddEdit', {
+    extend: 'Imt.purpose.view.registers.MainAddEdit',
     alias: 'widget.add-billing-register-reading',
     itemId: 'add-billing-register-reading',
 
@@ -74,7 +74,7 @@ Ext.define('Imt.purpose.view.registers.billing.Edit', {
                         itemId: 'timeStampDisplayField',
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
-                                Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
+                                return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
                                     [ Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]
                                 )
                             }
@@ -86,7 +86,7 @@ Ext.define('Imt.purpose.view.registers.billing.Edit', {
                         xtype: 'fieldcontainer',
                         itemId: 'timeStampContainer',
                         required: true,
-                        fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'IMT', 'Measurement time'),
+                        fieldLabel: Uni.I18n.translate('usagepoint.registerData.measurementTime', 'IMT', 'Measurement time'),
                         defaults: {
                             width: '100%'
                         },
@@ -104,7 +104,7 @@ Ext.define('Imt.purpose.view.registers.billing.Edit', {
                         xtype: 'fieldcontainer',
                         itemId: 'intervalStartContainer',
                         required: true,
-                        fieldLabel: Uni.I18n.translate('device.registerData.interval.start', 'IMT', 'Start of period'),
+                        fieldLabel: Uni.I18n.translate('usagepoint.registerData.interval.start', 'IMT', 'Start of period'),
                         defaults: {
                             width: '100%'
                         },
@@ -122,7 +122,7 @@ Ext.define('Imt.purpose.view.registers.billing.Edit', {
                         xtype: 'fieldcontainer',
                         itemId: 'intervalEndtContainer',
                         required: true,
-                        fieldLabel: Uni.I18n.translate('device.registerData.interval.end', 'IMT', 'End of period'),
+                        fieldLabel: Uni.I18n.translate('usagepoint.registerData.interval.end', 'IMT', 'End of period'),
                         defaults: {
                             width: '100%'
                         },
@@ -139,7 +139,7 @@ Ext.define('Imt.purpose.view.registers.billing.Edit', {
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'valueContainer',
-                        fieldLabel: Uni.I18n.translate('device.registerData.value', 'IMT', 'Value'),
+                        fieldLabel: Uni.I18n.translate('usagepoint.registerData.value', 'IMT', 'Value'),
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -180,7 +180,8 @@ Ext.define('Imt.purpose.view.registers.billing.Edit', {
                                 text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                                 xtype: 'button',
                                 ui: 'link',
-                                itemId: 'cancelLink'
+                                itemId: 'cancelLink',
+                                href: me.returnLink
                             }
                         ]
                     }

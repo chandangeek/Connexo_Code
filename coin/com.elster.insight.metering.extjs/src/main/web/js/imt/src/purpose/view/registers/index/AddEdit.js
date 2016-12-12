@@ -41,17 +41,8 @@ Ext.define('Imt.purpose.view.registers.index.AddEdit', {
         me.callParent(arguments);
     },
 
-    // isValid: function () {
-    //     // var me = this;
-    //     // me.callParent(arguments);
-    // },
-
     initComponent: function () {
-        var me = this,
-        defaults = {
-            xtype: 'displayfield',
-            labelWidth: 200
-        };
+        var me = this;
 
         me.content = [
             {
@@ -153,7 +144,8 @@ Ext.define('Imt.purpose.view.registers.index.AddEdit', {
                                 text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                                 xtype: 'button',
                                 ui: 'link',
-                                itemId: 'cancelLink'
+                                itemId: 'cancelLink',
+                                href: me.returnLink
                             }
                         ]
                     }

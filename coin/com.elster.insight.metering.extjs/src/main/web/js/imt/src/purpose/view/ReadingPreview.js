@@ -67,7 +67,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     },
 
     getValidationResult: function (validationResult) {
-        var validationResultText = '';
+        var me =this,
+            validationResultText = '',
+            record = me.down('form').getRecord();
 
         switch (validationResult.split('.')[1]) {
             case 'notValidated':
@@ -80,6 +82,10 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 break;
             case 'ok':
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
+                if(record.get('isConfirmed')){
+                    validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+                }
+
                 break;
         }
 
@@ -126,7 +132,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             generalTimeField,
             {
                 fieldLabel: Uni.I18n.translate('reading.readingTime', 'IMT', 'Reading time'),
-                name: 'readingTime',
+                name: 'reportedDateTime',
                 itemId: 'reading-time-field',
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';

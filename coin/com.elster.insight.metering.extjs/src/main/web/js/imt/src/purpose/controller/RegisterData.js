@@ -2,7 +2,11 @@ Ext.define('Imt.purpose.controller.RegisterData', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Imt.purpose.view.registers.index.AddEdit'
+        'Imt.purpose.view.registers.index.AddEdit',
+        'Imt.purpose.view.registers.text.AddEdit',
+        'Imt.purpose.view.registers.flag.AddEdit',
+        'Imt.purpose.view.registers.billing.AddEdit',
+        'Imt.purpose.view.registers.RegisterTypesMap'
     ],
 
     stores: [
@@ -44,7 +48,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
         },
         {
             ref: 'addReading',
-            selector: 'add-index-register-reading'
+            selector: 'add-main-register-reading'
         }
     ],
 
@@ -57,7 +61,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                     }
                 }
             },
-            'add-index-register-reading #addEditButton': {
+            'add-main-register-reading #addEditButton': {
                 click: this.saveReading
             },
             'purpose-register-readings-data-action-menu': {
@@ -115,6 +119,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             outputModel = me.getModel('Imt.purpose.model.Output'),
             reading = Ext.create('Imt.purpose.model.RegisterReading'),
             output,
+            previousQueryString = me.getController('Uni.controller.history.EventBus').getPreviousQueryString()!==null ? '?'+me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : '',
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading(true);
@@ -136,10 +141,11 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                                     app.fireEvent('output-loaded', output);
                                     me.output = output;
 
-                                    var widget = Ext.widget('add-index-register-reading', {
+                                    var widget = Ext.widget(Imt.purpose.view.registers.RegisterTypesMap.getAddEditForms(record.get('deliverableType')), {
                                         edit: false,
                                         router: router,
-                                        returnLink: router.getRoute('usagepoints/view/purpose/output').buildUrl()
+                                        returnLink: router.getRoute('usagepoints/view/purpose/output').buildUrl() + previousQueryString,
+                                        menuHref: router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl()
                                     });
                                     widget.down('#registerDataEditForm').loadRecord(reading);
                                     me.getApplication().fireEvent('changecontentevent', widget);
@@ -164,8 +170,8 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
             outputModel = me.getModel('Imt.purpose.model.Output'),
             readingModel = me.getModel('Imt.purpose.model.RegisterReading'),
-            reading = Ext.create('Imt.purpose.model.RegisterReading'),
             output,
+            previousQueryString = me.getController('Uni.controller.history.EventBus').getPreviousQueryString()!==null ? '?'+me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : '',
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading(true);
@@ -189,10 +195,11 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                                     readingModel.getProxy().extraParams = {usagePointId: usagePointName, purposeId: purposeId, outputId: outputId};
                                     readingModel.load(timestamp, {
                                         success: function (record) {
-                                            var widget = Ext.widget('add-index-register-reading', {
+                                            var widget = Ext.widget(Imt.purpose.view.registers.RegisterTypesMap.getAddEditForms(output.get('deliverableType')), {
                                                 edit: true,
                                                 router: router,
-                                                returnLink: router.getRoute('usagepoints/view/purpose/output').buildUrl()
+                                                returnLink: router.getRoute('usagepoints/view/purpose/output').buildUrl() + previousQueryString,
+                                                menuHref: router.getRoute('usagepoints/view/purpose/output/editregisterdata').buildUrl()
                                             });
                                             widget.down('#registerDataEditForm').loadRecord(record);
                                             me.getApplication().fireEvent('changecontentevent', widget);
@@ -224,12 +231,15 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             addReadingView.hideErrors();
             addReadingView.down('#registerDataEditForm').updateRecord();
             reading = addReadingView.down('#registerDataEditForm').getRecord();
+            reading.set('type', me.output.get('deliverableType'));
+            if (me.output.get('deliverableType') == 'billing') {
+                reading.set("interval", {start: reading.get('interval.start'), end: reading.get('interval.end')});
+            }
             reading.getProxy().setParams(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
             reading.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagepoint.registerData.updated', 'IMT', 'Register data saved'));
-                    router.getRoute('usagepoints/view/purpose/output').forward();
-                    // window.history.back();
+                    window.history.back();
                 },
                 failure: function (record, resp) {
                     var response = resp.response;
@@ -241,7 +251,6 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                     }
                 },
                 callback: function () {
-                    // me.clearPreLoader();
                 }
             });
         }
@@ -297,10 +306,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             record.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', msg);
-                    router.getRoute('usagepoints/view/purpose/output').forward();
-                },
-                callback: function () {
-                    // me.clearPreLoader();
+                    window.history.back();
                 }
             })
         }

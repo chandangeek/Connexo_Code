@@ -76,6 +76,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 xtype: 'uni-actioncolumn',
                 itemId: 'channel-data-grid-action-column',
+                privileges: Imt.privileges.UsagePoint.admin,
                 menu: {
                     xtype: 'purpose-readings-data-action-menu',
                     itemId: 'purpose-readings-data-action-menu'
