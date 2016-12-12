@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.device.alarms.extjs
+Export-Package: !com.energyict.mdc.device.alarms.extjs
+-include: -../development.bnd
