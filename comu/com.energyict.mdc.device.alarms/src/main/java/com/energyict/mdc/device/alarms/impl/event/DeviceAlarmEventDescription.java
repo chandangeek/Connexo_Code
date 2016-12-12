@@ -2,6 +2,7 @@ package com.energyict.mdc.device.alarms.impl.event;
 
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
+import com.energyict.mdc.device.alarms.event.EndDeviceEventCreatedEvent;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 
@@ -17,8 +18,8 @@ import static com.elster.jupiter.util.Checks.is;
 
 public enum DeviceAlarmEventDescription implements EventDescription {
     END_DEVICE_EVENT_CREATED(
-            "com/elster/jupiter/enddeviceevent/CREATED",
-            DeviceAlarmEvent.class,
+            "com/elster/jupiter/metering/enddeviceevent/CREATED",
+            EndDeviceEventCreatedEvent.class,
             TranslationKeys.END_DEVICE_EVENT_CREATED) {
         public boolean validateEvent(Map<?, ?> map) {
             if (super.validateEvent(map)) {

@@ -18,9 +18,7 @@ import com.google.inject.Injector;
 import java.time.Instant;
 import java.util.Map;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent{
+public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
 
     private long endDeviceId;
     private String endDeviceEventType;
@@ -48,7 +46,9 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent{
         if (issue instanceof OpenDeviceAlarm) {
             OpenDeviceAlarm deviceAlarm = (OpenDeviceAlarm) issue;
             //TODO
-           // deviceAlarm.addRelatedAlarmEvent();
+            // deviceAlarm.addRelatedAlarmEvent();
+            deviceAlarm.addRelatedAlarmEvent(endDeviceId, endDeviceEventType, eventTimestamp);
+
 
         }
     }
@@ -57,6 +57,6 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent{
     protected Condition getConditionForExistingIssue() {
         //TODO
         return null;
-                //where("issue.id").isEqualTo().and(where().isNull());
+        //where("issue.id").isEqualTo().and(where().isNull());
     }
 }

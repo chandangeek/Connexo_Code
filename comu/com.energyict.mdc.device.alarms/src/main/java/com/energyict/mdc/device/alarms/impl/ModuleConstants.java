@@ -4,13 +4,8 @@ public final class ModuleConstants {
     private ModuleConstants() {
     }
 
-    public static final String REASON_UNKNOWN_INBOUND_DEVICE = "reason.unknown.inbound.device";
-    public static final String REASON_UNKNOWN_OUTBOUND_DEVICE = "reason.unknown.outbound.device";
-    public static final String REASON_FAILED_TO_COMMUNICATE = "reason.failed.to.communicate";
-    public static final String REASON_CONNECTION_SETUP_FAILED = "reason.connection.setup.failed";
-    public static final String REASON_CONNECTION_FAILED = "reason.connection.failed";
-    public static final String REASON_POWER_OUTAGE = "reason.power.outage";
-    public static final String REASON_TYME_SYNC_FAILED = "reason.tyme.sync.failed";
+    public static final String ALARM_REASON = "alarm.reason";
+;
 
     public static final String END_DEVICE_EVENT_CREATED = "end.device.event.created";
     public static final String AQ_DEVICE_ALARM_EVENT_SUBSC = "DeviceAlarmCreation";
@@ -24,6 +19,7 @@ public final class ModuleConstants {
     public static final String PARAMETER_NAME_EVENT_TYPE = "parameterNameEventType";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_NAME = "basicTemplateDeviceAlarmName";
     public static final String ISSUE_TYPE_DEVICE_ALARM = "issueTypeDeviceAlarm";
+    public static final String ALARM_REASON_DESCRIPTION = "alarmReasonDescription";
 
     public static final long MDC_AMR_SYSTEM_ID = 1L;
 

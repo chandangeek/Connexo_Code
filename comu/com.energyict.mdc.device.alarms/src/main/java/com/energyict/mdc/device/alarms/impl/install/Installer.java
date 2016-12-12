@@ -17,6 +17,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.database.CreateDeviceAlarmViewOperation;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
 public class Installer implements FullInstaller, PrivilegesProvider {
-    private static final Logger LOG = Logger.getLogger("DeviceAlarmIssueInstaller");
+    private static final Logger LOGGER = Logger.getLogger("DeviceAlarmIssueInstaller");
 
     private final MessageService messageService;
     private final IssueService issueService;
@@ -62,7 +63,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             IssueType issueType = setSupportedIssueType();
             setDeviceAlarmReasons(issueType);
         }, "issue reasons and action types", logger);
-        run(this::publishEvents, "event publishing", logger);
+        run(this::publishEvents, "publishing events", logger);
     }
 
     @Override
@@ -111,7 +112,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             destinationSpec.subscribe(
                     TranslationKeys.AQ_DEVICE_ALARM_EVENT_SUBSC,
                     DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN,
-                    whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED"));
+                    whereCorrelationId().isEqualTo("com/elster/jupiter/metering/enddeviceevent/CREATED"));
 
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
@@ -120,8 +121,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     private void setDeviceAlarmReasons(IssueType issueType) {
         //TODO - reasons to be input by hand by user in UI
-       /* issueService.createReason(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE, issueType,
-                TranslationKeys.ISSUE_REASON_UNKNOWN_INBOUND_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNKNOWN_INBOUND_DEVICE); */
+        issueService.createReason(ModuleConstants.ALARM_REASON, issueType,
+                TranslationKeys.ALARM_REASON, TranslationKeys.ALARM_REASON_DESCRIPTION);
 
     }
 

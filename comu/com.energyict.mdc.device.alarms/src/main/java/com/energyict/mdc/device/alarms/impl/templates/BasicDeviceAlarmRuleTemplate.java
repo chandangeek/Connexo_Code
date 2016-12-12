@@ -34,6 +34,8 @@ import java.util.Optional;
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     static final String NAME = "BasicDeviceAlarmRuleTemplate";
 
+    public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
+
     public static final String EVENTTYPE = NAME + ".eventType";
 
     //for OSGI

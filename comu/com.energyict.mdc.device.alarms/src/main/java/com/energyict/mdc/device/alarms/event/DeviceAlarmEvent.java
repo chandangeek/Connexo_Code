@@ -57,20 +57,8 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
 
     public abstract void init(Map<?, ?> jsonPayload);
 
-    protected DeviceAlarmService getDeviceAlarmService() {
-        return deviceAlarmService;
-    }
-
-    protected MeteringService getMeteringService() {
-        return meteringService;
-    }
-
     protected TopologyService getTopologyService() {
         return topologyService;
-    }
-
-    protected DeviceService getDeviceService() {
-        return deviceService;
     }
 
     protected Thesaurus getThesaurus(){
@@ -115,7 +103,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
 */
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
-        device = getDeviceService().findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
+        device = deviceService.findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
     }
 
     protected void getEventTimestamp(Map<?, ?> rawEvent) {
@@ -127,7 +115,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         if (device == null) { //for unknown inbound device
             return Optional.empty();
         }
-        Optional<AmrSystem> amrSystemRef = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId());
+        Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
         if (amrSystemRef.isPresent()) {
             Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
             if (meterRef.isPresent()) {

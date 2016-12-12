@@ -9,15 +9,17 @@ public enum TranslationKeys implements TranslationKey {
     AQ_DEVICE_ALARM_EVENT_SUBSC(ModuleConstants.AQ_DEVICE_ALARM_EVENT_SUBSC, ModuleConstants.AQ_DEVICE_ALARM_EVENT_DISPLAYNAME),
     END_DEVICE_EVENT_CREATED(ModuleConstants.END_DEVICE_EVENT_CREATED, ModuleConstants.END_DEVICE_EVENT_CREATED),
     BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION(ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION, ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION),
-    BASIC_TEMPLATE_DEVICE_ALARM_NAME(ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_NAME, ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_NAME),
+    BASIC_TEMPLATE_DEVICE_ALARM_NAME(ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_NAME, "Device Alarm Template"),
     PARAMETER_NAME_EVENT_TYPE(BasicDeviceAlarmRuleTemplate.EVENTTYPE, "Event"),
-    ISSUE_TYPE_DEVICE_ALARM(ModuleConstants.ISSUE_TYPE_DEVICE_ALARM,ModuleConstants.ISSUE_TYPE_DEVICE_ALARM),
+    ISSUE_TYPE_DEVICE_ALARM(ModuleConstants.ISSUE_TYPE_DEVICE_ALARM, "Device Alarm"),
     CLOSE_ACTION_PROPERTY_CLOSE_STATUS(CloseDeviceAlarmAction.CLOSE_STATUS, "Close status"),
     CLOSE_ACTION_PROPERTY_COMMENT(CloseDeviceAlarmAction.COMMENT, "Comment"),
     CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
     CLOSE_ACTION_ALARM_WAS_CLOSED("action.alarm.was.closed", "Alarm was closed"),
     CLOSE_ACTION_ALARM_ALREADY_CLOSED("action.alarm.already.closed", "Alarm already closed"),
     CLOSE_ACTION_CLOSE_ISSUE("alarm.action.closeAlarm", "Close alarm"),
+    ALARM_REASON(ModuleConstants.ALARM_REASON, "Alarm reason"),
+    ALARM_REASON_DESCRIPTION(ModuleConstants.ALARM_REASON_DESCRIPTION, "Alarm reason Description")
     //TODO - update list
 ;
     private final String key;
