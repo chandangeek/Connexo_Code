@@ -67,8 +67,8 @@ public class RetryEstimationActionTest extends BaseTest {
         EstimationService estimationService = mock(EstimationService.class, RETURNS_DEEP_STUBS);
         EstimationResult estimationResult = mock(EstimationResult.class, RETURNS_DEEP_STUBS);
         doReturn(channelsContainer).when(meterActivation).getChannelsContainer();
-        doReturn(estimationReport).when(estimationService).previewEstimate(any(QualityCodeSystem.class), any(MeterActivation.class), any(Range.class));
-        doReturn(estimationResult).when(estimationService).previewEstimate(any(QualityCodeSystem.class), any(MeterActivation.class), any(Range.class), any(ReadingType.class), any());
+        doReturn(estimationReport).when(estimationService).previewEstimate(any(QualityCodeSystem.class), any(ChannelsContainer.class), any(Range.class));
+        doReturn(estimationResult).when(estimationService).previewEstimate(any(QualityCodeSystem.class), any(ChannelsContainer.class), any(Range.class), any(ReadingType.class), any());
 
         IssueDataValidation issue = mock(IssueDataValidation.class);
         IssueStatus issueStatus = mock(IssueStatus.class);
