@@ -102,6 +102,10 @@ public class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return Optional.of(Range.openClosed(intervalStart.toInstant(), intervalEnd.toInstant()));
     }
 
+    public Optional<Range<Instant>> getBillingPeriod(){
+        return readingRecord.flatMap(BaseReading::getTimePeriod);
+    }
+
     public BigDecimal getValue() {
         return readingRecord.map(BaseReading::getValue).orElse(null);
     }

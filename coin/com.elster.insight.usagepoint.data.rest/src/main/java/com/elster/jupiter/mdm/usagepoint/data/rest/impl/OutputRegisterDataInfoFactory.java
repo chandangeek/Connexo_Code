@@ -69,7 +69,7 @@ public class OutputRegisterDataInfoFactory {
                 billingOutputRegisterDataInfo.value = readingWithValidationStatus.getValue();
                 billingOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue()
                         .orElse(null);
-                billingOutputRegisterDataInfo.interval = readingWithValidationStatus.getTimePeriod()
+                billingOutputRegisterDataInfo.interval = readingWithValidationStatus.getBillingPeriod()
                         .map(IntervalInfo::from)
                         .orElse(null);
                 return billingOutputRegisterDataInfo;
