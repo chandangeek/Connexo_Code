@@ -4,4 +4,6 @@ import com.elster.jupiter.util.HasName;
 
 public interface Privilege extends HasName {
     void delete();
+
+    PrivilegeCategory getCategory();
 }

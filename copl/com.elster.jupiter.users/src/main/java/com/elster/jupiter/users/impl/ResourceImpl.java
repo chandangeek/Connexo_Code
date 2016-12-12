@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -29,16 +30,18 @@ final class ResourceImpl implements Resource {
     @SuppressWarnings("unused")
     private Instant createTime;
     private final DataModel dataModel;
+    private final UserService userService;
 
     private List<Privilege> privileges;
 
     @Inject
-    private ResourceImpl(DataModel dataModel) {
+    ResourceImpl(DataModel dataModel, UserService userService) {
         this.dataModel = dataModel;
+        this.userService = userService;
     }
 
     static ResourceImpl from(DataModel dataModel, String componentName, String name, String description) {
-        return new ResourceImpl(dataModel).init(componentName, name, description);
+        return dataModel.getInstance(ResourceImpl.class).init(componentName, name, description);
     }
 
     ResourceImpl init(String componentName, String name, String description) {
@@ -66,7 +69,7 @@ final class ResourceImpl implements Resource {
     @Override
     public void createPrivilege(String name) {
         if (getPrivileges().stream().map(Privilege::getName).noneMatch(s -> Objects.equals(s, name))) {
-            PrivilegeImpl result = PrivilegeImpl.from(dataModel, name, this);
+            PrivilegeImpl result = PrivilegeImpl.from(dataModel, name, this, userService.getDefaultPrivilegeCategory());
             result.persist();
             doGetPrivileges().add(result);
         }
@@ -119,5 +122,10 @@ final class ResourceImpl implements Resource {
                 "componentName='" + componentName + '\'' +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    @Override
+    public GrantPrivilegeBuilder createGrantPrivilege(String name) {
+        return new GrantPrivilegeBuilderImpl(dataModel, userService, this, name);
     }
 }

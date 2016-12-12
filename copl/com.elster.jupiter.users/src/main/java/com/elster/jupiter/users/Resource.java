@@ -12,5 +12,12 @@ public interface Resource extends HasName {
     String getDescription();
     void delete();
     void createPrivilege(String name);
+    GrantPrivilegeBuilder createGrantPrivilege(String name);
     List<Privilege> getPrivileges();
+
+    interface GrantPrivilegeBuilder {
+        GrantPrivilegeBuilder in(PrivilegeCategory category);
+        GrantPrivilegeBuilder forCategory(PrivilegeCategory privilegeCategory);
+        GrantPrivilege create();
+    }
 }

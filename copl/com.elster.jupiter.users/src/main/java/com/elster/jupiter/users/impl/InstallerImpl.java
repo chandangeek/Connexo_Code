@@ -4,10 +4,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.PreferenceType;
+import com.elster.jupiter.users.PrivilegeCategory;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.security.Privileges;
@@ -16,9 +16,6 @@ import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -26,7 +23,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class InstallerImpl implements FullInstaller, PrivilegesProvider {
+public class InstallerImpl implements FullInstaller {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
@@ -43,7 +40,11 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        userService.addModulePrivileges(this);
+        doTry(
+                "Create default privilege category",
+                userService::createDefaultPrivilegeCategory,
+                logger
+        );
         doTry(
                 "Create batch executors group",
                 () -> createBatchExecutorRole(logger),
@@ -51,7 +52,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         );
         doTry(
                 "Install User privileges.",
-                () -> userService.installPrivileges(),
+                this::installPrivileges,
                 logger
         );
         addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null, logger);
@@ -66,20 +67,14 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         );
     }
 
-    @Override
-    public String getModuleName() {
-        return UserService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(
-                UserService.COMPONENTNAME,
-                Privileges.RESOURCE_USERS.getKey(), Privileges.RESOURCE_USERS_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE)));
-
-        return resources;
+    private void installPrivileges() {
+        Resource resource = userService.createResource(UserService.COMPONENTNAME, Privileges.RESOURCE_USERS.getKey(), Privileges.RESOURCE_USERS_DESCRIPTION.getKey());
+        PrivilegeCategory defaultPrivilegeCategory = userService.getDefaultPrivilegeCategory();
+        resource.createGrantPrivilege(Privileges.Constants.ADMINISTRATE_USER_ROLE)
+                .in(defaultPrivilegeCategory)
+                .forCategory(defaultPrivilegeCategory)
+                .create();
+        resource.createPrivilege(Privileges.Constants.VIEW_USER_ROLE);
     }
 
     private void createBatchExecutorRole(Logger logger) {

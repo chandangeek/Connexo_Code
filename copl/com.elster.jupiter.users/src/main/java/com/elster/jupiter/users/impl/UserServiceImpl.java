@@ -20,6 +20,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.MessageSeeds;
@@ -27,6 +28,7 @@ import com.elster.jupiter.users.NoDefaultDomainException;
 import com.elster.jupiter.users.NoDomainFoundException;
 import com.elster.jupiter.users.NoDomainIdFoundException;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -38,7 +40,6 @@ import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableMap;
@@ -82,6 +83,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         property = "name=" + UserService.COMPONENTNAME)
 public class UserServiceImpl implements UserService, MessageSeedProvider, TranslationKeyProvider {
 
+    private static final String DEFAULT_CATEGORY_NAME = "Default";
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
@@ -421,6 +423,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return privilegeFactory().getOptional(privilegeName);
     }
 
+    public Optional<GrantPrivilege> getGrantPrivilege(String privilegeName) {
+        return dataModel.mapper(GrantPrivilege.class).getOptional(privilegeName);
+    }
+
     public Optional<Resource> getResource(String resourceName) {
         return resourceFactory().getOptional(resourceName);
     }
@@ -751,6 +757,27 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return dataModel.mapper(WorkGroup.class).lockObjectIfVersion(version, id);
     }
 
+    @Override
+    public PrivilegeCategory createPrivilegeCategory(String name) {
+        PrivilegeCategoryImpl category = PrivilegeCategoryImpl.of(dataModel, name);
+        dataModel.mapper(PrivilegeCategory.class).persist(category);
+        return category;
+    }
+
+    @Override
+    public Optional<PrivilegeCategory> findPrivilegeCategory(String name) {
+        return dataModel.mapper(PrivilegeCategory.class).getOptional(name);
+    }
+
+    @Override
+    public PrivilegeCategory getDefaultPrivilegeCategory() {
+        return findPrivilegeCategory(DEFAULT_CATEGORY_NAME).orElseThrow(() -> new IllegalStateException("Cannot get default privilege category before installation"));
+    }
+
+    void createDefaultPrivilegeCategory() {
+        createPrivilegeCategory(DEFAULT_CATEGORY_NAME);
+    }
+
     private DataMapper<Privilege> privilegeFactory() {
         return dataModel.mapper(Privilege.class);
     }
@@ -880,7 +907,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return found.get(0);
     }
 
-    private Resource createResource(String component, String name, String description) {
+    Resource createResource(String component, String name, String description) {
         ResourceImpl result = ResourceImpl.from(dataModel, component, name, description);
         result.persist();
         return result;
