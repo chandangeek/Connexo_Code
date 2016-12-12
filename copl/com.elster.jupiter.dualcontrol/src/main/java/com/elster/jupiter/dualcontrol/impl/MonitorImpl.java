@@ -153,8 +153,7 @@ class MonitorImpl implements Monitor {
         state = getBehaviourState().newStateForRequest(update);
         dataModel.mapper(Monitor.class).update(this, Fields.STATE.fieldName());
 
-        UserOperationImpl userOperation = UserOperationImpl.of(this, getUser(), UserAction.REQUEST);
-        operations.add(userOperation);
+        operations.add(UserOperationImpl.of(this, getUser(), UserAction.REQUEST));
 
         underDualControl.setPendingUpdate(update);
         if (State.OBSOLETE.equals(state)) {
