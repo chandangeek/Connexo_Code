@@ -55,6 +55,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        userService.addModulePrivileges(this);
         run(() -> new CreateDeviceAlarmViewOperation(dataModel).execute(), "database schema. Execute command 'ddl " + DeviceAlarmService.COMPONENT_NAME + "' and apply the sql script manually", logger);
         run(this::setAQSubscriber, "aq subscribers", logger);
         run(() -> {
@@ -62,7 +63,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             setDeviceAlarmReasons(issueType);
         }, "issue reasons and action types", logger);
         run(this::publishEvents, "event publishing", logger);
-
     }
 
     @Override
