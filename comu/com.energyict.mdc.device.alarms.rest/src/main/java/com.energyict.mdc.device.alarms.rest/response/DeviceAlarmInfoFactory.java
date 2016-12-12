@@ -57,9 +57,9 @@ public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
 
     public DeviceAlarmInfo asInfo(DeviceAlarm deviceAlarm) {
         DeviceAlarmInfo info =  new DeviceAlarmInfo(deviceAlarm);
-        addLogBookInfo(info, deviceAlarm);
+//        addLogBookInfo(info, deviceAlarm);
         addMeterInfo(info, deviceAlarm);
-        addRelatedEvents(info, deviceAlarm);
+//        addRelatedEvents(info, deviceAlarm);
         return info;
     }
 

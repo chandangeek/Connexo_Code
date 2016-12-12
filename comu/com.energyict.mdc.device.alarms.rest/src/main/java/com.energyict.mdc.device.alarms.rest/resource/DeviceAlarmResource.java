@@ -29,9 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
-
 
 @Path("/alarms")
 public class DeviceAlarmResource{
@@ -51,9 +48,9 @@ public class DeviceAlarmResource{
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getAllDeviceAlarms(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter){
-        validateMandatory(params, START, LIMIT);
+//        validateMandatory(params, START, LIMIT);
         Finder<? extends DeviceAlarm> finder = deviceAlarmService.findAlarms(new DeviceAlarmFilter()); //FixMe implement filter;
-        addSorting(finder, params);
+//        addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }

@@ -14,12 +14,14 @@ public class DeviceInfo {
 
     public long id;
     public String mRID;
+    public String name;
     public String location;
     public IdWithNameInfo usagePoint;
 
     public DeviceInfo(Device device){
         this.id = device.getId();
         this.mRID = device.getmRID();
+        this.name = device.getName();
         Optional<Location> location = device.getLocation();
         String formattedLocation = "";
         if (location.isPresent()) {
