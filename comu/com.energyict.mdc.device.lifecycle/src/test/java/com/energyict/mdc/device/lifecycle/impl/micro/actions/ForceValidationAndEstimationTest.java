@@ -100,7 +100,7 @@ public class ForceValidationAndEstimationTest {
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
         verify(validationService, never()).validate(any(Set.class), any(ChannelsContainer.class));
-        verify(estimationService, never()).estimate(eq(QualityCodeSystem.MDC), any(MeterActivation.class), any(Range.class));
+        verify(estimationService, never()).estimate(eq(QualityCodeSystem.MDC), any(ChannelsContainer.class), any(Range.class));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class ForceValidationAndEstimationTest {
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
         verify(validationService, never()).validate(any(Set.class), any(ChannelsContainer.class));
-        verify(estimationService, never()).estimate(eq(QualityCodeSystem.MDC), any(MeterActivation.class), any(Range.class));
+        verify(estimationService, never()).estimate(eq(QualityCodeSystem.MDC), any(ChannelsContainer.class), any(Range.class));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class ForceValidationAndEstimationTest {
 
         // Asserts
         verify(validationService).validate(anySetOf(QualityCodeSystem.class), eq(channelsContainer));
-        verify(estimationService).estimate(QualityCodeSystem.MDC, meterActivation, meterActivation.getRange());
+        verify(estimationService).estimate(QualityCodeSystem.MDC, channelsContainer, meterActivation.getRange());
     }
 
     @Test(expected = ForceValidationAndEstimation.ForceValidationAndEstimationException.class)
