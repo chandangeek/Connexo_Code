@@ -90,6 +90,11 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Override
+    public Optional<CommandRule> findAndLockCommandRule(long commandRuleId, long version) {
+        return dataModel.mapper(CommandRule.class).lockObjectIfVersion(version, commandRuleId);
+    }
+
+    @Override
     public Optional<CommandRule> findCommandRuleByName(String name) {
         List<CommandRule> commandRules = dataModel.mapper(CommandRule.class).select(where(CommandRuleImpl.Fields.NAME.fieldName()).isEqualToIgnoreCase(name));
         return commandRules.isEmpty() ? Optional.empty() : Optional.of(commandRules.get(0));

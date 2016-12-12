@@ -25,6 +25,8 @@ public interface CommandRuleService {
 
     Optional<CommandRule> findCommandRule(long commandRuleId);
 
+    Optional<CommandRule> findAndLockCommandRule(long commandRuleId, long version);
+
     Optional<CommandRule> findCommandRuleByName(String name);
 
     Optional<CommandRulePendingUpdate> findCommandTemplateRuleByName(String name);

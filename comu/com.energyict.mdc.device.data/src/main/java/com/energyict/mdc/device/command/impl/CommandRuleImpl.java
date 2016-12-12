@@ -177,6 +177,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         } else {
             doSave();
         }
+        dataModel.touch(this);
     }
 
     private void doSave() {
@@ -189,10 +190,14 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     public void delete() {
         if(!active) {
-            dataModel.remove(this);
+            actualDelete();
         } else {
             createDeleteUpdate();
         }
+    }
+
+    private void actualDelete() {
+        dataModel.remove(this);
     }
 
     private void createDeleteUpdate() {
@@ -246,7 +251,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     public void applyUpdate() {
         getPendingUpdate().ifPresent(commandRulePendingUpdate -> {
             if (commandRulePendingUpdate.isRemoval()) {
-                this.delete();
+                actualDelete();
                 return;
             }
             name = commandRulePendingUpdate.getName();
