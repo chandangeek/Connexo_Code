@@ -86,6 +86,7 @@ public class UsagePointTestResource {
                 statement.addBatch("DELETE FROM TE1_CPS_TECH_EL WHERE USAGEPOINT = " + usagePointId);
                 statement.addBatch("DELETE FROM MIS_CPS_USAGEPOINT_TECH WHERE USAGEPOINT = " + usagePointId);
                 statement.addBatch("DELETE FROM MTC_CPS_USAGEPOINT_GENER WHERE USAGEPOINT = " + usagePointId);
+                statement.addBatch("DELETE FROM COU_CALENDAR_ON_USAGEPOINT WHERE USAGEPOINT = " + usagePointId);
 
                 for (MeterActivation meterActivation : meterActivations) {
                     long meterActivationId = meterActivation.getId();
