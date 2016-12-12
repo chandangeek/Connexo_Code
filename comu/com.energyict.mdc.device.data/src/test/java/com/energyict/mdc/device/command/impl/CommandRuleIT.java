@@ -105,7 +105,6 @@ public class CommandRuleIT {
     private static DualControlService dualControlService;
     private static ThreadPrincipalService threadPrincipalService;
     private static JsonService jsonService;
-    private long counter = 0;
 
     private static class MockModule extends AbstractModule {
         @Override
