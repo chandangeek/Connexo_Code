@@ -158,6 +158,11 @@ public final class WaveflowProtocolUtils {
         public boolean supportsMultiValues() {
             return false;
         }
+
+        @Override
+        public com.energyict.mdc.upl.properties.ValueFactory getValueFactory() {
+            return new ValueFactory();
+        }
     }
 
     private static class NoPossibleValues implements PropertySpecPossibleValues {
@@ -184,6 +189,33 @@ public final class WaveflowProtocolUtils {
         @Override
         public Object getDefault() {
             return null;
+        }
+    }
+
+    static class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
+        @Override
+        public Object fromStringValue(String stringValue) {
+            return stringValue;
+        }
+
+        @Override
+        public String toStringValue(Object object) {
+            return String.valueOf(object);
+        }
+
+        @Override
+        public String getValueTypeName() {
+            return String.class.getName();
+        }
+
+        @Override
+        public Object valueToDatabase(Object object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public Object valueFromDatabase(Object databaseValue) {
+            return this.fromStringValue((String) databaseValue);
         }
     }
 

@@ -35,4 +35,40 @@ public class ObisCodePropertySpec extends AbstractPropertySpec {
         }
     }
 
+    @Override
+    public com.energyict.mdc.upl.properties.ValueFactory getValueFactory() {
+        return new ValueFactory();
+    }
+
+    private static class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
+        @Override
+        public Object fromStringValue(String stringValue) {
+            return ObisCode.fromString(stringValue);
+        }
+
+        @Override
+        public String toStringValue(Object object) {
+            return this.toStringValue((ObisCode) object);
+        }
+
+        private String toStringValue(ObisCode obisCode) {
+            return obisCode.toString();
+        }
+
+        @Override
+        public String getValueTypeName() {
+            return ObisCode.class.getName();
+        }
+
+        @Override
+        public Object valueToDatabase(Object object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public Object valueFromDatabase(Object databaseValue) {
+            return this.fromStringValue((String) databaseValue);
+        }
+    }
+
 }
