@@ -40,7 +40,7 @@ public class BeaconPSKProviderFactory {
      */
     public synchronized BeaconPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context) {
         if (!providers.containsKey(deviceIdentifier.getIdentifier())) {
-            providers.put(deviceIdentifier.getIdentifier(), new BeaconPSKProvider(deviceIdentifier, context, provideProtocolJavaClasName));
+            providers.put(deviceIdentifier.getIdentifier(), new BeaconPSKProvider(deviceIdentifier, context, provideProtocolJavaClasName, propertySpecService));
         }
         return providers.get(deviceIdentifier.getIdentifier());
     }

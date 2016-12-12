@@ -1,9 +1,7 @@
 package com.energyict.protocolimpl.properties;
 
 import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.properties.CertificateAlias;
 import com.energyict.mdc.upl.properties.HexString;
-import com.energyict.mdc.upl.properties.PrivateKeyAlias;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -217,22 +215,6 @@ public final class UPLPropertySpecFactory {
         }
 
         return durationPropertySpecBuilder.finish();
-    }
-
-    public static PropertySpec privateKeyAlias(String name, boolean required) {
-        PropertySpecBuilder<PrivateKeyAlias> privateKeyAliasPropertySpecBuilder = Services.propertySpecService().privateKeyAliasSpec().named(name, name).describedAs(name);
-        if(required){
-            privateKeyAliasPropertySpecBuilder.markRequired();
-        }
-        return privateKeyAliasPropertySpecBuilder.finish();
-    }
-
-    public static PropertySpec certificateAlias(String name, boolean required) {
-        PropertySpecBuilder<CertificateAlias> certificateAliasPropertySpecBuilder = Services.propertySpecService().certificateAliasSpec().named(name, name).describedAs(name);
-        if(required){
-            certificateAliasPropertySpecBuilder.markRequired();
-        }
-        return certificateAliasPropertySpecBuilder.finish();
     }
 
     public static PropertySpec encryptedString(String name, boolean required) {

@@ -28,6 +28,7 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
 import com.energyict.cbo.ObservationTimestampPropertyImpl;
@@ -77,7 +78,11 @@ import java.util.logging.Level;
  */
 public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
-	/**
+    public Beacon3100(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    /**
 	 * Enumerates the different clients for the Beacon.
 	 *
 	 * @author alex
@@ -150,6 +155,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
     private static final String UTF_8 = "UTF-8";
     private static final int MAC_ADDRESS_LENGTH = 8;    //In bytes
+    private final PropertySpecService propertySpecService;
 
     private Beacon3100Messaging beacon3100Messaging;
     private RegisterFactory registerFactory;
@@ -561,7 +567,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      */
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new Beacon3100ConfigurationSupport();
+            dlmsConfigurationSupport = new Beacon3100ConfigurationSupport(propertySpecService);
         }
         return dlmsConfigurationSupport;
     }

@@ -130,7 +130,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100();
+		final Beacon3100 protocol = new Beacon3100(propertySpecService);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -188,7 +188,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100();
+		final Beacon3100 protocol = new Beacon3100(propertySpecService);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -257,7 +257,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100();
+		final Beacon3100 protocol = new Beacon3100(propertySpecService);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -344,7 +344,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100();
+		final Beacon3100 protocol = new Beacon3100(propertySpecService);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -461,7 +461,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100();
+		final Beacon3100 protocol = new Beacon3100(propertySpecService);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);

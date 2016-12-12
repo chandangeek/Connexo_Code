@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -28,6 +29,12 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String DLMS_WAN_KEK = "DlmsWanKEK";
     public static final String POLLING_DELAY = "PollingDelay";
     public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
+    private final PropertySpecService propertySpecService;
+
+    public Beacon3100ConfigurationSupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
@@ -70,21 +77,30 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The private key of the client (the ComServer) used for digital signature (ECDSA)
      */
     private PropertySpec clientPrivateSigningKeyPropertySpec() {
-        return UPLPropertySpecFactory.privateKeyAlias(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, false);
+        return propertySpecService.referenceSpec("com.energyict.mdc.upl.properties.PrivateKeyAlias")
+                .named(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
+                .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
+                .finish();
     }
 
     /**
      * The TLS certificate of the server. Not actively used in the protocols.
      */
     private PropertySpec serverTLSCertificate() {
-        return UPLPropertySpecFactory.certificateAlias(DlmsSessionProperties.SERVER_TLS_CERTIFICATE, false);
+        return propertySpecService.referenceSpec("com.energyict.mdc.upl.properties.CertificateAlias")
+                .named(DlmsSessionProperties.SERVER_TLS_CERTIFICATE, DlmsSessionProperties.SERVER_TLS_CERTIFICATE)
+                .describedAs(DlmsSessionProperties.SERVER_TLS_CERTIFICATE)
+                .finish();
     }
 
     /**
      * The private key of the client (the ComServer) used for key agreement (ECDH)
      */
     private PropertySpec clientPrivateKeyAgreementKeyPropertySpec() {
-        return UPLPropertySpecFactory.privateKeyAlias(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY, false);
+        return propertySpecService.referenceSpec("com.energyict.mdc.upl.properties.PrivateKeyAlias")
+                .named(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY, DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
+                .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
+                .finish();
     }
 
     protected PropertySpec cipheringTypePropertySpec() {

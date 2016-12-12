@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.inbound.g3;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -22,14 +23,16 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Co
 public class BeaconPSKProvider extends G3GatewayPSKProvider {
 
     private final boolean provideProtocolJavaClasName;
+    private final PropertySpecService propertySpecService;
 
-    public BeaconPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context, boolean provideProtocolJavaClasName) {
+    public BeaconPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context, boolean provideProtocolJavaClasName, PropertySpecService propertySpecService) {
         super(deviceIdentifier, context);
         this.provideProtocolJavaClasName = provideProtocolJavaClasName;
+        this.propertySpecService = propertySpecService;
     }
 
     protected DeviceProtocol newGatewayProtocol() {
-        return new Beacon3100();
+        return new Beacon3100(propertySpecService);
     }
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {

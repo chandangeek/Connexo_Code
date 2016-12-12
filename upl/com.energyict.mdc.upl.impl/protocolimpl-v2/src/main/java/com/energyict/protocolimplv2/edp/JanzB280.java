@@ -8,6 +8,10 @@ package com.energyict.protocolimplv2.edp;
  */
 public class JanzB280 extends CX20009 {
 
+    public JanzB280() {
+        super(propertySpecService);
+    }
+
     @Override
     public String getVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";

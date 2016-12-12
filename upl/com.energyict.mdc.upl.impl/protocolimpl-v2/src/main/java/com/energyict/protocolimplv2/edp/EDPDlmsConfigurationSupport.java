@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.edp;
 
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -31,10 +31,15 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
  */
 public class EDPDlmsConfigurationSupport implements HasDynamicProperties {
 
+    private final PropertySpecService propertySpecService;
+
+    public EDPDlmsConfigurationSupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     private PropertySpec timeZonePropertySpec() {
-        return Services
-                .propertySpecService()
-                .timezoneSpec()
+        return propertySpecService
+                .timeZoneSpec()
                 .named(TIMEZONE, TIMEZONE)
                 .describedAs("Description for " + TIMEZONE)
                 .finish();

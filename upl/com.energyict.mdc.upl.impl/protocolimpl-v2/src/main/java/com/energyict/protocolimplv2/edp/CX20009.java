@@ -23,6 +23,7 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.DLMSCache;
@@ -56,6 +57,11 @@ public class CX20009 extends AbstractDlmsProtocol {
     private RegisterReader registerReader;
     private EDPMessaging edpMessaging;
     private LoadProfileBuilder loadProfileBuilder;
+    private final PropertySpecService propertySpecService;
+
+    public CX20009(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -70,7 +76,7 @@ public class CX20009 extends AbstractDlmsProtocol {
      */
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new EDPDlmsConfigurationSupport();
+            dlmsConfigurationSupport = new EDPDlmsConfigurationSupport(propertySpecService);
         }
         return dlmsConfigurationSupport;
     }
