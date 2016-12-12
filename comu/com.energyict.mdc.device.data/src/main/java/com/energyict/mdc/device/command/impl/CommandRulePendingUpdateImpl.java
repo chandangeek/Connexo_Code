@@ -101,7 +101,7 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
         this.dayLimit = dayLimit;
         this.weekLimit = weekLimit;
         this.monthLimit = monthLimit;
-        commands.clear();
+        this.commands.clear();
         commands.stream().forEach(this::addCommand);
     }
 
