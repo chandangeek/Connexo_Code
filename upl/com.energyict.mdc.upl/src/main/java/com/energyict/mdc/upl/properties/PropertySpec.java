@@ -94,4 +94,11 @@ public interface PropertySpec {
      */
     boolean supportsMultiValues();
 
+    /**
+     * Gets the {@link ValueFactory} that will support persistency of property values.
+     *
+     * @return The ValueFactory
+     */
+    ValueFactory getValueFactory();
+
 }
