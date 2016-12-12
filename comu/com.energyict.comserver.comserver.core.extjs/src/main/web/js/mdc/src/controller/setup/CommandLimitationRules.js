@@ -503,7 +503,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             });
         confirmationWindow.show({
             msg: Uni.I18n.translate('commandRule.removeMsg', 'MDC', 'Message still to be defined.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', 'Remove {0}?', record.get('name'))
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", record.get('name'))
         });
     },
 
