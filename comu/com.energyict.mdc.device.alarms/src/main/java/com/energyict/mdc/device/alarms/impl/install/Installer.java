@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
@@ -91,7 +92,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     private void publishEvents() {
         Set<EventType> eventTypesToPublish = new HashSet<>();
-        eventService.getEventType("com/elster/jupiter/metering/enddeviceevent/CREATED")
+       /* eventService.getEventType("com/elster/jupiter/metering/enddeviceevent/CREATED")
                 .ifPresent(eventTypesToPublish::add);
         for (DeviceAlarmEventDescription deviceAlarmEventDescription : DeviceAlarmEventDescription.values()) {
             eventService.getEventType(deviceAlarmEventDescription.getTopic()).ifPresent(eventTypesToPublish::add);
@@ -99,7 +100,15 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         for (EventType eventType : eventTypesToPublish) {
             eventType.setPublish(true);
             eventType.update();
-        }
+        }*/
+
+        Stream.of(DeviceAlarmEventDescription.values()).findFirst()
+                .map(deviceAlarmEventDescription -> eventService.getEventType(deviceAlarmEventDescription.getTopic()))
+                .ifPresent(eventType -> {
+            eventType.get().setPublish(true);
+            eventType.get().update();
+
+        });
     }
 
     private IssueType setSupportedIssueType() {
