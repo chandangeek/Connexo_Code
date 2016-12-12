@@ -383,6 +383,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                 return new ObisCode(0, 0, 43, 1, clientId, 255);
             }
         } else {
+            //secure frame counters
             switch (clientId) {
                 case EVN_CLIENT_DATA_READOUT:
                     return EVN_FRAMECOUNTER_DATA_READOUT;
