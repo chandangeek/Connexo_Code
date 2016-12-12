@@ -7,7 +7,7 @@ Ext.define('Mdc.model.RegisterData', {
         {name: 'validationStatus', type:'auto', useNull: true, persist: false},
         {name: 'type', type:'string'},
         {name: 'value', type:'string'},
-        {name: 'unit', type:'string'},
+        {name: 'unit', type:'string', useNull: true, defaultValue: null},
         {name: 'deltaValue', type:'string'},
         {name: 'dataValidated', type:'auto', persist: false},
         {name: 'suspectReason', type:'auto', persist: false},
