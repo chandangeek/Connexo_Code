@@ -2,7 +2,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.mdm.common.rest.IntervalInfo;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -15,9 +14,12 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -295,6 +297,37 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
         assertThat(jsonModel.<List<String>>get("$.channelData[*].value")).containsExactly("1", "10", "1");
+    }
+
+    @Test
+    public void testPreviewEstimateChannelData() throws Exception {
+        AggregatedChannel channel = mock(AggregatedChannel.class);
+        ReadingQualityFetcher fetcher = mock(ReadingQualityFetcher.class);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
+        when(fetcher.atTimestamp(any(Instant.class))).thenReturn(fetcher);
+        when(fetcher.sorted()).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(Collections.emptyList());
+        when(channel.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
+        when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
+        when(channel.toList(Range.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint()))).thenReturn(
+                Arrays.asList(interval_1.upperEndpoint(), interval_2.upperEndpoint(), interval_3.upperEndpoint())
+        );
+        mockIntervalReadingsWithValidationResult(channel);
+
+        EstimateChannelDataInfo info = new EstimateChannelDataInfo();
+        info.intervals = Collections.singletonList(IntervalInfo.from(interval_3));
+        info.estimatorImpl = "com.elster.jupiter.estimators.impl.ValueFillEstimator";
+        info.properties = new ArrayList<>();
+        info.properties.add(new PropertyInfo("valuefill.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
+        info.properties.add(new PropertyInfo("valuefill.fillValue", "Fill value", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimate")
+                .request().post(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
