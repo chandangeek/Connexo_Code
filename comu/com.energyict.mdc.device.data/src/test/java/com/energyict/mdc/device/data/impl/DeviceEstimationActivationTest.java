@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.energyict.mdc.device.data.Device;
@@ -135,14 +136,17 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         Meter meter = inMemoryPersistence.getMeteringService().findMeterByMRID(device.getmRID()).get();
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
 
-        List<EstimationRuleSet> resolvedRuleSets = resolver.resolve(meterActivation);
+        List<EstimationRuleSet> resolvedRuleSets = resolver.resolve(meterActivation.getChannelsContainer());
 
         assertThat(resolvedRuleSets).hasSize(1);
         assertThat(resolvedRuleSets).containsExactly(rs1);
 
         device.forEstimation().deactivateEstimation();
-        resolvedRuleSets = resolver.resolve(meterActivation);
+        resolvedRuleSets = resolver.resolve(meterActivation.getChannelsContainer());
 
         assertThat(resolvedRuleSets).hasSize(0);
     }
