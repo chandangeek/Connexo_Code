@@ -35,11 +35,11 @@ Ext.define('Uni.view.widget.PendingChanges', {
                 },
                 items: [
                     {
-                        text: Uni.I18n.translate('general.accept', 'MDC', 'Accept'),
+                        text: Uni.I18n.translate('general.accept', 'UNI', 'Accept'),
                         itemId: 'uni-pendingChangesPnl-accept'
                     },
                     {
-                        text: Uni.I18n.translate('general.reject', 'MDC', 'Reject'),
+                        text: Uni.I18n.translate('general.reject', 'UNI', 'Reject'),
                         itemId: 'uni-pendingChangesPnl-reject'
                     }
                 ]
