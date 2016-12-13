@@ -10,7 +10,9 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 
 /**
  *
@@ -105,4 +107,8 @@ public class ISCommand extends AbstractCommand {
         this.dstEnabled = dstEnabled;
     }
 
+    @Override
+    protected String getCommandName() {
+        return "IS";
+    }
 }
