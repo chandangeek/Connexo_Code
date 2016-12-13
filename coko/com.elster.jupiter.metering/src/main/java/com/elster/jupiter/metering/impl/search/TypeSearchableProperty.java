@@ -77,8 +77,8 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
                 .specForValuesOf(new TypeValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_TYPE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(UsagePointTypeInfo.UsagePointType.PHYSICAL_NON_SDP,
-                        UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP) //Virtual usage points are not available in search
+                .addValues(UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP,
+                        UsagePointTypeInfo.UsagePointType.MEASURED_SDP) //Virtual usage points are not available in search
                 .markExhaustive()
                 .finish();
     }
@@ -100,16 +100,16 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
         return (((Contains) specification).getCollection()).stream()
                 .map(UsagePointTypeInfo.UsagePointType.class::cast).map(result -> {
                     switch (result) {
-                        case VIRTUAL_SDP:
+                        case UNMEASURED_SDP:
                             return Where.where("isVirtual").isEqualTo(true)
                                     .and(Where.where("isSdp").isEqualTo(true));
-                        case VIRTUAL_NON_SDP:
+                        case UNMEASURED_NON_SDP:
                             return Where.where("isVirtual").isEqualTo(true)
                                     .and(Where.where("isSdp").isEqualTo(false));
-                        case PHYSICAL_SDP:
+                        case MEASURED_SDP:
                             return Where.where("isVirtual").isEqualTo(false)
                                     .and(Where.where("isSdp").isEqualTo(true));
-                        case PHYSICAL_NON_SDP:
+                        case MEASURED_NON_SDP:
                             return Where.where("isVirtual").isEqualTo(false)
                                     .and(Where.where("isSdp").isEqualTo(false));
                         default:

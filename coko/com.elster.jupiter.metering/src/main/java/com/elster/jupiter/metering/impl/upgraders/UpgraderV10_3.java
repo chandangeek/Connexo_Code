@@ -4,9 +4,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import org.osgi.framework.BundleContext;
@@ -23,13 +25,17 @@ public class UpgraderV10_3 implements Upgrader {
     private final DataModel dataModel;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final EventService eventService;
+    private final ServerMeteringService meteringService;
+    private final TimeService timeService;
 
     @Inject
-    public UpgraderV10_3(BundleContext bundleContext, DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
+    public UpgraderV10_3(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, TimeService timeService, EventService eventService) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.eventService = eventService;
+        this.meteringService = meteringService;
+        this.timeService = timeService;
     }
 
     @Override
@@ -37,6 +43,7 @@ public class UpgraderV10_3 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, VERSION);
         installTemplates();
         installNewEventTypes();
+        GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService);
     }
 
     private void installTemplates() {
