@@ -10,7 +10,9 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 
 /**
  *
@@ -37,4 +39,8 @@ public class LOCommand  extends AbstractCommand {
         return commandIdentification;
     }
 
+    @Override
+    protected String getCommandName() {
+        return "LO";
+    }
 }
