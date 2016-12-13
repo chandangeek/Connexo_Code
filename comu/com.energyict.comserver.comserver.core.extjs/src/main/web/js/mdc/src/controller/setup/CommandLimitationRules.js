@@ -490,6 +490,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     activateRule: function (rule) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                green: true,
                 confirmText: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                 confirmation: function () {
                     me.doActivateRule(rule, this);
@@ -528,6 +529,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     deactivateRule: function (rule) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                green: true,
                 confirmText: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
                 confirmation: function () {
                     me.doDeactivateRule(rule, this);
@@ -573,7 +575,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             });
         confirmationWindow.show({
             msg:  record.get('active')
-                ? Uni.I18n.translate('commandRule.removeActive.msg', 'MDC', 'The creation of commands will no longer be limited by this command limitation rule.')
+                ? Uni.I18n.translate('commandRule.removeActive.msg', 'MDC', 'The creation of commands will no longer be limited by this command limitation rule.') + '\n'
+                    + Uni.I18n.translate('commandRule.removeActive.msg2', 'MDC', 'Removing an active command limitation rule requires approval before taking effect.')
                 : Uni.I18n.translate('commandRule.removeInactive.msg', 'MDC', 'The creation of commands will no longer be limited by this command limitation rule.'),
             title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", record.get('name'))
         });

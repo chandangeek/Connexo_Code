@@ -10,6 +10,11 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleFilter', {
     store: 'Mdc.store.Commands',
     defaultFilters: null,
 
+    requires: [
+        'Mdc.store.Commands',
+        'Mdc.store.CommandCategories'
+    ],
+
     initComponent: function () {
         var me = this,
             selectedCommandsFilter;
