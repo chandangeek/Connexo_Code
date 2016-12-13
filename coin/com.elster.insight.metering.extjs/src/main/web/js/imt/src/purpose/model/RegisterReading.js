@@ -1,5 +1,4 @@
 Ext.define('Imt.purpose.model.RegisterReading', {
-    // extend: 'Uni.model.Version',
     extend: 'Ext.data.Model',
     idProperty: 'timeStamp',
     requires: [],

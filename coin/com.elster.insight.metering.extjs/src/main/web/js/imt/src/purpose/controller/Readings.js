@@ -371,28 +371,8 @@ Ext.define('Imt.purpose.controller.Readings', {
 
     estimateValue: function (record) {
         var me = this;
-        //     bothSuspected = false,
-        //     mainValueSuspect = false,
-        //     bulkValueSuspect = false;
-        //
-        // if (!Ext.isArray(record)) {
-        //     bothSuspected = record.get('validationResult') &&
-        //         record.get('validationResult').main == 'suspect' &&
-        //         record.get('validationResult').bulk == 'suspect';
-        // } else {
-        //     Ext.Array.findBy(record, function (item) {
-        //         mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
-        //         return mainValueSuspect;
-        //     });
-        //     Ext.Array.findBy(record, function (item) {
-        //         bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
-        //         return bulkValueSuspect;
-        //     });
-        //     bothSuspected = mainValueSuspect && bulkValueSuspect;
-        // }
-        // me.getPage().setLoading();
+
         me.getStore('Imt.purpose.store.Estimators').load(function () {
-            // me.getPage().setLoading(false);
             Ext.widget('reading-estimation-window', {
                 itemId: 'channel-reading-estimation-window',
                 record: record
@@ -504,5 +484,5 @@ Ext.define('Imt.purpose.controller.Readings', {
             record: reading
         });
         reading.get('confirmed') && reading.set('confirmed', false);
-    },
+    }
 });
