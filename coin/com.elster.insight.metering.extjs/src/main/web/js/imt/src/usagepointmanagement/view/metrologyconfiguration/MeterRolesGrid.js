@@ -2,10 +2,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
     extend: 'Ext.grid.Panel',
     alias: 'widget.meter-roles-grid',
     store: null,
-    ui: 'medium',
-    title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
-    maxHeight: 408,
     router: null,
+    hasLinkMetersButton: true,
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -24,7 +22,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
             },
             {
                 text: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
-                dataIndex: 'name',
+                dataIndex: 'meter',
                 flex: 1,
                 renderer: function (value, metaData, record) {
                     var deviceLink;
@@ -54,13 +52,13 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.meterRolesCount', 'IMT', '{0} meter role(s)', me.store.getCount()),
+                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.meterRolesCount', 'IMT', '{0} meter role(s)'),
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.editMeters', 'IMT', 'Edit meters'),
+                        text: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
                         itemId: 'edit-meters',
-                        privileges: Imt.privileges.UsagePoint.canAdministrate,
+                        privileges: me.hasLinkMetersButton && Imt.privileges.UsagePoint.canAdministrate(),
                         href: me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl()
                     }
                 ]

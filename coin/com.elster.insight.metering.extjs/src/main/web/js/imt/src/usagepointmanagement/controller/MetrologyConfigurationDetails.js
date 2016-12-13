@@ -7,7 +7,8 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
     stores: [
         'Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles',
-        'Imt.usagepointmanagement.store.metrologyconfiguration.Purposes'
+        'Imt.usagepointmanagement.store.metrologyconfiguration.Purposes',
+        'Imt.usagepointmanagement.store.MeterRoles'
     ],
 
     models: [
@@ -45,18 +46,15 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             router = me.getController('Uni.controller.history.Router'),
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
+        viewport.setLoading();
         usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint) {
                 me.usagePoint = usagePoint;
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usage-point-metrology-configuration-details', {
                     itemId: 'usage-point-metrology-configuration-details',
                     router: router,
-                    usagePoint: usagePoint,
-                    meterRolesAvailable: usagePoint.get('metrologyConfiguration_meterRoles')
+                    usagePoint: usagePoint
                 }));
-
-            },
-            failure: function () {
                 viewport.setLoading(false);
             }
         });
