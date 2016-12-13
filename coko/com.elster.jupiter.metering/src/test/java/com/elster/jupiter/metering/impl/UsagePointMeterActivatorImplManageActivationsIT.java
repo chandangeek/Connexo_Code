@@ -412,7 +412,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         UsagePoint usagePoint = serviceCategory
                 .newUsagePoint("testUP", now)
                 .create();
-        usagePoint.getState().startUpdate().setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        usagePoint.getState().startUpdate().setStage(UsagePointStage.Key.OPERATIONAL).complete();
         usagePoint.linkMeters().activate(meter, meterRole).complete();
     }
 

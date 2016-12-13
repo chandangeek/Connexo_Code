@@ -206,8 +206,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private void validate(ValidationReport validationReport) {
         // check that we can manage meter activations
-        UsagePointStage.Stage usagePointStage = this.usagePoint.getState().getStage().getKey();
-        if (usagePointStage != UsagePointStage.Stage.PRE_OPERATIONAL) {
+        UsagePointStage.Key usagePointStage = this.usagePoint.getState().getStage().getKey();
+        if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
             validationReport.usagePointIncorrectStage();
             return;
         }

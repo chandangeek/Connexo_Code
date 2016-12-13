@@ -519,8 +519,8 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
-        UsagePointStage.Stage usagePointStage = this.getState().getStage().getKey();
-        if (usagePointStage != UsagePointStage.Stage.PRE_OPERATIONAL) {
+        UsagePointStage.Key usagePointStage = this.getState().getStage().getKey();
+        if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
             throw UsagePointManageException.incorrectStage(thesaurus);
         }
         Long startDate = start.toEpochMilli();
