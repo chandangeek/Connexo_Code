@@ -1,6 +1,5 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
-
 import com.energyict.mdc.upl.messages.DeviceMessage;
 
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -47,5 +46,10 @@ public interface MessageIdentifier {
     String getXmlType();
 
     void setXmlType(String ignore);
+
+    /**
+     * @return the DeviceIdentifier for this MessageIdentifier
+     */
+    public DeviceIdentifier getDeviceIdentifier();
 
 }

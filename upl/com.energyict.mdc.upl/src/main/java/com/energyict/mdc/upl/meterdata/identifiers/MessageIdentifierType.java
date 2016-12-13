@@ -15,6 +15,8 @@ public enum MessageIdentifierType {
      * returns the numerical database identifier of the message.
      */
     DataBaseId,
-    DeviceIdentifierAndProtocolInfoParts;
+    DeviceIdentifierAndProtocolInfoParts,
+    Other,
+    ActualMessage
 
 }
