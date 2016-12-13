@@ -25,7 +25,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public abstract class ReadingInfo {
     @JsonProperty("id")
-    public Long id;
+    public String id;
     @JsonProperty("timeStamp")
     public Instant timeStamp;
     @JsonProperty("reportedDateTime")

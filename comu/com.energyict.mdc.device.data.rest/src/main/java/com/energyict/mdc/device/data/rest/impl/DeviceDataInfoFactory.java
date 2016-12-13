@@ -248,7 +248,7 @@ public class DeviceDataInfoFactory {
     }
 
     private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo, Register<?, ?> register) {
-        readingInfo.id = Long.parseLong("" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId());
+        readingInfo.id = "" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId();
         readingInfo.timeStamp = reading.getTimeStamp();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);

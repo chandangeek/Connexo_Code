@@ -1,19 +1,23 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.Test;
-
+import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -39,6 +43,12 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         scheduleIdsInfo.device.name = "XAF";
         scheduleIdsInfo.device.version = 1L;
         scheduleIdsInfo.device.parent = new VersionInfo<>(1L, 1L);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskEnablement.getComTask()).thenReturn(mock(ComTask.class));
+        ComTaskEnablement comTaskEnablement2 = mock(ComTaskEnablement.class);
+        when(comTaskEnablement2.getComTask()).thenReturn(mock(ComTask.class));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement, comTaskEnablement2));
 
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
         when(device.newScheduledComTaskExecution(schedule33)).thenReturn(builder);
@@ -46,6 +56,8 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         Response response = target("/devices/XAF/sharedschedules").request().put(Entity.json(scheduleIdsInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
+
 
     @Test
     public void testAddSharedSchedulesToDeviceBadVersion() throws Exception {
