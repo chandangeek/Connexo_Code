@@ -1,15 +1,13 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.streams.Predicates;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -17,7 +15,7 @@ import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that there is a {@link ManuallyScheduledComTaskExecution} on the device.
+ * that checks that there is a ComTaskExecution which has a schedule on the device.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:28)

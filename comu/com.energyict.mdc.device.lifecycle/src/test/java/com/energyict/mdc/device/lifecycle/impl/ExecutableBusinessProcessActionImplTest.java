@@ -15,7 +15,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ExecutableBusinessProcessActionImpl} component.
@@ -59,9 +61,10 @@ public class ExecutableBusinessProcessActionImplTest {
 
     @Test
     public void executeDelegatesToService() {
-        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service, Clock
-                .systemDefaultZone());
         Instant now = Instant.now();
+        Clock clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(now);
+        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service, clock);
 
         // Business method
         executableAction.execute(now, Collections.emptyList());
