@@ -3,6 +3,8 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum ConnectionState implements TranslationKey {
+    @Deprecated
+    UNDER_CONSTRUCTION("underConstruction", "Under construction"),
     CONNECTED("connected", "Connected"),
     PHYSICALLY_DISCONNECTED("physicallyDisconnected", "Physically disconnected"),
     LOGICALLY_DISCONNECTED("logicallyDisconnected", "Logically disconnected"),
