@@ -73,8 +73,8 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         get(ThreadPrincipalService.class).set(user);
 
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Life cycle");
-        state1 = lifeCycle.newState("State 1").setInitial().setStage(UsagePointStage.Stage.OPERATIONAL).complete();
-        state2 = lifeCycle.newState("State 2").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        state1 = lifeCycle.newState("State 1").setInitial().setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        state2 = lifeCycle.newState("State 2").setStage(UsagePointStage.Key.OPERATIONAL).complete();
         transition = lifeCycle.newTransition("Transition", state1, state2).withLevels(EnumSet.of(UsagePointTransition.Level.FOUR)).complete();
         lifeCycle.markAsDefault();
         usagePoint = get(MeteringService.class).getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint("Usage point", now().minus(2, ChronoUnit.HOURS)).create();
