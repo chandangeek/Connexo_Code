@@ -8,4 +8,7 @@ public class DualControlInfo {
     public boolean hasCurrentUserAccepted;
     public List<DualControlChangeInfo> changes;
     public PendingChangesType pendingChangesType;
+
+    public DualControlInfo() {
+    }
 }
