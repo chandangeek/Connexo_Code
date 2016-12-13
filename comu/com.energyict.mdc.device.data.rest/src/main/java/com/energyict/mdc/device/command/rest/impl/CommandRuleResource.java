@@ -93,7 +93,7 @@ public class CommandRuleResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response changeCommandRule(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        CommandRule commandRule = findAndLockCommandRule(id, commandRuleInfo);
         if (!commandRule.isActive() && commandRuleInfo.active) {
             commandRule.activate();
         } else if (commandRule.isActive() && !commandRuleInfo.active) {
@@ -114,7 +114,7 @@ public class CommandRuleResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response deleteCommandRule(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule =  commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        CommandRule commandRule =  findAndLockCommandRule(id, commandRuleInfo);
         commandRuleService.deleteRule(commandRule);
         return Response.ok().build();
     }
@@ -126,7 +126,7 @@ public class CommandRuleResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response acceptChanges(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        CommandRule commandRule = findAndLockCommandRule(id, commandRuleInfo);
         commandRule.approve();
         return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
@@ -139,7 +139,7 @@ public class CommandRuleResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     public Response rejectChanges(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
-        CommandRule commandRule = commandRuleService.findAndLockCommandRule(id, commandRuleInfo.version).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        CommandRule commandRule = findAndLockCommandRule(id, commandRuleInfo);
         commandRule.reject();
         return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
