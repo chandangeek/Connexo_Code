@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -47,12 +48,14 @@ public class DeviceAlarmResource{
 
     private final DeviceAlarmService deviceAlarmService;
     private final DeviceAlarmInfoFactory deviceAlarmInfoFactory;
+    private final IssueService issueService;
 
 
     @Inject
-    public DeviceAlarmResource(DeviceAlarmService deviceAlarmService, DeviceAlarmInfoFactory deviceAlarmInfoFactory){
+    public DeviceAlarmResource(DeviceAlarmService deviceAlarmService, DeviceAlarmInfoFactory deviceAlarmInfoFactory, IssueService issueService){
         this.deviceAlarmService = deviceAlarmService;
         this.deviceAlarmInfoFactory = deviceAlarmInfoFactory;
+        this.issueService = issueService;
     }
 
     @GET
@@ -89,9 +92,8 @@ public class DeviceAlarmResource{
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getComments(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-//        DeviceAlarm deviceAlarm = deviceAlarmService.findAlarm(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-//        return PagedInfoList.fromCompleteList("comments", getAlarmComments(deviceAlarm), queryParameters);
-        return null;
+        DeviceAlarm deviceAlarm = deviceAlarmService.findAlarm(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return PagedInfoList.fromCompleteList("comments", getAlarmComments(deviceAlarm), queryParameters);
     }
 
     @POST
@@ -110,7 +112,7 @@ public class DeviceAlarmResource{
 
     public List<IssueCommentInfo> getAlarmComments(DeviceAlarm deviceAlarm) {
         Condition condition = where("issueId").isEqualTo(deviceAlarm.getId());
-        Query<IssueComment> query = deviceAlarmService.query(IssueComment.class, User.class);
+        Query<IssueComment> query = issueService.query(IssueComment.class, User.class);
         List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
         return commentsList.stream().map(IssueCommentInfo::new).collect(Collectors.toList());
     }

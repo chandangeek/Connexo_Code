@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.alarms.rest;
 
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
@@ -37,6 +38,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile DeviceService deviceService;
     private volatile LogBookService logBookService;
+    private volatile IssueService issueService;
 
     public DeviceAlarmApplication(){
 
@@ -96,6 +98,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
         this.deviceService = deviceService;
     }
 
+    @Reference
+    public void setIssueService(IssueService issueService){
+        this.issueService = issueService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -105,6 +112,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(deviceService).to(DeviceService.class);
             bind(DeviceAlarmInfoFactory.class).to(DeviceAlarmInfoFactory.class);
             bind(logBookService).to(LogBookService.class);
+            bind(issueService).to(IssueService.class);
         }
     }
 }

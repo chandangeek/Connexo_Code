@@ -33,7 +33,7 @@ public class DeviceInfo {
                     .collect(Collectors.joining(", "));
         }
         this.location = formattedLocation;
-        device.getUsagePoint().ifPresent(up -> usagePoint = new IdWithNameInfo(up.getId(), up.getMRID()));
+        device.getUsagePoint().ifPresent(up -> usagePoint = new IdWithNameInfo(up.getId(), up.getName()));
     }
 
 }
