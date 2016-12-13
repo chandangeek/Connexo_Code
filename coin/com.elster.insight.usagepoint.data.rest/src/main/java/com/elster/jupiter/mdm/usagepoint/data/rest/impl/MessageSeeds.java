@@ -39,9 +39,13 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_SEARCH_DOMAIN_NOT_REGISTERED(38, "UsagePointSearchDomainNotRegistered", "Usage point search domain is not registered"),
     AT_LEAST_ONE_SEARCH_CRITERION(39, "AtLeastOneCriterion" , "At least one search criterion has to be provided"),
     SEARCHABLE_PROPERTY_INVALID_VALUE(40, "SearchablePropertyInvalidValue", "Invalid value"),
-    INVALID_ESTIMATOR_PROPERTY_VALUE(41, "invalidEstimatorPropertyValue", "Invalid property value"),
-    ESTIMATOR_REQUIRED(42, "EstimatorRequired", "Please select an estimator"),
-    ESTIMATOR_NOT_FOUND(43, "EstimatorNotValid", "Provided estimator is not valid");
+    NO_SUCH_CALENDAR(41, "NoSuchCalendar", "No such calendar."),
+    NO_APPSERVER(42, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
+    NO_SUCH_MESSAGE_QUEUE(43, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    INVALID_ESTIMATOR_PROPERTY_VALUE(44, "invalidEstimatorPropertyValue", "Invalid property value"),
+    ESTIMATOR_REQUIRED(45, "EstimatorRequired", "Please select an estimator"),
+    ESTIMATOR_NOT_FOUND(46, "EstimatorNotValid", "Provided estimator is not valid"),
+    BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}");
 
     private final int number;
     private final String key;
