@@ -1,16 +1,17 @@
 Ext.define('Cfg.view.validationtask.HistoryActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.cfg-tasks-history-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'view-log',
-            text: Uni.I18n.translate('validationTasks.general.viewLog', 'CFG', 'View log'),
-            action: 'viewLog'
-        }
-    ]
+    initComponent: function() {
+        this.items = [
+            {
+                itemId: 'view-log',
+                text: Uni.I18n.translate('validationTasks.general.viewLog', 'CFG', 'View log'),
+                action: 'viewLog',
+                section: this.SECTION_VIEW
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
 
 

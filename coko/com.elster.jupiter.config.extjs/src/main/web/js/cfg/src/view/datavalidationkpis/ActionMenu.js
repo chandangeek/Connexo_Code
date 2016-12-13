@@ -1,14 +1,15 @@
 Ext.define('Cfg.view.datavalidationkpis.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.cfg-data-validation-kpis-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),
-            itemId: 'remove-data-validation-kpi',
-            action: 'remove'
-        }
-    ]
+    initComponent: function() {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),
+                itemId: 'remove-data-validation-kpi',
+                action: 'remove',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
