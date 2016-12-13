@@ -68,7 +68,7 @@ public class UsagePointLifeCycleTransitionsResourceTest extends UsagePointLifeCy
         when(toState.getVersion()).thenReturn(1L);
         when(toState.getStage()).thenReturn(stage);
 
-        when(stage.getKey()).thenReturn(UsagePointStage.Stage.OPERATIONAL);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.OPERATIONAL);
 
         when(transition.getId()).thenReturn(6L);
         when(transition.getVersion()).thenReturn(7L);

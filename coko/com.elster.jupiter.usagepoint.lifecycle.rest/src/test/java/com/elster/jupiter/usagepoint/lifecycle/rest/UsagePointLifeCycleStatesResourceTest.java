@@ -47,7 +47,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(lifeCycle.getVersion()).thenReturn(4L);
         when(state.getLifeCycle()).thenReturn(lifeCycle);
         when(state.getStage()).thenReturn(stage);
-        when(stage.getKey()).thenReturn(UsagePointStage.Stage.OPERATIONAL);
+        when(stage.getKey()).thenReturn(UsagePointStage.Key.OPERATIONAL);
     }
 
     @Test
@@ -131,7 +131,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
         Response response = target("/lifecycle/12/states").request().post(json);
@@ -157,7 +157,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
@@ -197,7 +197,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
         Response response = target("/lifecycle/12/states/4").request().put(json);
@@ -229,7 +229,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         info.name = "State changed";
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -250,7 +250,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.version = 2L;
@@ -273,7 +273,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null, null));
         info.version = 2L;
@@ -302,7 +302,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -323,7 +323,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.version = 2L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -343,7 +343,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -362,7 +362,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -383,7 +383,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Stage.OPERATIONAL;
+        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);

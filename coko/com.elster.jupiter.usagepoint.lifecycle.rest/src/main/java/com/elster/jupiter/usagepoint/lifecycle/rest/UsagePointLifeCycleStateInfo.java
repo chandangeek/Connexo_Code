@@ -17,5 +17,5 @@ public class UsagePointLifeCycleStateInfo {
     public List<BusinessProcessInfo> onEntry = new ArrayList<>();
     public List<BusinessProcessInfo> onExit = new ArrayList<>();
     public VersionInfo<Long> parent;
-    public UsagePointStage.Stage stage;
+    public UsagePointStage.Key stage;
 }
