@@ -25,27 +25,29 @@ Ext.define('Dal.model.Alarm', {
         {name: 'id', type: 'int'},
         {name: 'dueDate', type: 'date', dateFormat: 'time'},
         {name: 'creationDate', type: 'date', dateFormat: 'time'},
-        {name: 'modTime', type: 'date', dateFormat: 'time'},
         {name: 'status', type: 'auto'},
         {name: 'statusName', type: 'auto', mapping: 'status.name'},
         {name: 'clearedStatus', type: 'auto'},
         {
             name: 'statusDetail',
             convert: function (value, rec) {
-                return '... has been cleared on ...';
+                if (rec.get('clearedStatus'))
+                    return Ext.String.format(Uni.I18n.translate('device.alarms.statusDetail', 'DAL', '{0} has been cleared on {1}'),
+                        rec.get('alarmId'), Uni.DateTime.formatDateTimeShort(new Date(rec.get('dueDate'))));
+                return null;
             }
         },
         {
             name: 'cleared',
             convert: function (value, rec) {
-                return value ? Uni.I18n.translate('device.alarms.cleared.yes', 'DAL', 'Yes') : Uni.I18n.translate('device.alarms.cleared.no', 'DAL', 'No');
+                return rec.get('clearedStatus') ? Uni.I18n.translate('device.alarms.cleared.yes', 'DAL', 'Yes') : Uni.I18n.translate('device.alarms.cleared.no', 'DAL', 'No');
             }
         },
-        {name: 'assignee', type: 'auto'},
+        {name: 'userAssignee', type: 'auto'},
         {
             name: 'user',
             persist: false,
-            mapping: 'assignee.name',
+            mapping: 'userAssignee.name',
             convert: function (value, rec) {
                 return value ? value : Uni.I18n.translate('device.alarms.user.unassigned', 'DAL', 'Unassigned');
             }
@@ -63,36 +65,26 @@ Ext.define('Dal.model.Alarm', {
 
         {name: 'reason', type: 'auto'},
         {name: 'reasonName', persist: false, mapping: 'reason.name'},
-        {
-            name: 'usagePointMRID', type: 'auto',
-            convert: function (value, rec) {
-                return 'UP_010000010001';
-            }
-        },
+        {name: 'usagePointMRID', mapping: 'device.usagePoint.mRID'},
         {name: 'deviceMRID', type: 'auto'},
-        {name: 'location', type: 'auto'},
+        {
+            name: 'location',
+            persist: false,
+            mapping: 'device.location'
+        },
 
         {name: 'logbook', type: 'auto'},
 
 
         {name: 'version', type: 'int'},
         {name: 'device', type: 'auto'},
-        {name: 'issueType', type: 'auto'},
-        {name: 'alarmId', type: 'string'},
-        {name: 'issueType_name', persist: false, mapping: 'issueType.name'},
 
+        {name: 'alarmId', type: 'string'},
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'deviceName', persist: false, mapping: 'device.name'},
 
-        {name: 'assignee_type', persist: false, mapping: 'assignee.type'},
-        {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'},
-        {name: 'service_location', persist: false, mapping: 'device.serviceLocation.info'},
-        {name: 'service_category', persist: false, mapping: 'device.serviceCategory.info'},
-        'deviceName',
-        'comTaskId',
-        'comTaskSessionId',
-        'connectionTaskId',
-        'comSessionId'
+        {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'}
+
     ],
     associations: [
         /*     {

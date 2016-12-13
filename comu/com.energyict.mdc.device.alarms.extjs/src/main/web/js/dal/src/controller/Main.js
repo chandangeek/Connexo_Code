@@ -14,8 +14,8 @@ Ext.define('Dal.controller.Main', {
 
     controllers: [
         'Dal.controller.history.Workspace',
-        //    'Idc.controller.MainOverview',
-        //  'Idc.controller.Detail',
+        'Dal.controller.Alarms',
+        'Dal.controller.Detail',
         //    'Isu.controller.MessageWindow'
     ],
 

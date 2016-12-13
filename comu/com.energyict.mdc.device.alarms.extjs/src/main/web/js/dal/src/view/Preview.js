@@ -76,7 +76,14 @@ Ext.define('Dal.view.Preview', {
                     {
                         itemId: 'alarm-location',
                         fieldLabel: Uni.I18n.translate('general.title.location', 'DAL', 'Location'),
-                        name: 'location'
+                        name: 'location',
+                        renderer: function (value) {
+                            if (!Ext.isEmpty(value)) {
+                                return Ext.String.htmlEncode(value).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
+                            } else {
+                                return '-'
+                            }
+                        }
                     },
                     {
                         itemId: 'alarm-logbook',
