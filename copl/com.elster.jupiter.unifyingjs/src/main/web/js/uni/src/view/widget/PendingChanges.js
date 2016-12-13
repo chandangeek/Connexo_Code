@@ -10,8 +10,8 @@ Ext.define('Uni.view.widget.PendingChanges', {
 
     title: Uni.I18n.translate('general.pendingChanges', 'UNI', 'Pending changes'),
     ui: 'large',
-    acceptRejectButtonsVisible: true,
-    acceptButtonDisabled: false,
+    approveRejectButtonsVisible: true,
+    approveButtonDisabled: false,
 
     initComponent: function() {
         var me = this;
@@ -30,15 +30,15 @@ Ext.define('Uni.view.widget.PendingChanges', {
             {
                 xtype: 'container',
                 itemId: 'uni-pendingChangesPnl-button-container',
-                hidden: !me.acceptRejectButtonsVisible,
+                hidden: !me.approveRejectButtonsVisible,
                 defaults: {
                     xtype: 'button'
                 },
                 items: [
                     {
-                        text: Uni.I18n.translate('general.accept', 'UNI', 'Accept'),
-                        itemId: 'uni-pendingChangesPnl-accept',
-                        disabled: me.acceptButtonDisabled
+                        text: Uni.I18n.translate('general.approve', 'UNI', 'Approve'),
+                        itemId: 'uni-pendingChangesPnl-approve',
+                        disabled: me.approveButtonDisabled
                     },
                     {
                         text: Uni.I18n.translate('general.reject', 'UNI', 'Reject'),
@@ -62,14 +62,14 @@ Ext.define('Uni.view.widget.PendingChanges', {
                 message.setText(Uni.I18n.translate('general.noPendingChanges', 'UNI', 'No pending changes found.'));
                 message.show();
             } else {
-                if (panel.acceptButtonDisabled) {
-                    message.setText(Uni.I18n.translate('general.waitingForOtherAcceptances', 'UNI', '[TBD] Other people have to accept.'));
+                if (panel.approveButtonDisabled) {
+                    message.setText(Uni.I18n.translate('general.waitingForOtherApprovals', 'UNI', 'Waiting for other users to approve.'));
                     message.show();
                 } else {
                     message.hide();
                 }
             }
-            buttonContainer.setVisible(panel.acceptRejectButtonsVisible && changesCount > 0);
+            buttonContainer.setVisible(panel.approveRejectButtonsVisible && changesCount > 0);
         }
     }
 });
