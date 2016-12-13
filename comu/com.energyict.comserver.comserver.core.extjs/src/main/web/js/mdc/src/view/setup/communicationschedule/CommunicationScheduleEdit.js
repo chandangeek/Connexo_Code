@@ -12,8 +12,9 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     ],
     router: null,
     isEdit: function () {
-        return this.edit;
+        return this.mode === 'edit';
     },
+    mode: null,
     initComponent: function () {
         var me = this;
 
@@ -276,10 +277,12 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
             }
         ];
         me.callParent(arguments);
-
         if (me.isEdit()) {
             me.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             me.down('#createEditButton').action = 'editCommunicationSchedule';
+        } else if (me.mode === 'clone') {
+            me.down('#createEditButton').setText(Uni.I18n.translate('general.clone', 'MDC', 'Clone'));
+            me.down('#createEditButton').action = 'createCommunicationSchedule';
         } else {
             me.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             me.down('#createEditButton').action = 'createCommunicationSchedule';

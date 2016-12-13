@@ -177,7 +177,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                value: ''
+                                                emptyValueDisplay: ''
                                             },
                                             {
                                                 xtype: 'container',

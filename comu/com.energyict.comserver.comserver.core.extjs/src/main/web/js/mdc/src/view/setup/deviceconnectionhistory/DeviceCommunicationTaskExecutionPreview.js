@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
     alias: 'widget.deviceCommunicationTaskExecutionPreview',
     itemId: 'deviceCommunicationTaskExecutionPreview',
     requires: [
+        'Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskGridActionMenu',
         'Uni.form.field.Duration'
     ],
     layout: {
@@ -14,8 +15,9 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
     tools: [
         {
             xtype: 'uni-button-action',
-            menu: [
-            ]
+            menu: {
+                xtype: 'mdc-device-communication-task-grid-action-menu'
+            }
         }
     ],
 

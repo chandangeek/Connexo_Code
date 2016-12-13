@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.ProtocolDialectsOfDevice',
-        'Mdc.view.setup.deviceprotocol.DeviceProtocolDialectActionMenu'
+        'Mdc.view.setup.deviceprotocol.DeviceProtocolDialectActionMenu',
+        'Uni.util.Common'
     ],
     selModel: {
         mode: 'SINGLE'
@@ -26,8 +27,8 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                items: 'Mdc.view.setup.protocoldialect.ProtocolDialectActionMenu',
-                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.protocolDialectsActions,
+                menu: { xtype: 'protocol-dialect-action-menu' },
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.protocolDialectsActions
             }
 
         ];
@@ -44,7 +45,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 params: [
-                    {deviceId: this.deviceId}
+                    {deviceId: Uni.util.Common.decodeURIArguments(this.deviceId)}
                 ],
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('protocolDialects.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Protocol dialects per page')

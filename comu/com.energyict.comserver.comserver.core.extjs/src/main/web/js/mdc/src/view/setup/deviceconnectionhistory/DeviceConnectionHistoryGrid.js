@@ -3,9 +3,11 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
     alias: 'widget.deviceConnectionHistoryGrid',
     itemId: 'deviceConnectionHistoryGrid',
     requires: [
+        'Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGridActionMenu',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Duration',
+        'Uni.grid.column.Action',
         'Uni.DateTime'
     ],
     store: 'DeviceConnectionHistory',
@@ -68,7 +70,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
             },
             {
                 itemId: 'action',
-                xtype: 'uni-actioncolumn'
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'mdc-device-connection-history-grid-action-menu'
+                }
             }
         ]
     },

@@ -44,7 +44,9 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.devicedataestimation.RulesSetActionMenu',
+                menu: {
+                    xtype: 'deviceDataEstimationRulesSetActionMenu'
+                },
                 privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfigurationOnDevice,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.estimationRuleSetsActions
             }

@@ -15,7 +15,11 @@ Ext.define('Mdc.model.DeviceSchedule', {
         {name: 'schedule', useNull: true},
         {name: 'plannedDate', dateFormat: 'time', type: 'date'},
         {name: 'nextCommunication', dateFormat: 'time', type: 'date'},
-        {name: 'comTaskInfos'},
+        {name: 'comTask'},
+        {name: 'active', type: 'boolean'},
+        {name: 'hasConnectionWindow', type: 'boolean'},
+        {name: 'connectionStrategyKey', type: 'string'},
+        {name: 'connectionDefinedOnDevice', type: 'boolean'},
         {name: 'type', type: 'string'}
     ],
     idProperty: 'internalId',
@@ -25,5 +29,17 @@ Ext.define('Mdc.model.DeviceSchedule', {
                 return 'Mdc.model.ComTask';
             }
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        urlTpl: '/api/ddr/devices/{mRID}/schedules/',
+        reader: {
+            type: 'json'
+        },
+        setUrl: function (deviceMRID) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(deviceMRID));
+        }
+    }
+
 });

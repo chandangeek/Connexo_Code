@@ -45,12 +45,14 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
             success: function (record) {
                 var gatewayType = record.get('gatewayType');
 
-                if (gatewayType === 'LAN' || gatewayType === 'HAN') {
-                    widget = Ext.widget('deviceTopologySetup', {device: record, router: router});
+                if (gatewayType === 'LAN' || gatewayType === 'HAN' || !record.get('isDirectlyAddressed')) {
+                    widget = Ext.widget('deviceTopologySetup', {device: record, router: router, hasgateway: (gatewayType === 'LAN' || gatewayType === 'HAN')});
                     me.getApplication().fireEvent('loadDevice', record);
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    deviceTopologyStore.getProxy().setExtraParam('deviceId', record.get('name'));
-                    deviceTopologyStore.load();
+                    if (gatewayType === 'LAN' || gatewayType === 'HAN') {
+                        deviceTopologyStore.getProxy().setExtraParam('deviceId', record.get('name'));
+                        deviceTopologyStore.load();
+                    }
                 } else {
                     window.location.replace(router.getRoute('notfound').buildUrl());
                 }

@@ -3,16 +3,19 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     alias: 'widget.tabbedDeviceChannelsView',
     itemId: 'tabbedDeviceChannelsView',
     requires: [
-        'Uni.view.toolbar.PreviousNextNavigation',
-        'Mdc.view.setup.devicechannels.TableView',
+        'Uni.view.toolbar.PreviousNextNavigation',        
         'Mdc.view.setup.devicechannels.GraphView',
+        'Mdc.view.setup.devicechannels.DataPreview',
+        'Mdc.view.setup.devicechannels.DataGrid',
         'Uni.grid.FilterPanelTop'
     ],
 
     store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
 
     mixins: {
-        bindable: 'Ext.util.Bindable'
+        bindable: 'Ext.util.Bindable',
+        graphWithGrid: 'Uni.util.GraphWithGrid',
+        readingsGraph: 'Uni.util.ReadingsGraph'
     },
 
     prevNextstore: null,
@@ -29,6 +32,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     filterDefault: {},
     mentionDataLoggerSlave: false,
     dataLoggerSlaveHistoryStore: null,
+    idProperty: 'interval_end',
 
     initComponent: function () {
         var me = this;
@@ -86,13 +90,44 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                             },
                             {
                                 xtype: 'deviceLoadProfileChannelGraphView',
-                                mentionDataLoggerSlave : me.mentionDataLoggerSlave
+                                mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                listeners: {
+                                    barselect: Ext.bind(me.onBarSelect, me)
+                                }
                             },
                             {
-                                xtype: 'deviceLoadProfileChannelTableView',
-                                channel: me.channel,
-                                router: me.router,
-                                mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')
+                                xtype: 'preview-container',
+                                itemId: 'channel-data-preview-container',
+                                grid: {
+                                    xtype: 'deviceLoadProfileChannelDataGrid',
+                                    channelRecord: me.channel,
+                                    router: me.router,
+                                    listeners: {
+                                        select: function (grid, record) {
+                                            me.down('#channel-data-preview-container').fireEvent('rowselect', record);
+                                        },
+                                        itemclick: function (dataView, record) {
+                                            if (me.down('deviceLoadProfileChannelDataGrid').getSelectionModel().isSelected(record)) {
+                                                me.down('#channel-data-preview-container').fireEvent('rowselect', record);
+                                            }
+                                        }
+                                    }
+                                },
+                                previewComponent: {
+                                    xtype: 'deviceLoadProfileChannelDataPreview',
+                                    channelRecord: me.channel,
+                                    router: me.router,
+                                    mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
+                                    hidden: true
+                                },
+                                emptyComponent: {
+                                    xtype: 'uni-form-empty-message',
+                                    itemId: 'ctr-table-no-data',
+                                    text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
+                                },
+                                listeners: {
+                                    rowselect: Ext.bind(me.onRowSelect, me)
+                                }
                             }
                         ]
                     }
@@ -160,75 +195,13 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         this.setLoading(true);
     },
 
-    onLoad: function () {
+    onLoad: function () {        
         this.showGraphView();
         this.setLoading(false);
     },
 
     onBeforeDestroy: function () {
         this.bindStore('ext-empty-store');
-    },
-
-    showGraphView: function () {
-        var me = this,
-            dataStore = me.store,
-            channelRecord = me.channel,
-            container = me.down('deviceLoadProfileChannelGraphView'),
-            zoomLevelsStore = Ext.getStore('Uni.store.DataIntervalAndZoomLevels'),
-            calculatedReadingType = channelRecord.get('calculatedReadingType'),
-            channelName = calculatedReadingType && calculatedReadingType.fullAliasName ? calculatedReadingType.fullAliasName : '',
-            unitOfMeasure = channelRecord.get('readingType').unit,
-            seriesObject = {
-                marker: {
-                    enabled: false
-                },
-                name: channelName
-            },
-            yAxis = {
-                opposite: false,
-                gridLineDashStyle: 'Dot',
-                showEmpty: false,
-                title: {
-                    rotation: 270,
-                    text: unitOfMeasure
-                }
-            },
-            series = [],
-            intervalRecord,
-            zoomLevels,
-            intervalLengthInMs;
-
-        seriesObject['data'] = [];
-
-        intervalRecord = zoomLevelsStore.getIntervalRecord(channelRecord.get('interval'));
-        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channelRecord.get('interval'));
-        zoomLevels = intervalRecord.get('zoomLevels');
-
-        switch (channelRecord.get('flowUnit')) {
-            case 'flow':
-                seriesObject['type'] = 'line';
-                seriesObject['step'] = false;
-                break;
-            case 'volume':
-                seriesObject['type'] = 'column';
-                seriesObject['step'] = true;
-                break;
-        }
-
-        Ext.suspendLayouts();
-        if (dataStore.getTotalCount() > 0) {
-            var data = me.formatData();
-            seriesObject['data'] = data.data;
-            seriesObject['turboThreshold'] = Number.MAX_VALUE;
-
-            series.push(seriesObject);
-            container.down('#graphContainer').show();
-            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels, data.missedValues);
-        } else {
-            container.down('#graphContainer').hide();
-        }
-        me.updateLayout();
-        Ext.resumeLayouts(true);
     },
 
     formatData: function () {
@@ -296,7 +269,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             }
 
             if (!Ext.isEmpty(slaveChannelInfo)) {
-                point.dataLoggerSlave = Ext.String.htmlEncode(slaveChannelInfo.name);
+                point.dataLoggerSlave = Ext.String.htmlEncode(slaveChannelInfo.deviceName);
                 point.color = dataSlaveColor;
                 point.tooltipColor = tooltipDataSlaveColor;
             }
@@ -322,5 +295,9 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             }
         }, me);
         return {data: data, missedValues: missedValues};
+    },
+
+    getValueFromPoint: function (point) {
+        return new Date(point.intervalEnd);
     }
 });

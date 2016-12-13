@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
     alias: 'widget.deviceConnectionHistoryPreview',
     itemId: 'deviceConnectionHistoryPreview',
     requires: [
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGridActionMenu'
     ],
     layout: {
         type: 'vbox',
@@ -16,8 +17,9 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
     tools: [
         {
             xtype: 'uni-button-action',
-            menu: [
-            ]
+            menu: {
+                xtype: 'mdc-device-connection-history-grid-action-menu'
+            }
         }
     ],
 
