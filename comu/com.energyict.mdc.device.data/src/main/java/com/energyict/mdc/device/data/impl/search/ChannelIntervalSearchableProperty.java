@@ -17,7 +17,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 
@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceProperty {
 
-    static final TimeDurationValueFactory TIME_DURATION_VALUE_FACTORY = new TimeDurationValueFactory();
+    static final TemporalAmountValueFactory TIME_DURATION_VALUE_FACTORY = new TemporalAmountValueFactory();
     static final String PROPERTY_NAME = "device.channel.interval";
 
     private final PropertySpecService propertySpecService;

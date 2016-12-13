@@ -23,7 +23,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.ValueBinder;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -195,7 +195,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         this.underConstruction.append(", instr(");
         this.underConstruction.append(columnName);
         this.underConstruction.append(", '");
-        this.underConstruction.append(TimeDurationValueFactory.VALUE_UNIT_SEPARATOR);
+        this.underConstruction.append(TemporalAmountValueFactory.VALUE_UNIT_SEPARATOR);
         this.underConstruction.append("') + 1 ) = ");
         this.underConstruction.addInt(timeUnitCode);
         this.underConstruction.append(" AND ");
@@ -204,7 +204,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         this.underConstruction.append(", 1, instr(");
         this.underConstruction.append(columnName);
         this.underConstruction.append(", '");
-        this.underConstruction.append(TimeDurationValueFactory.VALUE_UNIT_SEPARATOR);
+        this.underConstruction.append(TemporalAmountValueFactory.VALUE_UNIT_SEPARATOR);
         this.underConstruction.append("') - 1) between ");
         this.underConstruction.addLong(fromValue);
         this.underConstruction.append(" AND ");
