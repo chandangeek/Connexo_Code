@@ -62,7 +62,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private static final String ACTIVE_ENERGY_TOU2 = "13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
     private static final String DELTA_A_PLUS_WH = "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static final String BATTERY_STATUS = "0.0.0.12.0.41.11.0.0.0.0.0.0.0.0.-2.0.0";
-    private static final String GAS_FLOW = "0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0";
+    private static final String BILLING_GAS_FLOW = "8.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0";
 
     @Inject
     Installer(DataModel dataModel, UserService userService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
@@ -346,7 +346,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
                 .name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
@@ -391,26 +391,27 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.GAS
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
                 .name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRole);
 
-        ReadingType readingTypeGasFlow = meteringService.findReadingTypes(Collections.singletonList(GAS_FLOW))
+        ReadingType readingTypeGasFlow = meteringService.findReadingTypes(Collections.singletonList(BILLING_GAS_FLOW))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(GAS_FLOW, "Gas flow"));
+                .orElseGet(() -> meteringService.createReadingType(BILLING_GAS_FLOW, "Gas flow"));
 
         MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
 
         MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
 
-        ReadingTypeRequirement requirementBilling = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.GAS_FLOW_IRREGULAR.getNameTranslation()
+        ReadingTypeRequirement requirementBilling = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.GAS_FLOW_BILLING
+                .getNameTranslation()
                 .getDefaultFormat(), meterRole)
-                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.GAS_FLOW_IRREGULAR));
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.GAS_FLOW_BILLING));
 
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, DeliverableType.BILLING, readingTypeGasFlow, requirementBilling, "Billing Gas flow m3/h"));
     }
