@@ -146,9 +146,7 @@ public class CalendarResource {
     public Response removeCalendar(@PathParam("id") long id) {
         Calendar calendar = calendarService.findCalendar(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
-        if (calendarService.isCalendarInUse(calendar)) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TIME_OF_USE_CALENDAR_IN_USE);
-        } else if (!calendar.mayBeDeleted()) {
+        if (!calendar.mayBeDeleted()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.ACTIVE_CALENDAR_CANT_BE_REMOVED);
         } else {
             calendar.delete();
