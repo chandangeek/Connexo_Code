@@ -13,7 +13,7 @@ Ext.define('Imt.service.UsagePointGroupSearch', {
         }
         
         if (!Ext.Array.contains(excludedCriteria, property.get('name'))) {
-            me.callParent(arguments);
+            return me.callParent(arguments);
         }
     }
 });
