@@ -25,11 +25,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
@@ -101,13 +99,13 @@ public class DeviceImplSecurityPropertiesTest {
     @Mock
     private Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     @Mock
-    private Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
-    private Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     @Mock
-    private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
@@ -253,8 +251,8 @@ public class DeviceImplSecurityPropertiesTest {
                 this.dataModel, this.eventService, this.issueService, this.thesaurus, this.clock, this.meteringService,
                 this.validationService, this.securityPropertyService,
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
-                this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
-                this.firmwareComTaskExecutionProvider, this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
+                this.scheduledComTaskExecutionProvider,
+                this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
                 this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService, deviceService, lockService);
         device.initialize(this.deviceConfiguration, "Not persistent", null);
         return device;

@@ -6,7 +6,6 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -41,7 +40,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Gets the {@link ScheduledComTaskExecutionIdRange range} of IDs
-     * of {@link ScheduledComTaskExecution}s that are using the
+     * of ComTasksExecutions that are using the
      * {@link ComSchedule} with the specified ID.
      *
      * @param comScheduleId The ID of the ComSchedule
@@ -50,7 +49,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
     public Optional<ScheduledComTaskExecutionIdRange> getScheduledComTaskExecutionIdRange(long comScheduleId);
 
     /**
-     * Obsoletes all {@link ScheduledComTaskExecution}s that
+     * Obsoletes all ComTasksExecutions that
      * are in the specified {@link ScheduledComTaskExecutionIdRange range},
      * i.e. they are related to the {@link ComSchedule} and their
      * ID is between the min and max id of the range.

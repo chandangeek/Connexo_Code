@@ -24,7 +24,10 @@ import java.util.function.Supplier;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider", service = {QueryProvider.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider",
+        service = {QueryProvider.class},
+        property = "name=" + DeviceDataServices.COMPONENT_NAME,
+        immediate = true)
 public class DeviceEndDeviceQueryProvider implements QueryProvider<EndDevice> {
 
     public static final String DEVICE_END_DEVICE_QUERY_PROVIDER = DeviceEndDeviceQueryProvider.class.getName();
@@ -80,7 +83,7 @@ public class DeviceEndDeviceQueryProvider implements QueryProvider<EndDevice> {
     @Override
     public Query<EndDevice> getQuery(List<SearchablePropertyCondition> conditions) {
         SearchDomain deviceSearchDomain = searchService.findDomain(Device.class.getName()).get();
-        Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
+        Subquery subQuery = deviceSearchDomain.finderFor(conditions).asSubQuery("id");
         Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
         Query<EndDevice> endDeviceQuery = basicQuerySupplier.get();
         endDeviceQuery.setRestriction(amrCondition);

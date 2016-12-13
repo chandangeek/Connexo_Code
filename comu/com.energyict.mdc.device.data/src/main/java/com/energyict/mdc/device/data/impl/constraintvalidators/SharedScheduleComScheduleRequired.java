@@ -12,18 +12,18 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Copyrights EnergyICT
- * Date: 18/04/14
- * Time: 09:00
+ * Date: 18/11/16
+ * Time: 13:16
  */
-@Target({ java.lang.annotation.ElementType.TYPE })
+@Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { UniqueComSchedulePerDeviceValidator.class })
-public @interface UniqueComSchedulePerDevice {
+@Constraint(validatedBy = {SharedScheduleComScheduleRequiredValidator.class})
+public @interface SharedScheduleComScheduleRequired {
 
-    String message() default "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}";
+    String message() default "{" + MessageSeeds.Keys.COMSCHEDULE_IS_REQUIRED + "}";
 
-    Class<?>[] groups() default { };
+    Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default { };
+    Class<? extends Payload>[] payload() default {};
 }

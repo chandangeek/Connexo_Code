@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.scheduling.ScheduleAction;
+import com.energyict.mdc.scheduling.ScheduleAddStrategy;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class ItemizeComScheduleQueueMessage implements QueueMessage {
     public List<Long> deviceIds;
     public List<Long> scheduleIds;
     public ScheduleAction action;
+    public ScheduleAddStrategy strategy;
 
     public ItemizeComScheduleQueueMessage() {
     }

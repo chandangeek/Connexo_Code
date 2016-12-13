@@ -68,7 +68,7 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
                     deviceStream = queueMessage.deviceIds.stream().map(deviceService::findDeviceById).filter(Optional::isPresent).map(Optional::get);
                 }
                 deviceStream.forEach(
-                        device -> processMessagePost(new ComScheduleOnDeviceQueueMessage(scheduleId, device.getId(), queueMessage.action), destinationSpec.get()));
+                        device -> processMessagePost(new ComScheduleOnDeviceQueueMessage(scheduleId, device.getId(), queueMessage.action, queueMessage.strategy), destinationSpec.get()));
             }
         } else {
             LOGGER.log(Level.SEVERE, "Destination '" + SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION + "' is not available");

@@ -42,9 +42,7 @@ public class ComTasksMustBeEnabledByDeviceConfigurationValidator implements Cons
 
     private Set<Long> getComTaskIds(ComTaskExecutionImpl comTaskExecution) {
         Set<Long> comTaskIds = new HashSet<>();
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            comTaskIds.add(comTask.getId());
-        }
+        comTaskIds.add(comTaskExecution.getComTask().getId());
         return comTaskIds;
     }
 

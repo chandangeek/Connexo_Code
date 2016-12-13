@@ -23,8 +23,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -478,23 +476,23 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?, ?> connectionTask, Instant nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         comTaskExecutionBuilder.connectionTask(connectionTask);
-        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
         return comTaskExecutionUpdater.update();
     }
 
-    protected ScheduledComTaskExecution createComTaskExecution() {
+    protected ComTaskExecution createComTaskExecution() {
         return createComTaskExecution(comTaskEnablement1);
     }
 
-    protected ScheduledComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
+    protected ComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
-        ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         return comTaskExecution;
     }

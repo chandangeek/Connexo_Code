@@ -66,7 +66,7 @@ public class ComTaskEnablementChangeMessageHandler implements MessageHandler {
                 ComTaskEnablement comTaskEnablement = getComTaskEnablement(comTaskEnablementConfig, queueMessage.comTaskEnablementId);
                 if (comTaskEnablement.isIgnoreNextExecutionSpecsForInbound()) {
                     getDeviceStream(comTaskEnablementConfig, comTaskEnablement).filter(device ->
-                            device.getComTaskExecutions().stream().noneMatch(cte -> cte.getComTasks().stream().anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))).
+                            device.getComTaskExecutions().stream().noneMatch(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())).
                             forEach(device -> sendMessageOnSingleQueue(comTaskEnablementConfig,
                                     comTaskEnablementConfig.jsonService.serialize(
                                             new SingleComTaskEnablementQueueMessage(device.getId(), queueMessage.comTaskEnablementId)),
@@ -86,7 +86,7 @@ public class ComTaskEnablementChangeMessageHandler implements MessageHandler {
             }
 
             private void createComTaskExecutionsForEnablement(ComTaskEnablement comTaskEnablement, Device device) {
-                if (device.getComTaskExecutions().stream().noneMatch(cte -> cte.getComTasks().stream().anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))) {
+                if (device.getComTaskExecutions().stream().noneMatch(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())) {
                     device.newManuallyScheduledComTaskExecution(comTaskEnablement, null).add();
                 }
             }
