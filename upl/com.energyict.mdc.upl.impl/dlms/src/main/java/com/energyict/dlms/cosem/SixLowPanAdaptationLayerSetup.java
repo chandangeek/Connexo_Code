@@ -173,7 +173,31 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         write(SixLowPanAdaptationLayerSetupAttribute.ADP_SECURITY_LEVEL, value.getBEREncodedByteArray());
     }
 
-    public void writeRoutingConfiguration(int adp_net_traversal_time,
+    // default write with 15 parameters (IC > 0)
+    public void writeRoutingConfiguration( int adp_net_traversal_time,
+                                           int adp_routing_table_entry_TTL,
+                                           int routing_tuple_TTL,
+                                           int adp_Kr,
+                                           int adp_Km,
+                                           int adp_Kc,
+                                           int adp_Kq,
+                                           int adp_Kh,
+                                           int adp_Krt,
+                                           int adp_RREQ_retries,
+                                           int adp_RREQ_RERR_wait,
+                                           int adp_Blacklist_table_entry_TTL,
+                                           boolean adp_unicast_RREQ_gen_enable,
+                                           boolean adp_RLC_enabled,
+                                           int adp_add_rev_link_cost) throws IOException {
+        writeRoutingConfiguration( false,
+                adp_net_traversal_time,adp_routing_table_entry_TTL,routing_tuple_TTL, adp_Kr, adp_Km, adp_Kc,
+                adp_Kq, adp_Kh, adp_Krt, adp_RREQ_retries, adp_RREQ_RERR_wait, adp_Blacklist_table_entry_TTL,
+                adp_unicast_RREQ_gen_enable, adp_RLC_enabled, adp_add_rev_link_cost);
+
+    }
+
+    public void writeRoutingConfiguration( boolean isICver0,
+                                          int adp_net_traversal_time,
                                           int adp_routing_table_entry_TTL,
                                           int routing_tuple_TTL,
                                           int adp_Kr,
@@ -193,7 +217,9 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         Structure routingConfiguration = new Structure();
         routingConfiguration.addDataType(new Unsigned8(adp_net_traversal_time));
         routingConfiguration.addDataType(new Unsigned16(adp_routing_table_entry_TTL));
-        routingConfiguration.addDataType(new Unsigned16(routing_tuple_TTL));
+        if (!isICver0) {// this is not available in IC ver 0
+            routingConfiguration.addDataType(new Unsigned16(routing_tuple_TTL));
+        }
         routingConfiguration.addDataType(new Unsigned8(adp_Kr));
         routingConfiguration.addDataType(new Unsigned8(adp_Km));
         routingConfiguration.addDataType(new Unsigned8(adp_Kc));

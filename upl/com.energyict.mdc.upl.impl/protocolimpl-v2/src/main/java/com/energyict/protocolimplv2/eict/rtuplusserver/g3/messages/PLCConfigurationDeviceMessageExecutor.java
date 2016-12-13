@@ -192,6 +192,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         int adp_add_rev_link_cost = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.adp_add_rev_link_cost).getDeviceMessageAttributeValue());
 
         cof.getSixLowPanAdaptationLayerSetup().writeRoutingConfiguration(
+                isICVersion0(),
                 adp_net_traversal_time,
                 adp_routing_table_entry_TTL,
                 adp_routing_tuple_TTL,
@@ -208,6 +209,14 @@ public class PLCConfigurationDeviceMessageExecutor {
                 adp_RLC_enabled,
                 adp_add_rev_link_cost
         );
+    }
+
+    /**
+     *  Flag if this is a IC version 0 or greater.
+     *  Beacon3100 uses version 0, which causes some issues on adp_routing_configuration
+     */
+    protected boolean isICVersion0() {
+        return false;
     }
 
     private void setBroadCastLogTableEntryTTL(OfflineDeviceMessage pendingMessage) throws IOException {
