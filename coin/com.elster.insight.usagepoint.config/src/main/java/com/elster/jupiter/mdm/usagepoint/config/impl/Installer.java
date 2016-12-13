@@ -115,8 +115,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 PhaseCode.S1.name(),
                 PhaseCode.S2.name(),
                 PhaseCode.S12.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
-                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
@@ -190,8 +189,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 PhaseCode.S1.name(),
                 PhaseCode.S2.name(),
                 PhaseCode.S12.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
-                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRoleConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.CONSUMPTION.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Consumption meter role not found"));
@@ -245,8 +243,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 PhaseCode.S1.name(),
                 PhaseCode.S2.name(),
                 PhaseCode.S12.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
-                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
@@ -292,8 +289,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 PhaseCode.S1.name(),
                 PhaseCode.S2.name(),
                 PhaseCode.S12.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
-                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
@@ -434,8 +430,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
         config.addUsagePointRequirement(getUsagePointRequirement(DETAIL_PHASE_CODE, SearchablePropertyOperator.EQUAL,
                 PhaseCode.ABC.name(),
                 PhaseCode.ABCN.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
-                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
@@ -552,8 +547,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 PhaseCode.S1.name(),
                 PhaseCode.S2.name(),
                 PhaseCode.S12.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
-                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
@@ -614,8 +608,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.GAS
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
-                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
@@ -663,8 +656,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
         config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.WATER
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.PHYSICAL_SDP
-                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRolePeakConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.PEAK_CONSUMPTION
                 .getKey())
