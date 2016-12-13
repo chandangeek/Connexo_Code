@@ -309,9 +309,9 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGIZATION)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.NOTAPPLICABLE)
                 .done();
-        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_FLOW_IRREGULAR)
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_FLOW_BILLING)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
-                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.BILLINGPERIOD)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
