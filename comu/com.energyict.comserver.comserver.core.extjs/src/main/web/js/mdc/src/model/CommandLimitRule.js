@@ -2,7 +2,8 @@ Ext.define('Mdc.model.CommandLimitRule',{
     extend: 'Uni.model.Version',
 
     requires: [
-        'Mdc.model.DualControlInfo'
+        'Mdc.model.DualControlInfo',
+        'Mdc.model.Command'
     ],
 
     fields: [
@@ -12,7 +13,7 @@ Ext.define('Mdc.model.CommandLimitRule',{
         {name:'dayLimit', type: 'int'},
         {name:'weekLimit', type: 'int'},
         {name:'monthLimit', type: 'int'},
-        {name:'commands', type: 'auto'},
+        {name:'commands'},
         {name:'statusMessage', type: 'string', useNull: true},
         {name: 'availableActions', type: 'auto'},
 
@@ -37,6 +38,16 @@ Ext.define('Mdc.model.CommandLimitRule',{
             associationKey: 'dualControl',
             getterName: 'getDualControl',
             setterName: 'setDualControl'
+        },
+        {
+            name: 'commands',
+            type: 'hasMany',
+            model: 'Mdc.model.Command',
+            associationKey: 'commands',
+            foreignKey: 'commands',
+            getTypeDiscriminator: function (node) {
+                return 'Mdc.model.Command';
+            }
         }
     ],
 

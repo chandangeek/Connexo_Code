@@ -80,8 +80,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             'commandRuleAddEdit': {
                 render: me.initializeStores
             },
-            'commandRulesPendingChangesOverview #uni-pendingChangesPnl-accept': {
-                click: me.onAcceptPendingChanges
+            'commandRulesPendingChangesOverview #uni-pendingChangesPnl-approve': {
+                click: me.onApprovePendingChanges
             },
             'commandRulesPendingChangesOverview #uni-pendingChangesPnl-reject': {
                 click: me.onRejectPendingChanges
@@ -156,6 +156,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 }
                 break;
             case menu.ACTION_EDIT_RULE:
+                me.router.getRoute('administration/commandrules/view/edit').forward({ruleId: record.get('id')});
                 break;
             case menu.ACTION_VIEW_PENDING_CHANGES:
                 me.router.getRoute('administration/commandrules/view/changes').forward({ruleId: record.get('id')});
@@ -166,33 +167,62 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         }
     },
 
-    showAddCommandRule: function() {
+    showAddEditCommandRule: function() {
         var me = this,
             widget = Ext.widget('commandRuleAddEdit'),
             ruleId = me.router.arguments['ruleId'];
 
         me.getApplication().fireEvent('changecontentevent', widget);
-        //me.getTaskEdit().down('toolbar').getComponent('createEditTask').setText(
-        //    Ext.isEmpty(taskId)
-        //        ? Uni.I18n.translate('general.add', 'MDC', 'Add')
-        //        : Uni.I18n.translate('general.save', 'MDC', 'Save')
-        //);
-        //me.getTaskEdit().down('toolbar').getComponent('createEditTask').action = Ext.isEmpty(taskId) ? 'add' : 'save';
+        me.getRuleEdit().down('#mdc-command-rule-addEdit-add-button').setText(
+            Ext.isEmpty(ruleId)
+                ? Uni.I18n.translate('general.add', 'MDC', 'Add')
+                : Uni.I18n.translate('general.save', 'MDC', 'Save')
+        );
         me.getRuleEdit().getCenterContainer().down().setTitle(
             Ext.isEmpty(ruleId)
                 ? Uni.I18n.translate('commandRules.create', 'MDC', 'Add command limitation rule')
                 : Uni.I18n.translate('commandRules.edit', 'MDC', 'Edit command limitation rule')
         );
-        if (ruleId) {
-        //    me.loadModelToEditForm(taskId, widget);
-        } else {
+        if (Ext.isEmpty(ruleId)) {
             me.commandRuleBeingEdited = null;
             me.goToRulesOverview = true;
+        } else {
+            me.loadModelToEditForm(ruleId, widget);
         }
 
         if (me.clipBoardHasData()) {
             me.setFormValues(widget);
         }
+    },
+
+    loadModelToEditForm: function (ruleId, widget) {
+        var me = this,
+            editView = me.getRuleEdit(),
+            rulesModel = me.getModel('Mdc.model.CommandLimitRule'),
+            infoPanel = editView.down('#mdc-command-rule-addEdit-infoPanel');
+
+        widget.setLoading(true);
+        rulesModel.load(ruleId, {
+            success: function (commandRule) {
+                me.commandRuleBeingEdited = commandRule;
+                if (!Ext.isEmpty(commandRule.getDualControl())) { // Pending changes
+                    editView.down('#mdc-command-rule-addEdit-infoMsg').setText(
+                        Uni.I18n.translate('general.commandRuleXHasPendingChanges', 'MDC',
+                            "'{0}' already has pending changes. Your edit will cancel the current changes.",
+                            commandRule.get('name'))
+                    );
+                    infoPanel.show();
+                } else {
+                    infoPanel.hide();
+                }
+                editView.getCenterContainer().down().setTitle(
+                    Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", commandRule.get('name'))
+                );
+                me.getApplication().fireEvent('loadCommandRule', commandRule);
+                editView.loadCommandRule(commandRule);
+                widget.setLoading(false);
+            }
+        });
     },
 
     onCancelAddEdit: function() {
@@ -215,9 +245,9 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             form = page.down('#mdc-command-rule-addEdit-rule-form'),
             formValues = form.getValues(),
             formErrorsPanel = form.down('#mdc-command-rule-addEdit-error'),
-            dayLimitContainer = form.down('#mdc-command-rule-addEdit-dayLimit-radioGroup'),
-            weekLimitContainer = form.down('#mdc-command-rule-addEdit-weekLimit-radioGroup'),
-            monthLimitContainer = form.down('#mdc-command-rule-addEdit-monthLimit-radioGroup'),
+            dayLimitContainer = form.down('#mdc-command-rule-addEdit-dayLimit-radioGroupContainer'),
+            weekLimitContainer = form.down('#mdc-command-rule-addEdit-weekLimit-radioGroupContainer'),
+            monthLimitContainer = form.down('#mdc-command-rule-addEdit-monthLimit-radioGroupContainer'),
             commandsContainer = form.down('#mdc-command-rule-addEdit-commands-fieldContainer');
 
         formErrorsPanel.hide();
@@ -467,7 +497,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             });
 
         confirmationWindow.show({
-            msg: Uni.I18n.translate('commandRule.activateMsg', 'MDC', 'Two people have to approve the activation. (To be defined).'),
+            msg: Uni.I18n.translate('commandRule.changeRequestPending', 'MDC', 'The requested change is now pending and sent for approval.'),
             title: Uni.I18n.translate('general.activateRuleX', 'MDC', 'Activate "{0}"?', rule.get('name'))
         });
     },
@@ -505,7 +535,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             });
 
         confirmationWindow.show({
-            msg: Uni.I18n.translate('commandRule.deactivateMsg', 'MDC', '[TBD] Two people have to approve the deactivation.'),
+            msg: Uni.I18n.translate('commandRule.changeRequestPending', 'MDC', 'The requested change is now pending and sent for approval.'),
             title: Uni.I18n.translate('general.deactivateRuleX', 'MDC', 'Deactivate "{0}"?', rule.get('name'))
         });
     },
@@ -560,15 +590,15 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         });
     },
 
-    onAcceptPendingChanges: function() {
-        this.performAcceptOrReject('accept');
+    onApprovePendingChanges: function() {
+        this.performApproveOrReject('accept');
     },
 
     onRejectPendingChanges: function() {
-        this.performAcceptOrReject('reject');
+        this.performApproveOrReject('reject');
     },
 
-    performAcceptOrReject: function(action) {
+    performApproveOrReject: function(action) {
         var me = this,
             commandRuleId = me.commandRuleBeingEdited.get('id');
 
@@ -579,18 +609,18 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             success: function (response) {
                 var jsonResponse = Ext.decode(response.responseText, true);
                 if (Ext.isEmpty(jsonResponse.dualControl)) { // No more pending changes
-                    if (me.commandRuleBeingEdited.getDualControl().get('pendingChangesType') === 'REMOVAL') { // Removal accepted, so
+                    if (me.commandRuleBeingEdited.getDualControl().get('pendingChangesType') === 'REMOVAL') { // Removal approved, so
                         me.router.getRoute('administration/commandrules').forward(); // navigate to the rules overview
                     } else {
                         if (action === 'accept') {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.accept.success', 'MDC', '[TBD] Command limitation rule saved.'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.approve.success', 'MDC', 'Pending changes approved.'));
                         } else { // this was a reject
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.reject.success', 'MDC', '[TBD] Rejected message.'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.reject.success', 'MDC', 'Pending changes rejected.'));
                         }
                         me.router.getRoute('administration/commandrules/view').forward({ruleId: commandRuleId}); // navigate to the rule's detail page
                     }
                 } else {
-                    // Still others to accept, so refresh current page
+                    // Still others to approve, so refresh current page
                     me.router.getRoute(me.router.currentRoute).forward();
                 }
             }

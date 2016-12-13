@@ -22,8 +22,8 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePendingChangesOverview', {
                     store: Ext.isEmpty(me.commandRuleRecord.getDualControl())
                         ? Ext.create('Uni.store.PendingChanges')
                         : me.commandRuleRecord.getDualControl().changes(),
-                    acceptRejectButtonsVisible: Mdc.privileges.CommandLimitationRules.canAcceptReject(),
-                    acceptButtonDisabled: Ext.isEmpty(me.commandRuleRecord.getDualControl())
+                    approveRejectButtonsVisible: Mdc.privileges.CommandLimitationRules.canApproveReject(),
+                    approveButtonDisabled: Ext.isEmpty(me.commandRuleRecord.getDualControl())
                         ? false
                         : me.commandRuleRecord.getDualControl().get('hasCurrentUserAccepted')
                 }
