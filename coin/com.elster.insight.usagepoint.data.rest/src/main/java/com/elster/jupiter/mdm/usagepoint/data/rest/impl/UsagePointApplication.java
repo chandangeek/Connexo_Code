@@ -112,10 +112,10 @@ public class UsagePointApplication extends Application implements TranslationKey
                 RestValidationExceptionMapper.class,
                 UsagePointGroupResource.class,
                 EstimationErrorExceptionMapper.class,
-                EstimatorPropertiesExceptionMapper.class
+                EstimatorPropertiesExceptionMapper.class,
                 UsagePointCalendarResource.class,
                 UsagePointCalendarHistoryResource.class,
-                BulkScheduleResource.class,
+                BulkScheduleResource.class
         );
     }
 
