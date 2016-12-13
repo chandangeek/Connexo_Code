@@ -109,11 +109,11 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("VAL_PK_OPNALM_REL_EVTS").on(alarmColumn, eventRecordColumn, endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
             table.foreignKey("VAL_FK_OPNALM_REL_EVTS")
-                    .references(DAL_ALARM_OPEN.name())
                     .on(alarmColumn)
-                    .onDelete(CASCADE)
+                    .references(DAL_ALARM_OPEN.name())
                     .map(DeviceAlarmRelatedEventImpl.Fields.AlARM.fieldName())
                     .reverseMap(DeviceAlarmImpl.Fields.DEVICE_ALARM_RELATED_EVENTS.fieldName())
+                    .onDelete(CASCADE)
                     .composition().add();
             table.foreignKey("VAL_FK_OPNALM_REL_EVTSEVT")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
@@ -152,11 +152,12 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("VAL_PK_HSTALM_REL_EVTS").on(alarmColumn, eventRecordColumn, endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
             table.foreignKey("VAL_FK_HSTALM_REL_EVTSALM")
-                    .references(DAL_ALARM_HISTORY.name())
                     .on(alarmColumn)
+                    .references(DAL_ALARM_HISTORY.name())
                     .map(DeviceAlarmRelatedEventImpl.Fields.AlARM.fieldName())
                     .reverseMap(DeviceAlarmImpl.Fields.DEVICE_ALARM_RELATED_EVENTS.fieldName())
-                    .composition().onDelete(CASCADE).add();
+                    .onDelete(CASCADE)
+                    .composition().add();
             table.foreignKey("VAL_FK_HSTALM_REL_EVTSEVT")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
                     .references(EndDeviceEventRecord.class)

@@ -15,7 +15,7 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 
-public class HistoricalDeviceAlarmImpl extends DeviceAlarmImpl implements HistoricalDeviceAlarm {
+public final class HistoricalDeviceAlarmImpl extends DeviceAlarmImpl implements HistoricalDeviceAlarm {
 
     @IsPresent
     private Reference<HistoricalIssue> baseIssue = ValueReference.absent();
