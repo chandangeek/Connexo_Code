@@ -46,7 +46,7 @@ public class CommandRuleNameValidator implements ConstraintValidator<UniqueName,
 
         boolean collisionWithOtherCommandRule = commandRule instanceof CommandRule && other.isPresent() && other.get().getId() != commandRule.getId();
         boolean collisionAsTemplateWithOtherRule = commandRule instanceof CommandRulePendingUpdate && other.isPresent() && ((CommandRulePendingUpdateImpl)commandRule).getCommandRule().getId() != other.get().getId();
-        boolean collisionAsTemplateWithOtherTemplate = commandRule instanceof CommandRulePendingUpdate && otherTemplate.isPresent() && other.get().getId() != commandRule.getId();
+        boolean collisionAsTemplateWithOtherTemplate = commandRule instanceof CommandRulePendingUpdate && otherTemplate.isPresent() && otherTemplate.get().getId() != commandRule.getId();
 
         return collisionWithOtherCommandRule || collisionAsTemplateWithOtherRule || collisionAsTemplateWithOtherTemplate;
     }
