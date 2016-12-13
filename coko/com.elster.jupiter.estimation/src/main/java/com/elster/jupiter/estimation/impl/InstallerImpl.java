@@ -6,6 +6,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.metering.GasDayOptions;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -36,6 +38,7 @@ import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_WEEK;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
+import static com.elster.jupiter.util.streams.Currying.perform;
 
 class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
@@ -48,16 +51,18 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private final TimeService timeService;
     private final EventService eventService;
     private final UserService userService;
+    private final MeteringService meteringService;
 
     private DestinationSpec destinationSpec;
 
     @Inject
-    InstallerImpl(DataModel dataModel, MessageService messageService, TimeService timeService, EventService eventService, UserService userService) {
+    InstallerImpl(DataModel dataModel, MessageService messageService, TimeService timeService, EventService eventService, UserService userService, MeteringService meteringService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.timeService = timeService;
         this.eventService = eventService;
         this.userService = userService;
+        this.meteringService = meteringService;
     }
 
     public DestinationSpec getDestinationSpec() {
@@ -142,6 +147,15 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
                     relativePeriod.addRelativePeriodCategory(category);
                 });
 
+        this.meteringService
+                .getGasDayOptions()
+                .ifPresent(perform(this::createGasRelativePeriods).with(category));
+    }
+
+    private void createGasRelativePeriods(GasDayOptions gasDayOptions, RelativePeriodCategory category) {
+        gasDayOptions
+                .getRelativePeriods()
+                .forEach(relativePeriod -> relativePeriod.addRelativePeriodCategory(category));
     }
 
     private void createEventTypes() {
