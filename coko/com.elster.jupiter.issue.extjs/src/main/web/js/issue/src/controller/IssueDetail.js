@@ -115,7 +115,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 });
             }
         );
-        if(Isu.privileges.Issue.canViewProcesses()) {
+        if (me.canViewProcesses()) {
             procesStore.each(function (rec) {
                     data.push({
                         user: rec.data.startedBy,
@@ -137,7 +137,7 @@ Ext.define('Isu.controller.IssueDetail', {
         timelineView.bindStore(timelineStore);
         timelineView.previousSibling('#no-issue-timeline').setVisible(timelineStore.data.items.length <= 0);
 
-        if(!Isu.privileges.Issue.canViewProcesses()) return;
+        if (!me.canViewProcesses()) return;
 
         procesStore.sort('startDate', 'DESC');
         processView.bindStore(procesStore);
@@ -169,7 +169,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsStore.add(records);
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
-                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && Isu.privileges.Issue.canComment());
+                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && me.canComment());
                 if ((issueType === 'datacollection') || (issueType === 'alarm')) {
                     me.loadTimeline(commentsStore);
                 }
@@ -222,7 +222,7 @@ Ext.define('Isu.controller.IssueDetail', {
         Ext.suspendLayouts();
         commentsPanel.down('#issue-add-comment-form').hide();
         commentsPanel.down('#issue-add-comment-area').reset();
-        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && Isu.privileges.Issue.canComment());
+        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && this.canComment());
         commentsPanel.down('#no-issue-comments').setVisible(!hasComments);
         Ext.resumeLayouts(true);
     },
@@ -453,5 +453,13 @@ Ext.define('Isu.controller.IssueDetail', {
         if (issueType === 'datavalidation') {
             me.addValidationBlocksWidget(widget);
         }
+    },
+
+    canViewProcesses: function () {
+        return Isu.privileges.Issue.canViewProcesses();
+    },
+
+    canComment: function () {
+        return Isu.privileges.Issue.canComment();
     }
 });
