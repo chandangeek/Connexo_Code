@@ -2,8 +2,10 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserService;
 
@@ -11,8 +13,10 @@ import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -68,8 +72,13 @@ final class ResourceImpl implements Resource {
 
     @Override
     public void createPrivilege(String name) {
+        createPrivilege(name, userService.getDefaultPrivilegeCategory());
+    }
+
+    @Override
+    public void createPrivilege(String name, PrivilegeCategory category) {
         if (getPrivileges().stream().map(Privilege::getName).noneMatch(s -> Objects.equals(s, name))) {
-            PrivilegeImpl result = PrivilegeImpl.from(dataModel, name, this, userService.getDefaultPrivilegeCategory());
+            PrivilegeImpl result = PrivilegeImpl.from(dataModel, name, this, category);
             result.persist();
             doGetPrivileges().add(result);
         }
@@ -127,5 +136,47 @@ final class ResourceImpl implements Resource {
     @Override
     public GrantPrivilegeBuilder createGrantPrivilege(String name) {
         return new GrantPrivilegeBuilderImpl(dataModel, userService, this, name);
+    }
+
+    class GrantPrivilegeBuilderImpl implements GrantPrivilegeBuilder {
+
+        private final DataModel dataModel;
+        private final UserService userService;
+        private final Resource resource;
+        private final String name;
+        private PrivilegeCategory category;
+        private final Set<PrivilegeCategory> categories = new HashSet<>();
+
+        GrantPrivilegeBuilderImpl(DataModel dataModel, UserService userService, Resource resource, String name) {
+            this.dataModel = dataModel;
+            this.userService = userService;
+            this.resource = resource;
+            this.name = name;
+        }
+
+        @Override
+        public GrantPrivilegeBuilder in(PrivilegeCategory category) {
+            this.category = category;
+            return this;
+        }
+
+        @Override
+        public GrantPrivilegeBuilder forCategory(PrivilegeCategory privilegeCategory) {
+            categories.add(privilegeCategory);
+            return this;
+        }
+
+        @Override
+        public GrantPrivilege create() {
+            GrantPrivilegeImpl grantPrivilege = GrantPrivilegeImpl.from(dataModel, name, resource, getCategory());
+            categories.forEach(grantPrivilege::addGrantableCategory);
+            dataModel.mapper(Privilege.class).persist(grantPrivilege);
+            doGetPrivileges().add(grantPrivilege);
+            return grantPrivilege;
+        }
+
+        private PrivilegeCategory getCategory() {
+            return category == null ? userService.getDefaultPrivilegeCategory() : category;
+        }
     }
 }

@@ -153,4 +153,6 @@ public interface UserService {
     Optional<PrivilegeCategory> findPrivilegeCategory(String name);
 
     PrivilegeCategory getDefaultPrivilegeCategory();
+
+    ResourceBuilder buildResource();
 }

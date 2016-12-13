@@ -31,6 +31,7 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceBuilder;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
@@ -774,6 +775,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return findPrivilegeCategory(DEFAULT_CATEGORY_NAME).orElseThrow(() -> new IllegalStateException("Cannot get default privilege category before installation"));
     }
 
+    @Override
+    public ResourceBuilder buildResource() {
+        return new ResourceBuilderImpl(dataModel);
+    }
+
     void createDefaultPrivilegeCategory() {
         createPrivilegeCategory(DEFAULT_CATEGORY_NAME);
     }
@@ -912,4 +918,5 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         result.persist();
         return result;
     }
+
 }

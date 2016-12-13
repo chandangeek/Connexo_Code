@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.PrivilegeCategory;
 
 import javax.inject.Inject;
+import java.util.Objects;
 
 class PrivilegeCategoryImpl implements PrivilegeCategory {
 
@@ -35,5 +36,22 @@ class PrivilegeCategoryImpl implements PrivilegeCategory {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PrivilegeCategoryImpl that = (PrivilegeCategoryImpl) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

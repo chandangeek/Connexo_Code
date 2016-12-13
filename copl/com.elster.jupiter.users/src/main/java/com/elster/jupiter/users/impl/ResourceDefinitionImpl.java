@@ -82,6 +82,11 @@ public class ResourceDefinitionImpl implements ResourceDefinition {
     }
 
     @Override
+    public void createPrivilege(String name, PrivilegeCategory category) {
+
+    }
+
+    @Override
     public List<Privilege> getPrivileges() {
         return privileges;
     }
