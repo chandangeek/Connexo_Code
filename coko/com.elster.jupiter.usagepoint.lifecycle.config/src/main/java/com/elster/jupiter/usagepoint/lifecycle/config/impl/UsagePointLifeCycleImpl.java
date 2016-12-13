@@ -185,6 +185,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
             new ArrayList<>(this.transitions).forEach(UsagePointTransitionImpl::remove); // can't just clear due to event type
             this.obsoleteTime = this.clock.instant();
             this.save();
+            this.stateMachine.get().makeObsolete();
             this.eventService.postEvent(EventType.LIFE_CYCLE_DELETED.topic(), this);
         }
     }

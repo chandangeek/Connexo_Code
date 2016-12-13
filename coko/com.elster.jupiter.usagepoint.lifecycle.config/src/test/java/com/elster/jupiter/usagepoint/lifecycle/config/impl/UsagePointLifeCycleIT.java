@@ -239,4 +239,18 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         assertThat(transition.get().getTo()).isEqualTo(demolished.get());
         assertThat(DefaultTransition.getDefaultTransition(transition.get())).contains(DefaultTransition.DEMOLISH_FROM_INACTIVE);
     }
+
+    @Test
+    @Transactional
+    public void testCanCreateLifeCycleWithNameOfDeletedLifeCycle() {
+        UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
+        UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
+        lifeCycle.remove();
+        long id = lifeCycle.getId();
+
+        lifeCycle = service.newUsagePointLifeCycle("Test");
+
+        // assert no exception
+        assertThat(lifeCycle.getId()).isNotEqualTo(id);
+    }
 }
