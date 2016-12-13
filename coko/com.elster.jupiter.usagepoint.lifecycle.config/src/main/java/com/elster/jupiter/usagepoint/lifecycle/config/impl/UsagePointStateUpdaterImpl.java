@@ -11,7 +11,7 @@ public class UsagePointStateUpdaterImpl implements UsagePointState.UsagePointSta
     private final FiniteStateMachineUpdater stateMachineUpdater;
     private final FiniteStateMachineUpdater.StateUpdater stateUpdater;
     private boolean isInitial;
-    private UsagePointStage.Stage stage;
+    private UsagePointStage.Key stage;
 
     public UsagePointStateUpdaterImpl(UsagePointStateImpl state) {
         this.state = state;
@@ -56,7 +56,7 @@ public class UsagePointStateUpdaterImpl implements UsagePointState.UsagePointSta
     }
 
     @Override
-    public UsagePointState.UsagePointStateUpdater setStage(UsagePointStage.Stage stage) {
+    public UsagePointState.UsagePointStateUpdater setStage(UsagePointStage.Key stage) {
         this.stage = stage;
         return this;
     }

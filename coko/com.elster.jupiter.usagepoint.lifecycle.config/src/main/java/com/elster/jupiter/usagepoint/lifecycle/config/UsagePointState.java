@@ -42,7 +42,7 @@ public interface UsagePointState extends HasId, HasName {
 
         T setInitial();
 
-        T setStage(UsagePointStage.Stage stage);
+        T setStage(UsagePointStage.Key stage);
 
         UsagePointState complete();
     }

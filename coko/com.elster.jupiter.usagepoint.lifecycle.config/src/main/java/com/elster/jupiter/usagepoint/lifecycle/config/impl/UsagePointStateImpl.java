@@ -49,7 +49,7 @@ public class UsagePointStateImpl implements UsagePointState {
 
     private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
-    private UsagePointStage.Stage stage;
+    private UsagePointStage.Key stage;
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -68,7 +68,7 @@ public class UsagePointStateImpl implements UsagePointState {
         this.dataModel = dataModel;
     }
 
-    public UsagePointStateImpl init(UsagePointLifeCycleImpl lifeCycle, State fsmState, UsagePointStage.Stage stage) {
+    public UsagePointStateImpl init(UsagePointLifeCycleImpl lifeCycle, State fsmState, UsagePointStage.Key stage) {
         this.lifeCycle.set(lifeCycle);
         this.fsmState.set(fsmState);
         this.id = fsmState.getId();
@@ -167,7 +167,7 @@ public class UsagePointStateImpl implements UsagePointState {
         return new UsagePointStageImpl(this.stage, this.thesaurus);
     }
 
-    void setStage(UsagePointStage.Stage stage) {
+    void setStage(UsagePointStage.Key stage) {
         this.stage = stage;
     }
 

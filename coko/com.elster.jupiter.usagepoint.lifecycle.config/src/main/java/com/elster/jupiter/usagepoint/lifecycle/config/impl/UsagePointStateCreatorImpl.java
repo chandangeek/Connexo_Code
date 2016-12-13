@@ -14,7 +14,7 @@ import javax.inject.Inject;
 public class UsagePointStateCreatorImpl implements UsagePointState.UsagePointStateCreator<UsagePointStateCreatorImpl> {
     private final DataModel dataModel;
 
-    private UsagePointStage.Stage stage;
+    private UsagePointStage.Key stage;
     private UsagePointLifeCycleImpl lifeCycle;
     private FiniteStateMachineUpdater stateMachineUpdater;
     private FiniteStateMachineBuilder.StateBuilder stateBuilder;
@@ -51,7 +51,7 @@ public class UsagePointStateCreatorImpl implements UsagePointState.UsagePointSta
     }
 
     @Override
-    public UsagePointStateCreatorImpl setStage(UsagePointStage.Stage stage) {
+    public UsagePointStateCreatorImpl setStage(UsagePointStage.Key stage) {
         this.stage = stage;
         return this;
     }

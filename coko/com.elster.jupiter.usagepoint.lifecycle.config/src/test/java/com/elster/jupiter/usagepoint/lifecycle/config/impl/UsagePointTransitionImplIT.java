@@ -47,9 +47,9 @@ public class UsagePointTransitionImplIT extends BaseTestIT {
     @Before
     public void before() {
         this.lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Test");
-        this.state1 = this.lifeCycle.newState("State1").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
-        this.state2 = this.lifeCycle.newState("State2").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
-        this.state3 = this.lifeCycle.newState("State3").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        this.state1 = this.lifeCycle.newState("State1").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        this.state2 = this.lifeCycle.newState("State2").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        this.state3 = this.lifeCycle.newState("State3").setStage(UsagePointStage.Key.OPERATIONAL).complete();
     }
 
     @Test

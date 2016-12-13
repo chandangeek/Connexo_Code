@@ -30,7 +30,7 @@ public class UsagePointStateImplIT extends BaseTestIT {
     public void testCanCreateNewInitialState() {
         UsagePointLifeCycle lifeCycle = getTestLifeCycle();
         String stateName = "New state";
-        UsagePointState state = lifeCycle.newState(stateName).setStage(UsagePointStage.Stage.OPERATIONAL).setInitial().complete();
+        UsagePointState state = lifeCycle.newState(stateName).setStage(UsagePointStage.Key.OPERATIONAL).setInitial().complete();
 
         assertThat(state.getName()).isEqualTo(stateName);
         assertThat(state.isInitial()).isTrue();
@@ -52,7 +52,7 @@ public class UsagePointStateImplIT extends BaseTestIT {
     @Transactional
     public void testCanChangeCustomStateName() {
         String stateName = "New state name";
-        UsagePointState state = getTestLifeCycle().newState("Custom state").setStage(UsagePointStage.Stage.OPERATIONAL).setInitial().complete();
+        UsagePointState state = getTestLifeCycle().newState("Custom state").setStage(UsagePointStage.Key.OPERATIONAL).setInitial().complete();
         state.startUpdate().setName(stateName).complete();
 
         state = getTestLifeCycle().getStates().stream().filter(state::equals).findFirst().get();
@@ -64,8 +64,8 @@ public class UsagePointStateImplIT extends BaseTestIT {
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "state.unique.name")
     public void testCanNotCreateStatesWithTheSameName() {
-        getTestLifeCycle().newState("TestState").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
-        getTestLifeCycle().newState("TestState").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        getTestLifeCycle().newState("TestState").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        getTestLifeCycle().newState("TestState").setStage(UsagePointStage.Key.OPERATIONAL).complete();
     }
 
     @Test
@@ -74,7 +74,7 @@ public class UsagePointStateImplIT extends BaseTestIT {
         UsagePointLifeCycle lifeCycle = getTestLifeCycle();
         int stateCount = lifeCycle.getStates().size();
 
-        UsagePointState testState = lifeCycle.newState("TestState").setStage(UsagePointStage.Stage.OPERATIONAL).complete();
+        UsagePointState testState = lifeCycle.newState("TestState").setStage(UsagePointStage.Key.OPERATIONAL).complete();
         assertThat(lifeCycle.getStates().size()).isEqualTo(stateCount + 1);
         testState = get(UsagePointLifeCycleConfigurationService.class).findAndLockUsagePointStateByIdAndVersion(testState.getId(), testState.getVersion()).get();
 
@@ -88,7 +88,7 @@ public class UsagePointStateImplIT extends BaseTestIT {
         UsagePointLifeCycle lifeCycle = getTestLifeCycle();
         int stateCount = lifeCycle.getStates().size();
 
-        UsagePointState testState = lifeCycle.newState("TestState").setStage(UsagePointStage.Stage.OPERATIONAL).setInitial().complete();
+        UsagePointState testState = lifeCycle.newState("TestState").setStage(UsagePointStage.Key.OPERATIONAL).setInitial().complete();
         assertThat(lifeCycle.getStates().size()).isEqualTo(stateCount + 1);
 
         testState.remove();
@@ -98,7 +98,7 @@ public class UsagePointStateImplIT extends BaseTestIT {
     @Transactional
     public void testAfterCloneLifeCycleWeHaveTheSameState() {
         UsagePointLifeCycle source = getTestLifeCycle();
-        UsagePointState state = source.newState("State 1").setStage(UsagePointStage.Stage.OPERATIONAL).setInitial().complete();
+        UsagePointState state = source.newState("State 1").setStage(UsagePointStage.Key.OPERATIONAL).setInitial().complete();
 
         UsagePointLifeCycle cloned = get(UsagePointLifeCycleConfigurationService.class).cloneUsagePointLifeCycle("Cloned", source);
 
@@ -110,5 +110,12 @@ public class UsagePointStateImplIT extends BaseTestIT {
         assertThat(cloned1.get().getDefaultState()).isEqualTo(state.getDefaultState());
         assertThat(cloned1.get().getOnEntryProcesses()).containsExactlyElementsOf(state.getOnEntryProcesses());
         assertThat(cloned1.get().getOnExitProcesses()).containsExactlyElementsOf(state.getOnExitProcesses());
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(property = "stage", messageId = "{CanNotBeEmpty}")
+    public void testCanNotCreateStatesWithoutStage() {
+        getTestLifeCycle().newState("TestState").complete();
     }
 }

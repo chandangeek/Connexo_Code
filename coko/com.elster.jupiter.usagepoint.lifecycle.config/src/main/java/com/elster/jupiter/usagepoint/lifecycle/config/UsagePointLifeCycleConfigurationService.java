@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -56,5 +55,5 @@ public interface UsagePointLifeCycleConfigurationService {
 
     void removeUsagePointLifeCycleBuilder(UsagePointLifeCycleBuilder builder);
 
-    List<UsagePointStage> getStages();
+    Set<UsagePointStage> getStages();
 }

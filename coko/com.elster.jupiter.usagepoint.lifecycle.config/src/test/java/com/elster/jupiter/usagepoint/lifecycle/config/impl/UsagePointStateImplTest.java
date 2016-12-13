@@ -41,7 +41,7 @@ public class UsagePointStateImplTest {
     private DataModel dataModel;
 
     private UsagePointState getTestInstance() {
-        return new UsagePointStateImpl(this.thesaurus, this.eventService, this.dataModel).init(this.lifeCycle, this.fsmState, UsagePointStage.Stage.OPERATIONAL);
+        return new UsagePointStateImpl(this.thesaurus, this.eventService, this.dataModel).init(this.lifeCycle, this.fsmState, UsagePointStage.Key.OPERATIONAL);
     }
 
     @Test
@@ -136,5 +136,10 @@ public class UsagePointStateImplTest {
         when(testInstance.isInitial()).thenReturn(true);
 
         testInstance.remove();
+    }
+
+    @Test
+    public void testStage() {
+        assertThat(getTestInstance().getStage().getKey()).isEqualTo(UsagePointStage.Key.OPERATIONAL);
     }
 }
