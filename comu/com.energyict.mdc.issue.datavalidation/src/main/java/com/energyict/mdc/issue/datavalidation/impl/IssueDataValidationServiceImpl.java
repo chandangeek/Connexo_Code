@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -67,7 +68,9 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
+    /* for dependency - startup/installation order */
     private volatile MeteringService meteringService;
+    private volatile EstimationService estimationService;
 
     private volatile DataModel dataModel;
 
@@ -209,6 +212,11 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference
