@@ -6,9 +6,9 @@ Ext.define('Dal.view.Grid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
+        'Dal.privileges.Alarm'
         //   'Isu.view.issues.ActionMenu',
         //   'Isu.view.component.AssigneeColumn',
-        //    'Isu.privileges.Issue'
     ],
     alias: 'widget.alarms-grid',
     router: null,

@@ -31,7 +31,7 @@ Ext.define('Dal.view.LogGrid', {
         },
         {
             text: Uni.I18n.translate('general.subdomain', 'DAL', 'Subdomain'),
-            dataIndex: 'subdomain',
+            dataIndex: 'subDomain',
             flex: 1
         },
         {
@@ -43,7 +43,6 @@ Ext.define('Dal.view.LogGrid', {
             text: Uni.I18n.translate('general.message', 'DAL', 'Message'),
             dataIndex: 'message',
             flex: 1
-        },
-
+        }
     ]
 });

@@ -74,70 +74,27 @@ Ext.define('Dal.model.Alarm', {
         },
 
         {name: 'logbook', type: 'auto'},
-
-
         {name: 'version', type: 'int'},
         {name: 'device', type: 'auto'},
-
         {name: 'alarmId', type: 'string'},
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'deviceName', persist: false, mapping: 'device.name'},
-
-        {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'}
-
+        {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'},
+        {name: 'relatedEvents',}
     ],
     associations: [
-        /*     {
-         type: 'hasOne',
-         model: 'Isu.model.IssueReason',
-         associationKey: 'reason',
-         name: 'reason',
-         getterName: 'getReason',
-         setterName: 'setReason'
-         },
-         {
-         type: 'hasOne',
-         model: 'Isu.model.IssueStatus',
-         associationKey: 'status',
-         name: 'status',
-         getterName: 'getStatus',
-         setterName: 'setStatus'
-         },
-         {
-         type: 'hasOne',
-         model: 'Isu.model.Device',
-         associationKey: 'device',
-         name: 'device',
-         getterName: 'getDevice',
-         setterName: 'setDevice'
-         },
-         {
-         type: 'hasOne',
-         model: 'Isu.model.IssueAssignee',
-         associationKey: 'assignee',
-         name: 'assignee',
-         getterName: 'getAssignee',
-         setterName: 'setAssignee'
-         },*/
         {
             type: 'hasMany',
             model: 'Isu.model.IssueComment',
             associationKey: 'comments',
             name: 'comments'
-        },
-        /*     {
-         type: 'hasMany',
-         model: 'Isu.model.IssueAction',
-         associationKey: 'actions',
-         name: 'actions'
-         }*/
+        }
     ],
     proxy: {
         type: 'rest',
         url: '/api/dal/alarms',
         reader: {
-            type: 'json',
-            root: 'data'
+            type: 'json'
         }
     }
 });

@@ -124,7 +124,7 @@ Ext.define('Dal.view.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'DAL', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateShort(value) : '';
+                            return value ? Uni.DateTime.formatDateShort(value) : '-';
                         }
                     },
                     {
@@ -142,7 +142,7 @@ Ext.define('Dal.view.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'DAL', 'Creation date'),
                         name: 'creationDate',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                         }
                     }
                 ]

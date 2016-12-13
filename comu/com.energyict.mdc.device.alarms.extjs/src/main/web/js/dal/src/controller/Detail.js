@@ -3,7 +3,8 @@ Ext.define('Dal.controller.Detail', {
 
     stores: [
         'Isu.store.Clipboard',
-        'Dal.store.Alarms'
+        'Dal.store.Alarms',
+        'Dal.store.RelatedEventsStore'
     ],
 
     models: [
@@ -11,15 +12,12 @@ Ext.define('Dal.controller.Detail', {
     ],
 
     views: [
-        'Dal.view.Detail',
-        // 'Idc.view.CommunicationIssueDetailsForm',
-        //  'Idc.view.InboundIssueDetailsForm',
-        //   'Idc.view.OutboundIssueDetailsForm',
-        //   'Idc.view.ConnectionIssueDetailsForm'
+        'Dal.view.Detail'
     ],
 
     widgetXtype: 'alarm-detail',
     issueModel: 'Dal.model.Alarm',
+    itemUrl: '/api/dal/alarms/',
 
     constructor: function () {
         var me = this;
@@ -124,6 +122,7 @@ Ext.define('Dal.controller.Detail', {
                         widget.down('#issue-detail-action-menu').record = record;
                     }
                     me.loadComments(record, 'alarm');
+                    me.loadRelatedEvents(widget, record);
                 }
             },
             failure: function () {
@@ -140,6 +139,61 @@ Ext.define('Dal.controller.Detail', {
         return Ext.String.format(link, router.getRoute('workspace/alarms').buildUrl(null, queryParams));
     },
 
+    loadRelatedEvents: function (widget, record) {
+        var me = this,
+            grid = widget.down('#alarm-log-grid');
+
+        record.raw.relatedEvents = [
+            {
+                eventDate: 1479257100000,
+                deviceType: 1,
+                deviceCode: 1,
+                domain: 1,
+                subDomain: 1,
+                eventOrAction: 1,
+                message: 'A'
+            },
+            {
+                eventDate: 1479257100000,
+                deviceType: 1,
+                deviceCode: 1,
+                domain: 1,
+                subDomain: 1,
+                eventOrAction: 1,
+                message: 'B'
+            }
+        ];
+
+        if (record.raw.relatedEvents && grid) {
+            var data = [],
+                store;
+
+            record.raw.relatedEvents.map(function (item) {
+                data.push(Ext.apply({}, {
+                    eventDate: item.eventDate,
+                    deviceType: item.deviceType,
+                    deviceCode: item.deviceCode,
+                    domain: item.domain,
+                    subDomain: item.subDomain,
+                    eventOrAction: item.eventOrAction,
+                    message: item.message
+                }))
+            });
+
+            if (data.length) {
+                store = Ext.create('Dal.store.RelatedEventsStore', {data: data});
+                grid.reconfigure(store);
+            }
+        }
+    },
+
+    canViewProcesses: function () {
+        return Dal.privileges.Alarm.canViewProcesses();
+    },
+
+    canComment: function () {
+        return Dal.privileges.Alarm.canComment();
+    },
 
     showProcesses: function (processId) {
         var me = this,

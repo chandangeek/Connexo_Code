@@ -15,28 +15,16 @@ Ext.define('Dal.controller.Main', {
     controllers: [
         'Dal.controller.history.Workspace',
         'Dal.controller.Alarms',
-        'Dal.controller.Detail',
-        //    'Isu.controller.MessageWindow'
+        'Dal.controller.Detail'
     ],
 
     stores: [
-        //    'Isu.store.Issues'
     ],
 
-    refs: [
-        /*    {
-         ref: 'viewport',
-         selector: 'viewport'
-         },
-         {
-         ref: 'contentPanel',
-         selector: 'viewport > #contentPanel'
-         }
-         */],
+    refs: [],
 
     init: function () {
         this.initMenu();
-        //     this.getApplication().fireEvent('initIssueType', 'datacollection');
     },
 
     initMenu: function () {
@@ -45,28 +33,28 @@ Ext.define('Dal.controller.Main', {
             alarms = null,
             historian = me.getController('Dal.controller.history.Workspace'); // Forces route registration.
 
-        //if (Isu.privileges.Issue.canViewAdminDevice()) {
-        Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.workspace', 'DAL', 'Workspace'),
-            glyph: 'workspace',
-            portal: 'workspace',
-            index: 30
-        }));
-        //}
+        if (Dal.privileges.Alarm.canViewAdminDevice()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'DAL', 'Workspace'),
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            }));
+        }
 
-        //if (Isu.privileges.Issue.canViewAdminDevice()) {
-        alarms = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.alarms', 'DAL', 'Alarms'),
-            portal: 'workspace',
-            route: 'alarms',
-            items: [
-                {
-                    text: Uni.I18n.translate('device.alarms', 'DAL', 'Alarms'),
-                    href: router.getRoute('workspace/alarms').buildUrl({})
-                }
-            ]
-        });
-        //}
+        if (Dal.privileges.Alarm.canViewAdminDevice()) {
+            alarms = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.alarms', 'DAL', 'Alarms'),
+                portal: 'workspace',
+                route: 'alarms',
+                items: [
+                    {
+                        text: Uni.I18n.translate('device.alarms', 'DAL', 'Alarms'),
+                        href: router.getRoute('workspace/alarms').buildUrl({})
+                    }
+                ]
+            });
+        }
 
         if (alarms !== null) {
             Uni.store.PortalItems.add(alarms);
