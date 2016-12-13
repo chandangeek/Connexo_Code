@@ -239,6 +239,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.alarms.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
         </dependency>
         <dependency>
