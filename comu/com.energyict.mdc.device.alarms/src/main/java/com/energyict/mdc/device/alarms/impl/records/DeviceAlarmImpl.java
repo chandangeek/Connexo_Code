@@ -13,12 +13,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,7 +44,6 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     private Reference<Issue> baseIssue = ValueReference.absent();
-    private List<DeviceAlarmRelatedEvent> deviceAlarmRelatedEvents = new ArrayList<>();
     private Boolean clearedStatus = Boolean.FALSE;
 
 
@@ -58,10 +59,12 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     private String userName;
 
     private final DataModel dataModel;
+    private final DeviceAlarmService deviceAlarmService;
 
     @Inject
-    public DeviceAlarmImpl(DataModel dataModel) {
+    public DeviceAlarmImpl(DataModel dataModel, DeviceAlarmService deviceAlarmService) {
         this.dataModel = dataModel;
+        this.deviceAlarmService = deviceAlarmService;
     }
 
     public long getId() {
@@ -157,11 +160,6 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
-    public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents(){
-        return deviceAlarmRelatedEvents;
-    }
-
-    @Override
     public Boolean isStatusCleared() {
         return clearedStatus;
     }
@@ -197,6 +195,16 @@ public class DeviceAlarmImpl implements DeviceAlarm {
         getBaseIssue().autoAssign();
     }
 
+    @Override
+    public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents() {
+        Optional<? extends DeviceAlarm> alarm = null;
+        if (getStatus().isHistorical()) {
+            alarm = deviceAlarmService.findHistoricalAlarm(getId());
+        } else {
+            alarm = deviceAlarmService.findAlarm(getId());
+        }
+        return alarm.map(DeviceAlarm::getDeviceAlarmRelatedEvents).orElse(Collections.emptyList());
+    }
 
     public void save() {
         if (getBaseIssue() != null) {
