@@ -143,27 +143,6 @@ Ext.define('Dal.controller.Detail', {
         var me = this,
             grid = widget.down('#alarm-log-grid');
 
-        record.raw.relatedEvents = [
-            {
-                eventDate: 1479257100000,
-                deviceType: 1,
-                deviceCode: 1,
-                domain: 1,
-                subDomain: 1,
-                eventOrAction: 1,
-                message: 'A'
-            },
-            {
-                eventDate: 1479257100000,
-                deviceType: 1,
-                deviceCode: 1,
-                domain: 1,
-                subDomain: 1,
-                eventOrAction: 1,
-                message: 'B'
-            }
-        ];
-
         if (record.raw.relatedEvents && grid) {
             var data = [],
                 store;

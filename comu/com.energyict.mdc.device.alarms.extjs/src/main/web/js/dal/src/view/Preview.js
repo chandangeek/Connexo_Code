@@ -51,6 +51,9 @@ Ext.define('Dal.view.Preview', {
                                     var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value});
                                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                                 }
+                                else {
+                                    return '-';
+                                }
                             } else {
                                 return '-';
                             }
