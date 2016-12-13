@@ -302,7 +302,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                 testDlmsSession.createAssociation();
                 if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
                     testDlmsSession.disconnect();
-                    getLogger().info("Cached FrameCounter is valid!");
+                    getLogger().info("This FrameCounter was validated: "+testDlmsSession.getAso().getSecurityContext().getFrameCounter());
                     setTXFrameCounter(testDlmsSession.getAso().getSecurityContext().getFrameCounter());
                     return true;
                 }
