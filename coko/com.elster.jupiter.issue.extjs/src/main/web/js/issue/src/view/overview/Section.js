@@ -46,7 +46,7 @@ Ext.define('Isu.view.overview.Section', {
 
                 queryString[section] = record.get('id');
                 queryString.groupingType = 'none';
-                queryString.sort = ['dueDate', 'modTime'];
+                queryString.sort = ['dueDate'];
                 if (me.up('overview-of-issues')) {
                     var href = me.up('overview-of-issues').router.getRoute('workspace/issues').buildUrl(null, queryString);
                     record.set('href', href);

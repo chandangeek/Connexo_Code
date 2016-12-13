@@ -136,19 +136,6 @@ Ext.define('Isu.view.issues.Preview', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-preview-modification-date',
-                        fieldLabel: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
-                        name: 'modTime',
-                        renderer: function (value, field) {
-                            if (value && me.getRecord()) {
-                                field.setVisible(me.getRecord().get('issueType').uid != 'datacollection');
-                                return Uni.DateTime.formatDateShort(value);
-                            }
-                        }
-                    },
-
-
-                    {
                         xtype: 'filter-display',
                         itemId: 'issue-preview-workgroup',
                         fieldLabel: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),

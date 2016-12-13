@@ -49,15 +49,6 @@ Ext.define('Isu.view.issues.Grid', {
                 width: 140
             },
             {
-                itemId: 'issues-grid-modification-date',
-                header: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
-                dataIndex: 'modTime',
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateShort(value) : '-';
-                },
-                width: 140
-            },
-            {
                 itemId: 'issues-grid-status',
                 header: Uni.I18n.translate('general.status', 'ISU', 'Status'),
                 dataIndex: 'status_name',

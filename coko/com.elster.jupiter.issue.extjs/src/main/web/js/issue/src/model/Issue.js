@@ -13,7 +13,6 @@ Ext.define('Isu.model.Issue', {
         {name: 'id', type: 'int'},
         {name: 'dueDate', type: 'date', dateFormat: 'time'},
         {name: 'creationDate', type: 'date', dateFormat: 'time'},
-        {name: 'modTime', type: 'date', dateFormat: 'time'},
         {name: 'version', type: 'int'},
         {name: 'status', type: 'auto'},
         {name: 'issueType', type: 'auto'},
