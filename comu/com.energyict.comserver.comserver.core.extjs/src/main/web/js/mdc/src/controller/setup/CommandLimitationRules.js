@@ -258,6 +258,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                     me.router.getRoute('administration/commandrules').forward();
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.add.success', 'MDC', 'Command limitation rule added.'));
                     me.clearClipBoard();
+                    commandsStore.removeAll();
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
@@ -290,7 +291,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 },
                 callback: function () {
                     mainView.setLoading(false);
-                    commandsStore.removeAll();
                 }
             });
         }
@@ -499,7 +499,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     deactivateRule: function (rule) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-                green: true,
                 confirmText: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
                 confirmation: function () {
                     me.doDeactivateRule(rule, this);
