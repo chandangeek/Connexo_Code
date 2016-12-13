@@ -28,7 +28,6 @@ public class DeviceAlarmModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(DeviceService.class);
         requireBinding(PropertySpecService.class);
-
         bind(DeviceAlarmService.class).to(DeviceAlarmServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceAlarmEventHandlerFactory.class).in(Scopes.SINGLETON);
     }

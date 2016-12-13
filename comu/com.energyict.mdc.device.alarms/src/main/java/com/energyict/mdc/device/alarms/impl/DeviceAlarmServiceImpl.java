@@ -125,6 +125,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(MessageService.class).toInstance(messageService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueActionService.class).toInstance(issueActionService);
+                bind(DeviceAlarmService.class).toInstance(DeviceAlarmServiceImpl.this);
                 bind(QueryService.class).toInstance(queryService);
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
