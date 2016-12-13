@@ -11,7 +11,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     ],
     models: [
         'Mdc.model.CommandLimitRule',
-        'Mdc.model.CommandLimitationRule',
         'Mdc.model.Command'
     ],
 
@@ -38,7 +37,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     goToRulesOverview: false,
     commandRuleBeingEdited: null,
     commandsArray: null,
-    ruleModel: null,
     commandsForRuleStore: null,
     selectedCommandsStore: null,
     router: null,
@@ -172,6 +170,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             widget = Ext.widget('commandRuleAddEdit'),
             ruleId = me.router.arguments['ruleId'];
 
+        debugger;
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getRuleEdit().down('#mdc-command-rule-addEdit-add-button').setText(
             Ext.isEmpty(ruleId)
@@ -257,15 +256,14 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         monthLimitContainer.unsetActiveError();
         commandsContainer.unsetActiveError();
         if (form.isValid()) {
-            var record = me.ruleModel || Ext.create('Mdc.model.CommandLimitationRule'),
-                commandsStore = page.down('#mdc-command-rule-addEdit-commands-grid').getStore(),
-                arrayCommands = [];
+            var record = Ext.isEmpty(me.commandRuleBeingEdited) ? Ext.create('Mdc.model.CommandLimitRule') : me.commandRuleBeingEdited,
+                commandsStore = page.down('#mdc-command-rule-addEdit-commands-grid').getStore();
 
+            debugger;
             record.beginEdit();
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
             }
-
             record.set('name', formValues.name);
             if (!formValues.noDayLimit && !Ext.isEmpty(formValues.dayLimit)) {
                 record.set('dayLimit', formValues.dayLimit);
@@ -276,17 +274,22 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             if (!formValues.noMonthLimit && !Ext.isEmpty(formValues.monthLimit)) {
                 record.set('monthLimit', formValues.monthLimit);
             }
+
+            var recordStore = record.commands();
             commandsStore.each(function (record) {
-                arrayCommands.push(record.getData());
+                recordStore.add(record);
             });
-            record.set('commands', arrayCommands);
             record.endEdit();
             mainView.setLoading();
             record.save({
                 backUrl: me.router.getRoute('administration/commandrules').buildUrl(),
                 success: function () {
                     me.router.getRoute('administration/commandrules').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.add.success', 'MDC', 'Command limitation rule added.'));
+                    me.getApplication().fireEvent('acknowledge',
+                        me.commandRuleBeingEdited
+                            ? Uni.I18n.translate('commandLimitationRule.save.success', 'MDC', 'Command limitation rule saved.')
+                            : Uni.I18n.translate('commandLimitationRule.add.success', 'MDC', 'Command limitation rule added.')
+                    );
                     me.clearClipBoard();
                 },
                 failure: function (record, operation) {
@@ -323,6 +326,9 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                     commandsStore.removeAll();
                 }
             });
+        } else {
+            mainView.setLoading(false);
+            formErrorsPanel.show();
         }
     },
 
@@ -340,9 +346,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     onAddCommandsButtonClicked: function() {
         var me = this,
-            page = me.getRuleEdit(),
-            commandsStore = page.down('#mdc-command-rule-addEdit-commands-grid').getStore(),
-            addCommandsRoute = me.router.currentRoute + '/commands';
+            widget = me.getRuleEdit(),
+            commandsStore = widget.down('#mdc-command-rule-addEdit-commands-grid').getStore();
 
         // Prepare the already assigned commands (for method showAddCommandsPage())
         me.commandsArray = [];
@@ -351,7 +356,11 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         });
 
         me.saveFormValues();
-        me.router.getRoute(addCommandsRoute).forward();
+        if (Ext.isEmpty(me.commandRuleBeingEdited)) { // busy adding a new rule
+            me.router.getRoute('administration/commandrules/add/commands').forward();
+        } else { // busy editing a rule
+            me.router.getRoute('administration/commandrules/view/edit/commands').forward({ruleId: me.commandRuleBeingEdited.get('id')});
+        }
     },
 
     saveFormValues: function () {
@@ -426,8 +435,10 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     showAddCommandsPage: function() {
         var me = this,
-            commandsStore = me.getStore('Mdc.store.Commands');
+            commandsStore = me.getStore('Mdc.store.Commands'),
+            ruleId = me.router.arguments['ruleId'];
 
+        debugger;
         if (!me.commandsArray) {
             me.forwardToPreviousPage();
             return;
@@ -529,7 +540,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     deactivateRule: function (rule) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-                green: true,
                 confirmText: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
                 confirmation: function () {
                     me.doDeactivateRule(rule, this);

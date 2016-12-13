@@ -2270,7 +2270,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                         route: 'edit',
                                         privileges: Mdc.privileges.CommandLimitationRules.admin,
                                         controller: 'Mdc.controller.setup.CommandLimitationRules',
-                                        action: 'showAddEditCommandRule'
+                                        action: 'showAddEditCommandRule',
+                                        items: {
+                                            commands: {
+                                                title: Uni.I18n.translate('general.addCommands', 'MDC', 'Add commands'),
+                                                route: 'commands',
+                                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                                privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                                action: 'showAddCommandsPage'
+                                            }
+                                        }
                                     },
                                     changes: {
                                         title: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),

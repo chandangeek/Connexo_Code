@@ -13,9 +13,9 @@ Ext.define('Mdc.model.CommandLimitRule',{
         {name:'dayLimit', type: 'int'},
         {name:'weekLimit', type: 'int'},
         {name:'monthLimit', type: 'int'},
-        {name:'commands'},
+        {name:'commands', persist: false},
         {name:'statusMessage', type: 'string', useNull: true},
-        {name: 'availableActions', type: 'auto'},
+        {name: 'availableActions', type: 'auto', persist:false},
 
         {
             name: 'statusWithMessage',
