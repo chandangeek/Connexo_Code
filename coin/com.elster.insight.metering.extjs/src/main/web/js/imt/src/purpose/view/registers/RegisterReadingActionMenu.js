@@ -15,8 +15,7 @@ Ext.define('Imt.purpose.view.registers.RegisterReadingActionMenu', {
         {
             itemId: 'edit-value',
             text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
-            action: 'editValue',
-            // dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+            action: 'editValue'
         },
         {
             itemId: 'reset-value',

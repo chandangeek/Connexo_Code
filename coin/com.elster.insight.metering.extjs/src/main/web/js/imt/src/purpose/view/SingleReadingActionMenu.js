@@ -15,7 +15,6 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
             itemId: 'edit-value',
             text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
             action: 'editValue',
-            // dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
         },
         {
             itemId: 'estimate-value',

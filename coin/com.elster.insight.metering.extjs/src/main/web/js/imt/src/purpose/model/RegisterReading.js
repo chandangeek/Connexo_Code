@@ -15,15 +15,11 @@ Ext.define('Imt.purpose.model.RegisterReading', {
         {name: 'interval', type:'auto', useNull: true},
         {
             name: 'interval.end',
-            // persist: false,
-            // mapping: 'interval.end',
             defaultValue: null,
             useNull: true
         },
         {
             name: 'interval.start',
-            // persist: false,
-            // mapping: 'interval.start',
             defaultValue: null,
             useNull: true
         },
@@ -70,7 +66,7 @@ Ext.define('Imt.purpose.model.RegisterReading', {
                 }
                 return result;
             }
-        },
+        }
     ],
     proxy: {
         type: 'rest',
