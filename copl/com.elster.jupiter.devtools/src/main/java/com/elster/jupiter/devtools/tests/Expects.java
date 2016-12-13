@@ -28,6 +28,21 @@ public enum Expects {
             TimeOutExpectation timeOutExpectation = new TimeOutExpectation(runnableUnderTest, count, timeUnit);
             return new TimeOutExpectationBuilder2(timeOutExpectation);
         }
+
+        public void toThrow(Class<? extends Throwable> throwableClass) {
+            boolean failWithoutThrowable = false;
+            try {
+                runnableUnderTest.run();
+                failWithoutThrowable = true;
+            } catch (Throwable throwable) {
+                if (!throwableClass.isInstance(throwable)) {
+                    fail("Expected " + throwableClass + " to be thrown but instead got " + throwable.getClass(), throwable);
+                }
+            }
+            if (failWithoutThrowable) {
+                fail("Expected " + throwableClass + " to be thrown but nothing was thrown.");
+            }
+        }
     }
 
     public static class TimeOutExpectationBuilder2 {
