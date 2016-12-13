@@ -8,6 +8,8 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -26,7 +28,10 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
@@ -64,6 +69,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -88,9 +95,13 @@ public class UsagePointDataServiceImplTest {
     @Mock
     private Clock clock;
     @Mock
+    private OrmService ormService;
+    @Mock
     private DataModel dataModel;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MessageService messageSerivce;
     @Mock
     private ValidationService validationService;
     @Mock
@@ -123,6 +134,10 @@ public class UsagePointDataServiceImplTest {
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
     private ReadingQualityRecord error, suspect, missing, added, edited, removed, estimated;
+    @Mock
+    private FullInstaller installer;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private QueueTableSpec queueTableSpec;
 
     @Captor
     ArgumentCaptor<Range<Instant>> captor;
@@ -133,6 +148,8 @@ public class UsagePointDataServiceImplTest {
 
     @Before
     public void setUp() {
+        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> installer);
+        when(ormService.newDataModel(eq(UsagePointDataService.COMPONENT_NAME), anyString())).thenReturn(dataModel);
         when(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
         when(upgradeService.newNonOrmDataModel()).thenReturn(dataModel);
         when(clock.instant()).thenReturn(NOW);
@@ -145,9 +162,10 @@ public class UsagePointDataServiceImplTest {
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
+        when(messageSerivce.getQueueTableSpec(any())).thenReturn(Optional.of(queueTableSpec));
 
         usagePointDataService = new UsagePointDataServiceImpl(clock, meteringService, validationService,
-                nlsService, customPropertySetService, usagePointConfigurationService, upgradeService, userService);
+                nlsService, customPropertySetService, usagePointConfigurationService, UpgradeModule.FakeUpgradeService.getInstance(), userService, messageSerivce);
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
         when(channel.isRegular()).thenReturn(true);
