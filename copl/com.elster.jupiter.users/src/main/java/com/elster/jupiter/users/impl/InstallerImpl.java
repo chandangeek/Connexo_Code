@@ -100,10 +100,19 @@ public class InstallerImpl implements FullInstaller {
                 logger
         );
 
+        GroupImpl installers = (GroupImpl) userService.findGroup(UserService.DEFAULT_INSTALLER_ROLE)
+                .orElseGet(() -> createInstallerGroup(logger));
+
+        doTry(
+                "Grant system administrator privileges to " + UserService.DEFAULT_INSTALLER_ROLE,
+                () -> grantSystemAdministratorPrivileges(installers),
+                logger
+        );
+
         if (!userService.findUser("admin").isPresent()) {
             doTry(
                     "Create administrator user.",
-                    () -> createAdministratorUser(directory, new GroupImpl[]{administrators}, adminPassword),
+                    () -> createAdministratorUser(directory, new GroupImpl[]{installers}, adminPassword),
                     logger
             );
         }
@@ -114,6 +123,15 @@ public class InstallerImpl implements FullInstaller {
         return doTry(
                 "Create " + UserService.DEFAULT_ADMIN_ROLE + " user group.",
                 () -> userService.createGroup(UserService.DEFAULT_ADMIN_ROLE, UserService.DEFAULT_ADMIN_ROLE_DESCRIPTION),
+                logger
+        );
+    }
+
+    private Group createInstallerGroup(Logger logger) {
+
+        return doTry(
+                "Create " + UserService.DEFAULT_INSTALLER_ROLE + " user group.",
+                () -> userService.createGroup(UserService.DEFAULT_INSTALLER_ROLE, UserService.DEFAULT_INSTALLER_ROLE_DESCRIPTION),
                 logger
         );
     }
