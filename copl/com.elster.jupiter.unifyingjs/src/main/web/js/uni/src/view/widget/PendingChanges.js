@@ -19,7 +19,7 @@ Ext.define('Uni.view.widget.PendingChanges', {
             {
                 xtype: 'uni-form-info-message',
                 itemId: 'uni-pendingChangesPnl-info-msg',
-                text: Uni.I18n.translate('general.noPendingChanges', 'UNI', 'No pending changes found.'),
+                text: Uni.I18n.translate('general.noPendingChanges', 'UNI', 'This command limitation rule has no pending changes.'),
                 hidden: true
             },
             {
@@ -59,11 +59,11 @@ Ext.define('Uni.view.widget.PendingChanges', {
 
             grid.setVisible(changesCount > 0);
             if (changesCount === 0) {
-                message.setText(Uni.I18n.translate('general.noPendingChanges', 'UNI', 'No pending changes found.'));
+                message.setText(Uni.I18n.translate('general.noPendingChanges', 'UNI', 'This command limitation rule has no pending changes.'));
                 message.show();
             } else {
                 if (panel.acceptButtonDisabled) {
-                    message.setText(Uni.I18n.translate('general.waitingForOtherAcceptances', 'UNI', '[TBD] Other people have to accept.'));
+                    message.setText(Uni.I18n.translate('general.waitingForOtherApprovals', 'UNI', 'Waiting for other users to approve.'));
                     message.show();
                 } else {
                     message.hide();
