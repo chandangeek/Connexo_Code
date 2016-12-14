@@ -5,6 +5,8 @@ import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
+import com.energyict.obis.ObisCode;
+
 import java.text.MessageFormat;
 
 /**
@@ -51,6 +53,11 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
     }
 
     @Override
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
+    }
+
+    @Override
     public ObisCode getObisCode() {
         return this.registerObisCode;
     }
@@ -69,4 +76,30 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
     public DeviceIdentifier getDeviceIdentifier() {
         return this.deviceIdentifier;
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "PrimeRegisterForChannel";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "channelIndex": {
+                    return channelIndex;
+                }
+                case "obisCode": {
+                    return getRegisterObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+    }
+
 }

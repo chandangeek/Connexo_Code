@@ -302,16 +302,6 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             }
 
             @Override
-            public String getXmlType() {
-                return null;
-            }
-
-            @Override
-            public void setXmlType(String ignore) {
-
-            }
-
-            @Override
             public Device<?, ?, ?> findDevice() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
             }
@@ -334,16 +324,6 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             @Override
             public List<Object> getIdentifier() {
                 return null;
-            }
-
-            @Override
-            public String getXmlType() {
-                return null;
-            }
-
-            @Override
-            public void setXmlType(String ignore) {
-
             }
 
             @Override

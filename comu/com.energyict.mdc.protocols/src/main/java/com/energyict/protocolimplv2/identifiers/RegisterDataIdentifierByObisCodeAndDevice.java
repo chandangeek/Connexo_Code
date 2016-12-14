@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
+import com.energyict.obis.ObisCode;
 
 import java.text.MessageFormat;
 
@@ -50,6 +51,11 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     }
 
     @Override
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
+    }
+
+    @Override
     public ObisCode getObisCode() {
         return this.registerObisCode;
     }
@@ -67,4 +73,27 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return deviceIdentifier;
+                }
+                case "obisCode": {
+                    return deviceRegisterObisCode;
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+    }
+
 }
