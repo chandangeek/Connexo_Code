@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
 import com.energyict.obis.ObisCode;
 
-import javax.xml.bind.annotation.XmlElement;
 import java.text.MessageFormat;
 
 /**
@@ -47,17 +46,6 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
     }
 
     @Override

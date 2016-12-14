@@ -7,9 +7,9 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifierType;
+
 import com.energyict.obis.ObisCode;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -58,17 +58,6 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
     @Override
     public LogBookIdentifierType getLogBookIdentifierType() {
         return LogBookIdentifierType.DeviceIdentifierAndObisCode;
-    }
-
-    @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
     }
 
     @Override

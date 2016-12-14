@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -54,16 +53,6 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
         return new Introspector();
     }
 
-    @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
-    }
 
     @Override
     public boolean equals(Object o) {

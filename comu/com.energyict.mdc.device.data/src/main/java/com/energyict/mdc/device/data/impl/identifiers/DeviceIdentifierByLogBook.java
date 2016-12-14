@@ -37,16 +37,6 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier {
     }
 
     @Override
-    public String getXmlType() {
-        return null;
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -102,16 +92,6 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier {
         @Override
         public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
             return new NullIntrospector();
-        }
-
-        @Override
-        public String getXmlType() {
-            return null;
-        }
-
-        @Override
-        public void setXmlType(String ignore) {
-
         }
     }
 

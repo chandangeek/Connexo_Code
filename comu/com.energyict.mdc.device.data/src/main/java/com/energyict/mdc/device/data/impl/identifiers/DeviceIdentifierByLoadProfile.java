@@ -7,8 +7,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
 import com.energyict.obis.ObisCode;
 
-import javax.xml.bind.annotation.XmlElement;
-
 /**
  * Copyrights EnergyICT
  * Date: 2/23/15
@@ -37,17 +35,6 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
     }
 
     @Override
@@ -106,16 +93,6 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
         @Override
         public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
             return new NullIntrospector();
-        }
-
-        @Override
-        public String getXmlType() {
-            return null;
-        }
-
-        @Override
-        public void setXmlType(String ignore) {
-
         }
     }
 

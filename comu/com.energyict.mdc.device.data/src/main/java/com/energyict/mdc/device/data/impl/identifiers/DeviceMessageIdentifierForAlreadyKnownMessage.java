@@ -5,7 +5,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifierType;
 
-import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,17 +37,6 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
     @Override
     public List<Object> getParts() {
         return Collections.singletonList(deviceMessage);
-    }
-
-    @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
     }
 
     @Override

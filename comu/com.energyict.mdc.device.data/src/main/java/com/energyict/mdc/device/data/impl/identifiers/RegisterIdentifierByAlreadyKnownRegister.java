@@ -3,12 +3,8 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifierType;
-import com.energyict.obis.ObisCode;
 
-import javax.xml.bind.annotation.XmlElement;
-import java.util.Collections;
-import java.util.List;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT
@@ -35,26 +31,32 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
     }
 
     @Override
-    public RegisterIdentifierType getRegisterIdentifierType() {
-        return RegisterIdentifierType.ActualRegister;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.singletonList(register);
-    }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return new DeviceIdentifierForAlreadyKnownDeviceByMrID(register.getDevice());
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Actual";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "actual": {
+                    return register;
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+    }
+
 }

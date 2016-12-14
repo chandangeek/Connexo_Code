@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
@@ -65,15 +64,6 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
     @Override
     public String toString() {
         return "device having property '" + this.propertyName + "' and value '" + this.propertyValue + "'";
-    }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
     }
 
     @XmlAttribute
