@@ -8,7 +8,6 @@ import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -102,7 +101,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
         }
 
         protected Optional<CurrentState> currentStateFor(DeviceTopologyChangedEvent eventSource, FiniteStateMachine finiteStateMachine, DeviceService deviceService) {
-            Device device = (Device) eventSource.getMasterDevice().findDevice();
+            Device device = (Device) eventSource.getMasterDevice().findDevice();  //Downcast to the Connexo Device
             return this.currentStateFor(Optional.ofNullable(device), finiteStateMachine, deviceService);
         }
 

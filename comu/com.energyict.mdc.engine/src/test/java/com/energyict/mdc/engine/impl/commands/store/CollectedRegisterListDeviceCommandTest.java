@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
@@ -15,22 +14,14 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
-
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +30,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -69,8 +66,6 @@ public class CollectedRegisterListDeviceCommandTest {
     private CollectedRegister collectedRegister;
     @Mock
     private RegisterIdentifier collectedRegisterIdentifier;
-    @Mock
-    private DeviceFactory deviceFactory;
     @Mock
     private Device device;
     @Mock
@@ -103,7 +98,7 @@ public class CollectedRegisterListDeviceCommandTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0");
         when(this.collectedRegister.getReadingTypeMRID()).thenReturn(readingType.getMRID());
-        when(this.collectedRegisterIdentifier.getObisCode()).thenReturn(REGISTER_OBIS);
+        when(this.collectedRegisterIdentifier.getRegisterObisCode()).thenReturn(REGISTER_OBIS);
         when(this.collectedRegister.getRegisterIdentifier()).thenReturn(this.collectedRegisterIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.empty());

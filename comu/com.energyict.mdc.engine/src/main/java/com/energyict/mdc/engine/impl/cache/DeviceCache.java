@@ -2,10 +2,8 @@ package com.energyict.mdc.engine.impl.cache;
 
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 
-import java.io.Serializable;
-
 /**
- * Represents a simple object that holds a <i>cache</i> {@link Object} for a specific {@link com.energyict.mdc.protocol.api.device.BaseDevice}
+ * Represents a simple object that holds a <i>cache</i> {@link Object} for a specific {@link com.energyict.mdc.upl.meterdata.Device}
  * <p/>
  * Copyrights EnergyICT
  * Date: 31/08/12
@@ -22,17 +20,17 @@ public interface DeviceCache {
      *
      * @return the id of the Device
      */
-    public long getDeviceId();
+    long getDeviceId();
 
     /**
      * @return the cache object
      */
-    public DeviceProtocolCache getSimpleCacheObject();
+    DeviceProtocolCache getSimpleCacheObject();
 
     /**
      * Sets the current cache object
      * @param deviceProtocolCache the current cacheObject
      */
-    public void setCacheObject(DeviceProtocolCache deviceProtocolCache);
+    void setCacheObject(DeviceProtocolCache deviceProtocolCache);
 
 }

@@ -5,8 +5,8 @@ import com.energyict.mdc.engine.impl.commands.store.CollectedFirmwareVersionDevi
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.Optional;
 
@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 public class DeviceFirmwareVersion extends CollectedDeviceData implements CollectedFirmwareVersion {
 
-    private final DeviceIdentifier<?> deviceDeviceIdentifier;
+    private final DeviceIdentifier deviceDeviceIdentifier;
     private Optional<String> passiveCommunicationFirmwareVersion = Optional.empty();
     private Optional<String> activeCommunicationFirmwareVersion = Optional.empty();
     private Optional<String> passiveMeterFirmwareVersion = Optional.empty();

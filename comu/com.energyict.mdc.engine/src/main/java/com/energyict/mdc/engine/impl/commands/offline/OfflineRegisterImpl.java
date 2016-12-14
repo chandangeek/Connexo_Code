@@ -5,8 +5,9 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * The Offline implementation of a {@link com.energyict.mdc.protocol.api.device.BaseRegister}
+ * The Offline implementation of a {@link com.energyict.mdc.upl.meterdata.Register}
  *
  * @author gna
  * @since 12/06/12 - 13:12
@@ -117,7 +118,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     }
 
     /**
-     * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseRegister}
+     * @return the ID of the {@link com.energyict.mdc.upl.meterdata.Register}
      */
     @Override
     public long getRegisterId() {
@@ -177,6 +178,11 @@ public class OfflineRegisterImpl implements OfflineRegister {
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+    }
+
+    @Override
+    public RegisterIdentifier getRegisterIdentifier() {
+        return identificationService.createRegisterIdentifierByAlreadyKnownRegister(this.register);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -11,17 +10,16 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Date;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,9 +40,9 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
     private static final long MESSAGE_ID2 = 32;
 
     @Mock
-    private DeviceMessage<Device> deviceMessage1;
+    private DeviceMessage deviceMessage1;
     @Mock
-    private DeviceMessage<Device> deviceMessage2;
+    private DeviceMessage deviceMessage2;
     @Mock
     private DeviceCommand.ExecutionLogger executionLogger;
     @Mock

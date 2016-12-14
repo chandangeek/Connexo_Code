@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.Set;
 import java.util.StringTokenizer;

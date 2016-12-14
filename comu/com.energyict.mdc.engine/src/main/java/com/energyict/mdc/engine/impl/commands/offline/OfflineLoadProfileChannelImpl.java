@@ -1,16 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 
 
 /**
- * An offline implementation version of a {@link com.energyict.mdc.protocol.api.device.BaseChannel} mainly containing information which is relevant to use at offline-time.
+ * An offline implementation version of a {@link Channel} mainly containing information which is relevant to use at offline-time.
  *
  * @author gna
  * @since 30/05/12 - 9:55
@@ -18,12 +18,12 @@ import java.math.BigDecimal;
 public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel {
 
     /**
-     * The {@link com.energyict.mdc.protocol.api.device.BaseChannel} which is going offline
+     * The {@link Channel} which is going offline
      */
     private final Channel channel;
 
     /**
-     * The ObisCode used by the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} for this channel
+     * The ObisCode used by the {@link com.energyict.mdc.upl.meterdata.LoadProfile} for this channel
      */
     private ObisCode channelObisCode;
     /**
@@ -32,12 +32,12 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     private Unit unit;
 
     /**
-     * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device} owning this {@link com.energyict.mdc.protocol.api.device.BaseChannel}
+     * The ID of the {@link com.energyict.mdc.upl.meterdata.Device Device} owning this {@link Channel}
      */
     private int rtuId;
 
     /**
-     * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} where this {@link com.energyict.mdc.protocol.api.device.BaseChannel} is referring to
+     * The ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile} where this {@link Channel} is referring to
      */
     private int loadProfileId;
 
@@ -47,7 +47,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     private boolean storeData;
 
     /**
-     * The SerialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device} which owns this {@link com.energyict.mdc.protocol.api.device.BaseChannel}
+     * The SerialNumber of the {@link com.energyict.mdc.upl.meterdata.Device Device} which owns this {@link Channel}
      */
     private String serialNumber;
     /**
@@ -81,7 +81,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     }
 
     /**
-     * Returns the {@link ObisCode} for this {@link com.energyict.mdc.protocol.api.device.BaseChannel} in the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * Returns the {@link ObisCode} for this {@link Channel} in the {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      *
      * @return the {@link ObisCode}
      */
@@ -91,9 +91,9 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     }
 
     /**
-     * Returns the ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice} for the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} object.
+     * Returns the ID of the {@link com.energyict.mdc.upl.meterdata.Device} for the {@link com.energyict.mdc.upl.meterdata.LoadProfile} object.
      *
-     * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice}.
+     * @return the ID of the {@link com.energyict.mdc.upl.meterdata.Device}.
      */
     @Override
     public int getRtuId() {
@@ -101,9 +101,9 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     }
 
     /**
-     * Returns the ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * Returns the ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      *
-     * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}.
+     * @return the ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile}.
      */
     @Override
     public int getLoadProfileId() {
@@ -131,9 +131,9 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     }
 
     /**
-     * Returns the SerialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
+     * Returns the SerialNumber of the {@link com.energyict.mdc.upl.meterdata.Device Device}
      *
-     * @return the SerialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
+     * @return the SerialNumber of the {@link com.energyict.mdc.upl.meterdata.Device Device}
      */
     @Override
     public String getMasterSerialNumber() {

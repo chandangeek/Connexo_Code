@@ -60,22 +60,9 @@ import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -83,10 +70,17 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -272,15 +266,15 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier) {
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier) {
         return findOfflineDevice(identifier, DeviceOffline.needsEverything);
     }
 
     @Override
-    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-        BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext) {
+        Device device = (Device) identifier.findDevice(); //Downcast to the Connexo Device
         if (device != null) {
-            return Optional.of(new OfflineDeviceImpl((Device) device, offlineDeviceContext, new OfflineDeviceServiceProvider()));
+            return Optional.of(new OfflineDeviceImpl(device, offlineDeviceContext, new OfflineDeviceServiceProvider()));
         } else {
             return Optional.empty();
         }
@@ -288,23 +282,27 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
-        return Optional.of(new OfflineRegisterImpl(this.getStorageRegister((Register) identifier.findRegister(), when), this.serviceProvider.identificationService()));
+        Register register = (Register) identifier.findRegister();   //Downcast to the Connexo Register
+        return Optional.of(new OfflineRegisterImpl(this.getStorageRegister(register, when), this.serviceProvider.identificationService()));
     }
 
     @Override
     public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return Optional.of(new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()));
+        LoadProfile loadProfile = (LoadProfile) loadProfileIdentifier.getLoadProfile(); //Downcast to Connexo LoadProfile
+        return Optional.of(new OfflineLoadProfileImpl(loadProfile, this.serviceProvider.topologyService(), this.serviceProvider.identificationService()));
     }
 
     @Override
     public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        return Optional.of(new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook(), this.serviceProvider.identificationService()));
+        LogBook logBook = (LogBook) logBookIdentifier.getLogBook(); //Downcast to Connexo logbook
+        return Optional.of(new OfflineLogBookImpl(logBook, this.serviceProvider.identificationService()));
     }
 
     @Override
     public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
-        DeviceMessage<Device> deviceMessage = identifier.getDeviceMessage();
-        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass();
+        DeviceMessage deviceMessage = (DeviceMessage) identifier.getDeviceMessage();    //Downcast to the Connexo DeviceMessage
+        Device device = (Device) deviceMessage.getDevice();                             //Downcast to the Connexo Device
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass.isPresent()) {
             return Optional.of(
                     new OfflineDeviceMessageImpl(
@@ -332,7 +330,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        final BaseDevice device = deviceIdentifier.findDevice();
+        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
         Device deviceById = getDeviceDataService().findDeviceById(device.getId()).get();
         deviceById.setProtocolProperty(propertyName, propertyValue);
         deviceById.save();
@@ -340,10 +338,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
-        Device device = (Device) deviceIdentifier.findDevice();
+        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
         Device gatewayDevice;
         if (gatewayDeviceIdentifier != null) {
-            gatewayDevice = (Device) gatewayDeviceIdentifier.findDevice();
+            gatewayDevice = (Device) gatewayDeviceIdentifier.findDevice(); //Downcast to the Connexo Device
         } else {
             gatewayDevice = null;
         }
@@ -356,10 +354,11 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, final DateTimeFormatter timeStampFormat, final String fileExtension, final byte[] contents) {
-        this.doStoreConfigurationFile(deviceIdentifier.findDevice(), timeStampFormat, fileExtension, contents);
+        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
+        this.doStoreConfigurationFile(device, timeStampFormat, fileExtension, contents);
     }
 
-    private void doStoreConfigurationFile(BaseDevice device, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
+    private void doStoreConfigurationFile(Device device, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
         throw new RuntimeException("Storing of UserFiles is currently not supported ...");
     }
 
@@ -393,7 +392,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public ConnectionTask<?, ?> executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
         return this.executeTransaction(() -> {
             Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
-            if (lockedConnectionTask.isPresent()){
+            if (lockedConnectionTask.isPresent()) {
                 ConnectionTask connectionTask1 = lockedConnectionTask.get();
                 connectionTask1.executionStarted(comServer);
                 return connectionTask1;
@@ -532,7 +531,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     /**
      * Find and release any ComTaskExec executed by a ComPort
-     * <p/>
+     * <p>
      * Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
      * Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
      * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session (from Govanni)
@@ -557,8 +556,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
-        Device device = deviceIdentifier.findDevice();
+    public void storeMeterReadings(final DeviceIdentifier deviceIdentifier, final MeterReading meterReading) {
+        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
         device.store(meterReading);
     }
 
@@ -569,11 +568,11 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final Instant sentDate, final String protocolInformation) {
-        DeviceMessage deviceMessage = messageIdentifier.getDeviceMessage();
+        DeviceMessage deviceMessage = (DeviceMessage) messageIdentifier.getDeviceMessage();     //Downcast to Connexo DeviceMessage
         try {
             updateDeviceMessage(newDeviceMessageStatus, sentDate, protocolInformation, deviceMessage);
         } catch (OptimisticLockException e) { // if someone tried to update the message while the ComServer was executing it ...
-            DeviceMessage<Device> reloadedDeviceMessage = getDeviceDataService().findDeviceById(deviceMessage.getDevice().getId())
+            DeviceMessage reloadedDeviceMessage = getDeviceDataService().findDeviceById(((Device) deviceMessage.getDevice()).getId())   //Downcast to Connexo Device
                     .get()
                     .getMessages()
                     .stream()
@@ -601,15 +600,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(final DeviceIdentifier<Device> deviceIdentifier, final int confirmationCount) {
+    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(final DeviceIdentifier deviceIdentifier, final int confirmationCount) {
         return convertToOfflineDeviceMessages(doConfirmSentMessagesAndGetPending(deviceIdentifier, confirmationCount));
     }
 
-    private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
+    private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage> deviceMessages) {
         List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
         deviceMessages.forEach(deviceMessage -> {
-                    if (deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent()) {
-                        offlineDeviceMessages.add(new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice()
+            Device device = (Device) deviceMessage.getDevice();
+            if (device.getDeviceProtocolPluggableClass().isPresent()) {       //Downcast to Connexo Device
+                        offlineDeviceMessages.add(new OfflineDeviceMessageImpl(deviceMessage, device
                                 .getDeviceProtocolPluggableClass().get()
                                 .getDeviceProtocol(), serviceProvider.identificationService()));
                     }
@@ -618,22 +618,23 @@ public class ComServerDAOImpl implements ComServerDAO {
         return offlineDeviceMessages;
     }
 
-    private List<DeviceMessage<Device>> doConfirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount) {
-        return this.doConfirmSentMessagesAndGetPending(deviceIdentifier.findDevice(), confirmationCount);
+    private List<DeviceMessage> doConfirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount) {
+        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
+        return this.doConfirmSentMessagesAndGetPending(device, confirmationCount);
     }
 
-    private List<DeviceMessage<Device>> doConfirmSentMessagesAndGetPending(Device device, int confirmationCount) {
+    private List<DeviceMessage> doConfirmSentMessagesAndGetPending(Device device, int confirmationCount) {
         this.updateSentMessageStates(device, confirmationCount);
         return this.findPendingMessageAndMarkAsSent(device);
     }
 
     private void updateSentMessageStates(Device device, int confirmationCount) {
-        List<DeviceMessage<Device>> sentMessages = device.getMessagesByState(DeviceMessageStatus.SENT);
+        List<DeviceMessage> sentMessages = device.getMessagesByState(DeviceMessageStatus.SENT);
         FutureMessageState newState = this.getFutureMessageState(sentMessages, confirmationCount);
         sentMessages.forEach(newState::applyTo);
     }
 
-    private FutureMessageState getFutureMessageState(List<DeviceMessage<Device>> sentMessages, int confirmationCount) {
+    private FutureMessageState getFutureMessageState(List<DeviceMessage> sentMessages, int confirmationCount) {
         if (confirmationCount == 0) {
             return FutureMessageState.FAILED;
         } else if (confirmationCount == sentMessages.size()) {
@@ -643,10 +644,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private List<DeviceMessage<Device>> findPendingMessageAndMarkAsSent(Device device) {
-        List<DeviceMessage<Device>> pendingMessages = device.getMessagesByState(DeviceMessageStatus.PENDING);
-        List<DeviceMessage<Device>> sentMessages = new ArrayList<>(pendingMessages.size());
-        for (DeviceMessage<Device> pendingMessage : pendingMessages) {
+    private List<DeviceMessage> findPendingMessageAndMarkAsSent(Device device) {
+        List<DeviceMessage> pendingMessages = device.getMessagesByState(DeviceMessageStatus.PENDING);
+        List<DeviceMessage> sentMessages = new ArrayList<>(pendingMessages.size());
+        for (DeviceMessage pendingMessage : pendingMessages) {
             pendingMessage.updateDeviceMessageStatus(DeviceMessageStatus.SENT);
             sentMessages.add(pendingMessage);
         }
@@ -660,7 +661,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
-        Device device = (Device) deviceIdentifier.findDevice();
+        Device device = (Device) deviceIdentifier.findDevice();  //Downcast to the Connexo Device
         InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
         if (connectionTask == null) {
             return null;
@@ -679,7 +680,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device The Device
+     * @param device         The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -736,7 +737,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
-        Device device = (Device) deviceIdentifier.findDevice(); //TODO ugly casting ...
+        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
         ConnectionTask<?, ?> connectionTask = this.getInboundConnectionTask(inboundComPort, device);
         if (connectionTask == null) {
             return null;
@@ -748,7 +749,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         try {
-            Device device = (Device) deviceIdentifier.findDevice();
+            Device device = (Device) deviceIdentifier.findDevice();  //Downcast to the Connexo Device
             if (device != null) {
                 return device.getDeviceProtocolProperties();
             } else {
@@ -761,19 +762,21 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     @SuppressWarnings("unchecked")
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
-        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(loadProfileIdentifier.findLoadProfile().getDevice());
+    public DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+        com.energyict.mdc.device.data.LoadProfile loadProfile = (com.energyict.mdc.device.data.LoadProfile) loadProfileIdentifier.getLoadProfile();     //Downcast to Connexo LoadProfile
+        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice((loadProfile).getDevice());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
-        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(((LogBook) logBookIdentifier.getLogBook()).getDevice());
+    public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+        LogBook logBook = (LogBook) logBookIdentifier.getLogBook();     //Downcast to Connexo LogBook
+        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(logBook.getDevice());
     }
 
     @Override
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
-        LogBook logBook = (LogBook) logBookIdentifier.getLogBook();
+        LogBook logBook = (LogBook) logBookIdentifier.getLogBook(); //Downcast to Connexo LogBook
         // Refresh device and LogBook to avoid OptimisticLockException
         Device device = this.serviceProvider.deviceService().findDeviceById(logBook.getDevice().getId()).get();
         LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
@@ -786,7 +789,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments) {
         TopologyService.G3CommunicationPathSegmentBuilder g3CommunicationPathSegmentBuilder = serviceProvider.topologyService()
-                .addCommunicationSegments(((Device) sourceDeviceIdentifier.findDevice()));
+                .addCommunicationSegments(((Device) sourceDeviceIdentifier.findDevice()));       //Downcast to the Connexo Device
         topologyPathSegments.forEach(topologyPathSegment -> {
             Optional<Device> target = getOptionalDeviceByIdentifier(topologyPathSegment.getTarget());
             Optional<Device> intermediateHop = getOptionalDeviceByIdentifier(topologyPathSegment.getIntermediateHop());
@@ -804,7 +807,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
-        TopologyService.G3NeighborhoodBuilder g3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood((Device) sourceDeviceIdentifier.findDevice());
+        TopologyService.G3NeighborhoodBuilder g3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood((Device) sourceDeviceIdentifier.findDevice());   //Downcast to the Connexo Device
         topologyNeighbours.forEach(topologyNeighbour -> {
             Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyNeighbour.getNeighbour());
             if (optionalDevice.isPresent()) {
@@ -835,7 +838,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier deviceIdentifier) {
         try {
-            return Optional.of((Device) deviceIdentifier.findDevice());
+            return Optional.of((Device) deviceIdentifier.findDevice());  //Downcast to the Connexo Device
         } catch (CanNotFindForIdentifier e) {
             return Optional.empty();
         }
@@ -862,7 +865,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
-        LoadProfile loadProfile = (LoadProfile) loadProfileIdentifier.findLoadProfile();
+        LoadProfile loadProfile = (LoadProfile) loadProfileIdentifier.getLoadProfile();        //Downcast to Connexo LoadProfile
         // Refresh the device and the LoadProfile to avoid OptimisticLockException
         Device device = this.serviceProvider.deviceService().findDeviceById(loadProfile.getDevice().getId()).get();
         LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
@@ -872,7 +875,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> loadProfileUpdate, Map<LogBookIdentifier, Instant> logBookUpdate) {
-        Map<DeviceIdentifier<?>, List<Function<Device, Void>>> updateMap = new HashMap<>();
+        Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
 
         // first do the loadprofiles
         loadProfileUpdate.entrySet().stream().forEach(entrySet -> {
@@ -882,7 +885,8 @@ public class ComServerDAOImpl implements ComServerDAO {
                 functionList = new ArrayList<>();
                 updateMap.put(deviceIdentifier, functionList);
             }
-            functionList.add(updateLoadProfile(entrySet.getKey().findLoadProfile(), entrySet.getValue()));
+            LoadProfile loadProfile = (LoadProfile) entrySet.getKey().getLoadProfile();     //Downcast to Connexo LoadProfile
+            functionList.add(updateLoadProfile(loadProfile, entrySet.getValue()));
         });
         // then do the logbooks
         logBookUpdate.entrySet().stream().forEach(entrySet -> {
@@ -892,18 +896,19 @@ public class ComServerDAOImpl implements ComServerDAO {
                 functionList = new ArrayList<>();
                 updateMap.put(deviceIdentifier, functionList);
             }
-            functionList.add(updateLogBook(entrySet.getKey().getLogBook(), entrySet.getValue()));
+            LogBook logBook = (LogBook) entrySet.getKey().getLogBook();     //Downcast to the Connexo Device
+            functionList.add(updateLogBook(logBook, entrySet.getValue()));
         });
 
         // then do your thing
         updateMap.entrySet().stream().forEach(entrySet -> {
-            Device oldDevice = (Device) entrySet.getKey().findDevice();
+            Device oldDevice = (Device) entrySet.getKey().findDevice();      //Downcast to the Connexo Device
             Device device = this.serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
             entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
         });
     }
 
-    private Function<Device, Void> updateLoadProfile(BaseLoadProfile<?> loadProfile, Instant lastReading) {
+    private Function<Device, Void> updateLoadProfile(LoadProfile loadProfile, Instant lastReading) {
         return device -> {
             LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
             LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
@@ -913,7 +918,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         };
     }
 
-    private Function<Device, Void> updateLogBook(BaseLogBook logBook, Instant lastLogBook) {
+    private Function<Device, Void> updateLogBook(LogBook logBook, Instant lastLogBook) {
         return device -> {
             LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
             LogBook.LogBookUpdater logBookUpdater = device.getLogBookUpdaterFor(refreshedLogBook);
@@ -943,7 +948,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
-        final Device dataLogger = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();
+        final Device dataLogger = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();    //Downcast to the Connexo Device
         if (dataLogger != null) {
             if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
                 Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();

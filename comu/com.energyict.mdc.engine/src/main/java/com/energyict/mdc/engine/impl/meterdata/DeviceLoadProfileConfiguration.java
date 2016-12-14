@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
 
 import java.util.List;
 
@@ -25,17 +25,17 @@ import java.util.List;
 public class DeviceLoadProfileConfiguration extends CollectedDeviceData implements CollectedLoadProfileConfiguration {
 
     /**
-     * The <CODE>ObisCode</CODE> of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * The <CODE>ObisCode</CODE> of this {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      */
     private final ObisCode obisCode;
 
     /**
      * The DeviceIdentifier which owns this LoadProfile
      */
-    private final DeviceIdentifier<?> deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
 
     /**
-     * The interval (in seconds) of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * The interval (in seconds) of this {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      */
     private int profileInterval;
 
@@ -54,7 +54,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      *  @param obisCode the LoadProfileObisCode for this configuration
      * @param deviceIdentifier the serialNumber of the master of this <code>LoadProfile</code>
      */
-    public DeviceLoadProfileConfiguration (ObisCode obisCode, DeviceIdentifier<?> deviceIdentifier) {
+    public DeviceLoadProfileConfiguration (ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
         this.obisCode = obisCode;
         this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = true;
@@ -66,7 +66,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @param deviceIdentifier the serialNumber of the master of this <code>LoadProfile</code>
      * @param supported indicates whether the <code>LoadProfile</code> is supported by the Device
      */
-    public DeviceLoadProfileConfiguration (ObisCode obisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
+    public DeviceLoadProfileConfiguration (ObisCode obisCode, DeviceIdentifier deviceIdentifier, boolean supported) {
         this.obisCode = obisCode;
         this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = supported;
@@ -88,7 +88,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @return {@link #deviceIdentifier}
      */
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -14,14 +13,15 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.upl.tasks.Issue;
-import com.energyict.mdc.upl.tasks.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -326,7 +326,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     protected LoadProfileReader getLoadProfileReaderForGivenLoadProfileConfiguration(final CollectedLoadProfileConfiguration loadProfileConfiguration) {
         for (LoadProfileReader loadProfileReader : loadProfileCommand.getLoadProfileReaders()) {
             if (loadProfileReader.getProfileObisCode().equalsIgnoreBChannel(loadProfileConfiguration.getObisCode()) &&
-                    loadProfileReader.getDeviceIdentifier().getIdentifier().equals(loadProfileConfiguration.getDeviceIdentifier().getIdentifier())) {
+                    loadProfileReader.getMeterSerialNumber().equals(loadProfileConfiguration.getMeterSerialNumber())) {
                 return loadProfileReader;
             }
         }

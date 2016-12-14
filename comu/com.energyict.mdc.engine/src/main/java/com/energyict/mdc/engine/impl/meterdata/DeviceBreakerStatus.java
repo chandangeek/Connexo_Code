@@ -6,8 +6,8 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.Optional;
 
@@ -17,7 +17,7 @@ import java.util.Optional;
  */
 public class DeviceBreakerStatus extends CollectedDeviceData implements CollectedBreakerStatus {
 
-    private final DeviceIdentifier<?> deviceDeviceIdentifier;
+    private final DeviceIdentifier deviceDeviceIdentifier;
     private Optional<BreakerStatus> breakerStatus = Optional.empty();
     private ComTaskExecution comTaskExecution;
 

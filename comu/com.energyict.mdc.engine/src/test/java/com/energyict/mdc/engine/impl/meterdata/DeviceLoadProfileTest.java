@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import org.junit.*;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -44,7 +44,7 @@ public class DeviceLoadProfileTest {
         ChannelInfo channelInfo = mock(ChannelInfo.class);
 
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(null);
-        deviceLoadProfile.setCollectedData(Arrays.asList(intervalData), Arrays.asList(channelInfo));
+        deviceLoadProfile.setCollectedIntervalData(Arrays.asList(intervalData), Arrays.asList(channelInfo));
 
         assertThat(deviceLoadProfile.getCollectedIntervalData()).hasSize(1);
         assertThat(deviceLoadProfile.getChannelInfo()).hasSize(1);
@@ -58,7 +58,7 @@ public class DeviceLoadProfileTest {
         ChannelInfo channelInfo = mock(ChannelInfo.class);
 
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(null);
-        deviceLoadProfile.setCollectedData(null, Arrays.asList(channelInfo));
+        deviceLoadProfile.setCollectedIntervalData(null, Arrays.asList(channelInfo));
     }
 
     @Test(expected = CodingException.class)
@@ -66,20 +66,20 @@ public class DeviceLoadProfileTest {
         IntervalData intervalData = mock(IntervalData.class);
 
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(null);
-        deviceLoadProfile.setCollectedData(Arrays.asList(intervalData), null);
+        deviceLoadProfile.setCollectedIntervalData(Arrays.asList(intervalData), null);
     }
 
     @Test
     public void dontStoreDefaultOlderValuesTest(){
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(null);
-        assertThat(deviceLoadProfile.doStoreOlderValues()).isFalse();
+        assertThat(deviceLoadProfile.isDoStoreOlderValues()).isFalse();
     }
 
     @Test
     public void setStoreOlderValuesTest(){
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(null);
         deviceLoadProfile.setDoStoreOlderValues(true);
-        assertThat(deviceLoadProfile.doStoreOlderValues()).isTrue();
+        assertThat(deviceLoadProfile.isDoStoreOlderValues()).isTrue();
     }
 
 }

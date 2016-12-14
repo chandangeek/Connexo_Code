@@ -4,17 +4,26 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +47,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
 
     /**
      * Mapping between the {@link LoadProfileReader LoadProfileReaders} which are used to collect LoadProfileData from the devices and the
-     * {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} from EIServer
+     * {@link com.energyict.mdc.upl.meterdata.LoadProfile} from EIServer
      */
     private Map<LoadProfileReader, OfflineLoadProfile> loadProfileReaderMap = new HashMap<>();
 
@@ -137,7 +146,7 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     }
 
     /**
-     * Get the configured interval of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * Get the configured interval of the {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      * corresponding with the given {@link LoadProfileReader}
      *
      * @param loadProfileReader the given LoadProfileReader

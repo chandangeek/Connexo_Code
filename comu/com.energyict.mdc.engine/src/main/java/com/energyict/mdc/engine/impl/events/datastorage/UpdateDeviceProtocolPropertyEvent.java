@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
 

@@ -11,23 +11,23 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.mdc.protocol.api.device.LogBookFactory;
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
 /**
- * Simple command that just reads the requested {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}s from the device.
+ * Simple command that just reads the requested {@link com.energyict.mdc.upl.meterdata.LoadProfile}s from the device.
  */
 public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComCommand implements ReadLegacyLoadProfileLogBooksDataCommand {
 
@@ -51,7 +51,8 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
 
     private Instant getLastLogbookDate(MeterProtocolAdapter deviceProtocol) {
         try {
-            return deviceProtocol.getValidLogBook(this.legacyLoadProfileLogBooksCommand.getLogBookReaders()).getLastLogBook();
+            Date lastLogBook = deviceProtocol.getValidLogBook(this.legacyLoadProfileLogBooksCommand.getLogBookReaders()).getLastLogBook();
+            return lastLogBook == null ? null : lastLogBook.toInstant();
         } catch (Exception e) {
             return Instant.now();
         }
@@ -163,15 +164,5 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
             }
         }
         return null;
-    }
-
-    private LogBookReader getValidLogBook(List<LogBookReader> logBookReaders) {
-        LogBookReader validLogBook = null;
-        for (LogBookReader logBookReader : logBookReaders) {
-            if (logBookReader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
-                validLogBook = logBookReader;
-            }
-        }
-        return validLogBook;
     }
 }

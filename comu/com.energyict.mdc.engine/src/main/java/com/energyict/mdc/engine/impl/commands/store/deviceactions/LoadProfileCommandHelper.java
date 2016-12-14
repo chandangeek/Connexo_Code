@@ -4,13 +4,14 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,14 +56,13 @@ public class LoadProfileCommandHelper {
         List<ChannelInfo> channelInfos = createChannelInfos(loadProfile, comTaskExecution);
         if (!channelInfos.isEmpty()) {
             LoadProfileReader loadProfileReader = new LoadProfileReader(
-                    serviceProvider.clock(),
                     loadProfile.getObisCode(),
-                    loadProfile.getLastReading().orElse(null),
+                    loadProfile.getLastReading().isPresent() ? Date.from(loadProfile.getLastReading().get()) : null,
                     null,
-                    loadProfile.getLoadProfileId(),
-                    loadProfile.getDeviceIdentifier(),
-                    channelInfos,
+                    (int) loadProfile.getLoadProfileId(),
                     loadProfile.getMasterSerialNumber(),
+                    channelInfos,
+                    loadProfile.getDeviceIdentifier(),
                     loadProfile.getLoadProfileIdentifier());
             if (!loadProfileReaderMap.containsValue(loadProfile)) {
                 loadProfileReaderMap.put(loadProfileReader, loadProfile);
@@ -86,7 +86,7 @@ public class LoadProfileCommandHelper {
                     lpChannel.getObisCode().toString(),
                     lpChannel.getUnit(),
                     getMasterDeviceIdentifier(lpChannel, offlineLoadProfile),
-                    lpChannel.getReadingType()
+                    lpChannel.getReadingType().getMRID()
             ));
         });
         return channelInfos;

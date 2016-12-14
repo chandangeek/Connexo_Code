@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import org.junit.*;
-import org.junit.runner.*;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

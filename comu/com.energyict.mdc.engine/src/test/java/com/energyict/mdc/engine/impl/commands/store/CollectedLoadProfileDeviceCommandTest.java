@@ -105,7 +105,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(ObisCode.fromString(OBIS_CODE), new DeviceIdentifierById(DEVICE_ID, deviceService)));
         List<IntervalData> intervalData = Collections.singletonList(new IntervalData(now));
         List<ChannelInfo> channelInfo = Collections.singletonList(new ChannelInfo(CHANNEL_INFO_ID, CHANNEL1_ID, "testToStringWithOneInterval", Unit.get("kWh")));
-        deviceLoadProfile.setCollectedData(intervalData, channelInfo);
+        deviceLoadProfile.setCollectedIntervalData(intervalData, channelInfo);
         CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
 
         // Business method
@@ -133,7 +133,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
                                 CHANNEL1_ID,
                                 "testToStringWithMultipleIntervalsFromOneChannel",
                                 Unit.get("kWh")));
-        deviceLoadProfile.setCollectedData(intervalData, channelInfo);
+        deviceLoadProfile.setCollectedIntervalData(intervalData, channelInfo);
         CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
 
         // Business method
@@ -166,7 +166,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
                                 CHANNEL2_ID,
                                 "Channel-2",
                                 Unit.get("kWh")));
-        deviceLoadProfile.setCollectedData(intervalData, channelInfo);
+        deviceLoadProfile.setCollectedIntervalData(intervalData, channelInfo);
         CollectedLoadProfileDeviceCommand command = new CollectedLoadProfileDeviceCommand(deviceLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
 
         // Business method
@@ -388,8 +388,8 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
-        assertThat(device.getLoadProfiles().get(0).getLastReading().isPresent()).isTrue();
-        assertThat(device.getLoadProfiles().get(0).getLastReading().get()).isEqualTo(intervalEndTime4.toInstant());
+        assertThat(device.getLoadProfiles().get(0).getLastReading() != null).isTrue();
+        assertThat(device.getLoadProfiles().get(0).getLastReading().toInstant()).isEqualTo(intervalEndTime4.toInstant());
     }
 
     @Test

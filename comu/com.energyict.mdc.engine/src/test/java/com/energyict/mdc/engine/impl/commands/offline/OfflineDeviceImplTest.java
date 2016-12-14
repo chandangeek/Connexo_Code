@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -35,8 +34,6 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -45,7 +42,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
@@ -54,6 +50,14 @@ import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecific
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -63,12 +67,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -76,6 +74,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -111,7 +110,8 @@ public class OfflineDeviceImplTest {
     private static final TimeZone deviceTimeZone = TimeZone.getTimeZone("GMT+05");
 
     private static final String CALENDAR_NAME = "Whatever";
-
+    @Mock
+    DataModel dataModel;
     @Mock
     private DeviceService deviceService;
     @Mock
@@ -133,12 +133,23 @@ public class OfflineDeviceImplTest {
     @Mock
     private OrmService ormService;
     @Mock
-    DataModel dataModel;
-    @Mock
     private FirmwareService firmwareService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+
+    private static LoadProfile getNewMockedLoadProfile(final ObisCode obisCode, Device device) {
+        LoadProfileType loadProfileType = mock(LoadProfileType.class);
+        when(loadProfileType.getObisCode()).thenReturn(obisCode);
+        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
+        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
+        LoadProfile loadProfile = mock(LoadProfile.class);
+        when(loadProfile.getLastReading()).thenReturn(null);
+        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+        when(loadProfile.getLoadProfileTypeObisCode()).thenReturn(obisCode);
+        when(loadProfile.getDevice()).thenReturn(device);
+        return loadProfile;
+    }
 
     private TypedProperties getDeviceProtocolProperties() {
         TypedProperties properties = TypedProperties.empty();
@@ -454,7 +465,7 @@ public class OfflineDeviceImplTest {
         when(calendarAttribute.getName()).thenReturn(DeviceMessageAttributes.activityCalendarAttributeName.getDefaultFormat());
         when(calendarAttribute.getValue()).thenReturn(calendar);
         when(calendarAttribute.getSpecification()).thenReturn(propertySpecs.get(1));
-        when(sendCalendar.getAttributes()).thenReturn(Arrays.asList(calendarNameAttribute, calendarAttribute));
+        doReturn(Arrays.asList(calendarNameAttribute, calendarAttribute)).when(sendCalendar.getAttributes());
         when(sendCalendar.getDevice()).thenReturn(device);
         when(device.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(sendCalendar));
 
@@ -647,19 +658,6 @@ public class OfflineDeviceImplTest {
         assertThat(property).isEqualTo(deviceTimeZone);
     }
 
-    private static LoadProfile getNewMockedLoadProfile(final ObisCode obisCode, Device device) {
-        LoadProfileType loadProfileType = mock(LoadProfileType.class);
-        when(loadProfileType.getObisCode()).thenReturn(obisCode);
-        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
-        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
-        LoadProfile loadProfile = mock(LoadProfile.class);
-        when(loadProfile.getLastReading()).thenReturn(Optional.<Instant>empty());
-        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
-        when(loadProfile.getLoadProfileTypeObisCode()).thenReturn(obisCode);
-        when(loadProfile.getDevice()).thenReturn(device);
-        return loadProfile;
-    }
-
     private DeviceMessageSpec getDeviceMessageSpec(DeviceMessageId deviceMessageId) {
         return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + deviceMessageId));
     }
@@ -668,7 +666,7 @@ public class OfflineDeviceImplTest {
     public void deviceIdentifierForKnownDeviceBySerialNumberShouldBeUsedTest() {
         Device device = createMockDevice();
         DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifier = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(BaseDevice.class))).thenReturn(deviceIdentifier);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifier);
 
         OfflineDeviceImpl offlineDevice = new OfflineDeviceImpl(device, new DeviceOfflineFlags(), this.offlineDeviceServiceProvider);
 

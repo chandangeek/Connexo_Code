@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -28,22 +27,22 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.obis.ObisCode;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -117,7 +116,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
         when(registerIdentifier.findRegister()).thenReturn(register);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        when(registerIdentifier.getObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -175,7 +174,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
         when(registerIdentifier.findRegister()).thenReturn(register);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        when(registerIdentifier.getObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -255,7 +254,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
         when(registerIdentifier.findRegister()).thenReturn(dataLoggerRegister);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(dataLoggerIdentifier);
-        when(registerIdentifier.getObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -316,7 +315,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     }
 
     private CollectedRegister createCollectedRegister(RegisterIdentifier registerIdentifier) {
-        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier, getMdcReadingTypeUtilService().getReadingTypeFrom(registerIdentifier.getObisCode(), kiloWattHours).getMRID());
+        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier, getMdcReadingTypeUtilService().getReadingTypeFrom(registerIdentifier.getRegisterObisCode(), kiloWattHours).getMRID());
         collectedRegister.setReadTime(Date.from(registerEventTime1));
         collectedRegister.setCollectedData(register1Quantity);
         return collectedRegister;

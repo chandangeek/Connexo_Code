@@ -2,12 +2,12 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.Warning;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -50,7 +50,7 @@ public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventI
        if (!command.getMeterReadings().isEmpty()){
             writer.key("meterReadings");
             writer.array();
-            for(Pair<DeviceIdentifier<Device>, MeterReadingImpl> each: command.getMeterReadings().values()){
+            for(Pair<DeviceIdentifier, MeterReadingImpl> each: command.getMeterReadings().values()){
                 DeviceIdentifier identifier = each.getFirst();
                 MeterReadingImpl meterReading = each.getLast();
                 if (meterReading != null) {

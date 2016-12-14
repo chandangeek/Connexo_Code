@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Models the event that occurs when data collection engine sets up a communication channel

@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Provides an implementation for the {@link Request} interface
  * that represents a request to register interest
- * in events that relate to a single {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+ * in events that relate to a single {@link com.energyict.mdc.upl.meterdata.Device device}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:59)
@@ -52,7 +52,7 @@ class DeviceRequest extends IdBusinessObjectRequest {
                     .stream()
                     .map(identificationService::createDeviceIdentifierByDatabaseId)
                     .map(DeviceIdentifier::findDevice)
-                    .map(Device.class::cast)
+                    .map(Device.class::cast)     //Downcast to the Connexo Device
                 .collect(Collectors.toList());
     }
 
@@ -61,7 +61,7 @@ class DeviceRequest extends IdBusinessObjectRequest {
                 .stream()
                 .map(identificationService::createDeviceIdentifierByMRID)
                 .map(DeviceIdentifier::findDevice)
-                .map(Device.class::cast)
+                .map(Device.class::cast)         //Downcast to the Connexo Device
                 .collect(Collectors.toList());
     }
 

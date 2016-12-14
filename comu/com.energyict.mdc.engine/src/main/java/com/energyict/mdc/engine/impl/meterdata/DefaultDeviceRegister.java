@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.cbo.Quantity;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import java.time.Instant;
 import java.util.Date;

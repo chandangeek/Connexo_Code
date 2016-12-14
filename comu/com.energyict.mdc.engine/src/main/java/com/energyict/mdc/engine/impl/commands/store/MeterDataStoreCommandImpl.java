@@ -6,15 +6,14 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.MeterDataStorageEvent;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.tasks.Issue;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -29,7 +28,7 @@ import java.util.Optional;
  */
 public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorageEvent> implements MeterDataStoreCommand {
 
-    private final Map<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> meterReadings = new HashMap<>();
+    private final Map<String, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
     private final Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
     private final Map<LogBookIdentifier, Instant> lastLogBooks = new HashMap<>();
 
@@ -40,7 +39,7 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     @Override
     protected final void doExecute(ComServerDAO comServerDAO) {
         try {
-            for (Map.Entry<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
+            for (Map.Entry<String, Pair<DeviceIdentifier, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
                 comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
             }
 
@@ -61,8 +60,8 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     }
 
     @Override
-    public void addIntervalReadings(DeviceIdentifier<Device> deviceIdentifier, List<IntervalBlock> intervalBlocks) {
-        Pair<DeviceIdentifier<Device>, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
+    public void addIntervalReadings(DeviceIdentifier deviceIdentifier, List<IntervalBlock> intervalBlocks) {
+        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllIntervalBlocks(intervalBlocks);
         } else {
@@ -81,8 +80,8 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     }
 
     @Override
-    public void addReadings(DeviceIdentifier<Device> deviceIdentifier, List<Reading> registerReadings) {
-        Pair<DeviceIdentifier<Device>, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
+    public void addReadings(DeviceIdentifier deviceIdentifier, List<Reading> registerReadings) {
+        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllReadings(registerReadings);
         } else {
@@ -93,8 +92,8 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     }
 
     @Override
-    public void addEventReadings(DeviceIdentifier<Device> deviceIdentifier, List<EndDeviceEvent> endDeviceEvents) {
-        Pair<DeviceIdentifier<Device>, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
+    public void addEventReadings(DeviceIdentifier deviceIdentifier, List<EndDeviceEvent> endDeviceEvents) {
+        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllEndDeviceEvents(endDeviceEvents);
         } else {
@@ -112,7 +111,7 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
         }
     }
 
-    public Map<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> getMeterReadings(){
+    public Map<String, Pair<DeviceIdentifier, MeterReadingImpl>> getMeterReadings(){
         return this.meterReadings;
     }
 

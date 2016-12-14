@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;

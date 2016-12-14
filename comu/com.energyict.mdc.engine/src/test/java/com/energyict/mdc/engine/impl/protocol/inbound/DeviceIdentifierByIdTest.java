@@ -1,17 +1,14 @@
 package com.energyict.mdc.engine.impl.protocol.inbound;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-
-import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,7 +44,7 @@ public class DeviceIdentifierByIdTest {
         when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
 
         // Business method
-        BaseDevice foundDevice = new DeviceIdentifierById(DEVICE_ID, this.deviceService).findDevice();
+        com.energyict.mdc.upl.meterdata.Device foundDevice = new DeviceIdentifierById(DEVICE_ID, this.deviceService).findDevice();
 
         // Asserts
         assertThat(foundDevice).isEqualTo(device);

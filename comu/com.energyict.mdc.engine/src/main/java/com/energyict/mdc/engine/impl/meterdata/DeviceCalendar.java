@@ -6,8 +6,8 @@ import com.energyict.mdc.engine.impl.commands.store.CollectedCalendarDeviceComma
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.Optional;
 
@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 class DeviceCalendar extends CollectedDeviceData implements CollectedCalendar {
 
-    private final DeviceIdentifier<?> deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
     private String activeCalendarName;
     private String passiveCalendarName;
     private ComTaskExecution comTaskExecution;

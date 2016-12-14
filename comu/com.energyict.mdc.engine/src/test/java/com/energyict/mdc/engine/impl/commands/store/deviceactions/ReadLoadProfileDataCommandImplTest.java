@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -16,15 +15,19 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.protocol.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileReader;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,16 +35,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-
-import java.util.*;
-
 import static junit.framework.TestCase.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -65,7 +62,7 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         for (int i = 0; i < 10; i++) {
             intervalDatas.add(new IntervalData(new Date(), new HashSet<>()));
         }
-        deviceLoadProfile.setCollectedData(intervalDatas, channelInfos);
+        deviceLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
         return deviceLoadProfile;
     }
 
@@ -96,9 +93,9 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         assertThat(journalMessage).startsWith(ComCommandDescriptionTitle.ReadLoadProfileDataCommandImpl.getDescription() + " {collectedProfiles: (0.0.99.98.0.255 - Supported - channels: CHN1, CHN2 - dataPeriod: [");
     }
 
-    private static class SimpleLoadProfileIdentifier implements LoadProfileIdentifier<LoadProfile> {
+    private static class SimpleLoadProfileIdentifier implements LoadProfileIdentifier {
         @Override
-        public LoadProfile findLoadProfile() {
+        public LoadProfile getLoadProfile() {
             return null;
         }
 
@@ -108,7 +105,7 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         }
 
         @Override
-        public List<Object> getIdentifier() {
+        public List<Object> getParts() {
             return null;
         }
 
@@ -123,7 +120,7 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         }
 
         @Override
-        public DeviceIdentifier<?> getDeviceIdentifier() {
+        public DeviceIdentifier getDeviceIdentifier() {
             return null;
         }
 

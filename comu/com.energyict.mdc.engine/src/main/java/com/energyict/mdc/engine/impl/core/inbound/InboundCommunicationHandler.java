@@ -5,7 +5,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -55,12 +54,6 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
@@ -68,6 +61,9 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -123,7 +119,7 @@ public class InboundCommunicationHandler {
     /**
      * Handles all of the business and technical aspects of inbound communication.
      *
-     * @param inboundDeviceProtocol The InboundDeviceProtocol that will discover which {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
+     * @param inboundDeviceProtocol The InboundDeviceProtocol that will discover which {@link com.energyict.mdc.upl.meterdata.Device device}
      *                              started the inbound communication session
      * @param context               The InboundDiscoveryContext
      */
@@ -179,18 +175,21 @@ public class InboundCommunicationHandler {
     private void handleRuntimeExceptionDuringDiscovery(InboundDeviceProtocol inboundDeviceProtocol, Throwable t) {
         this.responseType = InboundDeviceProtocol.DiscoverResponseType.FAILURE;
         if (inboundDeviceProtocol.getDeviceIdentifier() != null) {
-            List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> allDevices = getAllPossiblyRelatedDevices(inboundDeviceProtocol);
+            List<? extends Device> allDevices = getAllPossiblyRelatedDevices(inboundDeviceProtocol);
             if (allDevices.size() > 1) {
                 this.responseType = InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE;
             } else if (allDevices.isEmpty()) {
                 this.responseType = InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND;
             }
-            allDevices.stream().filter(device -> deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()))).forEach(device -> {
+            allDevices.stream().filter(device -> {
+                com.energyict.mdc.device.data.Device cxoDevice = (com.energyict.mdc.device.data.Device) device;
+                return deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl(cxoDevice, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()));
+            }).forEach(device -> {
                 List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
                 if (!tokens.isEmpty() && this.connectionTask != null) {
                     CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand();
                     storeCommand.add(createFailedInboundComSessionDeviceCommand(this.responseType.equals(InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE) ?
-                            createDuplicateSerialNumberComSessionBuilder(device.getSerialNumber()) : createErrorComSessionBuilder(t)));
+                            createDuplicateSerialNumberComSessionBuilder(((com.energyict.mdc.device.data.Device) device).getSerialNumber()) : createErrorComSessionBuilder(t)));
                     this.deviceCommandExecutor.execute(storeCommand, tokens.get(0));
                 } else {
                     this.responseType = InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY;
@@ -217,10 +216,10 @@ public class InboundCommunicationHandler {
         return serviceProvider.thesaurus();
     }
 
-    private List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> getAllPossiblyRelatedDevices(InboundDeviceProtocol inboundDeviceProtocol) {
-        List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> allDevices;
+    private List<? extends Device> getAllPossiblyRelatedDevices(InboundDeviceProtocol inboundDeviceProtocol) {
+        List<? extends Device> allDevices;
         if (FindMultipleDevices.class.isAssignableFrom(inboundDeviceProtocol.getDeviceIdentifier().getClass())) {
-            FindMultipleDevices<?> multipleDevicesFinder = (FindMultipleDevices<?>) inboundDeviceProtocol.getDeviceIdentifier();
+            FindMultipleDevices multipleDevicesFinder = (FindMultipleDevices) inboundDeviceProtocol.getDeviceIdentifier();
             allDevices = multipleDevicesFinder.getAllDevices();
         } else {
             allDevices = Collections.singletonList(inboundDeviceProtocol.getDeviceIdentifier().findDevice());
@@ -615,7 +614,7 @@ public class InboundCommunicationHandler {
         }
 
         @Override
-        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
+        public Optional<DeviceCache> findProtocolCacheByDevice(com.energyict.mdc.device.data.Device device) {
             return serviceProvider.engineService().findDeviceCacheByDevice(device);
         }
 

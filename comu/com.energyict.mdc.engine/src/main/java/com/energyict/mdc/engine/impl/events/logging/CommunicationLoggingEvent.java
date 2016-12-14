@@ -3,6 +3,9 @@ package com.energyict.mdc.engine.impl.events.logging;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ComPortRelatedEvent;
@@ -11,16 +14,12 @@ import com.energyict.mdc.engine.events.DeviceRelatedEvent;
 import com.energyict.mdc.engine.events.LoggingEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.InboundComPort;
-
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 /**
  * Provides an implementation for the {@link LoggingEvent} interface
- * for events that relate to communication for a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+ * for events that relate to communication for a {@link com.energyict.mdc.upl.meterdata.Device device}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-08 (11:08)

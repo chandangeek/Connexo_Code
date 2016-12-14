@@ -12,9 +12,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
@@ -24,9 +22,11 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
- * An offline implementation version of an {@link com.energyict.mdc.protocol.api.device.BaseDevice}
+ * An offline implementation version of an {@link com.energyict.mdc.upl.meterdata.Device}
  * mainly containing information which is relevant to use at offline-time.
  * <p/>
  *
@@ -183,9 +183,9 @@ public class OfflineDeviceImpl implements OfflineDevice {
         }
         if (context.needsPendingMessages()) {
             PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
-            List<DeviceMessage<Device>> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
-            List<DeviceMessage<Device>> reallyPending = new ArrayList<>();
-            List<DeviceMessage<Device>> invalidSinceCreation = new ArrayList<>();
+            List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
+            List<DeviceMessage> reallyPending = new ArrayList<>();
+            List<DeviceMessage> invalidSinceCreation = new ArrayList<>();
             pendingMessages
                     .stream()
                     .forEach(deviceMessage -> {
@@ -417,8 +417,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * @param device the Device to collect the pending DeviceMessages from
      * @return a List of pending DeviceMessages
      */
-    private List<DeviceMessage<Device>> getAllPendingMessagesIncludingSlaves(Device device) {
-        List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
+    private List<DeviceMessage> getAllPendingMessagesIncludingSlaves(Device device) {
+        List<DeviceMessage> allDeviceMessages = new ArrayList<>();
         allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
         getPhysicalConnectedDevices(device).stream().
                 filter(this::checkTheNeedToGoOffline).
@@ -434,8 +434,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * @param device the Device to collect the sent DeviceMessages from
      * @return a List of sent DeviceMessages
      */
-    private List<DeviceMessage<Device>> getAllSentMessagesIncludingSlaves(Device device) {
-        List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
+    private List<DeviceMessage> getAllSentMessagesIncludingSlaves(Device device) {
+        List<DeviceMessage> allDeviceMessages = new ArrayList<>();
         allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.SENT));
         getPhysicalConnectedDevices(device).stream().
                 filter(this::checkTheNeedToGoOffline).
@@ -443,18 +443,18 @@ public class OfflineDeviceImpl implements OfflineDevice {
         return allDeviceMessages;
     }
 
-    private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
+    private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage> deviceMessages) {
         return deviceMessages
                 .stream()
-                .filter(deviceMessage -> deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent())
+                .filter(deviceMessage -> ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().isPresent())        //Downcast to Connexo Device
                 .map(this::toOfflineDeviceMessage)
                 .collect(Collectors.toList());
     }
 
-    private OfflineDeviceMessageImpl toOfflineDeviceMessage(DeviceMessage<Device> deviceMessage) {
+    private OfflineDeviceMessageImpl toOfflineDeviceMessage(DeviceMessage deviceMessage) {
         return new OfflineDeviceMessageImpl(
                 deviceMessage,
-                deviceMessage.getDevice().getDeviceProtocolPluggableClass().get().getDeviceProtocol(),
+                ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().get().getDeviceProtocol(),   //Downcast to Connexo Device
                 serviceProvider.identificationService());
     }
 
@@ -508,7 +508,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(device);
     }
 

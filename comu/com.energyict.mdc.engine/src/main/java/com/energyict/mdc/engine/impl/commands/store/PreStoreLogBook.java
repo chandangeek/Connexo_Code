@@ -1,13 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -45,7 +43,7 @@ public class PreStoreLogBook {
      * @param deviceLogBook the collected events from the device
      * @return the preStored logbook
      */
-    public Optional<Pair<DeviceIdentifier<Device>, LocalLogBook>> preStore(CollectedLogBook deviceLogBook) {
+    public Optional<Pair<DeviceIdentifier, LocalLogBook>> preStore(CollectedLogBook deviceLogBook) {
         Set<UniqueDuo<String, Instant>> uniqueCheck = new HashSet<>();
         Optional<OfflineLogBook> offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
         if (offlineLogBook.isPresent()) {

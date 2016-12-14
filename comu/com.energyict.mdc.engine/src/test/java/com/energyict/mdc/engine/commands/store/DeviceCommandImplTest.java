@@ -43,15 +43,8 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInform
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -59,6 +52,13 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.LogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.obis.ObisCode;
 import org.junit.Before;
 import org.junit.Test;
@@ -175,7 +175,7 @@ public class DeviceCommandImplTest {
 
     @Test
     public void ExecutingCollectedLogBookDeviceCommandPublishesEvent(){
-        BaseLogBook logbook = mock(BaseLogBook.class);
+        LogBook logbook = mock(LogBook.class);
         LogBookIdentifier logBookIdentifier = mock(LogBookIdentifier.class);
         OfflineLogBook offlineLogBook = mock(OfflineLogBook.class);
 

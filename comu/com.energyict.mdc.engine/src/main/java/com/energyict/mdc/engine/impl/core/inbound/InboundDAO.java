@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,12 +34,12 @@ public interface InboundDAO {
      *
      *
      * @param deviceIdentifier The DeviceIdentifier that uniquely identifies
-     *                         the {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
+     *                         the {@link com.energyict.mdc.upl.meterdata.Device device}
      * @param confirmationCount The number of previously sent message that have been confirmed
      *                          by the device as correctly received (and executed)
      * @return The pending RtuMessages that are waiting to be sent
      */
-    List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount);
+    List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount);
 
     /**
      * Gets the {@link SecurityProperty security properties} that have been
@@ -76,12 +75,12 @@ public interface InboundDAO {
     TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier);
 
     /**
-     * Finds the {@link com.energyict.mdc.protocol.api.device.BaseDevice} that is uniquely identified
+     * Finds the {@link com.energyict.mdc.upl.meterdata.Device} that is uniquely identified
      * by the specified {@link DeviceIdentifier}.
      *
      * @param identifier The DeviceIdentifier
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
-    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier);
+    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier);
 
 }

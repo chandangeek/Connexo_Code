@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -15,24 +15,24 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterProtocolEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.sql.Date;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -102,24 +102,24 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         final Instant lastLogBookDate3 = Instant.ofEpochMilli(1349049600L * 1000L); // 01 Oct 2012 00:00:00 GMT
 
         LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
-        BaseLogBook logBook1 = mock(BaseLogBook.class);
+        LogBook logBook1 = mock(LogBook.class);
         when((logBookIdentifier1).getLogBook()).thenReturn(logBook1);
         when((logBookIdentifier1).getLogBookObisCode()).thenReturn(logBookObisCode1);
         when(logBook1.getId()).thenReturn(10L);
         LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
-        BaseLogBook logBook2 = mock(BaseLogBook.class);
+        LogBook logBook2 = mock(LogBook.class);
         when((logBookIdentifier2).getLogBook()).thenReturn(logBook2);
         when((logBookIdentifier2).getLogBookObisCode()).thenReturn(logBookObisCode2);
         when(logBook2.getId()).thenReturn(20L);
         LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
-        BaseLogBook logBook3 = mock(BaseLogBook.class);
+        LogBook logBook3 = mock(LogBook.class);
         when((logBookIdentifier3).getLogBook()).thenReturn(logBook3);
         when((logBookIdentifier3).getLogBookObisCode()).thenReturn(logBookObisCode3);
         when(logBook3.getId()).thenReturn(30L);
 
-        LogBookReader logBookReader1 = new LogBookReader(this.clock, logBookObisCode1, Optional.of(lastLogBookDate1), logBookIdentifier1, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
-        LogBookReader logBookReader2 = new LogBookReader(this.clock, logBookObisCode2, Optional.of(lastLogBookDate2), logBookIdentifier2, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
-        LogBookReader logBookReader3 = new LogBookReader(this.clock, logBookObisCode3, Optional.of(lastLogBookDate3), logBookIdentifier3, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        LogBookReader logBookReader1 = new LogBookReader(logBookObisCode1, Date.from(lastLogBookDate1), logBookIdentifier1, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        LogBookReader logBookReader2 = new LogBookReader(logBookObisCode2, Date.from(lastLogBookDate2), logBookIdentifier2, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        LogBookReader logBookReader3 = new LogBookReader(logBookObisCode3, Date.from(lastLogBookDate3), logBookIdentifier3, new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
 
         OfflineDevice device = mock(OfflineDevice.class);
         CommandRoot commandRoot = createCommandRoot();

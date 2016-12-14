@@ -8,16 +8,16 @@ import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.upl.tasks.Issue;
 
 import java.time.Clock;
 
 /**
  * Models the behavior of a command component
  * (as in <a href="http://en.wikipedia.org/wiki/Command_pattern">Command Design Pattern</a>)
- * that executes against a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+ * that executes against a {@link com.energyict.mdc.upl.meterdata.Device device}.
  * The command are kept separate from the devices to be able to delay the execution.
  * The execution is done by the {@link DeviceCommandExecutor} process.
  *

@@ -5,7 +5,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -18,25 +17,24 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -102,7 +100,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * <code>null</code> if the ComPort was deleted or made obsolete or
      * exactly the same Comport if no changes were found
      */
-    public ComPort refreshComPort(ComPort comPort);
+    ComPort refreshComPort(ComPort comPort);
 
     /**
      * Finds and returns all the ComJobs that are ready
@@ -307,7 +305,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param deviceIdentifier the identifier of the Device
      * @param meterReading the readings to store
      */
-    void storeMeterReadings(DeviceIdentifier<Device> deviceIdentifier, MeterReading meterReading);
+    void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading);
 
     /**
      * Finds the OfflineDevice that is uniquely identified
@@ -317,10 +315,10 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param offlineDeviceContext the offlineContext identifying what needs to be offline
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
-    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext);
+    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext);
 
     /**
-     * Finds the BaseRegister that is uniquely identified
+     * Finds the Register that is uniquely identified
      * by the specified RegisterIdentifier.
      *
      * @param identifier The RegisterIdentifier
@@ -334,7 +332,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     /**
      * Finds the <b>offline</b> version of the {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}
-     * that is uniquely identified by the specified {@link com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier}.
+     * that is uniquely identified by the specified {@link com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier}.
      *
      * @param identifier The MessageIdentifier
      * @return The <b>offline</b> version of the DeviceMessage that is identified by the MessageIdentifier
@@ -343,7 +341,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier);
 
     /**
-     * Updates the ip address of the BaseDevice device
+     * Updates the ip address of the Device device
      * that is configured in the specified ConnectionTask
      * only when the value has actually changed.
      *
@@ -354,7 +352,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName);
 
     /**
-     * Updates a protocol property of the BaseDevice
+     * Updates a protocol property of the Device
      * that is uniquely identified by the specified identifier with the given value.
      *
      * @param deviceIdentifier The DeviceIdentifier
@@ -364,7 +362,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
     /**
-     * Updates the gateway device of the BaseDevice device
+     * Updates the gateway device of the Device device
      * that is uniquely identified by the specified identifier.
      *
      * @param deviceIdentifier The DeviceIdentifier
@@ -373,7 +371,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier);
 
     /**
-     * Store configuration information of a BaseDevice device
+     * Store configuration information of a Device device
      * in a UserFile alongside that device,
      * i.e. the UserFile will be stored
      * in the same parent folder.
@@ -431,9 +429,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      */
     <T> T executeTransaction(Transaction<T> transaction);
 
-    DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier);
+    DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier);
 
-    DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
+    DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
 
     void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);
 

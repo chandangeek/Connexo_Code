@@ -10,9 +10,9 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceCacheEvent;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
-import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.Issue;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,8 +40,8 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDevi
         // we will only perform the update when the cache actually changed
         DeviceProtocolCache collectedDeviceCache = this.deviceCache.getCollectedDeviceCache();
         if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
-            DeviceIdentifier<?> deviceIdentifier = this.deviceCache.getDeviceIdentifier();
-            Device device = (Device) deviceIdentifier.findDevice();
+            DeviceIdentifier deviceIdentifier = this.deviceCache.getDeviceIdentifier();
+            Device device = (Device) deviceIdentifier.findDevice();  //Downcast to the Connexo Device
             if (device != null) {
                 Optional<DeviceCache> deviceCache = this.getEngineService().findDeviceCacheByDevice(device);
                 if (deviceCache.isPresent()) {

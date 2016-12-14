@@ -17,9 +17,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -42,20 +40,21 @@ import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.upl.cache.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
+import com.energyict.mdc.upl.meterdata.LogBook;
+import com.energyict.mdc.upl.meterdata.Register;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -181,12 +180,12 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     }
 
     @Override
-    public Optional<DeviceCache> findDeviceCacheByDevice(Device device) {
+    public Optional<DeviceCache> findDeviceCacheByDevice(com.energyict.mdc.device.data.Device device) {
         return dataModel.mapper(DeviceCache.class).getUnique("device", device);
     }
 
     @Override
-    public DeviceCache newDeviceCache(Device device, DeviceProtocolCache deviceProtocolCache) {
+    public DeviceCache newDeviceCache(com.energyict.mdc.device.data.Device device, DeviceProtocolCache deviceProtocolCache) {
         final DeviceCacheImpl deviceCache = dataModel.getInstance(DeviceCacheImpl.class).initialize(device, deviceProtocolCache);
         deviceCache.save();
         return deviceCache;
@@ -536,10 +535,18 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device) {
+        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(com.energyict.mdc.upl.meterdata.Device device) {
             return this.identificationService
                     .get()
                     .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(device))
+                    .orElseThrow(IdentificationServiceMissingException::new);
+        }
+
+        @Override
+        public RegisterIdentifier createRegisterIdentifierByAlreadyKnownRegister(Register register) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createRegisterIdentifierByAlreadyKnownRegister(register))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -568,7 +575,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile, ObisCode obisCode) {
+        public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(LoadProfile loadProfile, ObisCode obisCode) {
             return this.identificationService
                     .get()
                     .map(s -> s.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, obisCode))
@@ -608,7 +615,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(BaseLogBook logBook) {
+        public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook) {
             return this.identificationService
                     .get()
                     .map(s -> s.createLogbookIdentifierForAlreadyKnownLogbook(logBook))

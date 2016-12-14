@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import org.junit.*;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.tasks.Issue;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -45,7 +44,8 @@ public class CollectedDeviceDataTest {
     @Test(expected = CodingException.class)
     public void setFailureInformationNullIssueTest(){
         CollectedData simpleCollectedData = getSimpleCollectedData();
-        simpleCollectedData.setFailureInformation(ResultType.ConfigurationMisMatch, null);
+        Issue issue = null;
+        simpleCollectedData.setFailureInformation(ResultType.ConfigurationMisMatch, issue);
     }
 
     @Test(expected = CodingException.class)

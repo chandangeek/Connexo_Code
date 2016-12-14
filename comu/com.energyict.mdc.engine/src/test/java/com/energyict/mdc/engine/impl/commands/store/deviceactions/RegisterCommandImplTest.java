@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
@@ -18,13 +16,14 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,9 +37,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link RegisterCommandImpl} component.
@@ -195,7 +200,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
 
     private OfflineRegister mockOfflineRegister(long deviceId, String serialNumber, Long registerId, ObisCode obisCode) {
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
-        when(offlineRegister.getDeviceIdentifier()).thenReturn((DeviceIdentifier) new DeviceIdentifierById(deviceId, deviceService));
+        when(offlineRegister.getDeviceIdentifier()).thenReturn(new DeviceIdentifierById(deviceId, deviceService));
         when(offlineRegister.getSerialNumber()).thenReturn(serialNumber);
         when(offlineRegister.getRegisterId()).thenReturn(registerId);
         when(offlineRegister.getObisCode()).thenReturn(obisCode);

@@ -5,12 +5,12 @@ import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceC
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,14 +25,14 @@ import java.util.List;
 public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDeviceData implements CollectedMessage, CollectedRegisterList {
 
     private final MessageIdentifier deviceMessageIdentifier;
-    private final DeviceIdentifier<?> deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
     private List<CollectedRegister> collectedRegisters;
 
     private Instant sentDate;
     private DeviceMessageStatus deviceMessageStatus;
     private String deviceProtocolInformation;
 
-    public DeviceProtocolMessageWithCollectedRegisterData (DeviceIdentifier<?> deviceIdentifier, MessageIdentifier deviceMessageIdentifier, List<CollectedRegister> collectedRegisters) {
+    public DeviceProtocolMessageWithCollectedRegisterData (DeviceIdentifier deviceIdentifier, MessageIdentifier deviceMessageIdentifier, List<CollectedRegister> collectedRegisters) {
         this.deviceIdentifier = deviceIdentifier;
         this.deviceMessageIdentifier = deviceMessageIdentifier;
         this.collectedRegisters = collectedRegisters;
@@ -107,7 +107,7 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier () {
+    public DeviceIdentifier getDeviceIdentifier () {
         return deviceIdentifier;
     }
 }

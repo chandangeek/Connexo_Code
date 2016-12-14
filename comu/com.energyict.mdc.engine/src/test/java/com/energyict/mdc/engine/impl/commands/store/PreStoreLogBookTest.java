@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.Pair;
-import com.energyict.obis.ObisCode;
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -16,27 +16,25 @@ import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -92,7 +90,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(2);
@@ -113,7 +111,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(1);
@@ -134,7 +132,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 4).hasSize(4);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(2);
@@ -145,7 +143,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         when(comServerDAO.executeTransaction(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         when(comServerDAO.findOfflineLogBook(any(LogBookIdentifier.class))).thenReturn(Optional.of(offlineLogBook));
-        DeviceIdentifier<Device> deviceIdentifier = (DeviceIdentifier<Device>) offlineLogBook.getDeviceIdentifier();
+        DeviceIdentifier deviceIdentifier = offlineLogBook.getDeviceIdentifier();
         when(comServerDAO.getDeviceIdentifierFor(any(LogBookIdentifier.class))).thenReturn(deviceIdentifier);
         doCallRealMethod().when(comServerDAO).updateLastLogBook(any(LogBookIdentifier.class), any(Instant.class));
         return comServerDAO;

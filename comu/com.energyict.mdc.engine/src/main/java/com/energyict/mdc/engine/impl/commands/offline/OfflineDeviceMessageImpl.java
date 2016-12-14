@@ -2,9 +2,6 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -13,10 +10,13 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Straightforward implementation of an OfflineDeviceMessage
@@ -41,7 +41,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private String protocolInfo;
     private Instant releaseDate;
     private Instant creationDate;
-    private BaseDevice device;
+    private Device device;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -59,17 +59,23 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     private void goOffline() {
+        Device device = ((Device) this.deviceMessage.getDevice());      //Downcast to Connexo Device
+
         this.deviceMessageId = this.deviceMessage.getDeviceMessageId();
         this.specification = this.deviceMessage.getSpecification();
-        this.deviceId = this.deviceMessage.getDevice().getId();
-        this.deviceSerialNumber = this.deviceMessage.getDevice().getSerialNumber();
+        this.deviceId = device.getId();
+        this.deviceSerialNumber = device.getSerialNumber();
         this.releaseDate = this.deviceMessage.getReleaseDate();
         this.trackingId = this.deviceMessage.getTrackingId();
         this.protocolInfo = this.deviceMessage.getProtocolInfo();
         this.deviceMessageStatus = this.deviceMessage.getStatus();
         this.creationDate = this.deviceMessage.getCreationDate();
-        this.device = this.deviceMessage.getDevice();
-        getOfflineDeviceMessageAttributes(this.deviceMessage.getAttributes());
+        this.device = device;
+
+        List<DeviceMessageAttribute> collect = this.deviceMessage.getAttributes().stream()
+                .map(DeviceMessageAttribute.class::cast)      //Downcast to Connexo DeviceMessageAttribute
+                .collect(Collectors.toList());
+        getOfflineDeviceMessageAttributes(collect);
     }
 
     private void getOfflineDeviceMessageAttributes(List<DeviceMessageAttribute> attributes) {

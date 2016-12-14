@@ -1,18 +1,18 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.obis.ObisCode;
 
 import java.time.Instant;
 import java.util.Optional;
 
 /**
- * Represents an Offline version of a {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
+ * Represents an Offline version of a {@link com.energyict.mdc.upl.meterdata.LogBook}
  *
  * @author sva
  * @since 07/12/12 - 14:36
@@ -20,7 +20,7 @@ import java.util.Optional;
 public class OfflineLogBookImpl implements OfflineLogBook {
 
     /**
-     * The {@link com.energyict.mdc.protocol.api.device.BaseLogBook} which is going offline
+     * The {@link com.energyict.mdc.upl.meterdata.LogBook} which is going offline
      */
     private final LogBook logBook;
     private IdentificationService identificationService;
@@ -28,21 +28,21 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     private final Device device;
 
     /**
-     * The database ID of this {@link com.energyict.mdc.protocol.api.device.offline.OfflineDevice devices'} {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
+     * The database ID of this {@link com.energyict.mdc.protocol.api.device.offline.OfflineDevice devices'} {@link com.energyict.mdc.upl.meterdata.LogBook}
      */
     private long logBookId;
 
     /**
-     * The id of the {@link com.energyict.mdc.protocol.api.device.BaseDevice} which owns this LogBook.
+     * The id of the {@link com.energyict.mdc.upl.meterdata.Device} which owns this LogBook.
      */
     private int deviceId;
 
     /**
-     * The serialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
+     * The serialNumber of the {@link com.energyict.mdc.upl.meterdata.Device Device}
      */
     private String serialNumber;
     /**
-     * The Date from where to start fetching data from the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
+     * The Date from where to start fetching data from the {@link com.energyict.mdc.upl.meterdata.LogBook}
      */
     private Optional<Instant> lastLogBook;
     /**
@@ -109,7 +109,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
     }
 

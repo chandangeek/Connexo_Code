@@ -8,17 +8,17 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} data.
+ * Provides functionality to store {@link com.energyict.mdc.upl.meterdata.LoadProfile} data.
  *
  * Copyrights EnergyICT
  * Date: 29/08/12
