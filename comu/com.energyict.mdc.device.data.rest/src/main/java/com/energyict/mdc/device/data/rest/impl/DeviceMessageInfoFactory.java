@@ -44,7 +44,7 @@ public class DeviceMessageInfoFactory {
         this.deviceMessageService = deviceMessageService;
     }
 
-    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage, UriInfo uriInfo) {
+    public DeviceMessageInfo asInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
@@ -89,7 +89,9 @@ public class DeviceMessageInfoFactory {
         TypedProperties typedProperties = TypedProperties.empty();
         deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
-                deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList()),
+                deviceMessage.getAttributes().stream()
+                        .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
+                        .map(DeviceMessageAttribute::getSpecification).collect(toList()),
                 typedProperties,
                 info.properties
         );

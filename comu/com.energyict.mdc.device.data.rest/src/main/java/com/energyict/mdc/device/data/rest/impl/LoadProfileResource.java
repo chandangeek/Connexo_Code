@@ -16,7 +16,6 @@ import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
-
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -37,6 +36,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -124,8 +124,8 @@ public class LoadProfileResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response updateLoadProfile(LoadProfileInfo info, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
-        Optional<Instant> lastReading = loadProfile.getLastReading();
-        if (!lastReading.isPresent() || lastReading.get().compareTo(info.lastReading) != 0) {
+        Date lastReading = loadProfile.getLastReading();
+        if (lastReading == null || lastReading.toInstant().compareTo(info.lastReading) != 0) {
             loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile).setLastReading(info.lastReading).update();
         }
         return Response.status(Response.Status.OK).build();

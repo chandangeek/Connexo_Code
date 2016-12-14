@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.protocol.ProtocolReadingQualities;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
@@ -27,10 +26,13 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
-
+import com.energyict.protocol.ProtocolReadingQualities;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -46,10 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -349,7 +347,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
     public void testValidate() {
         when(loadProfile.getDevice()).thenReturn(device);
         when(device.forValidation()).thenReturn(deviceValidation);
-        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
+        when(loadProfile.getLastReading()).thenReturn(Date.from(LAST_READING));
 
         LoadProfileTriggerValidationInfo entity = new LoadProfileTriggerValidationInfo();
         entity.id = 1L;
@@ -367,7 +365,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
     public void testValidateWithDate() {
         when(loadProfile.getDevice()).thenReturn(device);
         when(device.forValidation()).thenReturn(deviceValidation);
-        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
+        when(loadProfile.getLastReading()).thenReturn(Date.from(LAST_READING));
 
         LoadProfileTriggerValidationInfo triggerValidationInfo = new LoadProfileTriggerValidationInfo();
         triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();

@@ -39,7 +39,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.energyict.protocol.ProtocolReadingQualities;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.properties.PropertySpec;
@@ -57,9 +56,8 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -105,10 +103,18 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolReadingQualities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -116,6 +122,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.sql.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -131,14 +138,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -2414,7 +2413,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile1.getId()).thenReturn(id);
         when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, (int) id));
         when(loadProfile1.getChannels()).thenReturn(channels == null ? Collections.<Channel>emptyList() : Arrays.asList(channels));
-        when(loadProfile1.getLastReading()).thenReturn(Optional.of(Instant.ofEpochMilli(1406617200000L))); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
+        when(loadProfile1.getLastReading()).thenReturn(Date.from(Instant.ofEpochMilli(1406617200000L))); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         return loadProfile1;

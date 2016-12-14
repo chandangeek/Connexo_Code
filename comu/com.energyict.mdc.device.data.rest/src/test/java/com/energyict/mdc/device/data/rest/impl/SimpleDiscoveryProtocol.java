@@ -2,11 +2,11 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.Collections;
 import java.util.List;
