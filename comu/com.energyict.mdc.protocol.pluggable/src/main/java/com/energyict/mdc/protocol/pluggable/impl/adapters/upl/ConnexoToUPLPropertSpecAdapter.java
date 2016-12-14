@@ -23,6 +23,10 @@ class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
         this.actual = actual;
     }
 
+    com.elster.jupiter.properties.PropertySpec getConnexoPropertySpec() {
+        return actual;
+    }
+
     @Override
     public String getName() {
         return this.actual.getName();

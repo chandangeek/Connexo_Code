@@ -11,9 +11,14 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 /**
  * Adapter between {@link com.energyict.mdc.upl.properties.PropertySpec upl}
  * and {@link com.elster.jupiter.properties.PropertySpec Connexo} PropertySpec interfaces.
+ * Think carefully before you use this class since the PropertySpec that you are
+ * adapting is likely one that was produced by this very same bundle.
+ * In case the PropertySpec is an instance of {@link ConnexoToUPLPropertSpecAdapter}
+ * then please cast it and return the actual UPL PropertySpec instead of adapting an adapter.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-12 (13:27)
+ * @see ConnexoToUPLPropertSpecAdapter#getConnexoPropertySpec()
  */
 class UPLToConnexoPropertySpecAdapter implements PropertySpec {
     private final com.energyict.mdc.upl.properties.PropertySpec actual;
