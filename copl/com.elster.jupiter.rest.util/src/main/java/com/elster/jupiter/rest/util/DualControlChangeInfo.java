@@ -5,6 +5,8 @@ public class DualControlChangeInfo {
     public String originalValue;
     public String newValue;
 
+    public DualControlChangeInfo() {}
+
     public DualControlChangeInfo(String attributeName, String originalValue, String newValue) {
         this.attributeName = attributeName;
         this.originalValue = originalValue;
