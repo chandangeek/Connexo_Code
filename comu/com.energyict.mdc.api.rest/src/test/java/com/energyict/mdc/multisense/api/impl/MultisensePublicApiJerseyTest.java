@@ -94,6 +94,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
@@ -107,8 +108,6 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -464,7 +463,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getName()).thenReturn(name);
         when(mock.getDescription()).thenReturn("Description of " + name);
         if (specs != null && specs.length > 0) {
-            when(mock.getMessageSpecifications()).thenReturn(Arrays.asList(specs));
+            doReturn(Arrays.asList(specs)).when(mock).getMessageSpecifications();
         }
         when(deviceMessageSpecificationService.findCategoryById(id)).thenReturn(Optional.of(mock));
 

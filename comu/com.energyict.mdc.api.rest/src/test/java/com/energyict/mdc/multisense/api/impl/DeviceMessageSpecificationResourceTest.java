@@ -8,19 +8,18 @@ import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 public class DeviceMessageSpecificationResourceTest extends MultisensePublicApiJerseyTest {
@@ -34,7 +33,7 @@ public class DeviceMessageSpecificationResourceTest extends MultisensePublicApiJ
         DeviceMessageCategory deviceMessageCategory = mockDeviceMessageCategory(12, "main cat");
         deviceMessageSpec = mockDeviceMessageSpec(DeviceMessageId.CLOCK_SET_TIME, "Set clock");
         when(deviceMessageSpec.getCategory()).thenReturn(deviceMessageCategory);
-        when(deviceMessageCategory.getMessageSpecifications()).thenReturn(Arrays.asList(deviceMessageSpec));
+        doReturn(Arrays.asList(deviceMessageSpec)).when(deviceMessageCategory).getMessageSpecifications();
     }
 
     @Test
@@ -61,7 +60,7 @@ public class DeviceMessageSpecificationResourceTest extends MultisensePublicApiJ
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(15001);
         assertThat(model.<String>get("$.name")).isEqualTo("Set clock");
-        assertThat(model.<Object>get("$.link")).isNull();
+        assertThat(model.get("$.link")).isNull();
         assertThat(model.<String>get("$.category")).isNull();
         assertThat(model.<String>get("$.deviceMessageId")).isNull();
         assertThat(model.<List>get("$.propertySpecs")).isNull();
