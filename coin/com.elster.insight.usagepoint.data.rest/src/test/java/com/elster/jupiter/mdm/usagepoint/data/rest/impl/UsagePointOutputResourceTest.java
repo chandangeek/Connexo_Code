@@ -1,7 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.mdm.usagepoint.config.rest.FormulaInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -9,15 +12,19 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.ValidationContextImpl;
+import com.elster.jupiter.validation.ValidationEvaluator;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -27,7 +34,11 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -143,18 +154,25 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(effectiveMC).activateOptionalMetrologyContract(eq(metrologyContract), any(Instant.class));
     }
 
     @Test
     public void testPurposeDeactivation(){
         MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(1);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
-        when(effectiveMC.getChannelsContainer(metrologyContract)).thenReturn(Optional.empty());
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(channelsContainer.getChannels()).thenReturn(Collections.emptyList());
+        when(effectiveMC.getChannelsContainer(eq(metrologyContract), any(Instant.class))).thenReturn(Optional.of(channelsContainer));
+        ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
+        when(validationService.getEvaluator()).thenReturn(validationEvaluator);
+        doReturn(Collections.emptyList()).when(validationEvaluator).getValidationStatus(any(), any(Channel.class), any(), any());
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/101/deactivate").request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(effectiveMC).deactivateOptionalMetrologyContract(eq(metrologyContract), any(Instant.class));
     }
 
     private PurposeInfo createPurposeInfo(MetrologyContract metrologyContract) {

@@ -296,7 +296,7 @@ public class UsagePointOutputResource {
 
         resourceHelper.checkMeterRequirements(usagePoint, metrologyContract);
 
-        effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range.atLeast(clock.instant()));
+        effectiveMC.activateOptionalMetrologyContract(metrologyContract, clock.instant());
         return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
 
