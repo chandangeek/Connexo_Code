@@ -81,16 +81,21 @@ public class ConcurrentModificationException extends LocalizedException {
     }
 
     ConcurrentModificationException withContext(ExceptionContext context) {
-        if (this.messageTitle != null || context == null) {
-            return this;
+        ConcurrentModificationException result = this;
+        if (context != null) {
+            if (result.messageTitle == null) {
+                result = new ConcurrentModificationException(getThesaurus(), context.getMessageTitle(), this.messageTitleArgs);
+                result.messageBody = this.messageBody;
+                result.messageBodyArgs = this.messageBodyArgs;
+                result.version = this.version;
+                result.parentId = this.parentId;
+                result.parentVersion = this.parentVersion;
+            }
+            if (result.messageBody == null) {
+                result.messageBody = context.getMessageBody();
+            }
         }
-        ConcurrentModificationException clone = new ConcurrentModificationException(getThesaurus(), context.getMessageTitle(), this.messageTitleArgs);
-        clone.messageBody = context.getMessageBody();
-        clone.messageBodyArgs = this.messageBodyArgs;
-        clone.version = this.version;
-        clone.parentId = this.parentId;
-        clone.parentVersion = this.parentVersion;
-        return clone;
+        return result;
     }
 
     enum ExceptionContext {
