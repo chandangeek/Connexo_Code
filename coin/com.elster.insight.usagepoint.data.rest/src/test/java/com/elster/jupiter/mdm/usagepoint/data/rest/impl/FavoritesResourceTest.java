@@ -7,6 +7,7 @@ import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoriteUsageP
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -120,9 +121,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
     @Test
     public void testUPGIsMadeFavorite() {
         FavoriteUsagePointGroupInfo info = new FavoriteUsagePointGroupInfo();
-        info.parent = new UsagePointGroupInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
-        info.parent.name = usagePointGroup.getName();
         info.parent.version = usagePointGroup.getVersion();
         info.comment = "My comment";
 
@@ -152,9 +152,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
     @Test
     public void testUPIsMadeFavorite() {
         FavoriteUsagePointInfo info = new FavoriteUsagePointInfo();
-        info.parent = new UsagePointInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
-        info.parent.name = usagePoint.getName();
         info.parent.version = usagePoint.getVersion();
         info.comment = "My comment";
 
@@ -187,9 +186,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         when(favoritesService.findFavoriteUsagePointGroup(usagePointGroup)).thenReturn(Optional.of(favoriteUsagePointGroup));
 
         FavoriteUsagePointGroupInfo info = new FavoriteUsagePointGroupInfo();
-        info.parent = new UsagePointGroupInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
-        info.parent.name = usagePointGroup.getName();
         info.parent.version = usagePointGroup.getVersion();
 
         Response response = target("/favorites/usagepointgroups/100").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -204,9 +202,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         when(favoritesService.findFavoriteUsagePoint(usagePoint)).thenReturn(Optional.of(favoriteUsagePoint));
 
         FavoriteUsagePointInfo info = new FavoriteUsagePointInfo();
-        info.parent = new UsagePointInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
-        info.parent.name = usagePoint.getName();
         info.parent.version = usagePoint.getVersion();
 
         Response response = target("/favorites/usagepoints/name").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -220,9 +217,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         when(favoritesService.findFavoriteUsagePointGroup(usagePointGroup)).thenReturn(Optional.empty());
 
         FavoriteUsagePointGroupInfo info = new FavoriteUsagePointGroupInfo();
-        info.parent = new UsagePointGroupInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
-        info.parent.name = usagePointGroup.getName();
         info.parent.version = usagePointGroup.getVersion();
 
         Response response = target("/favorites/usagepointgroups/100").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -237,9 +233,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         when(favoritesService.findFavoriteUsagePoint(usagePoint)).thenReturn(Optional.empty());
 
         FavoriteUsagePointInfo info = new FavoriteUsagePointInfo();
-        info.parent = new UsagePointInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
-        info.parent.name = usagePoint.getName();
         info.parent.version = usagePoint.getVersion();
 
         Response response = target("/favorites/usagepoints/name").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -256,9 +251,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
                 .thenReturn(Optional.empty());
 
         FavoriteUsagePointGroupInfo info = new FavoriteUsagePointGroupInfo();
-        info.parent = new UsagePointGroupInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
-        info.parent.name = usagePointGroup.getName();
         info.parent.version = badVersion;
 
         Response response = target("/favorites/usagepointgroups/100").request().put(Entity.json(info));
@@ -278,9 +272,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
                 .thenReturn(Optional.empty());
 
         FavoriteUsagePointInfo info = new FavoriteUsagePointInfo();
-        info.parent = new UsagePointInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
-        info.parent.name = usagePoint.getName();
         info.parent.version = badVersion;
 
         Response response = target("/favorites/usagepoints/name").request().put(Entity.json(info));
@@ -300,9 +293,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
                 .thenReturn(Optional.empty());
 
         FavoriteUsagePointGroupInfo info = new FavoriteUsagePointGroupInfo();
-        info.parent = new UsagePointGroupInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
-        info.parent.name = usagePointGroup.getName();
         info.parent.version = badVersion;
 
         Response response = target("/favorites/usagepointgroups/100").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -322,9 +314,8 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
                 .thenReturn(Optional.empty());
 
         FavoriteUsagePointInfo info = new FavoriteUsagePointInfo();
-        info.parent = new UsagePointInfo();
+        info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
-        info.parent.name = usagePoint.getName();
         info.parent.version = badVersion;
 
         Response response = target("/favorites/usagepoints/name").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();

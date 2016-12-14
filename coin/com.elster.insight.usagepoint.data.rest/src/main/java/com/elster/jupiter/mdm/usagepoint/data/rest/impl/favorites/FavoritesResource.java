@@ -23,6 +23,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @Path("/favorites")
 public class FavoritesResource {
@@ -102,8 +103,7 @@ public class FavoritesResource {
             com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
             com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
     public FavoriteUsagePointInfo createFavoriteUsagePoint(@PathParam("name") String name, FavoriteUsagePointInfo info) {
-        info.parent.name = name;
-        UsagePoint usagePoint = lockUsagePointOrThrowException(info, false);
+        UsagePoint usagePoint = lockUsagePointOrThrowException(info, name, false);
         FavoriteUsagePoint favoriteUsagePoint = favoritesService.findOrCreateFavoriteUsagePoint(usagePoint);
         favoriteUsagePoint.setComment(info.comment);
         return new FavoriteUsagePointInfo(favoriteUsagePoint);
@@ -135,8 +135,7 @@ public class FavoritesResource {
             com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
             com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
     public Response removeFavoriteUsagePoint(@PathParam("name") String name, FavoriteUsagePointInfo info) {
-        info.parent.name = name;
-        UsagePoint usagePoint = lockUsagePointOrThrowException(info, true);
+        UsagePoint usagePoint = lockUsagePointOrThrowException(info, name, true);
         favoritesService.findFavoriteUsagePoint(usagePoint)
                 .ifPresent(favoritesService::removeFavoriteUsagePoint);
         return Response.ok().build();
@@ -144,27 +143,31 @@ public class FavoritesResource {
 
     private UsagePointGroup lockUsagePointGroupOrThrowException(FavoriteUsagePointGroupInfo info, boolean remove) {
         return meteringGroupsService.findAndLockUsagePointGroupByIdAndVersion(info.parent.id, info.parent.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn("Usage point group")
-                        .withActualParent(() -> meteringGroupsService.findUsagePointGroup(info.parent.id)
-                                .map(UsagePointGroup::getVersion)
-                                .orElse(null), info.parent.id)
-                        .withMessageTitle(remove ?
-                                        MessageSeeds.REMOVE_FROM_FAVORITES_CONFLICT_TITLE :
-                                        MessageSeeds.FLAG_AS_FAVORITE_CONFLICT_TITLE,
-                                info.parent.name)
-                        .supplier());
+                .orElseThrow(() -> {
+                    Optional<UsagePointGroup> usagePointGroup = meteringGroupsService.findUsagePointGroup(info.parent.id);
+                    return conflictFactory.contextDependentConflictOn("Usage point group")
+                            .withActualParent(() -> usagePointGroup.map(UsagePointGroup::getVersion).orElse(null),
+                                    info.parent.id)
+                            .withMessageTitle(remove ?
+                                            MessageSeeds.REMOVE_FROM_FAVORITES_CONFLICT_TITLE :
+                                            MessageSeeds.FLAG_AS_FAVORITE_CONFLICT_TITLE,
+                                    usagePointGroup.map(UsagePointGroup::getName).orElse(null))
+                            .build();
+                });
     }
 
-    private UsagePoint lockUsagePointOrThrowException(FavoriteUsagePointInfo info, boolean remove) {
+    private UsagePoint lockUsagePointOrThrowException(FavoriteUsagePointInfo info, String name, boolean remove) {
         return meteringService.findAndLockUsagePointByIdAndVersion(info.parent.id, info.parent.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn("Usage point")
-                        .withActualParent(() -> meteringService.findUsagePointById(info.parent.id)
-                                .map(UsagePoint::getVersion)
-                                .orElse(null), info.parent.id)
-                        .withMessageTitle(remove ?
-                                        MessageSeeds.REMOVE_FROM_FAVORITES_CONFLICT_TITLE :
-                                        MessageSeeds.FLAG_AS_FAVORITE_CONFLICT_TITLE,
-                                info.parent.name)
-                        .supplier());
+                .orElseThrow(() -> {
+                    Optional<UsagePoint> usagePoint = meteringService.findUsagePointById(info.parent.id);
+                    return conflictFactory.contextDependentConflictOn("Usage point")
+                            .withActualParent(() -> usagePoint.map(UsagePoint::getVersion).orElse(null),
+                                    info.parent.id)
+                            .withMessageTitle(remove ?
+                                            MessageSeeds.REMOVE_FROM_FAVORITES_CONFLICT_TITLE :
+                                            MessageSeeds.FLAG_AS_FAVORITE_CONFLICT_TITLE,
+                                    usagePoint.map(UsagePoint::getName).orElse(name))
+                            .build();
+                });
     }
 }
