@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePreview', {
     tools: [
         {
             xtype: 'uni-button-action',
-            //privileges: Mdc.privileges.Communication.admin,
+            privileges: Mdc.privileges.CommandLimitationRules.view,
             menu: {
                 xtype: 'commandRuleActionMenu'
             }
