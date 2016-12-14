@@ -17,6 +17,7 @@ import java.time.Instant;
  */
 @ProviderType
 public interface EffectiveMetrologyContractOnUsagePoint extends HasId, Effectivity {
+
     EffectiveMetrologyConfigurationOnUsagePoint getMetrologyConfigurationOnUsagePoint();
 
     MetrologyContract getMetrologyContract();

@@ -15,8 +15,10 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
@@ -119,12 +121,15 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     }
 
     public void createEffectiveMetrologyContracts() {
-        getMetrologyConfiguration().getContracts()
-                .stream()
+        this.createEffectiveMetrologyContracts(Collections.emptySet());
+    }
+
+    public void createEffectiveMetrologyContracts(Set<MetrologyContract> optionalContractsToCreate) {
+        getMetrologyConfiguration().getContracts().stream()
                 .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                .filter(MetrologyContract::isMandatory)
-                .forEach(metrologyContract -> this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
-                        .init(this, metrologyContract)));
+                .filter(metrologyContract -> metrologyContract.isMandatory() || optionalContractsToCreate.contains(metrologyContract))
+                .map(metrologyContract -> dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class).init(this, metrologyContract))
+                .forEach(this.effectiveContracts::add);
     }
 
     @Override

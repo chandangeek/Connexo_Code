@@ -6,6 +6,7 @@ import com.elster.jupiter.util.HasId;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Models an API for measurement data that is calculated from
@@ -39,6 +40,8 @@ public interface MetrologyContract extends HasId {
      * @return The List of ReadingTypeDeliverable
      */
     List<ReadingTypeDeliverable> getDeliverables();
+
+    Set<ReadingTypeRequirement> getRequirements();
 
     MetrologyPurpose getMetrologyPurpose();
 
