@@ -54,8 +54,8 @@ public class CommandRuleResource {
     public Response getCommandRules(@BeanParam JsonQueryParameters queryParameters) {
         List<CommandRuleInfo> data = commandRuleService.findAllCommandRules()
                 .stream()
-                .sorted((r1, r2) -> r1.getName().compareTo(r2.getName()))
-                .map(commandRuleInfoFactory::from)
+                .sorted((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()))
+                .map(commandRuleInfoFactory::createWithChanges)
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromCompleteList("commandrules", data, queryParameters)).build();
     }
@@ -152,7 +152,7 @@ public class CommandRuleResource {
         List<IdWithNameInfo> categories = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
                 .map(deviceMessageCategory -> new IdWithNameInfo(deviceMessageCategory.getId(), deviceMessageCategory.getName()))
-                .sorted((o1, o2) -> o1.name.compareTo(o2.name))
+                .sorted((o1, o2) -> o1.name.compareToIgnoreCase(o2.name))
                 .collect(Collectors.toList());
 
         return Response.ok(categories).build();
@@ -169,7 +169,7 @@ public class CommandRuleResource {
         List<CommandInfo> commands = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
                 .filter(deviceMessageCategory -> selectedCategories.size() == 0 || selectedCategories.contains(deviceMessageCategory.getId()))
-                .sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
+                .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
                 .map(DeviceMessageCategory::getMessageSpecifications)
                 .flatMap(List::stream)
                 .filter(deviceMessageSpec -> !alreadySelectedCommands.contains(deviceMessageSpec.getId().name()))
