@@ -18,7 +18,6 @@ import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,7 +41,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     private Reference<Issue> baseIssue = ValueReference.absent();
-    private List<DeviceAlarmRelatedEvent> deviceAlarmRelatedEvents = new ArrayList<>();
+    private List<DeviceAlarmRelatedEvent> deviceAlarmRelatedEvents;
     private Boolean clearedStatus = Boolean.FALSE;
 
 
