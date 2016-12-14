@@ -1,25 +1,28 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
 import com.energyict.mdc.upl.meterdata.LoadProfile;
-import com.energyict.obis.ObisCode;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-import javax.xml.bind.annotation.XmlElement;
-import java.io.Serializable;
-import java.util.List;
+import com.energyict.obis.ObisCode;
 
 /**
  * Provides functionality to identify a specific LoadProfile of a Device.
+ * <br>
+ * As mentioned in {@link Identifier}, the introspection mechanism
+ * was designed with compatibility in mind.
+ * Below is a list of currently known type names:
+ * <table>
+ * <tr><th>type name</th><th>comprising parts and their roles</th></tr>
+ * <tr><td>DatabaseId</td><td>databaseValue -&gt; the load profile's database identifier</td></tr>
+ * <tr><td>DeviceIdentifierAndObisCode</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}<br>obisCode -&gt; the ObisCode</td></tr>
+ * <tr><td>FistLoadProfileOnDevice</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}</td></tr>
+ * <tr><td>Actual</td><td>databaseValue -&gt; the load profile's database identifier<br>actual -&gt; the load profile</td></tr>
+ * </table>
  * <p/>
  * Copyrights EnergyICT
  * Date: 15/10/12
  * Time: 14:01
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.CLASS,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-public interface LoadProfileIdentifier extends Serializable {
+public interface LoadProfileIdentifier extends Identifier {
 
     /**
      * Returns the LoadProfile that is uniquely identified by this identifier.
@@ -34,24 +37,8 @@ public interface LoadProfileIdentifier extends Serializable {
     ObisCode getProfileObisCode();
 
     /**
-     * The type of this identifier.
-     */
-    LoadProfileIdentifierType getLoadProfileIdentifierType();
-
-    /**
-     * The essential part(s) of this identifier: the database ID, deviceIdentifier and ObisCode, ...
-     */
-    List<Object> getParts();
-
-    // The element below is only used during JSON xml (un)marshalling.
-    @XmlElement(name = "type")
-    String getXmlType();
-
-    void setXmlType(String ignore);
-
-    /**
      * @return the DeviceIdentifier for this LoadProfileIdentifier
      */
-    public DeviceIdentifier getDeviceIdentifier();
+    DeviceIdentifier getDeviceIdentifier();
 
 }

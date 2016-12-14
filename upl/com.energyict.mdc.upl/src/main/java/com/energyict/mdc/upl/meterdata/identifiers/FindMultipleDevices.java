@@ -22,6 +22,6 @@ public interface FindMultipleDevices extends DeviceIdentifier {
      *
      * @return <b>ALL</b> Devices which satisfy the criteria of the DeviceIdentifier
      */
-    public List<? extends Device> getAllDevices();
+    List<? extends Device> getAllDevices();
 
 }

@@ -2,23 +2,27 @@ package com.energyict.mdc.upl.meterdata.identifiers;
 
 import com.energyict.mdc.upl.meterdata.Device;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-
-import javax.xml.bind.annotation.XmlElement;
-import java.io.Serializable;
-
 /**
  * Identifies a device that started inbound communication
  * and is also capable of finding that device.
+ * <br>
+ * As mentioned in {@link Identifier}, the introspection mechanism
+ * was designed with compatibility in mind.
+ * Below is a list of currently known type names:
+ * <table>
+ * <tr><th>type name</th><th>comprising parts and their roles</th></tr>
+ * <tr><td>SerialNumber</td><td>serialNumber -&gt; the device's serial number</td></tr>
+ * <tr><td>LikeSerialNumber</td><td>serialNumberGrepPattern -&gt; the grep pattern to match the device's serial number</td></tr>
+ * <tr><td>DatabaseId</td><td>databaseValue -&gt; the device's database identifier</td></tr>
+ * <tr><td>CallHomeId</td><td>callHomeId -&gt; the device's callHomeId property</td></tr>
+ * <tr><td>PhoneNumber</td><td>phoneNumber -&gt; the device's phoneNumber property</td></tr>
+ * <tr><td>Actual</td><td>databaseValue -&gt; the device's database identifier<br>actual -&gt; the device</td></tr>
+ * </table>
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (10:56)
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.CLASS,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-public interface DeviceIdentifier extends Serializable {
+public interface DeviceIdentifier extends Identifier {
 
     /**
      * Finds the device that is uniquely identified by this DeviceIdentifier.
@@ -29,21 +33,5 @@ public interface DeviceIdentifier extends Serializable {
      * @return The device
      */
     Device findDevice();
-
-    /**
-     * The essential part of this identifier: the serial number, the database ID, the call home Id or something else.
-     */
-    String getIdentifier();
-
-    /**
-     * The type of this identifier. E.g. SerialNumber, DataBaseId, ...
-     */
-    DeviceIdentifierType getDeviceIdentifierType();
-
-    // The element below is only used during JSON xml (un)marshalling.
-    @XmlElement(name = "type")
-    String getXmlType();
-
-    void setXmlType(String ignore);
 
 }
