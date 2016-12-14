@@ -59,7 +59,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -475,6 +474,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return dataModel.mapper(clazz).getOptional(key);
     }
 
+    private List<IssueType> getAllIssueTypes(){
+        return dataModel.mapper(IssueType.class).find();
+    }
+
     @Override
     public <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {
         QueryExecutor<T> queryExecutor = dataModel.query(clazz, eagers);
@@ -548,9 +551,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (eagers != null && eagers.length > 0) {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
-        if ((!filter.getIssueTypes().isEmpty() || filter.getIssueId().isPresent()) && !eagerClasses.contains(IssueType.class)) {
-            eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class));
-        }
+        eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class));
         return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }
 
@@ -640,6 +641,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         //filter by issue types
         if (!filter.getIssueTypes().isEmpty()) {
             condition = condition.and(where("reason.issueType").in(filter.getIssueTypes()));
+        }else{
+            List<IssueType> issueTypes = getAllIssueTypes().stream()
+                    .filter(issueType -> !issueType.getPrefix().equals("ALM")).collect(Collectors.toList());
+            condition = condition.and(where("reason.issueType").in(Collections.unmodifiableList(issueTypes)));
         }
         //filter by due dates
         if (!filter.getDueDates().isEmpty()) {
