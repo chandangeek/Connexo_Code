@@ -153,8 +153,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
-        when(usagePointStage.getKey()).thenReturn(UsagePointStage.Stage.OPERATIONAL);
-        when(usagePointStage.getDisplayName()).thenReturn(UsagePointStage.Stage.OPERATIONAL.name());
+        when(usagePointStage.getKey()).thenReturn(UsagePointStage.Key.OPERATIONAL);
+        when(usagePointStage.getDisplayName()).thenReturn(UsagePointStage.Key.OPERATIONAL.name());
         when(usagePointState.getStage()).thenReturn(usagePointStage);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.getCreateDate()).thenReturn(Instant.now().minusSeconds(60 * 60 * 24));
