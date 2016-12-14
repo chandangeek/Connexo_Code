@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.MasterData.admin,
-                items: 'Mdc.view.setup.logbooktype.LogbookTypeActionMenu'
+                menu: {xtype: 'logbook-type-action-menu'}
             }
         ];
 

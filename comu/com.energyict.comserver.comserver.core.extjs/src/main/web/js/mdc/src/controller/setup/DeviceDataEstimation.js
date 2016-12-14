@@ -18,7 +18,7 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
         {ref: 'rulePreview', selector: 'deviceDataEstimationRulePreview'},
         {ref: 'changeRuleSetStateActionMenuItem', selector: '#changeEstimationRuleSetStateActionMenuItem'}
     ],
-    mRID: null,
+    deviceId: null,
     device: null,
 
     init: function () {
@@ -40,12 +40,12 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
         });
     },
 
-    showDeviceDataEstimationMainView: function (mRID) {
+    showDeviceDataEstimationMainView: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        me.mRID = mRID;
+        me.deviceId = deviceId;
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 if (record.get('hasLogBooks')
                     || record.get('hasLoadProfiles')
@@ -80,8 +80,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             confirmText: activate ? Uni.I18n.translate('general.activate', 'MDC', 'Activate') : Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
             itemId: 'activationConfirmationWindow'
         }).show({
-            title: activate ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', "Activate data estimation on device '{0}'?", [me.mRID]) :
-                Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', "Deactivate data estimation on device '{0}'?", [me.mRID]),
+            title: activate ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', "Activate data estimation on device '{0}'?", [me.deviceId]) :
+                Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', "Deactivate data estimation on device '{0}'?", [me.deviceId]),
             msg: activate ? '' :
                 Uni.I18n.translate('estimationDevice.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be estimated'),
             fn: function (state) {
@@ -94,7 +94,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
 
     activateDataValidation: function (activate) {
         var me = this,
-            url = '/api/ddr/devices/' + me.device.get('mRID') + '/estimationrulesets/esimationstatus',
+            deviceId = me.device.get('name'),
+            url = '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/estimationrulesets/esimationstatus',
             page = me.getPage();
 
         me.device.set('estimationStatus', { active: activate });
@@ -109,8 +110,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', activate
-                    ? Uni.I18n.translate('estimationDevice.activation.activated', 'MDC', 'Data estimation on device {0} was activated successfully', [me.mRID])
-                    : Uni.I18n.translate('estimationDevice.activation.deactivated', 'MDC', 'Data estimation on device {0} was deactivated successfully', [me.mRID])
+                    ? Uni.I18n.translate('estimationDevice.activation.activated', 'MDC', 'Data estimation on device {0} was activated successfully', [deviceId], false)
+                    : Uni.I18n.translate('estimationDevice.activation.deactivated', 'MDC', 'Data estimation on device {0} was deactivated successfully', [deviceId], false)
                 );
             },
             callback: function () {
@@ -120,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
     },
 
     onRulesSetGridAfterRender: function (grid) {
-        grid.store.getProxy().setExtraParam('mRID', this.mRID);
+        grid.store.getProxy().setExtraParam('deviceId', this.deviceId);
         grid.store.load();
     },
 
@@ -186,7 +187,7 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             ruleSetIsActive = record.get('active'),
             page = me.getPage();
 
-        record.getProxy().setExtraParam('mRID', me.mRID);
+        record.getProxy().setExtraParam('mRID', encodeURIComponent(me.mRID));
         record.set('active', !ruleSetIsActive);
         page.setLoading();
         record.save({

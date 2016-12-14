@@ -19,7 +19,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
         'Mdc.store.LoadProfilesOfDevice'
     ],
 
-    showOverview: function (mRID, loadProfileId, tabController, loadProfile) {
+    showOverview: function (deviceId, loadProfileId, tabController, loadProfile) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
@@ -30,13 +30,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             tabWidget;
 
         if(loadProfile){
-            if(loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != mRID){
+            if (loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != deviceId) {
                 loadProfile = null;
             }
         }
 
         timeUnitsStore.load();
-        deviceModel.load(mRID, {
+        deviceModel.load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 tabWidget = Ext.widget('tabbedDeviceLoadProfilesView', {
@@ -46,7 +46,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                     router: router
                 });
                 widget = Ext.widget('deviceLoadProfilesOverview', {
-                    mRID: mRID,
+                    deviceId: deviceId,
                     router: router,
                     device: device
                 });
@@ -79,7 +79,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                         updateView(loadProfile);
                         tabWidget.setLoading(false);
                     } else {
-                        loadProfileOfDeviceModel.getProxy().setUrl(mRID);
+                        loadProfileOfDeviceModel.getProxy().setExtraParam('deviceId', deviceId);
                         loadProfileOfDeviceModel.load(loadProfileId, {
                             success: function (record) {
                                 me.setLoadProfile(record);
@@ -92,7 +92,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                     }
                 };
                 if (loadProfilesStore.getTotalCount() === 0) {
-                    loadProfilesStore.getProxy().setUrl(mRID);
+                    loadProfilesStore.getProxy().setExtraParam('deviceId', deviceId);
                     loadProfilesStore.load(function () {
                         func();
                     });

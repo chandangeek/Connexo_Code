@@ -1,27 +1,29 @@
 Ext.define('Mdc.timeofuse.view.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tou-devicetype-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'view-preview-tou',
-            text: Uni.I18n.translate('timeofuse.viewPreview', 'MDC', 'View preview'),
-            privileges: Mdc.privileges.DeviceType.view,
-            action: 'viewpreview',
-            visible: function () {
-                return !this.record.get('ghost');
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'view-preview-tou',
+                text: Uni.I18n.translate('timeofuse.viewPreview', 'MDC', 'View preview'),
+                privileges: Mdc.privileges.DeviceType.view,
+                action: 'viewpreview',
+                visible: function () {
+                    return !this.record.get('ghost');
+                },
+                section: this.SECTION_VIEW
+            },
+            {
+                itemId: 'remove-tou',
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                privileges: Mdc.privileges.DeviceType.admin,
+                action: 'remove',
+                section: this.SECTION_REMOVE
             }
-        },
-        {
-            itemId: 'remove-tou',
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            privileges: Mdc.privileges.DeviceType.admin,
-            action: 'remove'
-        }
+        ];
+        this.callParent(arguments);
+    },
 
-    ],
     listeners: {
         beforeshow: function () {
             var me = this;

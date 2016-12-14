@@ -1,31 +1,36 @@
 Ext.define('Mdc.view.setup.comservercomports.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.comServerComPortsActionMenu',
     itemId: 'comServerComPortsActionMenu',
-    plain: true,
-    border: false,
-    shadow: false,
-    defaultAlign: 'tr-br?',
-    items: [
-        {
-            itemId: 'edit',
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            action: 'edit'
-        },
-        {
-            itemId: 'activate',
-            text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-            action: 'activate'
-        },
-        {
-            itemId: 'deactivate',
-            text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
-            action: 'deactivate'
-        },
-        {
-            itemId: 'remove',
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            action: 'remove'
-        }
-    ]
+
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'activate',
+                text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                action: 'activate',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'deactivate',
+                text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
+                action: 'deactivate',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'edit',
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                action: 'edit',
+                section: this.SECTION_EDIT
+            },
+            {
+                itemId: 'remove',
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                action: 'remove',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
+
 });

@@ -45,15 +45,18 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         xtype: 'displayfield',
                         margin: '0 10 0 0',
                         name: 'value',
-                        renderer: function (value) {
+                        renderer: function (v) {
                             var form = this.up('form'),
                                 record = form.getRecord();
-                            if (record && value) {
-                                return value + ' ' + record.get('unit');
-                            } else {
-                                return null
+                            if (Ext.isEmpty(record)) {
+                                return '-';
                             }
-
+                            var value = Ext.isEmpty(record.get('value')) ? record.get('calculatedValue') : record.get('value');
+                            if (Ext.isEmpty(value)) {
+                                return '-';
+                            }
+                            var unit = Ext.isEmpty(record.get('unit')) ? record.get('calculatedUnit') : record.get('unit');
+                            return value + ' ' + unit;
                         }
                     },
                     {

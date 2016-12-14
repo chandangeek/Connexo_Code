@@ -1,16 +1,16 @@
 Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-protocol-dialect-action-menu',
-    plain: true,
-    border: false,
     itemId: 'device-protocol-dialect-action-menu',
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            itemId: 'editDeviceProtocolDialect',
-            action: 'editDeviceProtocolDialect'
-
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                itemId: 'editDeviceProtocolDialect',
+                action: 'editDeviceProtocolDialect',
+                section: this.SECTION_EDIT
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

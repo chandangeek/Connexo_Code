@@ -1,19 +1,21 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-logbook-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'btn-edit-device-config',
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            action: 'edit'
-        },
-        {
-            itemId: 'btn-remove-device-config',
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            action: 'delete'
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'btn-edit-device-config',
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                action: 'edit',
+                section: this.SECTION_EDIT
+            },
+            {
+                itemId: 'btn-remove-device-config',
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                action: 'delete',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

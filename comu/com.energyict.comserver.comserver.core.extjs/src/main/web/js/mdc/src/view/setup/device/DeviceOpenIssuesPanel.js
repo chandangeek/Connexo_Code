@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
     alias: 'widget.deviceOpenIssuesPanel',
     overflowY: 'auto',
     itemId: 'deviceopenissuespanel',
-    mRID: null,
+    deviceId: null,
     ui: 'tile',
     title: Uni.I18n.translate('deviceOpenIssues.openIssuesTitle', 'MDC', 'Open issues'),
 
@@ -24,13 +24,13 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
 
     setDataCollectionIssues: function (device) {
         var me = this,
-            mRID = me.router.arguments.mRID,
+            deviceId = me.router.arguments.deviceId,
             openDataValidationIssueId = device.get('openDataValidationIssue'),
             assignedFilter;
 
         assignedFilter = {
             status: ['status.open', 'status.in.progress'],
-            meter: mRID,
+            meter: deviceId,
             groupingType: 'none',
             sort: ['dueDate', 'modTime']
         };

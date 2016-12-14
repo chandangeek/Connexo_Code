@@ -20,13 +20,13 @@ Ext.define('Mdc.controller.setup.DeviceLogBookTab', {
         });
     },
 
-    showOverview: function(mrId,logBookId){
-        this.mrId = mrId;
+    showOverview: function (deviceId, logBookId) {
+        this.deviceId = deviceId;
         this.logBookId = logBookId;
 
         var c = this.getController('Mdc.controller.setup.DeviceLogbookOverview');
         this.veto = true;
-        c.showOverview(mrId,logBookId,this);
+        c.showOverview(deviceId, logBookId, this);
     },
 
     showTab: function(idx){
@@ -34,11 +34,11 @@ Ext.define('Mdc.controller.setup.DeviceLogBookTab', {
         if(this.veto===true)this.veto=false;
     },
 
-    showData: function(mrId,logBookId){
+    showData: function (deviceId, logBookId) {
         this.logBookId = logBookId;
         var c = this.getController('Mdc.controller.setup.DeviceLogbookData');
         this.veto = true;
-        c.showOverview(mrId,logBookId,this);
+        c.showOverview(deviceId, logBookId, this);
     },
 
     changeTab: function (tabPanel,tab) {

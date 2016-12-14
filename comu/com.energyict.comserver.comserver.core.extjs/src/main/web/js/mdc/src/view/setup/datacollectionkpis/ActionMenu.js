@@ -1,17 +1,19 @@
 Ext.define('Mdc.view.setup.datacollectionkpis.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.dataCollectionKpisActionMenu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            action: 'edit'
-        },
-        {
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            action: 'remove'
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                action: 'edit',
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                action: 'remove',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

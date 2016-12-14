@@ -3,9 +3,11 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
     alias: 'widget.deviceConnectionHistoryGrid',
     itemId: 'deviceConnectionHistoryGrid',
     requires: [
+        'Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGridActionMenu',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Duration',
+        'Uni.grid.column.Action',
         'Uni.DateTime'
     ],
     store: 'DeviceConnectionHistory',
@@ -38,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 dataIndex: 'status',
                 flex: 1,
                 renderer: function(status,metadata,rowObject){
-                    return status!==''?'<a href="#/devices/'+ encodeURIComponent(this.mRID) + '/connectionmethods/' + this.connectionId + '/history/' + rowObject.get('id') + '/viewlog?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D' + '">' + Ext.String.htmlEncode(status) + '</a>':'';
+                    return status !== '' ? '<a href="#/devices/' + encodeURIComponent(this.deviceId) + '/connectionmethods/' + this.connectionId + '/history/' + rowObject.get('id') + '/viewlog?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D' + '">' + Ext.String.htmlEncode(status) + '</a>' : '';
                 }
             },
             {
@@ -68,7 +70,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
             },
             {
                 itemId: 'action',
-                xtype: 'uni-actioncolumn'
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'mdc-device-connection-history-grid-action-menu'
+                }
             }
         ]
     },
@@ -87,7 +92,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 params: [
-                    {mRID: me.mRID},
+                    {deviceId: me.deviceId},
                     {connectionId:me.connectionId}
                 ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connections per page'),

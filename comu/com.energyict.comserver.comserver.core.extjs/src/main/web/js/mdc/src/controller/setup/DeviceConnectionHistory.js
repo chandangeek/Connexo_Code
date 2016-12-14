@@ -38,10 +38,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             ref: 'deviceCommunicationTaskExecutionPreviewMenu',
             selector: '#deviceCommunicationTaskExecutionPreview button menu'
         },
-        {
-            ref: 'deviceCommunicationTaskExecutionGridActionColumn',
-            selector: '#deviceCommunicationTaskExecutionGrid #action'
-        },
         {ref: 'deviceConnectionHistoryPreviewMenu', selector: '#deviceConnectionHistoryPreview button menu'},
         {ref: 'deviceConnectionHistoryGridActionColumn', selector: '#deviceConnectionHistoryGrid #action'},
         {ref: 'titlePanel', selector: '#titlePanel'},
@@ -65,36 +61,36 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             '#deviceCommunicationTaskExecutionGrid': {
                 selectionchange: this.previewDeviceCommunicationTaskExecution
             },
-            '#actionColumn menuitem': {
-                click: this.showConnectionLog
-            },
-            '#deviceConnectionHistoryPreview menuitem': {
-                click: this.showConnectionLog
-            },
             '#deviceConnectionLogGrid': {
                 selectionchange: this.previewConnectionLog
+            },
+            'mdc-device-connection-history-grid-action-menu': {
+                click: this.showConnectionLog
+            },
+            'mdc-device-communication-task-grid-action-menu': {
+                click: this.showComTaskLog
             }
         });
     },
 
-    showDeviceConnectionMethodHistory: function (deviceMrId, connectionMethodId) {
+    showDeviceConnectionMethodHistory: function (deviceId, connectionMethodId) {
         var me = this,
             deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
 
-        me.deviceMrId = deviceMrId;
+        me.deviceId = deviceId;
         me.connectionMethodId = connectionMethodId;
         me.getDeviceCommunicationTaskExecutionsStore().removeAll(true);
 
-        deviceModel.load(deviceMrId, {
+        deviceModel.load(deviceId, {
             success: function (device) {
                 me.device = device;
                 var connectionMethodModel = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionMethod');
-                connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
+                connectionMethodModel.getProxy().setExtraParam('deviceId', deviceId);
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
                         var widget = Ext.widget('deviceConnectionHistoryMain', {
                             device: device,
-                            mrid: deviceMrId,
+                            deviceId: deviceId,
                             connectionMethodId: connectionMethodId,
                             connectionMethodName: connectionMethod.get('name')
                         });
@@ -110,41 +106,23 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     previewDeviceConnectionHistory: function () {
         var me = this,
             connectionHistory = me.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0],
-            deviceConnectionHistoryPreviewMenu = me.getDeviceConnectionHistoryPreviewMenu(),
-            deviceCommunicationTaskExecutionsStore = me.getDeviceCommunicationTaskExecutionsStore(),
-            deviceConnectionHistoryGridActionColumn = me.getDeviceConnectionHistoryGridActionColumn();
+            deviceCommunicationTaskExecutionsStore = me.getDeviceCommunicationTaskExecutionsStore();
 
         me.getDeviceConnectionHistoryPreviewForm().loadRecord(connectionHistory);
 
-        me.getStatusLink().setValue('<a href="#/devices/' + this.deviceMrId
-        + '/connectionmethods/'
-        + me.connectionMethodId + '/history/' + me.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog'
-        + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications">'
-        + connectionHistory.get('status') + '</a>');
+        me.getStatusLink().setValue('<a href="#/devices/' + this.deviceId
+            + '/connectionmethods/'
+            + me.connectionMethodId + '/history/' + me.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog'
+            + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications">'
+            + connectionHistory.get('status') + '</a>');
 
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '/overview">' + connectionHistory.get('comServer').name + '</a>'));
-        me.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('connectionMethod').name, me.device.get('mRID')));
-        me.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.comtasksTitle', 'MDC', 'Communications of {0} connection on {1}'), connectionHistory.get('connectionMethod').name, this.device.get('mRID')));
-
-        deviceConnectionHistoryPreviewMenu.removeAll();
-
-        deviceConnectionHistoryGridActionColumn.menu.removeAll();
-
-        var menuItem = {
-            text: Uni.I18n.translate('deviceconnectionhistory.viewLog', 'MDC', 'View connection log'),
-            action: 'viewLog',
-            listeners: {
-                click: function () {
-                    me.showConnectionLog();
-                }
-            }
-        };
+        me.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('connectionMethod').name, me.device.get('name')));
+        me.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.comtasksTitle', 'MDC', 'Communications of {0} connection on {1}'), connectionHistory.get('connectionMethod').name, this.device.get('name')));
 
         Ext.suspendLayouts();
 
-        deviceConnectionHistoryPreviewMenu.add(menuItem);
-        deviceConnectionHistoryGridActionColumn.menu.add(menuItem);
-        deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('mRID', this.deviceMrId);
+        deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('deviceId', this.deviceId);
         deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('connectionId', this.connectionMethodId);
         deviceCommunicationTaskExecutionsStore.getProxy().setExtraParam('sessionId', connectionHistory.get('id'));
 
@@ -157,49 +135,24 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                 me.getDeviceCommunicationTaskExecutionPreview().show();
             }
         });
-
         Ext.resumeLayouts();
     },
 
     previewDeviceCommunicationTaskExecution: function () {
-        var me = this;
-        var communication = this.getDeviceCommunicationTaskExecutionGrid().getSelectionModel().getSelection()[0];
-        var menuItems = [];
-        var deviceCommunicationTaskExecutionPreviewMenu = me.getDeviceCommunicationTaskExecutionPreviewMenu();
-        deviceCommunicationTaskExecutionPreviewMenu.removeAll();
-        var deviceCommunicationTaskExecutionGridActionColumn = me.getDeviceCommunicationTaskExecutionGridActionColumn();
-        deviceCommunicationTaskExecutionGridActionColumn.menu.removeAll();
-
-        Ext.each(communication.get('comTasks'), function (item) {
-            menuItems.push({
-                text: Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.viewComTaskLog', 'MDC', 'View \'{0}\' log'), item.name),
-                action: {
-                    action: 'viewlog',
-                    comTask: {
-                        mRID: me.deviceMrId,
-                        sessionId: communication.get('id'),
-                        comTaskId: item.id
-                    }
-                },
-                listeners: {
-                    click: me.showComTaskLog
-                }
-            });
-        });
-
-        deviceCommunicationTaskExecutionGridActionColumn.menu.add(menuItems);
-        deviceCommunicationTaskExecutionPreviewMenu.add(menuItems);
-
+        var me = this,
+            communication = me.getDeviceCommunicationTaskExecutionGrid().getSelectionModel().getSelection()[0],
+            deviceCommunicationTaskExecutionPreviewMenu = me.getDeviceCommunicationTaskExecutionPreviewMenu();
         me.getDeviceCommunicationTaskExecutionPreviewForm().loadRecord(communication);
-        me.getDeviceCommunicationTaskExecutionPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communication.get('name'), me.device.get('mRID')));
+        deviceCommunicationTaskExecutionPreviewMenu.record = communication;
+        me.getDeviceCommunicationTaskExecutionPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communication.get('name'), me.device.get('name')));
     },
 
     showConnectionLog: function () {
-        location.href = '#/devices/' + this.deviceMrId + '/connectionmethods/' + this.connectionMethodId + '/history/' + this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog' +
+        location.href = '#/devices/' + this.deviceId + '/connectionmethods/' + this.connectionMethodId + '/history/' + this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog' +
         '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
     },
 
-    showDeviceConnectionMethodHistoryLog: function (deviceMrId, deviceConnectionMethodId, deviceConnectionHistoryId) {
+    showDeviceConnectionMethodHistoryLog: function (deviceId, deviceConnectionMethodId, deviceConnectionHistoryId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceModel = Ext.ModelManager.getModel('Mdc.model.Device'),
@@ -208,20 +161,20 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             store = me.getDeviceConnectionLogStore(),
             widget;
 
-        deviceModel.load(deviceMrId, {
+        deviceModel.load(deviceId, {
             success: function (device) {
-                connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
+                connectionMethodModel.getProxy().setExtraParam('deviceId', deviceId);
                 connectionMethodModel.load(deviceConnectionMethodId, {
                     success: function (connectionMethod) {
-                        comSessionHistory.getProxy().setExtraParam('mRID', deviceMrId);
+                        comSessionHistory.getProxy().setExtraParam('deviceId', deviceId);
                         comSessionHistory.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                         comSessionHistory.load(deviceConnectionHistoryId, {
                             success: function (deviceConnectionHistory) {
-                                store.getProxy().setExtraParam('mRID', deviceMrId);
+                                store.getProxy().setExtraParam('deviceId', deviceId);
                                 store.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                                 store.getProxy().setExtraParam('sessionId', deviceConnectionHistoryId);
 
-                                widget = Ext.widget('deviceConnectionLogMain', {device: device, mrid: deviceMrId});
+                                widget = Ext.widget('deviceConnectionLogMain', {device: device, deviceId: deviceId});
                                 me.getApplication().fireEvent('changecontentevent', widget);
 
                                 store.load(function () {
@@ -237,12 +190,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         });
     },
 
-    showComTaskLog: function (item) {
-        location.href = '#/devices/' + item.action.comTask.mRID
-        + '/communicationtasks/' + item.action.comTask.comTaskId
-        + '/history/' + item.action.comTask.sessionId
-        + '/viewlog'
-        + '?logLevels=Error&logLevels=Warning&logLevels=Information';
+    showComTaskLog: function (menu) {
+        var record = menu.record;
+        location.href = '#/devices/' + record.get('device').name
+            + '/communicationtasks/' + record.get('comTasks')[0].id
+            + '/history/' + record.get('id')
+            + '/viewlog'
+            + '?logLevels=Error&logLevels=Warning&logLevels=Information';
     },
 
     previewConnectionLog: function () {

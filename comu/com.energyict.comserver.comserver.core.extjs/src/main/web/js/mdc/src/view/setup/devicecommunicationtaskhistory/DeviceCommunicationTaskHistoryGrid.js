@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 params: [
-                    {mRID: encodeURIComponent(me.mRID)},
+                    {deviceId: me.deviceId},
                     {comTaskId:me.comTaskId}
                 ],
                 itemsPerPageMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communications per page'),

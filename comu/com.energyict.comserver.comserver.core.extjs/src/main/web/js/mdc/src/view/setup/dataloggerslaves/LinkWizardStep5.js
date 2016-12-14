@@ -22,19 +22,19 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep5', {
         me.callParent(arguments);
     },
 
-    initialize: function(dataLoggerMRID, slaveMRID) {
+    initialize: function (dataLoggerId, slaveId) {
         var me = this;
         if (me.rendered) {
-            me.doInitialize(dataLoggerMRID, slaveMRID);
+            me.doInitialize(dataLoggerId, slaveId);
         } else {
             me.on('afterrender', function() {
-                me.doInitialize(dataLoggerMRID, slaveMRID);
+                me.doInitialize(dataLoggerId, slaveId);
             }, me, {single:true});
         }
     },
 
 
-    doInitialize: function(dataLoggerMRID, slaveMRID) {
+    doInitialize: function (dataLoggerId, slaveId) {
         var me = this,
             labelField = me.down('#mdc-step5-info-label');
 
@@ -42,8 +42,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep5', {
             labelField.setText(
                 Ext.String.format(
                     Uni.I18n.translate('general.question.linkSlaveXToDataLoggerY', 'MDC', "Link slave '{0}' to data logger '{1}'?"),
-                    slaveMRID,
-                    dataLoggerMRID
+                    slaveId,
+                    dataLoggerId
                 )
             );
         }

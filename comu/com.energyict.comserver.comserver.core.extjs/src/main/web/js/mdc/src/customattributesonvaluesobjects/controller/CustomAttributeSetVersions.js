@@ -73,8 +73,17 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
     },
 
     moveToVersionsPage: function (type, isSave, acknowledgement) {
-        var route = Mdc.customattributesonvaluesobjects.service.RouteMap.getRoute(type, true, 'version');
-        this.navigateToRoute(route, type, null, true);
+        var me = this,
+            route = Mdc.customattributesonvaluesobjects.service.RouteMap.getRoute(type, true, 'version'),
+            eventBusController = me.getController('Uni.controller.history.EventBus'),
+            previousPath = eventBusController.getPreviousPath(),
+            previousQueryString = eventBusController.getPreviousQueryString();
+
+        if (!previousPath) {
+            this.navigateToRoute(route, type, null, true);
+        } else {
+            window.location.href = '#' + previousPath + (previousQueryString ? '?' + previousQueryString : '');
+        }
 
         if (isSave) {
             this.getApplication().fireEvent('acknowledge', acknowledgement);

@@ -10,14 +10,10 @@ Ext.define('Mdc.store.DeviceSchedules', {
         limitParam: false,
         pageParam: false,
         startParam: false,
-        urlTpl: '/api/ddr/devices/{mRID}/schedules',
+        url: '/api/ddr/devices/{deviceName}/schedules',
         reader: {
             type: 'json',
             root: 'schedules'
-        },
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
-
 });

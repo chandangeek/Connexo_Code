@@ -34,11 +34,10 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 xtype: 'obis-column',
                 dataIndex: 'overruledObisCode'
             },
-
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
-                items: 'Mdc.view.setup.registerconfig.RegisterConfigActionMenu'
+                menu: {xtype: 'register-config-action-menu'}
             }
         ];
 

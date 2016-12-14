@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.DeviceHistory', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.util.Common'
+    ],
+
     views: [
         'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.devicehistory.Setup',
@@ -35,13 +39,13 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         }
     ],
 
-    showDeviceHistory: function (mRID) {
+    showDeviceHistory: function (deviceId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             router = me.getController('Uni.controller.history.Router'),
             view;
 
-        deviceModel.load(mRID, {
+        deviceModel.load(deviceId, {
             success: function (device) {
                 view = Ext.widget('device-history-setup', {
                     router: me.getController('Uni.controller.history.Router'),
@@ -52,13 +56,15 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.showDeviceLifeCycleHistory();
-                me.showCustomAttributeSetsHistory(mRID);
+                me.showCustomAttributeSetsHistory(deviceId);
             }
         });
     },
 
     showDeviceLifeCycleHistory: function () {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            routerArguments = Uni.util.Common.decodeURIArguments(router.arguments),
             lifeCycleTab = me.getPage().down('#device-history-life-cycle-tab'),
             lifeCyclePanel = Ext.widget('device-history-life-cycle-panel'),
             lifeCycleDataView = lifeCyclePanel.down('#life-cycle-data-view'),
@@ -70,11 +76,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         me.getPage().setLoading();
         lifeCycleTab.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(lifeCycleHistoryStore);
-        lifeCycleHistoryStore.getProxy().setUrl(me.getController('Uni.controller.history.Router').arguments);
+        Ext.apply(lifeCycleHistoryStore.getProxy().extraParams, routerArguments);
         lifeCycleHistoryStore.load(function (records) {
             lifeCycleHistoryStore.add(records.reverse());
 
-            firmwareHistoryStore.getProxy().setUrl(me.getController('Uni.controller.history.Router').arguments);
+            Ext.apply(firmwareHistoryStore.getProxy().extraParams, routerArguments);
             firmwareHistoryStore.load(function() {
                 if (firmwareHistoryStore.getTotalCount()===0) {
                     firmwareTab.add({
@@ -92,15 +98,15 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         });
     },
 
-    showCustomAttributeSetsHistory: function (mRID) {
+    showCustomAttributeSetsHistory: function (deviceId) {
         var me = this,
             customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.DeviceCustomAttributeSets');
 
-        customAttributesStore.getProxy().setUrl(mRID);
+        customAttributesStore.getProxy().setExtraParam('deviceId', deviceId);
 
         customAttributesStore.load(function () {
             me.getPage().loadCustomAttributeSets(this);
-            me.showCustomAttributeSet(mRID);
+            me.showCustomAttributeSet(deviceId);
         });
     },
 
@@ -109,11 +115,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             router = me.getController('Uni.controller.history.Router'),
             store = Ext.getStore('Mdc.store.device.MeterActivations');
 
-        store.getProxy().extraParams = {mRID: router.arguments.mRID};
+        store.getProxy().setExtraParam('deviceId', decodeURIComponent(router.arguments.deviceId));
         store.load();
     },
 
-    showCustomAttributeSet: function(mRID) {
+    showCustomAttributeSet: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice'),
@@ -121,9 +127,9 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             queryParams = router.queryParams,
             component;
 
-        attributeSetModel.getProxy().setUrl(mRID);
+        attributeSetModel.getProxy().setExtraParam('deviceId', deviceId);
         if (queryParams.customAttributeSetId) {
-            versionsStore.getProxy().setUrl(mRID, queryParams.customAttributeSetId);
+            versionsStore.getProxy().setParams(deviceId, queryParams.customAttributeSetId);
             component = me.getTabPanel().down('#custom-attribute-set-' + queryParams.customAttributeSetId);
             component.add({
                 xtype: 'device-history-custom-attribute-sets-versions'

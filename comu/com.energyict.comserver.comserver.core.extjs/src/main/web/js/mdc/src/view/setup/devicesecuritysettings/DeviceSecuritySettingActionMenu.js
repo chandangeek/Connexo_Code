@@ -1,32 +1,36 @@
 Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-security-setting-action-menu',
-    plain: true,
-    border: false,
     itemId: 'device-security-setting-action-menu',
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            privileges: Mdc.privileges.DeviceSecurity.editLevels,
-            itemId: 'editDeviceSecuritySetting',
-            action: 'editDeviceSecuritySetting',
-            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.securitySettingsActions
-        },
-        {
-            text: Uni.I18n.translate('general.showEncryptedValue', 'MDC', 'Show values'),
-            privileges:Mdc.privileges.DeviceSecurity.viewLevels,
-            itemId: 'showValueDeviceSecuritySetting',
-            action: 'showValueDeviceSecuritySetting',
-            hidden: true
-        },
-        {
-            text: Uni.I18n.translate('general.hideEncryptedValue', 'MDC', 'Hide values'),
-            privileges:Mdc.privileges.DeviceSecurity.viewLevels,
-            itemId: 'hideValueDeviceSecuritySetting',
-            action: 'hideValueDeviceSecuritySetting',
-            hidden: true
-        }
-    ]
+
+    initComponent: function () {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                privileges: Mdc.privileges.DeviceSecurity.editLevels,
+                itemId: 'editDeviceSecuritySetting',
+                action: 'editDeviceSecuritySetting',
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.securitySettingsActions,
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.showEncryptedValue', 'MDC', 'Show values'),
+                privileges: Mdc.privileges.DeviceSecurity.viewLevels,
+                itemId: 'showValueDeviceSecuritySetting',
+                action: 'showValueDeviceSecuritySetting',
+                hidden: true,
+                section: this.SECTION_VIEW
+            },
+            {
+                text: Uni.I18n.translate('general.hideEncryptedValue', 'MDC', 'Hide values'),
+                privileges: Mdc.privileges.DeviceSecurity.viewLevels,
+                itemId: 'hideValueDeviceSecuritySetting',
+                action: 'hideValueDeviceSecuritySetting',
+                hidden: true,
+                section: this.SECTION_VIEW
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
 

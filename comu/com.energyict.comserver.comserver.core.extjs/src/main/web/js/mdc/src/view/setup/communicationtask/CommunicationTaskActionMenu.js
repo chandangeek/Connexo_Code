@@ -1,23 +1,25 @@
 Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.communication-task-action-menu',
-    plain: true,
-    border: false,
     itemId: 'communication-task-action-menu',
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            action: 'editcommunicationtask'
-        },
-        {
-            text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-            action: 'activatecommunicationtask'
-        },
-        {
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            action: 'removecommunicationtask'
-        }
-
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                action: 'activatecommunicationtask',
+                section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                action: 'editcommunicationtask',
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                action: 'removecommunicationtask',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

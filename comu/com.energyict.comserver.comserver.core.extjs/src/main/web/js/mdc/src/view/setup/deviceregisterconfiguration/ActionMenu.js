@@ -1,29 +1,32 @@
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceRegisterConfigurationActionMenu',
     itemId: 'deviceRegisterConfigurationActionMenu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'viewSuspects',
-            text: Uni.I18n.translate('deviceregisterconfiguration.menu.viewsuspects', 'MDC', 'View suspects'),
-            action: 'viewSuspects'
-        },
-        {
-            itemId: 'validateNowRegister',
-            text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
-            privileges: Cfg.privileges.Validation.validateManual,
-            action: 'validate'
-        },
-        {
-            itemId: 'editRegister',
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            privileges: Mdc.privileges.Device.administrateDevice,
-            action: 'edit'
-        }
-    ],
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'viewSuspects',
+                text: Uni.I18n.translate('deviceregisterconfiguration.menu.viewsuspects', 'MDC', 'View suspects'),
+                action: 'viewSuspects',
+                section: this.SECTION_VIEW
+            },
+            {
+                itemId: 'validateNowRegister',
+                text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
+                privileges: Cfg.privileges.Validation.validateManual,
+                action: 'validate',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'editRegister',
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                privileges: Mdc.privileges.Device.administrateDevice,
+                action: 'edit',
+                section: this.SECTION_EDIT
+            }
+        ];
+        this.callParent(arguments);
+    },
 
     listeners: {
         beforeshow: {

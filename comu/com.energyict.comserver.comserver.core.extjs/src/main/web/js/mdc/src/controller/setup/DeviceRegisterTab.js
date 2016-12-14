@@ -20,12 +20,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
         });
     },
 
-    initTabDeviceRegisterConfigurationDetailsView: function(mrId,registerId){
-        this.mrId = mrId;
+    initTabDeviceRegisterConfigurationDetailsView: function (deviceId, registerId) {
+        this.deviceId = deviceId;
         this.registerId = registerId;
         this.getController('Mdc.controller.setup.DeviceRegisterConfiguration').fromSpecification = true;
         var c = this.getController('Mdc.controller.setup.DeviceRegisterConfiguration');
-        c.showDeviceRegisterConfigurationDetailsView(mrId,registerId,this);
+        c.showDeviceRegisterConfigurationDetailsView(deviceId, registerId, this);
         this.veto = true;
     },
 
@@ -34,11 +34,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
         if(this.veto===true)this.veto=false;
     },
 
-    initTabShowDeviceRegisterDataView: function(mrId,registerId){
-        this.mrId = mrId;
+    initTabShowDeviceRegisterDataView: function (deviceId, registerId) {
+        this.deviceId = deviceId;
         this.registerId = registerId;
         var c = this.getController('Mdc.controller.setup.DeviceRegisterData');
-        c.showDeviceRegisterDataView(mrId,registerId,this);
+        c.showDeviceRegisterDataView(deviceId, registerId, this);
         this.veto = true;
     },
 

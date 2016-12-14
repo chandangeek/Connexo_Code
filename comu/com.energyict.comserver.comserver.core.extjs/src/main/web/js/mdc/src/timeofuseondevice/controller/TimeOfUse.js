@@ -59,11 +59,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             },
             '#activate-passive-calendar-button': {
                 click: this.activatePassiveCalendar
-            },
+            }
         });
     },
 
-    showTimeOfUseOverview: function (mRID) {
+    showTimeOfUseOverview: function (deviceId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             reader = Ext.create('Ext.data.reader.Json', {
@@ -74,7 +74,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             view,
             noActiveCalendar = false;
 
-        deviceModel.load(mRID, {
+        deviceModel.load(deviceId, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 view = Ext.widget('device-tou-setup', {
@@ -86,7 +86,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 }
                 Ext.Ajax.request(
                     {
-                        url: '/api/ddr/devices/' + mRID + '/timeofuse',
+                        url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse',
                         method: 'GET',
                         success: function (response, opt) {
                             result = JSON.parse(response.responseText);
@@ -150,19 +150,21 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     },
 
     chooseAction: function (menu, item) {
-        var me = this;
+        var me = this,
+            deviceId = menu.device.get('name');
+
         switch (item.action) {
             case 'activatecalendar':
-                me.showActivatePassiveCalendarWindow(menu.device.get('mRID'));
+                me.showActivatePassiveCalendarWindow(deviceId);
                 break;
             case 'cleartariff':
-                me.clearPassiveCalendar(menu.device.get('mRID'));
+                me.clearPassiveCalendar(deviceId);
                 break;
             case 'sendcalendar':
-                me.goToSendCalendarForm(menu.device.get('mRID'));
+                me.goToSendCalendarForm(deviceId);
                 break;
             case 'verifycalendars':
-                me.verifyCalendars(menu.device.get('mRID'));
+                me.verifyCalendars(deviceId);
                 break;
             case 'viewpreview':
                 me.redirectToPreview(menu.record.get('id'));
@@ -170,11 +172,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         }
     },
 
-    verifyCalendars: function (mRID) {
+    verifyCalendars: function (deviceId) {
         var me = this;
         Ext.Ajax.request(
             {
-                url: '/api/ddr/devices/' + mRID + '/timeofuse/verify',
+                url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse/verify',
                 method: 'PUT',
                 success: function (response, opt) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.verifyCalendarTaskPlannedMessage', 'MDC', 'The task has been planned. Actual calendar information will be available as soon as the task has completed.'));
@@ -183,11 +185,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         );
     },
 
-    clearPassiveCalendar: function (mRID) {
+    clearPassiveCalendar: function (deviceId) {
         var me = this;
         Ext.Ajax.request(
             {
-                url: '/api/ddr/devices/' + mRID + '/timeofuse/clearpassive',
+                url: '/api/ddr/devices/' + deviceId + '/timeofuse/clearpassive',
                 method: 'PUT',
                 success: function (response, opt) {
                     var json = Ext.decode(response.responseText, true);
@@ -206,9 +208,9 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         );
     },
 
-    showActivatePassiveCalendarWindow: function (mRID) {
+    showActivatePassiveCalendarWindow: function (deviceId) {
         Ext.widget('activate-passive-calendar-window', {
-            mRID: mRID
+            deviceId: deviceId
         }).show();
     },
 
@@ -229,7 +231,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 params: {
                     activationDate: activationDate
                 },
-                url: '/api/ddr/devices/' + form.mRID + '/timeofuse/activatepassive',
+                url: '/api/ddr/devices/' + form.deviceId + '/timeofuse/activatepassive',
                 method: 'PUT',
                 success: function (response, opt) {
                     var json = Ext.decode(response.responseText, true);
@@ -258,16 +260,16 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         route.forward(Ext.merge(router.arguments, {calendarId: calendarId}));
     },
 
-    showPreviewCalendarView: function (mRID, calendarId) {
+    showPreviewCalendarView: function (deviceId, calendarId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             view;
 
-        deviceModel.load(mRID, {
+        deviceModel.load(deviceId, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 view = Ext.widget('tou-device-view-calendar-setup', {
-                    url: '/api/ddr/devices/' + mRID + '/timeofuse',
+                    url: '/api/ddr/devices/' + deviceId + '/timeofuse',
                     calendarId: calendarId,
                     device: record
                 });
@@ -280,40 +282,40 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         });
     },
 
-    redirectToOverview: function (mRID) {
+    redirectToOverview: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             route;
 
-        route = router.getRoute('devices/device/timeofuse', {mRID: mRID});
+        route = router.getRoute('devices/device/timeofuse', {deviceId: deviceId});
         route.forward();
     },
 
     goToSendCalendarFormFromEmptyComponent: function (stepButton) {
-        this.goToSendCalendarForm(stepButton.mRID);
+        this.goToSendCalendarForm(stepButton.deviceId);
     },
 
     verifyCalendarFromEmptyComponent: function (stepButton) {
-        this.verifyCalendars(stepButton.mRID);
+        this.verifyCalendars(stepButton.deviceId);
     },
 
-    goToSendCalendarForm: function (mRID) {
+    goToSendCalendarForm: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             route;
 
-        route = router.getRoute('devices/device/timeofuse/send', {mRID: mRID});
+        route = router.getRoute('devices/device/timeofuse/send', {deviceId: deviceId});
         route.forward();
     },
 
-    showSendCalendarView: function (mRID) {
+    showSendCalendarView: function (deviceId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             view,
             store = me.getStore('Mdc.timeofuseondevice.store.AllowedCalendars');
 
-        store.getProxy().setUrl(mRID);
-        deviceModel.load(mRID, {
+        store.getProxy().setExtraParam('deviceId', deviceId);
+        deviceModel.load(deviceId, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 view = Ext.widget('tou-device-send-cal-setup', {
@@ -366,13 +368,13 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 json.calendarUpdateOption = form.down('#full-calendar').inputValue
             }
 
-            me.sendCalendar(form.mRID, json);
+            me.sendCalendar(form.deviceId, json);
         }
     },
 
-    sendCalendar: function (mRID, payload) {
+    sendCalendar: function (deviceId, payload) {
         var me = this,
-            url = '/api/ddr/devices/' + mRID + '/timeofuse/send';
+            url = '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse/send';
 
 
         me.getSendCalendarContainer().setLoading(true);
@@ -381,7 +383,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             method: 'POST',
             jsonData: Ext.encode(payload),
             success: function () {
-                me.redirectToOverview(mRID);
+                me.redirectToOverview(deviceId);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('timeofuse.commandScheduled', 'MDC', 'Command scheduled'));
             },
             callback: function () {

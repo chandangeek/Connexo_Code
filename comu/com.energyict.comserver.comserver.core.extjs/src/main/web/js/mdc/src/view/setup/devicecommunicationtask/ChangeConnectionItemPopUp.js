@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
         'Mdc.widget.ScheduleField'
     ],
     width: 500,
-    height: 200,
+    height: 150,
     closable: false,
     autoShow: true,
     modal: true,
@@ -14,66 +14,50 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
     shadow: true,
     items: [
         {
-            xtype: 'component',
-            itemId: 'sharedScheduleWarning',
-            html: ''
-        },
-        {
-            xtype: 'container',
-            items: [
-                {
-                    xtype: 'form',
-                    border: false,
-                    itemId: 'changeConnectionItemForm',
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    defaults: {
-                        labelWidth: 250
-                    },
-                    items: [
-                    ]
-                }
 
-            ]
+            xtype: 'form',
+            border: false,
+            itemId: 'changeConnectionItemForm',
+            layout: {
+                type: 'vbox',
+                align: 'stretch',
+                margin: '10 0 0 0px'
+            },
+            defaults: {
+                labelWidth: 150
+            },
+            items: []
         }
     ],
 
     bbar: [
 
-                {
-                    xtype: 'container',
-                    flex: 1
-                },
-                {
-                    text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
-                    xtype: 'button',
-                    ui: 'action',
-                    //action: 'addIndividualScheduleAction',
-                    itemId: 'changeButton',
-                    flex: 0
-                },
-                {
-                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                    xtype: 'button',
-                    ui: 'link',
-                    itemId: 'cancelLink',
-                    handler: function (button) {
-                        button.up('.window').close();
-                    },
-                    flex: 0
-                }
+        {
+            xtype: 'container',
+            flex: 1
+        },
+        {
+            text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+            xtype: 'button',
+            ui: 'action',
+            itemId: 'changeButton',
+            flex: 0
+        },
+        {
+            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+            xtype: 'button',
+            ui: 'link',
+            itemId: 'cancelLink',
+            handler: function (button) {
+                button.up('.window').close();
+            },
+            flex: 0
+        }
     ],
     initComponent: function () {
         var me = this;
         this.callParent(arguments);
         this.down('#changeButton').action = this.action;
-        if(this.scheduleName){
-            this.down('#sharedScheduleWarning').html =
-                Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.sharedScheduleWarning.part1', 'MDC', "'{0}' is part of the shared communication schedule '{1}'."),this.comTaskName,this.scheduleName) +
-                '<BR>' + Uni.I18n.translate('deviceCommunicationTask.sharedScheduleWarning.part2', 'MDC', 'Changes will be applied to all other communication tasks in this schedule.');
-        }
         Ext.suspendLayouts();
         switch (this.action) {
             case 'changeConnectionMethodOfDeviceComTask':
@@ -88,42 +72,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                         displayField: 'name',
                         store: this.store,
                         queryMode: 'local',
-                        value: this.init });
-                break;
-            }
-            case 'changeFrequencyOfDeviceComTask':
-            {
-                this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeFrequencyOfDeviceComTask', 'MDC', 'Change frequency of \'{0}\''),this.comTaskName));
-                this.down('#changeConnectionItemForm').add({
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('communicationschedule.schedule', 'MDC', 'Schedule'),
-                    layout: {
-                        type: 'hbox',
-                        align: 'stretch'
-                    },
-                    msgTarget: 'under',
-                    required: true,
-                    items: [
-                        {
-                            xtype: 'scheduleField',
-                            name: 'schedule',
-                            itemId: 'scheduleField',
-                            hourCfg: {
-                                width: 60
-                            },
-                            minuteCfg: {
-                                width: 60
-                            },
-                            secondCfg: {
-                                width: 60
-                            },
-                            unitCfg: {
-                                width: 110
-                            },
-                            value: this.init
-                        }
-                    ]
-                });
+                        value: this.init
+                    });
                 break;
             }
             case 'changeProtocolDialectOfDeviceComTask':

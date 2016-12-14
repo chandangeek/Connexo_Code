@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 itemId: 'load-profile-type-action-menu-column',
-                items: 'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu'
+                menu: {xtype: 'load-profile-type-action-menu'}
             }
         ]
     },

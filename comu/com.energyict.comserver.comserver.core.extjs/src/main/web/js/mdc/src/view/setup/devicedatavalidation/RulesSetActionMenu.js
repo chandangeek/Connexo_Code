@@ -1,9 +1,14 @@
 Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceDataValidationRulesSetActionMenu',
     itemId: 'deviceDataValidationRulesSetActionMenu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [{itemId: 'changeRuleSetStateActionMenuItem'}]
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'changeRuleSetStateActionMenuItem'
+            }
+        ];
+        this.callParent(arguments);
+    }
+
 });

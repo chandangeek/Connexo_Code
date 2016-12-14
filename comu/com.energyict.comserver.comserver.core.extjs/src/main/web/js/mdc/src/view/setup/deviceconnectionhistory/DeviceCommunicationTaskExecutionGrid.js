@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
     alias: 'widget.deviceCommunicationTaskExecutionGrid',
     itemId: 'deviceCommunicationTaskExecutionGrid',
     requires: [
+        'Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskGridActionMenu',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Duration',
@@ -55,7 +56,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
             },
             {
                 itemId: 'action',
-                xtype: 'uni-actioncolumn'
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'mdc-device-communication-task-grid-action-menu'
+                }
             }
         ]
     },
@@ -73,9 +77,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-//            params: [
-//                {mrid: me.mrid}
-//            ],
                 deferLoading: true,
                 itemsPerPageMsg: Uni.I18n.translate('devicecommunicationhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communications per page'),
                 dock: 'bottom'

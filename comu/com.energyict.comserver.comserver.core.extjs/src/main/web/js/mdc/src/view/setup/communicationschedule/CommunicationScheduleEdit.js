@@ -7,12 +7,14 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
         'Mdc.widget.ScheduleField',
         'Mdc.widget.DateTimeField',
         'Uni.util.FormInfoMessage',
+        'Uni.util.FormErrorMessage',
         'Uni.grid.column.RemoveAction'
     ],
     router: null,
     isEdit: function () {
-        return this.edit;
+        return this.mode === 'edit';
     },
+    mode: null,
     initComponent: function () {
         var me = this;
 
@@ -35,15 +37,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         },
                         items: [
                             {
-                                name: 'errors',
-                                ui: 'form-error-framed',
+                                xtype: 'uni-form-error-message',
                                 itemId: 'communicationScheduleEditFormErrors',
-                                layout: 'hbox',
+                                name: 'errors',
                                 margin: '0 0 10 0',
-                                hidden: true,
-                                defaults: {
-                                    xtype: 'container'
-                                }
+                                hidden: true
                             },
                             {
                                 xtype: 'uni-form-info-message',
@@ -279,10 +277,12 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
             }
         ];
         me.callParent(arguments);
-
         if (me.isEdit()) {
             me.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
             me.down('#createEditButton').action = 'editCommunicationSchedule';
+        } else if (me.mode === 'clone') {
+            me.down('#createEditButton').setText(Uni.I18n.translate('general.clone', 'MDC', 'Clone'));
+            me.down('#createEditButton').action = 'createCommunicationSchedule';
         } else {
             me.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             me.down('#createEditButton').action = 'createCommunicationSchedule';

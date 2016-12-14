@@ -1,6 +1,7 @@
 Ext.define('Mdc.model.DeviceAttribute', {
     extend: 'Ext.data.Model',
     fields: [
+        {name: 'name', type: 'auto'},
         {name: 'mrid', type: 'auto'},
         {name: 'deviceType', type: 'auto'},
         {name: 'serialNumber', type: 'auto'},
@@ -37,14 +38,9 @@ Ext.define('Mdc.model.DeviceAttribute', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}',
+        url: '/api/ddr/devices/{deviceId}',
         reader: {
             type: 'json'
-        },
-
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
-
 });

@@ -1,17 +1,17 @@
 Ext.define('Mdc.view.setup.devicelogbooks.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceLogbooksActionMenu',
     itemId: 'deviceLogbooksActionMenu',
-    plain: true,
-    border: false,
-    shadow: false,
-    defaultAlign: 'tr-br?',
     record: null,
-    items: [
-        {
-            itemId: 'editLogbook',
-            text: Uni.I18n.translate('general.changeNextReadingBlockStart', 'MDC', 'Change next reading block start'),
-            action: 'editLogbook'
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'editLogbook',
+                text: Uni.I18n.translate('general.changeNextReadingBlockStart', 'MDC', 'Change next reading block start'),
+                action: 'editLogbook',
+                section: this.SECTION_EDIT
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
