@@ -63,9 +63,9 @@ public class DeviceAlarmResource{
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getAllDeviceAlarms(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter){
-//        validateMandatory(params, START, LIMIT);
+        validateMandatory(params, "start", "limit");
         Finder<? extends DeviceAlarm> finder = deviceAlarmService.findAlarms(new DeviceAlarmFilter()); //FixMe implement filter;
-//        addSorting(finder, params);
+        addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
@@ -130,7 +130,7 @@ public class DeviceAlarmResource{
     private Finder<? extends DeviceAlarm> addSorting(Finder<? extends DeviceAlarm> finder, StandardParametersBean parameters) {
         Order[] orders = parameters.getOrder("");
         for (Order order : orders) {
-            finder.sorted(order.getName(), order.ascending());
+            finder.sorted("baseIssue." + order.getName(), order.ascending());
         }
         return finder;
     }
