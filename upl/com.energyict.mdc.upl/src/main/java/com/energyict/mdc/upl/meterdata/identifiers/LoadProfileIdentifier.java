@@ -14,7 +14,7 @@ import com.energyict.obis.ObisCode;
  * <tr><th>type name</th><th>comprising parts and their roles</th></tr>
  * <tr><td>DatabaseId</td><td>databaseValue -&gt; the load profile's database identifier</td></tr>
  * <tr><td>DeviceIdentifierAndObisCode</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}<br>obisCode -&gt; the ObisCode</td></tr>
- * <tr><td>FistLoadProfileOnDevice</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}</td></tr>
+ * <tr><td>FirstLoadProfileOnDevice</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}</td></tr>
  * <tr><td>Actual</td><td>databaseValue -&gt; the load profile's database identifier<br>actual -&gt; the load profile</td></tr>
  * </table>
  * <p/>
