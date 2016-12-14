@@ -1047,20 +1047,11 @@ public class JbpmTaskResource {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
-            final CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(TaskSummary.class);
+            final CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(TaskMinimal.class);
             final Root taskRoot = criteriaQuery.from(TaskImpl.class);
 
-            criteriaQuery.select(criteriaBuilder.construct(TaskSummary.class,
-                    taskRoot.get("id"),
-                    taskRoot.get("name"),
-                    taskRoot.get("taskData").get("processId"),
-                    taskRoot.get("taskData").get("deploymentId"),
-                    taskRoot.get("taskData").get("expirationTime"),
-                    taskRoot.get("taskData").get("createdOn"),
-                    taskRoot.get("priority"),
-                    taskRoot.get("taskData").get("status"),
-                    taskRoot.get("taskData").get("actualOwner").get("id"),
-                    taskRoot.get("taskData").get("processInstanceId")
+            criteriaQuery.select(criteriaBuilder.construct(TaskMinimal.class,
+                    taskRoot.get("id")
             ));
             List<Predicate> predicatesStatus = new ArrayList<>();
             List<Predicate> predicateList = new ArrayList<>();
@@ -1075,7 +1066,19 @@ public class JbpmTaskResource {
             predicateList.add(predicateProcessId);
             criteriaQuery.where((criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()]))));
             final TypedQuery query = em.createQuery(criteriaQuery);
-            TaskSummaryList taskSummaryList = new TaskSummaryList(runtimeDataService, query.getResultList());
+            List<TaskMinimal> taskMinimals = query.getResultList();
+            List<Task> tasks = taskMinimals.stream()
+                    .map(minimal -> taskService.getTaskById(minimal.getId()))
+                    .collect(Collectors.toList());
+
+            TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
+            taskSummaryList.getTasks().stream().forEach(taskSummary -> {
+                ProcessDefinition process = runtimeDataService.getProcessById(taskSummary.getProcessName());
+                if(process != null){
+                    taskSummary.setProcessName(process.getName());
+                }
+            });
+
             return taskSummaryList.getTasks();
         }
         return null;
