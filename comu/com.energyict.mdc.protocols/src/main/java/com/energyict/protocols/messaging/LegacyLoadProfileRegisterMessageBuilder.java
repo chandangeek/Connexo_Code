@@ -317,6 +317,11 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             }
         }, Collections.<ChannelInfo>emptyList(), meterSerialNumber, new LoadProfileIdentifier() {
             @Override
+            public Introspector forIntrospection() {
+                return new NullIntrospector();
+            }
+
+            @Override
             public LoadProfile getLoadProfile() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
             }
@@ -437,6 +442,18 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             } else {
                 throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }
+        }
+    }
+
+    private static class NullIntrospector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Null";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
         }
     }
 
