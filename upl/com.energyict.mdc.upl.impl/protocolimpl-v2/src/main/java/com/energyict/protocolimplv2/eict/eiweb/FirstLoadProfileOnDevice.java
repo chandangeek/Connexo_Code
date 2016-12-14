@@ -85,7 +85,7 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "FistLoadProfileOnDevice";
+            return "FirstLoadProfileOnDevice";
         }
 
         @Override
