@@ -3,7 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.mdm.usagepoint.data.Action;
 import com.elster.jupiter.mdm.usagepoint.data.ItemizeAddCalendarMessage;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointFilter;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -53,12 +53,12 @@ public class BulkScheduleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS})
     public Response bulkAddCalendarToUsagePoint(BulkRequestInfo request) {
-        if (!appServerHelper.verifyActiveAppServerExists(UsagePointDataService.BULK_ITEMIZER_QUEUE_DESTINATION)) {
+        if (!appServerHelper.verifyActiveAppServerExists(UsagePointDataModelService.BULK_ITEMIZER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
         ItemizeAddCalendarMessage message = buildMessage(request);
 
-        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(UsagePointDataService.BULK_ITEMIZER_QUEUE_DESTINATION);
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(UsagePointDataModelService.BULK_ITEMIZER_QUEUE_DESTINATION);
         if (destinationSpec.isPresent()) {
             return processMessagePost(message, destinationSpec.get());
         } else {

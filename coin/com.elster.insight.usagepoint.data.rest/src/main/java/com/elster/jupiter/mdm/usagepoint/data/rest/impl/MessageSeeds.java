@@ -42,7 +42,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CALENDAR(41, "NoSuchCalendar", "No such calendar."),
     NO_APPSERVER(42, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
     NO_SUCH_MESSAGE_QUEUE(43, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
-    BAD_ACTION(44, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}");
+    BAD_ACTION(44, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}"),
+    FLAG_AS_FAVORITE_CONFLICT_TITLE(45, "FlagAsFavoriteConflictTitle", "Failed to flag ''{0}'' as favorite"),
+    REMOVE_FROM_FAVORITES_CONFLICT_TITLE(46, "RemoveFromFavoritesConflictTitle", "Failed to remove ''{0}'' from the favorites");
 
     private final int number;
     private final String key;
