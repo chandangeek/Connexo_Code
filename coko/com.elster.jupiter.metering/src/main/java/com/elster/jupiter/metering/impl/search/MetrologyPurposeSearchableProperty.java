@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -45,7 +44,7 @@ public class MetrologyPurposeSearchableProperty implements SearchableUsagePointP
     public Condition toCondition(Condition specification) {
 
         return ListOperator.IN.contains(meteringService.getDataModel()
-                        .query(EffectiveMetrologyConfigurationOnUsagePoint.class, EffectiveMetrologyContractOnUsagePoint.class, UsagePoint.class)
+                        .query(EffectiveMetrologyConfigurationOnUsagePoint.class, EffectiveMetrologyContractOnUsagePoint.class)
                         .asSubquery(ListOperator.IN.contains(meteringService.getDataModel()
                                         .query(EffectiveMetrologyContractOnUsagePoint.class, MetrologyContract.class, MetrologyPurpose.class)
                                         .asSubquery(Where.where("interval")

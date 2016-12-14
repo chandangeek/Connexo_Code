@@ -117,8 +117,10 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
             this.mappedChannels = getMetrologyContract().getDeliverables()
                     .stream()
                     .map(deliverable -> getMeteringService().getDataModel().getInstance(AggregatedChannelImpl.class)
-                            .init((ChannelContract) channelMap.get(deliverable.getReadingType()), deliverable, this.effectiveMetrologyContract
-                                    .get(0)))
+                            .init((ChannelContract) channelMap.get(deliverable.getReadingType()), deliverable,
+                                    this.effectiveMetrologyContract.get(0).getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
+                                    this.effectiveMetrologyContract.get(0).getMetrologyContract(),
+                                    this))
                     .collect(Collectors.toList());
         }
         return this.mappedChannels;

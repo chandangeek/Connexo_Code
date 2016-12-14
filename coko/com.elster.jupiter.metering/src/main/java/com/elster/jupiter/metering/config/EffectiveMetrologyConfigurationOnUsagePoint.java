@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -37,7 +36,7 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
 
     Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract, Instant when);
 
-    void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Range<Instant> interval);
+    void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when);
 
     void deactivateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when);
 }

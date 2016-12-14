@@ -128,9 +128,9 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     }
 
     @Override
-    public void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Range<Instant> interval) {
+    public void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when) {
         this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
-                .init(this, metrologyContract, interval));
+                .init(this, metrologyContract, Range.atLeast(when)));
     }
 
     @Override

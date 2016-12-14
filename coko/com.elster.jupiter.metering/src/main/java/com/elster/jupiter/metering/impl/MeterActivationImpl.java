@@ -137,10 +137,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     private MeterActivationImpl initChannelContainerWithChannels() {
-        MeterActivationChannelsContainerImpl channelsContainer = this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class)
-                .init(this);
-        dataModel.persist(channelsContainer);
-        this.channelsContainer.set(channelsContainer);
+        initChannelContainer();
         if (meter.isPresent()) {
             meter.get().getHeadEndInterface()
                     .map(headEndInterface -> headEndInterface.getCapabilities(meter.get()))
