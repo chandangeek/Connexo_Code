@@ -6,9 +6,10 @@ import java.util.stream.Collectors;
 public enum Privileges /*implements TranslationKey*/ {
     //Resources
     RESOURCE_TOU_CALENDARS("dualcontrol", "Dual Control"),
-    RESOURCE_TOU_CALENDARS_DESCRIPTION("calendars.description", "Manage dual control"),
+    RESOURCE_TOU_CALENDARS_DESCRIPTION("dualcontrol.description", "Manage dual control"),
 
     //Privileges
+    GRANT_DUAL_CONTROL_APPROVAL("dualcontrol.grant.approval", "Grant privileges to approve dual controlled entities.")
     ;
 
     private final String key;

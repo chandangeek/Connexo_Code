@@ -5,17 +5,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.PrivilegeCategory;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Logger;
 
-class Installer implements FullInstaller, PrivilegesProvider {
+class Installer implements FullInstaller {
 
     private final DataModel dataModel;
     private final UserService userService;
@@ -31,26 +29,30 @@ class Installer implements FullInstaller, PrivilegesProvider {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry(
                 "Add dual control privileges",
-                this::addModulePrivileges,
+                this::createResource,
                 logger
         );
     }
 
-    private void addModulePrivileges() {
-        userService.addModulePrivileges(this);
-    }
+    public Void createResource() {
+        PrivilegeCategory dualControlApprove = userService.createPrivilegeCategory("DualControlApprove");
+        PrivilegeCategory dualControlGrant = userService.createPrivilegeCategory("DualControlGrant");
 
-    @Override
-    public String getModuleName() {
-        return DualControlService.COMPONENT_NAME;
-    }
+        Resource resource = userService.buildResource()
+                .component(DualControlService.COMPONENT_NAME)
+                .name(Privileges.RESOURCE_TOU_CALENDARS.getKey())
+                .description(Privileges.RESOURCE_TOU_CALENDARS_DESCRIPTION.getKey())
+                .addGrantPrivilege(Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey())
+                .in(dualControlGrant)
+                .forCategory(dualControlApprove)
+                .add()
+                .create();
 
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_TOU_CALENDARS.getKey(), Privileges.RESOURCE_TOU_CALENDARS_DESCRIPTION.getKey(),
-                Collections.singletonList(Privileges.Constants.MANAGE_TOU_CALENDARS)));
-        return resources;
+        Group dualControlAdministrator = userService.createGroup("Dual control administrator", "Dual control administrative privileges");
+
+        dualControlAdministrator.grant("Pulse", Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey());
+
+        return null;
+
     }
 }
