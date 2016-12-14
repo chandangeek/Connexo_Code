@@ -4,11 +4,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifierType;
+
 import com.energyict.obis.ObisCode;
 
-import javax.xml.bind.annotation.XmlElement;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -58,22 +56,8 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
     }
 
     @Override
-    public RegisterIdentifierType getRegisterIdentifierType() {
-        return RegisterIdentifierType.DeviceIdentifierAndObisCode;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Arrays.asList(registerObisCode, deviceRegisterObisCode, deviceIdentifier);
-    }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -85,4 +69,30 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return deviceIdentifier;
+                }
+                case "obisCode": {
+                    return registerObisCode;
+                }
+                case "deviceObisCode": {
+                    return deviceRegisterObisCode;
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+    }
+
 }

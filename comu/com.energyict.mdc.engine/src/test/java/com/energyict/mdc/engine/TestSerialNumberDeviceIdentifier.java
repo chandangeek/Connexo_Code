@@ -28,16 +28,6 @@ public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
     }
 
     @Override
-    public String getXmlType() {
-        return null;
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
-    }
-
-    @Override
     public Device findDevice() {
         return null;
     }
