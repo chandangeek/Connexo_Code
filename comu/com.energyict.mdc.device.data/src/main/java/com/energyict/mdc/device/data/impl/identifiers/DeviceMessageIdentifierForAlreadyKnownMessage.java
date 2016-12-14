@@ -3,10 +3,6 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifierType;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
@@ -30,13 +26,8 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
     }
 
     @Override
-    public MessageIdentifierType getMessageIdentifierType() {
-        return MessageIdentifierType.ActualMessage;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.singletonList(deviceMessage);
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -65,4 +56,27 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
     public int hashCode() {
         return (int) this.deviceMessage.getId();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Actual";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "actual": {
+                    return deviceMessage;
+                }
+                case "databaseValue": {
+                    return deviceMessage.getId();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+    }
+
 }
