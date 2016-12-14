@@ -33,7 +33,7 @@ final class Installer implements FullInstaller, Upgrader {
     }
 
     private void grantPrivileges() {
-        String[] adminPrivileges = getAdminPrivileges();
+        String[] adminPrivileges = adminPrivileges();
         userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
         userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
         userService.grantGroupWithPrivilege(UserService.DEFAULT_INSTALLER_ROLE, SysAppService.APPLICATION_KEY, installerPrivileges());
@@ -47,6 +47,14 @@ final class Installer implements FullInstaller, Upgrader {
                 //users
                 com.elster.jupiter.users.security.Privileges.Constants.ADMINISTRATE_USER_ROLE,
                 com.elster.jupiter.users.security.Privileges.Constants.VIEW_USER_ROLE
+        };
+    }
+
+    private String[] adminPrivileges() {
+        return new String[]{
+                //users
+                com.elster.jupiter.users.security.Privileges.Constants.ADMINISTRATE_USER_ROLE,
+                com.elster.jupiter.users.security.Privileges.Constants.VIEW_USER_ROLE,
         };
     }
 }
