@@ -55,7 +55,7 @@ public class CommandRuleResource {
         List<CommandRuleInfo> data = commandRuleService.findAllCommandRules()
                 .stream()
                 .sorted((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()))
-                .map(commandRuleInfoFactory::from)
+                .map(commandRuleInfoFactory::createWithChanges)
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromCompleteList("commandrules", data, queryParameters)).build();
     }
