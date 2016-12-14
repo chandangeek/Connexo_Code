@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
@@ -52,4 +53,9 @@ public interface DeviceMessageService {
      */
     boolean canUserAdministrateDeviceMessage(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId);
 
+    long getCurrentDayCountFor(DeviceMessage deviceMessage);
+
+    long getCurrentWeekCountFor(DeviceMessage deviceMessage);
+
+    long getCurrentMonthCountFor(DeviceMessage deviceMessage);
 }

@@ -17,6 +17,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
+import com.energyict.mdc.device.command.ServerCommandRule;
 import com.energyict.mdc.device.command.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -56,6 +58,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private final DelayedRegistrationHandler delayedNotifications = new DelayedRegistrationHandler();
+
     public CommandRuleServiceImpl() {
 
     }
@@ -102,13 +105,27 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public Optional<CommandRulePendingUpdate> findCommandTemplateRuleByName(String name) {
-        List<CommandRulePendingUpdate> commandRuleTemplates = dataModel.mapper(CommandRulePendingUpdate.class).select(where(CommandRulePendingUpdateImpl.Fields.NAME.fieldName()).isEqualToIgnoreCase(name));
+        List<CommandRulePendingUpdate> commandRuleTemplates = dataModel.mapper(CommandRulePendingUpdate.class)
+                .select(where(CommandRulePendingUpdateImpl.Fields.NAME.fieldName()).isEqualToIgnoreCase(name));
         return commandRuleTemplates.isEmpty() ? Optional.empty() : Optional.of(commandRuleTemplates.get(0));
     }
 
     @Override
     public void deleteRule(CommandRule commandRule) {
         ((CommandRuleImpl) commandRule).delete();
+    }
+
+    @Override
+    public List<CommandRule> getCommandRulesByDeviceMessageId(DeviceMessageId deviceMessageId) {
+        return findAllCommandRules().stream()
+                .filter(ServerCommandRule::isActive)
+                .filter(commandRule ->
+                        commandRule.getCommands().stream()
+                                .filter(commandInRule -> commandInRule.getCommand().getId().equals(deviceMessageId))
+                                .findAny()
+                                .isPresent()
+                )
+                .collect(Collectors.toList());
     }
 
     @Override

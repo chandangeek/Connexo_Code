@@ -32,6 +32,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.BatchService;
@@ -142,6 +143,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile LockService lockService;
+    private volatile CommandRuleService commandRuleService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -174,7 +176,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService, LockService lockService) {
+            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService, LockService lockService, CommandRuleService commandRuleService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -211,6 +213,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setServiceCallService(serviceCallService);
         setThreadPrincipalService(threadPrincipalService);
         setLockService(lockService);
+        setCommandRuleService(commandRuleService);
         activate(bundleContext);
     }
 
@@ -513,6 +516,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.lockService = lockService;
     }
 
+    @Reference
+    public void setCommandRuleService(CommandRuleService commandRuleService) {
+        this.commandRuleService = commandRuleService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -568,6 +576,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(DeviceMessageService.class).toInstance(deviceMessageService);
                 bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
                 bind(LockService.class).toInstance(lockService);
+                bind(CommandRuleService.class).toInstance(commandRuleService);
             }
         };
     }
@@ -598,7 +607,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
-        this.deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService);
+        this.deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, clock);
     }
 
     private void registerRealServices(BundleContext bundleContext) {

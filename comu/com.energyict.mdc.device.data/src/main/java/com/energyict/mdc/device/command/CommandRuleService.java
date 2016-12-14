@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.command;
 
 
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
@@ -32,6 +34,8 @@ public interface CommandRuleService {
     Optional<CommandRulePendingUpdate> findCommandTemplateRuleByName(String name);
 
     void deleteRule(CommandRule commandRule);
+
+    List<CommandRule> getCommandRulesByDeviceMessageId(DeviceMessageId deviceMessageId);
 
 
     @ProviderType
