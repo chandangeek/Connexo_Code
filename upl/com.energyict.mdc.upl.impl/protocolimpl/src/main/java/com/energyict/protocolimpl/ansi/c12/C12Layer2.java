@@ -60,6 +60,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     // KV_TO_DO gebruik nog implementeren...
     protected NegotiateResponse negotiateResponse=null;
     private Logger logger;
+    private boolean validateControlToggleBit;
 
     /**
      * Creates a new instance of C12Connection
@@ -70,22 +71,14 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                      int maxRetries,
                      long forcedDelay,
                      int echoCancelling,
-                     HalfDuplexController halfDuplexController) throws ConnectionException {
-        this(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController, null);
-    }
-
-    public C12Layer2(InputStream inputStream,
-                     OutputStream outputStream,
-                     int timeout,
-                     int maxRetries,
-                     long forcedDelay,
-                     int echoCancelling,
                      HalfDuplexController halfDuplexController,
-                     Logger logger) throws ConnectionException {
+                     Logger logger,
+                     boolean validateControlToggleBit) throws ConnectionException {
         super(inputStream, outputStream, forcedDelay, echoCancelling, halfDuplexController);
         this.timeout = timeout;
         this.maxRetries = maxRetries;
         this.logger = logger;
+        this.validateControlToggleBit = validateControlToggleBit;
     }
 
     public void initStates() {
@@ -268,11 +261,22 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                                 flushInputStream();
 
                                 sendOut(ACK);
-                                if (((receivedControl&MULTIPLE_PACKET_TRANSMISSION) == MULTIPLE_PACKET_TRANSMISSION) &&
-                                   (receivedSequence > 0)) {
-                                   // continue cause we have an ongoing multiple packet transmission here...
-                                    allDataArrayOutputStream.reset();
-                                    state=STATE_WAIT_FOR_START_OF_PACKET;
+                                if (((receivedControl & MULTIPLE_PACKET_TRANSMISSION) == MULTIPLE_PACKET_TRANSMISSION) &&
+                                        (receivedSequence > 0)) {
+                                    // continue cause we have an ongoing multiple packet transmission here...
+                                    if (checkForMatchingControlToggleBit(getControl(), receivedControl)) {
+                                        allDataArrayOutputStream.reset();
+                                        state = STATE_WAIT_FOR_START_OF_PACKET;
+                                        toggleControl();    //Ensure the control toggle bit is toggled
+                                    } else {
+                                        // Mismatch in control toggle bit
+                                        // Consider the response as a retry response, which can be ignored
+                                        // Instead, re-listen for a valid packet
+                                        state = STATE_WAIT_FOR_START_OF_PACKET;
+                                        resultArrayOutputStream.reset();
+                                        allDataArrayOutputStream.reset();
+                                        getLogger().severe("C12 connection layer - Received response during multiple packet transmission with incorrect toggle control bit, the response will be ignored (as it was probably a retry).");
+                                    }
                                 } else {
                                     if (checkForMatchingControlToggleBit(getControl(), receivedControl)) {
                                         responseData.setData(resultArrayOutputStream.toByteArray());
@@ -304,7 +308,8 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     }
 
     private boolean checkForMatchingControlToggleBit(int sendControl, int receivedControl) {
-        return (receivedControl & 0x20) == (sendControl & 0x20);
+        return !validateControlToggleBit ||     // If the toggle bit should not be validated, then always return true
+                (receivedControl & 0x20) == (sendControl & 0x20);
     }
 
     /*******************************************************************************************
@@ -382,6 +387,15 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
            control &= (TOGGLE_BIT^0xFF);
        else
            control |= TOGGLE_BIT;
+    }
+
+    protected void toggleControl() {
+        boolean toggleBit = ((control & TOGGLE_BIT) == TOGGLE_BIT);
+        if (toggleBit) {
+            control &= (TOGGLE_BIT ^ 0xFF);
+        } else {
+            control |= TOGGLE_BIT;
+        }
     }
 
     /*

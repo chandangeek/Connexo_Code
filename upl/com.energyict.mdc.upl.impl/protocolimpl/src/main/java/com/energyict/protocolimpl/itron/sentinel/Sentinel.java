@@ -72,6 +72,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     boolean limitRegisterReadSize = false;
     int reduceMaxNumberOfUomEntryBy;
     int chunkSize;
+    boolean validateControlToggleBit;
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     SerialCommunicationChannel commChannel;
@@ -309,6 +310,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         readTiers = Boolean.parseBoolean(properties.getProperty("ReadTiers", "true"));
         limitRegisterReadSize = Boolean.parseBoolean(properties.getProperty("LimitRegisterReadSize", "false"));
         reduceMaxNumberOfUomEntryBy = Integer.parseInt(properties.getProperty("ReduceMaxNumberOfUomEntryBy", "0"));
+        this.validateControlToggleBit = Integer.parseInt(properties.getProperty("ValidateFrameControlToggleBit", "1")) == 1;
     }
 
     protected List doGetOptionalKeys() {
@@ -323,11 +325,12 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         result.add("ReadTiers");
         result.add("LimitRegisterReadSize");
         result.add("ReduceMaxNumberOfUomEntryBy");
+        result.add("ValidateFrameControlToggleBit");
         return result;
     }
 
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger());
+        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), validateControlToggleBit);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);
