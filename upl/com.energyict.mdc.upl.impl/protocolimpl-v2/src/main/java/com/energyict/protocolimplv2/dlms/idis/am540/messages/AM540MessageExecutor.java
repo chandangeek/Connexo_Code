@@ -296,14 +296,14 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         limiter.writeThresholdNormal(new Unsigned32(activeThreshold)); //TODO check if this type will be always accepted or the register value type should be used
     }
 
-    private void setNotInObjectListMessage(CollectedMessage collectedMessage, String obiscode, OfflineDeviceMessage pendingMessage, NotInObjectListException e) {
+    protected void setNotInObjectListMessage(CollectedMessage collectedMessage, String obiscode, OfflineDeviceMessage pendingMessage, NotInObjectListException e) {
         String errorMsg = "Object identified by obisCode: " + obiscode + " is not present in device object list. " + e.getMessage();
         collectedMessage.setDeviceProtocolInformation(errorMsg);
         collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMsg));
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
     }
 
-    private void setIncompatibleFailedMessage(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String errorMsg) {
+    protected void setIncompatibleFailedMessage(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String errorMsg) {
         collectedMessage.setDeviceProtocolInformation(errorMsg);
         collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
