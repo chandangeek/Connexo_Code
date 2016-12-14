@@ -4,6 +4,7 @@ Ext.define('Dal.view.Detail', {
     requires: [
         'Dal.view.DetailTop',
         'Dal.view.Preview',
+        'Dal.view.AlarmFilter',
         'Dal.view.EventsAlarmDetailsForm',
         'Isu.view.issues.CommentsList',
         'Dal.view.TimelineList',

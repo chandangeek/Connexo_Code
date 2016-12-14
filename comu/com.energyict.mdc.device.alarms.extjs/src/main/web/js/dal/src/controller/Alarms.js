@@ -1,6 +1,7 @@
 Ext.define('Dal.controller.Alarms', {
     extend: 'Isu.controller.IssuesOverview',
     requires: [
+        'Dal.view.AlarmFilter',
         'Dal.view.NoAlarmsFoundPanel',
         'Dal.view.Preview',
         'Dal.store.Alarms',
@@ -8,8 +9,25 @@ Ext.define('Dal.controller.Alarms', {
     ],
 
     stores: [
-        'Dal.store.Alarms'
+        'Dal.store.Alarms',
+        'Dal.store.AlarmAssignees',
+        'Dal.store.AlarmReasons',
+        'Dal.store.AlarmStatuses',
+        'Dal.store.AlarmWorkgroupAssignees',
+        'Dal.store.ClearStatus',
+        'Dal.store.DueDate'
     ],
+
+    models: [
+        'Dal.model.ClearStatus',
+        'Dal.model.Device',
+        'Dal.model.DueDate',
+        'Dal.model.AlarmAssignee',
+        'Dal.model.AlarmReason',
+        'Dal.model.AlarmStatus',
+        'Dal.model.Device'
+    ],
+
 
     constructor: function () {
         var me = this;
@@ -25,7 +43,7 @@ Ext.define('Dal.controller.Alarms', {
                 },
                 {
                     ref: 'filterToolbar',
-                    selector: 'issues-overview isu-view-issues-issuefilter'
+                    selector: 'issues-overview view-alarms-filter'
                 },
                 {
                     ref: 'groupingToolbar',
@@ -76,6 +94,10 @@ Ext.define('Dal.controller.Alarms', {
             var widget = Ext.widget('issues-overview', {
                 router: me.getController('Uni.controller.history.Router'),
                 groupingType: queryString.groupingType,
+                filter: {
+                    xtype: 'view-alarms-filter',
+                    itemId: 'view-alarms-filter'
+                },
                 emptyComponent: {
                     xtype: 'no-alarms-found-panel',
                     itemId: 'no-alarms-found-panel'
@@ -98,7 +120,6 @@ Ext.define('Dal.controller.Alarms', {
 
     setOverviewAlarmComponets: function (widget) {
         widget.down('#issue-panel').setTitle(Uni.I18n.translate('device.alarms', 'DAL', 'Alarms'));
-        widget.down('#isu-view-issues-issuefilter').setVisible(false);
         widget.down('#issues-grouping-toolbar').setVisible(false);
         widget.down('#issues-group-grid').setVisible(false);
         widget.down('menuseparator').setVisible(false);
