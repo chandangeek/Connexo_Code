@@ -44,6 +44,11 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
         }
     }
 
+    @Override
+    public String getEventTypeMrid() {
+        return endDeviceEventType;
+    }
+
 
     @Override
     public void apply(Issue issue) {

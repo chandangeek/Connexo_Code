@@ -10,6 +10,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
+import com.energyict.mdc.device.alarms.event.EndDeviceEventCreatedEvent;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
@@ -108,7 +110,15 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
             openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
         }
-        getAlarm(openIssue, event).update();
+        OpenDeviceAlarm alarm = (OpenDeviceAlarm) getAlarm(openIssue, event);
+        Optional<DeviceAlarmRelatedEvent> existingRelatedEvent = alarm.getDeviceAlarmRelatedEvents().stream()
+                .filter(deviceAlarmRelatedEvent-> deviceAlarmRelatedEvent.getEventRecord().getEventType().getMRID().equals(((EndDeviceEventCreatedEvent)event).getEventTypeMrid())).findAny();
+        if(!existingRelatedEvent.isPresent()){
+            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent)event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
+        }else{
+            alarm.setClearedStatus();
+        }
+        alarm.update();
     }
 
     @Override

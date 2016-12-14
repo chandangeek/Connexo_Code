@@ -166,7 +166,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     @Override
     public void setClearedStatus() {
-        clearedStatus = Boolean.TRUE;
+        clearedStatus = !clearedStatus;
     }
 
 
@@ -197,7 +197,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     @Override
     public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents() {
-        Optional<? extends DeviceAlarm> alarm = null;
+        Optional<? extends DeviceAlarm> alarm;
         if (getStatus().isHistorical()) {
             alarm = deviceAlarmService.findHistoricalAlarm(getId());
         } else {

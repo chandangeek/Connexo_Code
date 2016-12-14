@@ -175,6 +175,11 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         return eventDescription.getUniqueKey();
     }
 
+
+    public abstract String getEventTypeMrid();
+
+
+
     @Override
     public Optional<EndDevice> getEndDevice() {
         return findEndDeviceByMdcDevice();
