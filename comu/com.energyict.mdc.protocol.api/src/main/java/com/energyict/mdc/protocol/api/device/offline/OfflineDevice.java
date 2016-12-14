@@ -1,15 +1,12 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
-import com.energyict.mdc.upl.offline.Offline;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.Offline;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Represents an Offline version of a physical device which should contain all
@@ -68,7 +65,7 @@ public interface OfflineDevice extends Offline, com.energyict.mdc.upl.offline.Of
      */
     DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
-    DeviceIdentifier<?> getDeviceIdentifier();
+    DeviceIdentifier getDeviceIdentifier();
 
     List<OfflineRegister> getAllRegistersForMRID(String mrid);
 

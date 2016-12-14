@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import java.util.List;
 

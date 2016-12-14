@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Models configuration information that was collected from a device.
@@ -16,7 +16,7 @@ public interface CollectedConfigurationInformation extends CollectedData {
      *
      * @return The DeviceIdentifier
      */
-    public DeviceIdentifier getDeviceIdentifier ();
+    DeviceIdentifier getDeviceIdentifier();
 
     /**
      * Gets the extension of the file that should be used by preference
@@ -24,13 +24,13 @@ public interface CollectedConfigurationInformation extends CollectedData {
      *
      * @return The file extension
      */
-    public String getFileExtension ();
+    String getFileExtension();
 
     /**
      * Gets the raw bytes that constitute the configuration information.
      *
      * @return The raw bytes
      */
-    public byte[] getContents ();
+    byte[] getContents();
 
 }

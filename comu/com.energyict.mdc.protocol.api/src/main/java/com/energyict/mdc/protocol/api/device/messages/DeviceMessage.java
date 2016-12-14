@@ -1,18 +1,16 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import aQute.bnd.annotation.ConsumerType;
+import com.energyict.mdc.upl.meterdata.Device;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 /**
- * Models a message that is sent to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+ * Models a message that is sent to a {@link com.energyict.mdc.upl.meterdata.Device device}.
  * The lifecycle of a DeviceMessage is as following:
  * <ol>
  * <li>{@link DeviceMessageStatus#WAITING}</li>
@@ -30,7 +28,7 @@ import java.util.Optional;
  * @since 2012-05-15 (16:13)
  */
 @ConsumerType
-public interface DeviceMessage<D extends BaseDevice> extends HasId {
+public interface DeviceMessage extends HasId, com.energyict.mdc.upl.messages.DeviceMessage {
 
     void save();
 
@@ -49,22 +47,12 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
     DeviceMessageId getDeviceMessageId();
 
     /**
-     * Gets the {@link DeviceMessageAttribute}s of this DeviceMessage.
-     * Note that the number of attributes returned will be at least
-     * equal to the number of required attributes
-     * defined by the specification.
-     *
-     * @return The attributes
-     */
-    List<DeviceMessageAttribute> getAttributes();
-
-    /**
-     * Gets the {@link com.energyict.mdc.protocol.api.device.BaseDevice device} to which this DeviceMessage
+     * Gets the {@link Device device} to which this DeviceMessage
      * will be sent or has been sent, depending on its lifecycle.
      *
      * @return The device
      */
-    D getDevice();
+    Device getDevice();
 
     /**
      * Gets the {@link DeviceMessageStatus} of this DeviceMessage.
@@ -95,6 +83,11 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
     Instant getReleaseDate();
 
     /**
+     * Updates the release date of this device message. Will only be allowed for messages in state WAITING. Will be persisted by save()
+     */
+    void setReleaseDate(Instant releaseDate);
+
+    /**
      * Provides the date when this object was created
      *
      * @return the creationDate of this DeviceMessage
@@ -117,26 +110,24 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
 
     /**
      * This is the date & time when a message was actually transmitted to the device. Will be empty if the message was not sent yet.
+     *
      * @return The sent-date or empty if unsent
      */
     Optional<Instant> getSentDate();
 
     /**
      * Sets the date & time when the message was actually transmitted to the device.
+     *
      * @param sentDate the sent-date to set
      */
     void setSentDate(Instant sentDate);
 
     /**
      * User who created the command
+     *
      * @return the name of the User who created the command
      */
     String getUser();
-
-    /**
-     * Updates the release date of this device message. Will only be allowed for messages in state WAITING. Will be persisted by save()
-     */
-    void setReleaseDate(Instant releaseDate);
 
     /**
      * Cancels/revokes this DeviceMessage
@@ -153,6 +144,7 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
 
     /**
      * Updates this messages to the new DeviceMessageStatus
+     *
      * @param newDeviceMessageStatus the new DeviceMessageStatus
      */
     void updateDeviceMessageStatus(DeviceMessageStatus newDeviceMessageStatus);

@@ -1,15 +1,17 @@
 package com.energyict.mdc.protocol.api.services;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
+import com.energyict.mdc.upl.meterdata.LogBook;
+import com.energyict.mdc.upl.meterdata.Register;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.obis.ObisCode;
 
 /**
  * Provides functionality to create finders for MDC objects
@@ -32,7 +34,9 @@ public interface IdentificationService {
 
     DeviceIdentifier createDeviceIdentifierByCallHomeId(String callHomeId);
 
-    DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device);
+    DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(Device device);
+
+    RegisterIdentifier createRegisterIdentifierByAlreadyKnownRegister(Register register);
 
     DeviceIdentifier createDeviceIdentifierByProperty(String propertyName, String propertyValue);
 
@@ -40,7 +44,7 @@ public interface IdentificationService {
 
     LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode);
 
-    LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile, ObisCode obisCode);
+    LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(LoadProfile loadProfile, ObisCode obisCode);
 
     LoadProfileIdentifier createLoadProfileIdentifierByObisCodeAndDeviceIdentifier(ObisCode loadProfileObisCode, DeviceIdentifier deviceIdentifier);
 
@@ -50,7 +54,7 @@ public interface IdentificationService {
 
     LogBookIdentifier createLogbookIdentifierByObisCodeAndDeviceIdentifier(ObisCode logbookObisCode, DeviceIdentifier deviceIdentifier);
 
-    LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(BaseLogBook logBook);
+    LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook);
 
     MessageIdentifier createMessageIdentifierByDatabaseId(long id);
 

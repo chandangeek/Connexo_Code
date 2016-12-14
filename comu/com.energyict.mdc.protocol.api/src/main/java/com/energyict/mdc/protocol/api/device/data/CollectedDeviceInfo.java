@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 /**
@@ -16,8 +16,8 @@ public interface CollectedDeviceInfo extends CollectedData {
     /**
      * @return the unique identifier of the Device for which the additional info is collected
      */
-    public DeviceIdentifier getDeviceIdentifier();
+    DeviceIdentifier getDeviceIdentifier();
 
-    public void setDataCollectionConfiguration (DataCollectionConfiguration configuration);
+    void setDataCollectionConfiguration(DataCollectionConfiguration configuration);
 
 }

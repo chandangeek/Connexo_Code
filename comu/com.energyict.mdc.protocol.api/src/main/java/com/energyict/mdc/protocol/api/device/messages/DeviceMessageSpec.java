@@ -1,8 +1,7 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,11 +58,10 @@ public interface DeviceMessageSpec {
      * @param name The name
      * @return The PropertySpec or an empty Optional if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getPropertySpec (String name) {
+    default Optional<PropertySpec> getPropertySpec(String name) {
         return getPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
                 .findAny();
     }
-
 }

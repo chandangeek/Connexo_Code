@@ -16,17 +16,18 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -69,12 +70,12 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     @After
-    public void tearDownDataVaultProvider () {
+    public void tearDownDataVaultProvider() {
         LegacyDataVaultProvider.instance.set(null);
     }
 
     @Before
-    public void setupNslService () {
+    public void setupNslService() {
         when(this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
@@ -83,7 +84,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     @Test
-    public void testAllCategories () {
+    public void testAllCategories() {
         // Business method
         List<DeviceMessageCategory> categories = this.newService().filteredCategoriesForUserSelection();
 
@@ -96,8 +97,8 @@ public class DeviceMessageSpecificationServiceImplTest {
         // Business method
         List<Integer> primaryKeys =
                 this.newService().filteredCategoriesForUserSelection().stream().
-                    map(DeviceMessageCategory::getId).
-                    collect(Collectors.toList());
+                        map(DeviceMessageCategory::getId).
+                        collect(Collectors.toList());
 
         // Asserts
         assertThat(primaryKeys).isNotEmpty();
@@ -115,20 +116,21 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     @Test
-    public void testCategoryNameUseThesaurus () {
+    public void testCategoryNameUseThesaurus() {
         // Business method
         this.newService().filteredCategoriesForUserSelection().
-            stream().
-            forEach(DeviceMessageCategory::getName);
+                stream().
+                forEach(DeviceMessageCategory::getName);
 
         // Asserts
         verify(this.thesaurus, atLeastOnce()).getString(anyString(), anyString());
     }
 
     @Test
-    public void testAllMessageSpecsHaveAUniqueId () {
+    public void testAllMessageSpecsHaveAUniqueId() {
         List<DeviceMessageSpec> deviceMessageSpecs = this.newService().filteredCategoriesForUserSelection().stream().
                 flatMap(category -> category.getMessageSpecifications().stream()).
+                map(each -> each).
                 collect(Collectors.toList());
 
         Set<DeviceMessageId> uniqueIds = EnumSet.noneOf(DeviceMessageId.class);
@@ -140,36 +142,38 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     @Test
-    public void testAllMessageSpecsNamesUseThesaurus () {
+    public void testAllMessageSpecsNamesUseThesaurus() {
         // Business method
         this.newService().filteredCategoriesForUserSelection().
-            stream().
-            flatMap(category -> category.getMessageSpecifications().stream()).
-            forEach(DeviceMessageSpec::getName);
+                stream().
+                flatMap(category -> category.getMessageSpecifications().stream()).
+                map(each -> each).
+                forEach(DeviceMessageSpec::getName);
 
         // Asserts
         verify(this.thesaurus, atLeastOnce()).getFormat(any(TranslationKey.class));
     }
 
     @Test
-    public void testAllMessageSpecsLinkToTheParentCategory () {
+    public void testAllMessageSpecsLinkToTheParentCategory() {
         this.newService().filteredCategoriesForUserSelection().stream().
-            filter(category -> !category.getMessageSpecifications().isEmpty()).
-            forEach(this::doTestAllMessageSpecsLinkToTheParentCategory);
+                filter(category -> !category.getMessageSpecifications().isEmpty()).
+                forEach(this::doTestAllMessageSpecsLinkToTheParentCategory);
     }
 
     private void doTestAllMessageSpecsLinkToTheParentCategory(DeviceMessageCategory category) {
         Set<DeviceMessageCategory> categories = category.getMessageSpecifications().stream().
+                map(each -> each).
                 map(DeviceMessageSpec::getCategory).
                 collect(Collectors.toSet());
 
         // Asserts
         assertThat(categories).
-            as("Not all message of the category " + category.getName() + " return that category in the getCategory() method").
-            hasSize(1);
+                as("Not all message of the category " + category.getName() + " return that category in the getCategory() method").
+                hasSize(1);
     }
 
-    private DeviceMessageSpecificationService newService () {
+    private DeviceMessageSpecificationService newService() {
         return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService);
     }
 

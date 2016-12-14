@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.crypto;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Models the behavior of a component that will encrypt/decrypt
@@ -22,7 +22,7 @@ public interface Cryptographer {
      * @param source Information provided by the source of the encrypted information
      * @return The MD5Seed
      */
-    public MD5Seed buildMD5Seed (DeviceIdentifier deviceIdentifier, String source);
+    MD5Seed buildMD5Seed(DeviceIdentifier deviceIdentifier, String source);
 
     /**
      * Tests if this Cryptographer was used or not,
@@ -31,6 +31,6 @@ public interface Cryptographer {
      *
      * @return The flag that indi
      */
-    public boolean wasUsed ();
+    boolean wasUsed();
 
 }

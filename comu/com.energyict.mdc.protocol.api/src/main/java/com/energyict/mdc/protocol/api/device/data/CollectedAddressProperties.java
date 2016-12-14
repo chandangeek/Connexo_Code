@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Models the information provided by and collected from a device
@@ -18,6 +18,6 @@ public interface CollectedAddressProperties extends CollectedData {
      *
      * @return The DeviceIdentifier
      */
-    public DeviceIdentifier getDeviceIdentifier ();
+    DeviceIdentifier getDeviceIdentifier();
 
 }

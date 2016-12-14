@@ -1,16 +1,15 @@
 package com.energyict.mdc.protocol.api;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
-import aQute.bnd.annotation.ConsumerType;
 
 import java.io.InputStream;
 import java.util.function.Consumer;
 
 /**
  * Models a file that can be sent to a
- * {@link com.energyict.mdc.protocol.api.device.BaseDevice}
+ * {@link com.energyict.mdc.upl.meterdata.Device}
  * by means of a {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}.
  * <p>
  * Note that implementation classes should not forget to close InputStreams that

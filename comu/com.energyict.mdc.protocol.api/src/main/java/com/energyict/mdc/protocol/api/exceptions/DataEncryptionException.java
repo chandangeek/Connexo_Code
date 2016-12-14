@@ -1,9 +1,8 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.security.NoSuchAlgorithmException;
 

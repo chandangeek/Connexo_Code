@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.api;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class LoadProfileConfiguration {
     /**
      * The identifier of the owning Device
      */
-    private final DeviceIdentifier<?> deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
 
     /**
      * The interval (in seconds) of this LoadProfileConfiguration
@@ -43,7 +43,7 @@ public class LoadProfileConfiguration {
      *  @param obisCode          the LoadProfileObisCode for this configuration
      * @param deviceIdentifier the serialNumber of the master of this LoadProfileConfiguration
      */
-    public LoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier<?> deviceIdentifier) {
+    public LoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
         this.obisCode = obisCode;
         this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = true;
@@ -55,7 +55,7 @@ public class LoadProfileConfiguration {
      * @param deviceIdentifier the serialNumber of the master of this LoadProfileConfiguration
      * @param supported         indicates whether the LoadProfileConfiguration is supported by the Device
      */
-    public LoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
+    public LoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier deviceIdentifier, boolean supported) {
         this.obisCode = obisCode;
         this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = supported;
@@ -75,7 +75,7 @@ public class LoadProfileConfiguration {
      *
      * @return {@link #deviceIdentifier}
      */
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 

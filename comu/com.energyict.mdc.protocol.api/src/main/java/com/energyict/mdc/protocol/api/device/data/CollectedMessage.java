@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.time.Instant;
@@ -60,7 +60,7 @@ public interface CollectedMessage extends CollectedData {
      *
      * @return the sent date
      */
-    public Instant getSentDate();
+    Instant getSentDate();
 
     /**
      * Sets the time the DeviceMessage has been send out the device by the ComServer <br/>
@@ -68,6 +68,6 @@ public interface CollectedMessage extends CollectedData {
      *
      * @param sentDate the sent date
      */
-    public void setSentDate(Instant sentDate);
+    void setSentDate(Instant sentDate);
 
 }

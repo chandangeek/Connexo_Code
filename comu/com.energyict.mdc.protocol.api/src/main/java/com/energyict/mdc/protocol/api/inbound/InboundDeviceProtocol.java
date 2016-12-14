@@ -1,9 +1,9 @@
 package com.energyict.mdc.protocol.api.inbound;
 
 import com.energyict.mdc.pluggable.Pluggable;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public interface InboundDeviceProtocol extends Pluggable {
     /**
      * Indicates the type of data that was detected.
      */
-    public enum DiscoverResultType {
+    enum DiscoverResultType {
         /**
          * The protocol detected only information that
          * uniquely identifies the device that is communication.
@@ -45,7 +45,7 @@ public interface InboundDeviceProtocol extends Pluggable {
     /**
      * Indicates the type of data required by this protocol.
      */
-    public enum InputDataType {
+    enum InputDataType {
         /**
          * Indicates that this protocol requires binary data.
          * The protocol<strong>MUST</strong> also implement
@@ -66,7 +66,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      * DiscoveryResponses are intended to provide a proper response to a Device
      * which initiated a session.
      */
-    public enum DiscoverResponseType {
+    enum DiscoverResponseType {
 
         /**
          * Indicates that the inbound discovery succeeded. If data was provided, it will be processed and stored.
@@ -85,7 +85,7 @@ public interface InboundDeviceProtocol extends Pluggable {
          */
         FAILURE,
         /**
-         * Indicates that the provided {@link com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier} did not refer to a proper Device in our database.
+         * Indicates that the provided {@link com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier} did not refer to a proper Device in our database.
          * The provided data (if any) will <b>NOT</b> be processed or stored.
          */
         DEVICE_NOT_FOUND,
@@ -120,7 +120,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @param context The InboundDiscoveryContext
      */
-    public void initializeDiscoveryContext(InboundDiscoveryContext context);
+    void initializeDiscoveryContext(InboundDiscoveryContext context);
 
     /**
      * Gets the {@link InboundDiscoveryContext contextual information}
@@ -129,7 +129,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      * @return The InboundDiscoveryContext
      * @see #initializeDiscoveryContext
      */
-    public InboundDiscoveryContext getContext();
+    InboundDiscoveryContext getContext();
 
     /**
      * Does the actual discovery and returns the type of the received data to the framework.<br/>
@@ -144,7 +144,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @return The type of the result, indicating if we just received the device identifier or also extra meter data.
      */
-    public DiscoverResultType doDiscovery();
+    DiscoverResultType doDiscovery();
 
     /**
      * Allows the protocol to provide a descent response/feedback to the actual Device after we processed the data.
@@ -152,14 +152,14 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @param responseType the responseType based on the processed data ({@link DiscoverResultType discoverResultType} and additional data)
      */
-    public void provideResponse(DiscoverResponseType responseType);
+    void provideResponse(DiscoverResponseType responseType);
 
     /**
      * Returns the unique identifier of the device that set up the inbound connection
      *
      * @return The unique device identifier
      */
-    public DeviceIdentifier<?> getDeviceIdentifier();
+    DeviceIdentifier getDeviceIdentifier();
 
     /**
      * Returns the data (registers, load profile entries, events, ...)
@@ -170,6 +170,6 @@ public interface InboundDeviceProtocol extends Pluggable {
      * @param device the offline version of the device which is discovered
      * @return The CollectedData or an empty list when no data was detected
      */
-    public List<CollectedData> getCollectedData(OfflineDevice device);
+    List<CollectedData> getCollectedData(OfflineDevice device);
 
 }

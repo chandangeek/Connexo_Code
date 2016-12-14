@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import java.time.Instant;
 
@@ -14,18 +14,18 @@ import java.time.Instant;
  */
 public interface CollectedMessageAcknowledgement extends CollectedData {
 
-    public MessageIdentifier getMessageIdentifier();
+    MessageIdentifier getMessageIdentifier();
 
-    public DeviceMessageStatus getDeviceMessageStatus();
+    DeviceMessageStatus getDeviceMessageStatus();
 
-    public void setDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
+    void setDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
 
-    public Instant getSentDate();
+    Instant getSentDate();
 
-    public void setSentDate(Instant sentDate);
+    void setSentDate(Instant sentDate);
 
-    public String getProtocolInfo();
+    String getProtocolInfo();
 
-    public void setProtocolInfo(String newProtocolInfo);
+    void setProtocolInfo(String newProtocolInfo);
 
 }
