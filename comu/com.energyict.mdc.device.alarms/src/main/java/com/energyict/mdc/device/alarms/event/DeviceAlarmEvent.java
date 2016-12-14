@@ -88,19 +88,19 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         this.timestamp = timestamp;
     }
 
-   /* public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription, Device device){
+    public void wrap(EventDescription eventDescription){
         this.eventDescription = eventDescription;
-        if(device != null){
+      /*  if(device != null){
             this.device = device;
         } else {
             getEventDevice(rawEvent);
         }
-        getEventTimestamp(rawEvent);
-        wrapInternal(rawEvent, eventDescorription);
+        getEventTimestamp(rawEvent); */
+       // wrapInternal(rawEvent, eventDescription);
     }
 
-    protected abstract void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription);
-*/
+   // protected abstract void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription);
+
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
         device = deviceService.findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));

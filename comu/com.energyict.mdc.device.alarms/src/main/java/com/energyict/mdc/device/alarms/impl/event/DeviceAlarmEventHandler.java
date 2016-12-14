@@ -66,6 +66,7 @@ public class DeviceAlarmEventHandler implements MessageHandler {
     private Optional<IssueEvent> createEventsBasedOnDescription(Map<?, ?> map, DeviceAlarmEventDescription description) {
         DeviceAlarmEvent event = injector.getInstance(description.getEventClass());
         try {
+            event.wrap(description);
             event.init(map);
         } catch (UnableToCreateEventException e) {
             LOGGER.warning(e.getLocalizedMessage());

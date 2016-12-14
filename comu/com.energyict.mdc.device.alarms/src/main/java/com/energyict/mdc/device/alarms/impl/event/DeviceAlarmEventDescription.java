@@ -8,13 +8,9 @@ import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 
 import org.osgi.service.event.EventConstants;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.elster.jupiter.util.Checks.is;
 
 public enum DeviceAlarmEventDescription implements EventDescription {
     END_DEVICE_EVENT_CREATED(
@@ -22,10 +18,17 @@ public enum DeviceAlarmEventDescription implements EventDescription {
             EndDeviceEventCreatedEvent.class,
             TranslationKeys.END_DEVICE_EVENT_CREATED) {
         public boolean validateEvent(Map<?, ?> map) {
-            if (super.validateEvent(map)) {
-                return !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
-            }
-            return false;
+            return super.validateEvent(map) && !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
+        }
+    },
+
+    // Dummy - tobe removed
+    END_DEVICE_EVENT_CREATED1(
+            "com/elster/jupiter/metering/enddeviceevent/CREATED",
+            EndDeviceEventCreatedEvent.class,
+            TranslationKeys.END_DEVICE_EVENT_CREATED1) {
+        public boolean validateEvent(Map<?, ?> map) {
+            return super.validateEvent(map) && !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
         }
     };
 
@@ -34,7 +37,7 @@ public enum DeviceAlarmEventDescription implements EventDescription {
     private TranslationKeys title;
     private Class<? extends DeviceAlarmEvent> eventClass;
 
-    private DeviceAlarmEventDescription(String topic, Class<? extends DeviceAlarmEvent> eventClass, TranslationKeys title) {
+    DeviceAlarmEventDescription(String topic, Class<? extends DeviceAlarmEvent> eventClass, TranslationKeys title) {
         this.topic = topic;
         this.eventClass = eventClass;
         this.title = title;

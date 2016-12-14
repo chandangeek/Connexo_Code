@@ -5,9 +5,8 @@ public final class ModuleConstants {
     }
 
     public static final String ALARM_REASON = "alarm.reason";
-;
-
     public static final String END_DEVICE_EVENT_CREATED = "end.device.event.created";
+    public static final String END_DEVICE_EVENT_CREATED1 = "end.device.event.created1";
     public static final String AQ_DEVICE_ALARM_EVENT_SUBSC = "DeviceAlarmCreation";
     public static final String AQ_DEVICE_ALARM_EVENT_DISPLAYNAME = "Create device alarms";
 

@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
+import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -41,12 +42,11 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
         }
     }
 
+
     @Override
     public void apply(Issue issue) {
         if (issue instanceof OpenDeviceAlarm) {
             OpenDeviceAlarm deviceAlarm = (OpenDeviceAlarm) issue;
-            //TODO
-            // deviceAlarm.addRelatedAlarmEvent();
             deviceAlarm.addRelatedAlarmEvent(endDeviceId, endDeviceEventType, eventTimestamp);
 
 
