@@ -102,8 +102,7 @@ public class FindReadingQualitiesIT {
     @Test
     public void testSorted() {
         assertThat(channel1.findReadingQualities().sorted().collect()).containsExactly(watchdog, batteryLow);
-//        // connection.prepareStatement(builder.toString()) fails: h2database bug?
-//        assertThat(channel1.findReadingQualities().sorted().findFirst()).contains(watchdog);
+        assertThat(channel1.findReadingQualities().sorted().findFirst()).contains(watchdog);
         List<ReadingQualityRecord> list = channel2.findReadingQualities().sorted().collect();
         assertThat(list).hasSize(5);
         assertThat(list.get(0)).isEqualTo(added);
