@@ -219,17 +219,19 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this,
             title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]),
             router = me.getController('Uni.controller.history.Router'),
-            responseText;
+            responseText,
+            store = me.getStore('Mdc.store.DeviceCommands');
 
+        store.getProxy().setExtraParam('deviceId', device.get('name'));
         Ext.widget('device-command-change-release-date', {
             title: title,
             record: record,
             listeners: {
                 save: {
                     fn: function (newDate, record, oldDate) {
+                        record.setProxy(store.getProxy());
                         record.set('releaseDate', newDate);
                         record.save({
-                            url: me.getStore('Mdc.store.DeviceCommands').getProxy().url,
                             isNotEdit: true,
                             success: function () {
                                 router.getRoute().forward();
@@ -251,10 +253,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this,
             store = me.getStore('Mdc.store.DeviceCommands');
 
-        store.getProxy().setExtraParam('deviceId', deviceId);
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
+
+                me.getStore('Mdc.store.DeviceCommands').getProxy().setExtraParam('deviceId', device.get('name'));
                 var widget = Ext.widget('deviceCommandsSetup', {
                     device: device
                 });
