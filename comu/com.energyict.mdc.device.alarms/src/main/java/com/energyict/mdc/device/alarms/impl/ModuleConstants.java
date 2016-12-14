@@ -13,7 +13,7 @@ public final class ModuleConstants {
     public static final String DEVICE_IDENTIFIER = "endDeviceId";
     public static final String MASTER_DEVICE_IDENTIFIER = "masterDeviceId";
     public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";
-    public static final String EVENT_TIMESTAMP = "timestamp";
+    public static final String EVENT_TIMESTAMP = "eventTimestamp";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION = "basicTemplateDeviceAlarmDescription";
     public static final String PARAMETER_NAME_EVENT_TYPE = "parameterNameEventType";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_NAME = "basicTemplateDeviceAlarmName";

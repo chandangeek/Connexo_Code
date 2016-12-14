@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
+import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.DeviceService;
@@ -35,7 +36,8 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
     public void init(Map<?, ?> jsonPayload) {
         try {
             this.endDeviceId = ((Number) jsonPayload.get("endDeviceId")).longValue();
-            this.eventTimestamp = Instant.ofEpochSecond(((Number) jsonPayload.get("eventTimestamp")).longValue());
+            //FixMe - check why eventTimesamp is seconds
+            this.eventTimestamp = Instant.ofEpochSecond(((Number) jsonPayload.get(ModuleConstants.EVENT_TIMESTAMP)).longValue());
             this.endDeviceEventType = (String) jsonPayload.get("endDeviceEventType");
         } catch (Exception e) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
