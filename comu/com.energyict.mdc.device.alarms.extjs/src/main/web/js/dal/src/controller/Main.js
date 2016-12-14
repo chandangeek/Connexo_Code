@@ -49,6 +49,7 @@ Ext.define('Dal.controller.Main', {
                 route: 'alarms',
                 items: [
                     {
+                        itemId: 'alarms-item',
                         text: Uni.I18n.translate('device.alarms', 'DAL', 'Alarms'),
                         href: router.getRoute('workspace/alarms').buildUrl({})
                     }
