@@ -2,18 +2,16 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This is a DeviceIdentifier that uniquely identifies a Device which you have given in the Constructor.
- * The {@link #getIdentifier()} method will return the <b>MRId</b> of the device!
  *
  * <b>You are encouraged to only use this identifier within the ComServer engine. If we provide this
- * identifier to a protocol, then the returned MRId from {@link #getIdentifier()} is in most cases unknown to the device.
- * It is better to use the DeviceIdentifierForAlreadyKnownDeviceBySerialNumber for that.</b>
+ * identifier to a protocol, then the returned MRId by the Introspector is in most cases unknown to the device.
+ * It is better to use the DeviceIdentifierForAlreadyKnownDeviceBySerialNumber in that case.</b>
  */
 @XmlRootElement
 public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements DeviceIdentifier {
@@ -27,17 +25,13 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
     }
 
     public DeviceIdentifierForAlreadyKnownDeviceByMrID(Device device) {
+        this();
         this.device = device;
     }
 
     @Override
-    public String getIdentifier() {
-        return ((com.energyict.mdc.device.data.Device) this.device).getmRID();
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.ActualDevice;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -58,7 +52,11 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
 
     @Override
     public String toString() {
-        return "device having MRID " + getIdentifier();
+        return "device having MRID " + getmRID();
+    }
+
+    private String getmRID() {
+        return ((com.energyict.mdc.device.data.Device) device).getmRID();
     }
 
     @Override
@@ -80,4 +78,28 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
     public int hashCode() {
         return device.hashCode();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Actual";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "actual": {
+                    return device;
+                }
+                case "mRID": {
+                    return getmRID();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+
+    }
+
 }

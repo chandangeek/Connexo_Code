@@ -3,8 +3,9 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT
@@ -15,7 +16,13 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier {
 
     private final LogBookIdentifier logBookIdentifier;
 
+    // For JSON (de)marshalling only
+    public DeviceIdentifierByLogBook() {
+        this(new NullLogBookIdentifier());
+    }
+
     public DeviceIdentifierByLogBook(LogBookIdentifier logBookIdentifier) {
+        super();
         this.logBookIdentifier = logBookIdentifier;
     }
 
@@ -25,13 +32,8 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier {
     }
 
     @Override
-    public String getIdentifier() {
-        return this.logBookIdentifier.toString();
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.Other;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -68,4 +70,61 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier {
     public String toString() {
         return "device having logbook identified by '" + this.logBookIdentifier + "'";
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Other";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            return logBookIdentifier.forIntrospection().getValue(role);
+        }
+    }
+
+    private static class NullLogBookIdentifier implements LogBookIdentifier {
+        @Override
+        public com.energyict.mdc.upl.meterdata.LogBook getLogBook() {
+            throw new UnsupportedOperationException("NullLogBookIdentifier is not capable of finding a log book because there is not identifier");
+        }
+
+        @Override
+        public ObisCode getLogBookObisCode() {
+            return null;
+        }
+
+        @Override
+        public DeviceIdentifier getDeviceIdentifier() {
+            return null;
+        }
+
+        @Override
+        public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+            return new NullIntrospector();
+        }
+
+        @Override
+        public String getXmlType() {
+            return null;
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
+
+        }
+    }
+
+    private static class NullIntrospector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Null";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+        }
+    }
+
 }

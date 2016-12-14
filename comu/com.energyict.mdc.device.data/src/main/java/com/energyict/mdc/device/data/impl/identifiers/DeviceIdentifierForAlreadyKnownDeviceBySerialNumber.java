@@ -2,14 +2,12 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This is a DeviceIdentifier that uniquely identifies a Device which you have given in the Constructor.
- * The {@link #getIdentifier()} method will return the <b>SerialNumber</b> of the device!
  */
 @XmlRootElement
 public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements DeviceIdentifier {
@@ -23,20 +21,13 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
     }
 
     public DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(Device device) {
+        this();
         this.device = device;
     }
 
-    /**
-     * @return the SERIALNUMBER of the device
-     */
     @Override
-    public String getIdentifier() {
-        return ((com.energyict.mdc.device.data.Device) this.device).getSerialNumber();
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.SerialNumber;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -79,4 +70,27 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
     public int hashCode() {
         return device.hashCode();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "SerialNumber";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "actual": {
+                    return device;
+                }
+                case "serialNumber": {
+                    return ((com.energyict.mdc.device.data.Device) device).getSerialNumber();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+    }
+
 }

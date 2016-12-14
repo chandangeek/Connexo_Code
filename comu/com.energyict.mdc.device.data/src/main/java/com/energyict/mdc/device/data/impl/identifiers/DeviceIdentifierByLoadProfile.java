@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
 
@@ -16,6 +18,10 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
 
     private final LoadProfileIdentifier loadProfileIdentifier;
 
+    public DeviceIdentifierByLoadProfile() {
+        this(new NullLoadProfileIdentifier());
+    }
+
     public DeviceIdentifierByLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         this.loadProfileIdentifier = loadProfileIdentifier;
     }
@@ -27,13 +33,8 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
     }
 
     @Override
-    public String getIdentifier() {
-        return loadProfileIdentifier.toString();
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.Other;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -71,4 +72,61 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
     public String toString() {
         return "device having load profile identified by '" + this.loadProfileIdentifier + "'";
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Other";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            return loadProfileIdentifier.forIntrospection().getValue(role);
+        }
+    }
+
+    private static class NullLoadProfileIdentifier implements LoadProfileIdentifier {
+        @Override
+        public LoadProfile getLoadProfile() {
+            throw new UnsupportedOperationException("NullLoadProfileIdentifier is not capable of finding a load profile there is not identifier");
+        }
+
+        @Override
+        public ObisCode getProfileObisCode() {
+            return null;
+        }
+
+        @Override
+        public DeviceIdentifier getDeviceIdentifier() {
+            return null;
+        }
+
+        @Override
+        public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+            return new NullIntrospector();
+        }
+
+        @Override
+        public String getXmlType() {
+            return null;
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
+
+        }
+    }
+
+    private static class NullIntrospector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Null";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+        }
+    }
+
 }

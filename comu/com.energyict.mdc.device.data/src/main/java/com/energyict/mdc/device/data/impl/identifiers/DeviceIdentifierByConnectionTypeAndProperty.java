@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -36,7 +35,7 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
     }
 
     public DeviceIdentifierByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue, DeviceService deviceService) {
-        super();
+        this();
         this.connectionTypeClass = connectionTypeClass;
         this.propertyName = propertyName;
         this.propertyValue = propertyValue;
@@ -99,13 +98,8 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
     }
 
     @Override
-    public String getIdentifier() {
-        return propertyValue;
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.Other;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -115,4 +109,33 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
         }
        return this.allDevices;
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "PropertyBased";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "connectionTypeClass": {
+                    return connectionTypeClass;
+                }
+                case "connectionTypeClassName": {
+                    return connectionTypeClass.getName();
+                }
+                case "propertyName": {
+                    return propertyName;
+                }
+                case "propertyValue": {
+                    return propertyValue;
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+    }
+
 }

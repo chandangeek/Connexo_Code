@@ -5,7 +5,6 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,7 +30,7 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
     }
 
     public DeviceIdentifierByMRID(String mrid, DeviceService deviceService) {
-        super();
+        this();
         this.mrid = mrid;
         this.deviceService = deviceService;
     }
@@ -51,13 +50,8 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
     }
 
     @Override
-    public String getIdentifier() {
-        return this.mrid;
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.Other;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -90,4 +84,25 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
     public int hashCode() {
         return mrid != null ? mrid.hashCode() : 0;
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "mRID";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "databaseValue": {
+                    return mrid;
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
+
+    }
+
 }

@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -36,7 +35,7 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
     }
 
     public DeviceIdentifierByPropertyValue(String propertyName, String callHomeId, DeviceService deviceService) {
-        super();
+        this();
         this.propertyName = propertyName;
         this.propertyValue = callHomeId;
         this.deviceService = deviceService;
@@ -44,7 +43,7 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
 
     @Override
     public Device findDevice() {
-        if(this.device == null){
+        if (this.device == null) {
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
                 throw CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER);
@@ -83,13 +82,8 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
     }
 
     @Override
-    public String getIdentifier() {
-        return propertyValue;
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.CallHomeId;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -98,6 +92,28 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
             fetchAllDevices();
         }
         return this.allDevices;
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "PropertyBased";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "propertyName": {
+                    return propertyName;
+                }
+                case "propertyValue": {
+                    return propertyValue;
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
     }
 
 }

@@ -5,7 +5,6 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,7 +30,7 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     }
 
     public DeviceIdentifierById(long id, DeviceService deviceService) {
-        super();
+        this();
         this.id = id;
         this.deviceService = deviceService;
     }
@@ -58,13 +57,8 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     }
 
     @Override
-    public String getIdentifier() {
-        return String.valueOf(this.id);
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.DataBaseId;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -94,6 +88,22 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     @Override
     public int hashCode() {
         return Long.valueOf(this.id).hashCode();
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DatabaseId";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            if ("databaseValue".equals(role)) {
+                return id;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
     }
 
 }

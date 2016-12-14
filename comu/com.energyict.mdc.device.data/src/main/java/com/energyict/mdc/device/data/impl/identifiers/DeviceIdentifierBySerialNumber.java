@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -39,7 +38,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
     }
 
     public DeviceIdentifierBySerialNumber(String serialNumber, DeviceService deviceService) {
-        super();
+        this();
         this.serialNumber = serialNumber;
         this.deviceService = deviceService;
     }
@@ -91,13 +90,8 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
     }
 
     @Override
-    public String getIdentifier () {
-        return serialNumber;
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.SerialNumber;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @XmlElement(name = "type")
@@ -116,4 +110,21 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
         }
         return this.allDevices;
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "SerialNumber";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            if ("serialNumber".equals(role)) {
+                return serialNumber;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
+    }
+
 }
