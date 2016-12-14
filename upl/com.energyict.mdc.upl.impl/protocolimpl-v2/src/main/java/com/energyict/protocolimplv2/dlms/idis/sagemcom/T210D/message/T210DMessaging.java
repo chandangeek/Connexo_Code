@@ -52,10 +52,10 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
         supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
 
-//         To implement and test in V2 of the prototype device
-//        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
-//        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
-//        supportedMessages.add(MBusSetupDeviceMessage.Commission);
+        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
+        supportedMessages.add(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDevices);
+        supportedMessages.add(MBusSetupDeviceMessage.InstallWirelessMbusDevices);
     }
 
 }

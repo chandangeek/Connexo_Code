@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -34,6 +35,12 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
 
     public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice) {
         super(session, offlineDevice);
+    }
+
+    @Override
+    // Beacon3100 uses IC version 0, has only 14 parameters on adp_routing_configuration
+    protected boolean isICVersion0() {
+        return true;
     }
 
     @Override

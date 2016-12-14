@@ -514,7 +514,7 @@ public class IPv4Setup extends AbstractCosemObject {
             secondaryDNSByte[i] = (byte) Integer.parseInt(secondaryDNSAddress.substring(pointer, (secondaryDNSAddress.indexOf(".", pointer) == -1) ? secondaryDNSAddress.length() : secondaryDNSAddress.indexOf(".", pointer)));
             pointer = secondaryDNSAddress.indexOf(".", pointer) + 1;
         }
-        writePrimaryDNSAddress(new Unsigned32(secondaryDNSByte, 0));
+        writeSecondaryDNSAddress(new Unsigned32(secondaryDNSByte, 0));
     }
 
     /**
