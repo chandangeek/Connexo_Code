@@ -1,5 +1,11 @@
 package com.energyict.mdc.gogo;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -16,13 +22,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -186,7 +185,7 @@ public class FirmwareUtils {
             Optional<FirmwareVersion> firmwareVersionByVersion = this.firmwareService.getFirmwareVersionByVersionAndType(firwareVersion, FirmwareType.METER, device.get().getDeviceType());
             firmwareVersionByVersion.ifPresent(firmwareVersion -> executeTransaction(() -> {
                 Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
-                DeviceMessage<Device> deviceMessage = deviceMessageBuilder
+                DeviceMessage deviceMessage = deviceMessageBuilder
                         .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersion)
                         .setReleaseDate(clock.instant())
                         .add();
