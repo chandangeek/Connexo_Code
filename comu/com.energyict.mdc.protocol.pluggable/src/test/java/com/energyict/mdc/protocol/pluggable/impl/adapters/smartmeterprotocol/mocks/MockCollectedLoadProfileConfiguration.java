@@ -44,9 +44,13 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
         return obisCode;
     }
 
-    @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return new TestSerialNumberDeviceIdentifier(meterSerialNumber);
+    }
+
+    @Override
+    public String getMeterSerialNumber() {
+        return meterSerialNumber;
     }
 
     @Override
@@ -87,6 +91,12 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
     public void setFailureInformation(ResultType resultType, Issue issue) {
         this.setResultType(resultType);
         this.issues.add(issue);
+    }
+
+    @Override
+    public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+        this.setResultType(resultType);
+        this.issues.addAll(issues);
     }
 
     @Override

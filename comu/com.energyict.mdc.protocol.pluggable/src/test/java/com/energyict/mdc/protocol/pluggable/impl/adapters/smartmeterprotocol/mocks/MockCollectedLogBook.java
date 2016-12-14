@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.protocol.MeterProtocolEvent;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,4 +83,12 @@ public class MockCollectedLogBook implements CollectedLogBook {
         return false;
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getSimpleName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }
