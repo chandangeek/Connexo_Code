@@ -11,8 +11,10 @@ Ext.define('Uni.model.WhatsGoingOn', {
             type: 'date'
         },
         'severity',
-        'assignee',
-        'assigneeIsCurrentUser',
+        'userAssignee',
+        'workGroupAssignee',
+        'isMyWorkGroup',
+        'userAssigneeIsCurrentUser',
         'reference',
         'status',
         {
@@ -32,9 +34,11 @@ Ext.define('Uni.model.WhatsGoingOn', {
                     description: record.description,
                     dueDate: record.dueDate,
                     severity: record.severity,
-                    assignee: record.assignee,
+                    userAssignee: record.userAssignee,
+                    isMyWorkGroup: record.isMyWorkGroup,
+                    workGroupAssignee: record.workGroupAssignee,
                     status: record.status,
-                    assigneeIsCurrentUser: record.assigneeIsCurrentUser
+                    userAssigneeIsCurrentUser: record.userAssigneeIsCurrentUser
                 }
             }
         }

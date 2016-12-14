@@ -215,13 +215,13 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             value: item.get('displayValue'),
             renderer: function (value) {
                 var fillColor, borderColor, textColor;
-                if (value.severity === undefined && value.assignee === undefined) {
+                if (value.severity === undefined && value.userAssignee === undefined) {
                     fillColor = "#FFFFFF";
                     borderColor = "#1E7D9E";
                     textColor = "#686868";
                 }
-                else if (value.severity === undefined && value.assignee !== undefined) {
-                    switch (value.assigneeIsCurrentUser) {
+                else if (value.severity === undefined && value.userAssignee !== undefined) {
+                    switch (value.userAssigneeIsCurrentUser) {
                         case true:
                             fillColor = "#1E7D9E";
                             borderColor = "#1E7D9E";
@@ -233,7 +233,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             textColor = "#A0A0A0";
                             break;
                     }
-                } else if (value.severity !== undefined && value.assignee === undefined) {
+                } else if (value.severity !== undefined && value.userAssignee === undefined) {
                     switch (value.severity) {
                         case 'HIGH':
                             fillColor = '#FFFFFF';
@@ -246,8 +246,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             textColor = '#FB9F76';
                             break;
                     }
-                } else if (value.severity !== undefined && value.assignee !== undefined) {
-                    switch (value.assigneeIsCurrentUser) {
+                } else if (value.severity !== undefined && value.userAssignee !== undefined) {
+                    switch (value.userAssigneeIsCurrentUser) {
                         case true:
                             switch (value.severity) {
                                 case 'HIGH':
@@ -349,7 +349,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
         result = this.addContentToTooltip(result, value);
         result = this.addDueDateToTooltip(value, result);
-        result = this.addAssigneeToTooltip(result, value);
+        result = this.addUserAssigneeToTooltip(result, value);
+        result = this.addWorkGroupAssigneeToTooltip(result, value);
 
         return Ext.String.htmlEncode(result);
     },
@@ -371,12 +372,16 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         return result;
     },
 
-    addAssigneeToTooltip: function (result, value) {
-        if(value.type === 'process'){
-            result += !!value.assignee ? Uni.I18n.translate('whatsGoingOn.startedBy', 'UNI', 'Started by: {0}', value.assignee) + "<br>" : '';
-        } else{
-            result += !!value.assignee ? Uni.I18n.translate('whatsGoingOn.assignee', 'UNI', 'Assignee: {0}', value.assignee) + "<br>" : '';
-        }
+    addUserAssigneeToTooltip: function (result, value) {
+        result += !!value.userAssignee ? Uni.I18n.translate('whatsGoingOn.userAssignee', 'UNI', 'User: {0}', value.userAssignee): '';
+        result += value.userAssigneeIsCurrentUser ? Uni.I18n.translate('whatsGoingOn.currentUser', 'UNI', ' (Current user)') + "<br>"  : '<br>';
+
+        return result;
+    },
+
+    addWorkGroupAssigneeToTooltip: function (result, value) {
+        result += !!value.workGroupAssignee ? Uni.I18n.translate('whatsGoingOn.workGroupAssignee', 'UNI', 'Work group: {0}', value.workGroupAssignee): '';
+        result += value.isMyWorkGroup ? Uni.I18n.translate('whatsGoingOn.myWorkGroup', 'UNI', ' (My workgroup)') + "<br>"  : '<br>';
 
         return result;
     }
