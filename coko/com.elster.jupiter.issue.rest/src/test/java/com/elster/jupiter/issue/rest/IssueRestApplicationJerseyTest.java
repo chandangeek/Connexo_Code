@@ -141,6 +141,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         IssueType issueType = mock(IssueType.class);
         when(issueType.getKey()).thenReturn(key);
         when(issueType.getName()).thenReturn(name);
+        when(issueType.getPrefix()).thenReturn(name+key);
         return issueType;
     }
 

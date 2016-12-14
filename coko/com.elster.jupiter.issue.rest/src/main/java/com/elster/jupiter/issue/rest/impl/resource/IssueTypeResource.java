@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
@@ -24,6 +25,7 @@ public class IssueTypeResource extends BaseResource {
     public Response getIssueTypes() {
         List<IssueType> issueTypes = getIssueService().query(IssueType.class).select(Condition.TRUE);
         issueTypes.sort((it1, it2) -> it1.getName().compareToIgnoreCase(it2.getName()));
+        issueTypes = issueTypes.stream().filter(issueType -> !issueType.getPrefix().equals("ALM")).collect(Collectors.toList());
         return entity(issueTypes, IssueTypeInfo.class).build();
     }
 }

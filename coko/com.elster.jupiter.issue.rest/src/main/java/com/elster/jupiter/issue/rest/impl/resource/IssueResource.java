@@ -28,6 +28,7 @@ import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -36,6 +37,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
@@ -206,9 +208,15 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
+        List<String> issueTypes = getIssueService().query(IssueType.class)
+                .select(Condition.TRUE)
+                .stream()
+                .filter(issueType -> !issueType.getPrefix().equals("ALM"))
+                .map(IssueType::getKey)
+                .collect(Collectors.toList());
         groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
                 .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
-                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
+                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE).isEmpty() ? issueTypes : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
                 .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
                 .withMeterName(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
                 .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
