@@ -11,8 +11,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
+import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
 import com.google.common.collect.Range;
 
@@ -24,19 +27,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDeviceAlarm {
+public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDeviceAlarm {
 
     @IsPresent
     private Reference<OpenIssue> baseIssue = ValueReference.absent();
 
-    @Inject
-
-    public OpenDeviceAlarmImpl(DataModel dataModel) {
-        super(dataModel);
-    }
-
     @Valid
     private List<OpenDeviceAlarmRelatedEventImpl> deviceAlarmRelatedEvents = new ArrayList<>();
+
+    @Inject
+    public OpenDeviceAlarmImpl(DataModel dataModel, DeviceAlarmService deviceAlarmService) {
+        super(dataModel, deviceAlarmService);
+    }
 
     protected OpenIssue getBaseIssue() {
         return baseIssue.orNull();
@@ -49,13 +51,19 @@ public class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDeviceAl
     //TODO add and remove event
 
     public HistoricalDeviceAlarm close(IssueStatus status) {
+        HistoricalDeviceAlarmImpl historicalDeviceAlarm = getDataModel().getInstance(HistoricalDeviceAlarmImpl.class);
+        historicalDeviceAlarm.copy(this);
         this.delete(); // Remove reference to baseIssue
         HistoricalIssue historicalBaseAlarm = getBaseIssue().closeInternal(status);
-        HistoricalDeviceAlarmImpl historicalDeviceAlarm = getDataModel().getInstance(HistoricalDeviceAlarmImpl.class);
         historicalDeviceAlarm.setIssue(historicalBaseAlarm);
-        historicalDeviceAlarm.copy(this);
         historicalDeviceAlarm.save();
         return historicalDeviceAlarm;
+    }
+
+
+    @Override
+    public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents(){
+        return Collections.unmodifiableList(deviceAlarmRelatedEvents);
     }
 
     @Override

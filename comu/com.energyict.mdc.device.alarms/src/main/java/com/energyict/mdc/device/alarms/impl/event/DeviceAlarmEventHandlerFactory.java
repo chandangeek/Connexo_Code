@@ -36,9 +36,6 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
     private volatile IssueCreationService issueCreationService;
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
-    private volatile CommunicationTaskService communicationTaskService;
-    private volatile CommunicationTaskReportService communicationTaskReportService;
-    private volatile ConnectionTaskService connectionTaskService;
     private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
     private volatile DeviceAlarmService deviceAlarmService;
