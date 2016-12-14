@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.protocol.MeterProtocolEvent;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,5 +59,14 @@ public class NoLogBooksForDevice extends CollectedDeviceData implements NoLogBoo
     @Override
     public void addCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
         // nothing to do
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getSimpleName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

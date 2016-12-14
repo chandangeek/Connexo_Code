@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.protocol.MeterProtocolEvent;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,5 +74,14 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
             this.meterEvents = new ArrayList<>();
         }
         this.meterEvents = meterEvents;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getSimpleName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

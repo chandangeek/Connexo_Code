@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
@@ -87,9 +88,13 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      *
      * @return {@link #deviceIdentifier}
      */
-    @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
+    }
+
+    @Override
+    public String getMeterSerialNumber() {
+        return ((Device) getDeviceIdentifier().findDevice()).getSerialNumber(); //Downcast to Connexo Device
     }
 
     /**
