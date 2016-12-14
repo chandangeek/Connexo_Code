@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleView', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             margin: '0 0 20 0',
-                            title: Uni.I18n.translate('commandRules.add.empty.title', 'MDC', 'No commands found.'),
+                            title: Uni.I18n.translate('commandRules.add.empty.title', 'MDC', 'No commands found'),
                             reasons: [
                                 Uni.I18n.translate('commandRules.add.empty.list.item1', 'MDC', 'All commands compliant with the filter have already been added to the rule.')
                             ]

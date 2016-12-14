@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleGrid', {
     bottomToolbarHidden: true,
     checkAllButtonPresent: true,
     hiddenSelection: [],
+    ignoreSelectEvent: false,
 
     columns: [
         {
@@ -40,10 +41,14 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleGrid', {
         me.callParent(arguments);
 
         me.on('select', function (grid, record) {
-            me.addToSelection(record);
+            if (!me.ignoreSelectEvent) {
+                me.addToSelection(record);
+            }
         });
         me.on('deselect', function (grid, record) {
-            me.removeFromSelection(record);
+            if (!me.ignoreSelectEvent) {
+                me.removeFromSelection(record);
+            }
         });
 
         me.getTopToolbarContainer().add(1,{
@@ -66,6 +71,41 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleGrid', {
                 widget.show();
             }
         });
+
+        me.getStore().on('load', function () { // When (re)loaded (by applying another filter)
+            // (re)select the previously chosen commands and update the buttons correspondingly
+            if (me.getSelectedItems().length > 0) {
+                me.ignoreSelectEvent = true;
+                var commandsToReselect = [];
+                Ext.defer(function () {
+                    Ext.each(me.hiddenSelection, function (command) {
+                        var indexInStore = me.getStore().findExact('commandName', command.get('commandName'));
+                        record = indexInStore === -1 ? null : me.getStore().getAt(indexInStore);
+                        if (record) {
+                            commandsToReselect.push(record);
+                        }
+                    });
+                    me.getSelectionModel().select(commandsToReselect);
+                    me.ignoreSelectEvent = false;
+                    me.updateButtons();
+                }, 100);
+            } else {
+                me.updateButtons();
+            }
+        });
+    },
+
+    updateButtons: function() { // for the current selection
+        var me = this;
+        if (!me.rendered) {
+            return;
+        }
+        var selection = me.getSelectionModel().getSelection();
+        me.getUncheckAllButton().setDisabled(selection.length === 0);
+        if (me.checkAllButtonPresent) {
+            me.getCheckAllButton().setDisabled(me.getStore().getCount() === selection.length);
+        }
+        me.up('AddCommandsToRuleView').down('#mdc-command-rule-add-commands-addButton').setDisabled(me.getSelectedItems().length === 0);
     },
 
     addToSelection: function (record) {
@@ -115,8 +155,8 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleGrid', {
     onClickUncheckAllButton: function (button) {
         var me = this;
         me.callParent(arguments);
-        me.clearSelection();
         me.onSelectionChange();
+        me.updateButtons();
     }
 
 });

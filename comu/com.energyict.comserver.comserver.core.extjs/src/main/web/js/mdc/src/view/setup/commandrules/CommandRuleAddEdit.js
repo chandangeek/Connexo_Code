@@ -10,6 +10,8 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
         'Mdc.store.CommandsForRule'
     ],
     LABEL_WIDTH: 200,
+    MAX_LIMIT: 999999,
+    LIMIT_SPINNER_WIDTH: 100,
 
     initComponent: function() {
         var me = this;
@@ -100,8 +102,9 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                                         name: 'dayLimit',
                                         allowDecimals: false,
                                         minValue: 1,
+                                        maxValue: me.MAX_LIMIT,
                                         value: 1,
-                                        width: 65,
+                                        width: me.LIMIT_SPINNER_WIDTH,
                                         margin: '-10 0 0 0',
                                         listeners: {
                                             blur: me.numberFieldValidation
@@ -159,8 +162,9 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                                         name: 'weekLimit',
                                         allowDecimals: false,
                                         minValue: 1,
+                                        maxValue: me.MAX_LIMIT,
                                         value: 1,
-                                        width: 65,
+                                        width: me.LIMIT_SPINNER_WIDTH,
                                         margin: '-10 0 0 0',
                                         listeners: {
                                             blur: me.numberFieldValidation
@@ -218,8 +222,9 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
                                         name: 'monthLimit',
                                         allowDecimals: false,
                                         minValue: 1,
+                                        maxValue: me.MAX_LIMIT,
                                         value: 1,
-                                        width: 65,
+                                        width: me.LIMIT_SPINNER_WIDTH,
                                         margin: '-10 0 0 0',
                                         listeners: {
                                             blur: me.numberFieldValidation
@@ -317,6 +322,9 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
 
         if (Ext.isEmpty(value) || value < field.minValue) {
             field.setValue(field.minValue);
+        }
+        if (value > field.maxValue) {
+            field.setValue(field.maxValue);
         }
     },
 

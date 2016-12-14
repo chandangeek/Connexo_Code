@@ -5,14 +5,14 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePreviewForm', {
     layout: 'column',
     defaults: {
         xtype: 'container',
-        layout: 'form',
-        columnWidth: 0.5
+        layout: 'form'
     },
 
     initComponent: function() {
         var me = this;
         me.items = [
             {
+                columnWidth: 0.4,
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 200
@@ -56,6 +56,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePreviewForm', {
                 ]
             },
             {
+                columnWidth: 0.6,
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 200
