@@ -22,10 +22,10 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.inject.Inject;
-import java.time.Clock;
-import java.util.ArrayList;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -112,9 +112,12 @@ public class ResourceHelper {
     }
 
     public ConcurrentModificationException usagePointAlreadyLinkedException(String name) {
-        return conflictFactory.conflict().withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, name).withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, name).build();
+        return conflictFactory.conflict()
+                .withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, name)
+                .withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, name)
+                .build();
     }
-    
+
     public Optional<MetrologyPurpose> findMetrologyPurpose(long id) {
         return metrologyConfigurationService.findMetrologyPurpose(id);
     }
@@ -156,8 +159,8 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
         }
     }
-    
-        public UsagePointGroup findUsagePointGroupOrThrowException(long id) {
+
+    public UsagePointGroup findUsagePointGroupOrThrowException(long id) {
         return meteringGroupsService.findUsagePointGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
