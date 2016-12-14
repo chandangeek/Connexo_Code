@@ -6,13 +6,10 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifierType;
 
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -46,13 +43,8 @@ public final class LogBookIdentifierById implements LogBookIdentifier {
     }
 
     @Override
-    public List<Object> getParts() {
-        return Arrays.asList((Object) getLogBookId());
-    }
-
-    @Override
-    public LogBookIdentifierType getLogBookIdentifierType() {
-        return LogBookIdentifierType.DataBaseId;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -94,4 +86,21 @@ public final class LogBookIdentifierById implements LogBookIdentifier {
     public String toString() {
         return "logbook having id " + this.logBookId;
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DatabaseId";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            if ("databaseValue".equals(role)) {
+                return getLogBookId();
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
+    }
+
 }

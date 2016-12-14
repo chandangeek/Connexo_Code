@@ -16,7 +16,10 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier {
 
     private final LogBookIdentifier logBookIdentifier;
 
-    // For JSON (de)marshalling only
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    @SuppressWarnings("unused")
     public DeviceIdentifierByLogBook() {
         this(new NullLogBookIdentifier());
     }

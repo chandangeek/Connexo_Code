@@ -6,14 +6,11 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifierType;
 
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -36,8 +33,8 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
     }
 
     @Override
-    public List<Object> getParts() {
-        return Arrays.asList((Object) getDeviceIdentifier(), getLogBookObisCode());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -53,11 +50,6 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
     @Override
     public ObisCode getLogBookObisCode() {
         return logBookObisCode;
-    }
-
-    @Override
-    public LogBookIdentifierType getLogBookIdentifierType() {
-        return LogBookIdentifierType.DeviceIdentifierAndObisCode;
     }
 
     @Override
@@ -87,6 +79,28 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
     @Override
     public String toString() {
         return MessageFormat.format("logbook having OBIS code {0} on device with deviceIdentifier ''{1}''", logBookObisCode, deviceIdentifier);
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "obisCode": {
+                    return getLogBookObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
     }
 
 }
