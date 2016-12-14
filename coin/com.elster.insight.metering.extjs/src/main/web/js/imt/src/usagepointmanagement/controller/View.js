@@ -27,7 +27,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     ],
 
     models: [
-        'Imt.usagepointmanagement.model.UsagePoint'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.usagepointmanagement.model.UsagePointFavorite'
     ],
 
     views: [
@@ -78,7 +79,14 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                     meterActivationsStore: me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
                     router: router,
                     usagePoint: usagePoint,
-                    purposes: purposes
+                    purposes: purposes,
+                    favoriteRecord: Ext.create('Imt.usagepointmanagement.model.UsagePointFavorite', {
+                        id: usagePointId,
+                        parent: {
+                            id: usagePointId,
+                            version: usagePoint.get('version')
+                        }
+                    })
                 }));
                 mainView.setLoading(false);
             },

@@ -8,6 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.model.MetrologyConfigOnUsagePoint',
         'Imt.usagepointmanagement.view.SetupActionMenu',
         'Imt.usagepointmanagement.view.widget.DataCompletion',
+        'Uni.view.button.MarkedButton',
         'Uni.view.widget.WhatsGoingOn'
     ],
 
@@ -15,6 +16,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
     usagePoint: null,
     purposes: null,
     padding: '0 16 16 0',
+    favoriteRecord: null,
 
     initComponent: function () {
         var me = this;
@@ -25,6 +27,18 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                 title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
                 ui: 'large',
                 tools: [
+                    {
+                        xtype: 'marked-button',
+                        itemId: 'usage-point-favorite-flag',
+                        record: me.favoriteRecord,
+                        markedTooltip: Uni.I18n.translate('usagePoint.flag.tooltip.unflag', 'IMT', 'Click to remove from the list of flagged usage point'),
+                        unmarkedTooltip: Uni.I18n.translate('usagePoint.flag.tooltip.flag', 'IMT', 'Click to flag the usage point'),
+                        width: 20,
+                        height: 20
+                    },
+                    {
+                        xtype: 'tbfill'
+                    },
                     {
                         xtype: 'displayfield',
                         itemId: 'usage-point-last-updated-date',
