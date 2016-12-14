@@ -187,9 +187,9 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
         DeviceAlarmFilter filter = new DeviceAlarmFilter();
-        getEndDevice().ifPresent(filter::addDevice);
-        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+        getEndDevice().ifPresent(filter::setDevice);
+        filter.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
+        filter.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
         Optional<? extends DeviceAlarm> foundIssue = deviceAlarmService.findAlarms(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
         if (foundIssue.isPresent()) {
             return Optional.of((OpenIssue)foundIssue.get());
