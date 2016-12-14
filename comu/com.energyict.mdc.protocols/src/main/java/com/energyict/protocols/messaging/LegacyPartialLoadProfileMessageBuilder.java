@@ -9,8 +9,10 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -296,6 +298,11 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     public LoadProfileReader getLoadProfileReader() {
         return new LoadProfileReader(this.clock, this.profileObisCode, startReadingTime, endReadingTime, loadProfileId, new DeviceIdentifier<Device<?,?,?>>() {
             @Override
+            public Introspector forIntrospection() {
+                return new SerialNumberIntrospector(meterSerialNumber);
+            }
+
+            @Override
             public String getIdentifier() {
                 return meterSerialNumber;
             }
@@ -400,4 +407,27 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
             }
         }
     }
+
+    private static class SerialNumberIntrospector implements Introspector {
+        private final String serialNumber;
+
+        private SerialNumberIntrospector(String serialNumber) {
+            this.serialNumber = serialNumber;
+        }
+
+        @Override
+        public String getTypeName() {
+            return "SerialNumber";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            if ("serialNumber".equals(role)) {
+                return this.serialNumber;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
+    }
+
 }

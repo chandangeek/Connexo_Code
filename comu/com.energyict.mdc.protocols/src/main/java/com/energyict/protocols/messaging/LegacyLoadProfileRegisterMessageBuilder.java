@@ -9,9 +9,10 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -296,13 +297,8 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     public LoadProfileReader getLoadProfileReader() {
         return new LoadProfileReader(this.clock, this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, new DeviceIdentifier<Device<?, ?, ?>>() {
             @Override
-            public String getIdentifier() {
-                return meterSerialNumber;
-            }
-
-            @Override
-            public DeviceIdentifierType getDeviceIdentifierType() {
-                return DeviceIdentifierType.SerialNumber;
+            public Introspector forIntrospection() {
+                return new SerialNumberIntrospector(meterSerialNumber);
             }
 
             @Override
@@ -421,4 +417,27 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             }
         }
     }
+
+    private static class SerialNumberIntrospector implements Introspector {
+        private final String serialNumber;
+
+        private SerialNumberIntrospector(String serialNumber) {
+            this.serialNumber = serialNumber;
+        }
+
+        @Override
+        public String getTypeName() {
+            return "SerialNumber";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            if ("serialNumber".equals(role)) {
+                return this.serialNumber;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
+    }
+
 }
