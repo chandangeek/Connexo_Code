@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -25,10 +25,10 @@ import java.util.List;
  * @since 2013-07-02 (11:52)
  */
 @XmlRootElement
-public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier<LoadProfile> {
+public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier {
 
     private final ObisCode profileObisCode;
-    private DeviceIdentifier<Device> deviceIdentifier;
+    private DeviceIdentifier deviceIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -37,7 +37,7 @@ public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier
         profileObisCode = null;
     }
 
-    public LoadProfileIdentifierFirstOnDevice(DeviceIdentifier<Device> deviceIdentifier, ObisCode profileObisCode) {
+    public LoadProfileIdentifierFirstOnDevice(DeviceIdentifier deviceIdentifier, ObisCode profileObisCode) {
         this.deviceIdentifier = deviceIdentifier;
         this.profileObisCode = profileObisCode;
     }
@@ -48,8 +48,8 @@ public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier
     }
 
     @Override
-    public LoadProfile findLoadProfile() {
-        Device device = this.deviceIdentifier.findDevice();
+    public LoadProfile getLoadProfile() {
+        Device device = (Device) this.deviceIdentifier.findDevice(); //Downcast to the Connexo Device
         List<LoadProfile> loadProfiles = device.getLoadProfiles();
         if (loadProfiles.isEmpty()) {
             throw CanNotFindForIdentifier.loadProfile(this, MessageSeeds.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER);
@@ -69,7 +69,7 @@ public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Arrays.asList((Object) getDeviceIdentifier());
     }
 

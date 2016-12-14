@@ -1,16 +1,19 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifierType;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -21,7 +24,7 @@ import java.text.MessageFormat;
  * @since 2014-11-05 (13:24)
  */
 @XmlRootElement
-public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<LogBook> {
+public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
 
     private final DeviceIdentifier deviceIdentifier;
     private final ObisCode logBookObisCode;
@@ -33,8 +36,13 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
     }
 
     @Override
+    public List<Object> getParts() {
+        return Arrays.asList((Object) getDeviceIdentifier(), getLogBookObisCode());
+    }
+
+    @Override
     public LogBook getLogBook() {
-        Device device = (Device) this.deviceIdentifier.findDevice();
+        Device device = (Device) this.deviceIdentifier.findDevice(); //Downcast to the Connexo Device
         return device.getLogBooks()
                 .stream()
                 .filter(lb -> lb.getDeviceObisCode().equals(this.logBookObisCode))
@@ -45,6 +53,11 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
     @Override
     public ObisCode getLogBookObisCode() {
         return logBookObisCode;
+    }
+
+    @Override
+    public LogBookIdentifierType getLogBookIdentifierType() {
+        return LogBookIdentifierType.DeviceIdentifierAndObisCode;
     }
 
     @Override
@@ -59,7 +72,7 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 

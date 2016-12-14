@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.obis.ObisCode;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

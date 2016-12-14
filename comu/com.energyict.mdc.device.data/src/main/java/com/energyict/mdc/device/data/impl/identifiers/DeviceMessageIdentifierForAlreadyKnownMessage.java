@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifierType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
@@ -13,17 +12,16 @@ import java.util.List;
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
  * based on the ID of the DeviceMessage
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/03/13
  * Time: 9:05
  */
 public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIdentifier {
 
+    private final DeviceMessage deviceMessage;
 
-    private final DeviceMessage<Device> deviceMessage;
-
-    public DeviceMessageIdentifierForAlreadyKnownMessage(DeviceMessage<Device> deviceMessage) {
+    public DeviceMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
         this.deviceMessage = deviceMessage;
     }
 
@@ -38,7 +36,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.singletonList(deviceMessage);
     }
 
@@ -54,7 +52,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.deviceMessage.getDevice());
     }
 
@@ -76,8 +74,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         return (int) this.deviceMessage.getId();
     }
-
 }

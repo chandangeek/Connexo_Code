@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -20,14 +20,14 @@ import java.util.List;
  * Note that multiple devices can be found with the provided combinations
  */
 @XmlRootElement
-public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMultipleDevices<Device> {
+public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMultipleDevices {
 
     private String propertyName;
     private String propertyValue;
     private DeviceService deviceService;
 
     private Device device;
-    private List<Device> allDevices;
+    private List<com.energyict.mdc.device.data.Device> allDevices;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -93,7 +93,7 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
     }
 
     @Override
-    public List<Device> getAllDevices() {
+    public List<com.energyict.mdc.device.data.Device> getAllDevices() {
         if(this.allDevices == null){
             fetchAllDevices();
         }

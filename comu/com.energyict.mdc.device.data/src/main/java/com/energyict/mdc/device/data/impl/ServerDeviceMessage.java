@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
@@ -11,13 +10,13 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
  * Date: 11/5/14
  * Time: 10:57 AM
  */
-public interface ServerDeviceMessage extends DeviceMessage<Device> {
+public interface ServerDeviceMessage extends DeviceMessage {
 
     /**
      * Moves the DeviceMessage to the new status.
      *
      * @param status the new DeviceMessageStatus
      */
-    public void moveTo(DeviceMessageStatus status);
+    void moveTo(DeviceMessageStatus status);
 
 }

@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Implementation of a {@link com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier} that uniquely identifies a LoadProfile
+ * Implementation of a {@link com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier} that uniquely identifies a LoadProfile
  * based on the ObisCode of the LoadProfile(type) and the {@link DeviceIdentifier}.<br/>
  * <b>Note: </b> we assume that it is never possible that two LoadProfiles with the same ObisCode are configured on the Device.<br/>
  * <b>Note2: </b> if the B-field of the ObisCode is marked as a wildcard, then make sure the provided loadProfileObisCode also has the wildcard!
@@ -30,7 +30,7 @@ import java.util.List;
 public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIdentifier {
 
     private final ObisCode loadProfileObisCode;
-    private final DeviceIdentifier<Device> deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
 
     private LoadProfile loadProfile;
 
@@ -42,16 +42,16 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
         this.deviceIdentifier = null;
     }
 
-    public LoadProfileIdentifierByObisCodeAndDevice(ObisCode loadProfileObisCode, DeviceIdentifier<Device> deviceIdentifier) {
+    public LoadProfileIdentifierByObisCodeAndDevice(ObisCode loadProfileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.loadProfileObisCode = loadProfileObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
-    public LoadProfile findLoadProfile() {
+    public LoadProfile getLoadProfile() {
         if (loadProfile == null) {
-            Device device = deviceIdentifier.findDevice();
+            Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
             this.loadProfile = device.getLoadProfiles()
                                     .stream()
                                     .filter(loadProfile -> loadProfile.getDeviceObisCode().equals(loadProfileObisCode))
@@ -82,7 +82,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Arrays.asList((Object) getDeviceIdentifier(), getLoadProfileObisCode());
     }
 

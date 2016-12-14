@@ -26,6 +26,9 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -36,10 +39,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static com.energyict.mdc.device.data.impl.DeviceMessageServiceImplTest.Progress.OnHold;
 import static com.energyict.mdc.device.data.impl.DeviceMessageServiceImplTest.Progress.Planned;
@@ -73,7 +72,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
 
     DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService);
 
-    DeviceMessage<Device> command1;
+    DeviceMessage command1;
 
     @Before
     public void setUp() throws Exception {
@@ -636,7 +635,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         return mock;
     }
 
-    private DeviceMessage<Device> mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Instant creationDate, Instant releaseDate, Instant sentDate, DeviceMessageCategory deviceMessageCategory) {
+    private DeviceMessage mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Instant creationDate, Instant releaseDate, Instant sentDate, DeviceMessageCategory deviceMessageCategory) {
         DeviceMessage mock = mock(DeviceMessage.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getSentDate()).thenReturn(Optional.ofNullable(sentDate));
@@ -745,7 +744,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
 
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return this.category.getMessageSpecifications(this, propertySpecService, thesaurus);
+            return this.category.getMessageSpecifications(this, propertySpecService, thesaurus).stream().collect(Collectors.toList());
         }
 
         @Override

@@ -1,12 +1,10 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -34,7 +32,7 @@ import java.util.Optional;
  * Time: 10:32
  */
 @ProviderType
-public interface Register<R extends Reading, RS extends RegisterSpec> extends BaseRegister {
+public interface Register<R extends Reading, RS extends RegisterSpec> extends com.energyict.mdc.upl.meterdata.Register {
 
     Device getDevice();
 
@@ -99,6 +97,14 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
      * @return the optional multiplier
      */
     Optional<BigDecimal> getMultiplier(Instant timeStamp);
+
+    ObisCode getRegisterTypeObisCode();
+
+    ObisCode getRegisterSpecObisCode();
+
+    ObisCode getDeviceObisCode();
+
+    long getRegisterSpecId();
 
     interface RegisterUpdater {
         RegisterUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);

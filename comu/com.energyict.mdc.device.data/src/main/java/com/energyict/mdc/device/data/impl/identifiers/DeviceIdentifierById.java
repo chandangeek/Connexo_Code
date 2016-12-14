@@ -1,24 +1,24 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses a {@link com.energyict.mdc.protocol.api.device.BaseDevice}'s database identifier.
+ * that uses a {@link com.energyict.mdc.upl.meterdata.Device}'s database identifier.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:10)
  */
 @XmlRootElement
-public final class DeviceIdentifierById implements DeviceIdentifier<Device> {
+public final class DeviceIdentifierById implements DeviceIdentifier {
 
     private long id;
     private DeviceService deviceService;

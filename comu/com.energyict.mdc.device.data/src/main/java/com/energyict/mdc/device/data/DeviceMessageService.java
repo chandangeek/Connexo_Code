@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
 
@@ -41,7 +40,7 @@ public interface DeviceMessageService {
      * @param deviceMessage The deviceMessage that needs to be checked
      * @return A ComTask if one is found, else null
      */
-    ComTask getPreferredComTask(Device device, DeviceMessage<?> deviceMessage);
+    ComTask getPreferredComTask(Device device, DeviceMessage deviceMessage);
 
     /**
      * Checks if the logged in user can create or update a given message

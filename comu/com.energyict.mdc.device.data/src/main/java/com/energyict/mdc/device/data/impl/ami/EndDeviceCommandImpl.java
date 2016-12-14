@@ -82,7 +82,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
         getPropertyValueMap().put(propertySpec, value);
     }
 
-    public abstract List<DeviceMessage<Device>> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate);
+    public abstract List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate);
 
     protected boolean hasCommandArgumentValueFor(String commandArgumentName) {
         return getPropertyValueMap().keySet().stream().anyMatch(propertySpec -> propertySpec.getName().equals(commandArgumentName));
@@ -96,9 +96,9 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
                 .orElse(false);
     }
 
-    protected List<DeviceMessage<Device>> doCreateCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate, List<DeviceMessageId> deviceMessageIds) {
+    protected List<DeviceMessage> doCreateCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate, List<DeviceMessageId> deviceMessageIds) {
         Device multiSenseDevice = findDeviceForEndDevice(getEndDevice());
-        List<DeviceMessage<Device>> deviceMessages = new ArrayList<>(deviceMessageIds.size());
+        List<DeviceMessage> deviceMessages = new ArrayList<>(deviceMessageIds.size());
         int idx = 0;
         for (DeviceMessageId deviceMessageId : deviceMessageIds) {
             Device.DeviceMessageBuilder deviceMessageBuilder = multiSenseDevice.newDeviceMessage(deviceMessageId, TrackingCategory.serviceCall)

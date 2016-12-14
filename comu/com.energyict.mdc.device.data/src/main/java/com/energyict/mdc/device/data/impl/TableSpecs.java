@@ -5,7 +5,6 @@ import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -61,8 +60,6 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -108,7 +105,7 @@ public enum TableSpecs {
     DDC_DEVICE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(BaseDevice.class);
+            Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(com.energyict.mdc.upl.meterdata.Device.class);
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
@@ -175,7 +172,7 @@ public enum TableSpecs {
     DDC_LOADPROFILE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class).alsoReferredToAs(BaseLoadProfile.class);
+            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class).alsoReferredToAs(LoadProfile.class);
             table.map(LoadProfileImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();

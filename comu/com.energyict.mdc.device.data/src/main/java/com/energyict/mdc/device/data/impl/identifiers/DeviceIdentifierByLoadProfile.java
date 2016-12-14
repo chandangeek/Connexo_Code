@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
 import javax.xml.bind.annotation.XmlElement;
 
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
  * Date: 2/23/15
  * Time: 3:11 PM
  */
-public class DeviceIdentifierByLoadProfile implements DeviceIdentifier<Device> {
+public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
 
     private final LoadProfileIdentifier loadProfileIdentifier;
 
@@ -22,7 +22,8 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier<Device> {
 
     @Override
     public Device findDevice() {
-        return (Device) this.loadProfileIdentifier.findLoadProfile().getDevice();
+        com.energyict.mdc.device.data.LoadProfile loadProfile = (com.energyict.mdc.device.data.LoadProfile) this.loadProfileIdentifier.getLoadProfile();    //Downcast to Connexo LoadProfile
+        return loadProfile.getDevice();
     }
 
     @Override

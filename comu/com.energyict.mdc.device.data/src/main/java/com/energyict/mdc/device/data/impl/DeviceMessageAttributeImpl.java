@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
@@ -26,7 +25,7 @@ import java.time.Instant;
 class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_IS_REQUIRED + "}")
-    private Reference<DeviceMessage<Device>> deviceMessage = ValueReference.absent();
+    private Reference<DeviceMessage> deviceMessage = ValueReference.absent();
     private PropertySpec propertySpec;
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
@@ -45,7 +44,7 @@ class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribu
         super(DeviceMessageAttribute.class, dataModel, eventService, thesaurus);
     }
 
-    public DeviceMessageAttributeImpl initialize(DeviceMessage<Device> deviceMessage, String name) {
+    public DeviceMessageAttributeImpl initialize(DeviceMessage deviceMessage, String name) {
         this.deviceMessage.set(deviceMessage);
         this.name = name;
         return this;
@@ -61,7 +60,7 @@ class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribu
     }
 
     @Override
-    public DeviceMessage<Device> getDeviceMessage() {
+    public DeviceMessage getDeviceMessage() {
         return deviceMessage.get();
     }
 

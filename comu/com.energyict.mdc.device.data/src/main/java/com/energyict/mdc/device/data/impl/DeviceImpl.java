@@ -73,7 +73,6 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -180,7 +179,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
@@ -974,12 +973,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<DeviceMessage<Device>> getMessages() {
+    public List<DeviceMessage> getMessages() {
         return Collections.unmodifiableList(this.deviceMessages);
     }
 
     @Override
-    public List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status) {
+    public List<DeviceMessage> getMessagesByState(DeviceMessageStatus status) {
         return this.deviceMessages.stream()
                 .filter(deviceMessage -> deviceMessage.getStatus().equals(status))
                 .collect(toList());
@@ -2556,7 +2555,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         @Override
-        public DeviceMessage<Device> add() {
+        public DeviceMessage add() {
             this.deviceMessage.save();
             DeviceImpl.this.deviceMessages.add(this.deviceMessage);
             return this.deviceMessage;

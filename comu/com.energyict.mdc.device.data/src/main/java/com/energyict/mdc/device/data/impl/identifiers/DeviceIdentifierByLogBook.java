@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 /**
  * Copyrights EnergyICT
  * Date: 2/23/15
  * Time: 3:16 PM
  */
-public class DeviceIdentifierByLogBook implements DeviceIdentifier<Device> {
+public class DeviceIdentifierByLogBook implements DeviceIdentifier {
 
     private final LogBookIdentifier logBookIdentifier;
 

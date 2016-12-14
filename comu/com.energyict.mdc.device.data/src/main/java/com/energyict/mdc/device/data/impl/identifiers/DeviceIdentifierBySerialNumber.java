@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,7 +15,7 @@ import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses an {@link com.energyict.mdc.protocol.api.device.BaseDevice}'s serial number to uniquely identify it.
+ * that uses an {@link com.energyict.mdc.upl.meterdata.Device}'s serial number to uniquely identify it.
  * <br/><br/>
  * <b>NOTE:</b> It is strongly advised to use the {@link DeviceIdentifierById} instead of this one.
  * The SerialNumber of a device doesn't have to be unique. If this identifier finds more than one
@@ -26,12 +25,12 @@ import java.util.List;
  * @since 2012-10-12 (11:16)
  */
 @XmlRootElement
-public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMultipleDevices<Device> {
+public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMultipleDevices {
 
     private String serialNumber;
     private DeviceService deviceService;
     private Device device;
-    private List<Device> allDevices;
+    private List<com.energyict.mdc.device.data.Device> allDevices;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -55,7 +54,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
             }
             else {
                 if (this.allDevices.size() > 1) {
-                    throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, BaseDevice.class, this.toString());
+                    throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, Device.class, this.toString());
                 }
                 else {
                     this.device = this.allDevices.get(0);
@@ -111,7 +110,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
     }
 
     @Override
-    public List<Device> getAllDevices() {
+    public List<com.energyict.mdc.device.data.Device> getAllDevices() {
         if (this.allDevices == null) {
             fetchAllDevices();
         }

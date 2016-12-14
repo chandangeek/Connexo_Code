@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * The {@link #getIdentifier()} method will return the <b>SerialNumber</b> of the device!
  */
 @XmlRootElement
-public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements DeviceIdentifier<Device> {
+public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements DeviceIdentifier {
 
     private Device device;
 
@@ -31,7 +31,7 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
      */
     @Override
     public String getIdentifier() {
-        return this.device.getSerialNumber();
+        return ((com.energyict.mdc.device.data.Device) this.device).getSerialNumber();
     }
 
     @Override
@@ -57,7 +57,7 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
 
     @Override
     public String toString() {
-        return "device having serial number '" + this.device.getSerialNumber() + "'";
+        return "device having serial number '" + ((com.energyict.mdc.device.data.Device) this.device).getSerialNumber() + "'";
     }
 
     @Override
@@ -71,7 +71,7 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
 
         DeviceIdentifierForAlreadyKnownDeviceBySerialNumber that = (DeviceIdentifierForAlreadyKnownDeviceBySerialNumber) o;
 
-        return device.getId() == that.device.getId();
+        return ((com.energyict.mdc.device.data.Device) this.device).getId() == ((com.energyict.mdc.device.data.Device) that.device).getId();
 
     }
 

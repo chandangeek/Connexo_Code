@@ -1,18 +1,19 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile with its database ID.
@@ -50,7 +51,7 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
-    public LoadProfile findLoadProfile() {
+    public LoadProfile getLoadProfile() {
         if (loadProfile == null) {
             this.loadProfile = this.loadProfileService.findById(id).orElseThrow(() -> CanNotFindForIdentifier.loadProfile(this, MessageSeeds.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER));
         }
@@ -68,7 +69,7 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.singletonList((Object) getId());
     }
 
@@ -83,7 +84,7 @@ public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return new DeviceIdentifierByLoadProfile(this);
     }
 

@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.text.MessageFormat;
@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 8/1/14
  * Time: 2:59 PM
  */
-public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProfileIdentifier<LoadProfile> {
+public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProfileIdentifier {
 
     private final LoadProfile loadProfile;
     private final ObisCode profileObisCode;
@@ -32,7 +32,7 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
     }
 
     @Override
-    public LoadProfile findLoadProfile() {
+    public LoadProfile getLoadProfile() {
         return this.loadProfile;
     }
 
@@ -42,7 +42,7 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
     }
 
     @Override
-    public List<Object> getIdentifier() {
+    public List<Object> getParts() {
         return Collections.singletonList(loadProfile);
     }
 
@@ -58,7 +58,7 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.loadProfile.getDevice());
     }
 

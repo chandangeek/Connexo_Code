@@ -67,7 +67,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     }
 
     @Override
-    public ComTask getPreferredComTask(Device device, DeviceMessage<?> deviceMessage) {
+    public ComTask getPreferredComTask(Device device, DeviceMessage deviceMessage) {
         return device.getComTaskExecutions().stream().
                 filter(cte -> cte.isAdHoc() && cte.isOnHold()).
                 flatMap(cte -> cte.getComTasks().stream()).

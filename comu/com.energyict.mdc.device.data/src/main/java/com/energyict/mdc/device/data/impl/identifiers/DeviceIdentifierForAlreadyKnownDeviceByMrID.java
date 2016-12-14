@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * It is better to use the DeviceIdentifierForAlreadyKnownDeviceBySerialNumber for that.</b>
  */
 @XmlRootElement
-public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements DeviceIdentifier<Device> {
+public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements DeviceIdentifier {
 
     private Device device;
 
@@ -32,7 +32,7 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
 
     @Override
     public String getIdentifier() {
-        return this.device.getmRID();
+        return ((com.energyict.mdc.device.data.Device) this.device).getmRID();
     }
 
     @Override
@@ -72,7 +72,7 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
 
         DeviceIdentifierForAlreadyKnownDeviceByMrID that = (DeviceIdentifierForAlreadyKnownDeviceByMrID) o;
 
-        return device.getId() == that.device.getId();
+        return ((com.energyict.mdc.device.data.Device) this.device).getId() == ((com.energyict.mdc.device.data.Device) that.device).getId();
 
     }
 

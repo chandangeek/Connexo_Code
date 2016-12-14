@@ -51,7 +51,12 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
 import java.net.URL;
@@ -64,18 +69,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -201,7 +200,7 @@ public class MultisenseHeadEndInterfaceTest {
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
         when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
-        when(deviceMessageCategory.getMessageSpecifications()).thenReturn(Collections.singletonList(deviceMessageSpec));
+        doReturn(Collections.singletonList(deviceMessageSpec)).when(deviceMessageCategory).getMessageSpecifications();
         when(messagesTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(deviceMessageCategory));
 
         ComTask comTask = mock(ComTask.class);
@@ -217,7 +216,7 @@ public class MultisenseHeadEndInterfaceTest {
         Instant messageReleaseDate = Instant.now();
         EndDeviceCommandImpl endDeviceCommand = mock(EndDeviceCommandImpl.class);
         when(endDeviceCommand.getEndDevice()).thenReturn(endDevice);
-        DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getReleaseDate()).thenReturn(messageReleaseDate);
         when(deviceMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
         when(endDeviceCommand.createCorrespondingMultiSenseDeviceMessages(any(ServiceCall.class), any(Instant.class))).thenReturn(Collections.singletonList(deviceMessage));

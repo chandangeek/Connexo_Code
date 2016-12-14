@@ -1,25 +1,28 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifierType;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
- * that uses an {@link com.energyict.mdc.protocol.api.device.BaseLogBook}'s database ID to uniquely identify it.
+ * that uses an {@link com.energyict.mdc.upl.meterdata.LogBook}'s database ID to uniquely identify it.
  *
  * @author sva
  * @since 10/12/12 - 16:01
  */
 @XmlRootElement
-public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
+public final class LogBookIdentifierById implements LogBookIdentifier {
 
     private final long logBookId;
     private final LogBookService logBookService;
@@ -54,12 +57,22 @@ public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public List<Object> getParts() {
+        return Arrays.asList((Object) getLogBookId());
+    }
+
+    @Override
+    public LogBookIdentifierType getLogBookIdentifierType() {
+        return LogBookIdentifierType.DataBaseId;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
         return new DeviceIdentifierByLogBook(this);
     }
 
     /**
-     * Getter for the Id of the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}
+     * Getter for the Id of the {@link com.energyict.mdc.upl.meterdata.LogBook}
      *
      * @return the Id
      */
@@ -70,7 +83,7 @@ public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
     /**
      * Check if the given {@link Object} is equal to this {@link LogBookIdentifierById}. <BR>
      * WARNING: if comparing with an {@link LogBookIdentifier} of another type (not of type {@link LogBookIdentifierById}),
-     * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdc.protocol.api.device.BaseLogBook}!
+     * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdc.upl.meterdata.LogBook}!
      */
     public boolean equals(Object o) {
         if (this == o) {

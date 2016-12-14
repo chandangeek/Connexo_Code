@@ -118,6 +118,11 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     }
 
     @Override
+    public long getMessageId() {
+        return deviceMessageId;
+    }
+
+    @Override
     protected CreateEventType createEventType() {
         return CreateEventType.DEVICEMESSAGE;
     }

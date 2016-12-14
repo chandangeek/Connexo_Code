@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessageTest {
     @Mock
     private Device device;
     @Mock
-    private DeviceMessage<Device> deviceMessage;
+    private DeviceMessage deviceMessage;
 
     @Before
     public void setup() {

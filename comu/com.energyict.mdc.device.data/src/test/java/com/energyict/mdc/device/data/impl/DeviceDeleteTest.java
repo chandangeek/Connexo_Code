@@ -35,7 +35,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -52,6 +51,11 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import javax.validation.Validator;
@@ -62,12 +66,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -273,7 +271,7 @@ public class DeviceDeleteTest {
     public void deleteWithMessagesTest() {
         DeviceImpl device = getNewDeviceWithMockedServices();
         setupWithMessages(device);
-        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(DeviceMessageId.CLOCK_SET_TIME).add();
+        DeviceMessage deviceMessage = device.newDeviceMessage(DeviceMessageId.CLOCK_SET_TIME).add();
         device.delete();
 
         verify(deviceMessage).delete();
