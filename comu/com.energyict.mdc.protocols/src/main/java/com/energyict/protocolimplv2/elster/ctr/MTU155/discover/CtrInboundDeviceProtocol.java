@@ -9,18 +9,17 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocols.impl.channels.inbound.CTRInboundDialHomeIdConnectionType;
-import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
+import com.energyict.protocols.impl.channels.inbound.CTRInboundDialHomeIdConnectionType;
+import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

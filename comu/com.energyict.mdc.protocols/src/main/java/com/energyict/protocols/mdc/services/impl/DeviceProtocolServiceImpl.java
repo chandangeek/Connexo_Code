@@ -21,22 +21,11 @@ import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
-import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
-import com.energyict.protocols.mdc.protocoltasks.CTRTranslationKeys;
-import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
-
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
 import com.energyict.protocolimplv2.ace4000.ACE4000Properties;
@@ -47,6 +36,11 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155TranslationKeys;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.AbstractSMSServletBasedInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.garnet.GarnetTranslationKeys;
+import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
+import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
+import com.energyict.protocols.mdc.protocoltasks.CTRTranslationKeys;
+import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -56,16 +50,12 @@ import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -107,7 +97,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
     private volatile OrmClient ormClient;
-    private volatile List<LoadProfileFactory> loadProfileFactories = new CopyOnWriteArrayList<>();
 
     // For OSGi purposes
     public DeviceProtocolServiceImpl() {
@@ -165,7 +154,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
-                bind(LoadProfileFactory.class).toInstance(new CompositeLoadProfileFactory());
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
@@ -287,17 +275,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
         // Just making sure that this bundle activates after the bundle that provides connections (see com.energyict.mdc.protocol.api.ConnectionProvider)
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    @SuppressWarnings("unused")
-    public void addLoadProfileFactory(LoadProfileFactory loadProfileFactory) {
-        this.loadProfileFactories.add(loadProfileFactory);
-    }
-
-    @SuppressWarnings("unused")
-    public void removeLoadProfileFactory(LoadProfileFactory loadProfileFactory) {
-        this.loadProfileFactories.remove(loadProfileFactory);
-    }
-
     @Reference
     public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
@@ -352,30 +329,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 Arrays.stream(com.energyict.protocols.mdc.services.impl.TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
-    }
-
-    private class CompositeLoadProfileFactory implements LoadProfileFactory {
-        @Override
-        public List<BaseLoadProfile<BaseChannel>> findLoadProfilesByDevice(BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device) {
-            for (LoadProfileFactory loadProfileFactory : loadProfileFactories) {
-                List<BaseLoadProfile<BaseChannel>> loadProfiles = loadProfileFactory.findLoadProfilesByDevice(device);
-                if (!loadProfiles.isEmpty()) {
-                    return loadProfiles;
-                }
-            }
-            return Collections.emptyList();
-        }
-
-        @Override
-        public BaseLoadProfile findLoadProfileById(int loadProfileId) {
-            for (LoadProfileFactory loadProfileFactory : loadProfileFactories) {
-                BaseLoadProfile loadProfile = loadProfileFactory.findLoadProfileById(loadProfileId);
-                if (loadProfile != null) {
-                    return loadProfile;
-                }
-            }
-            return null;
-        }
     }
 
 }

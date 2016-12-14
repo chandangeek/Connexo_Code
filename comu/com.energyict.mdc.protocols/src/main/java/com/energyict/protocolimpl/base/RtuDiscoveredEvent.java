@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.upl.meterdata.Device;
 
 /**
  * Copyrights EnergyICT
@@ -9,14 +9,14 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
  */
 public class RtuDiscoveredEvent {
 
-    private final BaseDevice device;
+    private final Device device;
 
     /**
      * Creates a new instance of a <code>RtuDiscoveredEvent</code>.
      *
      * @param device the <code>Device</code> being discovered.
      */
-    public RtuDiscoveredEvent(BaseDevice device) {
+    public RtuDiscoveredEvent(Device device) {
         this.device = device;
     }
 

@@ -10,14 +10,12 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -31,9 +29,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -41,7 +36,11 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.ace4000.requests.ReadFirmwareVersion;
 import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
@@ -147,7 +146,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return result;
     }
 
-    private CollectedLoadProfileConfiguration newDeviceLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier<?> deviceIdentifier, boolean supported) {
+    private CollectedLoadProfileConfiguration newDeviceLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier, boolean supported) {
         return this.collectedDataFactory.createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier, supported);
     }
 
@@ -342,7 +341,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return this.collectedDataFactory.createCollectedLogBook(logBookIdentifier);
     }
 
-    private boolean isMaster(DeviceIdentifier<?> deviceIdentifier) {
+    private boolean isMaster(DeviceIdentifier deviceIdentifier) {
         return offlineDevice.getDeviceIdentifier().getIdentifier().equals(deviceIdentifier.getIdentifier());
     }
 

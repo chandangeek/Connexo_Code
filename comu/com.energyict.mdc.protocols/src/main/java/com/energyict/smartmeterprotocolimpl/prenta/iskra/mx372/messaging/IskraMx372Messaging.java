@@ -1,5 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AutoConnect;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.dlms.cosem.TCPUDPSetup;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -13,7 +25,6 @@ import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -31,21 +42,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.TCPUDPSetup;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
@@ -53,6 +50,8 @@ import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMX372Properties;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice;
@@ -945,7 +944,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         }
     }
 
-    private BaseDevice findOrCreateNewMbusDevice(String customerID) {
+    private Device findOrCreateNewMbusDevice(String customerID) {
         return null; // TODO Don't do this anymore!
 //        List mbusList = mw().getDeviceFactory().findBySerialNumber(customerID);
 //        ProtocolTools.closeConnection();
@@ -998,11 +997,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 //        return mw().getDeviceFactory().create(shadow);
 //    }
 
-    private void updateMbusDevices(List<BaseDevice> downstreamRtus) {
-        Iterator<BaseDevice> it = downstreamRtus.iterator();
+    private void updateMbusDevices(List<Device> downstreamRtus) {
+        Iterator<Device> it = downstreamRtus.iterator();
         boolean present;
         while (it.hasNext()) {
-            BaseDevice mbus = it.next();
+            Device mbus = it.next();
             present = false;
             for (int i = 0; i < mbusDevices.length; i++) {
                 if (mbusDevices[i] != null) {

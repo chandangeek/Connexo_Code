@@ -3,8 +3,7 @@ package com.energyict.protocolimplv2.ace4000.requests;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 

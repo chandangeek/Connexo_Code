@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.common;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import java.math.BigDecimal;
@@ -59,7 +59,7 @@ public class MyOwnPrivateRegister implements OfflineRegister {
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return this.device.getDeviceIdentifier();
     }
 

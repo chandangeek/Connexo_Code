@@ -1,16 +1,15 @@
 package com.energyict.protocolimpl.generic;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocols.util.ProtocolUtils;
-
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -183,7 +182,7 @@ public class ParseUtils {
      * @param rtu
      * @return
      */
-	public static Date getClearLastMonthDate(BaseDevice rtu) {
+	public static Date getClearLastMonthDate(Device rtu) {
         return getClearLastMonthDate(TimeZone.getDefault());
 	}
 

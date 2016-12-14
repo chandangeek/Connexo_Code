@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.io.CommunicationException;
@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.InboundConnectionTask;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.upl.meterdata.Device;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -72,7 +72,7 @@ public class EIWebCryptographerTest extends AbstractEIWebTests {
 
     @Test
     public void testBuildMD5SeedExistingDevice() {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundDAO inboundDAO = mock(InboundDAO.class);
@@ -95,7 +95,7 @@ public class EIWebCryptographerTest extends AbstractEIWebTests {
 
     @Test
     public void testWasUsed() {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundDAO inboundDAO = mock(InboundDAO.class);

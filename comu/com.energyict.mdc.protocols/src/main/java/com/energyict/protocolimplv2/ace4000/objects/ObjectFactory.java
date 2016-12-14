@@ -11,20 +11,19 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.Tracker;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -934,7 +933,7 @@ public class ObjectFactory {
         return createCommonRegister(registerValue, getAce4000().getDeviceIdentifier());
     }
 
-    private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier<?> deviceIdentifier) {
+    private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier deviceIdentifier) {
         //TODO should this be max demand register?
         CollectedRegister deviceRegister =
                 this.collectedDataFactory.

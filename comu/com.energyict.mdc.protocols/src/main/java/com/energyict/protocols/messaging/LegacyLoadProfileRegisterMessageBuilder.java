@@ -2,21 +2,16 @@ package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -71,7 +66,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     private Instant startReadingTime;
 
     /**
-     * Represents the database ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} to read.
+     * Represents the database ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile} to read.
      * We will need this to set in the {@link com.energyict.mdc.protocol.api.device.data.ProfileData} object.
      */
     private int loadProfileId;
@@ -299,7 +294,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     public LoadProfileReader getLoadProfileReader() {
-        return new LoadProfileReader(this.clock, this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, new DeviceIdentifier<BaseDevice<?, ?, ?>>() {
+        return new LoadProfileReader(this.clock, this.profileObisCode, startReadingTime, startReadingTime, loadProfileId, new DeviceIdentifier<Device<?, ?, ?>>() {
             @Override
             public String getIdentifier() {
                 return meterSerialNumber;
@@ -321,12 +316,12 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             }
 
             @Override
-            public BaseDevice<?, ?, ?> findDevice() {
+            public Device<?, ?, ?> findDevice() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
             }
         }, Collections.<ChannelInfo>emptyList(), meterSerialNumber, new LoadProfileIdentifier() {
             @Override
-            public BaseLoadProfile findLoadProfile() {
+            public LoadProfile getLoadProfile() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
             }
 
@@ -351,7 +346,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             }
 
             @Override
-            public DeviceIdentifier<?> getDeviceIdentifier() {
+            public DeviceIdentifier getDeviceIdentifier() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper deviceidentifier ...");
             }
 

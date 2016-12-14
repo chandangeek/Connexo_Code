@@ -7,16 +7,15 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
-
-import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;

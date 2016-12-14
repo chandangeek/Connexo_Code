@@ -16,13 +16,13 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880;
@@ -65,7 +65,7 @@ public class LoadProfileBuilder {
 
     /**
      * Keeps track of the link between a {@link LoadProfileReader} and a list of
-     * {@link com.energyict.mdc.protocol.api.device.BaseRegister} which
+     * {@link com.energyict.mdc.upl.meterdata.Register} which
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
@@ -86,7 +86,7 @@ public class LoadProfileBuilder {
     protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
 
     /**
-     * Keeps track of the link between a {@link com.energyict.mdc.protocol.api.device.BaseRegister}
+     * Keeps track of the link between a {@link com.energyict.mdc.upl.meterdata.Register}
      * and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
     private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<CapturedRegisterObject, DLMSAttribute>();

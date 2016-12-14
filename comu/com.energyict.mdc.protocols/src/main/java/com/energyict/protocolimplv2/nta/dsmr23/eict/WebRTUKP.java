@@ -4,6 +4,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -34,7 +37,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -42,21 +44,18 @@ import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
-import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
-
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialect;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -306,7 +305,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
             }
 
             @Override
-            public DeviceIdentifier<?> getDeviceIdentifier() {
+            public DeviceIdentifier getDeviceIdentifier() {
                 return WebRTUKP.this.getOfflineDevice().getDeviceIdentifier();
             }
 

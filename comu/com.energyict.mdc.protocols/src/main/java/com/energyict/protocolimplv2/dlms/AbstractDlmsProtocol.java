@@ -5,6 +5,12 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -12,12 +18,8 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -26,17 +28,14 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.MyOwnPrivateRegister;
@@ -50,7 +49,6 @@ import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.obis.ObisCode;
 
 import javax.inject.Provider;
 import java.io.IOException;
@@ -203,7 +201,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     }
 
     @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         return this.getSecuritySupport().getCustomPropertySet();
     }
 

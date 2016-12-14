@@ -7,12 +7,12 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
 
@@ -46,7 +46,7 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
     }
 
     @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         return Optional.of(new WavenisCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 

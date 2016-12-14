@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -15,7 +16,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -24,8 +24,7 @@ import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.elster.jupiter.metering.MeteringService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;

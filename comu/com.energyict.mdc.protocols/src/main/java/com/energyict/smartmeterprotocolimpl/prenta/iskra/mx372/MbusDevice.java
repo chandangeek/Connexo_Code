@@ -7,13 +7,12 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
 
@@ -39,7 +38,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     private IskraMx372 iskra;
     private String customerID;
-    public BaseDevice mbus;
+    public Device mbus;
     private Logger logger;
 
     @Inject
@@ -127,7 +126,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return iskra;
     }
 
-    public BaseDevice getMbus() {
+    public Device getMbus() {
         return mbus;
     }
 

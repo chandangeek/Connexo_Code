@@ -14,15 +14,12 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.upl.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
@@ -36,7 +33,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineCalendar;
@@ -48,6 +44,14 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
+import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 import com.energyict.protocols.impl.channels.inbound.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -56,11 +60,6 @@ import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionTy
 import com.energyict.protocols.impl.channels.sms.ProximusSmsComChannel;
 import com.energyict.protocols.mdc.protocoltasks.CTRDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
-import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
-import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -428,7 +427,7 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         return this.securityCapabilities.getCustomPropertySet();
     }
 

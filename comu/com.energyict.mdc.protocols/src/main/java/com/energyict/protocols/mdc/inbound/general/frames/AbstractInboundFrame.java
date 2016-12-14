@@ -1,10 +1,10 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParameters;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public abstract class AbstractInboundFrame {
     }
 
     private String frame;
-    private BaseDevice device = null;
+    private Device device = null;
     private InboundParameters inboundParameters = null;
     private List<CollectedData> collectedDatas;
     private String[] parameters = new String[0];
@@ -63,7 +63,7 @@ public abstract class AbstractInboundFrame {
         return frame;
     }
 
-    public BaseDevice getDevice() {
+    public Device getDevice() {
         return device;
     }
 

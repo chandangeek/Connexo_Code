@@ -1,16 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.Register;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
@@ -65,10 +64,10 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         }
     }
 
-    private List<BaseDevice> findDevices (List<DeviceIdentifier> deviceIds) {
-        List<BaseDevice> devices = new ArrayList<>(deviceIds.size());
+    private List<Device> findDevices (List<DeviceIdentifier> deviceIds) {
+        List<Device> devices = new ArrayList<>(deviceIds.size());
         for (DeviceIdentifier deviceId : deviceIds) {
-            BaseDevice device = deviceId.findDevice();
+            Device device = deviceId.findDevice();
             devices.add(device);
         }
         return devices;
@@ -84,14 +83,14 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
 
     /**
      * Returns an XML representation of the key pairs of all devices in the List.
-     * @param devices The List of {@link com.energyict.mdc.protocol.api.device.BaseDevice}s
+     * @param devices The List of {@link com.energyict.mdc.upl.meterdata.Device}s
      */
-    private String encodeDevices (List<BaseDevice> devices) {
+    private String encodeDevices (List<Device> devices) {
         StringBuilder builder = new StringBuilder();
         int index = 1;
         try {
-            for (BaseDevice device : devices) {
-                BaseRegister register = device.getRegisterWithDeviceObisCode(PUBLIC_KEYS_OBISCODE);
+            for (Device device : devices) {
+                Register register = device.getRegisterWithDeviceObisCode(PUBLIC_KEYS_OBISCODE);
                 if (register != null) {
                     // TODO need to find a proper way to get the readings of the registers in order for this message to properly work
 //                    List<RegisterReading> lastXReadings = register.getLastTextRegisterReadings(1);

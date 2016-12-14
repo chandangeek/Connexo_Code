@@ -3,8 +3,8 @@ package com.energyict.protocolimplv2.messages.convertor.utils;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -30,10 +30,10 @@ public class LoadProfileMessageUtilsTest {
 
     @Test
     public void loadProfileFormatTest() {
-        BaseDevice device = createdMockedDevice();
+        Device device = createdMockedDevice();
         BaseChannel channel1 = createdMockedChannel(device, OBISCODE1);
         BaseChannel channel2 = createdMockedChannel(device, OBISCODE2);
-        BaseLoadProfile loadProfile = createMockedLoadProfile();
+        LoadProfile loadProfile = createMockedLoadProfile();
         when(loadProfile.getDevice()).thenReturn(device);
         when(loadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2));
 
@@ -43,13 +43,13 @@ public class LoadProfileMessageUtilsTest {
         assertThat(format).isEqualTo(expectedXml);
     }
 
-    private BaseLoadProfile createMockedLoadProfile() {
-        BaseLoadProfile loadProfile = mock(BaseLoadProfile.class);
+    private LoadProfile createMockedLoadProfile() {
+        LoadProfile loadProfile = mock(LoadProfile.class);
         when(loadProfile.getDeviceObisCode()).thenReturn(LOAD_PROFILE_OBISCODE);
         return loadProfile;
     }
 
-    private BaseChannel createdMockedChannel(BaseDevice device, ObisCode obisCode) {
+    private BaseChannel createdMockedChannel(Device device, ObisCode obisCode) {
         BaseChannel channel = mock(BaseChannel.class);
         when(channel.getDevice()).thenReturn(device);
         when(channel.getRegisterTypeObisCode()).thenReturn(obisCode);
@@ -57,8 +57,8 @@ public class LoadProfileMessageUtilsTest {
         return channel;
     }
 
-    private BaseDevice createdMockedDevice() {
-        BaseDevice device = mock(BaseDevice.class);
+    private Device createdMockedDevice() {
+        Device device = mock(Device.class);
         when(device.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         return device;
     }

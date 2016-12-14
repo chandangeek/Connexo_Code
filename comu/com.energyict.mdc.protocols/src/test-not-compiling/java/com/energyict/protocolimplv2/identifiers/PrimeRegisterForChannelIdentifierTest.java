@@ -3,9 +3,9 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.Register;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +67,7 @@ public class PrimeRegisterForChannelIdentifierTest {
 
     @Test(expected = NotFoundException.class)
     public void testDeviceDoesNotHaveEnoughChannels () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         when(device.getChannels()).thenReturn(new ArrayList<BaseChannel>(0));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
@@ -79,7 +79,7 @@ public class PrimeRegisterForChannelIdentifierTest {
 
     @Test(expected = NotFoundException.class)
     public void testChannelDoesNotHaveAPrimeRegister () {
-        BaseDevice device = mock(BaseDevice.class);
+        Device device = mock(Device.class);
         when(device.getRegisterWithDeviceObisCode(testObisCode)).thenReturn(null);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
@@ -91,8 +91,8 @@ public class PrimeRegisterForChannelIdentifierTest {
 
     @Test
     public void testFindRegister () {
-        BaseRegister register = mock(BaseRegister.class);
-        BaseDevice device = mock(BaseDevice.class);
+        Register register = mock(Register.class);
+        Device device = mock(Device.class);
         when(device.getRegisterWithDeviceObisCode(testObisCode)).thenReturn(register);
         when(device.getChannels()).thenReturn(Arrays.asList(mock(BaseChannel.class)));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
@@ -100,7 +100,7 @@ public class PrimeRegisterForChannelIdentifierTest {
         PrimeRegisterForChannelIdentifier identifier = new PrimeRegisterForChannelIdentifier(deviceIdentifier, testObisCode, testObisCode, 1);
 
         // Business method
-        BaseRegister needsChecking = identifier.findRegister();
+        Register needsChecking = identifier.findRegister();
 
         // Asserts
         assertThat(needsChecking).isEqualTo(register);

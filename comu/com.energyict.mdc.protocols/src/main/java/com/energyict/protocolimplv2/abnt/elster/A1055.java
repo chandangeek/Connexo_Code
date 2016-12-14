@@ -13,11 +13,7 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
-import com.energyict.mdc.upl.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
@@ -28,6 +24,9 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -36,15 +35,10 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
@@ -60,6 +54,11 @@ import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.elster.garnet.SecuritySupport;
+import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -185,7 +184,7 @@ public class A1055 extends AbstractAbntProtocol {
     }
 
     @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         return this.getSecuritySupport().getCustomPropertySet();
     }
 

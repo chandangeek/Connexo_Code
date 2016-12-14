@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.identifiers.CanFindRegister;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -19,9 +19,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.NoLogBooksCollectedData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
@@ -68,7 +68,7 @@ public class RequestDiscoverTest {
     @Mock
     protected DeviceFactory deviceFactory;
     @Mock
-    protected BaseDevice device;
+    protected Device device;
     @Mock
     protected LogBook logBook;
     @Mock

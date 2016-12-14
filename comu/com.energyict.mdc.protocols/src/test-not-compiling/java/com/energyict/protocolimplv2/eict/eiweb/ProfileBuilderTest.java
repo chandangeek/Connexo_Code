@@ -7,9 +7,9 @@ import com.energyict.mdc.MdwInterface;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
@@ -52,7 +52,7 @@ public class ProfileBuilderTest extends AbstractEIWebTests{
     @Mock
     private DeviceFactory deviceFactory;
     @Mock
-    private BaseDevice device;
+    private Device device;
 
     @Before
     public void initializeMocksAndFactories () {

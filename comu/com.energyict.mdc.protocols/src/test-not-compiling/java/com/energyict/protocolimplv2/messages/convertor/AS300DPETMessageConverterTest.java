@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.common.ObisCode;
@@ -44,7 +44,7 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
     @Mock
     private DeviceFactoryProvider deviceFactoryProvider;
     @Mock
-    private BaseDevice device;
+    private Device device;
 
     @Before
     public void initializeMocksAndFactories () {
@@ -53,7 +53,7 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.deviceFactory.find(DEVICE_ID)).thenReturn(this.device);
 
-        BaseRegister register = mock(BaseRegister.class);
+        Register register = mock(Register.class);
         List<RegisterReading> registerReadings = new ArrayList<>(1);
 
         RegisterReading registerReading = mock(RegisterReading.class);

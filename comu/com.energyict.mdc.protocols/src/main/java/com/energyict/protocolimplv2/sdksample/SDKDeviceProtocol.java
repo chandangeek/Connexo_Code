@@ -17,7 +17,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
@@ -44,9 +43,8 @@ import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
-import com.energyict.protocols.impl.channels.ConnectionTypeRule;
-
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -372,7 +370,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         return this.deviceProtocolSecurityCapabilities.getCustomPropertySet();
     }
 

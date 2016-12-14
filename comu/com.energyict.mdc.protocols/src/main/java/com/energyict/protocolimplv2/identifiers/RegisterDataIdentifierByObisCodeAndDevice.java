@@ -1,18 +1,16 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.Register;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import java.text.MessageFormat;
 
 /**
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies
- * a {@link com.energyict.mdc.protocol.api.device.BaseRegister} based on the ObisCode of the mapping or the
+ * a {@link com.energyict.mdc.upl.meterdata.Register} based on the ObisCode of the mapping or the
  * ObisCode of the register spec.
  *
  * Copyrights EnergyICT
@@ -22,22 +20,22 @@ import java.text.MessageFormat;
 public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdentifier {
 
     private final ObisCode registerObisCode;
-    private final DeviceIdentifier<?> deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
     private final ObisCode deviceRegisterObisCode;
 
-    private BaseRegister register;
+    private Register register;
 
-    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier<?> deviceIdentifier) {
+    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier deviceIdentifier) {
         this.registerObisCode = registerObisCode;
         this.deviceRegisterObisCode = deviceRegisterObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
-    public BaseRegister findRegister () {
+    public Register findRegister () {
         if (this.register == null) {
-            BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = deviceIdentifier.findDevice();
-            for (BaseRegister register : device.getRegisters()) {
+            Device device = deviceIdentifier.findDevice();
+            for (Register register : device.getRegisters()) {
                 // first need to check the DeviceObisCde
                 if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(registerObisCode)){
                     this.register = register;
@@ -66,7 +64,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         return MessageFormat.format("register having OBIS code {0} on device with deviceIdentifier ''{1}''", registerObisCode, deviceIdentifier);
     }
 
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 }

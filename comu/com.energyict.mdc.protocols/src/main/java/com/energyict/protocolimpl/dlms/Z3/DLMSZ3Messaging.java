@@ -12,36 +12,6 @@ package com.energyict.protocolimpl.dlms.Z3;
  */
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.messaging.Message;
-import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.protocol.api.messaging.MessageElement;
-import com.energyict.mdc.protocol.api.messaging.MessageSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
-import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -64,6 +34,35 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.SAXException;
@@ -120,7 +119,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private AARQ aarq;
     private Logger logger;
     private Clock clock;
-    private BaseDevice rtu;
+    private Device rtu;
     private TimeZone timeZone;
 
     @Inject
@@ -160,7 +159,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         this.logger.log(level, tekst);
     }
 
-    public BaseDevice getMeter() {
+    public Device getMeter() {
         return this.rtu;
     }
 
@@ -272,69 +271,59 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                     byte[] data = new byte[]{axdrType.getTag(), (byte) Integer.parseInt(dataStr)};
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(data);
                 }
-                ;
                 break;
 
                 case INTEGER: {
                     Integer8 integer = new Integer8(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case LONG: {
                     Integer16 integer = new Integer16(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case DOUBLE_LONG: {
                     Integer32 integer = new Integer32(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case LONG64: {
                     Integer64 integer = new Integer64(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case LONG_UNSIGNED: {
                     Unsigned16 integer = new Unsigned16(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case UNSIGNED: {
                     Unsigned8 integer = new Unsigned8(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case DOUBLE_LONG_UNSIGNED: {
                     Unsigned32 integer = new Unsigned32(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case OCTET_STRING: {
                     OctetString octString = OctetString.fromString(dataStr);
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(octString.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case TIME: {
 
                 }
-                ;
                 break;
 
             }
