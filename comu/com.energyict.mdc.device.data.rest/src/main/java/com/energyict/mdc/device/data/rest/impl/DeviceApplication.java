@@ -37,6 +37,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -147,6 +148,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceAlarmService deviceAlarmService;
+    private volatile UserService userService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -191,6 +193,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setUserService(UserService userService){
+        this.userService = userService;
     }
 
     @Reference
@@ -580,6 +587,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(calendarInfoFactory).to(CalendarInfoFactory.class);
             bind(calendarService).to(CalendarService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
+            bind(userService).to(UserService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);

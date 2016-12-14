@@ -10,9 +10,11 @@ public class GoingOnInfo {
     public String description;
     public Instant dueDate;
     public Severity severity;
-    public String assignee;
+    public String userAssignee;
+    public String workGroupAssignee;
+    public boolean isMyWorkGroup = false;
     public String issueType;
-    public Boolean assigneeIsCurrentUser;
+    public Boolean userAssigneeIsCurrentUser;
     public String status;
 
     static Comparator<GoingOnInfo> order() {
