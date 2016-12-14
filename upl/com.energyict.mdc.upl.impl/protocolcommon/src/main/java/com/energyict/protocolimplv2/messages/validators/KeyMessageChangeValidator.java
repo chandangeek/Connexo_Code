@@ -88,7 +88,7 @@ public class KeyMessageChangeValidator {
     }
 
     protected int getClientId(DeviceMessage deviceMessage){
-        String client = (String) getDeviceMessageAttribute(deviceMessage, DeviceMessageConstants.client).getValue();
+        String client = getDeviceMessageAttributeValue(deviceMessage, DeviceMessageConstants.client);
         if (client!=null && !client.isEmpty()) {
             try{
                 return ClientSecuritySetup.valueOf(client).getID();
@@ -99,8 +99,17 @@ public class KeyMessageChangeValidator {
         return 1;
     }
 
+    protected String getDeviceMessageAttributeValue(DeviceMessage deviceMessage, String attributeName){
+        DeviceMessageAttribute deviceMessageAttribute = getDeviceMessageAttribute(deviceMessage, attributeName);
+        if (deviceMessageAttribute == null){
+            return null;
+        }
+
+        return (String) deviceMessageAttribute.getValue();
+    }
+
     protected int getFreeTextClientId(DeviceMessage deviceMessage){
-        String client = (String) getDeviceMessageAttribute(deviceMessage, DeviceMessageConstants.clientMacAddress).getValue();
+        String client = getDeviceMessageAttributeValue(deviceMessage, DeviceMessageConstants.clientMacAddress);
         if (client!=null) {
             if (!client.isEmpty()) {
                 try{
