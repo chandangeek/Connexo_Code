@@ -6,15 +6,13 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Implementation of a {@link com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier} that uniquely identifies a LoadProfile
@@ -37,6 +35,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
+    @SuppressWarnings("unused")
     public LoadProfileIdentifierByObisCodeAndDevice() {
         this.loadProfileObisCode = null;
         this.deviceIdentifier = null;
@@ -77,13 +76,8 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     }
 
     @Override
-    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
-        return LoadProfileIdentifierType.DeviceIdentifierAndObisCode;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Arrays.asList((Object) getDeviceIdentifier(), getLoadProfileObisCode());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @XmlElement(name = "type")
@@ -99,6 +93,28 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     @Override
     public String toString() {
         return MessageFormat.format("load profile having OBIS code {0} on device with deviceIdentifier ''{1}''", loadProfileObisCode, deviceIdentifier);
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "obisCode": {
+                    return getLoadProfileObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
     }
 
 }

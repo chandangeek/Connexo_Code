@@ -18,6 +18,8 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
 
     private final LoadProfileIdentifier loadProfileIdentifier;
 
+    // JSON demarshalling purpose only
+    @SuppressWarnings("unused")
     public DeviceIdentifierByLoadProfile() {
         this(new NullLoadProfileIdentifier());
     }
