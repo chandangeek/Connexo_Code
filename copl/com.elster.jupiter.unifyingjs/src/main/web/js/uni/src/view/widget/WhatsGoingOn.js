@@ -133,6 +133,9 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                         case 'servicecall':
                             emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowServiceCalls', 'UNI', 'No active service calls to show');
                             break;
+                        case 'alarm':
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowAlarms', 'UNI', 'No active alarms to show');
+                            break;
                         case 'process':
                             emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowProcesses', 'UNI', 'No active processes to show');
                             break;
@@ -308,7 +311,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.reference + ' (' + value.description + ')';
                 break;
             case 'alarm':
-                href = "#alarm";
+                href = this.router.getRoute('workspace/alarms/view').buildUrl({alarmId: value.id});
+                html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
             case 'process':
                 if(me.type == 'usagepoint'){
