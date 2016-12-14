@@ -164,7 +164,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         FirmwareManagementDeviceStatus currentStatus = getStatus();
         if (currentStatus == null || NON_FINAL_STATUSES.contains(currentStatus.key())) {
             FirmwareManagementDeviceUtils helper = firmwareService.getFirmwareManagementDeviceUtilsFor(comTaskExecution.getDevice());
-            Optional<DeviceMessage<Device>> firmwareMessage = helper.getFirmwareMessages()
+            Optional<DeviceMessage> firmwareMessage = helper.getFirmwareMessages()
                     .stream()
                     .filter(candidate -> candidate.getId() == firmwareMessageId)
                     .findFirst();
@@ -248,7 +248,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         for (Map.Entry<String, Object> property : getFirmwareCampaign().getProperties().entrySet()) {
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
         }
-        DeviceMessage<Device> firmwareMessage = deviceMessageBuilder.add();
+        DeviceMessage firmwareMessage = deviceMessageBuilder.add();
         this.firmwareMessageId = firmwareMessage.getId();
     }
 

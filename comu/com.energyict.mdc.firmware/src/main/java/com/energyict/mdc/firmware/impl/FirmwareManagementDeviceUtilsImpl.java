@@ -48,7 +48,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     private Device device;
     private Optional<ComTaskExecution> firmwareComTaskExecution;
-    private List<DeviceMessage<Device>> firmwareMessages;
+    private List<DeviceMessage> firmwareMessages;
     private Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
 
     @Inject
@@ -69,8 +69,8 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     private void initFirmwareMessages() {
-        Map<FirmwareType, DeviceMessage<Device>> uploadMessages = new HashMap<>();
-        Map<String, DeviceMessage<Device>> activationMessages = new HashMap<>();
+        Map<FirmwareType, DeviceMessage> uploadMessages = new HashMap<>();
+        Map<String, DeviceMessage> activationMessages = new HashMap<>();
         // only firmware upgrade, no revoked messages and only one message for each firmware type
         this.device.getMessages().stream().filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
                 && !DeviceMessageStatus.REVOKED.equals(candidate.getStatus())).forEach(candidate -> {
@@ -94,11 +94,11 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
                 .orElse(Optional.<ComTaskExecution>empty());
     }
 
-    private void compareAndSwapUploadMessage(Map<FirmwareType, DeviceMessage<Device>> uploadMessages, DeviceMessage<Device> candidate) {
+    private void compareAndSwapUploadMessage(Map<FirmwareType, DeviceMessage> uploadMessages, DeviceMessage candidate) {
         Optional<FirmwareVersion> version = getFirmwareVersionFromMessage(candidate);
         if (version.isPresent()) {
             FirmwareType key = version.get().getFirmwareType();
-            DeviceMessage<Device> oldMessage = uploadMessages.get(key);
+            DeviceMessage oldMessage = uploadMessages.get(key);
             if (oldMessage == null || !oldMessage.getReleaseDate().isAfter(candidate.getReleaseDate())) {
                 uploadMessages.put(key, candidate);
             }
@@ -106,7 +106,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public Optional<DeviceMessage<Device>> getUploadMessageForActivationMessage(DeviceMessage<Device> activationMessage) {
+    public Optional<DeviceMessage> getUploadMessageForActivationMessage(DeviceMessage activationMessage) {
         return getFirmwareMessages().stream()
                 .filter(candidate -> DeviceMessageStatus.CONFIRMED.equals(candidate.getStatus()))
                 .filter(candidate -> String.valueOf(candidate.getId()).equals(activationMessage.getTrackingId()))
@@ -114,7 +114,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public Optional<DeviceMessage<Device>> getActivationMessageForUploadMessage(DeviceMessage<Device> uploadMessage) {
+    public Optional<DeviceMessage> getActivationMessageForUploadMessage(DeviceMessage uploadMessage) {
         return getFirmwareMessages().stream()
                 .filter(candidate -> DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId()))
                 .filter(candidate -> String.valueOf(uploadMessage.getId()).equals(candidate.getTrackingId()))
@@ -122,7 +122,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public Optional<ProtocolSupportedFirmwareOptions> getUploadOptionFromMessage(DeviceMessage<Device> message) {
+    public Optional<ProtocolSupportedFirmwareOptions> getUploadOptionFromMessage(DeviceMessage message) {
         DeviceMessageId deviceMessageId = message.getDeviceMessageId();
         if (this.uploadOptionsCache.containsKey(deviceMessageId)) {
             return this.uploadOptionsCache.get(deviceMessageId);
@@ -136,8 +136,9 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public Optional<Instant> getActivationDateFromMessage(DeviceMessage<Device> message) {
+    public Optional<Instant> getActivationDateFromMessage(DeviceMessage message) {
         Optional<DeviceMessageAttribute> activationDateMessageAttr = message.getAttributes().stream()
+                .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
                 .filter(attr -> DeviceMessageConstants.firmwareUpdateActivationDateAttributeName.equals(attr.getName()))
                 .findFirst();
         return activationDateMessageAttr.isPresent() ?
@@ -146,12 +147,13 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage<Device> message) {
+    public Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage message) {
         Optional<DeviceMessageAttribute> firmwareVersionMessageAttr = message.getAttributes().stream()
+                .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
                 .filter(attr -> DeviceMessageConstants.firmwareUpdateFileAttributeName.equals(attr.getName()))
                 .findFirst();
         if (!firmwareVersionMessageAttr.isPresent() && DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())) {
-            Optional<DeviceMessage<Device>> uploadMessage = getUploadMessageForActivationMessage(message);
+            Optional<DeviceMessage> uploadMessage = getUploadMessageForActivationMessage(message);
             if (uploadMessage.isPresent()) {
                 return getFirmwareVersionFromMessage(uploadMessage.get());
             }
@@ -162,7 +164,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public boolean messageContainsActiveFirmwareVersion(DeviceMessage<Device> message) {
+    public boolean messageContainsActiveFirmwareVersion(DeviceMessage message) {
         Optional<FirmwareVersion> versionFromMessage = getFirmwareVersionFromMessage(message);
         if (versionFromMessage.isPresent()) {
             Optional<ActivatedFirmwareVersion> activeFirmwareVersion = firmwareService.getActiveFirmwareVersion(this.device, versionFromMessage.get().getFirmwareType());
@@ -233,12 +235,12 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public List<DeviceMessage<Device>> getFirmwareMessages() {
+    public List<DeviceMessage> getFirmwareMessages() {
         return this.firmwareMessages;
     }
 
     @Override
-    public List<DeviceMessage<Device>> getPendingFirmwareMessages() {
+    public List<DeviceMessage> getPendingFirmwareMessages() {
         return getFirmwareMessages().stream().filter(message -> FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(message.getStatus())).collect(Collectors.toList());
     }
 
@@ -250,7 +252,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     @Override
     public boolean cancelPendingFirmwareUpdates(FirmwareType firmwareType) {
         boolean noUpdatesAreOngoing = true;
-        for (DeviceMessage<Device> firmwareMessage : getFirmwareMessages()) {
+        for (DeviceMessage firmwareMessage : getFirmwareMessages()) {
             Optional<FirmwareVersion> targetFirmwareVersion = getFirmwareVersionFromMessage(firmwareMessage);
             if (targetFirmwareVersion.isPresent()
                     && firmwareType.equals(targetFirmwareVersion.get().getFirmwareType())
@@ -266,7 +268,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public boolean isPendingMessage(DeviceMessage<Device> upgradeMessage) {
+    public boolean isPendingMessage(DeviceMessage upgradeMessage) {
         return FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(upgradeMessage.getStatus());
     }
 

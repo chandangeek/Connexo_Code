@@ -57,7 +57,6 @@ import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -449,7 +448,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device);
     }
 
-    private boolean isItAFirmwareRelatedMessage(DeviceMessage<Device> deviceDeviceMessage) {
+    private boolean isItAFirmwareRelatedMessage(DeviceMessage deviceDeviceMessage) {
         return Stream.of(
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE,

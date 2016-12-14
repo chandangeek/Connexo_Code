@@ -1,7 +1,6 @@
 package com.energyict.mdc.firmware;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -17,17 +16,17 @@ import java.util.Optional;
  * Time: 10:35
  */
 public interface FirmwareManagementDeviceUtils {
-    Optional<DeviceMessage<Device>> getUploadMessageForActivationMessage(DeviceMessage<Device> activationMessage);
+    Optional<DeviceMessage> getUploadMessageForActivationMessage(DeviceMessage activationMessage);
 
-    Optional<DeviceMessage<Device>> getActivationMessageForUploadMessage(DeviceMessage<Device> uploadMessage);
+    Optional<DeviceMessage> getActivationMessageForUploadMessage(DeviceMessage uploadMessage);
 
-    Optional<ProtocolSupportedFirmwareOptions> getUploadOptionFromMessage(DeviceMessage<Device> message);
+    Optional<ProtocolSupportedFirmwareOptions> getUploadOptionFromMessage(DeviceMessage message);
 
-    Optional<Instant> getActivationDateFromMessage(DeviceMessage<Device> message);
+    Optional<Instant> getActivationDateFromMessage(DeviceMessage message);
 
-    Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage<Device> message);
+    Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage message);
 
-    boolean messageContainsActiveFirmwareVersion(DeviceMessage<Device> message);
+    boolean messageContainsActiveFirmwareVersion(DeviceMessage message);
 
     boolean firmwareUploadTaskIsBusy();
 
@@ -49,15 +48,15 @@ public interface FirmwareManagementDeviceUtils {
 
     Optional<ComTask> getFirmwareCheckTask();
 
-    List<DeviceMessage<Device>> getFirmwareMessages();
+    List<DeviceMessage> getFirmwareMessages();
 
-    List<DeviceMessage<Device>> getPendingFirmwareMessages();
+    List<DeviceMessage> getPendingFirmwareMessages();
 
     Instant getCurrentInstant();
 
     boolean cancelPendingFirmwareUpdates(FirmwareType firmwareType);
 
-    boolean isPendingMessage(DeviceMessage<Device> upgradeMessage);
+    boolean isPendingMessage(DeviceMessage upgradeMessage);
 
     boolean firmwareTaskIsScheduled();
 }
