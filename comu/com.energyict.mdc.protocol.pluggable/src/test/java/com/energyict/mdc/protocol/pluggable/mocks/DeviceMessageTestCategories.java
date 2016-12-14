@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Test enum for DeviceMessageCategories
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/02/13
  * Time: 15:30
@@ -91,5 +91,4 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
-
 }

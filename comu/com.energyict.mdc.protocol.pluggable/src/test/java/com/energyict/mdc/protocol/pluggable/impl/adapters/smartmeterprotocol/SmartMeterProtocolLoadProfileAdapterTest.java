@@ -1,32 +1,32 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.protocol.ProfileData;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfile;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -171,9 +171,9 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
     @Test
     public void getLoadProfileDataSuccessTest() throws IOException {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
-        when(loadProfileReader.getLoadProfileId()).thenReturn(23L);
+        when(loadProfileReader.getLoadProfileId()).thenReturn(23);
         ProfileData profileData = mock(ProfileData.class);
-        when(profileData.getLoadProfileId()).thenReturn(23L);
+        when(profileData.getLoadProfileId()).thenReturn(23);
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.getLoadProfileData(Matchers.<List<LoadProfileReader>>any())).thenReturn(Arrays.asList(profileData));
         SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory);
@@ -187,9 +187,9 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
 
     @Test
     public void getMultipleLoadProfilesWithOneFailureTest() throws IOException {
-        final long loadProfileId1 = 23;
-        final long loadProfileId2 = 56;
-        final long loadProfileId3 = 99;
+        final int loadProfileId1 = 23;
+        final int loadProfileId2 = 56;
+        final int loadProfileId3 = 99;
         LoadProfileReader loadProfileReader1 = mock(LoadProfileReader.class);
         when(loadProfileReader1.getLoadProfileId()).thenReturn(loadProfileId1);
         LoadProfileReader loadProfileReader2 = mock(LoadProfileReader.class);

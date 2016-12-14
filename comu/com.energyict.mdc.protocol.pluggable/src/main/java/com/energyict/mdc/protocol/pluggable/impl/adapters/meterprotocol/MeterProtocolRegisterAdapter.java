@@ -4,23 +4,19 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -64,7 +60,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
             for (OfflineRegister register : registers) {
                 try {
                     RegisterValue registerValue = this.registerProtocol.readRegister(register.getObisCode());
-                    CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register), register.getReadingTypeMRID());
+                    CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(register.getRegisterIdentifier(), register.getReadingTypeMRID());
                     adapterDeviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                     adapterDeviceRegister.setCollectedTimeStamps(
                             registerValue.getReadTime(),
@@ -73,7 +69,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
                             registerValue.getEventTime());
                     collectedRegisters.add(adapterDeviceRegister);
                 } catch (UnsupportedException | NoSuchRegisterException e) {
-                    CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingTypeMRID());
+                    CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(register.getRegisterIdentifier(), register.getReadingTypeMRID());
                     defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(register.getObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED, register.getObisCode()));
                     collectedRegisters.add(defaultDeviceRegister);
                 }
@@ -89,9 +85,5 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
 
     public RegisterProtocol getRegisterProtocol() {
         return registerProtocol;
-    }
-
-    private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister){
-        return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), offlineRegister.getDeviceIdentifier());
     }
 }

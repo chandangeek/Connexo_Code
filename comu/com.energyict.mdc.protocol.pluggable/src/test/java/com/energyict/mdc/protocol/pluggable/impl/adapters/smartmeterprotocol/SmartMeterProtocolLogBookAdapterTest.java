@@ -2,20 +2,24 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.upl.tasks.Problem;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.protocol.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLogBook;
-
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterEvent;
 import org.joda.time.DateMidnight;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -24,12 +28,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -70,11 +68,11 @@ public class SmartMeterProtocolLogBookAdapterTest {
     @Mock
     private EndDeviceEventType otherEndDeviceEventType;
 
-    private DeviceIdentifier<?> serialNumberDeviceIdentifier = new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER);
+    private DeviceIdentifier serialNumberDeviceIdentifier = new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER);
     private Clock clock = Clock.systemUTC();
 
     @Before
-    public void initializeMocks () {
+    public void initializeMocks() {
         when(this.collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).
                 thenAnswer(invocationOnMock -> {
                     LogBookIdentifier logBookIdentifier = (LogBookIdentifier) invocationOnMock.getArguments()[0];
@@ -89,7 +87,7 @@ public class SmartMeterProtocolLogBookAdapterTest {
     }
 
     @Before
-    public void initializeIssueService () {
+    public void initializeIssueService() {
         when(this.issueService.newProblem(any(), any(), anyVararg())).thenAnswer(invocationOnMock -> {
             Problem problem = mock(Problem.class);
             when(problem.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
@@ -104,9 +102,9 @@ public class SmartMeterProtocolLogBookAdapterTest {
         LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
         LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
         LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
-        logBookReaders.add(new LogBookReader(this.clock, LOGBOOK1_OBIS, Optional.of(LAST_LOGBOOK1), logBookIdentifier1, serialNumberDeviceIdentifier, SERIAL_NUMBER));
-        logBookReaders.add(new LogBookReader(this.clock, LOGBOOK_OBIS, Optional.of(LAST_LOGBOOK2), logBookIdentifier2, serialNumberDeviceIdentifier, SERIAL_NUMBER));
-        logBookReaders.add(new LogBookReader(this.clock, LOGBOOK_OBIS, Optional.of(LAST_LOGBOOK3), logBookIdentifier3, serialNumberDeviceIdentifier, SERIAL_NUMBER));
+        logBookReaders.add(new LogBookReader(LOGBOOK1_OBIS, Date.from(LAST_LOGBOOK1), logBookIdentifier1, serialNumberDeviceIdentifier, SERIAL_NUMBER));
+        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, Date.from(LAST_LOGBOOK2), logBookIdentifier2, serialNumberDeviceIdentifier, SERIAL_NUMBER));
+        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, Date.from(LAST_LOGBOOK3), logBookIdentifier3, serialNumberDeviceIdentifier, SERIAL_NUMBER));
 
         List<MeterEvent> meterEvents = new ArrayList<>(2);
         meterEvents.add(new MeterEvent(EVENT1_DATE, MeterEvent.BATTERY_VOLTAGE_LOW, PROTOCOL_CODE_EVENT1));

@@ -1,15 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.google.common.collect.Range;
-
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.protocol.IntervalData;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +29,7 @@ public class MockCollectedLoadProfile implements CollectedLoadProfile {
     private List<Issue> issues = new ArrayList<>();
     private List<IntervalData> collectedIntervalData = Collections.emptyList();
     private List<ChannelInfo> deviceChannelInfo = Collections.emptyList();
+    private boolean allowIncompleteLoadProfileData = false;
 
     public MockCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         super();
@@ -51,7 +52,7 @@ public class MockCollectedLoadProfile implements CollectedLoadProfile {
     }
 
     @Override
-    public void setCollectedData(List<IntervalData> collectedIntervalData, List<ChannelInfo> deviceChannelInfo) {
+    public void setCollectedIntervalData(List<IntervalData> collectedIntervalData, List<ChannelInfo> deviceChannelInfo) {
         this.collectedIntervalData = collectedIntervalData;
         this.deviceChannelInfo = deviceChannelInfo;
     }
@@ -62,7 +63,7 @@ public class MockCollectedLoadProfile implements CollectedLoadProfile {
     }
 
     @Override
-    public boolean doStoreOlderValues() {
+    public boolean isDoStoreOlderValues() {
         return this.storeOlderValues;
     }
 
@@ -92,8 +93,33 @@ public class MockCollectedLoadProfile implements CollectedLoadProfile {
     }
 
     @Override
+    public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+        this.setResultType(resultType);
+        this.issues.addAll(issues);
+    }
+
+    @Override
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
         return false;
+    }
+
+    @Override
+    public boolean isAllowIncompleteLoadProfileData() {
+        return allowIncompleteLoadProfileData;
+    }
+
+    @Override
+    public void setAllowIncompleteLoadProfileData(boolean allowIncompleteLoadProfileData) {
+        this.allowIncompleteLoadProfileData = allowIncompleteLoadProfileData;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 
 }

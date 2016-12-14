@@ -1,13 +1,13 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.mdc.upl.tasks.Issue;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.TestSerialNumberDeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +45,7 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return new TestSerialNumberDeviceIdentifier(meterSerialNumber);
     }
 

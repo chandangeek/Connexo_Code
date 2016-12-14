@@ -18,7 +18,6 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
@@ -31,6 +30,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapterImpl;
+import com.energyict.mdc.upl.meterdata.Device;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -155,7 +155,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.newInstance().getCustomPropertySet().ifPresent(this::registerSecuritySet);
     }
 
-    private void registerSecuritySet(CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet) {
+    private void registerSecuritySet(CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> customPropertySet) {
         this.customPropertySetService.addSystemCustomPropertySet(customPropertySet);
     }
 
@@ -190,7 +190,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.getDialectCustomPropertySets().forEach(this::unregisterDialect);
     }
 
-    private void unregisterSecuritySet(CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet) {
+    private void unregisterSecuritySet(CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> customPropertySet) {
         this.customPropertySetService.removeSystemCustomPropertySet(customPropertySet);
     }
 
