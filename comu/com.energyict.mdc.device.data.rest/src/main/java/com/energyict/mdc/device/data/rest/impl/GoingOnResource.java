@@ -17,6 +17,9 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
@@ -48,18 +51,20 @@ public class GoingOnResource {
     private final IssueService issueService;
     private final ResourceHelper resourceHelper;
     private final MeteringService meteringService;
+    private final DeviceAlarmService deviceAlarmService;
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final Optional<IssueStatus> open;
     private final Optional<IssueStatus> inProgress;
 
     @Inject
-    public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, IssueService issueService, MeteringService meteringService, Clock clock, Thesaurus thesaurus) {
+    public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, IssueService issueService, MeteringService meteringService, Clock clock, Thesaurus thesaurus, DeviceAlarmService deviceAlarmService) {
         this.resourceHelper = resourceHelper;
         this.serviceCallService = serviceCallService;
         this.bpmService = bpmService;
         this.issueService = issueService;
         this.meteringService = meteringService;
+        this.deviceAlarmService = deviceAlarmService;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.open = issueService.findStatus(IssueStatus.OPEN);
@@ -81,8 +86,15 @@ public class GoingOnResource {
         Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
         IssueFilter issueFilter = issueService.newIssueFilter();
         issueFilter.addDevice(meter.get());
-        open.ifPresent(issueFilter::addStatus);
-        inProgress.ifPresent(issueFilter::addStatus);
+        DeviceAlarmFilter alarmFilter = new DeviceAlarmFilter();
+        open.ifPresent(s -> {
+            issueFilter.addStatus(s);
+            alarmFilter.setStatus(s);
+        });
+        inProgress.ifPresent(s -> {
+            issueFilter.addStatus(s);
+            alarmFilter.setStatus(s);
+        });
         List<GoingOnInfo> issues = issueService.findIssues(issueFilter)
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
@@ -93,13 +105,18 @@ public class GoingOnResource {
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
+        List<GoingOnInfo> alarms = deviceAlarmService.findAlarms(alarmFilter)
+                .stream()
+                .map(goingOnInfoFactory::toGoingOnInfo)
+                .collect(Collectors.toList());
+
         List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
                 .processes
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances)
+        List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances, alarms)
                 .flatMap(List::stream)
                 .sorted(GoingOnInfo.order())
                 .collect(Collectors.toList());
@@ -146,6 +163,21 @@ public class GoingOnResource {
             goingOnInfo.assignee = null;
             goingOnInfo.assigneeIsCurrentUser = false;
             goingOnInfo.status = serviceCallService.getDisplayName(serviceCall.getState());
+            return goingOnInfo;
+        }
+
+        private GoingOnInfo toGoingOnInfo(DeviceAlarm deviceAlarm){
+            GoingOnInfo goingOnInfo = new GoingOnInfo();
+            goingOnInfo.type = "alarm";
+            goingOnInfo.issueType = null;
+            goingOnInfo.id = deviceAlarm.getId();
+            goingOnInfo.reference = null;
+            goingOnInfo.description = deviceAlarm.getReason().getName();
+            goingOnInfo.dueDate = deviceAlarm.getDueDate();
+            goingOnInfo.severity = severity(deviceAlarm.getDueDate());
+            goingOnInfo.assignee = Optional.ofNullable(deviceAlarm.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getName()).orElse(null);
+            goingOnInfo.assigneeIsCurrentUser = Optional.ofNullable(deviceAlarm.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getId()).map(id -> id.equals(currentUser.getId())).orElse(false);
+            goingOnInfo.status = deviceAlarm.getStatus().getName();
             return goingOnInfo;
         }
 
