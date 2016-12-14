@@ -172,7 +172,7 @@ public enum TableSpecs {
     DDC_LOADPROFILE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class).alsoReferredToAs(LoadProfile.class);
+            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class).alsoReferredToAs(com.energyict.mdc.upl.meterdata.LoadProfile.class);
             table.map(LoadProfileImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
