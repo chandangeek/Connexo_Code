@@ -35,7 +35,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     ],
 
     CLIPBOARD_KEY: 'addCommandLimitationRule',
-    goToRulesOverview: false,
+    goToRuleOverview: false,
     commandRuleBeingEdited: null,
     commandsArray: null,
     ruleModel: null,
@@ -95,7 +95,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         });
         this.commandsArray = [];
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.goToRulesOverview = false;
+        this.goToRuleOverview = false;
     },
 
     loadCommandRuleDetail: function(rowmodel, record, index) {
@@ -120,7 +120,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 });
                 me.getApplication().fireEvent('loadCommandRule', commandRule);
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.goToRulesOverview = true;
+                me.goToRuleOverview = true;
                 me.commandRuleBeingEdited = commandRule;
             }
         });
@@ -138,7 +138,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 });
                 me.getApplication().fireEvent('loadCommandRule', commandRule);
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.goToRulesOverview = true;
+                me.goToRuleOverview = true;
                 me.commandRuleBeingEdited = commandRule;
             }
         });
@@ -187,7 +187,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         //    me.loadModelToEditForm(taskId, widget);
         } else {
             me.commandRuleBeingEdited = null;
-            me.goToRulesOverview = true;
+            me.goToRuleOverview = true;
         }
 
         if (me.clipBoardHasData()) {
@@ -201,7 +201,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             commandsStore = page.down('#mdc-command-rule-addEdit-commands-grid').getStore();
 
         commandsStore.removeAll();
-        window.location.href = me.goToRulesOverview && me.commandRuleBeingEdited
+        window.location.href = me.goToRuleOverview && me.commandRuleBeingEdited
             ? me.router.getRoute('administration/commandrules/view').buildUrl({ ruleId: me.commandRuleBeingEdited.get('id') })
             : me.router.getRoute('administration/commandrules').buildUrl();
         me.commandRuleBeingEdited = null;
@@ -479,9 +479,12 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         rule.set('active', true);
         rule.endEdit();
         rule.save({
-            backUrl: me.router.getRoute('administration/commandrules').buildUrl(),
             success: function () {
-                me.router.getRoute('administration/commandrules').forward();
+                if (me.goToRuleOverview && me.commandRuleBeingEdited) {
+                    me.router.getRoute('administration/commandrules/view').forward({ruleId: me.commandRuleBeingEdited.get('id')});
+                } else {
+                    me.router.getRoute('administration/commandrules').forward();
+                }
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.activate.success', 'MDC', 'Command limitation rule pending activation'));
             },
             failure: function (record, operation) {
@@ -519,9 +522,12 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         rule.set('active', false);
         rule.endEdit();
         rule.save({
-            backUrl: me.router.getRoute('administration/commandrules').buildUrl(),
             success: function () {
-                me.router.getRoute('administration/commandrules').forward();
+                if (me.goToRuleOverview && me.commandRuleBeingEdited) {
+                    me.router.getRoute('administration/commandrules/view').forward({ruleId: me.commandRuleBeingEdited.get('id')});
+                } else {
+                    me.router.getRoute('administration/commandrules').forward();
+                }
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.deactivate.success', 'MDC', 'Command limitation rule pending deactivation'));
             },
             failure: function (record, operation) {
@@ -554,11 +560,20 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     },
 
     doRemoveRule: function(record, confirmationWindow) {
-        var me = this;
+        var me = this,
+            activeRule = record.get('active'),
+            acknowledgeMessage = activeRule
+                ? Uni.I18n.translate('commandRule.active.remove.success', 'MDC', 'Command limitation rule pending removal')
+                : Uni.I18n.translate('commandRule.inactive.remove.success', 'MDC', 'Command limitation rule removed');
+
         record.destroy({
             success: function () {
-                me.router.getRoute('administration/commandrules').forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandRule.remove.succes', 'MDC', 'Command limitation rule pending removal'));
+                if (activeRule && me.goToRuleOverview && me.commandRuleBeingEdited) {
+                    me.router.getRoute('administration/commandrules/view').forward({ruleId: record.get('id')});
+                } else {
+                    me.router.getRoute('administration/commandrules').forward();
+                }
+                me.getApplication().fireEvent('acknowledge', acknowledgeMessage);
                 confirmationWindow.destroy();
             }
         });
