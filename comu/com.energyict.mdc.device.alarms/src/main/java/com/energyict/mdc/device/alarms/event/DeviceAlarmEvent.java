@@ -88,15 +88,15 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         this.timestamp = timestamp;
     }
 
-    public void wrap(EventDescription eventDescription){
+    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription, Device device){
         this.eventDescription = eventDescription;
-      /*  if(device != null){
+        if(device != null){
             this.device = device;
         } else {
             getEventDevice(rawEvent);
         }
-        getEventTimestamp(rawEvent); */
-       // wrapInternal(rawEvent, eventDescription);
+        getEventTimestamp(rawEvent);
+        // wrapInternal(rawEvent, eventDescription);
     }
 
    // protected abstract void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription);

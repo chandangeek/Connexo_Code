@@ -19,6 +19,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -82,6 +83,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile UserService userService;
+    private volatile MeteringService meteringService;
 
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
@@ -98,8 +100,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   DeviceService deviceService,
                                   EventService eventService,
                                   UpgradeService upgradeService,
-                                  UserService userService
-    ) {
+                                  UserService userService,
+                                  MeteringService meteringService) {
         this();
         setMessageService(messageService);
         setIssueService(issueService);
@@ -111,6 +113,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setEventService(eventService);
         setUpgradeService(upgradeService);
         setUserService(userService);
+        setMeteringService(meteringService);
 
         activate();
     }
@@ -121,6 +124,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
             @Override
             protected void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MeteringService.class).toInstance(meteringService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MessageService.class).toInstance(messageService);
                 bind(IssueService.class).toInstance(issueService);
@@ -166,6 +170,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference

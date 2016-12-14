@@ -7,9 +7,9 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    EVENT_BAD_DATA_NO_DEVICE(1, "EventBadDataNoDevice", "Unable to process issue creation event because target device (id = {0}) wasn't found", Level.SEVERE),
-    EVENT_BAD_DATA_NO_KORE_DEVICE(2, "EventBadDataNoEndDevice", "Unable to process issue creation event because target kore device (amrId = {0}) wasn't found", Level.SEVERE),
-    EVENT_BAD_DATA_NO_TIMESTAMP(3, "EventBadDataNoTimestamp", "Unable to process issue creation event because event timestamp cannot be obtained", Level.SEVERE),
+    EVENT_BAD_DATA_NO_DEVICE(1, "EventBadDataNoDevice", "Unable to process alarm creation event because target device (id = {0}) wasn't found", Level.SEVERE),
+    EVENT_BAD_DATA_NO_KORE_DEVICE(2, "EventBadDataNoEndDevice", "Unable to process alarm creation event because target kore device (amrId = {0}) wasn't found", Level.SEVERE),
+    EVENT_BAD_DATA_NO_TIMESTAMP(3, "EventBadDataNoTimestamp", "Unable to process alarm creation event because event timestamp cannot be obtained", Level.SEVERE),
     UNABLE_TO_CREATE_EVENT(4, "UnableToCreateEvent", "Unable to create event", Level.SEVERE)
     ;
 

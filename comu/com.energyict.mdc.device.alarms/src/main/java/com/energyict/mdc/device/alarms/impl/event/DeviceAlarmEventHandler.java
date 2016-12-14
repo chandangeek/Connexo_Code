@@ -66,12 +66,29 @@ public class DeviceAlarmEventHandler implements MessageHandler {
     private Optional<IssueEvent> createEventsBasedOnDescription(Map<?, ?> map, DeviceAlarmEventDescription description) {
         DeviceAlarmEvent event = injector.getInstance(description.getEventClass());
         try {
-            event.wrap(description);
+            event.wrap(map, description, getDeviceFromEventMap(map));
             event.init(map);
         } catch (UnableToCreateEventException e) {
             LOGGER.warning(e.getLocalizedMessage());
             return Optional.empty();
         }
         return Optional.of(event);
+    }
+
+    private Device getDeviceFromEventMap(Map<?, ?> map) {
+        Optional<Long> amrId = getLong(map, ModuleConstants.DEVICE_IDENTIFIER);
+        if(amrId.isPresent()){
+            return getDeviceService().findDeviceById(amrId.get()).orElse(null);
+        } else {
+            return null; // providing no device requires the event implementation to 'identify' the device in another way
+        }
+    }
+
+    protected Optional<Long> getLong(Map<?, ?> map, String key) {
+        Object contents = map.get(key);
+        if (contents != null && contents instanceof Number){
+            return Optional.of(((Number) contents).longValue());
+        }
+        return Optional.empty();
     }
 }

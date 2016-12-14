@@ -98,7 +98,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\")\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to create issue by basic device alarm rule=@{ruleId}\");\n" +
+                "\tLOGGER.info(\"Trying to create alarm by basic device alarm rule=@{ruleId}\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end";
     }

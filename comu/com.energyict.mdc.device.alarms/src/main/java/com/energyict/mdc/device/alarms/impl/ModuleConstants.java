@@ -10,7 +10,7 @@ public final class ModuleConstants {
     public static final String AQ_DEVICE_ALARM_EVENT_SUBSC = "DeviceAlarmCreation";
     public static final String AQ_DEVICE_ALARM_EVENT_DISPLAYNAME = "Create device alarms";
 
-    public static final String DEVICE_IDENTIFIER = "deviceIdentifier";
+    public static final String DEVICE_IDENTIFIER = "endDeviceId";
     public static final String MASTER_DEVICE_IDENTIFIER = "masterDeviceId";
     public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";
     public static final String EVENT_TIMESTAMP = "timestamp";
