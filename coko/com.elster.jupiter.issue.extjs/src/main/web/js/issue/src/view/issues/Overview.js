@@ -26,6 +26,10 @@ Ext.define('Isu.view.issues.Overview', {
         xtype: 'issues-grid',
         itemId: 'issues-grid'
     },
+    filter: {
+        xtype: 'isu-view-issues-issuefilter',
+        itemId: 'isu-view-issues-issuefilter'
+    },
 
     initComponent: function () {
         var me = this;
@@ -37,8 +41,8 @@ Ext.define('Isu.view.issues.Overview', {
                 itemId: 'issue-panel',
                 items: [
                     {
-                        xtype: 'isu-view-issues-issuefilter',
-                        itemId: 'isu-view-issues-issuefilter',
+                        xtype: me.filter.xtype,
+                        itemId: me.filter.itemId,
                         store: me.grid.store
                     },
                     {
