@@ -1,7 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.mdm.usagepoint.data.ItemizeAddCalendarMessage;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointFilter;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -28,8 +28,8 @@ import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.mdm.usagepoint.data.bulk.itimizer.message.handler.factory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber=" + UsagePointDataService.BULK_ITEMIZER_QUEUE_SUBSCRIBER,
-                "destination=" + UsagePointDataService.BULK_ITEMIZER_QUEUE_DESTINATION},
+        property = {"subscriber=" + UsagePointDataModelService.BULK_ITEMIZER_QUEUE_SUBSCRIBER,
+                "destination=" + UsagePointDataModelService.BULK_ITEMIZER_QUEUE_DESTINATION},
         immediate = true)
 public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
 
@@ -43,8 +43,8 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
         SearchDomain searchDomain = searchService.findDomain(UsagePoint.class.getName())
                 .orElseThrow(() -> new IllegalStateException("Search domain for usage points not found"));
         return message -> {
-            DestinationSpec destinationSpec = messageService.getDestinationSpec(UsagePointDataService.BULK_HANDLING_QUEUE_DESTINATION)
-                    .orElseThrow(() -> new IllegalStateException("Queue " + UsagePointDataService.BULK_HANDLING_QUEUE_DESTINATION + " does not exist"));
+            DestinationSpec destinationSpec = messageService.getDestinationSpec(UsagePointDataModelService.BULK_HANDLING_QUEUE_DESTINATION)
+                    .orElseThrow(() -> new IllegalStateException("Queue " + UsagePointDataModelService.BULK_HANDLING_QUEUE_DESTINATION + " does not exist"));
             ItemizeAddCalendarMessage queueMessage = jsonService.deserialize(message.getPayload(), ItemizeAddCalendarMessage.class);
             Stream<UsagePoint> usagePointStream = toUsagePointStream(searchDomain, queueMessage.getUsagePointFilter(), queueMessage.getUsagePointMRIDs());
             usagePointStream.flatMap(usagePoint -> toMessagesStream(usagePoint, queueMessage.getCalendarIds(), queueMessage.getStartTime()))
