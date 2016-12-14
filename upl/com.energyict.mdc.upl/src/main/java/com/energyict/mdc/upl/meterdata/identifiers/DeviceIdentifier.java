@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.meterdata.Device;
  * <tr><td>DatabaseId</td><td>databaseValue -&gt; the device's database identifier</td></tr>
  * <tr><td>CallHomeId</td><td>callHomeId -&gt; the device's callHomeId property</td></tr>
  * <tr><td>PhoneNumber</td><td>phoneNumber -&gt; the device's phoneNumber property</td></tr>
+ * <tr><td>mRID</td><td>databaseValue -&gt; the device's mRID property</td></tr>
  * <tr><td>Actual</td><td>databaseValue -&gt; the device's database identifier<br>actual -&gt; the device</td></tr>
  * </table>
  *
