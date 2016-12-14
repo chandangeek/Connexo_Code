@@ -8,12 +8,10 @@ import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -114,8 +112,18 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return ImmutableMap.of("device", getDeviceIdentifier(), "obisCode", getLogBookObisCode());
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "obisCode": {
+                    return getLogBookObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
         }
     }
 

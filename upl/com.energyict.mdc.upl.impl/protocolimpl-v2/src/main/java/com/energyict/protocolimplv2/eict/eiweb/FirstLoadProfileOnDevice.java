@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link LoadProfileIdentifier}
@@ -90,8 +89,12 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return java.util.Collections.singletonMap("device", getDeviceIdentifier());
+        public Object getValue(String role) {
+            if ("device".equals(role)) {
+                return getDeviceIdentifier();
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
         }
     }
 

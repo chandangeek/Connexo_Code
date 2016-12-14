@@ -9,13 +9,11 @@ import com.energyict.mdw.amr.RegisterFactory;
 import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies an {@link com.energyict.mdw.amr.Register} based on the ObisCode
@@ -116,8 +114,18 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return ImmutableMap.of("device", getDeviceIdentifier(), "obisCode", getRegisterObisCode());
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "obisCode": {
+                    return getRegisterObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
         }
     }
 
@@ -149,9 +157,10 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return java.util.Collections.emptyMap();
+        public Object getValue(String role) {
+            throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
         }
+
     }
 
 }

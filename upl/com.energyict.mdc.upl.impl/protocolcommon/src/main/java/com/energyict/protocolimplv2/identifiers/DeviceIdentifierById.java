@@ -17,8 +17,6 @@ import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
@@ -111,8 +109,12 @@ public class DeviceIdentifierById implements DeviceIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return Collections.singletonMap("databaseValue", id);
+        public Object getValue(String role) {
+            if ("databaseValue".equals(role)) {
+                return id;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
         }
     }
 

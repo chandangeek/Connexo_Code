@@ -11,7 +11,6 @@ import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -108,9 +107,14 @@ public class RegisterIdentifierById implements RegisterIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return java.util.Collections.singletonMap("databaseValue", getId());
+        public Object getValue(String role) {
+            if ("databaseValue".equals(role)) {
+                return getId();
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
         }
+
     }
 
 }

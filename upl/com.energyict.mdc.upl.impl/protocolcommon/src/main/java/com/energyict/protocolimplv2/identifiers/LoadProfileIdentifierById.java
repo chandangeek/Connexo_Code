@@ -11,7 +11,6 @@ import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 /**
  * Implementation of a {@link LoadProfileIdentifier} that uniquely identifies a {@link com.energyict.mdw.core.LoadProfile}
@@ -91,8 +90,12 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return java.util.Collections.singletonMap("databaseValue", loadProfileId);
+        public Object getValue(String role) {
+            if ("databaseValue".equals(role)) {
+                return loadProfileId;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
         }
     }
 
