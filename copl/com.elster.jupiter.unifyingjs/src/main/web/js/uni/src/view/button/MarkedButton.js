@@ -8,16 +8,10 @@ Ext.define('Uni.view.button.MarkedButton', {
     unmarkedCls: 'icon-star-empty',
     hidden: true,
     pressed: false,
-    store: null,
-    flagRecord: null,
-    getParent: null,
+    record: null,
     popUpConfig: null,
-    labelId: null,
     markedTooltip: Uni.I18n.translate('general.unmark', 'UNI', 'Unmark'),
     unmarkedTooltip: Uni.I18n.translate('general.mark', 'UNI', 'Mark'),
-    mixins: {
-        bindable: 'Ext.util.Bindable'
-    },
 
     toggleHandler: function (button, pressed) {
         var me = this;
@@ -68,7 +62,7 @@ Ext.define('Uni.view.button.MarkedButton', {
                         text: Uni.I18n.translate('general.addComment', 'UNI', 'Add comment'),
                         ui: 'action',
                         handler: function () {
-                            me.popUp.down('form').updateRecord(me.flagRecord);
+                            me.popUp.down('form').updateRecord(me.record);
                             me.mark();
                             me.popUp.close();
                         }
@@ -87,52 +81,34 @@ Ext.define('Uni.view.button.MarkedButton', {
         }, Ext.isObject(me.popUpConfig) ? me.popUpConfig : {}));
 
         me.callParent(arguments);
-
-        me.bindStore(me.store || 'ext-empty-store', true);
-
+        Ext.ModelManager.getModel(me.record.$className).load(me.record.getId(), {callback: Ext.bind(me.onLoad, me)});
         me.on('beforedestroy', me.onBeforeDestroy, me);
     },
 
     onBeforeDestroy: function () {
         var me = this;
-
-        me.bindStore('ext-empty-store');
         me.popUp.destroy();
     },
 
-    getStoreListeners: function () {
-        return {
-            load: this.onLoad
-        };
-    },
-
-    onLoad: function () {
-        var me = this;
+    onLoad: function (record) {
+        var me = this,
+            isFavorite = record.get('favorite');
 
         Ext.suspendLayouts();
-        me.flagRecord = me.store.getById(me.labelId);
+        me.record = record;
         me.show();
-        me.toggle(!!me.flagRecord, true);
-        me.setIconCls(me.flagRecord ? me.markedCls : me.unmarkedCls);
-        me.setTooltip(me.flagRecord ? me.markedTooltip : me.unmarkedTooltip);
+        me.toggle(isFavorite, true);
+        me.setIconCls(isFavorite ? me.markedCls : me.unmarkedCls);
+        me.setTooltip(isFavorite ? me.markedTooltip : me.unmarkedTooltip);
         Ext.resumeLayouts(true);
     },
 
     mark: function () {
         var me = this;
 
-        if (!me.flagRecord) {
-            me.flagRecord = me.store.createModel({category: {id: me.labelId}});
-        }
-        if (Ext.isFunction(me.getParent)) {
-            me.flagRecord.set('parent', me.getParent());
-        }
-
-        me.flagRecord.save({
+        me.record.save({
             isNotEdit: true,
-            callback: function () {
-                me.store.load();
-            }
+            callback: Ext.bind(me.onLoad, me)
         });
     },
 
@@ -140,11 +116,9 @@ Ext.define('Uni.view.button.MarkedButton', {
         var me = this;
 
         me.popUp.close();
-        me.flagRecord.destroy({
+        me.record.destroy({
             isNotEdit: true,
-            callback: function () {
-                me.store.load();
-            }
+            callback: Ext.bind(me.onLoad, me)
         });
     },
 
@@ -153,7 +127,7 @@ Ext.define('Uni.view.button.MarkedButton', {
 
         Ext.suspendLayouts();
         me.popUp.show();
-        me.popUp.down('form').loadRecord(me.flagRecord);
+        me.popUp.down('form').loadRecord(me.record);
         Ext.resumeLayouts(true);
     }
 });
