@@ -13,8 +13,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyVararg;
@@ -88,14 +86,14 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(Arrays.asList(clockCategory, displayCategory));
         when(clockCategory.getName()).thenReturn("Clock");
         when(displayCategory.getName()).thenReturn("Display");
-        when(clockCategory.getMessageSpecifications()).thenReturn(Arrays.asList(clockSetTimeMessage, clockSetDSTMessage));
+        doReturn(Arrays.asList(clockSetTimeMessage, clockSetDSTMessage)).when(clockCategory).getMessageSpecifications();
         when(clockSetTimeMessage.getId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME);
         when(clockSetTimeMessage.getCategory()).thenReturn(clockCategory);
         when(clockSetTimeMessage.getName()).thenReturn("Clock set time");
         when(clockSetDSTMessage.getId()).thenReturn(DeviceMessageId.CLOCK_SET_DST);
         when(clockSetDSTMessage.getCategory()).thenReturn(clockCategory);
         when(clockSetDSTMessage.getName()).thenReturn("Clock set DST");
-        when(displayCategory.getMessageSpecifications()).thenReturn(Arrays.asList(displayMessage));
+        doReturn(Arrays.asList(displayMessage)).when(displayCategory).getMessageSpecifications();
         when(displayMessage.getId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE);
         when(displayMessage.getCategory()).thenReturn(displayCategory);
         when(displayMessage.getName()).thenReturn("Display set message");
