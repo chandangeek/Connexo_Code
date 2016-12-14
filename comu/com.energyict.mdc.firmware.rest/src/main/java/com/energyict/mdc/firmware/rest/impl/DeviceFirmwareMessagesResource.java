@@ -132,7 +132,7 @@ public class DeviceFirmwareMessagesResource {
                         .withActualVersion(() -> deviceService.findByUniqueMrid(mrid).map(Device::getVersion).orElse(null))
                         .supplier());
 
-        DeviceMessage<Device> upgradeMessage = device.getMessages().stream()
+        DeviceMessage upgradeMessage = device.getMessages().stream()
                 .filter(message -> message.getId() == messageId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, messageId));
@@ -196,7 +196,7 @@ public class DeviceFirmwareMessagesResource {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(mrid)
                         .withActualVersion(() -> deviceService.findByUniqueMrid(mrid).map(Device::getVersion).orElse(null))
                         .supplier());
-        DeviceMessage<Device> upgradeMessage = device.getMessages().stream()
+        DeviceMessage upgradeMessage = device.getMessages().stream()
                 .filter(message -> message.getId() == msgId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, msgId));

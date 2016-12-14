@@ -11,16 +11,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -62,7 +60,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         when(meterFirmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
         when(meterFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
 
-        when(device.getMessages()).thenReturn(Collections.<DeviceMessage<Device>>emptyList());
+        when(device.getMessages()).thenReturn(Collections.<DeviceMessage>emptyList());
         when(deviceMessageSpecificationService.getFirmwareCategory()).thenReturn(deviceMessageCategory);
         when(deviceMessageCategory.getId()).thenReturn(8);
         when(this.taskService.findFirmwareComTask()).thenReturn(Optional.<ComTask>empty());
