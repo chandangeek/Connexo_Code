@@ -275,6 +275,14 @@ public class MBusClient extends AbstractCosemObject {
         write(MbusClientAttributes.CAPTURE_PERIOD.forVersion(getUsedVersion()), new Unsigned32(period).getBEREncodedByteArray());
     }
 
+    public void setMBusPortReference(OctetString octetString) throws IOException {
+        write(MbusClientAttributes.MBUS_PORT_REFERENCE.forVersion(getUsedVersion()), octetString.getBEREncodedByteArray());
+    }
+
+    public Unsigned8 getPrimaryAddress() throws IOException {
+        return new Unsigned8(getResponseData(MbusClientAttributes.PRIMARY_ADDRESS.forVersion(getUsedVersion())), 0);
+    }
+
     @Override
     public String toString() {
         return super.toString();
