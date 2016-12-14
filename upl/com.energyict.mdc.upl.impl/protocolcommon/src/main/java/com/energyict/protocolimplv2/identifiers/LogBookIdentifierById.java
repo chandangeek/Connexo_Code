@@ -1,19 +1,17 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifierType;
 
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -69,13 +67,8 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     }
 
     @Override
-    public LogBookIdentifierType getLogBookIdentifierType() {
-        return LogBookIdentifierType.DataBaseId;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.toList((Object) getLogBookId());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @XmlElement(name = "type")
@@ -116,4 +109,17 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     private LogBookFactory getLogBookFactory() {
         return LogBookFactoryProvider.instance.get().getLogBookFactory();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DatabaseId";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return java.util.Collections.singletonMap("databaseValue", logBookId);
+        }
+    }
+
 }

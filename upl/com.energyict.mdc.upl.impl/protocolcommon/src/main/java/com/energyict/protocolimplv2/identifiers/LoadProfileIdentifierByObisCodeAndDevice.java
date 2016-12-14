@@ -2,19 +2,19 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
 
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileFactory;
 import com.energyict.mdw.core.LoadProfileFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
+import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of a {@link LoadProfileIdentifier} that uniquely identifies a {@link LoadProfile}
@@ -75,13 +75,8 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     }
 
     @Override
-    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
-        return LoadProfileIdentifierType.DeviceIdentifierAndObisCode;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.toList((Object) getDeviceIdentifier(), getProfileObisCode());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @XmlElement(name = "type")
@@ -101,4 +96,17 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     private LoadProfileFactory getLoadProfileFactory() {
         return LoadProfileFactoryProvider.instance.get().getLoadProfileFactory();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return ImmutableMap.of("device", getDeviceIdentifier(), "obisCode", getProfileObisCode());
+        }
+    }
+
 }

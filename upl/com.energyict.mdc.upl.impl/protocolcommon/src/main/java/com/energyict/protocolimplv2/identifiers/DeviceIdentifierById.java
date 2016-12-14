@@ -8,7 +8,6 @@ package com.energyict.protocolimplv2.identifiers;
  */
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
@@ -18,6 +17,8 @@ import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
@@ -95,16 +96,24 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     }
 
     @Override
-    public String getIdentifier() {
-        return Integer.toString(id);
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.DataBaseId;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     private DeviceFactory getDeviceFactory() {
         return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DatabaseId";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return Collections.singletonMap("databaseValue", id);
+        }
+    }
+
 }

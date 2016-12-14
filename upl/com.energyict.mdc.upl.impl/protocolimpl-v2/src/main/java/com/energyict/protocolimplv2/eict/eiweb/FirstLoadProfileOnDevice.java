@@ -2,18 +2,17 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
 
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link LoadProfileIdentifier}
@@ -66,13 +65,8 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     }
 
     @Override
-    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
-        return LoadProfileIdentifierType.FistLoadProfileOnDevice;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.toList((Object) getDeviceIdentifier());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @XmlElement(name = "type")
@@ -87,6 +81,18 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     @Override
     public String toString() {
         return "first load profile on device having deviceIdentifier = " + deviceIdentifier;
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "FistLoadProfileOnDevice";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return java.util.Collections.singletonMap("device", getDeviceIdentifier());
+        }
     }
 
 }

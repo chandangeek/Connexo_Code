@@ -1,19 +1,17 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifierType;
 
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterFactory;
 import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -95,16 +93,24 @@ public class RegisterIdentifierById implements RegisterIdentifier {
     }
 
     @Override
-    public RegisterIdentifierType getRegisterIdentifierType() {
-        return RegisterIdentifierType.DataBaseId;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.toList((Object) getId());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     private RegisterFactory getRegisterFactory() {
         return RegisterFactoryProvider.instance.get().getRegisterFactory();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DatabaseId";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return java.util.Collections.singletonMap("databaseValue", getId());
+        }
+    }
+
 }

@@ -2,16 +2,15 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifierType;
 
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
+import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -50,13 +49,8 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     }
 
     @Override
-    public MessageIdentifierType getMessageIdentifierType() {
-        return MessageIdentifierType.DataBaseId;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.toList((Object) getMessageId());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @XmlElement(name = "type")
@@ -88,6 +82,18 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     @Override
     public int hashCode () {
         return messageId;
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DatabaseId";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return ImmutableMap.of("databaseValue", getMessageId());
+        }
     }
 
 }

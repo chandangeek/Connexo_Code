@@ -4,7 +4,6 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 
 import com.energyict.cpo.OfflineDeviceContext;
@@ -19,7 +18,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface,
@@ -109,13 +110,8 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     @Override
-    public String getIdentifier() {
-        return phoneNumber;
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.Other;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -134,4 +130,17 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     private DeviceFactory getDeviceFactory() {
         return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "PhoneNumber";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return Collections.singletonMap("phoneNumber", phoneNumber);
+        }
+    }
+
 }

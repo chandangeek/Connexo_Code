@@ -1,20 +1,21 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifierType;
 
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
+import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
@@ -33,7 +34,7 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
      * Constructor only to be used by JSON (de)marshalling
      */
     private DeviceMessageIdentifierByDeviceAndProtocolInfoParts() {
-        deviceIdentifier = null;
+        deviceIdentifier = new NullDeviceIdentifier();
         messageProtocolInfoParts = new String[0];
     }
 
@@ -62,13 +63,8 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
     }
 
     @Override
-    public MessageIdentifierType getMessageIdentifierType() {
-        return MessageIdentifierType.DeviceIdentifierAndProtocolInfoParts;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.toList((Object) getDeviceIdentifier(), getMessageProtocolInfoParts());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
@@ -80,9 +76,8 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
             return false;
         }
         DeviceMessageIdentifierByDeviceAndProtocolInfoParts that = (DeviceMessageIdentifierByDeviceAndProtocolInfoParts) obj;
-        return (this.deviceIdentifier.getIdentifier().equals(that.deviceIdentifier.getIdentifier())) &&
-                (this.deviceIdentifier.getDeviceIdentifierType().equals(that.deviceIdentifier.getDeviceIdentifierType())) &&
-                Arrays.equals(this.messageProtocolInfoParts, that.messageProtocolInfoParts);
+        return (this.deviceIdentifier.equals(that.deviceIdentifier))
+                && Arrays.equals(this.messageProtocolInfoParts, that.messageProtocolInfoParts);
     }
 
     @Override
@@ -109,6 +104,51 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
     @XmlAttribute
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
+    }
+
+    private static class NullDeviceIdentifier implements DeviceIdentifier {
+        @Override
+        public Device findDevice() {
+            throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because there is not identifier");
+        }
+
+        @XmlElement(name = "type")
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        public void setXmlType(String ignore) {
+            // For xml unmarshalling purposes only
+        }
+
+        @Override
+        public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+            return new NullIntrospector();
+        }
+    }
+
+    private static class NullIntrospector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Null";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return java.util.Collections.emptyMap();
+        }
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DeviceIdentifierAndProtocolInfoParts";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return ImmutableMap.of("device", getDeviceIdentifier(), "protocolInfo", getMessageProtocolInfoParts());
+        }
     }
 
 }

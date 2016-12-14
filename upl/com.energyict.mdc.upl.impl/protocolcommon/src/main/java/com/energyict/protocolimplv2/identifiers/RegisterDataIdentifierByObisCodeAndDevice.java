@@ -1,20 +1,21 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifierType;
 
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterFactory;
 import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.energyict.util.Collections;
+import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies an {@link com.energyict.mdw.amr.Register} based on the ObisCode
@@ -39,7 +40,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
      */
     private RegisterDataIdentifierByObisCodeAndDevice() {
         this.registerObisCode = null;
-        this.deviceIdentifier = null;
+        this.deviceIdentifier = new NullDeviceIdentifier();
     }
 
     public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, DeviceIdentifier deviceIdentifier) {
@@ -100,16 +101,57 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     }
 
     @Override
-    public RegisterIdentifierType getRegisterIdentifierType() {
-        return RegisterIdentifierType.DeviceIdentifierAndObisCode;
-    }
-
-    @Override
-    public List<Object> getParts() {
-        return Collections.toList((Object) getDeviceIdentifier(), getRegisterObisCode());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     private RegisterFactory getRegisterFactory() {
         return RegisterFactoryProvider.instance.get().getRegisterFactory();
     }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return ImmutableMap.of("device", getDeviceIdentifier(), "obisCode", getRegisterObisCode());
+        }
+    }
+
+    private static class NullDeviceIdentifier implements DeviceIdentifier {
+        @Override
+        public Device findDevice() {
+            throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because there is not identifier");
+        }
+
+        @XmlElement(name = "type")
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        public void setXmlType(String ignore) {
+            // For xml unmarshalling purposes only
+        }
+
+        @Override
+        public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+            return new NullIntrospector();
+        }
+    }
+
+    private static class NullIntrospector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Null";
+        }
+
+        @Override
+        public Map<String, Object> getValues() {
+            return java.util.Collections.emptyMap();
+        }
+    }
+
 }
