@@ -10,7 +10,6 @@ import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.List;
@@ -85,15 +84,6 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
         return result;
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @XmlAttribute
     public String[] getMessageProtocolInfoParts() {
         return messageProtocolInfoParts;
@@ -108,15 +98,6 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
         @Override
         public Device findDevice() {
             throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because there is not identifier");
-        }
-
-        @XmlElement(name = "type")
-        public String getXmlType() {
-            return this.getClass().getName();
-        }
-
-        public void setXmlType(String ignore) {
-            // For xml unmarshalling purposes only
         }
 
         @Override

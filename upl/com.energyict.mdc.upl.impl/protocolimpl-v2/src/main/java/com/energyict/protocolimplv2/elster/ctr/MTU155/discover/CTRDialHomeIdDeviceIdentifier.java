@@ -16,7 +16,6 @@ import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,14 +73,6 @@ public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
         return "device with call home id " + this.callHomeID;
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
 
     @XmlAttribute
     public String getCallHomeID() {

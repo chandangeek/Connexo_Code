@@ -11,7 +11,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
@@ -76,15 +75,6 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         return deviceIdentifier;
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof RegisterDataIdentifierByObisCodeAndDevice)) {
@@ -133,15 +123,6 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         @Override
         public Device findDevice() {
             throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because there is not identifier");
-        }
-
-        @XmlElement(name = "type")
-        public String getXmlType() {
-            return this.getClass().getName();
-        }
-
-        public void setXmlType(String ignore) {
-            // For xml unmarshalling purposes only
         }
 
         @Override

@@ -9,7 +9,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -59,15 +58,6 @@ public class RegisterIdentifierById implements RegisterIdentifier {
     @XmlAttribute
     public ObisCode getRegisterObisCode() {
         return registerObisCode;
-    }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
     }
 
     /**

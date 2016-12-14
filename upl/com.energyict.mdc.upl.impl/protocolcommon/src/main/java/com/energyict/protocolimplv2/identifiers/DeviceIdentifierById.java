@@ -15,7 +15,6 @@ import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -65,15 +64,6 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     @Override
     public String toString () {
         return "id " + this.id;
-    }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
     }
 
     @Override

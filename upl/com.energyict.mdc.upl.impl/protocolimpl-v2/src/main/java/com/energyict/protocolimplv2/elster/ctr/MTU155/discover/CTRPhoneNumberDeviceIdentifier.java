@@ -15,7 +15,6 @@ import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,15 +90,6 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     @Override
     public String toString() {
         return "device with phone number " + this.phoneNumber;
-    }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
     }
 
     @XmlAttribute
