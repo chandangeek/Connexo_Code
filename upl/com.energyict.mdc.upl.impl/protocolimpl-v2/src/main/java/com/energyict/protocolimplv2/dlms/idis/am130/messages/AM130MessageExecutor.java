@@ -58,6 +58,8 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
             collectedMessage = resetAlarmDescriptor(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_BITS_IN_ALARM_REGISTER_1_OR_2)) {
             collectedMessage = resetAlarmBits(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS)) {
+            collectedMessage = resetAllAlarmBits1and2(collectedMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2)) {
             collectedMessage = writeFilterForAlarm1or2(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
@@ -101,6 +103,24 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
+        return collectedMessage;
+    }
+
+
+    private CollectedMessage resetAllAlarmBits1and2(CollectedMessage collectedMessage) {
+        StringBuilder   sb = new StringBuilder();
+        ObisCode alarmBitsObisCodes[] = {ALARM_BITS_OBISCODE_1, ALARM_BITS_OBISCODE_2};
+
+        for (ObisCode alarmBitsObisCode : alarmBitsObisCodes) {
+            try {
+                resetAllAlarmBits(alarmBitsObisCode);
+                sb.append("Alarm bits reset for ").append(alarmBitsObisCode.toString()).append("; ");
+            } catch (IOException e) {
+                sb.append(e.getMessage()).append(" while performing alarm bits reset for ").append(alarmBitsObisCode);
+            }
+        }
+
+        collectedMessage.setDeviceProtocolInformation(sb.toString());
         return collectedMessage;
     }
 
