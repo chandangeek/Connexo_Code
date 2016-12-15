@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.energyict.mdc.device.data.impl.constraintvalidators.DoesNotExceedCommandLimitationRules;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.IllegalDeviceMessageIdException;
 import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
@@ -46,7 +45,6 @@ import java.util.stream.Stream;
 @ValidDeviceMessageId(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
 @UserHasTheMessagePrivilege(groups = {Save.Create.class, Save.Update.class})
 @HasValidDeviceMessageAttributes(groups = {Save.Create.class, Save.Update.class})
-@DoesNotExceedCommandLimitationRules(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.EXCEEDS_COMMAND_LIMITATION_RULE_LIMITS + "}")
 public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> implements ServerDeviceMessage {
 
     public enum Fields {

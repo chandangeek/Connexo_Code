@@ -162,7 +162,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_SHIPMENT_DATE(2140, Keys.INVALID_SHIPMENT_DATE, "The shipment date ({0}) should be between {1} and {2}"),
     DUPLICATE_DEVICE_NAME(2141, Keys.DUPLICATE_DEVICE_NAME, "Name must be unique"),
     MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK(2142, Keys.MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK, "You can not set a ComSchedule on the device because it already contains a ComTask which is linked to another ComSchedule"),
-    EXCEEDS_COMMAND_LIMITATION_RULE_LIMITS(2143, Keys.EXCEEDS_COMMAND_LIMITATION_RULE_LIMITS, "Exceeds command limitation rule limits");
+    ;
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -346,6 +346,5 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = "InvalidNumberOfSimultaneousConnections";
         public static final String INVALID_SHIPMENT_DATE = "InvalidShipmentDate";
         public static final String MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK = "multiple.comschedules.with.same.comtask";
-        public static final String EXCEEDS_COMMAND_LIMITATION_RULE_LIMITS = "exceeds.command.limitation.rules.limits";
     }
 }
