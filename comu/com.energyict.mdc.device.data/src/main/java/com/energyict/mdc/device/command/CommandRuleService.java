@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.command;
 
 
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +37,15 @@ public interface CommandRuleService {
 
     void deleteRule(CommandRule commandRule);
 
-    List<CommandRule> getCommandRulesByDeviceMessageId(DeviceMessageId deviceMessageId);
+    void commandCreated(DeviceMessage deviceMessage);
+
+    boolean limitsExceededForUpdatedCommand(DeviceMessage deviceMessage);
+
+    boolean limitsExceededForNewCommand(DeviceMessage deviceMessage);
+
+    void commandUpdated(DeviceMessage deviceMessage);
+
+    void commandDeleted(DeviceMessage deviceMessage);
 
 
     @ProviderType

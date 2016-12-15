@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.command.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -24,7 +26,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final UserService userService;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
@@ -33,7 +35,13 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        createCommandRuleStats();
         userService.addModulePrivileges(this);
+    }
+
+    private void createCommandRuleStats() {
+        CommandRuleStats commandRuleStats = dataModel.getInstance(CommandRuleStats.class);
+        Save.CREATE.save(dataModel, commandRuleStats);
     }
 
     @Override

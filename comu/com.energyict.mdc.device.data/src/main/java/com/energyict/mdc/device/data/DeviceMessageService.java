@@ -39,7 +39,7 @@ public interface DeviceMessageService {
      * Gets the preferred ComTask for a DeviceMessage
      *
      * @param device The device for wich to check the preferred ComTask
-     * @param deviceMessage The deviceMessage that needs to be checked
+     * @param deviceMessage The deviceMessage that needs to be checked<
      * @return A ComTask if one is found, else null
      */
     ComTask getPreferredComTask(Device device, DeviceMessage<?> deviceMessage);
@@ -52,10 +52,4 @@ public interface DeviceMessageService {
      * @return
      */
     boolean canUserAdministrateDeviceMessage(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId);
-
-    long getCurrentDayCountFor(DeviceMessage deviceMessage);
-
-    long getCurrentWeekCountFor(DeviceMessage deviceMessage);
-
-    long getCurrentMonthCountFor(DeviceMessage deviceMessage);
 }

@@ -5,11 +5,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.dualcontrol.UnderDualControl;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasUniqueCommands;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
 import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
@@ -17,9 +19,11 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import com.google.common.collect.Range;
 import com.google.inject.Inject;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -42,7 +46,8 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         MONTHLIMIT("monthLimit"),
         COMMANDS("commands"),
         COMMANDRULETEMPLATE("commandRulePendingUpdate"),
-        MONITOR("monitor");
+        MONITOR("monitor"),
+        COUNTERS("counters");
 
         private final String javaFieldName;
 
@@ -53,19 +58,22 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         public String fieldName() {
             return javaFieldName;
         }
-
     }
 
     private final DataModel dataModel;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private DualControlService dualControlService;
+    private final DualControlService dualControlService;
+    private final CommandRuleService commandRuleService;
 
     private long id;
     @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String name;
+    @Min(0)
     private long dayLimit;
+    @Min(0)
     private long weekLimit;
+    @Min(0)
     private long monthLimit;
     private boolean active = false;
 
@@ -74,6 +82,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_COMMAND_REQUIRED + "}")
     @Valid
     private List<CommandInRule> commands = new ArrayList<>();
+    private List<CommandRuleCounter> counters = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -84,10 +93,11 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     private Instant modTime;
 
     @Inject
-    public CommandRuleImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService, DualControlService dualControlService) {
+    public CommandRuleImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService, DualControlService dualControlService, CommandRuleService commandRuleService) {
         this.dataModel = dataModel;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.dualControlService = dualControlService;
+        this.commandRuleService = commandRuleService;
     }
 
     @Override
@@ -118,6 +128,11 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     @Override
     public List<CommandInRule> getCommands() {
         return commands;
+    }
+
+    @Override
+    public List<CommandRuleCounter> getCounters() {
+        return counters;
     }
 
     public Optional<CommandRulePendingUpdate> getCommandRulePendingUpdate() {
@@ -183,7 +198,6 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         List<DeviceMessageSpec> deviceMessageSpecs = commands.stream()
                 .map(command -> deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.valueOf(command).dbValue()).get())
                 .collect(Collectors.toList());
-        clearUpdate();
         if (!isActive()) {
             this.name = name;
             this.dayLimit = dayLimit;
@@ -200,6 +214,15 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         }
     }
 
+    @Override
+    public void createCounterFor(Range<Instant> range) {
+        CommandRuleCounter counter = this.dataModel.getInstance(CommandRuleCounter.class);
+        counter.initialize(range.lowerEndpoint(), range.upperEndpoint(), 1L, this);
+        counters.add(counter);
+        this.save();
+        ((CommandRuleServiceImpl) commandRuleService).counterCreated();
+    }
+
     public void save() {
         if (this.getId() > 0) {
             doUpdate();
@@ -211,6 +234,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     private void doSave() {
         Save.CREATE.save(dataModel, this);
+        ((CommandRuleServiceImpl) commandRuleService).commandRuleCreated();
     }
 
     private void doUpdate() {
@@ -227,6 +251,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     private void actualDelete() {
         dataModel.remove(this);
+        ((CommandRuleServiceImpl) commandRuleService).commandRuleRemoved();
     }
 
     private void createDeleteRequest() {

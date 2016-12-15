@@ -3,9 +3,9 @@ package com.energyict.mdc.device.command.impl;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.dualcontrol.DualControlService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 
-import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -14,7 +14,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +22,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,6 +39,8 @@ public class CommandRuleImplTest {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     private DualControlService dualControlService;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void setUp() {
@@ -56,7 +56,7 @@ public class CommandRuleImplTest {
 
     @Test
     public void commandRuleCreationTimeIsTimeAtConstruction() throws Exception {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
         simulateSavedInDB(commandRule);
 
         Field createTime = CommandRuleImpl.class.getDeclaredField("createTime");
@@ -66,7 +66,7 @@ public class CommandRuleImplTest {
 
     @Test
     public void commandRuleModificationTimeIsTimeAtConstruction() throws Exception {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
         simulateSavedInDB(commandRule);
 
         Field modTime = CommandRuleImpl.class.getDeclaredField("modTime");
@@ -76,21 +76,21 @@ public class CommandRuleImplTest {
 
     @Test
     public void inactiveAtConstruction() {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
 
         assertThat(commandRule.isActive()).isFalse();
     }
 
     @Test
     public void noPendingChangesAtConstruction() {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
 
         assertThat(commandRule.getCommandRulePendingUpdate()).isEmpty();
     }
 
     @Test
     public void noLimitsAtConstruction() {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
         assertThat(commandRule.getDayLimit()).isEqualTo(0);
         assertThat(commandRule.getWeekLimit()).isEqualTo(0);
         assertThat(commandRule.getMonthLimit()).isEqualTo(0);

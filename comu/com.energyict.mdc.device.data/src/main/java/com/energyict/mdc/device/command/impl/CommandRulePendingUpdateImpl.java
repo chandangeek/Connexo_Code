@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.DataModel;
 
 import com.google.inject.Inject;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -54,8 +55,11 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
     @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String name;
+    @Min(0)
     private long dayLimit;
+    @Min(0)
     private long weekLimit;
+    @Min(0)
     private long monthLimit;
     private boolean active = false;
     private boolean isActivation = false;

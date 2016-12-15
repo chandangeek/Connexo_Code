@@ -108,6 +108,46 @@ public enum TableSpecs {
                     .composition()
                     .add();
         }
+    },
+
+    CLR_COMMAND_RULE_STATS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<CommandRuleStats> table = dataModel.addTable(name(), CommandRuleStats.class);
+            table.since(version(10,3));
+            table.map(CommandRuleStats.class);
+
+            Column idColumn = table.column("ID").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleStats.Fields.ID.fieldName()).notNull().add();
+            table.column("NR_OF_COMMAND_RULES").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleStats.Fields.NR_OF_COMMAND_RULES.fieldName()).notNull().add();
+            table.column("NR_OF_COUNTERS").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleStats.Fields.NR_OF_COUNTERS.fieldName()).notNull().add();
+
+            table.primaryKey("PK_COMMANDRULESTATS").on(idColumn).add();
+        }
+    },
+
+    CLR_COMMAND_RULE_COUNTER {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<CommandRuleCounter> table = dataModel.addTable(name(), CommandRuleCounter.class);
+            table.since(version(10,3));
+            table.map(CommandRuleCounter.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            table.column("FROM").number().conversion(ColumnConversion.NUMBER2INSTANT).map(CommandRuleCounter.Fields.FROM.fieldName()).notNull().add();
+            table.column("TO").number().conversion(ColumnConversion.NUMBER2INSTANT).map(CommandRuleCounter.Fields.TO.fieldName()).notNull().add();
+            table.column("COUNT").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleCounter.Fields.COUNT.fieldName()).notNull().add();
+            Column commandRule = table.column("COMMANDRULEID").number().notNull().add();
+
+            table.primaryKey("PK_CLR_CMDINRULE").on(idColumn).add();
+            table.foreignKey("FK_CLR_CMDINRULE_CMDRULE").
+                    on(commandRule)
+                    .references(CLR_COMMANDRULE.name())
+                    .map(CommandRuleCounter.Fields.COMMANDRULE.fieldName())
+                    .reverseMap(CommandRuleImpl.Fields.COUNTERS.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
+                    .composition()
+                    .add();
+        }
     };
 
     abstract void addTo(DataModel dataModel);
