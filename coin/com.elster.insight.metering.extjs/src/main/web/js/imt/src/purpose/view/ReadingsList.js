@@ -11,6 +11,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             ptype: 'bufferedrenderer'
         }
     ],
+    viewConfig: {        
+        doFocus: Ext.emptyFn // workaround to avoid page jump during row selection
+    },
     store: 'Imt.purpose.store.Readings',
 
     initComponent: function () {
@@ -50,10 +53,10 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                         icon = '';
 
                     if (status === 'notValidated') {
-                        icon = '<span class="icon-flag6" style="margin-left:-15px;" data-qtip="'
+                        icon = '<span class="icon-flag6" style="margin-left:-10px; line-height: 12px" data-qtip="'
                             + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
                     } else if (status === 'suspect') {
-                        icon = '<span class="icon-flag5" style="margin-left:-15px; color:red;" data-qtip="'
+                        icon = '<span class="icon-flag5" style="margin-left:-10px; line-height: 12px" data-qtip="'
                             + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
                     }
                     return icon;

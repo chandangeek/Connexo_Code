@@ -4,6 +4,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     requires: [
         'Imt.purpose.view.PurposeActionsMenu',
         'Imt.purpose.view.ValidationStatusForm',
+        'Imt.purpose.view.ValidationTasksStatus',
         'Cfg.model.ValidationTask'
     ],
     itemId: 'purpose-details-form',
@@ -30,7 +31,6 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         name: 'status',
                         itemId: 'purpose-status',
                         fieldLabel: Uni.I18n.translate('general.label.status', 'IMT', 'Status'),
-                        //value: me.record ? (me.record.get('status').name + icon) : null,
                         htmlEncode: false,
                         renderer: function (status, meta, record) {
                             if (!Ext.isEmpty(status)) {
@@ -55,49 +55,12 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                 defaults: defaults,
                 items: [
                     {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.validationSchedule', 'IMT', 'Validation schedule'),
-                        itemId: 'data-validation-tasks',
-                        labelAlign: 'top',
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                name: 'dataValidationTasks',
-                                itemId: 'data-validation-tasks-field',
-                                renderer: function (value) {
-                                    var record = me.getRecord(),
-                                        result = '';
-
-                                    if (Ext.isArray(value)) {
-                                        result += '<table>';
-                                        Ext.Array.each(value, function (item) {
-                                            var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl({
-                                                taskId: item.id
-                                            });
-                                            var taskModel = new Cfg.model.ValidationTask(item);
-
-                                            result += '<tr>';
-                                            result += '<td>';
-                                            result += '<a href="' + url + '">' + item.name + '</a>';
-                                            result += '</td>';
-                                            result += '<td>';
-                                            result += taskModel.getTriggerText();
-                                            result += '</td>';
-                                            result += '</tr>';
-                                        });
-                                        result += '</table>';
-                                    }
-
-                                    return result;
-                                }
-                            },
-                            {
-                                xtype: 'uni-form-info-message',
-                                itemId: 'data-validation-tasks-empty-msg',
-                                hidden: true
-                            }
-                        ]
+                        xtype: 'output-validation-tasks-status',
+                        purpose: me.record,
+                        router: me.router,
+                        usagePoint: me.usagePoint
                     }
+
                 ]
             }
         ];
@@ -106,25 +69,10 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     },
 
     loadRecord: function (record) {
-        var me = this,
-            hasValidationTasks = !Ext.isEmpty(record.get('dataValidationTasks')),
-            validationTasksEmptyMsg = me.down('#data-validation-tasks-empty-msg');
+        var me = this;
 
         Ext.suspendLayouts();
         me.down('#output-validation-status-form').loadValidationInfo(record.get('validationInfo'));
-        me.down('#data-validation-tasks-field').setVisible(hasValidationTasks);
-        validationTasksEmptyMsg.setVisible(!hasValidationTasks);
-        if (!hasValidationTasks) {
-            validationTasksEmptyMsg.setText(Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks', 'IMT', 'No validation tasks have been configured for  "{0}" purpose yet ({1}manage validation tasks{2})',
-                [
-                    [record.get('name')],
-                    '<a href="'
-                    + me.router.getRoute('administration/validationtasks').buildUrl()
-                    + '">',
-                    '</a>'
-                ],
-                false));
-        }
         Ext.resumeLayouts(true);
         me.callParent(arguments);
     }

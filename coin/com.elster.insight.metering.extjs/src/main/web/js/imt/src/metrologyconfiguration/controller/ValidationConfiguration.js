@@ -62,8 +62,8 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             metrologyConfigurationController = me.getController('Imt.metrologyconfiguration.controller.View');
 
-        if (!tab) {
-            router.getRoute('administration/metrologyconfiguration/view/validation').forward({tab: 'rules'});
+        if (tab != 'rules') { //only 'rules' tab is available
+            window.location.replace(router.getRoute('administration/metrologyconfiguration/view/validation').buildUrl({tab: 'rules'}));
         } else {
             pageMainContent.setLoading();
             metrologyConfigurationController.loadMetrologyConfiguration(mcid, {
@@ -130,6 +130,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                         metrologyConfigurationId: me.getController('Uni.controller.history.Router').arguments.mcid,
                         action: 'remove'
                     };
+                    purpose.estimationRuleSets().removeAll();
                     purpose.validationRuleSets().removeAll();
                     purpose.validationRuleSets().add(record);
                     purpose.save({
@@ -205,6 +206,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             purpose = purposesCombo.findRecordByValue(purposesCombo.getValue()),
             records = me.getAddValidationRuleSetsView().down('add-validation-rule-sets-to-purpose-grid').getSelectionModel().getSelection();
 
+        purpose.estimationRuleSets().removeAll();
         purpose.validationRuleSets().removeAll();
         purpose.validationRuleSets().add(records);
         purpose.save({
@@ -245,35 +247,6 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             if (btn) {
                 btn.setDisabled(panel.metrologyConfig.get('status').id == 'deprecated');
             }
-            Ext.resumeLayouts(true);
-        });
-    },
-
-    showScheduleTab: function(panel) {
-        var me = this,
-            PurposesWithValidationTasks = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationTasks'),
-            rulesStore = me.getStore('Imt.store.ValidationRules'),
-            router = me.getController('Uni.controller.history.Router');
-
-
-        Uni.util.History.suspendEventsForNextCall();
-        Uni.util.History.setParsePath(false);
-        router.getRoute('administration/metrologyconfiguration/view/validation').forward({tab: 'schedule'});
-
-        PurposesWithValidationTasks.getProxy().extraParams = {
-            metrologyConfigurationId: router.arguments.mcid
-        };
-        PurposesWithValidationTasks.load(function (purposes) {
-            Ext.suspendLayouts();
-            panel.removeAll();
-            panel.add({
-                xtype: 'mc-validation-schedule',
-                metrologyConfig: panel.metrologyConfig,
-                rulesStore: rulesStore,
-                purposes: purposes,
-                router: router
-            });
-
             Ext.resumeLayouts(true);
         });
     }

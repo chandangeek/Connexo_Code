@@ -1,15 +1,15 @@
 Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsActions', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.custom-attribute-sets-actions',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'remove',
-            text: Uni.I18n.translate('general.menu.remove', 'IMT', 'Remove'),
-//            privileges: Cfg.privileges.Validation.validateManual,
-            action: 'removeCustomAttributeSet'
-        }
-    ]
+    initComponent: function() {
+        this.items = [
+            {
+                itemId: 'remove',
+                text: Uni.I18n.translate('general.menu.remove', 'IMT', 'Remove'),
+                action: 'removeCustomAttributeSet',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

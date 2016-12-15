@@ -1,9 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.usage-point-setup-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
     router: null,
 
     initComponent: function() {
@@ -15,11 +12,27 @@ Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
                     itemId: 'action-menu-item-start-proc',
                     privileges: Dbp.privileges.DeviceProcesses.assignOrExecute,
                     text: Uni.I18n.translate('usagepoint.process.startProcess', 'IMT', 'Start process'),
-                    href: me.router.getRoute('usagepoints/view/processstart').buildUrl()
+                    href: me.router.getRoute('usagepoints/view/processstart').buildUrl(),
+                    section: this.SECTION_ACTION
                 }
             ];
         }
 
         me.callParent(arguments);
+    },
+
+    setActions: function(actionsStore, router) {
+        var me = this;
+
+        actionsStore.each(function(item) {
+            me.add({
+                itemId: 'action-menu-item' + item.get('id'),
+                text: item.get('name'),
+                handler: function() {
+                    router.getRoute('usagepoints/view/transitions').forward({transitionId: item.get('id')});
+                },
+                section: me.SECTION_ACTION
+            })
+        });
     }
 });

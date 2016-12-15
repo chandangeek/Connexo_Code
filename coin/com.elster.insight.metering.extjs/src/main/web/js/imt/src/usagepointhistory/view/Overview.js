@@ -18,7 +18,6 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
                 title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                 ui: 'large'
             }, me.getTabPanelCfg())
-
         ];
 
         me.side = [
@@ -43,7 +42,12 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
         var me = this,
             cfg = {
                 activeTab: 0,
-                items: []
+                items: [
+                    {
+                        title: Uni.I18n.translate('general.usagePointLifeCycle', 'IMT', 'Usage point life cycle'),
+                        itemId: 'up-life-cycle-tab'
+                    }
+                ]
             };
 
         Ext.getStore(me.store).each(function (cas) {
@@ -63,6 +67,13 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
                 }
             }
         });
+
+        cfg.items.push(
+            {
+                title: Uni.I18n.translate('general.calendar', 'IMT', 'Calendar'),
+                itemId: 'calendar-tab'
+            }
+        );
 
         return cfg;
     }
