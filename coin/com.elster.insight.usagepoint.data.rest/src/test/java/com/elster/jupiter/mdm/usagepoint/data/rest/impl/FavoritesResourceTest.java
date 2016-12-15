@@ -11,7 +11,6 @@ import com.elster.jupiter.rest.util.VersionInfo;
 
 import com.jayway.jsonpath.JsonModel;
 
-import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -22,7 +21,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -124,28 +126,30 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
         info.parent.version = usagePointGroup.getVersion();
+        info.favorite = true;
         info.comment = "My comment";
 
         Instant now = Instant.now();
         FavoriteUsagePointGroup favoriteUsagePointGroup = mock(FavoriteUsagePointGroup.class);
-        when(favoriteUsagePointGroup.getComment()).thenReturn(info.comment);
+        when(favoriteUsagePointGroup.getComment()).thenReturn(null, info.comment);
         when(favoriteUsagePointGroup.getCreationDate()).thenReturn(now);
         when(favoriteUsagePointGroup.getUsagePointGroup()).thenReturn(usagePointGroup);
         when(favoritesService.findFavoriteUsagePointGroup(usagePointGroup)).thenReturn(Optional.empty());
-        when(favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup))
+        when(favoritesService.markFavorite(usagePointGroup))
                 .thenReturn(favoriteUsagePointGroup);
 
         Response response = target("/favorites/usagepointgroups/100").request().put(Entity.json(info));
 
-        verify(favoritesService).findOrCreateFavoriteUsagePointGroup(usagePointGroup);
-        verify(favoriteUsagePointGroup).setComment(info.comment);
+        verify(favoritesService).markFavorite(usagePointGroup);
+        verify(favoriteUsagePointGroup, times(2)).getComment();
+        verify(favoriteUsagePointGroup).updateComment(info.comment);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         FavoriteUsagePointGroupInfo createdFavoriteInfo = response.readEntity(FavoriteUsagePointGroupInfo.class);
         assertThat(createdFavoriteInfo.parent.id).isEqualTo(100);
         assertThat(createdFavoriteInfo.parent.version).isEqualTo(1);
         assertThat(createdFavoriteInfo.favorite).isTrue();
-        assertThat(createdFavoriteInfo.comment).isEqualTo("My comment");
+        assertThat(createdFavoriteInfo.comment).isEqualTo(info.comment);
         assertThat(createdFavoriteInfo.creationDate).isEqualTo(now);
     }
 
@@ -155,28 +159,96 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
         info.parent.version = usagePoint.getVersion();
+        info.favorite = true;
         info.comment = "My comment";
 
         Instant now = Instant.now();
         FavoriteUsagePoint favoriteUsagePoint = mock(FavoriteUsagePoint.class);
-        when(favoriteUsagePoint.getComment()).thenReturn(info.comment);
+        when(favoriteUsagePoint.getComment()).thenReturn(null, info.comment);
         when(favoriteUsagePoint.getCreationDate()).thenReturn(now);
         when(favoriteUsagePoint.getUsagePoint()).thenReturn(usagePoint);
         when(favoritesService.findFavoriteUsagePoint(usagePoint)).thenReturn(Optional.empty());
-        when(favoritesService.findOrCreateFavoriteUsagePoint(usagePoint))
+        when(favoritesService.markFavorite(usagePoint))
                 .thenReturn(favoriteUsagePoint);
 
         Response response = target("/favorites/usagepoints/name").request().put(Entity.json(info));
 
-        verify(favoritesService).findOrCreateFavoriteUsagePoint(usagePoint);
-        verify(favoriteUsagePoint).setComment(info.comment);
+        verify(favoritesService).markFavorite(usagePoint);
+        verify(favoriteUsagePoint, times(2)).getComment();
+        verify(favoriteUsagePoint).updateComment(info.comment);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         FavoriteUsagePointInfo createdFavoriteInfo = response.readEntity(FavoriteUsagePointInfo.class);
         assertThat(createdFavoriteInfo.parent.id).isEqualTo(100);
         assertThat(createdFavoriteInfo.parent.version).isEqualTo(1);
         assertThat(createdFavoriteInfo.favorite).isTrue();
-        assertThat(createdFavoriteInfo.comment).isEqualTo("My comment");
+        assertThat(createdFavoriteInfo.comment).isEqualTo(info.comment);
+        assertThat(createdFavoriteInfo.creationDate).isEqualTo(now);
+    }
+
+    @Test
+    public void testUPGIsUpdatedForCommentButItIsTheSame() {
+        FavoriteUsagePointGroupInfo info = new FavoriteUsagePointGroupInfo();
+        info.parent = new VersionInfo<>();
+        info.parent.id = usagePointGroup.getId();
+        info.parent.version = usagePointGroup.getVersion();
+        info.favorite = true;
+        info.comment = "My comment";
+
+        Instant now = Instant.now();
+        FavoriteUsagePointGroup favoriteUsagePointGroup = mock(FavoriteUsagePointGroup.class);
+        when(favoriteUsagePointGroup.getComment()).thenReturn(info.comment, info.comment);
+        when(favoriteUsagePointGroup.getCreationDate()).thenReturn(now);
+        when(favoriteUsagePointGroup.getUsagePointGroup()).thenReturn(usagePointGroup);
+        when(favoritesService.findFavoriteUsagePointGroup(usagePointGroup)).thenReturn(Optional.empty());
+        when(favoritesService.markFavorite(usagePointGroup))
+                .thenReturn(favoriteUsagePointGroup);
+
+        Response response = target("/favorites/usagepointgroups/100").request().put(Entity.json(info));
+
+        verify(favoritesService).markFavorite(usagePointGroup);
+        verify(favoriteUsagePointGroup, times(2)).getComment();
+        verify(favoriteUsagePointGroup, never()).updateComment(anyString());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        FavoriteUsagePointGroupInfo createdFavoriteInfo = response.readEntity(FavoriteUsagePointGroupInfo.class);
+        assertThat(createdFavoriteInfo.parent.id).isEqualTo(100);
+        assertThat(createdFavoriteInfo.parent.version).isEqualTo(1);
+        assertThat(createdFavoriteInfo.favorite).isTrue();
+        assertThat(createdFavoriteInfo.comment).isEqualTo(info.comment);
+        assertThat(createdFavoriteInfo.creationDate).isEqualTo(now);
+    }
+
+    @Test
+    public void testUPIsUpdatedForCommentButItIsTheSame() {
+        FavoriteUsagePointInfo info = new FavoriteUsagePointInfo();
+        info.parent = new VersionInfo<>();
+        info.parent.id = usagePoint.getId();
+        info.parent.version = usagePoint.getVersion();
+        info.favorite = true;
+        info.comment = "My comment";
+
+        Instant now = Instant.now();
+        FavoriteUsagePoint favoriteUsagePoint = mock(FavoriteUsagePoint.class);
+        when(favoriteUsagePoint.getComment()).thenReturn(info.comment, info.comment);
+        when(favoriteUsagePoint.getCreationDate()).thenReturn(now);
+        when(favoriteUsagePoint.getUsagePoint()).thenReturn(usagePoint);
+        when(favoritesService.findFavoriteUsagePoint(usagePoint)).thenReturn(Optional.empty());
+        when(favoritesService.markFavorite(usagePoint))
+                .thenReturn(favoriteUsagePoint);
+
+        Response response = target("/favorites/usagepoints/name").request().put(Entity.json(info));
+
+        verify(favoritesService).markFavorite(usagePoint);
+        verify(favoriteUsagePoint, times(2)).getComment();
+        verify(favoriteUsagePoint, never()).updateComment(anyString());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        FavoriteUsagePointInfo createdFavoriteInfo = response.readEntity(FavoriteUsagePointInfo.class);
+        assertThat(createdFavoriteInfo.parent.id).isEqualTo(100);
+        assertThat(createdFavoriteInfo.parent.version).isEqualTo(1);
+        assertThat(createdFavoriteInfo.favorite).isTrue();
+        assertThat(createdFavoriteInfo.comment).isEqualTo(info.comment);
         assertThat(createdFavoriteInfo.creationDate).isEqualTo(now);
     }
 
@@ -189,11 +261,12 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
         info.parent.version = usagePointGroup.getVersion();
+        info.favorite = false;
 
-        Response response = target("/favorites/usagepointgroups/100").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/favorites/usagepointgroups/100").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(favoritesService).removeFavoriteUsagePointGroup(favoriteUsagePointGroup);
+        verify(favoritesService).removeFromFavorites(favoriteUsagePointGroup);
     }
 
     @Test
@@ -205,11 +278,12 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
         info.parent.version = usagePoint.getVersion();
+        info.favorite = false;
 
-        Response response = target("/favorites/usagepoints/name").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/favorites/usagepoints/name").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(favoritesService).removeFavoriteUsagePoint(favoriteUsagePoint);
+        verify(favoritesService).removeFromFavorites(favoriteUsagePoint);
     }
 
     @Test
@@ -220,8 +294,9 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
         info.parent.version = usagePointGroup.getVersion();
+        info.favorite = false;
 
-        Response response = target("/favorites/usagepointgroups/100").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/favorites/usagepointgroups/100").request().put(Entity.json(info));
 
         verify(favoritesService).findFavoriteUsagePointGroup(usagePointGroup);
         verifyNoMoreInteractions(favoritesService);
@@ -236,8 +311,9 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
         info.parent.version = usagePoint.getVersion();
+        info.favorite = false;
 
-        Response response = target("/favorites/usagepoints/name").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/favorites/usagepoints/name").request().put(Entity.json(info));
 
         verify(favoritesService).findFavoriteUsagePoint(usagePoint);
         verifyNoMoreInteractions(favoritesService);
@@ -254,6 +330,7 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
         info.parent.version = badVersion;
+        info.favorite = true;
 
         Response response = target("/favorites/usagepointgroups/100").request().put(Entity.json(info));
 
@@ -275,6 +352,7 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
         info.parent.version = badVersion;
+        info.favorite = true;
 
         Response response = target("/favorites/usagepoints/name").request().put(Entity.json(info));
 
@@ -296,8 +374,9 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePointGroup.getId();
         info.parent.version = badVersion;
+        info.favorite = false;
 
-        Response response = target("/favorites/usagepointgroups/100").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/favorites/usagepointgroups/100").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo concurrentModificationInfo = response.readEntity(ConcurrentModificationInfo.class);
@@ -317,8 +396,9 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         info.parent = new VersionInfo<>();
         info.parent.id = usagePoint.getId();
         info.parent.version = badVersion;
+        info.favorite = false;
 
-        Response response = target("/favorites/usagepoints/name").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/favorites/usagepoints/name").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo concurrentModificationInfo = response.readEntity(ConcurrentModificationInfo.class);

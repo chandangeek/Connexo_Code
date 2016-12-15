@@ -15,14 +15,13 @@ import com.elster.jupiter.rest.util.Transactional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import java.util.Objects;
 import java.util.Optional;
 
 @Path("/favorites")
@@ -55,7 +54,7 @@ public class FavoritesResource {
     @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
             com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
             com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
-    public FavoriteUsagePointGroupInfo getFavoriteUsagePointGroup(@PathParam("id") long id) {
+    public FavoriteUsagePointGroupInfo getUsagePointGroupFavoriteFlag(@PathParam("id") long id) {
         UsagePointGroup usagePointGroup = resourceHelper.findUsagePointGroupOrThrowException(id);
         return favoritesService.findFavoriteUsagePointGroup(usagePointGroup)
                 .map(FavoriteUsagePointGroupInfo::new)
@@ -70,7 +69,7 @@ public class FavoritesResource {
             com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
             com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
             com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
-    public FavoriteUsagePointInfo getFavoriteUsagePoint(@PathParam("name") String name) {
+    public FavoriteUsagePointInfo getUsagePointFavoriteFlag(@PathParam("name") String name) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         return favoritesService.findFavoriteUsagePoint(usagePoint)
                 .map(FavoriteUsagePointInfo::new)
@@ -85,12 +84,20 @@ public class FavoritesResource {
     @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
             com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
             com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
-    public FavoriteUsagePointGroupInfo createFavoriteUsagePointGroup(@PathParam("id") long id, FavoriteUsagePointGroupInfo info) {
+    public FavoriteUsagePointGroupInfo updateUsagePointGroupFavoriteFlag(@PathParam("id") long id, FavoriteUsagePointGroupInfo info) {
         info.parent.id = id;
-        UsagePointGroup usagePointGroup = lockUsagePointGroupOrThrowException(info, false);
-        FavoriteUsagePointGroup favoriteUsagePointGroup = favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup);
-        favoriteUsagePointGroup.setComment(info.comment);
-        return new FavoriteUsagePointGroupInfo(favoriteUsagePointGroup);
+        UsagePointGroup usagePointGroup = lockUsagePointGroupOrThrowException(info, !info.favorite);
+        if (info.favorite) {
+            FavoriteUsagePointGroup favoriteUsagePointGroup = favoritesService.markFavorite(usagePointGroup);
+            if (!Objects.equals(favoriteUsagePointGroup.getComment(), info.comment)) {
+                favoriteUsagePointGroup.updateComment(info.comment);
+            }
+            return new FavoriteUsagePointGroupInfo(favoriteUsagePointGroup);
+        } else {
+            favoritesService.findFavoriteUsagePointGroup(usagePointGroup)
+                    .ifPresent(favoritesService::removeFromFavorites);
+            return new FavoriteUsagePointGroupInfo(usagePointGroup);
+        }
     }
 
     @PUT
@@ -102,43 +109,19 @@ public class FavoritesResource {
             com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
             com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
             com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
-    public FavoriteUsagePointInfo createFavoriteUsagePoint(@PathParam("name") String name, FavoriteUsagePointInfo info) {
-        UsagePoint usagePoint = lockUsagePointOrThrowException(info, name, false);
-        FavoriteUsagePoint favoriteUsagePoint = favoritesService.findOrCreateFavoriteUsagePoint(usagePoint);
-        favoriteUsagePoint.setComment(info.comment);
-        return new FavoriteUsagePointInfo(favoriteUsagePoint);
-    }
-
-    @DELETE
-    @Transactional
-    @Path(USAGE_POINT_GROUPS_RESOURCE + "/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_GROUP,
-            com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
-            com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL})
-    public Response removeFavoriteUsagePointGroup(@PathParam("id") long id, FavoriteUsagePointGroupInfo info) {
-        info.parent.id = id;
-        UsagePointGroup usagePointGroup = lockUsagePointGroupOrThrowException(info, true);
-        favoritesService.findFavoriteUsagePointGroup(usagePointGroup)
-                .ifPresent(favoritesService::removeFavoriteUsagePointGroup);
-        return Response.ok().build();
-    }
-
-    @DELETE
-    @Transactional
-    @Path(USAGE_POINTS_RESOURCE + "/{name}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
-            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
-            com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
-            com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
-    public Response removeFavoriteUsagePoint(@PathParam("name") String name, FavoriteUsagePointInfo info) {
-        UsagePoint usagePoint = lockUsagePointOrThrowException(info, name, true);
-        favoritesService.findFavoriteUsagePoint(usagePoint)
-                .ifPresent(favoritesService::removeFavoriteUsagePoint);
-        return Response.ok().build();
+    public FavoriteUsagePointInfo updateUsagePointFavoriteFlag(@PathParam("name") String name, FavoriteUsagePointInfo info) {
+        UsagePoint usagePoint = lockUsagePointOrThrowException(info, name, !info.favorite);
+        if (info.favorite) {
+            FavoriteUsagePoint favoriteUsagePoint = favoritesService.markFavorite(usagePoint);
+            if (!Objects.equals(favoriteUsagePoint.getComment(), info.comment)) {
+                favoriteUsagePoint.updateComment(info.comment);
+            }
+            return new FavoriteUsagePointInfo(favoriteUsagePoint);
+        } else {
+            favoritesService.findFavoriteUsagePoint(usagePoint)
+                    .ifPresent(favoritesService::removeFromFavorites);
+            return new FavoriteUsagePointInfo(usagePoint);
+        }
     }
 
     private UsagePointGroup lockUsagePointGroupOrThrowException(FavoriteUsagePointGroupInfo info, boolean remove) {
