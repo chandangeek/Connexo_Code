@@ -13,12 +13,9 @@ import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
@@ -95,15 +92,6 @@ public class DeviceIdentifierBySerialNumber implements ServerDeviceIdentifier {
         return "device with serial number " + this.serialNumber;
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @XmlAttribute
     public String getSerialNumber() {
         return serialNumber;
@@ -138,9 +126,14 @@ public class DeviceIdentifierBySerialNumber implements ServerDeviceIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return Collections.singletonMap("serialNumber", serialNumber);
+        public Object getValue(String role) {
+            if ("serialNumber".equals(role)) {
+                return serialNumber;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
         }
+
     }
 
 }

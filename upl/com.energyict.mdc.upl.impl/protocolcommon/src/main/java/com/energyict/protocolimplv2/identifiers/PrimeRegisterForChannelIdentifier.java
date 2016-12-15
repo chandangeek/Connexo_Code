@@ -7,13 +7,10 @@ import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link RegisterIdentifier} interface
@@ -79,15 +76,6 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
         return deviceIdentifier;
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
@@ -105,8 +93,21 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return ImmutableMap.of("device", getDeviceIdentifier(), "channelIndex", getChannelIndex(), "obisCode", getRegisterObisCode());
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "channelIndex": {
+                    return getChannelIndex();
+                }
+                case "obisCode": {
+                    return getRegisterObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
         }
     }
 

@@ -5,12 +5,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -53,15 +50,6 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
         return new Introspector();
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @XmlAttribute
     public int getMessageId() {
         return messageId;
@@ -91,8 +79,12 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return ImmutableMap.of("databaseValue", getMessageId());
+        public Object getValue(String role) {
+            if ("databaseValue".equals(role)) {
+                return getMessageId();
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
         }
     }
 

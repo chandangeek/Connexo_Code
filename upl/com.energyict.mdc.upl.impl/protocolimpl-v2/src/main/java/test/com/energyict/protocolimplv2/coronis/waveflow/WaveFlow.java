@@ -379,7 +379,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     public int getProfileInterval() {
-        return (int) Temporals.toSeconds(offlineDevice.getAllOfflineLoadProfiles().get(0).getInterval());
+        return (int) Temporals.toSeconds(offlineDevice.getAllOfflineLoadProfiles().get(0).interval());
     }
 
     public CommonObisCodeMapper getCommonObisCodeMapper() {

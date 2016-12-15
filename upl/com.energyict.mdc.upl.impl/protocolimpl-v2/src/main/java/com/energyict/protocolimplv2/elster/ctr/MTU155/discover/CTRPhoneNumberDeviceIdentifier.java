@@ -15,12 +15,9 @@ import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface,
@@ -95,15 +92,6 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
         return "device with phone number " + this.phoneNumber;
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @XmlAttribute
     public String getPhoneNumber() {
         return phoneNumber;
@@ -138,9 +126,14 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return Collections.singletonMap("phoneNumber", phoneNumber);
+        public Object getValue(String role) {
+            if ("phoneNumber".equals(role)) {
+                return phoneNumber;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
         }
+
     }
 
 }

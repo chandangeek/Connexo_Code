@@ -9,10 +9,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link LoadProfileIdentifier}
@@ -69,15 +67,6 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
         return new Introspector();
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @Override
     public String toString() {
         return "first load profile on device having deviceIdentifier = " + deviceIdentifier;
@@ -86,12 +75,16 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "FistLoadProfileOnDevice";
+            return "FirstLoadProfileOnDevice";
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return java.util.Collections.singletonMap("device", getDeviceIdentifier());
+        public Object getValue(String role) {
+            if ("device".equals(role)) {
+                return getDeviceIdentifier();
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
         }
     }
 

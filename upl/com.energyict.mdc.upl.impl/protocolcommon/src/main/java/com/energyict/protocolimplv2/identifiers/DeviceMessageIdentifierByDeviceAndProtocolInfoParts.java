@@ -8,14 +8,11 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
@@ -87,15 +84,6 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
         return result;
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @XmlAttribute
     public String[] getMessageProtocolInfoParts() {
         return messageProtocolInfoParts;
@@ -112,15 +100,6 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
             throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because there is not identifier");
         }
 
-        @XmlElement(name = "type")
-        public String getXmlType() {
-            return this.getClass().getName();
-        }
-
-        public void setXmlType(String ignore) {
-            // For xml unmarshalling purposes only
-        }
-
         @Override
         public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
             return new NullIntrospector();
@@ -134,8 +113,8 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return java.util.Collections.emptyMap();
+        public Object getValue(String role) {
+            throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
         }
     }
 
@@ -146,9 +125,20 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return ImmutableMap.of("device", getDeviceIdentifier(), "protocolInfo", getMessageProtocolInfoParts());
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "protocolInfo": {
+                    return getMessageProtocolInfoParts();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
         }
+
     }
 
 }

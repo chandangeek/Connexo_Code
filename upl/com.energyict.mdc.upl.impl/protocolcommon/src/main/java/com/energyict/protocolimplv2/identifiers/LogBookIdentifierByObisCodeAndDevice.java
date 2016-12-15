@@ -8,12 +8,9 @@ import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
-import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -66,15 +63,6 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
         return new Introspector();
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     /**
      * Check if the given {@link Object} is equal to this {@link LogBookIdentifierByObisCodeAndDevice}. <BR>
      * WARNING: if comparing with a {@link LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
@@ -114,8 +102,18 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
         }
 
         @Override
-        public Map<String, Object> getValues() {
-            return ImmutableMap.of("device", getDeviceIdentifier(), "obisCode", getLogBookObisCode());
+        public Object getValue(String role) {
+            switch (role) {
+                case "device": {
+                    return getDeviceIdentifier();
+                }
+                case "obisCode": {
+                    return getLogBookObisCode();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
         }
     }
 
