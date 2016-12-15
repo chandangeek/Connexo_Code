@@ -104,7 +104,6 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
                 .named(TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY.getKey(), TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY)
                 .fromThesaurus(this.thesaurus)
                 .addValues(possibleValues)
-//                .markRequired()
                 .markMultiValued(",")
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish();
@@ -112,7 +111,8 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
 
     private PropertySpec getConnectionStatePropertySpec() {
         ConnectionStateInfo[] possibleValues =
-                Arrays.stream(ConnectionState.values())
+                Arrays.asList(ConnectionState.CONNECTED, ConnectionState.PHYSICALLY_DISCONNECTED, ConnectionState.LOGICALLY_DISCONNECTED)
+                        .stream()
                         .map(s -> new ConnectionStateInfo(s, thesaurus))
                         .toArray(ConnectionStateInfo[]::new);
 
