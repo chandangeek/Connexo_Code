@@ -256,6 +256,12 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsagePointState getState(Instant instant);
 
+    /**
+     * Sets initial state of default usage point life cycle if and only if the usage point
+     * has no current state yet, which is a possible situation during upgrade from 10.2 to 10.x
+     */
+    void setInitialState();
+
     interface UsagePointConfigurationBuilder {
 
         UsagePointConfigurationBuilder endingAt(Instant endTime);

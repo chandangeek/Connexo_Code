@@ -63,6 +63,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
@@ -166,6 +167,7 @@ public class UsagePointImpl implements UsagePoint {
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final ServerDataAggregationService dataAggregationService;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
 
     @Inject
@@ -175,7 +177,8 @@ public class UsagePointImpl implements UsagePoint {
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService,
             ServerMetrologyConfigurationService metrologyConfigurationService,
-            ServerDataAggregationService dataAggregationService) {
+            ServerDataAggregationService dataAggregationService,
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -185,6 +188,7 @@ public class UsagePointImpl implements UsagePoint {
         this.customPropertySetService = customPropertySetService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.dataAggregationService = dataAggregationService;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     UsagePointImpl init(String name, ServiceCategory serviceCategory) {
@@ -1100,6 +1104,21 @@ public class UsagePointImpl implements UsagePoint {
         return this.state.effective(instant)
                 .map(UsagePointStateTemporalImpl::getState)
                 .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at " + instant));
+    }
+
+    @Override
+    public void setInitialState() {
+        if (!state.all().isEmpty()) {
+            throw new IllegalStateException("Usage point already has life cycle state");
+        }
+        setState(getInitialStateOfDefaultLifeCycle(), getInstallationTime());
+    }
+
+    private UsagePointState getInitialStateOfDefaultLifeCycle() {
+        return usagePointLifeCycleConfigurationService.getDefaultLifeCycle().getStates().stream()
+                .filter(UsagePointState::isInitial)
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("Default usage point life cycle has no initial state"));
     }
 
     public void setState(UsagePointState state, Instant startTime) {

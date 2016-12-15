@@ -28,15 +28,15 @@ public class UsagePointStateChangeEventHandler implements TopicHandler {
     private FiniteStateMachineService stateMachineService;
     private UsagePointLifeCycleConfigurationService lifeCycleConfService;
 
-    @SuppressWarnings("unused") //OSGI
     public UsagePointStateChangeEventHandler() {
     }
 
-    @Inject // Tests
+    @Inject
     public UsagePointStateChangeEventHandler(Clock clock,
                                              MeteringService meteringService,
                                              FiniteStateMachineService stateMachineService,
                                              UsagePointLifeCycleConfigurationService lifeCycleConfService) {
+        this();
         this.setClock(clock);
         this.setMeteringService(meteringService);
         this.setStateMachineService(stateMachineService);

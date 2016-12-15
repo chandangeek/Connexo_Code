@@ -55,6 +55,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -145,6 +146,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         setupServices();
         setupReadingTypes();
         setupMetrologyPurpose();
+        setupDefaultUsagePointLifeCycle();
         ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
     }
 
@@ -232,6 +234,14 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(description, description);
+            ctx.commit();
+        }
+    }
+
+    private static void setupDefaultUsagePointLifeCycle() {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+            usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
             ctx.commit();
         }
     }

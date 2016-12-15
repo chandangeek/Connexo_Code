@@ -139,6 +139,7 @@ public class MeteringInMemoryBootstrapModule {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);
             addMessageHandlers();
+            createDefaultUsagePointLifeCycle();
             ctx.commit();
         }
     }
@@ -148,6 +149,11 @@ public class MeteringInMemoryBootstrapModule {
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointLifeCycleDeletionEventHandler.class));
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointStateDeletionEventHandler.class));
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointStateChangeEventHandler.class));
+    }
+
+    private void createDefaultUsagePointLifeCycle() {
+        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+        usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
 
     public void deactivate() {
