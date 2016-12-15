@@ -24,7 +24,10 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         me.content = [
             {
                 itemId: 'usage-point-content',
-                title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                header: {
+                    title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                    titleIsShrinked: true
+                },
                 ui: 'large',
                 tools: [
                     {

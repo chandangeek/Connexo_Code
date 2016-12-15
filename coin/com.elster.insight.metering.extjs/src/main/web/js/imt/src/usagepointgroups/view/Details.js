@@ -44,7 +44,10 @@ Ext.define('Imt.usagepointgroups.view.Details', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                    header: {
+                        title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                        titleIsShrinked: true
+                    },
                     flex: 1,
                     items: {
                         xtype: 'usagepointgroup-preview-form',
