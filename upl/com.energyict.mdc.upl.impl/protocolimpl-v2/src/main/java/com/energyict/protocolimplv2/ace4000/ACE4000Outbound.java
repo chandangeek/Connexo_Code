@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
@@ -33,6 +31,9 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -118,7 +119,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                     List<OfflineLoadProfile> offlineLoadProfiles = getOfflineDevice().getAllOfflineLoadProfiles();
                     if (offlineLoadProfiles != null && !offlineLoadProfiles.isEmpty()) {
                         OfflineLoadProfile offlineLoadProfile = getOfflineLoadProfile(offlineLoadProfiles, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
-                        long profileInterval = Temporals.toMilliSeconds(offlineLoadProfile.getInterval());
+                        long profileInterval = Temporals.toMilliSeconds(offlineLoadProfile.interval());
                         Date toDate = new Date();
                         Date fromDate = new Date(toDate.getTime() - (2 * profileInterval)); // get the last interval from date
                         ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, fromDate, toDate);
