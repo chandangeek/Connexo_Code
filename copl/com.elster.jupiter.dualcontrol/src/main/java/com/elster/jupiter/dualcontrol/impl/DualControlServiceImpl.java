@@ -2,6 +2,10 @@ package com.elster.jupiter.dualcontrol.impl;
 
 import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.dualcontrol.Monitor;
+import com.elster.jupiter.dualcontrol.Privileges;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -10,17 +14,23 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
-public class DualControlServiceImpl implements DualControlService {
+@Component(name = "com.elster.jupiter.dualcontrol", service = {DualControlService.class, TranslationKeyProvider.class}, property = {"name=" + DualControlService.COMPONENT_NAME}, immediate = true)
+public class DualControlServiceImpl implements DualControlService, TranslationKeyProvider {
 
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
+    private volatile UserService userService;
 
     public DualControlServiceImpl() {
     }
@@ -34,12 +44,14 @@ public class DualControlServiceImpl implements DualControlService {
         activate();
     }
 
-    private void activate() {
+    @Activate
+    public void activate() {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(DataModel.class).toInstance(dataModel);
+                bind(UserService.class).toInstance(userService);
             }
         });
         upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
@@ -57,9 +69,24 @@ public class DualControlServiceImpl implements DualControlService {
         return dataModel.mapper(Monitor.class).getOptional(id);
     }
 
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(Privileges.values());
+    }
+
     @Reference
     public void setUserService(UserService userService) {
-        // dependency only
+        this.userService = userService;
     }
 
     @Reference

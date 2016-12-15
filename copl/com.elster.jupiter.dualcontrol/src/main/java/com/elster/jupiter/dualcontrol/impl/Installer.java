@@ -1,6 +1,7 @@
 package com.elster.jupiter.dualcontrol.impl;
 
 import com.elster.jupiter.dualcontrol.DualControlService;
+import com.elster.jupiter.dualcontrol.Privileges;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -50,7 +51,7 @@ class Installer implements FullInstaller {
 
         Group dualControlAdministrator = userService.createGroup("Dual control administrator", "Dual control administrative privileges");
 
-        dualControlAdministrator.grant("Pulse", Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey());
+        dualControlAdministrator.grant("SYS", Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey());
 
         return null;
 

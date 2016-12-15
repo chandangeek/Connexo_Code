@@ -195,8 +195,20 @@ class MonitorImpl implements Monitor {
         return state;
     }
 
+    @Override
     public List<UserOperation> getOperations() {
         return Collections.unmodifiableList(operations);
+    }
+
+    @Override
+    public boolean hasCurrentUserAccepted() {
+        return decorate(Lists.reverse(operations).stream())
+                .takeWhile(not(UserOperation::isRequest))
+                .filter(UserOperation::isApproval)
+                .distinct(UserOperation::getUser)
+                .filter(userOperation -> userOperation.getUser().equals(getUser()))
+                .findAny()
+                .isPresent();
     }
 
     User getUser() {

@@ -1,15 +1,17 @@
-package com.elster.jupiter.dualcontrol.impl;
+package com.elster.jupiter.dualcontrol;
+
+import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public enum Privileges /*implements TranslationKey*/ {
+public enum Privileges implements TranslationKey {
     //Resources
     RESOURCE_TOU_CALENDARS("dualcontrol", "Dual Control"),
     RESOURCE_TOU_CALENDARS_DESCRIPTION("dualcontrol.description", "Manage dual control"),
 
     //Privileges
-    GRANT_DUAL_CONTROL_APPROVAL("dualcontrol.grant.approval", "Grant privileges to approve dual controlled entities.")
+    GRANT_DUAL_CONTROL_APPROVAL(Constants.GRANT_APPROVAL, "Grant privileges to approve dual controlled entities.")
     ;
 
     private final String key;
@@ -20,11 +22,12 @@ public enum Privileges /*implements TranslationKey*/ {
         this.description = description;
     }
 
+    @Override
     public String getKey() {
         return key;
     }
 
- //   @Override
+    @Override
     public String getDefaultFormat() {
         return getDescription();
     }
@@ -41,6 +44,6 @@ public enum Privileges /*implements TranslationKey*/ {
     }
 
     public interface Constants {
-        String MANAGE_TOU_CALENDARS = "privilege.administrate.touCalendars";
+        String GRANT_APPROVAL = "dualcontrol.grant.approval";
     }
 }
