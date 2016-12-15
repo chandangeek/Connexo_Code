@@ -72,7 +72,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                             title: Uni.I18n.translate('usagePoint.meterRoles.empty.title', 'IMT', 'No meter roles'),
                             reasons: [
                                 Uni.I18n.translate('usagePoint.meterRoles.empty.reason', 'IMT', 'Meter roles have not been linked to this usage point yet')
-                            ]
+                            ],
+                            style: 'margin-top: 15px'
                         }
                     },
                     {
