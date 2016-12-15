@@ -14,7 +14,6 @@ import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -206,7 +205,7 @@ public class IssueDataValidationServiceTest {
         User assignee = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
         assignee.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
-        issue.assignTo(IssueAssignee.Types.USER, assignee.getId());
+        issue.assignTo(assignee.getId(), null);
         issue.update();
 
         filter = new DataValidationIssueFilter();
@@ -223,7 +222,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
-        assertThat(issue.getAssignee().getId()).isEqualTo(assignee.getId());
+        assertThat(issue.getAssignee().getUser().getId()).isEqualTo(assignee.getId());
 
         filter = new DataValidationIssueFilter();
         User anotherAssignee = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "APD", "APD");
