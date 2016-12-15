@@ -35,6 +35,11 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private static final ObisCode P1_PORT_VERSION_OBIS = ObisCode.fromString("1.3.0.2.8.255");
     private static final ObisCode CLOCK_OBIS = ObisCode.fromString("0.0.1.0.0.255");
     private static final ObisCode PUSH_ACTION_SCHEDULER_OBISCODE = ObisCode.fromString("0.0.15.0.4.255");
+    private static final ObisCode WIRED_SCAN_SCRIPT_TABLE = ObisCode.fromString("0.0.10.1.101.255");
+    private static final ObisCode WIRED_MBUS_SEARCH_RESULT = ObisCode.fromString("0.0.96.70.0.255");
+    private static final ObisCode WIRELESS_MBUS_SEARCH_RESULT = ObisCode.fromString("0.1.96.70.0.255");
+    private static final ObisCode WIRED_MBUS_PORT_REFERENCE = ObisCode.fromString("0.0.24.6.0.255");
+    private static final ObisCode WIRELESS_MBUS_PORT_REFERENCE = ObisCode.fromString("0.1.24.6.0.255");
     private static final long SUPERVISION_MAXIMUM_THRESHOLD_VALUE = 0x80000000l;
     private final String undefined_hour = "FF"; //not defined
     private final String undefined_minute = "FF"; //not defined
@@ -46,6 +51,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private final String undefined_dayOfWeek = "FF"; //not defined
     private final String disabledTime = undefined_hour + undefined_minute + undefined_second + undefined_hundredths;
     private final String disabledDate = undefined_year + undefined_month + undefined_dayOfMonth + undefined_dayOfWeek;
+    private static final int MAX_MBUS_SLAVES = 4;
 
     public T210DMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
@@ -70,6 +76,10 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             collectedMessage = enablePushOnInterval(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
             firmwareUpgrade(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDevices)) {
+            collectedMessage = scanAndInstallWiredMbusDevices(collectedMessage, pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.InstallWirelessMbusDevices)) {
+            collectedMessage = installWirelessMbusDevices(collectedMessage, pendingMessage);
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
@@ -377,6 +387,99 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             collectedMessage.setDeviceProtocolInformation(msg);
             return collectedMessage;
         }
+    }
+
+    private CollectedMessage installWirelessMbusDevices(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        //Mbus device scanning done automatically for wireless connection
+        //extract data from MBus search result
+        Array mbusSearchResult = getMbusSearchResult(collectedMessage, pendingMessage, WIRELESS_MBUS_SEARCH_RESULT);
+        installSlave(collectedMessage, pendingMessage, mbusSearchResult, WIRELESS_MBUS_PORT_REFERENCE);
+        return collectedMessage;
+    }
+
+    private CollectedMessage scanAndInstallWiredMbusDevices(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        scanWiredMBusDevices(collectedMessage, pendingMessage);
+        //extract data from MBus search result
+        Array mbusSearchResult = getMbusSearchResult(collectedMessage, pendingMessage, WIRED_MBUS_SEARCH_RESULT);
+        installSlave(collectedMessage, pendingMessage, mbusSearchResult, WIRED_MBUS_PORT_REFERENCE);
+        return collectedMessage;
+    }
+
+    /*
+        Each mbusSearchResult entry is an octet-string[8], formatted as NNNNNNNNMMMMVVDD, where:
+        - NNNNNNNN: Serial Number
+        - MMMM: Manufacturer ID
+        - VV: Version
+        - DD: Device Type
+    */
+    private CollectedMessage installSlave(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, Array mbusSearchResult, ObisCode mbusPortReferenceObis) throws IOException {
+        for(AbstractDataType mbusSearchResultEntry: mbusSearchResult){
+            String entry = mbusSearchResultEntry.getOctetString().stringValue();
+            String serialNumber = entry.substring(0, 8);
+            String manufacturerId = entry.substring(8, 12);
+            String version = entry.substring(12, 14);
+            String deviceType = entry.substring(14, 16);
+
+            for (int channel = 1; channel <= getMaxMBusSlaves(); channel++) {//Check the available 4 channels, install the slave meter on a free channel client.
+                ObisCode obisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);   //Find the right MBus client object
+                MBusClient mbusClient = getMbusClientForVersion(collectedMessage, pendingMessage, version, obisCode);
+                if (mbusClient.getPrimaryAddress().getValue() == 0) {     //Find a free channel client
+                    mbusClient.setMBusPortReference(OctetString.fromObisCode(mbusPortReferenceObis));
+                    mbusClient.setIdentificationNumber(new Unsigned32(Integer.parseInt(serialNumber, 16)));
+                    mbusClient.setManufacturerID(new Unsigned16(Integer.parseInt(manufacturerId, 16)));
+                    mbusClient.setDeviceType(new Unsigned8(Integer.parseInt(deviceType, 16)));
+                    //install MBus device
+                    mbusClient.invoke(1, new Unsigned8(1).getBEREncodedByteArray());
+                    if(mbusClient.getPrimaryAddress().getValue() != 253){
+                        String errorMsg = "Failed to install Mbus slave with identification number: "+ serialNumber;
+                        setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
+                    }
+                }
+            }
+        }
+        return collectedMessage;
+    }
+
+    private MBusClient getMbusClientForVersion(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String version, ObisCode obisCode) throws NotInObjectListException {
+        try {
+            return getCosemObjectFactory().getMbusClient(obisCode, Integer.parseInt(version));
+        } catch (NotInObjectListException e) {
+            setNotInObjectListMessage(collectedMessage, obisCode.toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private Array getMbusSearchResult(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, ObisCode searchResultObis) throws IOException {
+        Array mbusSearchResult = null;
+        try {
+            mbusSearchResult = getCosemObjectFactory().getData(searchResultObis).getValueAttr().getArray();
+        } catch (NotInObjectListException e) {
+            setNotInObjectListMessage(collectedMessage, searchResultObis.toString(), pendingMessage, e);
+            throw e;
+        } catch (IOException e) {
+            String errorMsg = "Unable to get the value for obis: "+ searchResultObis.toString() +". "+ e.getMessage();
+            setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
+            throw e;
+        }
+        return mbusSearchResult;
+    }
+
+    private void scanWiredMBusDevices(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        //on wired connection first do the scan
+        try {
+            getCosemObjectFactory().getData(WIRED_SCAN_SCRIPT_TABLE).invoke(1, new Unsigned16(1).getBEREncodedByteArray());
+        } catch (NotInObjectListException e) {
+            setNotInObjectListMessage(collectedMessage, WIRED_SCAN_SCRIPT_TABLE.toString(), pendingMessage, e);
+            throw e;
+        } catch (IOException e) {
+            String errorMsg = "Exception occurred while trying to scan the wired MBus devices. " + e.getMessage();
+            setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
+            throw e;
+        }
+    }
+
+    protected int getMaxMBusSlaves() {
+        return MAX_MBUS_SLAVES;
     }
 
 }

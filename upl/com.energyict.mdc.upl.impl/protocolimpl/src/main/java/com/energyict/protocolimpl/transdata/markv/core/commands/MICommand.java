@@ -9,8 +9,10 @@
  */
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
-import java.io.*; 
-import java.util.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 /**
  *
  * @author koen
@@ -61,5 +63,8 @@ public class MICommand  extends AbstractCommand {
         this.serialNumber = serialNumber;
     }
 
-    
+    @Override
+    protected String getCommandName() {
+        return "MI";
+    }
 }

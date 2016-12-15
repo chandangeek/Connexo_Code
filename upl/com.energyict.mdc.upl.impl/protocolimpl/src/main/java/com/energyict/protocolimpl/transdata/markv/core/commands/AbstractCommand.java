@@ -27,10 +27,16 @@ abstract public class AbstractCommand {
 
     abstract protected CommandIdentification getCommandIdentification();
 
+    /**
+     * Getter for the command name, which in fact corresponds to class name
+     * (which we cannot use, as classes are obfuscated)
+     */
+    abstract protected String getCommandName();
+
     abstract protected void parse(String strData) throws IOException;
 
     protected void parse(String strData, byte[] xmodemData) throws IOException {
-        throw new IOException(Utils.format("Command parsing using xmodem data is not supported for command '{0}'", new Object[]{getClass().getSimpleName()}));
+        throw new IOException(Utils.format("Command parsing using xmodem data is not supported for command '{0}'", new Object[]{getCommandName()}));
     }
     
     /** Creates a new instance of AbstractCommand */

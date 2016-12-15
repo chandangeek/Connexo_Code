@@ -132,8 +132,8 @@ public class AM130 extends AM500 {
         getLogger().info("Connecting to public client:"+IDIS2_CLIENT_PUBLIC);
         connectToPublicClient(publicDlmsSession);
         try {
-            ObisCode frameCounterObisCode = getFrameCounterForClient(IDIS2_CLIENT_PUBLIC);
-            getLogger().info("Public client connected, reading framecounter "+frameCounterObisCode.toString());
+            ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
+            getLogger().info("Public client connected, reading framecounter "+frameCounterObisCode.toString() +", corresponding to client "+getDlmsSessionProperties().getClientMacAddress());
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
             getLogger().info("Frame counter received: "+frameCounter);
         } catch (DataAccessResultException | ProtocolException e) {

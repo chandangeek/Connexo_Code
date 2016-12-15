@@ -15,8 +15,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
-import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 public class C1222Layer extends C12Layer2 {
 
@@ -48,8 +48,8 @@ public class C1222Layer extends C12Layer2 {
                       int maxRetries,
                       long forcedDelay,
                       int echoCancelling,
-                      HalfDuplexController halfDuplexController) throws ConnectionException {
-        super(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController);
+                      HalfDuplexController halfDuplexController, Logger logger, boolean validateControlToggleBit) throws ConnectionException {
+        super(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController, logger, validateControlToggleBit);
         this.timeout = timeout;
         this.maxRetries = maxRetries;
     }

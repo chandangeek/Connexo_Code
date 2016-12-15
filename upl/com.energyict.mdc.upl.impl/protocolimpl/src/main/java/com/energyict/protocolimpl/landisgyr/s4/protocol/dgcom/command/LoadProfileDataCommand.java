@@ -16,6 +16,7 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.util.Equality;
 
 import java.io.IOException;
@@ -54,26 +55,23 @@ public class LoadProfileDataCommand extends AbstractCommand {
     }
     
     protected byte[] prepareBuild() throws IOException {
-        
         //if (DEBUG>=1) System.out.println(getCommandFactory().getLoadProfileLimit());
         if (DEBUG>=1) System.out.println(getCommandFactory().getTOUAndLoadProfileOptions());
 
-        
-        
         // 2 extra 1K blocks to be sure that we have a full day... Problem is with the DATE_STAMP
         // If this is not OK, we can always build in a mechanism that counts the DATA entries before the first DATE_STAMP and then
         // at first DATE_STAMP roll back with correct interval decrements...
-        int memorySizeInKbytes=(getMemorySize()/1024)+2; 
-        
+        int memorySizeInKbytes=(getMemorySize()/1024)+2;
+
         
         byte[] data=null;
-/*
-Load Profile Memory Available
-Normal Memory Extended Memory
-DX *6.00k/6.75k 30.0k
-RXS3 25.4k 121.4k
-RXS4 32k 122k
-*/            
+        /*
+        Load Profile Memory Available
+        Normal Memory Extended Memory
+        DX *6.00k/6.75k 30.0k
+        RXS3 25.4k 121.4k
+        RXS4 32k 122k
+        */
         
         if (getCommandFactory().getFirmwareVersionCommand().isRX()) {
            if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00) { // RXS4
@@ -118,8 +116,6 @@ RXS4 32k 122k
     private final int STATE_VALUE_PARTIAL=2;
     
     protected void parse(byte[] data) throws IOException {
-        
-        meterEvents = new ArrayList();
         intervalDatas = collect(data);
         validate(intervalDatas);
         
@@ -269,10 +265,6 @@ RXS4 32k 122k
                 // KV 07082007
                 // if calendar is older then previous, remove already collected intervals
                 Calendar temp = getDateStamp(value);
-                if ((cal != null) && (temp.getTime().before(cal.getTime()))) {
-                    intervalDatas = new ArrayList();
-                    if (DEBUG>=2) System.out.println("KV_DEBUG> Trash all received intervals until now...");   
-                }
                 cal = temp;
                         
                 if (dateStamp)
@@ -283,38 +275,31 @@ RXS4 32k 122k
             } // if (event == DATE_STAMP)
             
             if (event == TIME_STAMP) {
-                if (DEBUG>=2) System.out.println("TIME_STAMP");                  
+                if (DEBUG>=2) System.out.println("TIME_STAMP");
                 getTimeStamp(cal,value);
-                
-                
+
                 if ((!dateStamp) && (!timeStamp)) {
                     timeStamp = true;
                     intervalStateBits |= IntervalStateBits.POWERDOWN;
-                    meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERDOWN));
-//System.out.println("POWERDOWN AT "+cal.getTime());                    
+                    getMeterEvents().add(new MeterEvent(cal.getTime(),MeterEvent.POWERDOWN));
                 }
                 else if ((dateStamp) && (!timeStamp)) {
                     
                     if (!((intervalStateBits&IntervalStateBits.SHORTLONG) == IntervalStateBits.SHORTLONG)) {
                         intervalStateBits |= IntervalStateBits.SHORTLONG;
-//System.out.println("TIMESET BEFORE "+cal.getTime());   
-                        meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.SETCLOCK_BEFORE));
+                        getMeterEvents().add(new MeterEvent(cal.getTime(),MeterEvent.SETCLOCK_BEFORE));
                         
                     }
                     else {
-//System.out.println("TIMESET AFTER "+cal.getTime());   
-                        meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.SETCLOCK_AFTER));
+                        getMeterEvents().add(new MeterEvent(cal.getTime(),MeterEvent.SETCLOCK_AFTER));
     
                     }
-                 
-                    //timeStamp = true;
                 }
                 else if (timeStamp) {
                     intervalStateBits |= IntervalStateBits.POWERUP;
                     dateStamp=false;
                     timeStamp=false;
-//System.out.println("POWERUP AT "+cal.getTime());                    
-                    meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERUP));
+                    getMeterEvents().add(new MeterEvent(cal.getTime(),MeterEvent.POWERUP));
                 }
                 
                 ParseUtils.roundDown2nearestInterval(cal, getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getProfileInterval());
@@ -349,6 +334,7 @@ RXS4 32k 122k
             
             interval++;
         } //  while (offset<length)
+        intervalDatas = ProtocolTools.mergeDuplicateIntervals(intervalDatas);
         return intervalDatas;
     } // protected void parse(byte[] data) throws IOException
     
@@ -410,6 +396,9 @@ RXS4 32k 122k
     }
 
     public List getMeterEvents() {
+        if (meterEvents == null){
+            meterEvents = new ArrayList(0);
+        }
         return meterEvents;
     }
 
