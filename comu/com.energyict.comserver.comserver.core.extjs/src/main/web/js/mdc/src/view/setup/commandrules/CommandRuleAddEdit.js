@@ -353,8 +353,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
             monthLimitNumberField = me.down('#mdc-command-rule-addEdit-monthLimit-number'),
             noDayLimit = commandRule.get('dayLimit')=== 0,
             noWeekLimit = commandRule.get('weekLimit')=== 0,
-            noMonthLimit = commandRule.get('monthLimit')=== 0,
-            commandsStore = me.down('#mdc-command-rule-addEdit-commands-grid').getStore();
+            noMonthLimit = commandRule.get('monthLimit')=== 0;
 
         form.loadRecord(commandRule);
         dayLimitGroup.setValue({ noDayLimit: noDayLimit });
@@ -369,13 +368,6 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
         if (noMonthLimit) {
             monthLimitNumberField.setValue(1);
         }
-
-        commandsStore.suspendEvents();
-        commandsStore.removeAll();
-        commandRule.commands().each(function(command){
-            commandsStore.add(command);
-        });
-        commandsStore.resumeEvents();
         me.updateCommandsGrid();
     }
 
