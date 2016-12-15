@@ -45,7 +45,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ESTIMATOR_PROPERTY_VALUE(44, "invalidEstimatorPropertyValue", "Invalid property value"),
     ESTIMATOR_REQUIRED(45, "EstimatorRequired", "Please select an estimator"),
     ESTIMATOR_NOT_FOUND(46, "EstimatorNotValid", "Provided estimator is not valid"),
-    BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}");
+    BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}"),
+    INTERVAL_END_BEFORE_START(48, "intervalEndBeforeStart", "End time before start time"),
+    ;
 
     private final int number;
     private final String key;
