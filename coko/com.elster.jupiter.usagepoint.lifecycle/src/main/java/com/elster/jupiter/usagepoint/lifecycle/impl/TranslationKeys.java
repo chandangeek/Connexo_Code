@@ -5,6 +5,7 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 
 public enum TranslationKeys implements TranslationKey {
 
+    LIFE_CYCLE_NAME("usage.point.life.cycle.standard.name", "Standard usage point life cycle"),
     QUEUE_SUBSCRIBER(ServerUsagePointLifeCycleService.QUEUE_SUBSCRIBER, "Handle usage point life cycle changes"),
     USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_COMPLETED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.COMPLETED, "Completed"),
     USAGE_POINT_STATE_CHANGE_REQUEST_STATUS_FAILED(Keys.CHANGE_REQUEST_STATUS_PREFIX + UsagePointStateChangeRequest.Status.FAILED, "Failed"),

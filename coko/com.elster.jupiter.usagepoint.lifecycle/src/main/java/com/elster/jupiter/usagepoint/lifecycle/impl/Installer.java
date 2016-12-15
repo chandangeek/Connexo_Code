@@ -5,12 +5,14 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.time.Never;
 
 import javax.inject.Inject;
@@ -24,12 +26,17 @@ public class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final MessageService messageService;
     private final TaskService taskService;
+    private final Thesaurus thesaurus;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Inject
-    public Installer(DataModel dataModel, MessageService messageService, TaskService taskService) {
+    public Installer(DataModel dataModel, MessageService messageService, TaskService taskService,
+                     UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.taskService = taskService;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -43,6 +50,11 @@ public class Installer implements FullInstaller {
         doTry(
                 "Create recurrent task",
                 this::createChangeRequestRecurrentTask,
+                logger
+        );
+        doTry(
+                "Create default usage point lifecycle",
+                this::createLifeCycle,
                 logger
         );
     }
@@ -77,5 +89,10 @@ public class Installer implements FullInstaller {
                 destinationSpecOptional.get().subscribe(subscriberName, UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
             }
         }
+    }
+
+    private void createLifeCycle() {
+        this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(this.thesaurus.getFormat(TranslationKeys.LIFE_CYCLE_NAME).format())
+                .markAsDefault();
     }
 }
