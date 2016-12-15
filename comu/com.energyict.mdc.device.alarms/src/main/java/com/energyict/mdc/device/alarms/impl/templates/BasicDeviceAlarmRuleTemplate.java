@@ -89,7 +89,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION).format();
     }
 
-	//END_DEVICE_EVENT_CREATED
+    //END_DEVICE_EVENT_CREATED
     @Override
     public String getContent() {
         return "package com.energyict.mdc.device.device.alarms\n" +
@@ -110,15 +110,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
             openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
         }
-        OpenDeviceAlarm alarm = (OpenDeviceAlarm) getAlarm(openIssue, event);
-        Optional<DeviceAlarmRelatedEvent> existingRelatedEvent = alarm.getDeviceAlarmRelatedEvents().stream()
-                .filter(deviceAlarmRelatedEvent-> deviceAlarmRelatedEvent.getEventRecord().getEventType().getMRID().equals(((EndDeviceEventCreatedEvent)event).getEventTypeMrid())).findAny();
-        if(!existingRelatedEvent.isPresent()){
-            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent)event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
-        }else{
-            alarm.setClearedStatus();
-        }
-        alarm.update();
+        getAlarm(openIssue, event).update();
     }
 
     @Override
@@ -154,6 +146,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private OpenIssue getAlarm(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
+            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent)event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
         }
         return openIssue;
