@@ -28,6 +28,7 @@ import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -639,7 +640,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private IdentifiedObject mockUsagePoint(String name, String connectionState) {
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getName()).thenReturn(name);
-        when(usagePoint.getConnectionStateDisplayName()).thenReturn(Optional.of(connectionState));
+        when(usagePoint.getConnectionStateDisplayName()).thenReturn(connectionState);
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(ConnectionState.CONNECTED));
         return usagePoint;
     }
 
