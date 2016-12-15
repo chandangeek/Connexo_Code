@@ -52,12 +52,17 @@ public class SetConnectionStateAction extends TranslatableAction {
         return Collections.singletonList(this.propertySpecService.specForValuesOf(this.connectionStateFactory)
                 .named(MicroActionTranslationKeys.SET_CONNECTION_STATE_PROPERTY_NAME)
                 .fromThesaurus(getThesaurus())
-                .addValues(Arrays.asList(this.connectionStateFactory.wrap(ConnectionState.CONNECTED),
-                        this.connectionStateFactory.wrap(ConnectionState.PHYSICALLY_DISCONNECTED),
-                        this.connectionStateFactory.wrap(ConnectionState.LOGICALLY_DISCONNECTED)))
+                .addValues(getPossibleValues())
                 .markRequired()
                 .markExhaustive()
                 .finish());
+    }
+
+    private List<HasIdAndName> getPossibleValues() {
+        return Arrays.asList(
+                this.connectionStateFactory.wrap(ConnectionState.CONNECTED),
+                this.connectionStateFactory.wrap(ConnectionState.PHYSICALLY_DISCONNECTED),
+                this.connectionStateFactory.wrap(ConnectionState.LOGICALLY_DISCONNECTED));
     }
 
     @Override
