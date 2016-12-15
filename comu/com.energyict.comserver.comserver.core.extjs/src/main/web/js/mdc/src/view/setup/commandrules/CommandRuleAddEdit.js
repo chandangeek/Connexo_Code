@@ -10,8 +10,8 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleAddEdit', {
         'Mdc.store.CommandsForRule'
     ],
     LABEL_WIDTH: 200,
-    MAX_LIMIT: 999999,
-    LIMIT_SPINNER_WIDTH: 100,
+    MAX_LIMIT: 999999999,
+    LIMIT_SPINNER_WIDTH: 110,
 
     initComponent: function() {
         var me = this;
