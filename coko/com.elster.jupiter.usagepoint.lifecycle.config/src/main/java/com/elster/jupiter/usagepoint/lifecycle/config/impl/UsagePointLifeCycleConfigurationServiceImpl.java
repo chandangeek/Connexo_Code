@@ -288,10 +288,12 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     @Override
     public UsagePointLifeCycle getDefaultLifeCycle() {
-        // it is not possible to delete default life cycle, so it is always present
-        return this.dataModel.query(UsagePointLifeCycle.class)
-                .select(where(UsagePointLifeCycleImpl.Fields.DEFAULT.fieldName()).isEqualTo(true), Order.NOORDER, true, new String[0], 1, 2)
-                .get(0);
+        List<UsagePointLifeCycle> defaultLifeCycles = this.dataModel.query(UsagePointLifeCycle.class)
+                .select(where(UsagePointLifeCycleImpl.Fields.DEFAULT.fieldName()).isEqualTo(true), Order.NOORDER, true, new String[0], 1, 2);
+        if (defaultLifeCycles.size() != 1) {
+            throw new IllegalStateException("Default lifecycle is not yet installed");
+        }
+        return defaultLifeCycles.get(0);
     }
 
     private void cloneTransitions(UsagePointLifeCycleImpl source, UsagePointLifeCycleImpl target) {
