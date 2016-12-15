@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
@@ -172,9 +174,28 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsagePointCustomPropertySetExtension forCustomProperties();
 
-    Optional<ConnectionState> getConnectionState();
+    /**
+     * Returns current connection state of the usage point.
+     *
+     * @return the ConnectionState
+     * @deprecated As connection states {@link ConnectionState#UNDER_CONSTRUCTION} and {@link ConnectionState#DEMOLISHED} were semantically
+     * replaced by {@link UsagePointStage.Key#PRE_OPERATIONAL} and {@link UsagePointStage.Key#POST_OPERATIONAL} stages of {@link UsagePointLifeCycle}
+     * this method should not be used anymore.
+     * <p>
+     * Use {@link UsagePoint#getCurrentConnectionState()} instead
+     */
+    @Deprecated
+    ConnectionState getConnectionState();
 
-    Optional<String> getConnectionStateDisplayName();
+    /**
+     * Returns current connection state of the usage point or Optional.empty() if there is no effective connection state
+     * (that make sense if usage point is in {@link UsagePointStage.Key#PRE_OPERATIONAL} or {@link UsagePointStage.Key#POST_OPERATIONAL} stage)
+     *
+     * @return the ConnectionState
+     */
+    Optional<ConnectionState> getCurrentConnectionState();
+
+    String getConnectionStateDisplayName();
 
     void setConnectionState(ConnectionState connectionState);
 

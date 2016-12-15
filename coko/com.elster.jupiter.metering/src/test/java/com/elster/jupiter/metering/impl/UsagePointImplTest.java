@@ -228,7 +228,7 @@ public class UsagePointImplTest {
     public void testGetConnectionState() {
         usagePoint.setConnectionState(ConnectionState.CONNECTED);
 
-        assertThat(usagePoint.getConnectionState()).contains(ConnectionState.CONNECTED);
+        assertThat(usagePoint.getCurrentConnectionState()).contains(ConnectionState.CONNECTED);
     }
 
     @Test

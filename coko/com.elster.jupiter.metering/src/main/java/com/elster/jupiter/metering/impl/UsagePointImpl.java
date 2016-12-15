@@ -27,7 +27,7 @@ import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
-import com.elster.jupiter.metering.UsagePointManageException;
+import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
@@ -52,7 +52,6 @@ import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -521,7 +520,7 @@ public class UsagePointImpl implements UsagePoint {
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
         UsagePointStage.Key usagePointStage = this.getState().getStage().getKey();
         if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
-            throw UsagePointManageException.incorrectStage(thesaurus);
+            throw UsagePointManagementException.incorrectStage(thesaurus);
         }
         Long startDate = start.toEpochMilli();
         Long endDate = end != null ? end.toEpochMilli() : null;
@@ -655,13 +654,27 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<ConnectionState> getConnectionState() {
+    @Deprecated
+    public ConnectionState getConnectionState() {
+        UsagePointStage.Key stage = getState().getStage().getKey();
+        switch (stage) {
+            case PRE_OPERATIONAL:
+                return ConnectionState.UNDER_CONSTRUCTION;
+            case POST_OPERATIONAL:
+                return ConnectionState.DEMOLISHED;
+            default:
+                return getCurrentConnectionState().orElse(null);
+        }
+    }
+
+    @Override
+    public Optional<ConnectionState> getCurrentConnectionState() {
         return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState);
     }
 
     @Override
-    public Optional<String> getConnectionStateDisplayName() {
-        return getConnectionState().map(this.thesaurus::getFormat).map(NlsMessageFormat::format);
+    public String getConnectionStateDisplayName() {
+        return this.thesaurus.getFormat(getConnectionState()).format();
     }
 
     @Override
