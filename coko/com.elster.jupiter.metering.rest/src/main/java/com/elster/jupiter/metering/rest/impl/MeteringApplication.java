@@ -70,7 +70,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 MeteringFieldResource.class,
                 ServiceCategoryResource.class,
                 EndDeviceEventTypeResource.class,
-                RestValidationExceptionMapper.class
+                RestValidationExceptionMapper.class,
+                GasDayResource.class
                 );
     }
 
