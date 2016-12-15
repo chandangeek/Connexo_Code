@@ -22,6 +22,20 @@ public class Services {
     private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
 
+    public static Object serviceOfType(Class serviceType) {
+        if (PropertySpecService.class.equals(serviceType)) {
+            return propertySpecService();
+        } else if (NlsService.class.equals(serviceType)) {
+            return nlsService();
+        } else if (SecurityService.class.equals(serviceType)) {
+            return securityService();
+        } else if (Converter.class.equals(serviceType)) {
+            return converter();
+        } else {
+            throw new UnknownServiceType(serviceType);
+        }
+    }
+
     public static PropertySpecService propertySpecService() {
         return PROPERTY_SPEC_SERVICE.get();
     }
@@ -52,6 +66,20 @@ public class Services {
 
     public static void converter(Converter converter) {
         CONVERTER.set(converter);
+    }
+
+    /**
+     * Models the exceptional situation that occurs
+     * when a service is requested that is not published
+     * by the Services class.
+     *
+     * @author Rudi Vankeirsbilck (rudi)
+     * @since 2016-12-15 (09:42)
+     */
+    public static class UnknownServiceType extends RuntimeException {
+        public UnknownServiceType(Class serviceType) {
+            super("Unknown service type " + serviceType.getName());
+        }
     }
 
 }
