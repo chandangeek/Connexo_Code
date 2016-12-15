@@ -14,6 +14,7 @@ Ext.define('Dal.view.Preview', {
     },
     frame: true,
     router: null,
+    fieldxtype: 'displayfield',
 
     initComponent: function () {
         var me = this;
@@ -25,15 +26,19 @@ Ext.define('Dal.view.Preview', {
                 },
                 items: [
                     {
+                        xtype: me.fieldxtype,
                         itemId: 'alarm-id',
                         fieldLabel: Uni.I18n.translate('general.title.alarmId', 'DAL', 'Id'),
                         name: 'alarmId'
                     },
                     {
+                        xtype: me.fieldxtype,
                         itemId: 'alarm-reason',
                         fieldLabel: Uni.I18n.translate('general.title.reason', 'DAL', 'Reason'),
-                        name: 'reasonName'
-
+                        name: 'reason',
+                        renderer: function (value) {
+                            return value.name ? Ext.String.htmlEncode(value.name) : '-';
+                        }
                     },
                     {
                         itemId: 'alarm-usage-point',
@@ -60,6 +65,7 @@ Ext.define('Dal.view.Preview', {
                         }
                     },
                     {
+                        xtype: me.fieldxtype,
                         itemId: 'alarm-device',
                         fieldLabel: Uni.I18n.translate('general.title.device', 'DAL', 'Device'),
                         name: 'device',
@@ -114,6 +120,7 @@ Ext.define('Dal.view.Preview', {
                 },
                 items: [
                     {
+                        xtype: me.fieldxtype,
                         itemId: 'alarm-status',
                         fieldLabel: Uni.I18n.translate('general.title.status', 'DAL', 'Status'),
                         name: 'status',
@@ -123,6 +130,7 @@ Ext.define('Dal.view.Preview', {
                         }
                     },
                     {
+                        xtype: me.fieldxtype,
                         itemId: 'alarm-due-date',
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'DAL', 'Due date'),
                         name: 'dueDate',
@@ -131,14 +139,22 @@ Ext.define('Dal.view.Preview', {
                         }
                     },
                     {
+                        xtype: me.fieldxtype,
                         itemId: 'alarm-workgroup',
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'DAL', 'Workgroup'),
-                        name: 'workgroup'
+                        name: 'workGroupAssignee',
+                        renderer: function (value) {
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'DAL', 'Unassigned');
+                        }
                     },
                     {
+                        xtype: me.fieldxtype,
                         itemId: 'alarm-user',
                         fieldLabel: Uni.I18n.translate('general.title.user', 'DAL', 'User'),
-                        name: 'user'
+                        name: 'userAssignee',
+                        renderer: function (value) {
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'DAL', 'Unassigned');
+                        }
                     },
                     {
                         itemId: 'alarm-creation-date',

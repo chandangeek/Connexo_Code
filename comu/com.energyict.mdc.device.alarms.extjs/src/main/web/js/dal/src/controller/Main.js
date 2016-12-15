@@ -33,7 +33,7 @@ Ext.define('Dal.controller.Main', {
             alarms = null,
             historian = me.getController('Dal.controller.history.Workspace'); // Forces route registration.
 
-        if (Dal.privileges.Alarm.canViewAdminDevice()) {
+        if (Dal.privileges.Alarm.canViewAdmimAlarm()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace', 'DAL', 'Workspace'),
                 glyph: 'workspace',
@@ -42,7 +42,7 @@ Ext.define('Dal.controller.Main', {
             }));
         }
 
-        if (Dal.privileges.Alarm.canViewAdminDevice()) {
+        if (Dal.privileges.Alarm.canViewAdmimAlarm()) {
             alarms = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.alarms', 'DAL', 'Alarms'),
                 portal: 'workspace',

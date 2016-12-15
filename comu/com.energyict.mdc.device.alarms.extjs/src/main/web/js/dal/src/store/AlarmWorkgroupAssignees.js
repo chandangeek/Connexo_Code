@@ -1,7 +1,6 @@
 Ext.define('Dal.store.AlarmWorkgroupAssignees', {
     extend: 'Ext.data.Store',
     model: 'Dal.model.AlarmWorkgroupAssignee',
-    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/dal/workgroups',

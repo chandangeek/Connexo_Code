@@ -71,7 +71,7 @@ Ext.define('Dal.view.AlarmFilter', {
             },
             {
                 type: 'combobox',
-                itemId: 'alarm-status-filter',
+                itemId: 'alarm-cleared-filter',
                 dataIndex: 'cleared',
                 emptyText: Uni.I18n.translate('general.clear', 'DAL', 'Cleared'),
                 multiSelect: true,
@@ -134,7 +134,15 @@ Ext.define('Dal.view.AlarmFilter', {
                 minChars: 0,
                 forceSelection: false,
                 hidden: me.isOverviewFilter
-            }
+            },
+            {
+                type: 'interval',
+                dataIndex: 'startInterval',
+                dataIndexFrom: 'startIntervalFrom',
+                dataIndexTo: 'startIntervalTo',
+                text: Uni.I18n.translate('general.createdBetween', 'DAL', 'Created between'),
+                itemId: 'created-between-filter'
+            },
         ];
 
         me.callParent(arguments);

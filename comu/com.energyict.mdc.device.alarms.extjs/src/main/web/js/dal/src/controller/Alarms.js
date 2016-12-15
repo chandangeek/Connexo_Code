@@ -78,6 +78,9 @@ Ext.define('Dal.controller.Alarms', {
         me.control({
             'issues-overview #alarms-grid': {
                 select: me.showPreview
+            },
+            'issues-overview #alarm-preview #filter-display-button': {
+                click: this.setFilterItem
             }
         });
     },
@@ -104,7 +107,8 @@ Ext.define('Dal.controller.Alarms', {
                 },
                 previewComponent: {
                     xtype: 'alarm-preview',
-                    itemId: 'alarm-preview'
+                    itemId: 'alarm-preview',
+                    fieldxtype: 'filter-display'
                 },
                 grid: {
                     store: 'Dal.store.Alarms',
@@ -130,5 +134,22 @@ Ext.define('Dal.controller.Alarms', {
         this.callParent(arguments);
         var subEl = new Ext.get('alarm-status-field-sub-tpl');
         subEl.setHTML(record.get('statusDetail'));
+    },
+
+    setFilterItem: function (button) {
+        var me = this;
+
+        switch (button.filterBy) {
+            case 'alarmId':
+                button.filterBy = 'id';
+                break;
+            case 'reasonName':
+                button.filterBy = 'reason';
+                break;
+            case 'device':
+                button.filterBy = 'meter';
+                break;
+        }
+        me.callParent(arguments);
     }
 });

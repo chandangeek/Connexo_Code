@@ -13,13 +13,14 @@ Ext.define('Dal.controller.history.Workspace', {
             route: 'workspace/alarms',
             controller: 'Dal.controller.Alarms',
             action: 'showOverview',
+            privileges: Dal.privileges.Alarm.viewAdminAlarm,
             items: {
                 view: {
                     title: Uni.I18n.translate('general.alarmDetails', 'DAL', 'Alarm details'),
                     route: '{alarmId}',
                     controller: 'Dal.controller.Detail',
                     action: 'showOverview',
-                    privileges: Dal.privileges.Alarm.viewAdminDevice,
+                    privileges: Dal.privileges.Alarm.viewAdminAlarm,
                     callback: function (route) {
                         this.getApplication().on('issueLoad', function (record) {
                             route.setTitle(record.get('title'));
