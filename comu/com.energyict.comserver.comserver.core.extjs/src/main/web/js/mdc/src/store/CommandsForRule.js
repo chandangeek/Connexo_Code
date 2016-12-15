@@ -4,7 +4,7 @@ Ext.define('Mdc.store.CommandsForRule', {
     model: 'Mdc.model.Command',
     sorters: [
         {
-            property: 'commandName',
+            property: 'displayName',
             direction: 'ASC'
         }
     ],

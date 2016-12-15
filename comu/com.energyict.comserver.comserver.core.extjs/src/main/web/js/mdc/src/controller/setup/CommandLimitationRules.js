@@ -38,7 +38,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     commandRuleBeingEdited: null,
     commandsForRuleStore: null, // Store containing the commands to show on the Add/Edit page
     selectedCommandsStore: null, // Store containing the commands selected on the "Add commands page"
-    comingFromAddingCommands: false,
+    newCommandsAdded: false,
     router: null,
 
     init: function () {
@@ -180,16 +180,18 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 ? Uni.I18n.translate('commandLimitationRule.add', 'MDC', 'Add command limitation rule')
                 : Uni.I18n.translate('commandLimitationRule.edit', 'MDC', 'Edit command limitation rule')
         );
-        if (Ext.isEmpty(ruleId)) {
+        if (Ext.isEmpty(ruleId)) { // Adding a new rule
             me.commandRuleBeingEdited = null;
             me.goToRulesOverview = true;
-            if (!me.comingFromAddingCommands) {
+            if (me.newCommandsAdded) {
+                me.newCommandsAdded = false; // and don't touch the (previously updated) commandsForRuleStore
+            } else {
                 me.commandsForRuleStore.removeAll();
             }
             if (me.clipBoardHasData()) {
-                me.setFormValues(widget);
+                me.setFormValues(widget); // Set back previously filled in name or limits
             }
-        } else {
+        } else { // Editing a rule
             if (me.clipBoardHasData()) {
                 me.setFormValues(widget);
             } else {
@@ -233,7 +235,9 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 );
                 me.getApplication().fireEvent('loadCommandRule', commandRule);
 
-                if (!me.comingFromAddingCommands) {
+                if (me.newCommandsAdded) {
+                    me.newCommandsAdded = false;
+                } else {
                     me.commandsForRuleStore.suspendEvents();
                     me.commandsForRuleStore.removeAll();
                     commandRule.commands().each(function (command) {
@@ -242,7 +246,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                     me.commandsForRuleStore.resumeEvents();
                     editView.updateCommandsGrid();
                 }
-
                 editView.loadCommandRule(commandRule);
                 widget.setLoading(false);
             }
@@ -256,11 +259,14 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             : me.router.getRoute('administration/commandrules').buildUrl();
 
         me.commandsForRuleStore.removeAll();
-        me.commandRuleBeingEdited.commands().each(function(command){
-            me.commandsForRuleStore.add(command);
-        });
+        if (me.commandRuleBeingEdited) {
+            me.commandRuleBeingEdited.commands().each(function (command) {
+                me.commandsForRuleStore.add(command);
+            });
+        }
         me.commandRuleBeingEdited = null;
         me.clearClipBoard();
+        me.newCommandsAdded = false;
     },
 
     onAddEdit: function(button) {
@@ -319,6 +325,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                             : Uni.I18n.translate('commandLimitationRule.add.success', 'MDC', 'Command limitation rule added')
                     );
                     me.clearClipBoard();
+                    me.newCommandsAdded = false;
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
@@ -461,15 +468,13 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             me.commandsForRuleStore.add(command);
         });
         me.selectedCommandsStore.removeAll();
-        me.comingFromAddingCommands = true;
+        me.newCommandsAdded = true;
         me.forwardToPreviousPage();
     },
 
     onCancelAddingCommands: function() {
         var me = this;
-
         me.selectedCommandsStore.removeAll();
-        me.comingFromAddingCommands = true;
         me.forwardToPreviousPage();
     },
 
