@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
             wizard = me.getUsagepointTransitionExecuteWizard(),
             layout = wizard.getLayout(),
             propertyForm = wizard.down('property-form'),
-            router = me.getController('Uni.controller.history.Router'),                   
+            router = me.getController('Uni.controller.history.Router'),
             record = propertyForm.getRecord();
 
         Ext.suspendLayouts();

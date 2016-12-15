@@ -14,7 +14,7 @@ Ext.define('Imt.usagepointlifecycle.view.Grid', {
     initComponent: function () {
         var me = this;
 
-        me.columns = [            
+        me.columns = [
             {
                 xtype: 'uni-default-column',
                 header: Uni.I18n.translate('general.default', 'IMT', 'Default'),

@@ -25,7 +25,7 @@ Ext.define('Imt.usagepointlifecycletransitions.view.Grid', {
                 header: Uni.I18n.translate('general.to', 'IMT', 'To'),
                 dataIndex: 'toState_name',
                 flex: 1
-            },            
+            },
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Imt.privileges.UsagePointLifeCycle.configure,

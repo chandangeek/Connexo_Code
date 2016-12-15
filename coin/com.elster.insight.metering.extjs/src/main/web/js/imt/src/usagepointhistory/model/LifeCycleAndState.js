@@ -22,7 +22,7 @@ Ext.define('Imt.usagepointhistory.model.LifeCycleAndState', {
             }
         },
         {
-            name: 'status_name',            
+            name: 'status_name',
             mapping: function (data) {
                 if (data.status) {
                     return data.status.displayValue;
@@ -30,7 +30,7 @@ Ext.define('Imt.usagepointhistory.model.LifeCycleAndState', {
             }
         },
         {
-            name: 'user_name',            
+            name: 'user_name',
             mapping: function (data) {
                 if (data.user) {
                     return data.user.displayValue;

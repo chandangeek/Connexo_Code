@@ -573,7 +573,7 @@ Ext.define('Imt.controller.History', {
                     title: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
                     route: 'bulk',
                     controller: 'Imt.controller.SearchItemsBulkAction',
-                //    privileges: Mdc.privileges.Device.administrateDeviceOrDeviceCommunication,
+                    //    privileges: Mdc.privileges.Device.administrateDeviceOrDeviceCommunication,
                     action: 'showBulkAction'
                 }
             }

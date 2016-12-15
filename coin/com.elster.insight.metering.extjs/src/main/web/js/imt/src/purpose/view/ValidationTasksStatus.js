@@ -53,7 +53,6 @@ Ext.define('Imt.purpose.view.ValidationTasksStatus', {
     },
 
 
-
     viewValidationSchedule: function () {
         var me = this,
             viewBtn = me.down('#output-validation-tasks-status-view-button'),
@@ -69,7 +68,7 @@ Ext.define('Imt.purpose.view.ValidationTasksStatus', {
             increment: 20
         });
         store.getProxy().setUrl(me.usagePoint.get('name'));
-        store.load(function(records, operation, success) {
+        store.load(function (records, operation, success) {
             isEmpty = Ext.isDefined(success)
                 ? !(success && store.getCount() && store.getTotalCount())
                 : true;
@@ -81,11 +80,11 @@ Ext.define('Imt.purpose.view.ValidationTasksStatus', {
         Ext.resumeLayouts(true);
     },
 
-    setEmptyMsgAndShow: function(){
+    setEmptyMsgAndShow: function () {
         var me = this,
             emptyMsg = me.down('#output-validation-tasks-status-empty-msg');
 
-        emptyMsg.setText( Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks.on.usagePoint', 'IMT', 'No validation tasks have been configured for this usage point yet ({0}manage validation tasks{1})',
+        emptyMsg.setText(Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks.on.usagePoint', 'IMT', 'No validation tasks have been configured for this usage point yet ({0}manage validation tasks{1})',
             [
                 '<a href="'
                 + me.router.getRoute('administration/validationtasks').buildUrl()
@@ -96,7 +95,7 @@ Ext.define('Imt.purpose.view.ValidationTasksStatus', {
         emptyMsg.show();
     },
 
-    setTasksAndShow: function(store){
+    setTasksAndShow: function (store) {
         var me = this,
             tasks = me.down('#output-validation-tasks-status-field'),
             result = '<table>',

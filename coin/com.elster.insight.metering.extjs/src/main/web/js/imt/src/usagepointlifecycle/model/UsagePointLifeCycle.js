@@ -22,7 +22,7 @@ Ext.define('Imt.usagepointlifecycle.model.UsagePointLifeCycle', {
         type: 'rest',
         url: '/api/upl/lifecycle',
         reader: {
-            type: 'json'            
+            type: 'json'
         }
     }
 });
