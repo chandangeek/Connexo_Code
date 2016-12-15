@@ -81,7 +81,10 @@ Ext.define('Uni.view.button.MarkedButton', {
         }, Ext.isObject(me.popUpConfig) ? me.popUpConfig : {}));
 
         me.callParent(arguments);
-        Ext.ModelManager.getModel(me.record.$className).load(me.record.getId(), {callback: Ext.bind(me.onLoad, me)});
+        Ext.ModelManager.getModel(me.record.$className).load(me.record.getId(), {
+            scope: me,
+            callback: me.onLoad
+        });
         me.on('beforedestroy', me.onBeforeDestroy, me);
     },
 
@@ -107,8 +110,9 @@ Ext.define('Uni.view.button.MarkedButton', {
         var me = this;
 
         me.record.save({
+            scope: me,
             isNotEdit: true,
-            callback: Ext.bind(me.onLoad, me)
+            callback: me.onLoad
         });
     },
 
@@ -117,8 +121,9 @@ Ext.define('Uni.view.button.MarkedButton', {
 
         me.popUp.close();
         me.record.destroy({
+            scope: me,
             isNotEdit: true,
-            callback: Ext.bind(me.onLoad, me)
+            callback: me.onLoad
         });
     },
 
