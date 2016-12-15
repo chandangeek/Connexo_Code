@@ -22,10 +22,10 @@ Ext.define('Uni.view.button.MarkedButton', {
         Ext.resumeLayouts(true);
 
         if (pressed) {
-            me.mark();
+            me.saveRecord(true);
             me.showCommentPopUp();
         } else {
-            me.unmark();
+            me.saveRecord(false);
         }
     },
 
@@ -63,7 +63,7 @@ Ext.define('Uni.view.button.MarkedButton', {
                         ui: 'action',
                         handler: function () {
                             me.popUp.down('form').updateRecord(me.record);
-                            me.mark();
+                            me.saveRecord();
                             me.popUp.close();
                         }
                     },
@@ -93,12 +93,13 @@ Ext.define('Uni.view.button.MarkedButton', {
         me.popUp.destroy();
     },
 
-    onLoad: function (record) {
+    onLoad: function (record, operation) {
         var me = this,
-            isFavorite = record.get('favorite');
+            recordData = Ext.decode(operation.response.responseText),
+            isFavorite = recordData.favorite;
 
         Ext.suspendLayouts();
-        me.record = record;
+        me.record.set(recordData);
         me.show();
         me.toggle(isFavorite, true);
         me.setIconCls(isFavorite ? me.markedCls : me.unmarkedCls);
@@ -106,21 +107,18 @@ Ext.define('Uni.view.button.MarkedButton', {
         Ext.resumeLayouts(true);
     },
 
-    mark: function () {
+    saveRecord: function (flag) {
         var me = this;
+
+        if (!Ext.isEmpty(flag)) {
+            me.record.set('favorite', flag);
+
+            if (!flag && me.popUp.isVisible()) {
+                me.popUp.close();
+            }
+        }
 
         me.record.save({
-            scope: me,
-            isNotEdit: true,
-            callback: me.onLoad
-        });
-    },
-
-    unmark: function () {
-        var me = this;
-
-        me.popUp.close();
-        me.record.destroy({
             scope: me,
             isNotEdit: true,
             callback: me.onLoad
