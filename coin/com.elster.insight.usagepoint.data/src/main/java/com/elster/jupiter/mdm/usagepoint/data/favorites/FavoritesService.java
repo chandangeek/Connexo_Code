@@ -17,9 +17,9 @@ public interface FavoritesService {
 
     Optional<FavoriteUsagePoint> findFavoriteUsagePoint(UsagePoint usagePoint);
 
-    FavoriteUsagePoint findOrCreateFavoriteUsagePoint(UsagePoint usagePoint);
+    FavoriteUsagePoint markFavorite(UsagePoint usagePoint);
 
-    void removeFavoriteUsagePoint(FavoriteUsagePoint favoriteUsagePoint);
+    void removeFromFavorites(FavoriteUsagePoint favoriteUsagePoint);
 
     /*
      * Favorite usage point groups
@@ -28,7 +28,7 @@ public interface FavoritesService {
     
     Optional<FavoriteUsagePointGroup> findFavoriteUsagePointGroup(UsagePointGroup usagePointGroup);
 
-   FavoriteUsagePointGroup findOrCreateFavoriteUsagePointGroup(UsagePointGroup usagePointGroup);
+   FavoriteUsagePointGroup markFavorite(UsagePointGroup usagePointGroup);
     
-    void removeFavoriteUsagePointGroup(FavoriteUsagePointGroup favoriteUsagePointGroup);
+    void removeFromFavorites(FavoriteUsagePointGroup favoriteUsagePointGroup);
 }

@@ -15,7 +15,7 @@ public interface FavoriteUsagePoint {
 
     String getComment();
 
-    void setComment(String comment);
+    void updateComment(String comment);
 
     Instant getCreationDate();
 }

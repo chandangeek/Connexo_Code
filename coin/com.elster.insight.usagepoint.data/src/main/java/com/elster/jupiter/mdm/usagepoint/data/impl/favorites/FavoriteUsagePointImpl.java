@@ -30,8 +30,8 @@ public class FavoriteUsagePointImpl implements FavoriteUsagePoint {
     }
 
     FavoriteUsagePointImpl init(UsagePoint usagePoint, User user) {
-        setUsagePoint(usagePoint);
-        setUser(user);
+        this.usagePoint.set(usagePoint);
+        this.user.set(user);
         return this;
     }
 
@@ -40,17 +40,9 @@ public class FavoriteUsagePointImpl implements FavoriteUsagePoint {
         return user.get();
     }
 
-    public void setUser(User user) {
-        this.user.set(user);
-    }
-
     @Override
     public UsagePoint getUsagePoint() {
         return usagePoint.get();
-    }
-
-    public void setUsagePoint(UsagePoint usagePoint) {
-        this.usagePoint.set(usagePoint);
     }
 
     @Override
@@ -59,7 +51,7 @@ public class FavoriteUsagePointImpl implements FavoriteUsagePoint {
     }
 
     @Override
-    public void setComment(String comment) {
+    public void updateComment(String comment) {
         this.comment = comment;
         Save.UPDATE.save(dataModel, this);
     }

@@ -121,7 +121,7 @@ public class FavoritesServiceImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "usagePoint", strict = false)
     public void testCreateFavoriteUsagePointWithNullUsagePoint() {
         threadPrincipalService.set(user1);
-        favoritesService.findOrCreateFavoriteUsagePoint(null);
+        favoritesService.markFavorite((UsagePoint)null);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class FavoritesServiceImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "usagePointGroup", strict = false)
     public void testCreateFavoriteUsagePointGroupWithNullUsagePointGroup() {
         threadPrincipalService.set(user1);
-        favoritesService.findOrCreateFavoriteUsagePointGroup(null);
+        favoritesService.markFavorite((UsagePointGroup)null);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class FavoritesServiceImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "user", strict = false)
     public void testCreateFavoriteUsagePointWithNullUser() {
         threadPrincipalService.set(() -> "Fake!");
-        favoritesService.findOrCreateFavoriteUsagePoint(usagePoint1);
+        favoritesService.markFavorite(usagePoint1);
     }
 
     @Test
@@ -145,7 +145,7 @@ public class FavoritesServiceImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "user", strict = false)
     public void testCreateFavoriteUsagePointGroupWithNullUser() {
         threadPrincipalService.set(() -> "Fake!");
-        favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup1);
+        favoritesService.markFavorite(usagePointGroup1);
     }
 
     @Test
@@ -156,11 +156,11 @@ public class FavoritesServiceImplIT {
         assertThat(favoriteUsagePointGroups).isEmpty();
         assertThat(favoriteUsagePoints).isEmpty();
         threadPrincipalService.set(user1);
-        favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup1);
-        favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup2);
+        favoritesService.markFavorite(usagePointGroup1);
+        favoritesService.markFavorite(usagePointGroup2);
         threadPrincipalService.set(user2);
-        favoritesService.findOrCreateFavoriteUsagePoint(usagePoint1);
-        favoritesService.findOrCreateFavoriteUsagePoint(usagePoint2);
+        favoritesService.markFavorite(usagePoint1);
+        favoritesService.markFavorite(usagePoint2);
 
         favoriteUsagePointGroups = favoritesService.getFavoriteUsagePointGroups();
         favoriteUsagePoints = favoritesService.getFavoriteUsagePoints();
@@ -188,8 +188,8 @@ public class FavoritesServiceImplIT {
         threadPrincipalService.set(user2);
         assertThat(favoritesService.findFavoriteUsagePointGroup(usagePointGroup1)).isEmpty();
 
-        FavoriteUsagePointGroup favoriteUsagePointGroup = favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup1);
-        favoriteUsagePointGroup.setComment("This string is empty");
+        FavoriteUsagePointGroup favoriteUsagePointGroup = favoritesService.markFavorite(usagePointGroup1);
+        favoriteUsagePointGroup.updateComment("This string is empty");
         assertThat(favoriteUsagePointGroup.getUsagePointGroup()).isEqualTo(usagePointGroup1);
         assertThat(favoriteUsagePointGroup.getUser()).isEqualTo(user2);
         assertThat(favoriteUsagePointGroup.getComment()).isEqualTo("This string is empty");
@@ -202,8 +202,8 @@ public class FavoritesServiceImplIT {
         assertThat(favoriteUsagePointGroup.getComment()).isEqualTo("This string is empty");
         assertThat(favoriteUsagePointGroup.getCreationDate()).isEqualTo(NOW);
 
-        favoriteUsagePointGroup.setComment("This string contains only lies");
-        favoriteUsagePointGroup = favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup1);
+        favoriteUsagePointGroup.updateComment("This string contains only lies");
+        favoriteUsagePointGroup = favoritesService.markFavorite(usagePointGroup1);
         assertThat(favoriteUsagePointGroup.getUsagePointGroup()).isEqualTo(usagePointGroup1);
         assertThat(favoriteUsagePointGroup.getUser()).isEqualTo(user2);
         assertThat(favoriteUsagePointGroup.getComment()).isEqualTo("This string contains only lies");
@@ -216,8 +216,8 @@ public class FavoritesServiceImplIT {
         threadPrincipalService.set(user1);
         assertThat(favoritesService.findFavoriteUsagePoint(usagePoint1)).isEmpty();
 
-        FavoriteUsagePoint favoriteUsagePoint = favoritesService.findOrCreateFavoriteUsagePoint(usagePoint1);
-        favoriteUsagePoint.setComment("This string is empty");
+        FavoriteUsagePoint favoriteUsagePoint = favoritesService.markFavorite(usagePoint1);
+        favoriteUsagePoint.updateComment("This string is empty");
         assertThat(favoriteUsagePoint.getUsagePoint()).isEqualTo(usagePoint1);
         assertThat(favoriteUsagePoint.getUser()).isEqualTo(user1);
         assertThat(favoriteUsagePoint.getComment()).isEqualTo("This string is empty");
@@ -230,8 +230,8 @@ public class FavoritesServiceImplIT {
         assertThat(favoriteUsagePoint.getComment()).isEqualTo("This string is empty");
         assertThat(favoriteUsagePoint.getCreationDate()).isEqualTo(NOW);
 
-        favoriteUsagePoint.setComment("This string contains only lies");
-        favoriteUsagePoint = favoritesService.findOrCreateFavoriteUsagePoint(usagePoint1);
+        favoriteUsagePoint.updateComment("This string contains only lies");
+        favoriteUsagePoint = favoritesService.markFavorite(usagePoint1);
         assertThat(favoriteUsagePoint.getUsagePoint()).isEqualTo(usagePoint1);
         assertThat(favoriteUsagePoint.getUser()).isEqualTo(user1);
         assertThat(favoriteUsagePoint.getComment()).isEqualTo("This string contains only lies");
@@ -242,9 +242,9 @@ public class FavoritesServiceImplIT {
     @Transactional
     public void testSameUsagePointGroupIsFavoriteForDifferentUsers() {
         threadPrincipalService.set(user1);
-        favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup1).setComment("user1");
+        favoritesService.markFavorite(usagePointGroup1).updateComment("user1");
         threadPrincipalService.set(user2);
-        favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup1).setComment("user2");
+        favoritesService.markFavorite(usagePointGroup1).updateComment("user2");
         threadPrincipalService.set(user1);
         favoritesService.findFavoriteUsagePointGroup(usagePointGroup1)
                 .map(FavoriteUsagePointGroup::getComment)
@@ -261,9 +261,9 @@ public class FavoritesServiceImplIT {
     @Transactional
     public void testSameUsagePointIsFavoriteForDifferentUsers() {
         threadPrincipalService.set(user1);
-        favoritesService.findOrCreateFavoriteUsagePoint(usagePoint1).setComment("user1");
+        favoritesService.markFavorite(usagePoint1).updateComment("user1");
         threadPrincipalService.set(user2);
-        favoritesService.findOrCreateFavoriteUsagePoint(usagePoint1).setComment("user2");
+        favoritesService.markFavorite(usagePoint1).updateComment("user2");
         threadPrincipalService.set(user1);
         favoritesService.findFavoriteUsagePoint(usagePoint1)
                 .map(FavoriteUsagePoint::getComment)
@@ -280,11 +280,11 @@ public class FavoritesServiceImplIT {
     @Transactional
     public void testRemoveFavoriteUsagePointGroup() {
         threadPrincipalService.set(user1);
-        favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup1);
-        favoritesService.findOrCreateFavoriteUsagePointGroup(usagePointGroup2);
+        favoritesService.markFavorite(usagePointGroup1);
+        favoritesService.markFavorite(usagePointGroup2);
         FavoriteUsagePointGroup favoriteUsagePointGroup = favoritesService.findFavoriteUsagePointGroup(usagePointGroup1)
                 .orElseThrow(() -> new AssertionError("Favorite usage point group is created but not found afterwards"));
-        favoritesService.removeFavoriteUsagePointGroup(favoriteUsagePointGroup);
+        favoritesService.removeFromFavorites(favoriteUsagePointGroup);
 
         List<FavoriteUsagePointGroup> favoriteUsagePointGroups = favoritesService.getFavoriteUsagePointGroups();
         assertThat(favoriteUsagePointGroups).hasSize(1);
@@ -297,11 +297,11 @@ public class FavoritesServiceImplIT {
     @Transactional
     public void testRemoveFavoriteUsagePoint() {
         threadPrincipalService.set(user1);
-        favoritesService.findOrCreateFavoriteUsagePoint(usagePoint1);
-        favoritesService.findOrCreateFavoriteUsagePoint(usagePoint2);
+        favoritesService.markFavorite(usagePoint1);
+        favoritesService.markFavorite(usagePoint2);
         FavoriteUsagePoint favoriteUsagePoint = favoritesService.findFavoriteUsagePoint(usagePoint1)
                 .orElseThrow(() -> new AssertionError("Favorite usage point is created but not found afterwards"));
-        favoritesService.removeFavoriteUsagePoint(favoriteUsagePoint);
+        favoritesService.removeFromFavorites(favoriteUsagePoint);
 
         List<FavoriteUsagePoint> favoriteUsagePoints = favoritesService.getFavoriteUsagePoints();
         assertThat(favoriteUsagePoints).hasSize(1);

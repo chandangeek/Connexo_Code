@@ -51,7 +51,7 @@ public class FavoritesServiceImpl implements FavoritesService {
     }
 
     @Override
-    public FavoriteUsagePoint findOrCreateFavoriteUsagePoint(UsagePoint usagePoint) {
+    public FavoriteUsagePoint markFavorite(UsagePoint usagePoint) {
         User user = getUser();
         return findFavoriteUsagePoint(usagePoint, user).orElseGet(() -> {
             FavoriteUsagePoint favoriteUsagePoint = dataModel.getInstance(FavoriteUsagePointImpl.class)
@@ -62,7 +62,7 @@ public class FavoritesServiceImpl implements FavoritesService {
     }
 
     @Override
-    public FavoriteUsagePointGroup findOrCreateFavoriteUsagePointGroup(UsagePointGroup usagePointGroup) {
+    public FavoriteUsagePointGroup markFavorite(UsagePointGroup usagePointGroup) {
         User user = getUser();
         return findFavoriteUsagePointGroup(usagePointGroup, user).orElseGet(() -> {
             FavoriteUsagePointGroup favoriteUPGroup = dataModel.getInstance(FavoriteUsagePointGroupImpl.class)
@@ -73,12 +73,12 @@ public class FavoritesServiceImpl implements FavoritesService {
     }
 
     @Override
-    public void removeFavoriteUsagePoint(FavoriteUsagePoint favoriteUsagePoint) {
+    public void removeFromFavorites(FavoriteUsagePoint favoriteUsagePoint) {
         dataModel.remove(favoriteUsagePoint);
     }
 
     @Override
-    public void removeFavoriteUsagePointGroup(FavoriteUsagePointGroup favoriteUsagePointGroup) {
+    public void removeFromFavorites(FavoriteUsagePointGroup favoriteUsagePointGroup) {
         dataModel.remove(favoriteUsagePointGroup);
     }
 
