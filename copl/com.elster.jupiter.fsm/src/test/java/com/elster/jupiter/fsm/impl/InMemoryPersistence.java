@@ -19,7 +19,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -40,7 +39,6 @@ import java.util.function.Supplier;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Provides initialization services that is typically used by classes that focus
@@ -122,7 +120,7 @@ public class InMemoryPersistence {
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
     }
 
