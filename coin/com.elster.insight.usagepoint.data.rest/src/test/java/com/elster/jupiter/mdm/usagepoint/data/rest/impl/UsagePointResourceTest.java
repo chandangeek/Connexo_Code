@@ -166,7 +166,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePoint.getServiceLocationString()).thenReturn("serviceLocation");
-        when(usagePoint.getConnectionState()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.empty());
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.getState()).thenReturn(usagePointState);
 

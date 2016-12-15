@@ -664,7 +664,8 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
                 .thenReturn(effectiveMCOptional);
         when(usagePoint.isSdp()).thenReturn(isSdp);
         when(usagePoint.isVirtual()).thenReturn(isVirtual);
-        when(usagePoint.getConnectionStateDisplayName()).thenReturn(Optional.of(connectionState.getDefaultFormat()));
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(connectionState));
+        when(usagePoint.getConnectionStateDisplayName()).thenReturn(connectionState.getDefaultFormat());
         Optional<Location> locationOptional = Optional.ofNullable(location).map(UsagePointGroupResourceTest::mockLocation);
         when(usagePoint.getLocation()).thenReturn(locationOptional);
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());

@@ -176,7 +176,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
-        usagePoint.getConnectionStateDisplayName().ifPresent(displayConnectionState -> info.displayConnectionState = displayConnectionState);
+        usagePoint.getCurrentConnectionState().ifPresent(connectionState -> info.displayConnectionState = usagePoint.getConnectionStateDisplayName());
         info.location = usagePoint.getLocation().map(Location::toString).orElse(
                 usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null));
         info.state = usagePoint.getState().getName();
@@ -220,8 +220,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.version = usagePoint.getVersion();
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
-        usagePoint.getConnectionState().ifPresent(connectionState -> {
-            info.connectionState = new IdWithNameInfo(connectionState.getId(), usagePoint.getConnectionStateDisplayName().get());
+        usagePoint.getCurrentConnectionState().ifPresent(connectionState -> {
+            info.connectionState = new IdWithNameInfo(connectionState.getId(), usagePoint.getConnectionStateDisplayName());
             info.displayConnectionState = connectionState.getName();
         });
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
