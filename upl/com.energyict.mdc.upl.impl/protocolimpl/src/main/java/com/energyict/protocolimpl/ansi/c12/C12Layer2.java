@@ -267,7 +267,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                                     if (checkForMatchingControlToggleBit(getControl(), receivedControl)) {
                                         allDataArrayOutputStream.reset();
                                         state = STATE_WAIT_FOR_START_OF_PACKET;
-                                        toggleControl();    //Ensure the control toggle bit is toggled
+                                        toggleControlIfControlToggleShouldBeValidated();    //Ensure the control toggle bit is toggled
                                     } else {
                                         // Mismatch in control toggle bit
                                         // Consider the response as a retry response, which can be ignored
@@ -389,12 +389,14 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
            control |= TOGGLE_BIT;
     }
 
-    protected void toggleControl() {
-        boolean toggleBit = ((control & TOGGLE_BIT) == TOGGLE_BIT);
-        if (toggleBit) {
-            control &= (TOGGLE_BIT ^ 0xFF);
-        } else {
-            control |= TOGGLE_BIT;
+    protected void toggleControlIfControlToggleShouldBeValidated() {
+        if (validateControlToggleBit) {
+            boolean toggleBit = ((control & TOGGLE_BIT) == TOGGLE_BIT);
+            if (toggleBit) {
+                control &= (TOGGLE_BIT ^ 0xFF);
+            } else {
+                control |= TOGGLE_BIT;
+            }
         }
     }
 
