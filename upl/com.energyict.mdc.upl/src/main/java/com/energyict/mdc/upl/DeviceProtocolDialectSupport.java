@@ -17,7 +17,7 @@ public interface DeviceProtocolDialectSupport {
      *
      * @return the List of DeviceProtocolDialect
      */
-    List<DeviceProtocolDialect> getDeviceProtocolDialects();
+    List<? extends DeviceProtocolDialect> getDeviceProtocolDialects();
 
     /**
      * Adds the set of TypedProperties of the specific DeviceProtocolDialect.

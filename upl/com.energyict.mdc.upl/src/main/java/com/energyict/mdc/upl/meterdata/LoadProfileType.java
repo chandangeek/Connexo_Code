@@ -35,7 +35,7 @@ public interface LoadProfileType {
      * @return the integration period.
      */
     @XmlAttribute
-    TemporalAmount getInterval();
+    TemporalAmount interval();
 
     // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")

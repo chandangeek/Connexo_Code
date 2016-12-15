@@ -57,7 +57,7 @@ public interface OfflineLoadProfile extends Offline {
      * @return the integration period.
      */
     @XmlAttribute
-    TemporalAmount getInterval();
+    TemporalAmount interval();
 
     /**
      * return the end time of the last interval read from the device.
