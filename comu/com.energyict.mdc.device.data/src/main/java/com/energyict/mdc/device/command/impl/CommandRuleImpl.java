@@ -76,6 +76,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     @Min(0)
     private long monthLimit;
     private boolean active = false;
+    private boolean isRemoved = false;
 
     private Reference<Monitor> monitor = Reference.empty();
     private Reference<CommandRulePendingUpdate> commandRulePendingUpdate = Reference.empty();
@@ -250,6 +251,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     }
 
     private void actualDelete() {
+        this.isRemoved = true;
         dataModel.remove(this);
         ((CommandRuleServiceImpl) commandRuleService).commandRuleRemoved();
     }
@@ -326,7 +328,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         if (commandRulePendingUpdate.isPresent()) {
             CommandRulePendingUpdate entity = commandRulePendingUpdate.get();
             commandRulePendingUpdate.setNull();
-            if (!entity.isRemoval()) {
+            if(!entity.isRemoval() || !this.isRemoved) {
                 this.save();
             }
             dataModel.remove(entity);
