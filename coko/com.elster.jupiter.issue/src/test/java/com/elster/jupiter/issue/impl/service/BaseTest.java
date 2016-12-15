@@ -61,6 +61,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Order;
@@ -234,6 +235,20 @@ public abstract class BaseTest {
 
     protected IssueDefaultActionsFactory getDefaultActionsFactory() {
         return injector.getInstance(IssueDefaultActionsFactory.class);
+    }
+
+    protected OpenIssue createAssigneeInfo() {
+        OpenIssueImpl issue = getDataModel().getInstance(OpenIssueImpl.class);
+        issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
+        issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+        CreationRule rule = createCreationRule("creation rule" + Instant.now());
+        WorkGroup workGroup = getUserService().createWorkGroup("WorkGroupName","Description");
+        User user = getUserService().createUser("UserName", "Description");
+        issue.setWorkGroup(workGroup);
+        issue.setUser(user);
+        issue.setRule(rule);
+        issue.save();
+        return issue;
     }
 
     protected OpenIssue createIssueMinInfo() {

@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.share.entity;
 
-import java.util.Optional;
-
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.impl.records.IssueImpl;
 import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeTypeImpl;
@@ -9,8 +7,10 @@ import com.elster.jupiter.issue.impl.records.assignee.types.UserType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.UserService;
 
+import java.util.Optional;
+
 public enum AssigneeType {
-    
+
     USER(new UserType()), ;
 
     private AssigneeTypeImpl typeImpl;
@@ -37,7 +37,6 @@ public enum AssigneeType {
 
     public void applyAssigneeToIssue(IssueImpl issue, IssueAssigneeImpl issueAssignee) {
         if (issue != null) {
-            issue.setAssigneeType(this);
             typeImpl.applyAssigneeToIssue(issue, issueAssignee);
         }
     }

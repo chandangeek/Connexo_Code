@@ -1,24 +1,59 @@
 package com.elster.jupiter.issue.impl.records;
 
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 
-public abstract class IssueAssigneeImpl extends EntityImpl implements IssueAssignee {
+public class IssueAssigneeImpl implements IssueAssignee {
 
-    private AssigneeType type;
+    private User user;
+    private WorkGroup workGroup;
 
-    protected IssueAssigneeImpl(DataModel dataModel, AssigneeType type) {
-        super(dataModel);
-        this.type = type;
+    public IssueAssigneeImpl(){
+    }
+
+    public IssueAssigneeImpl(User user, WorkGroup workGroup) {
+        this.user = user;
+        this.workGroup = workGroup;
     }
 
     @Override
-    public String getType(){
-        return type.getType();
+    public User getUser() {
+        return user;
     }
 
-    public void applyAssigneeToIssue(IssueImpl issue){
-        type.applyAssigneeToIssue(issue, this);
+    @Override
+    public WorkGroup getWorkGroup() {
+        return workGroup;
+    }
+
+    @Override
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public void setWorkGroup(WorkGroup workGroup) {
+        this.workGroup = workGroup;
+    }
+
+    @Override
+    public long getId() {
+        return user.getId();
+    }
+
+    @Override
+    public String getType() {
+        return Types.USER;
+    }
+
+    @Override
+    public String getName() {
+        return user.getName();
+    }
+
+    @Override
+    public long getVersion() {
+        return user.getVersion();
     }
 }

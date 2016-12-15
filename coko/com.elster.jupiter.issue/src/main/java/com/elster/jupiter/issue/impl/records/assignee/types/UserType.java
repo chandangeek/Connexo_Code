@@ -8,10 +8,11 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+
 import java.util.Optional;
 
 public class UserType extends AssigneeTypeImpl {
-    
+
     @Override
     public IssueAssigneeImpl getAssignee(IssueImpl issueImpl) {
         checkIssue(issueImpl);

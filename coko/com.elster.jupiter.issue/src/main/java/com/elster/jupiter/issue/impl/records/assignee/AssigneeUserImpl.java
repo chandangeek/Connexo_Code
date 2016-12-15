@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.impl.records.assignee;
 
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.users.User;
 
 public class AssigneeUserImpl extends IssueAssigneeImpl {
@@ -9,7 +8,7 @@ public class AssigneeUserImpl extends IssueAssigneeImpl {
     private User user;
 
     public AssigneeUserImpl(User user) {
-        super(null, AssigneeType.USER);
+        super(user, null);
         this.user = user;
     }
 

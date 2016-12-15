@@ -2,7 +2,6 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -21,6 +20,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -35,12 +35,11 @@ public class IssueImpl extends EntityImpl implements Issue {
     private Reference<IssueReason> reason = ValueReference.absent();
     private Reference<IssueStatus> status = ValueReference.absent();
 
-    private IssueAssigneeImpl assignee;
     private boolean overdue;
 
     //work around
-    private AssigneeType assigneeType;
     private Reference<User> user = ValueReference.absent();
+    private Reference<WorkGroup> workGroup = ValueReference.absent();
 
     private Reference<EndDevice> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -141,26 +140,26 @@ public class IssueImpl extends EntityImpl implements Issue {
 
     @Override
     public IssueAssigneeImpl getAssignee() {
-        if (assignee == null && assigneeType != null) {
-            assignee = assigneeType.getAssignee(this);
-        }
-        return assignee;
+        return new IssueAssigneeImpl(getUser(), getWorkGroup());
     }
 
     public User getUser() {
         return user.orNull();
     }
 
-    public void setAssigneeType(AssigneeType assigneeType) {
-        this.assigneeType = assigneeType;
+    public WorkGroup getWorkGroup() {
+        return workGroup.orNull();
     }
 
     public void setUser(User user) {
         this.user.set(user);
     }
 
+    public void setWorkGroup(WorkGroup workGroup) {
+        this.workGroup.set(workGroup);
+    }
+
     protected void resetAssignee() {
-        assigneeType = null;
         setUser(null);
     }
 
@@ -175,20 +174,21 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public void assignTo(String type, long id) {
-        Optional<IssueAssignee> assignee = issueService.findIssueAssignee(AssigneeType.fromString(type), id);
-        if (assignee.isPresent()) {
-            assignTo(assignee.get());
-        }
+    public void assignTo(Long userId, Long workGroupId) {
+        assignTo(issueService.findIssueAssignee(userId, workGroupId));
     }
 
     @Override
     public void assignTo(IssueAssignee assignee) {
         if (assignee != null) {
-            resetAssignee();
-            IssueAssigneeImpl assigneeImpl = IssueAssigneeImpl.class.cast(assignee);
-            assigneeImpl.applyAssigneeToIssue(this);
+            this.workGroup.set(assignee.getWorkGroup());
+            this.user.set(assignee.getUser());
         }
+    }
+
+    @Override
+    public void assignTo(String type, long id){
+        assignTo(id, null);
     }
 
     @Override

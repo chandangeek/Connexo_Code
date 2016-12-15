@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -91,7 +91,7 @@ public class IssueActionServiceImplTest extends BaseTest {
             actionType = getIssueActionService().createActionType("factoryId1", "classname1", issueTypeRef.get());
             assertThat(actionType.getId()).isEqualTo(id);
             // 1 default action type + 1 factoryId1 (classname1)
-            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(2);
+            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(3);
         }
         try (TransactionContext context = getContext()) {
             Optional<IssueReason> reasonRef = getIssueService().findReason(ISSUE_DEFAULT_REASON);
@@ -100,7 +100,7 @@ public class IssueActionServiceImplTest extends BaseTest {
             actionType = getIssueActionService().createActionType("factoryId1", "classname1", reasonRef.get());
             assertThat(actionType.getId()).isEqualTo(id);
             // 1 default action type + 1 factoryId1 (classname1)
-            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(2);
+            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(3);
         }
     }
 

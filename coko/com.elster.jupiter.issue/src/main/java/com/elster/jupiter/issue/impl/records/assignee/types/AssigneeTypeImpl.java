@@ -1,15 +1,15 @@
 package com.elster.jupiter.issue.impl.records.assignee.types;
 
-import java.util.Optional;
-
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.impl.records.IssueImpl;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.UserService;
 
+import java.util.Optional;
+
 public abstract class AssigneeTypeImpl {
-    
+
     public abstract String getType();
 
     public abstract String getColumnName();

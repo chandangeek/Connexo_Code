@@ -20,14 +20,16 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private Class<?> sourceClass;
     private Set<String> statuses;
     private String groupBy;
-    private List<AssigneeDetails> assignees;
+    private List<Long> userAssignees;
     private String meterName;
+    private List<Long> workGroupAssignees;
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
 
     public IssueGroupFilterImpl() {
         this.statuses = new HashSet<>();
-        this.assignees = new ArrayList<>();
+        this.userAssignees = new ArrayList<>();
+        this.workGroupAssignees = new ArrayList<>();
         this.issueTypes = new HashSet<>();
         this.dueDates = new ArrayList<>();
     }
@@ -129,19 +131,40 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     }
 
     @Override
-    public IssueGroupFilter withAssignee(long id, String type) {
-        this.assignees.add(new AssigneeDetails(id, type));
+    public IssueGroupFilter withUserAssignee(long id) {
+        this.userAssignees.add(id);
         return this;
     }
 
     @Override
-    public List<AssigneeDetails> getAssignees() {
-        return this.assignees;
+    public IssueGroupFilter withWorkGroupAssignee(long id) {
+        this.workGroupAssignees.add(id);
+        return this;
+    }
+
+    @Override
+    public IssueGroupFilter withAssignee(long id, String type){
+        return this.withUserAssignee(id);
+    }
+
+    @Override
+    public List<Long> getUserAssignees() {
+        return this.userAssignees;
+    }
+
+    @Override
+    public List<Long> getWorkGroupAssignees() {
+        return this.workGroupAssignees;
     }
 
     @Override
     public List<DueDateRange> getDueDates() {
         return this.dueDates;
+    }
+
+    @Override
+    public List<AssigneeDetails> getAssignees() {
+        return userAssignees.stream().map(userId -> new AssigneeDetails(userId, "USER")).collect(Collectors.toList());
     }
 
     @Override

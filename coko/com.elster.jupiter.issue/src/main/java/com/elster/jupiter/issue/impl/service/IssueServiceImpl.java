@@ -8,10 +8,12 @@ import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
@@ -204,7 +206,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class
+                        version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class
                 ));
     }
 
@@ -427,13 +429,16 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id) {
-        return assigneeType != null ? assigneeType.getAssignee(this, userService, id) : Optional.empty();
+    public IssueAssignee findIssueAssignee(Long userId, Long workGroupId) {
+        IssueAssigneeImpl issueAssignee = new IssueAssigneeImpl();
+        issueAssignee.setUser(userId != null ? userService.getUser(userId).orElse(null) : null);
+        issueAssignee.setWorkGroup(workGroupId != null ?userService.getWorkGroup(workGroupId).orElse(null) : null);
+        return issueAssignee;
     }
 
     @Override
-    public boolean checkIssueAssigneeType(String type) {
-        return AssigneeType.fromString(type) != null;
+    public Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id) {
+        return Optional.of(findIssueAssignee(id, null));
     }
 
     @Override
@@ -568,6 +573,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return new IssueGroupFilterImpl();
     }
 
+    @Override
+    public boolean checkIssueAssigneeType(String type) {
+        return true;
+    }
+
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
@@ -602,6 +612,18 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         if (filter.getAssignees().isEmpty() && filter.isUnassignedSelected()) {
             condition = condition.and(where("user").isNull());
+        }
+        //filter by workGroup
+        if (!filter.getWorkGroupAssignees().isEmpty()) {
+            Condition wgCondition = Condition.TRUE;
+            wgCondition = wgCondition.and(where("workGroup").in(filter.getWorkGroupAssignees()));
+            if (filter.isUnassignedWorkGroupSelected()) {
+                wgCondition = wgCondition.or(where("workGroup").isNull());
+            }
+            condition = condition.and(wgCondition);
+        }
+        if (filter.getWorkGroupAssignees().isEmpty() && filter.isUnassignedWorkGroupSelected()) {
+            condition = condition.and(where("workGroup").isNull());
         }
         //filter by reason
         if (!filter.getIssueReasons().isEmpty()) {

@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -127,6 +126,6 @@ public class AssignmentRuleImpl extends EntityImpl implements AssignmentRule {
                 MessageSeeds.ISSUE_ASSIGN_RULE_GET_ASSIGNEE.log(LOG, thesaurus, getTitle());
             }
         }
-        return issueService.findIssueAssignee(AssigneeType.fromString(assigneType), assigneeId).orElse(null);
+        return issueService.findIssueAssignee(assigneeId, null);
     }
 }
