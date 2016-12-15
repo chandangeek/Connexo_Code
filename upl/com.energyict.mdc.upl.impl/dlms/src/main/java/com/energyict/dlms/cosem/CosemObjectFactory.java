@@ -735,4 +735,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public final DLMSGatewaySetup getDLMSGatewaySetup() {
         return new DLMSGatewaySetup(this.protocolLink, DLMSGatewaySetup.DEFAULT_OBIS_CODE);
     }
+
+    public final DataProtection getDataProtectionSetup() throws NotInObjectListException {
+        return new DataProtection(this.protocolLink, this.getObjectReference(DataProtection.OBIS_CODE));
+    }
 }
