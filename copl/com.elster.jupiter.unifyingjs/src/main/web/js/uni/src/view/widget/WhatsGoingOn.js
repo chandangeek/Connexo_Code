@@ -380,7 +380,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
     },
 
     addWorkGroupAssigneeToTooltip: function (result, value) {
-        result += !!value.workGroupAssignee ? Uni.I18n.translate('whatsGoingOn.workGroupAssignee', 'UNI', 'Work group: {0}', value.workGroupAssignee): '';
+        result += !!value.workGroupAssignee ? Uni.I18n.translate('whatsGoingOn.workGroupAssignee', 'UNI', 'Workgroup: {0}', value.workGroupAssignee): '';
         result += value.isMyWorkGroup ? Uni.I18n.translate('whatsGoingOn.myWorkGroup', 'UNI', ' (My workgroup)') + "<br>"  : '<br>';
 
         return result;
