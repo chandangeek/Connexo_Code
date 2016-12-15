@@ -5,7 +5,6 @@ import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
@@ -129,8 +128,8 @@ public class GoingOnResource {
             goingOnInfo.description = issue.getReason().getName();
             goingOnInfo.dueDate = issue.getDueDate();
             goingOnInfo.severity = severity(issue.getDueDate());
-            goingOnInfo.assignee = Optional.ofNullable(issue.getAssignee()).map(IssueAssignee::getName).orElse(null);
-            goingOnInfo.assigneeIsCurrentUser = Optional.ofNullable(issue.getAssignee()).map(IssueAssignee::getId).map(id -> id.equals(currentUser.getId())).orElse(false);
+            goingOnInfo.assignee = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getName()).orElse(null);
+            goingOnInfo.assigneeIsCurrentUser = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getId()).map(id -> id.equals(currentUser.getId())).orElse(false);
             goingOnInfo.status = issue.getStatus().getName();
             return goingOnInfo;
         }
