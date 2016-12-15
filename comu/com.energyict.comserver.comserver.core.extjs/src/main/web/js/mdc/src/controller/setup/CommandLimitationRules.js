@@ -584,7 +584,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             msg:  record.get('active')
                 ? Uni.I18n.translate('commandLimitationRule.removeActive.msg', 'MDC',
                     'The creation of commands will no longer be limited by this command limitation rule. Removing an active command limitation rule requires approval before taking effect.')
-                : Uni.I18n.translate('commandLimitationRule.removeInactive.msg', 'MDC', 'The creation of commands will no longer be limited by this command limitation rule.'),
+                : Uni.I18n.translate('commandLimitationRule.removeInactive.msg', 'MDC', 'This command limitation rule will no longer be available.'),
             title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", record.get('name'))
         });
     },
