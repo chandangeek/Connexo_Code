@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum MicroActionTranslationKeys implements TranslationKey {
     SET_CONNECTION_STATE_NAME(Keys.NAME_PREFIX + SetConnectionStateAction.class.getSimpleName(), "Set connection state"),
-    SET_CONNECTION_STATE_DESCRIPTION(Keys.DESCRIPTION_PREFIX + SetConnectionStateAction.class.getSimpleName(), "Set connection state to one of the available states"),
+    SET_CONNECTION_STATE_DESCRIPTION(Keys.DESCRIPTION_PREFIX + SetConnectionStateAction.class.getSimpleName(), "Set connection state to one of the available states."),
     SET_CONNECTION_STATE_PROPERTY_NAME("set.connection.state.property.name", "Connection state"),
     SET_CONNECTION_STATE_PROPERTY_MESSAGE("set.connection.state.property.message", "Incorrect value for ''Connection state''"),;
 
