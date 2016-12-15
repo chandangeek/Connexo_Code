@@ -135,6 +135,8 @@ public class IDISMessageConverter extends AbstractMessageConverter {
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {
             return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(actionWhenOverThresholdAttributeName)) {
+            return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return europeanDateTimeFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
