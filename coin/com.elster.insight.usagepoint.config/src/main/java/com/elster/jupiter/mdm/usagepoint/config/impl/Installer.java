@@ -401,7 +401,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
         ReadingType readingTypeGasFlow = meteringService.findReadingTypes(Collections.singletonList(BILLING_GAS_FLOW))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(BILLING_GAS_FLOW, "Gas flow"));
+                .orElseGet(() -> meteringService.createReadingType(BILLING_GAS_FLOW, "Billing gas flow"));
 
         MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
