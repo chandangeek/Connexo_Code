@@ -180,6 +180,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                 bind(MessageService.class).toInstance(messageService);
                 bind(TaskService.class).toInstance(taskService);
                 bind(UserService.class).toInstance(userService);
+                bind(MeteringService.class).toInstance(meteringService);
             }
         };
     }
