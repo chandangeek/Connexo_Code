@@ -58,7 +58,7 @@ public class FavoritesResource {
         UsagePointGroup usagePointGroup = resourceHelper.findUsagePointGroupOrThrowException(id);
         return favoritesService.findFavoriteUsagePointGroup(usagePointGroup)
                 .map(FavoriteUsagePointGroupInfo::new)
-                .orElse(new FavoriteUsagePointGroupInfo(usagePointGroup));
+                .orElseGet(() -> new FavoriteUsagePointGroupInfo(usagePointGroup));
     }
 
     @GET
@@ -73,7 +73,7 @@ public class FavoritesResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         return favoritesService.findFavoriteUsagePoint(usagePoint)
                 .map(FavoriteUsagePointInfo::new)
-                .orElse(new FavoriteUsagePointInfo(usagePoint));
+                .orElseGet(() -> new FavoriteUsagePointInfo(usagePoint));
     }
 
     @PUT
