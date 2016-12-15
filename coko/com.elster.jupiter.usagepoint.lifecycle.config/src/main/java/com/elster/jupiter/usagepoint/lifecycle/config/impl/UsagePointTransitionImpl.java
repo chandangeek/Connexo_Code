@@ -57,7 +57,6 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
         }
     }
 
-    @SuppressWarnings("unused")
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -65,11 +64,11 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Reference<UsagePointLifeCycleImpl> lifeCycle = ValueReference.absent();
     private Reference<StateTransition> fsmTransition = ValueReference.absent();
-    @SuppressWarnings("unused")
+
     private long levelBits;
-    @SuppressWarnings("unused")
+
     private List<UsagePointTransitionMicroCheckUsageImpl> microCheckUsages = new ArrayList<>();
-    @SuppressWarnings("unused")
+
     private List<UsagePointTransitionMicroActionUsageImpl> microActionUsages = new ArrayList<>();
 
     @SuppressWarnings("unused")
