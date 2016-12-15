@@ -152,13 +152,18 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public void assignTo(String type, long id) {
-        getBaseIssue().assignTo(type, id);
+    public void assignTo(Long userId, Long workGroupId) {
+        getBaseIssue().assignTo(userId, workGroupId);
     }
 
     @Override
     public void assignTo(IssueAssignee assignee) {
         getBaseIssue().assignTo(assignee);
+    }
+
+    @Override
+    public void assignTo(String type, long id) {
+        getBaseIssue().assignTo(type, id);
     }
 
     @Override
