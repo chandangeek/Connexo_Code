@@ -49,12 +49,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler {
-
-	/** Logger instance. */
-	private static final Logger logger = Logger.getLogger(A1800.class.getName());
 
 	private A1800LoadProfile a1800LoadProfile;
 
@@ -79,7 +75,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 			halfDuplexController = new RtuPlusServerHalfDuplexController(halfDuplexController);
 		}
 
-		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
+		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.validateControlToggleBit);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);
@@ -99,7 +95,8 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
         setRetrieveExtraIntervals(Integer.parseInt(properties.getProperty("RetrieveExtraIntervals","0").trim()));
 
 		this.rs485RtuPlusServer=Integer.parseInt(properties.getProperty("RS485RtuPlusServer","0").trim());
-    }
+		this.validateControlToggleBit = Integer.parseInt(properties.getProperty("ValidateFrameControlToggleBit", "0")) == 1;
+	}
 	
 	protected void doDisConnect() throws IOException {  
 		try {
@@ -288,7 +285,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 
         result.add("HalfDuplex");
 		result.add("RS485RtuPlusServer");
-        
+		result.add("ValidateFrameControlToggleBit");
         return result;
     }
 	

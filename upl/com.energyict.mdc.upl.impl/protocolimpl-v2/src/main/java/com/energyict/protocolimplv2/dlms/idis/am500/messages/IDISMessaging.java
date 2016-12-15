@@ -110,7 +110,9 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {
             return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
+        } else if (propertySpec.getName().equals(actionWhenOverThresholdAttributeName)) {
+            return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
+        }else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || (propertySpec.getName().equals(capturePeriodAttributeName))
                 || (propertySpec.getName().equals(underThresholdDurationAttributeName))
                 || (propertySpec.getName().equals(emergencyProfileDurationAttributeName))) {

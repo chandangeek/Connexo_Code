@@ -334,7 +334,7 @@ public class LoadProfileDataCommand extends AbstractCommand {
             
             interval++;
         } //  while (offset<length)
-        intervalDatas = ProtocolTools.mergeDuplicateIntervals(intervalDatas);
+        intervalDatas = ProtocolTools.mergeDuplicateIntervalsIncludingIntervalStatus(intervalDatas);
         return intervalDatas;
     } // protected void parse(byte[] data) throws IOException
     

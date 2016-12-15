@@ -24,6 +24,7 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50Activ
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
@@ -40,6 +41,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCHEDULE_OBISCODE = ObisCode.fromString("0.0.15.0.9.255");
     private static final ObisCode LOAD_PROFILE_DISPLAY_CONTROL_SCRIPT_TABLE = ObisCode.fromString("0.0.10.0.113.255");
     private static final ObisCode MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS = ObisCode.fromString("1.0.0.8.2.255");
+    private static final ObisCode BILLING_SCRIPT_TABLE_OBIS_CODE = ObisCode.fromString("0.0.10.0.1.255");
 
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
@@ -79,6 +81,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 changeEncryptionKeyAndUseNewKey(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT)) {
                 changeEncryptionKeyAndUseNewKey(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.BILLING_RESET)) {
+                collectedMessage = billingReset(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_ATTRIBUTES_4TO9)) {
+                collectedMessage = configureLoadLimitParametersEVN_Attributes_4to9(collectedMessage, pendingMessage);
             } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -86,11 +92,66 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         return collectedMessage;
     }
 
+    private CollectedMessage configureLoadLimitParametersEVN_Attributes_4to9(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        long normalThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, normalThresholdAttributeName).getDeviceMessageAttributeValue()).longValue();
+        long emergencyThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyThresholdAttributeName).getDeviceMessageAttributeValue()).longValue();
+        int overThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, overThresholdDurationAttributeName).getDeviceMessageAttributeValue());
+        int underThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, underThresholdDurationAttributeName).getDeviceMessageAttributeValue());
+        int emergencyProfileId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileIdAttributeName).getDeviceMessageAttributeValue());
+        String emergencyProfileGroupIdList = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileGroupIdListAttributeName).getDeviceMessageAttributeValue();
+        Date emergencyProfileActivationDate = new Date(new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileActivationDateAttributeName).getDeviceMessageAttributeValue()).longValue());
+        int emergencyProfileDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileDurationAttributeName).getDeviceMessageAttributeValue());
+
+        try {
+
+            Limiter limiter = getCosemObjectFactory().getLimiter();
+            writeNormalThreshold(normalThreshold, limiter);
+            writeEmergencyThreshold(emergencyThreshold, limiter);
+            limiter.writeMinOverThresholdDuration(new Unsigned32(overThresholdDuration));
+            limiter.writeMinUnderThresholdDuration(new Unsigned32(underThresholdDuration));
+            writeEmergencyProfile(emergencyProfileId, emergencyProfileActivationDate, emergencyProfileDuration, limiter);
+            Array groupIdList = new Array();
+            String[] profile_id_list = emergencyProfileGroupIdList.split(",");
+            for (String id : profile_id_list) {
+                groupIdList.addDataType(new Unsigned16(Integer.parseInt(id)));
+            }
+            limiter.writeEmergencyProfileGroupIdList(groupIdList);
+        } catch (NotInObjectListException e) {
+            setNotInObjectListMessage(collectedMessage, Limiter.getDefaultObisCode().getValue(), pendingMessage, e);
+        } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            String errorMsg = "Exception occurred while trying to write the action scripts for object with obisCode: " + Limiter.getDefaultObisCode() + ". " + e.getMessage();
+            setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
+        }
+
+        return collectedMessage;
+    }
+
+    private void writeEmergencyThreshold(long activeThreshold, Limiter limiter) throws IOException {
+        limiter.writeThresholdEmergency(new Unsigned32(activeThreshold)); //TODO check if this type will be always accepted or the register value type should be used
+    }
+
+    private CollectedMessage billingReset(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        try {
+            ScriptTable demandResetScriptTable = getCosemObjectFactory().getScriptTable(BILLING_SCRIPT_TABLE_OBIS_CODE);
+            demandResetScriptTable.execute(1);
+            collectedMessage.setDeviceProtocolInformation("Billing reset successfully performed");
+        } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            String errorMsg = "Failed to perform billing reset: " + e.getMessage();
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+        return collectedMessage;
+    }
+
+
     private CollectedMessage enableImageTransfer(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
         try {
             ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
             imageTransfer.enableImageTransfer();
         } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String errorMsg = "Failed to enable image transfer: " + e.getMessage();
             collectedMessage.setDeviceProtocolInformation(errorMsg);
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, errorMsg));
@@ -106,6 +167,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
             try {
                 imageTransfer.verifyAndPollForSuccess();
             } catch (DataAccessResultException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 String errorMsg = "Verification of image failed: " + e.getMessage();
                 collectedMessage.setDeviceProtocolInformation(errorMsg);
                 collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, errorMsg));

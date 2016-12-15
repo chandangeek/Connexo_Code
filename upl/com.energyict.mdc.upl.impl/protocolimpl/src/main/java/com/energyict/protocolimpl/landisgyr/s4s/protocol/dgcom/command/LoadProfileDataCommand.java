@@ -339,7 +339,7 @@ RXS4 32k 122k
             
             interval++;
         } //  while (offset<length)
-        intervalDatas = ProtocolTools.mergeDuplicateIntervals(intervalDatas);
+        intervalDatas = ProtocolTools.mergeDuplicateIntervalsIncludingIntervalStatus(intervalDatas);
         return intervalDatas;
     } // protected void parse(byte[] data) throws IOException
     

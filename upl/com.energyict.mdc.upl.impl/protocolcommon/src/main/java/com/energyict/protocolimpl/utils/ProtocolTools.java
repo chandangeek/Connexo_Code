@@ -8,14 +8,33 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -23,7 +42,14 @@ import java.math.RoundingMode;
 import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -743,11 +769,19 @@ public final class ProtocolTools {
     }
 
     /**
-     * @param intervals
-     * @return
+     * Merge the duplicate intervals from the given list of IntervalData elements.
+     * <b>Remarks: </b><br/>
+     * <ul>
+     *     <li>When merging multiple IntervalData elements, the Eis/protocol statuses are <b>not</b> merged!</li>
+     *     <li>This method can only be used if the channels contain simple consumption; if the channels contain cumulative
+     * values, then the merging isn't correct!</li>
+     * </ul>
+     *
+     * @param intervals the list of IntervalData elements which should be checked for doubles
+     * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
      */
     public static List<IntervalData> mergeDuplicateIntervals(List<IntervalData> intervals) {
-        List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+        List<IntervalData> mergedIntervals = new ArrayList<>();
         for (IntervalData id2compare : intervals) {
             boolean allreadyProcessed = false;
             for (IntervalData merged : mergedIntervals) {
@@ -786,14 +820,15 @@ public final class ProtocolTools {
     /**
      * Merge the duplicate intervals from the given list of IntervalData elements.
      * When merging multiple IntervalData elements, the Eis/protocol statuses are merged as well.
+     * <b>Remark: </b><br/>
+     * This method can only be used if the channels contain simple consumption; if the channels contain cumulative
+     * values, then the merging isn't correct!
      *
      * @param intervals the list of IntervalData elements which should be checked for doubles
      * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
-     * @deprecated this method can only be used if the channels contain simple consumption; if the channels contain cumulative
-     * values, then the merging will be wrong!
      */
     public static List<IntervalData> mergeDuplicateIntervalsIncludingIntervalStatus(List<IntervalData> intervals) {
-        List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+        List<IntervalData> mergedIntervals = new ArrayList<>();
         for (IntervalData id2compare : intervals) {
             boolean allreadyProcessed = false;
             for (IntervalData merged : mergedIntervals) {
