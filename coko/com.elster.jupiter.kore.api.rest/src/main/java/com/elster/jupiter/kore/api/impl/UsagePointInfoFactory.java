@@ -130,7 +130,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             }
         });
         map.put("connectionState", (usagePointInfo, usagePoint, uriInfo) ->
-                usagePoint.getConnectionState().ifPresent(connectionState -> {
+                usagePoint.getCurrentConnectionState().ifPresent(connectionState -> {
                     usagePointInfo.connectionState = new UsagePointConnectionStateInfo();
                     usagePointInfo.connectionState.connectionStateId = connectionState.getId();
                 }));
@@ -193,12 +193,12 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
 
         if (usagePointInfo.connectionState != null && usagePointInfo.connectionState.startDate != null) {
-            if (usagePointInfo.connectionState.connectionStateId == null && !usagePoint.getConnectionState().isPresent()) {
+            if (usagePointInfo.connectionState.connectionStateId == null && !usagePoint.getCurrentConnectionState().isPresent()) {
                 validateUsagePoint(usagePoint);
             }
             usagePoint.setConnectionState(findConnectionState(usagePointInfo),
                     Instant.ofEpochMilli(usagePointInfo.connectionState.startDate));
-        } else if (usagePointInfo.connectionState != null && !usagePoint.getConnectionState().map(ConnectionState::getId)
+        } else if (usagePointInfo.connectionState != null && !usagePoint.getCurrentConnectionState().map(ConnectionState::getId)
                 .map(usagePointInfo.connectionState.connectionStateId::equalsIgnoreCase).orElse(false)) {
             usagePoint.setConnectionState(findConnectionState(usagePointInfo));
         }
