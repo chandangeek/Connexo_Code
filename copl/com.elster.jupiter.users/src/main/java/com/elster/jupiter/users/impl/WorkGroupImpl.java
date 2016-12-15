@@ -9,7 +9,6 @@ import com.elster.jupiter.users.WorkGroup;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,7 @@ public class WorkGroupImpl implements WorkGroup {
     }
 
     @Override
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -96,18 +95,23 @@ public class WorkGroupImpl implements WorkGroup {
     }
 
     @Override
-    public List<User> getUsersInWorkGroup(){
-        return usersInWorkGroups.stream().map(UsersInWorkGroup::getUser).sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase())).collect(Collectors.toList());
+    public List<User> getUsersInWorkGroup() {
+        return usersInWorkGroups.stream()
+                .map(UsersInWorkGroup::getUser)
+                .sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void revoke(User user){
-        usersInWorkGroups.stream().filter(userInGroup -> userInGroup.getUser().equals(user)).forEach(UsersInWorkGroup::delete);
+    public void revoke(User user) {
+        usersInWorkGroups.stream()
+                .filter(userInGroup -> userInGroup.getUser().equals(user))
+                .forEach(UsersInWorkGroup::delete);
     }
 
     @Override
-    public void grant(User user){
-        if(!hasUser(user)){
+    public void grant(User user) {
+        if (!hasUser(user)) {
             UsersInWorkGroup userInWorkGroup = UsersInWorkGroup.from(dataModel, this, user);
             userInWorkGroup.persist();
             usersInWorkGroups.add(userInWorkGroup);
@@ -115,18 +119,23 @@ public class WorkGroupImpl implements WorkGroup {
     }
 
     @Override
-    public boolean hasUser(User user){
+    public boolean hasUser(User user) {
         return usersInWorkGroups.stream().anyMatch(userInWorkGroup -> userInWorkGroup.getUser().equals(user));
     }
 
     @Override
-    public void delete(){
+    public void delete() {
         //FixMe verify whether there are issues still assigned
         this.deleteAssociationWithWorkGroup();
         dataModel.mapper(WorkGroup.class).remove(this);
     }
 
-    private void deleteAssociationWithWorkGroup(){
+    @Override
+    public String toString() {
+        return "WorkGroup " + name;
+    }
+
+    private void deleteAssociationWithWorkGroup() {
         usersInWorkGroups.forEach(UsersInWorkGroup::delete);
     }
 }
