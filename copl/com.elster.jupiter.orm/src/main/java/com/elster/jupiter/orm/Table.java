@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * Describes a relational table, and its mapping to objects.
@@ -175,6 +176,7 @@ public interface Table<T> {
 
     List<? extends Column> getColumns();
     List<? extends Column> getColumns(Version version);
+    Stream<? extends Column> getRealColumns();
     Optional<? extends Column> getColumn(String name);
     List<? extends TableConstraint> getConstraints();
 

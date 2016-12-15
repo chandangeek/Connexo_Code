@@ -206,7 +206,7 @@ final class JoinTreeNode<T>  {
 	}
 
 	private boolean booleanValue(Boolean value) {
-		return value != null && value.booleanValue();
+		return value != null && value;
 	}
 
 	private static boolean hasField(JoinDataMapper<?> mapper, String reduced) {

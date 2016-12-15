@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.Finder;
 import com.elster.jupiter.orm.JournalEntry;
@@ -17,10 +18,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -104,6 +108,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		"ROW",
 		"SB4",
 		"SCN",
+		"SD",
 		"SET",
 		"SID",
 		"SIN",
@@ -155,12 +160,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             builder.append('X');
         }
         String result = builder.toString().toUpperCase();
-        if (Arrays.binarySearch(RESERVED_ALIAS_WORDS,result) >= 0) {
-        	return result + "1";
+        if (Arrays.binarySearch(RESERVED_ALIAS_WORDS, result) >= 0) {
+            return result + "1";
         } else {
-        	return result;
+            return result;
         }
-	}
+    }
 
 	public String getAlias() {
 		return alias;
@@ -315,7 +320,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		if (table.getAutoUpdateColumns().isEmpty()) {
 			throw new IllegalStateException("Nothing to touch");
 		} else {
-			update(object, Collections.<ColumnImpl>emptyList());
+			update(object, Collections.emptyList());
 		}
 	}
 
@@ -546,6 +551,29 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getJournal(values).stream()
 			.filter(journalEntry -> instant.isBefore(journalEntry.getJournalTime()))
 			.reduce( (previous, current) -> current);
+	}
+
+	@Override
+	public Set<String> getQueryFields() {
+		Set<String> result = new LinkedHashSet<>();
+		Map<Column, String> constraintMapping = new HashMap<>();
+		getTable().getForeignKeyConstraints().stream()
+				.filter(foreignKey -> foreignKey.getFieldName() != null)
+				.forEach(constraint -> constraint.getColumns()
+						.forEach(column -> constraintMapping.put(column, constraint.getFieldName())));
+		getTable().getRealColumns().forEach(each -> {
+			String fieldName = each.getFieldName();
+			if (fieldName == null) {
+				fieldName = constraintMapping.get(each);
+			}
+			if (fieldName != null) {
+				for (int index = fieldName.indexOf('.'); index > -1; index = fieldName.indexOf('.', index + 1)) {
+					result.add(fieldName.substring(0, index));
+				}
+				result.add(fieldName);
+			}
+		});
+		return result;
 	}
 
 	class JournalFinderImpl implements Finder.JournalFinder<T> {

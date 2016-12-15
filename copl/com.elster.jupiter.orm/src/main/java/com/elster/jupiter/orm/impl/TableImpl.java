@@ -944,6 +944,7 @@ public class TableImpl<T> implements Table<T> {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Stream<ColumnImpl> getRealColumns() {
         if (this.realColumns == null) {
             this.realColumns =
