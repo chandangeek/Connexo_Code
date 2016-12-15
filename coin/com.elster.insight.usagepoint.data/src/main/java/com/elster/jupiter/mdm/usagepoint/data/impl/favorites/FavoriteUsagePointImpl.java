@@ -25,14 +25,20 @@ public class FavoriteUsagePointImpl implements FavoriteUsagePoint {
     private DataModel dataModel;
 
     @Inject
-    FavoriteUsagePointImpl(DataModel dataModel) {
+    private FavoriteUsagePointImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    FavoriteUsagePointImpl init(UsagePoint usagePoint, User user) {
+    static FavoriteUsagePointImpl from(DataModel dataModel, UsagePoint usagePoint, User user) {
+        FavoriteUsagePointImpl favoriteUsagePoint = dataModel.getInstance(FavoriteUsagePointImpl.class)
+                .init(usagePoint, user);
+        Save.CREATE.save(dataModel, favoriteUsagePoint);
+        return favoriteUsagePoint;
+    }
+
+    private FavoriteUsagePointImpl init(UsagePoint usagePoint, User user) {
         this.usagePoint.set(usagePoint);
         this.user.set(user);
-        Save.CREATE.save(dataModel, this);
         return this;
     }
 

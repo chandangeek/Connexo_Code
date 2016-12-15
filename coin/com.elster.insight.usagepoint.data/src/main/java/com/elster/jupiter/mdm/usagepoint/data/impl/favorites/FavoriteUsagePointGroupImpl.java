@@ -25,14 +25,20 @@ public class FavoriteUsagePointGroupImpl implements FavoriteUsagePointGroup {
     private DataModel dataModel;
 
     @Inject
-    FavoriteUsagePointGroupImpl(DataModel dataModel) {
+    private FavoriteUsagePointGroupImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    FavoriteUsagePointGroupImpl init(UsagePointGroup usagePointGroup, User user) {
+    static FavoriteUsagePointGroupImpl from(DataModel dataModel, UsagePointGroup usagePointGroup, User user) {
+        FavoriteUsagePointGroupImpl favoriteUsagePointGroup = dataModel.getInstance(FavoriteUsagePointGroupImpl.class)
+                .init(usagePointGroup, user);
+        Save.CREATE.save(dataModel, favoriteUsagePointGroup);
+        return favoriteUsagePointGroup;
+    }
+
+    private FavoriteUsagePointGroupImpl init(UsagePointGroup usagePointGroup, User user) {
         this.usagePointGroup.set(usagePointGroup);
         this.user.set(user);
-        Save.CREATE.save(dataModel, this);
         return this;
     }
 

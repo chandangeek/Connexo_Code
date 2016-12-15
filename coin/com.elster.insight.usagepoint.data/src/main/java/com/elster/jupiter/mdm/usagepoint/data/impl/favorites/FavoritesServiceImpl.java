@@ -53,14 +53,14 @@ public class FavoritesServiceImpl implements FavoritesService {
     public FavoriteUsagePoint markFavorite(UsagePoint usagePoint) {
         User user = getUser();
         return findFavoriteUsagePoint(usagePoint, user)
-                .orElseGet(() -> dataModel.getInstance(FavoriteUsagePointImpl.class).init(usagePoint, user));
+                .orElseGet(() -> FavoriteUsagePointImpl.from(dataModel, usagePoint, user));
     }
 
     @Override
     public FavoriteUsagePointGroup markFavorite(UsagePointGroup usagePointGroup) {
         User user = getUser();
         return findFavoriteUsagePointGroup(usagePointGroup, user)
-                .orElseGet(() -> dataModel.getInstance(FavoriteUsagePointGroupImpl.class).init(usagePointGroup, user));
+                .orElseGet(() -> FavoriteUsagePointGroupImpl.from(dataModel, usagePointGroup, user));
     }
 
     @Override
