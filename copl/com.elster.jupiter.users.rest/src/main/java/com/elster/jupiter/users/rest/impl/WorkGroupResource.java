@@ -1,25 +1,20 @@
 package com.elster.jupiter.users.rest.impl;
 
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.rest.SimplifiedUserInfo;
-import com.elster.jupiter.users.rest.UserInfos;
 import com.elster.jupiter.users.rest.WorkGroupInfo;
 import com.elster.jupiter.users.rest.actions.CreateWorkGroupTransaction;
 import com.elster.jupiter.users.rest.actions.DeleteWorkGroupTransaction;
 import com.elster.jupiter.users.rest.actions.UpdateWorkGroupTransaction;
 import com.elster.jupiter.users.security.Privileges;
-import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -33,12 +28,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/workgroups")
@@ -59,7 +51,7 @@ public class WorkGroupResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public PagedInfoList getWorkGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<WorkGroupInfo> infos = userService.getWorkGroups()
                 .stream()
@@ -72,7 +64,7 @@ public class WorkGroupResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public WorkGroupInfo getWorkGroup(@PathParam("id") long id) {
         return userService.getWorkGroup(id).map(WorkGroupInfo::new).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
@@ -108,7 +100,7 @@ public class WorkGroupResource {
     @GET
     @Path("/users")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public PagedInfoList getUsers(@BeanParam JsonQueryParameters queryParameters) {
         List<SimplifiedUserInfo> users = userService.getUsers()
                 .stream()
@@ -121,7 +113,7 @@ public class WorkGroupResource {
     @GET
     @Path("/{id}/members")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public PagedInfoList getWorkGroupMembers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id) {
         WorkGroup workGroup = userService.getWorkGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<SimplifiedUserInfo> users = workGroup.getUsersInWorkGroup().stream().sorted((first, second) -> first.getName().toLowerCase().compareTo(second.getName().toLowerCase()))

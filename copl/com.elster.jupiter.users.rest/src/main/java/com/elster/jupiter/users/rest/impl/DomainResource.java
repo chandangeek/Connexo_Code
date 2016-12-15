@@ -1,6 +1,10 @@
 package com.elster.jupiter.users.rest.impl;
 
-import java.util.Optional;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.DomainInfos;
+import com.elster.jupiter.users.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -13,12 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.rest.DomainInfos;
-import com.elster.jupiter.users.security.Privileges;
+import java.util.Optional;
 
 @Path("/domains")
 public class DomainResource {
@@ -34,7 +33,7 @@ public class DomainResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public DomainInfos getDomains(@Context UriInfo uriInfo) {
         return new DomainInfos(userService.getUserDirectories());
     }
@@ -42,7 +41,7 @@ public class DomainResource {
     @GET
     @Path("/{name}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public DomainInfos getDomain(@PathParam("name") String name) {
         Optional<UserDirectory> domain = userService.findUserDirectory(name);
         if (domain.isPresent()) {

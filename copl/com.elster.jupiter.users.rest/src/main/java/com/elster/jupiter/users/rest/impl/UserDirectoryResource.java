@@ -63,7 +63,7 @@ public class UserDirectoryResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public UserDirectoryInfos getUserDirectory(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<AbstractLdapDirectoryImpl> userDirectory = (List<AbstractLdapDirectoryImpl>)(List<?>)getUserDirectoriesQuery().select(queryParameters, Order.ascending("domain").toLowerCase());
@@ -89,7 +89,7 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public UserDirectoryInfo getUserDirectory(@PathParam("id") long id,@Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         return new UserDirectoryInfo(ldapUserDirectory);
@@ -184,7 +184,7 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/extusers")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public PagedInfoList getExtUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         List<LdapUser> ldapUsers = ldapUserDirectory.getLdapUsers();
@@ -201,7 +201,7 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public PagedInfoList getUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
         List<User> users = userService.getAllUsers(id);
         List<LdapUsersInfo> ldapUsersInfos = ListPager.of(users)
@@ -217,7 +217,7 @@ public class UserDirectoryResource {
     @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public Response saveUsers(LdapUsersInfos infos ,@PathParam("id") long id,@Context SecurityContext securityContext) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
