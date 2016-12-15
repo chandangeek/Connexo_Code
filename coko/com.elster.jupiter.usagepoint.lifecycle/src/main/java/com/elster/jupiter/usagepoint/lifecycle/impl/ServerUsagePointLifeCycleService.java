@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.Map;
 
 public interface ServerUsagePointLifeCycleService extends UsagePointLifeCycleService {
+    String DESTINATION_NAME = "UsagePointLifeCycle";
     String QUEUE_SUBSCRIBER = "UpeQueueSubscriber";
     String EXECUTOR_TASK = "Usage point state change task";
 

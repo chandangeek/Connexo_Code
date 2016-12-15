@@ -2,7 +2,6 @@ package com.elster.jupiter.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -14,12 +13,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 class ScheduledUsagePointStateChangeHandler implements TaskExecutor {
 
     private final ServerUsagePointLifeCycleService lifeCycleService;
-    private final TaskService taskService;
 
     @Inject
-    public ScheduledUsagePointStateChangeHandler(ServerUsagePointLifeCycleService lifeCycleService, TaskService taskService) {
+    public ScheduledUsagePointStateChangeHandler(ServerUsagePointLifeCycleService lifeCycleService) {
         this.lifeCycleService = lifeCycleService;
-        this.taskService = taskService;
     }
 
     @Override
