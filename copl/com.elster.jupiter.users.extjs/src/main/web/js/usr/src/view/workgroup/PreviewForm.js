@@ -16,30 +16,61 @@ Ext.define('Usr.view.workgroup.PreviewForm', {
                     {
                         xtype: 'container',
                         layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        defaults: {
-                            labelWidth: 150
+                            type: 'column'
+
                         },
                         items: [
                             {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
-                                name: 'name',
-                                itemId: 'usr-workgroup-name'
+                                xtype: 'container',
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
+                                columnWidth: 0.5,
+                                defaults: {
+                                    labelWidth: 150
+                                },
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
+                                        name: 'name',
+                                        itemId: 'usr-workgroup-name'
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('workgroups.description', 'USR', 'Description'),
+                                        name: 'description',
+                                        itemId: 'usr-workgroup-description'
+                                    }
+                                ]
                             },
                             {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('workgroups.description', 'USR', 'Description'),
-                                name: 'description',
-                                itemId: 'usr-workgroup-description'
+                                xtype: 'container',
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
+                                columnWidth: 0.5,
+                                defaults: {
+                                    labelWidth: 150
+                                },
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        htmlEncode: false,
+                                        fieldLabel: Uni.I18n.translate('workgroups.users', 'USR', 'Users'),
+                                        name: 'users',
+                                        itemId: 'usr-workgroup-users'
+                                    }
+                                ]
                             }
                         ]
                     }
                 ]
             }
         ];
+
         me.callParent();
     }
 });

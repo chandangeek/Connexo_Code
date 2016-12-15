@@ -75,7 +75,9 @@ Ext.define('Usr.controller.Workgroups', {
         var me = this,
             page = me.getPage(),
             preview = page.down('usr-workgroup-preview'),
-            previewForm = page.down('usr-workgroup-preview-form');
+            previewForm = page.down('usr-workgroup-preview-form'),
+            usersField = previewForm.down('[name=users]'),
+            usersList = [];
 
         Ext.suspendLayouts();
         preview.setTitle(Ext.htmlEncode(record.get('name')));
@@ -84,6 +86,10 @@ Ext.define('Usr.controller.Workgroups', {
         if (preview.down('usr-workgroup-action-menu')) {
             preview.down('usr-workgroup-action-menu').record = record;
         }
+        record.users().each(function (user) {
+            usersList.push('- ' + Ext.htmlEncode(user.get('name')));
+        });
+        usersField.setValue((usersList.length == 0) ? usersList = '-' : usersList.join('<br/>'));
         Ext.resumeLayouts();
     },
 
