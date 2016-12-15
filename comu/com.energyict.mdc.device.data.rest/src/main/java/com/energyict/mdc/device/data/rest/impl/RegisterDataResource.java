@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -174,6 +175,9 @@ public class RegisterDataResource {
     public Response addRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        if(readingInfo instanceof BillingReadingInfo && ((BillingReadingInfo) readingInfo).interval.start > ((BillingReadingInfo) readingInfo).interval.end){
+            throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
+        }
         try {
             BaseReading reading = readingInfo.createNew(register);
             validateLinkedToSlave(register, reading.getTimeStamp());
