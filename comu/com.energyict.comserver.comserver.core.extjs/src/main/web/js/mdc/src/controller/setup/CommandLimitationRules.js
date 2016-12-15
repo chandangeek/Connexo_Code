@@ -515,7 +515,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 } else {
                     me.router.getRoute('administration/commandrules').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.activate.success', 'MDC', 'Command limitation rule pending activation'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.activate.success', 'MDC', 'Command limitation rule activation pending approval'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -558,7 +558,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 } else {
                     me.router.getRoute('administration/commandrules').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.deactivate.success', 'MDC', 'Command limitation rule pending deactivation'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.deactivate.success', 'MDC', 'Command limitation rule deactivation pending approval'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -593,7 +593,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         var me = this,
             activeRule = record.get('active'),
             acknowledgeMessage = activeRule
-                ? Uni.I18n.translate('commandLimitationRule.active.remove.success', 'MDC', 'Command limitation rule pending removal')
+                ? Uni.I18n.translate('commandLimitationRule.active.remove.success', 'MDC', 'Command limitation rule removal pending approval')
                 : Uni.I18n.translate('commandLimitationRule.inactive.remove.success', 'MDC', 'Command limitation rule removed');
 
         record.destroy({
