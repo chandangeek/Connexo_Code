@@ -304,7 +304,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         limiter.writeActions(actions);
     }
 
-    private void writeEmergencyProfile(int emergencyProfileId, Date date, int emergencyDuration, Limiter limiter) throws IOException {
+    protected void writeEmergencyProfile(int emergencyProfileId, Date date, int emergencyDuration, Limiter limiter) throws IOException {
         Limiter.EmergencyProfile emergencyProfile = limiter.new EmergencyProfile();
         emergencyProfile.addDataType(new Unsigned16(emergencyProfileId));
         emergencyProfile.addDataType(new OctetString(ProtocolTools.getSubArray(new AXDRDateTime(date, getProtocol().getTimeZone()).getBEREncodedByteArray(), 2)));
