@@ -31,6 +31,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
@@ -67,7 +68,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedUsagePointGroupImplIT {
 
-//    private static final String UP_NAME = "15-451785-45 ";
+    //    private static final String UP_NAME = "15-451785-45 ";
     private static final String UP_NAME = " ( ";
     private Injector injector;
 
@@ -133,9 +134,15 @@ public class EnumeratedUsagePointGroupImplIT {
             public Void perform() {
                 injector.getInstance(FiniteStateMachineService.class);
                 injector.getInstance(MeteringGroupsService.class);
+                setupDefaultUsagePointLifeCycle();
                 return null;
             }
         });
+    }
+
+    private void setupDefaultUsagePointLifeCycle() {
+        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+        usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
 
     @After
@@ -146,7 +153,7 @@ public class EnumeratedUsagePointGroupImplIT {
     @Test
     public void testPersistence() {
         UsagePoint usagePoint = null;
-        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
             usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(UP_NAME, Instant.EPOCH).create();
             ctx.commit();

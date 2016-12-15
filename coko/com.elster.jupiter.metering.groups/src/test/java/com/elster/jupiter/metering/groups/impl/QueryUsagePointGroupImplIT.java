@@ -41,6 +41,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
@@ -146,8 +147,8 @@ public class QueryUsagePointGroupImplIT {
         }
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringGroupsService.class).addQueryProvider(
-                    injector.getInstance(SimpleUsagePointQueryProvider.class));
+            setupDefaultUsagePointLifeCycle();
+            injector.getInstance(MeteringGroupsService.class).addQueryProvider(injector.getInstance(SimpleUsagePointQueryProvider.class));
             searchDomain = injector.getInstance(UsagePointSearchDomain.class);
             injector.getInstance(SearchService.class).register(searchDomain);
             usagePoint = injector.getInstance(MeteringService.class)
@@ -157,6 +158,11 @@ public class QueryUsagePointGroupImplIT {
             usagePoint.setSdp(false);
             return null;
         });
+    }
+
+    private static void setupDefaultUsagePointLifeCycle() {
+        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+        usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
 
     @AfterClass
