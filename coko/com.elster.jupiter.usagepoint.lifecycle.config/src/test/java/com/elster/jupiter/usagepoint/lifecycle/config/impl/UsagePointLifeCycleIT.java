@@ -2,8 +2,6 @@ package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
-import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -14,7 +12,6 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -180,64 +177,6 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         assertThat(lifeCycle.isDefault()).isFalse();
         lifeCycle2 = service.findUsagePointLifeCycle(lifeCycle2.getId()).get();
         assertThat(lifeCycle2.isDefault()).isTrue();
-    }
-
-    @Test
-    public void testDefaultLifeCycleExists() {
-        UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle();
-        assertThat(lifeCycle.isDefault()).isEqualTo(true);
-
-        assertThat(lifeCycle.getName()).isEqualTo(TranslationKeys.LIFE_CYCLE_NAME.getDefaultFormat());
-
-        Optional<UsagePointState> underConstruction = lifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.UNDER_CONSTRUCTION)).findFirst();
-        Optional<UsagePointState> active = lifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.ACTIVE)).findFirst();
-        Optional<UsagePointState> inactive = lifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.INACTIVE)).findFirst();
-        Optional<UsagePointState> demolished = lifeCycle.getStates().stream().filter(state -> state.isDefault(DefaultState.DEMOLISHED)).findFirst();
-        assertThat(underConstruction).isPresent();
-        assertThat(underConstruction.get().isInitial()).isTrue();
-        assertThat(active).isPresent();
-        assertThat(inactive).isPresent();
-        assertThat(demolished).isPresent();
-
-        Optional<UsagePointTransition> transition = lifeCycle.getTransitions().stream().filter(tr -> tr.getName().equals(TranslationKeys.TRANSITION_INSTALL_ACTIVE.getDefaultFormat())).findFirst();
-        assertThat(transition).isPresent();
-        assertThat(transition.get().getFrom()).isEqualTo(underConstruction.get());
-        assertThat(transition.get().getTo()).isEqualTo(active.get());
-        assertThat(DefaultTransition.getDefaultTransition(transition.get())).contains(DefaultTransition.INSTALL_ACTIVE);
-
-        transition = lifeCycle.getTransitions().stream().filter(tr -> tr.getName().equals(TranslationKeys.TRANSITION_INSTALL_INACTIVE.getDefaultFormat())).findFirst();
-        assertThat(transition).isPresent();
-        assertThat(transition.get().getFrom()).isEqualTo(underConstruction.get());
-        assertThat(transition.get().getTo()).isEqualTo(inactive.get());
-        assertThat(DefaultTransition.getDefaultTransition(transition.get())).contains(DefaultTransition.INSTALL_INACTIVE);
-
-        transition = lifeCycle.getTransitions().stream().filter(tr -> tr.getName().equals(TranslationKeys.TRANSITION_DEACTIVATE.getDefaultFormat())).findFirst();
-        assertThat(transition).isPresent();
-        assertThat(transition.get().getFrom()).isEqualTo(active.get());
-        assertThat(transition.get().getTo()).isEqualTo(inactive.get());
-        assertThat(DefaultTransition.getDefaultTransition(transition.get())).contains(DefaultTransition.DEACTIVATE);
-
-        transition = lifeCycle.getTransitions().stream().filter(tr -> tr.getName().equals(TranslationKeys.TRANSITION_ACTIVATE.getDefaultFormat())).findFirst();
-        assertThat(transition).isPresent();
-        assertThat(transition.get().getFrom()).isEqualTo(inactive.get());
-        assertThat(transition.get().getTo()).isEqualTo(active.get());
-        assertThat(DefaultTransition.getDefaultTransition(transition.get())).contains(DefaultTransition.ACTIVATE);
-
-        transition = lifeCycle.getTransitions().stream()
-                .filter(tr -> tr.getName().equals(TranslationKeys.TRANSITION_DEMOLISH_FROM_ACTIVE.getDefaultFormat()))
-                .filter(tr -> tr.getFrom().equals(active.get()))
-                .findFirst();
-        assertThat(transition).isPresent();
-        assertThat(transition.get().getFrom()).isEqualTo(active.get());
-        assertThat(DefaultTransition.getDefaultTransition(transition.get())).contains(DefaultTransition.DEMOLISH_FROM_ACTIVE);
-
-        transition = lifeCycle.getTransitions().stream()
-                .filter(tr -> tr.getName().equals(TranslationKeys.TRANSITION_DEMOLISH_FROM_INACTIVE.getDefaultFormat()))
-                .filter(tr -> tr.getFrom().equals(inactive.get()))
-                .findFirst();
-        assertThat(transition).isPresent();
-        assertThat(transition.get().getTo()).isEqualTo(demolished.get());
-        assertThat(DefaultTransition.getDefaultTransition(transition.get())).contains(DefaultTransition.DEMOLISH_FROM_INACTIVE);
     }
 
     @Test
