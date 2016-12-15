@@ -103,7 +103,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
          *
          * @return The resource key
          */
-        private String getNameResourceKey() {
+        public String getNameResourceKey() {
             return DeviceMessageTestCategories.class.getSimpleName() + "." + this.toString();
         }
 
@@ -171,7 +171,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
          *
          * @return The resource key
          */
-        private String getNameResourceKey() {
+        public String getNameResourceKey() {
             return DeviceMessageTestCategories.class.getSimpleName() + "." + this.toString();
         }
 

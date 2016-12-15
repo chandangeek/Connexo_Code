@@ -56,6 +56,11 @@ public class DeviceMessageCategoryImpl implements DeviceMessageCategory {
     }
 
     @Override
+    public String getNameResourceKey() {
+        return nameTranslationKey.getKey();
+    }
+
+    @Override
     public String getDescription() {
         return this.nlsService
                 .getThesaurus(Thesaurus.ID.toString())
