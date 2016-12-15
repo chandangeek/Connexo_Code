@@ -44,7 +44,11 @@ public class UsagePointLifeCycleTransitionsResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public PagedInfoList getAllTransitions(@PathParam("lid") long lifeCycleId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
-        List<UsagePointLifeCycleTransitionInfo> transitions = lifeCycle.getTransitions().stream().map(this.transitionInfoFactory::fullInfo).collect(Collectors.toList());
+        List<UsagePointLifeCycleTransitionInfo> transitions = lifeCycle.getTransitions()
+                .stream()
+                .map(this.transitionInfoFactory::fullInfo)
+                .sorted((t1, t2) -> t1.name.compareToIgnoreCase(t2.name))
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("transitions", transitions, queryParameters);
     }
 
