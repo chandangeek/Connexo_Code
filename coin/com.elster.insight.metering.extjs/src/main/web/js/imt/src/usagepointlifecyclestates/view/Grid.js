@@ -19,7 +19,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Grid', {
                 width: 70
             },
             {
-                header: Uni.I18n.translate('general.states', 'IMT', 'States'),
+                header: Uni.I18n.translate('general.state', 'IMT', 'State'),
                 dataIndex: 'name',
                 flex: 1
             },
