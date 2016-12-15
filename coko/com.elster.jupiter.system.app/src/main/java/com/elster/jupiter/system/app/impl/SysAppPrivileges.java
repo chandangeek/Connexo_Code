@@ -45,6 +45,8 @@ class SysAppPrivileges {
                 com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS,
                 //web services
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.ADMINISTRATE_WEB_SERVICES,
-                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES);
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                //dual control
+                com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL);
     }
 }
