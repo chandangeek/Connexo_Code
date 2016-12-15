@@ -32,6 +32,7 @@ public class FavoriteUsagePointGroupImpl implements FavoriteUsagePointGroup {
     FavoriteUsagePointGroupImpl init(UsagePointGroup usagePointGroup, User user) {
         this.usagePointGroup.set(usagePointGroup);
         this.user.set(user);
+        Save.CREATE.save(dataModel, this);
         return this;
     }
 

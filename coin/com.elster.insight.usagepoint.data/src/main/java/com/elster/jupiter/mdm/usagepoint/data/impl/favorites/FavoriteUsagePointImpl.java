@@ -32,6 +32,7 @@ public class FavoriteUsagePointImpl implements FavoriteUsagePoint {
     FavoriteUsagePointImpl init(UsagePoint usagePoint, User user) {
         this.usagePoint.set(usagePoint);
         this.user.set(user);
+        Save.CREATE.save(dataModel, this);
         return this;
     }
 

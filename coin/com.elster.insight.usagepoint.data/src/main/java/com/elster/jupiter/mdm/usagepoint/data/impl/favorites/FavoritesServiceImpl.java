@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl.favorites;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePoint;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePointGroup;
@@ -53,23 +52,15 @@ public class FavoritesServiceImpl implements FavoritesService {
     @Override
     public FavoriteUsagePoint markFavorite(UsagePoint usagePoint) {
         User user = getUser();
-        return findFavoriteUsagePoint(usagePoint, user).orElseGet(() -> {
-            FavoriteUsagePoint favoriteUsagePoint = dataModel.getInstance(FavoriteUsagePointImpl.class)
-                    .init(usagePoint, user);
-            Save.CREATE.save(dataModel, favoriteUsagePoint);
-            return favoriteUsagePoint;
-        });
+        return findFavoriteUsagePoint(usagePoint, user)
+                .orElseGet(() -> dataModel.getInstance(FavoriteUsagePointImpl.class).init(usagePoint, user));
     }
 
     @Override
     public FavoriteUsagePointGroup markFavorite(UsagePointGroup usagePointGroup) {
         User user = getUser();
-        return findFavoriteUsagePointGroup(usagePointGroup, user).orElseGet(() -> {
-            FavoriteUsagePointGroup favoriteUPGroup = dataModel.getInstance(FavoriteUsagePointGroupImpl.class)
-                    .init(usagePointGroup, user);
-            Save.CREATE.save(dataModel, favoriteUPGroup);
-            return favoriteUPGroup;
-        });
+        return findFavoriteUsagePointGroup(usagePointGroup, user)
+                .orElseGet(() -> dataModel.getInstance(FavoriteUsagePointGroupImpl.class).init(usagePointGroup, user));
     }
 
     @Override
