@@ -19,7 +19,8 @@ Ext.define('Isu.view.issues.Overview', {
     },
     previewComponent: {
         xtype: 'issues-preview',
-        itemId: 'issues-preview'
+        itemId: 'issues-preview',
+        fieldxtype: 'displayfield'
     },
     grid: {
         store: 'Isu.store.Issues',
@@ -87,6 +88,7 @@ Ext.define('Isu.view.issues.Overview', {
                         previewComponent: {
                             xtype: me.previewComponent.xtype,
                             itemId: me.previewComponent.itemId,
+                            fieldxtype: me.previewComponent.fieldxtype,
                             router: me.router
                         }
                     }
