@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -53,7 +54,9 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -110,6 +113,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private volatile PropertySpecService propertySpecService;
     private volatile LicenseService licenseService;
     private volatile UpgradeService upgradeService;
+    private volatile TimeService timeService;
+    private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
     private List<CustomUsagePointMeterActivationValidator> customValidators = new CopyOnWriteArrayList<>();
@@ -139,7 +144,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                         PartyService partyService, Clock clock, UserService userService, EventService eventService, NlsService nlsService,
                                         MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
-                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService) {
+                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, TimeService timeService,
+                                        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         setIdsService(idsService);
         setQueryService(queryService);
         setPartyService(partyService);
@@ -155,7 +161,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         setPropertySpecService(propertySpecService);
         setLicenseService(licenseService);
         setUpgradeService(upgradeService);
+        setTimeService(timeService);
         setOrmService(ormService);
+        setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
 
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -231,6 +239,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
                 bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
+                bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
+                bind(TimeService.class).toInstance(timeService);
             }
         });
     }
@@ -311,7 +321,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
             this.serviceRegistrations.add(
                     bundleContext.registerService(
                             new String[]{
-                            MetrologyConfigurationService.class.getName(),
+                                    MetrologyConfigurationService.class.getName(),
                                     ServerMetrologyConfigurationService.class.getName()},
                             this.metrologyConfigurationService,
                             noServiceProperties()));
@@ -341,6 +351,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
+        Arrays.stream(GasDayOptions.RelativePeriodTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(YesNoAnswer.values()).map(YesNoAnswerTranslationKey::new).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
@@ -391,6 +402,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Reference
     public final void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Reference
@@ -469,6 +485,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Thesaurus myThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus cboThesaurus = nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN);
         this.thesaurus = myThesaurus.join(cboThesaurus);
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @Override

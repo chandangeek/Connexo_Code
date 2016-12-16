@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -199,6 +200,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Optional<UsagePoint> findAndLockUsagePointByNameAndVersion(String name, long version) {
+        return findUsagePointByName(name).flatMap(usagePoint ->
+                dataModel.mapper(UsagePoint.class).lockObjectIfVersion(version, usagePoint.getId()));
+    }
+
+    @Override
     public Optional<UsagePoint> findUsagePointByMRID(String mRID) {
         return dataModel.mapper(UsagePoint.class).getUnique("mRID", mRID);
     }
@@ -276,7 +283,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
                         EndDevice.class,
                         UsagePointAccountability.class,
                         Party.class,
-                        PartyRepresentation.class));
+                        PartyRepresentation.class,
+                        UsagePointStateTemporalImpl.class));
     }
 
     @Override
@@ -700,8 +708,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public GasDayOptions getGasDayOptions() {
-        return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID).orElse(null);
+    public Optional<GasDayOptions> getGasDayOptions() {
+        return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID);
     }
 
 }

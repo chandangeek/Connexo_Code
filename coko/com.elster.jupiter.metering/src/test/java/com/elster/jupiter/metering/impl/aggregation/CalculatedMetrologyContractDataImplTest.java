@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -16,7 +17,6 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.GasDayOptions;
 import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ConstantNodeImpl;
@@ -127,7 +127,7 @@ public class CalculatedMetrologyContractDataImplTest {
         when(formula.getExpressionNode()).thenReturn(new ReadingTypeDeliverableNodeImpl(this.deliverable));
         when(this.deliverable.getFormula()).thenReturn(formula);
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverable));
-        when(this.meteringService.getGasDayOptions()).thenReturn(null);
+        when(this.meteringService.getGasDayOptions()).thenReturn(Optional.empty());
         this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
     }
 
@@ -348,7 +348,7 @@ public class CalculatedMetrologyContractDataImplTest {
     public void incompleteGasDay() throws SQLException {
         GasDayOptions gasDayOptions = mock(GasDayOptions.class);
         when(gasDayOptions.getYearStart()).thenReturn(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 0)));
-        when(this.meteringService.getGasDayOptions()).thenReturn(gasDayOptions);
+        when(this.meteringService.getGasDayOptions()).thenReturn(Optional.of(gasDayOptions));
         Instant march29th2016 = instant(2016, Month.MARCH, 29, 5);
         Instant march30st2016 = instant(2016, Month.MARCH, 30, 5);
         Instant march31st2016 = instant(2016, Month.MARCH, 31, 5);

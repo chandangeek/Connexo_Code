@@ -52,6 +52,8 @@ public interface MeteringService {
 
     Optional<UsagePoint> findAndLockUsagePointByMRIDAndVersion(String mRID, long version);
 
+    Optional<UsagePoint> findAndLockUsagePointByNameAndVersion(String name, long version);
+
     Optional<UsagePoint> findUsagePointByMRID(String mRID);
 
     Optional<UsagePoint> findUsagePointByName(String name);
@@ -199,5 +201,12 @@ public interface MeteringService {
     List<HeadEndInterface> getHeadEndInterfaces();
 
     Optional<HeadEndInterface> getHeadEndInterface(String amrSystem);
+
+    /**
+     * Gets the GasDayOptions that were created at system installation time.
+     *
+     * @return The GasDayOptions
+     */
+    Optional<GasDayOptions> getGasDayOptions();
 
 }
