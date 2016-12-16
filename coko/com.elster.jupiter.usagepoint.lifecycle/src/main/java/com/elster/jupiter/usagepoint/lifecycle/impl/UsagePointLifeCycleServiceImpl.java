@@ -328,7 +328,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     @Override
     public void createUsagePointInitialStateChangeRequest(UsagePoint usagePoint) {
         this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
-                .initAsHistoryRecord(usagePoint, "-", usagePoint.getState().getName(), usagePoint.getInstallationTime());
+                .initAsHistoryRecord(usagePoint, "-", usagePoint.getState(usagePoint.getInstallationTime()).getName(), usagePoint.getInstallationTime());
     }
 
     @Override
