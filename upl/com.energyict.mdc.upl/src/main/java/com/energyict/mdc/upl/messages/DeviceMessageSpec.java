@@ -15,7 +15,7 @@ import java.util.Optional;
  * for the purpose of a single customer installation.
  * Any DeviceMessageSpec that is created through the ComServer
  * API will by default be a non-standard DeviceMessage.
- * Note that non standard message can still be part
+ * Note that non standard messages can still be part
  * of standard {@link DeviceMessageCategory DeviceMessageCategories}.
  * <p/>
  * When adding new messages, keep in mind to also add the translation key (category.message) in the NLS database.
