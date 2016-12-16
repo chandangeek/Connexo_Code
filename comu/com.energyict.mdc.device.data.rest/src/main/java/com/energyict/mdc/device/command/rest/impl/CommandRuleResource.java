@@ -163,7 +163,6 @@ public class CommandRuleResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getCommands(@BeanParam JsonQueryFilter jsonQueryFilter) {
-        List<String> alreadySelectedCommands = jsonQueryFilter.getStringList("selectedcommands");
         List<Integer> selectedCategories = jsonQueryFilter.getIntegerList("categories");
 
         List<CommandInfo> commands = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection()
@@ -172,7 +171,6 @@ public class CommandRuleResource {
                 .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
                 .map(DeviceMessageCategory::getMessageSpecifications)
                 .flatMap(List::stream)
-                .filter(deviceMessageSpec -> !alreadySelectedCommands.contains(deviceMessageSpec.getId().name()))
                 .map(deviceMessageSpec -> new CommandInfo(deviceMessageSpec.getCategory().getName(), deviceMessageSpec.getName(), deviceMessageSpec.getId().name()))
                 .sorted(CommandInfo::compareTo)
                 .collect(Collectors.toList());
