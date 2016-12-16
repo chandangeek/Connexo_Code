@@ -225,8 +225,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                     if (!Ext.isEmpty(commandRule.getDualControl())) { // Pending changes
                         editView.down('#mdc-command-rule-addEdit-infoMsg').setText(
                             Uni.I18n.translate('commandLimitationRule.pendingChanges.editingWillCancel', 'MDC',
-                                'There are already pending changes on this command limitation rule. After saving, the current pending changes will be canceled.'),
-                                + '</br>' +
+                                'There are already pending changes on this command limitation rule. After saving, the current pending changes will be canceled.')
+                            + '</br>' +
                             Uni.I18n.translate('commandLimitationRule.editingRequiresApproval', 'MDC',
                                 'Editing the attributes below requires approval before taking effect.')
                         );
@@ -331,7 +331,9 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                     }
                     me.getApplication().fireEvent('acknowledge',
                         me.commandRuleBeingEdited
-                            ? Uni.I18n.translate('commandLimitationRule.save.success', 'MDC', 'Command limitation rule saved')
+                            ? ( me.commandRuleBeingEdited.get('active')
+                                ? Uni.I18n.translate('commandLimitationRule.active.save.success', 'MDC', 'Command limitation rule changes waiting for approval')
+                                : Uni.I18n.translate('commandLimitationRule.inactive.save.success', 'MDC', 'Command limitation rule saved') )
                             : Uni.I18n.translate('commandLimitationRule.add.success', 'MDC', 'Command limitation rule added')
                     );
                     me.clearClipBoard();
