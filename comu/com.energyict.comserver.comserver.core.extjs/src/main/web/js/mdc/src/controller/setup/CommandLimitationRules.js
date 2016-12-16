@@ -38,7 +38,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     commandRuleBeingEdited: null,
     commandsForRuleStore: null, // Store containing the commands to show on the Add/Edit page
     selectedCommandsStore: null, // Store containing the commands selected on the "Add commands page"
-    newCommandsAdded: false,
+    comingFromAddingCommands: false,
     router: null,
 
     init: function () {
@@ -194,8 +194,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         if (Ext.isEmpty(ruleId)) { // Adding a new rule
             me.commandRuleBeingEdited = null;
             me.goToRulesOverview = true;
-            if (me.newCommandsAdded) {
-                me.newCommandsAdded = false; // and don't touch the (previously updated) commandsForRuleStore
+            if (me.comingFromAddingCommands) {
+                me.comingFromAddingCommands = false; // and don't touch the (previously updated) commandsForRuleStore
             } else {
                 me.getCommandsForRuleStore().removeAll();
             }
@@ -245,8 +245,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 );
                 me.getApplication().fireEvent('loadCommandRule', commandRule);
 
-                if (me.newCommandsAdded) {
-                    me.newCommandsAdded = false;
+                if (me.comingFromAddingCommands) {
+                    me.comingFromAddingCommands = false;
                 } else {
                     me.getCommandsForRuleStore().suspendEvents();
                     me.getCommandsForRuleStore().removeAll();
@@ -276,7 +276,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         }
         me.commandRuleBeingEdited = null;
         me.clearClipBoard();
-        me.newCommandsAdded = false;
+        me.comingFromAddingCommands = false;
     },
 
     onAddEdit: function(button) {
@@ -337,7 +337,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                             : Uni.I18n.translate('commandLimitationRule.add.success', 'MDC', 'Command limitation rule added')
                     );
                     me.clearClipBoard();
-                    me.newCommandsAdded = false;
+                    me.comingFromAddingCommands = false;
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
@@ -480,13 +480,14 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             me.getCommandsForRuleStore().add(command);
         });
         me.getSelectedCommandsStore().removeAll();
-        me.newCommandsAdded = true;
+        me.comingFromAddingCommands = true;
         me.forwardToPreviousPage();
     },
 
     onCancelAddingCommands: function() {
         var me = this;
         me.getSelectedCommandsStore().removeAll();
+        me.comingFromAddingCommands = true;
         me.forwardToPreviousPage();
     },
 
