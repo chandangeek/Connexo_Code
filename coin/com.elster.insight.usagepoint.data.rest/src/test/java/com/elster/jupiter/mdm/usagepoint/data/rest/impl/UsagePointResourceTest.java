@@ -111,6 +111,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private MetrologyConfigurationCustomPropertySetUsage metrologyConfigurationCustomPropertySetUsage;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private DataValidationTask validationTask;
     @Mock
     private UsagePointGroup usagePointGroup;

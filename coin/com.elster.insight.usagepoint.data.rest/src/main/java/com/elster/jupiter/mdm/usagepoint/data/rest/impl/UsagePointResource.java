@@ -385,7 +385,7 @@ public class UsagePointResource {
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
 
-// TODO CXO-4331 to be continued
+//        TODO CXO-4331 to be continued
 //        if (info.purposes != null) {
 //            effectiveMC.getMetrologyConfiguration().getContracts()
 //                    .stream()
@@ -393,8 +393,7 @@ public class UsagePointResource {
 //                    .filter(metrologyContract -> info.purposes.stream()
 //                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
 //                    .filter(metrologyContract -> !metrologyContract.isMandatory())
-//                    .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range
-//                            .atLeast(effectiveMC.getStart())));
+//                    .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, effectiveMC.getStart()));
 //        }
 
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
@@ -819,7 +818,7 @@ public class UsagePointResource {
                 .getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(MetrologyContract::isMandatory) //Temporary. Should be replaced by active/inactive check
+                .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
                 .map(readingTypeDeliverableFactory::asInfo)

@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
@@ -23,7 +22,7 @@ public class PurposeInfoFactory {
     private final Clock clock;
 
     @Inject
-    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, Thesaurus thesaurus, ValidationService validationService, TimeService timeService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory, Clock clock) {
+    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, ValidationService validationService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory, Clock clock) {
         this.validationStatusFactory = validationStatusFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.validationService = validationService;

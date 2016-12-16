@@ -98,7 +98,7 @@ public class UsagePointOutputResource {
         List<PurposeInfo> purposeInfoList;
         if (effectiveMetrologyConfiguration.isPresent()) {
             purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
-                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract))
+                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract, withValidationTasks))
                     .sorted(Comparator.comparing(info -> info.name))
                     .collect(Collectors.toList());
         } else {
@@ -296,7 +296,7 @@ public class UsagePointOutputResource {
 
         resourceHelper.checkMeterRequirements(usagePoint, metrologyContract);
 
-        effectiveMC.activateOptionalMetrologyContract(metrologyContract, Range.atLeast(clock.instant()));
+        effectiveMC.activateOptionalMetrologyContract(metrologyContract, clock.instant());
         return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
 

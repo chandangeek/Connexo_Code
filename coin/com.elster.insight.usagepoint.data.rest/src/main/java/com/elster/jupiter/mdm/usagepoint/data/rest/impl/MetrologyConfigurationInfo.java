@@ -118,7 +118,7 @@ public class MetrologyConfigurationInfo {
         metrologyContractStatus.id = metrologyContract.getStatus(usagePoint).getKey().equals("COMPLETE") ? "complete" : "incomplete";
         metrologyContractStatus.name = metrologyContract.getStatus(usagePoint).getName();
         info.status = metrologyContractStatus;
-        info.readingTypeDeliverables = metrologyContract.getDeliverables().stream().map(readingTypeDeliverableFactory::asInfo).collect(Collectors.toList());
+        info.readingTypeDeliverables = metrologyContract.getDeliverables().stream().sorted((a, b) -> a.getName().compareTo(b.getName())).map(readingTypeDeliverableFactory::asInfo).collect(Collectors.toList());
         return info;
     }
 
