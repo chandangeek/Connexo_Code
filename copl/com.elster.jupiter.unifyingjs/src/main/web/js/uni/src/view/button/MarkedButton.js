@@ -98,8 +98,8 @@ Ext.define('Uni.view.button.MarkedButton', {
             recordData = Ext.decode(operation.response.responseText),
             isFavorite = recordData.favorite;
 
+        Ext.apply(me.record.data, recordData, {comment: null});
         Ext.suspendLayouts();
-        me.record.set(recordData);
         me.show();
         me.toggle(isFavorite, true);
         me.setIconCls(isFavorite ? me.markedCls : me.unmarkedCls);
