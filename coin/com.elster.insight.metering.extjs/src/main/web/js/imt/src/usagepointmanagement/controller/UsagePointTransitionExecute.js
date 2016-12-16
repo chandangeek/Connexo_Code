@@ -15,6 +15,7 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
         {ref: 'navigationMenu', selector: '#usagepointTransitionWizardNavigation'},
         {ref: 'usagepointTransitionExecuteWizard', selector: '#usagepointTransitionExecuteWizard'},
         {ref: 'nextBtn', selector: 'usagepointTransitionExecuteWizard #nextButton'},
+        {ref: 'backBtn', selector: 'usagepointTransitionExecuteWizard #backButton'},
         {ref: 'cancelBtn', selector: 'usagepointTransitionExecuteWizard #wizardCancelButton'},
         {ref: 'step2', selector: '#usagepointtransitionexecute-wizard-step2'},
         {ref: 'transitionDateField', selector: 'usagepointTransitionExecuteBrowse #transitionDateField'}
@@ -33,11 +34,14 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
             wizard = me.getUsagepointTransitionExecuteWizard(),
             layout = wizard.getLayout(),
             propertyForm = wizard.down('property-form'),
-            router = me.getController('Uni.controller.history.Router'),                   
+            router = me.getController('Uni.controller.history.Router'),
+            formErrorsPanel = wizard.down('#form-errors'),
             record = propertyForm.getRecord();
 
         Ext.suspendLayouts();
-        me.getPage().down('#wizard-buttons').removeAll(true);
+        propertyForm.clearInvalid();
+        me.hideWizardBtns();
+        formErrorsPanel.hide();
         me.getNavigationMenu().moveNextStep();
         layout.setActiveItem(layout.getNext());
         me.getStep2().showProgressBar();
@@ -50,8 +54,21 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
         record.endEdit();
         record.save({
             backUrl: router.getRoute('usagepoints/view').buildUrl(),
-            callback: function (record, operation) {
+            success: function (record, operation) {
                 me.getStep2().handleSuccessRequest(Ext.decode(operation.response.responseText), router);
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+
+                Ext.suspendLayouts();
+                layout.setActiveItem(layout.getPrev());
+                me.showWizardBtns();
+                me.getNavigationMenu().movePrevStep();
+                if (json && json.errors) {
+                    propertyForm.markInvalid(json.errors);
+                    formErrorsPanel.show();
+                }
+                Ext.resumeLayouts(true);
             }
         });
     },
@@ -96,5 +113,17 @@ Ext.define('Imt.usagepointmanagement.controller.UsagePointTransitionExecute', {
                 onDependenciesLoad();
             }
         });
+    },
+
+    hideWizardBtns: function () {
+        this.getBackBtn().hide();
+        this.getNextBtn().hide();
+        this.getCancelBtn().hide();
+    },
+
+    showWizardBtns: function () {
+        this.getBackBtn().show();
+        this.getNextBtn().show();
+        this.getCancelBtn().show();
     }
 });
