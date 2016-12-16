@@ -293,14 +293,14 @@ Ext.define('Imt.controller.History', {
                                             title: Uni.I18n.translate('general.label.addReading', 'IMT', 'Add reading'),
                                             route: 'add',
                                             controller: 'Imt.purpose.controller.RegisterData',
-                                            action: 'showAddRegisterData',
+                                            action: 'showAddEditRegisterData',
                                             privileges: Imt.privileges.UsagePoint.admin
                                         },
                                         editregisterdata: {
                                             title: Uni.I18n.translate('general.label.editReading', 'IMT', 'Edit reading'),
                                             route: '{timestamp}/edit',
                                             controller: 'Imt.purpose.controller.RegisterData',
-                                            action: 'showEditRegisterData',
+                                            action: 'showAddEditRegisterData',
                                             privileges: Imt.privileges.UsagePoint.admin
                                         }
                                     }

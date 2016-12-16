@@ -21,6 +21,7 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
     setEdit: function (edit, returnLink) {
         var me = this;
         me.edit = edit;
+        Ext.suspendLayouts();
         if (me.isEdit()) {
             me.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
             me.down('#addEditButton').action = 'editRegisterDataAction';
@@ -32,9 +33,8 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
             me.down('#addEditButton').action = 'addRegisterDataAction';
             me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'));
             me.down('#editReading').setText(Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'));
-
         }
-
+        Ext.resumeLayouts();
     },
 
     isValid: function () {
@@ -44,11 +44,11 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
     showErrors: function (errors) {
         var me = this,
             formErrorsPlaceHolder = me.down('#registerDataEditFormErrors');
+        Ext.suspendLayouts();
         if(errors){
             me.down('#registerDataEditForm').getForm().markInvalid(errors);
         }
         formErrorsPlaceHolder.hide();
-        Ext.suspendLayouts();
         formErrorsPlaceHolder.removeAll();
         formErrorsPlaceHolder.add({
             html: Uni.I18n.translate('general.formErrors', 'IMT', 'There are errors on this page that require your attention.')

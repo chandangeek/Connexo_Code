@@ -31,16 +31,6 @@ Ext.define('Imt.purpose.view.registers.index.AddEdit', {
         }
     },
 
-    hideErrors: function () {
-        var me = this;
-        me.callParent(arguments);
-    },
-
-    showErrors: function (errors) {
-        var me = this;
-        me.callParent(arguments);
-    },
-
     initComponent: function () {
         var me = this;
 

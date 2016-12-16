@@ -10,7 +10,7 @@ Ext.define('Imt.purpose.model.RegisterReading', {
         {name: 'validationRules', type: 'auto', useNull: true, persist: false},
         {name: 'isConfirmed', type: 'auto'},
         {name: 'calculatedValue', type: 'auto'},
-        {name: 'reportedDateTime', type: 'auto'},
+        {name: 'reportedDateTime', type: 'auto', defaultValue: null, useNull: true},
         {name: 'interval', type:'auto', useNull: true},
         {
             name: 'interval.end',

@@ -157,14 +157,16 @@ Ext.define('Imt.purpose.controller.Readings', {
     showButtons: function () {
         var me = this;
 
+        Ext.suspendLayouts();
         me.getReadingsList().down('#save-changes-button').enable();
         me.getReadingsList().down('#undo-button').enable();
+        Ext.resumeLayouts();
     },
 
     checkSuspect: function (menu) {
         var validationResult = menu.record.get('validationResult') == 'validationStatus.suspect';
 
-
+        Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(validationResult);
         if (menu.record.get('confirmed') || menu.record.isModified('value')) {
             menu.down('#confirm-value').hide();
@@ -175,6 +177,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (menu.down('#reset-value')) {
             menu.down('#reset-value').setVisible(menu.record.get('calculatedValue'));
         }
+        Ext.resumeLayouts();
     },
 
 
