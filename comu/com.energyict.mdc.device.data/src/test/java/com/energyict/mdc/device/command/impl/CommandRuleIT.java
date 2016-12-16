@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.cps.EditPrivilege;
-import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.Expected;
+import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.dualcontrol.impl.DualControlModule;
@@ -23,31 +22,25 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserImpl;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.messaging.Message;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -55,33 +48,28 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import javax.swing.text.html.Option;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 
 import static com.energyict.mdc.device.command.CommandRuleService.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -108,6 +96,10 @@ public class CommandRuleIT {
     private static DualControlService dualControlService;
     private static ThreadPrincipalService threadPrincipalService;
     private static JsonService jsonService;
+    //THIS IS A MONDAY
+    static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 8, 1, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+    private static AtomicLong offsets = new AtomicLong(1);
+    static ProgrammableClock programmableClock = new ProgrammableClock(TimeZoneNeutral.getMcMurdo(), () -> NOW.plusSeconds(offsets.getAndIncrement()).toInstant());
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -133,7 +125,7 @@ public class CommandRuleIT {
                     new InMemoryMessagingModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
-                    new UtilModule(),
+                    new UtilModule(programmableClock),
                     new DualControlModule(),
                     new TimeModule(),
                     new PubSubModule(),
@@ -160,14 +152,14 @@ public class CommandRuleIT {
             dualControlService = injector.getInstance(DualControlService.class);
             threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             userService = injector.getInstance(UserService.class);
-            createUserAndChange(1);
+            createUserAndChange();
             return null;
         });
         jsonService = injector.getInstance(JsonService.class);
     }
 
-    private static void createUserAndChange(long id) {
-        principal = userService.createUser("TEST" + id, "This user is just to satisfy the foreign key ...");
+    private static void createUserAndChange() {
+        principal = userService.createUser("TEST" + Instant.now(programmableClock).toEpochMilli(), "This user is just to satisfy the foreign key ...");
         principal.update();
         threadPrincipalService.set(principal);
     }
@@ -268,7 +260,7 @@ public class CommandRuleIT {
     @Transactional
     public void tryActivate() {
         CommandRule testRule = createRule("test3", 10, 11, 12, 1);
-        createUserAndChange(8);
+        createUserAndChange();
         assertThat(testRule.isActive()).isFalse();
         testRule.activate();
         assertThat(testRule.isActive()).isFalse();
@@ -282,9 +274,9 @@ public class CommandRuleIT {
         assertThat(testRule.getCommandRulePendingUpdate().get().isActive());
 
         CommandRuleImpl commandRuleImpl = (CommandRuleImpl) testRule;
-        createUserAndChange(7);
+        createUserAndChange();
         commandRuleImpl.approve();
-        createUserAndChange(2);
+        createUserAndChange();
         commandRuleImpl.approve();
         assertThat(testRule.getCommandRulePendingUpdate()).isEmpty();
 
@@ -298,25 +290,18 @@ public class CommandRuleIT {
     @Test
     @Transactional
     public void tryDeactivate() {
-        createUserAndChange(9);
         CommandRule testRule = createRule("test4", 10, 11, 12, 1);
-        CommandRuleImpl commandRuleImpl = (CommandRuleImpl) testRule;
-        testRule.activate();
-        createUserAndChange(3);
-        commandRuleImpl.approve();
-        createUserAndChange(4);
-        commandRuleImpl.approve();
+        activateAndApproveRule(testRule);
 
         Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
         assertThat(reloadedRule).isPresent();
         testRule = reloadedRule.get();
         assertThat(testRule.isActive()).isTrue();
         testRule.deactivate();
-        createUserAndChange(5);
-        commandRuleImpl = (CommandRuleImpl) testRule;
-        commandRuleImpl.approve();
-        createUserAndChange(6);
-        commandRuleImpl.approve();
+        createUserAndChange();
+        testRule.approve();
+        createUserAndChange();
+        testRule.approve();
 
         assertThat(testRule.isActive()).isFalse();
         reloadedRule = commandRuleService.findCommandRule(testRule.getId());
@@ -330,13 +315,12 @@ public class CommandRuleIT {
     @Test
     @Transactional
     public void tryActivateReject() {
-        createUserAndChange(10);
         CommandRule testRule = createRule("test4", 10, 11, 12, 1);
-        CommandRuleImpl commandRuleImpl = (CommandRuleImpl) testRule;
+        CommandRule commandRuleImpl = testRule;
         testRule.activate();
-        createUserAndChange(11);
+        createUserAndChange();
         commandRuleImpl.approve();
-        createUserAndChange(12);
+        createUserAndChange();
         commandRuleImpl.reject();
 
         Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
@@ -360,17 +344,12 @@ public class CommandRuleIT {
     @Test
     @Transactional
     public void testRemoveDualControl() throws Exception {
-        createUserAndChange(13);
-        CommandRuleImpl testRule = (CommandRuleImpl) createRule("test4", 10, 11, 12, 1);
-        testRule.save();
-        testRule.activate();
-        testRule.approve();
-        createUserAndChange(14);
-        testRule.approve();
+        CommandRule testRule = createRule("test4", 10, 11, 12, 1);
+        activateAndApproveRule(testRule);
 
-        testRule.delete();
+        commandRuleService.deleteRule(testRule);
         testRule.approve();
-        createUserAndChange(15);
+        createUserAndChange();
         testRule.approve();
 
         Optional<CommandRule> reloadedRule = commandRuleService.findCommandRule(testRule.getId());
@@ -378,6 +357,7 @@ public class CommandRuleIT {
     }
 
     private CommandRule createRule(String name, long dayLimit, long weekLimit, long monthLimit, long numberOfCommands) {
+        createUserAndChange();
         CommandRuleBuilder builder = commandRuleService.createRule(name).dayLimit(dayLimit).weekLimit(weekLimit).monthLimit(monthLimit);
         for (int i = 0; i < numberOfCommands; i++) {
             builder.command(DeviceMessageId.values()[i].name());
@@ -403,5 +383,104 @@ public class CommandRuleIT {
         assertThat(testRule.getMonthLimit()).isEqualTo(10);
         assertThat(testRule.getCommands().size()).isEqualTo(1);
         assertThat(testRule.getCommands().get(0).getCommand().getId().name()).isEqualTo(DeviceMessageId.values()[5].name());
+    }
+
+    @Test
+    @Transactional
+    public void testCreationOfCountersAndAllLimits() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[1];
+        CommandRule rule = createRule("test4", 1, 2, 3, 2);
+        activateAndApproveRule(rule);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+
+        //checks if the command is valid to create and then creates it, creating the counters. Checks if the new limit is reached. (yes)
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        //checks if a command added the next day is valid (yes), create the command. Checks if the limit for the next day is reached (yes)
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(1, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        //checks if a command added 2 days later is valid (no), create the command. Checks if the limit for the week is reached (yes)
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(2, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        //checks if a command added a week later is valid (yes), create the command. Checks if the limit for the month is reached (yes)
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(7, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(9, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        //checks if a command added a month later is valid (yes)
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(30, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+
+    }
+
+    @Test
+    @Transactional
+    public void testDayLimits() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[0];
+        CommandRule rule = createRule("test5", 2, 0, 0, 1);
+        activateAndApproveRule(rule);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(1, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testWeekLimits() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[0];
+        CommandRule rule = createRule("test5", 0, 2, 0, 1);
+        activateAndApproveRule(rule);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(7, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testMonthLimits() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[0];
+        CommandRule rule = createRule("test5", 0, 0, 2, 1);
+        activateAndApproveRule(rule);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(30, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+    }
+
+    private void activateAndApproveRule(CommandRule rule) {
+        rule.activate();
+        createUserAndChange();
+        rule.approve();
+        createUserAndChange();
+        rule.approve();
     }
 }

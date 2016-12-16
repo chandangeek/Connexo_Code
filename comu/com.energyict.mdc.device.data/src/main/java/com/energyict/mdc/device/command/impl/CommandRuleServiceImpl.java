@@ -250,7 +250,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     private boolean limitsExceededForcommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
         List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
-        return commandRulesByDeviceMessageId.isEmpty() || commandRulesByDeviceMessageId.stream()
+        return !commandRulesByDeviceMessageId.isEmpty() && commandRulesByDeviceMessageId.stream()
                 .filter(commandRule -> this.wouldCommandExceedLimits(commandRule, deviceMessage.getReleaseDate(), oldReleaseDate))
                 .findFirst()
                 .isPresent();
