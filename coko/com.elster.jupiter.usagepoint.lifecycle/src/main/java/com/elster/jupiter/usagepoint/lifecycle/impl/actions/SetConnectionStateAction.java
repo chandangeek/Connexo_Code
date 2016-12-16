@@ -71,6 +71,6 @@ public class SetConnectionStateAction extends TranslatableAction {
         if (wrappedConnectionState == null || !(wrappedConnectionState instanceof HasIdAndName)) {
             throw new IllegalArgumentException(getThesaurus().getFormat(MicroActionTranslationKeys.SET_CONNECTION_STATE_PROPERTY_MESSAGE).format());
         }
-        usagePoint.setConnectionState(this.connectionStateFactory.unwrap((HasIdAndName) wrappedConnectionState));
+        usagePoint.setConnectionState(this.connectionStateFactory.unwrap((HasIdAndName) wrappedConnectionState), transitionTime);
     }
 }

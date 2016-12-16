@@ -2,6 +2,7 @@ package com.elster.jupiter.usagepoint.lifecycle.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.UsagePoint;
 
 import org.osgi.service.component.annotations.Component;
@@ -19,6 +20,7 @@ public class UsagePointInitialStateChangeRequestHandler implements TopicHandler 
 
     @Inject
     public UsagePointInitialStateChangeRequestHandler(ServerUsagePointLifeCycleService usagePointLifeCycleService) {
+        this();
         setUsagePointLifeCycleService(usagePointLifeCycleService);
     }
 
@@ -34,6 +36,6 @@ public class UsagePointInitialStateChangeRequestHandler implements TopicHandler 
 
     @Override
     public String getTopicMatcher() {
-        return "com/elster/jupiter/metering/usagepoint/CREATED";
+        return EventType.USAGEPOINT_CREATED.topic();
     }
 }
