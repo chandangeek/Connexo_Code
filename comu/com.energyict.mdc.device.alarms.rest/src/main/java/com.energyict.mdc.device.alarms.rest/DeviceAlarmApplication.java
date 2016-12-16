@@ -1,16 +1,25 @@
 package com.energyict.mdc.device.alarms.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
+import com.energyict.mdc.device.alarms.rest.resource.MeterResource;
+import com.energyict.mdc.device.alarms.rest.resource.ReasonResource;
+import com.energyict.mdc.device.alarms.rest.resource.StatusResource;
+import com.energyict.mdc.device.alarms.rest.resource.UserReource;
+import com.energyict.mdc.device.alarms.rest.resource.WorkGroupsResource;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -39,6 +48,10 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile DeviceService deviceService;
     private volatile LogBookService logBookService;
     private volatile IssueService issueService;
+    private volatile MeteringService meteringService;
+    private volatile UserService userService;
+    private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
 
     public DeviceAlarmApplication(){
 
@@ -47,7 +60,12 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                DeviceAlarmResource.class);
+                DeviceAlarmResource.class,
+                StatusResource.class,
+                WorkGroupsResource.class,
+                ReasonResource.class,
+                MeterResource.class,
+                UserReource.class);
     }
 
     @Override
@@ -79,8 +97,18 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
+    public void setUserService(UserService userService){
+        this.userService = userService;
+    }
+
+    @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService){
+        this.meteringService = meteringService;
     }
 
     @Reference
@@ -103,6 +131,12 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
         this.issueService = issueService;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(DEVICE_ALARMS_REST_COMPONENT, Layer.REST);
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -113,6 +147,10 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(DeviceAlarmInfoFactory.class).to(DeviceAlarmInfoFactory.class);
             bind(logBookService).to(LogBookService.class);
             bind(issueService).to(IssueService.class);
+            bind(meteringService).to(MeteringService.class);
+            bind(userService).to(UserService.class);
+            bind(thesaurus).to(Thesaurus.class);
+            bind(nlsService).to(NlsService.class);
         }
     }
 }

@@ -2,11 +2,10 @@ package com.energyict.mdc.device.alarms.rest.i18n;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-/**
- * Created by albertv on 11/29/2016.
- */
+
 public enum DeviceAlarmTranslationKeys implements TranslationKey {
 
+    ALARM_ASSIGNEE_UNASSIGNED ("AlarmAssigneeUnassigned", "Unassigned"),
     ALARM_DOES_NOT_EXIT("AlarmDoesNotExist", "Alarm doesn't exist")
             ;
 
