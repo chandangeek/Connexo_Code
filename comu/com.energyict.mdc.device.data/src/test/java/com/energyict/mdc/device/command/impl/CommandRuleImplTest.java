@@ -56,7 +56,7 @@ public class CommandRuleImplTest {
 
     @Test
     public void commandRuleCreationTimeIsTimeAtConstruction() throws Exception {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, commandRuleService);
         simulateSavedInDB(commandRule);
 
         Field createTime = CommandRuleImpl.class.getDeclaredField("createTime");
@@ -66,7 +66,7 @@ public class CommandRuleImplTest {
 
     @Test
     public void commandRuleModificationTimeIsTimeAtConstruction() throws Exception {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, commandRuleService);
         simulateSavedInDB(commandRule);
 
         Field modTime = CommandRuleImpl.class.getDeclaredField("modTime");
@@ -76,21 +76,21 @@ public class CommandRuleImplTest {
 
     @Test
     public void inactiveAtConstruction() {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, commandRuleService);
 
         assertThat(commandRule.isActive()).isFalse();
     }
 
     @Test
     public void noPendingChangesAtConstruction() {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, commandRuleService);
 
         assertThat(commandRule.getCommandRulePendingUpdate()).isEmpty();
     }
 
     @Test
     public void noLimitsAtConstruction() {
-        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, eventService);
+        CommandRuleImpl commandRule = new CommandRuleImpl(dataModel, deviceMessageSpecificationService, dualControlService, commandRuleService);
         assertThat(commandRule.getDayLimit()).isEqualTo(0);
         assertThat(commandRule.getWeekLimit()).isEqualTo(0);
         assertThat(commandRule.getMonthLimit()).isEqualTo(0);

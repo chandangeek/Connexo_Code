@@ -26,7 +26,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final UserService userService;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService, EventService eventService) {
+    public Installer(DataModel dataModel, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;

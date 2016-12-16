@@ -5,7 +5,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.dualcontrol.UnderDualControl;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.command.CommandInRule;

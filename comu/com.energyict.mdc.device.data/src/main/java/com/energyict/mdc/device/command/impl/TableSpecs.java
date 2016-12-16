@@ -133,13 +133,13 @@ public enum TableSpecs {
             table.map(CommandRuleCounter.class);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column("FROM").number().conversion(ColumnConversion.NUMBER2INSTANT).map(CommandRuleCounter.Fields.FROM.fieldName()).notNull().add();
-            table.column("TO").number().conversion(ColumnConversion.NUMBER2INSTANT).map(CommandRuleCounter.Fields.TO.fieldName()).notNull().add();
+            table.column("FROMTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(CommandRuleCounter.Fields.FROM.fieldName()).notNull().add();
+            table.column("TOTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(CommandRuleCounter.Fields.TO.fieldName()).notNull().add();
             table.column("COUNT").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleCounter.Fields.COUNT.fieldName()).notNull().add();
             Column commandRule = table.column("COMMANDRULEID").number().notNull().add();
 
-            table.primaryKey("PK_CLR_CMDINRULE").on(idColumn).add();
-            table.foreignKey("FK_CLR_CMDINRULE_CMDRULE").
+            table.primaryKey("PK_CLR_CMDRULECOUNTER").on(idColumn).add();
+            table.foreignKey("FK_CLR_COUNTER_RULE").
                     on(commandRule)
                     .references(CLR_COMMANDRULE.name())
                     .map(CommandRuleCounter.Fields.COMMANDRULE.fieldName())

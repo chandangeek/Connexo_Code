@@ -62,7 +62,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -382,8 +381,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(MetrologyConfigurationService.class),
                                 injector.getInstance(ServiceCallService.class),
                                 injector.getInstance(ThreadPrincipalService.class),
-                                injector.getInstance(LockService.class),
-                                injector.getInstance(CommandRuleService.class));
+                                injector.getInstance(LockService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

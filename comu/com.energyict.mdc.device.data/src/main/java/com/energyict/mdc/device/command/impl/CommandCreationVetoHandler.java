@@ -5,7 +5,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.device.command.CommandRuleService;
-import com.energyict.mdc.device.command.impl.events.LimitsExceededForCommandException;
+import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import com.google.inject.Inject;
