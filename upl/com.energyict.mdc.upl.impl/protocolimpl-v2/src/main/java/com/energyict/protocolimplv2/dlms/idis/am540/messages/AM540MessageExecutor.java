@@ -153,13 +153,13 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
      }
 
     private CollectedMessage updateSupervisionMonitor(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        int monitorInstance = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitorInstanceAttributeName).getDeviceMessageAttributeValue()).intValue();
-        long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).longValue();
+        int monitorInstance = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitorInstanceAttributeName).getValue()).intValue();
+        long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getValue()).longValue();
         return updateThresholds(collectedMessage, offlineDeviceMessage, monitorInstance, threshold);
     }
 
     private void loadProfileOptInOUT(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String scriptName = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.loadProfileOptInOutModeAttributeName).getDeviceMessageAttributeValue();
+        String scriptName = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.loadProfileOptInOutModeAttributeName).getValue();
 
         int scriptId = LoadProfileOptInOut.fromScriptName(scriptName);
 
@@ -172,7 +172,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
     }
 
     private void setDiplayOnOff(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String modeName = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.setDisplayOnOffModeAttributeName).getDeviceMessageAttributeValue();
+        String modeName = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.setDisplayOnOffModeAttributeName).getValue();
         int modeId = SetDisplayMode.fromModeName(modeName);
 
         final Structure scriptStruct = new Structure();

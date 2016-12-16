@@ -46,29 +46,29 @@ public class SetLoadMessageEntry extends AbstractEIWebMessageEntry {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageParentTag = new MessageTag(LEGACY_PEAKSHAVER_TAG);
-        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getDeviceMessageAttributeValue()));
+        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getValue()));
 
         MessageTag messageSubTag = new MessageTag(getMessageName(offlineDeviceMessage));
-        String loadId = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.loadIdAttributeName).getDeviceMessageAttributeValue();
+        String loadId = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.loadIdAttributeName).getValue();
         messageSubTag.add(new MessageAttribute(LEGACY_ID_TAG, loadId));
 
         MessageTag maxOffTag = new MessageTag(LEGACY_MAXOFF_TAG);
-        maxOffTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.MaxOffAttributeName).getDeviceMessageAttributeValue()));
+        maxOffTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.MaxOffAttributeName).getValue()));
 
         MessageTag delayTag = new MessageTag(LEGACY_DELAY_TAG);
-        delayTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.DelayAttributeName).getDeviceMessageAttributeValue()));
+        delayTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.DelayAttributeName).getValue()));
 
         MessageTag manualTag = new MessageTag(LEGACY_MANUAL_TAG);
-        manualTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.ManualAttributeName).getDeviceMessageAttributeValue()));
+        manualTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.ManualAttributeName).getValue()));
 
         MessageTag statusTag = new MessageTag(LEGACY_STATUS_TAG);
-        statusTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.StatusAttributeName).getDeviceMessageAttributeValue()));
+        statusTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.StatusAttributeName).getValue()));
 
         MessageTag ipAddressTag = new MessageTag(LEGACY_IPADDRESS_TAG);
-        ipAddressTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.PeakShaverIPAddressAttributeName).getDeviceMessageAttributeValue()));
+        ipAddressTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.PeakShaverIPAddressAttributeName).getValue()));
 
         MessageTag chnNbrTag = new MessageTag(LEGACY_CHNNBR_TAG);
-        chnNbrTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.PeakShaveChnNbrAttributeName).getDeviceMessageAttributeValue()));
+        chnNbrTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.PeakShaveChnNbrAttributeName).getValue()));
 
         messageSubTag.add(maxOffTag);
         messageSubTag.add(delayTag);

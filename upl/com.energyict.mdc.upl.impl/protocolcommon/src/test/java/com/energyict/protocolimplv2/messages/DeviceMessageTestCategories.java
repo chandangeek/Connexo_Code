@@ -60,12 +60,11 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategorySupplier
     public DeviceMessageCategory get(PropertySpecService propertySpecService, NlsService nlsService) {
         return new DeviceMessageCategoryImpl(
                 this.ordinal(),
-                new EnumBasedDeviceMessageCategoryPrimaryKey(this, name()),
                 new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 new TranslationKeyImpl(this.getDescriptionResourceKey(), this.defaultDescriptionTranslation),
                 this.factories(),
                 propertySpecService,
-                nlsService);
+                nlsService, converter);
     }
 
 }

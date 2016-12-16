@@ -23,6 +23,6 @@ public class XMLAttributeDeviceMessageEntry extends AbstractEIWebMessageEntry {
      */
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        return new MessageEntry(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue(), offlineDeviceMessage.getTrackingId());
+        return new MessageEntry(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue(), offlineDeviceMessage.getTrackingId());
     }
 }

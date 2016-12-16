@@ -76,7 +76,7 @@ public class Messaging implements DeviceMessageSupport {
     private CollectedMessage writeExchangeStatus(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
-            Integer value = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+            Integer value = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
             protocol.getWavenisStack().getWaveCard().setExchangeStatus(ExchangeMode.fromValue(value));
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {
@@ -89,7 +89,7 @@ public class Messaging implements DeviceMessageSupport {
     private CollectedMessage witeRadioAcknowledge(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
-            boolean value = Boolean.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+            boolean value = Boolean.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
             protocol.getWavenisStack().getWaveCard().setRadioAcknowledge(value);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {
@@ -102,7 +102,7 @@ public class Messaging implements DeviceMessageSupport {
     private CollectedMessage writeRadioUserTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         try {
-            Integer value = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+            Integer value = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
             protocol.getWavenisStack().getWaveCard().setRadioUserTimeoutInSeconds(value);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {

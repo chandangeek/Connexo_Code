@@ -32,7 +32,7 @@ public abstract class AbstractEIWebMessageEntry implements MessageEntryCreator {
     protected String getValueAttribute(OfflineDeviceMessage offlineDeviceMessage) {
         for (OfflineDeviceMessageAttribute attribute : offlineDeviceMessage.getDeviceMessageAttributes()) {
             if (!DeviceMessageConstants.id.equals(attribute.getName())) {
-                return attribute.getDeviceMessageAttributeValue();
+                return attribute.getValue();
             }
         }
         return "";

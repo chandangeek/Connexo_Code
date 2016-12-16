@@ -26,9 +26,9 @@ public class WriteModbusCoilMessage implements MessageEntryCreator{
         OfflineDeviceMessageAttribute registerAddressAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.AddressAttributeName);
         OfflineDeviceMessageAttribute registerValueAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.ValueAttributeName);
 
-        messageTag.add(new MessageValue(radixAttribute.getDeviceMessageAttributeValue() + DELIMITER +
-                registerAddressAttribute.getDeviceMessageAttributeValue() + DELIMITER +
-                registerValueAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(radixAttribute.getValue() + DELIMITER +
+                registerAddressAttribute.getValue() + DELIMITER +
+                registerValueAttribute.getValue()));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 

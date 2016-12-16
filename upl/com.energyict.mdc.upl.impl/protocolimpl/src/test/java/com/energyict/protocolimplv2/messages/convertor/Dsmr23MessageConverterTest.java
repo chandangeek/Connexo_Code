@@ -565,7 +565,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage installMBusMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(DeviceMessageConstants.mbusChannel);
-        when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn("1");
+        when(offlineDeviceMessageAttribute.getValue()).thenReturn("1");
         when(installMBusMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
         when(installMBusMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(MBusSetupDeviceMessage.Commission_With_Channel.getPrimaryKey().getValue());
         when(installMBusMessage.getSpecification()).thenReturn(MBusSetupDeviceMessage.Commission_With_Channel);
@@ -587,7 +587,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorActivationDateAttributeName);
-        when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
+        when(offlineDeviceMessageAttribute.getValue()).thenReturn(String.valueOf(millis));
         when(contactorOpen.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.getPrimaryKey().getValue());
 
@@ -624,7 +624,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorActivationDateAttributeName);
-        when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
+        when(offlineDeviceMessageAttribute.getValue()).thenReturn(String.valueOf(millis));
         when(contactorOpen.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.getPrimaryKey().getValue());
 
@@ -645,7 +645,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorModeAttributeName);
-        when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(mode.toString());
+        when(offlineDeviceMessageAttribute.getValue()).thenReturn(mode.toString());
         when(contactorOpen.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE.getPrimaryKey().getValue());
 
@@ -668,7 +668,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage firmwareUpgrade = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
-        when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(userFileId));
+        when(offlineDeviceMessageAttribute.getValue()).thenReturn(String.valueOf(userFileId));
         when(firmwareUpgrade.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
         when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.getPrimaryKey().getValue());
 
@@ -692,10 +692,10 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage firmwareUpgrade = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute userFileMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(userFileMessageAttribute.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
-        when(userFileMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(userFileId));
+        when(userFileMessageAttribute.getValue()).thenReturn(String.valueOf(userFileId));
         OfflineDeviceMessageAttribute activationDateMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(activationDateMessageAttribute.getName()).thenReturn(firmwareUpdateActivationDateAttributeName);
-        when(activationDateMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
+        when(activationDateMessageAttribute.getValue()).thenReturn(String.valueOf(millis));
         when(firmwareUpgrade.getDeviceMessageAttributes()).thenReturn(Arrays.asList(userFileMessageAttribute, activationDateMessageAttribute));
         when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE.getPrimaryKey().getValue());
 
@@ -719,10 +719,10 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarCodeTableAttributeName);
-        when(codeTableMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(codeTableId));
+        when(codeTableMessageAttribute.getValue()).thenReturn(String.valueOf(codeTableId));
         OfflineDeviceMessageAttribute activityCalendarNameMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(activityCalendarNameMessageAttribute.getName()).thenReturn(activityCalendarNameAttributeName);
-        when(activityCalendarNameMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(calendarName);
+        when(activityCalendarNameMessageAttribute.getValue()).thenReturn(calendarName);
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(activityCalendarNameMessageAttribute, codeTableMessageAttribute));
         when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getPrimaryKey().getValue());
 
@@ -747,13 +747,13 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarCodeTableAttributeName);
-        when(codeTableMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(codeTableId));
+        when(codeTableMessageAttribute.getValue()).thenReturn(String.valueOf(codeTableId));
         OfflineDeviceMessageAttribute activityCalendarNameMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(activityCalendarNameMessageAttribute.getName()).thenReturn(activityCalendarNameAttributeName);
-        when(activityCalendarNameMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(calendarName);
+        when(activityCalendarNameMessageAttribute.getValue()).thenReturn(calendarName);
         OfflineDeviceMessageAttribute activationDateAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(activationDateAttribute.getName()).thenReturn(activityCalendarActivationDateAttributeName);
-        when(activationDateAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
+        when(activationDateAttribute.getValue()).thenReturn(String.valueOf(millis));
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(activityCalendarNameMessageAttribute, codeTableMessageAttribute, activationDateAttribute));
         when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.getPrimaryKey().getValue());
 
@@ -777,7 +777,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(codeTableMessageAttribute.getName()).thenReturn(specialDaysCodeTableAttributeName);
-        when(codeTableMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(codeTableId));
+        when(codeTableMessageAttribute.getValue()).thenReturn(String.valueOf(codeTableId));
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(codeTableMessageAttribute));
         when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.getPrimaryKey().getValue());
 
@@ -798,7 +798,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage activateEncryptionLevelMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute encryptionLevelAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(encryptionLevelAttribute.getName()).thenReturn(encryptionLevelAttributeName);
-        when(encryptionLevelAttribute.getDeviceMessageAttributeValue()).thenReturn(encryptionLevel);
+        when(encryptionLevelAttribute.getValue()).thenReturn(encryptionLevel);
         when(activateEncryptionLevelMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(encryptionLevelAttribute));
         when(activateEncryptionLevelMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION.getPrimaryKey().getValue());
 
@@ -819,7 +819,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage changeAuthenticationLevel = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute authenticationLevelAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(authenticationLevelAttribute.getName()).thenReturn(authenticationLevelAttributeName);
-        when(authenticationLevelAttribute.getDeviceMessageAttributeValue()).thenReturn(authenticationLevel);
+        when(authenticationLevelAttribute.getValue()).thenReturn(authenticationLevel);
         when(changeAuthenticationLevel.getDeviceMessageAttributes()).thenReturn(Arrays.asList(authenticationLevelAttribute));
         when(changeAuthenticationLevel.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.getPrimaryKey().getValue());
 
@@ -874,10 +874,10 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage gprsUserCredentials = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute userNameAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(userNameAttribute.getName()).thenReturn(usernameAttributeName);
-        when(userNameAttribute.getDeviceMessageAttributeValue()).thenReturn(myUserName);
+        when(userNameAttribute.getValue()).thenReturn(myUserName);
         OfflineDeviceMessageAttribute passwordAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(passwordAttribute.getName()).thenReturn(passwordAttributeName);
-        when(passwordAttribute.getDeviceMessageAttributeValue()).thenReturn(myPassword);
+        when(passwordAttribute.getValue()).thenReturn(myPassword);
         when(gprsUserCredentials.getDeviceMessageAttributes()).thenReturn(Arrays.asList(userNameAttribute, passwordAttribute));
         when(gprsUserCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS.getPrimaryKey().getValue());
 
@@ -901,13 +901,13 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage gprsApnCredentials = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute userNameAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(userNameAttribute.getName()).thenReturn(usernameAttributeName);
-        when(userNameAttribute.getDeviceMessageAttributeValue()).thenReturn(myUserName);
+        when(userNameAttribute.getValue()).thenReturn(myUserName);
         OfflineDeviceMessageAttribute passwordAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(passwordAttribute.getName()).thenReturn(passwordAttributeName);
-        when(passwordAttribute.getDeviceMessageAttributeValue()).thenReturn(myPassword);
+        when(passwordAttribute.getValue()).thenReturn(myPassword);
         OfflineDeviceMessageAttribute apnAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(apnAttribute.getName()).thenReturn(apnAttributeName);
-        when(apnAttribute.getDeviceMessageAttributeValue()).thenReturn(myApn);
+        when(apnAttribute.getValue()).thenReturn(myApn);
         when(gprsApnCredentials.getDeviceMessageAttributes()).thenReturn(Arrays.asList(userNameAttribute, passwordAttribute, apnAttribute));
         when(gprsApnCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getPrimaryKey().getValue());
 
@@ -929,7 +929,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage whiteListPhoneNumbersDeviceMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute whiteListPhoneNumbersAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(whiteListPhoneNumbersAttribute.getName()).thenReturn(whiteListPhoneNumbersAttributeName);
-        when(whiteListPhoneNumbersAttribute.getDeviceMessageAttributeValue()).thenReturn(allPhoneNumbers);
+        when(whiteListPhoneNumbersAttribute.getValue()).thenReturn(allPhoneNumbers);
         when(whiteListPhoneNumbersDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(whiteListPhoneNumbersAttribute));
         when(whiteListPhoneNumbersDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST.getPrimaryKey().getValue());
 
@@ -951,7 +951,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage p1CodeDeviceMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute p1CodeAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(p1CodeAttribute.getName()).thenReturn(p1InformationAttributeName);
-        when(p1CodeAttribute.getDeviceMessageAttributeValue()).thenReturn(p1CodeInformation);
+        when(p1CodeAttribute.getValue()).thenReturn(p1CodeInformation);
         when(p1CodeDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(p1CodeAttribute));
         when(p1CodeDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1.getPrimaryKey().getValue());
 
@@ -973,7 +973,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage p1TextDeviceMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute p1TextAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(p1TextAttribute.getName()).thenReturn(p1InformationAttributeName);
-        when(p1TextAttribute.getDeviceMessageAttributeValue()).thenReturn(p1TextInformation);
+        when(p1TextAttribute.getValue()).thenReturn(p1TextInformation);
         when(p1TextDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(p1TextAttribute));
         when(p1TextDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1.getPrimaryKey().getValue());
 
@@ -1017,27 +1017,27 @@ public class Dsmr23MessageConverterTest {
 
         OfflineDeviceMessageAttribute normalThresholdAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(normalThresholdAttribute.getName()).thenReturn(normalThresholdAttributeName);
-        when(normalThresholdAttribute.getDeviceMessageAttributeValue()).thenReturn(normalThreshold);
+        when(normalThresholdAttribute.getValue()).thenReturn(normalThreshold);
 
         OfflineDeviceMessageAttribute emergencyThresholdAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(emergencyThresholdAttribute.getName()).thenReturn(emergencyThresholdAttributeName);
-        when(emergencyThresholdAttribute.getDeviceMessageAttributeValue()).thenReturn(emergencyThreshold);
+        when(emergencyThresholdAttribute.getValue()).thenReturn(emergencyThreshold);
 
         OfflineDeviceMessageAttribute overThresholdDurationAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(overThresholdDurationAttribute.getName()).thenReturn(overThresholdDurationAttributeName);
-        when(overThresholdDurationAttribute.getDeviceMessageAttributeValue()).thenReturn(overThresholdDuration);
+        when(overThresholdDurationAttribute.getValue()).thenReturn(overThresholdDuration);
 
         OfflineDeviceMessageAttribute emergencyProfileIdAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(emergencyProfileIdAttribute.getName()).thenReturn(emergencyProfileIdAttributeName);
-        when(emergencyProfileIdAttribute.getDeviceMessageAttributeValue()).thenReturn(emergencyProfileId);
+        when(emergencyProfileIdAttribute.getValue()).thenReturn(emergencyProfileId);
 
         OfflineDeviceMessageAttribute emergencyProfileDurationAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(emergencyProfileDurationAttribute.getName()).thenReturn(emergencyProfileDurationAttributeName);
-        when(emergencyProfileDurationAttribute.getDeviceMessageAttributeValue()).thenReturn(emergencyProfileDuration);
+        when(emergencyProfileDurationAttribute.getValue()).thenReturn(emergencyProfileDuration);
 
         OfflineDeviceMessageAttribute emergencyProfileActivationDateAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(emergencyProfileActivationDateAttribute.getName()).thenReturn(emergencyProfileActivationDateAttributeName);
-        when(emergencyProfileActivationDateAttribute.getDeviceMessageAttributeValue()).thenReturn(emergencyProfileActivationDate);
+        when(emergencyProfileActivationDateAttribute.getValue()).thenReturn(emergencyProfileActivationDate);
 
         when(configureLoadLimitingParametersMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(normalThresholdAttribute, emergencyThresholdAttribute,
                 overThresholdDurationAttribute, emergencyProfileIdAttribute, emergencyProfileDurationAttribute, emergencyProfileActivationDateAttribute));
@@ -1064,7 +1064,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage setEmergencyProfileIdsMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute lookupTableAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(lookupTableAttribute.getName()).thenReturn(emergencyProfileGroupIdListAttributeName);
-        when(lookupTableAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(lookupId));
+        when(lookupTableAttribute.getValue()).thenReturn(String.valueOf(lookupId));
 
         when(setEmergencyProfileIdsMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(lookupTableAttribute));
         when(setEmergencyProfileIdsMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS.getPrimaryKey().getValue());
@@ -1104,7 +1104,7 @@ public class Dsmr23MessageConverterTest {
         when(xmlConfigDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(AdvancedTestMessage.XML_CONFIG.getPrimaryKey().getValue());
         OfflineDeviceMessageAttribute xmlConfigAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(xmlConfigAttribute.getName()).thenReturn(xmlConfigAttributeName);
-        when(xmlConfigAttribute.getDeviceMessageAttributeValue()).thenReturn(xmlString);
+        when(xmlConfigAttribute.getValue()).thenReturn(xmlString);
         when(xmlConfigDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(xmlConfigAttribute));
 
         // business method
@@ -1127,13 +1127,13 @@ public class Dsmr23MessageConverterTest {
         when(partialLoadProfileDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey().getValue());
         OfflineDeviceMessageAttribute loadProfileAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(loadProfileAttribute.getName()).thenReturn(loadProfileAttributeName);
-        when(loadProfileAttribute.getDeviceMessageAttributeValue()).thenReturn(loadProfileAttributeValue);
+        when(loadProfileAttribute.getValue()).thenReturn(loadProfileAttributeValue);
         OfflineDeviceMessageAttribute fromDateAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(fromDateAttribute.getName()).thenReturn(fromDateAttributeName);
-        when(fromDateAttribute.getDeviceMessageAttributeValue()).thenReturn("06/02/2013 10:00:25");
+        when(fromDateAttribute.getValue()).thenReturn("06/02/2013 10:00:25");
         OfflineDeviceMessageAttribute toDateAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(toDateAttribute.getName()).thenReturn(toDateAttributeName);
-        when(toDateAttribute.getDeviceMessageAttributeValue()).thenReturn("13/03/2013 11:32:25");
+        when(toDateAttribute.getValue()).thenReturn("13/03/2013 11:32:25");
         when(partialLoadProfileDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(loadProfileAttribute, fromDateAttribute, toDateAttribute));
 
         // business method
@@ -1157,10 +1157,10 @@ public class Dsmr23MessageConverterTest {
         when(registerRequestDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST.getPrimaryKey().getValue());
         OfflineDeviceMessageAttribute loadProfileAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(loadProfileAttribute.getName()).thenReturn(loadProfileAttributeName);
-        when(loadProfileAttribute.getDeviceMessageAttributeValue()).thenReturn(loadProfileAttributeValue);
+        when(loadProfileAttribute.getValue()).thenReturn(loadProfileAttributeValue);
         OfflineDeviceMessageAttribute fromDateAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(fromDateAttribute.getName()).thenReturn(fromDateAttributeName);
-        when(fromDateAttribute.getDeviceMessageAttributeValue()).thenReturn("06/02/2013 10:00:25");
+        when(fromDateAttribute.getValue()).thenReturn("06/02/2013 10:00:25");
         when(registerRequestDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(loadProfileAttribute, fromDateAttribute));
 
         // business method
@@ -1180,7 +1180,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage changeEncryptionKeyMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute newEncryptionKeyAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(newEncryptionKeyAttribute.getName()).thenReturn(newEncryptionKeyAttributeName);
-        when(newEncryptionKeyAttribute.getDeviceMessageAttributeValue()).thenReturn("00112233445566778899");
+        when(newEncryptionKeyAttribute.getValue()).thenReturn("00112233445566778899");
 
         when(changeEncryptionKeyMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(newEncryptionKeyAttribute));
         when(changeEncryptionKeyMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.getPrimaryKey().getValue());
@@ -1202,7 +1202,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage changeAuthenticationKeyMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute newAuthenticationKeyAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(newAuthenticationKeyAttribute.getName()).thenReturn(newAuthenticationKeyAttributeName);
-        when(newAuthenticationKeyAttribute.getDeviceMessageAttributeValue()).thenReturn("00112233445566778899");
+        when(newAuthenticationKeyAttribute.getValue()).thenReturn("00112233445566778899");
 
         when(changeAuthenticationKeyMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(newAuthenticationKeyAttribute));
         when(changeAuthenticationKeyMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.getPrimaryKey().getValue());
@@ -1224,7 +1224,7 @@ public class Dsmr23MessageConverterTest {
         OfflineDeviceMessage changePasswordMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute newAuthenticationKeyAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(newAuthenticationKeyAttribute.getName()).thenReturn(newPasswordAttributeName);
-        when(newAuthenticationKeyAttribute.getDeviceMessageAttributeValue()).thenReturn("00112233445566778899");
+        when(newAuthenticationKeyAttribute.getValue()).thenReturn("00112233445566778899");
 
         when(changePasswordMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(newAuthenticationKeyAttribute));
         when(changePasswordMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD.getPrimaryKey().getValue());

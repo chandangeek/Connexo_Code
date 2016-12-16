@@ -45,10 +45,10 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
         StringBuilder pathFailed = new StringBuilder();
 
         try {
-            final long timeoutInMillis = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.timeout).getDeviceMessageAttributeValue());
+            final long timeoutInMillis = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.timeout).getValue());
 
             List<String> macAddresses = new ArrayList<>();
-            for (String macAddress : MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR)) {
+            for (String macAddress : MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName).getValue().split(SEPARATOR)) {
                 final String errorMsg = "MAC addresses should be a list of 16 hex characters, separated by a semicolon.";
                 try {
                     final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");

@@ -28,7 +28,7 @@ public class XmlConfigMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute xmlConfigurationAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, xmlConfigAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.XMLCONFIG);
-        messageTag.add(new MessageValue(xmlConfigurationAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(xmlConfigurationAttribute.getValue()));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

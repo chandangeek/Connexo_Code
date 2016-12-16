@@ -31,7 +31,7 @@ public class IskraMx372AddPhoneNumbersToWhiteListMessageEntry implements Message
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute phoneNumbers = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, phoneNumbersAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
-        final String[] allPhoneNumbers = phoneNumbers.getDeviceMessageAttributeValue().split(PHONE_NUMBER_SEPARATOR);
+        final String[] allPhoneNumbers = phoneNumbers.getValue().split(PHONE_NUMBER_SEPARATOR);
         int counter = 1;
         for (String number : allPhoneNumbers) {
             MessageTag innerTag = new MessageTag(PHONENUMBER + counter++);

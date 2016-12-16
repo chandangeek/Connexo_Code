@@ -33,8 +33,8 @@ public class MBusClientRemoteCommissionEntry implements MessageEntryCreator {
         OfflineDeviceMessageAttribute mBusChannelAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, mBusClientChannel);
         OfflineDeviceMessageAttribute mBusShortId = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, this.mBusShortId);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.MBUS_CLIENT_REMOTE_COMMISSION);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_INSTALL_CHANNEL, mBusChannelAttribute.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_SHORT_ID, mBusShortId.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_INSTALL_CHANNEL, mBusChannelAttribute.getValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_SHORT_ID, mBusShortId.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

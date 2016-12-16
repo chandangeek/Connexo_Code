@@ -29,8 +29,8 @@ public class ChangeAdminPasswordMessageEntry extends AbstractEIWebMessageEntry {
     @Override             //E.G. <AdminOld>sdfsdf</AdminOld><AdminNew>sdfsdf2</AdminNew>
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
 
-        String adminOldValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.AdminOld).getDeviceMessageAttributeValue();
-        String adminNewValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.AdminNew).getDeviceMessageAttributeValue();
+        String adminOldValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.AdminOld).getValue();
+        String adminNewValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.AdminNew).getValue();
 
         MessageTag oldTag = new MessageTag(LEGACY_ADMINOLD_TAG);
         oldTag.add(new MessageValue(adminOldValue));

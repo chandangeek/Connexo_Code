@@ -22,10 +22,10 @@ public class ConfigureLCDDisplay extends AbstractConfigMessage {
             return;   //Don't send if result is already known
         }
 
-        int number1 = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA).getDeviceMessageAttributeValue());
-        int number2 = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_DIGITS_AFTER_COMMA).getDeviceMessageAttributeValue());
-        String sequence = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.DISPLAY_SEQUENCE).getDeviceMessageAttributeValue();
-        int intervalInSeconds = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.DISPLAY_CYCLE_TIME).getDeviceMessageAttributeValue());
+        int number1 = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA).getValue());
+        int number2 = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_DIGITS_AFTER_COMMA).getValue());
+        String sequence = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.DISPLAY_SEQUENCE).getValue();
+        int intervalInSeconds = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.DISPLAY_CYCLE_TIME).getValue());
 
         int resolutionCode = convertToResolutionCode(number1, number2);
         if (resolutionCode == -1) {

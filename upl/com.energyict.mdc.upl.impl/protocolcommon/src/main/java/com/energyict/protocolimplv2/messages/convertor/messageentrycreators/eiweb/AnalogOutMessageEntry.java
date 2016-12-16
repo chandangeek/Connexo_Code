@@ -32,7 +32,7 @@ public class AnalogOutMessageEntry extends AbstractEIWebMessageEntry {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageParentTag = new MessageTag(LEGACY_ANALOGOUT_TAG);
-        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getDeviceMessageAttributeValue()));
+        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getValue()));
 
         MessageTag messageValue = new MessageTag(LEGACY_VALUE_TAG);
         messageValue.add(new MessageValue(getValueAttribute(offlineDeviceMessage)));

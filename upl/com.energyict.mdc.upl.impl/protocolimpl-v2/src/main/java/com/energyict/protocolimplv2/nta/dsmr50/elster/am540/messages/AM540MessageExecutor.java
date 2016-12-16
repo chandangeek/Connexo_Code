@@ -93,13 +93,13 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void openRelay(OfflineDeviceMessage pendingMessage) throws IOException {
-        int relayNumber = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        int relayNumber = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         ObisCode obisCode = ProtocolTools.setObisCodeField(RELAY_CONTROL_DEFAULT_OBISCODE, 1, (byte) relayNumber);
         getCosemObjectFactory().getDisconnector(obisCode).remoteDisconnect();
     }
 
     private void closeRelay(OfflineDeviceMessage pendingMessage) throws IOException {
-        int relayNumber = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        int relayNumber = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         ObisCode obisCode = ProtocolTools.setObisCodeField(RELAY_CONTROL_DEFAULT_OBISCODE, 1, (byte) relayNumber);
         getCosemObjectFactory().getDisconnector(obisCode).remoteReconnect();
     }

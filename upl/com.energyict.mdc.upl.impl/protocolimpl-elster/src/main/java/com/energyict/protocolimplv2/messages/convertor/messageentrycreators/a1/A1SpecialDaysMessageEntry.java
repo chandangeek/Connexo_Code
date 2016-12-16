@@ -23,7 +23,7 @@ public class A1SpecialDaysMessageEntry implements MessageEntryCreator {
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String specialDaysUserFile = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.XmlUserFileAttributeName).getDeviceMessageAttributeValue();
+        String specialDaysUserFile = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.XmlUserFileAttributeName).getValue();
         specialDaysUserFile = specialDaysUserFile.replaceAll("\"", "''");
 
         return createMessageEntry(offlineDeviceMessage, specialDaysUserFile);

@@ -24,8 +24,8 @@ public class IDISDiscoveryConfigurationMessageEntry implements MessageEntryCreat
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String interval = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.interval).getDeviceMessageAttributeValue();
-        String duration = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.duration).getDeviceMessageAttributeValue();
+        String interval = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.interval).getValue();
+        String duration = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.duration).getValue();
         String messageContent = OPEN_TAG + OPEN_SUBTAG1 + interval + CLOSE_SUBTAG1 + OPEN_SUBTAG2 + duration + CLOSE_SUBTAG2 + CLOSE_TAG;
         return new MessageEntry(messageContent, offlineDeviceMessage.getTrackingId());
     }

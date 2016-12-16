@@ -32,7 +32,7 @@ public class ChangeNTADataTransportAuthenticationKeyMessageEntry implements Mess
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute msgAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, newAuthenticationKeyAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_NEW_AUTHENTICATION_KEY, msgAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_NEW_AUTHENTICATION_KEY, msgAttribute.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

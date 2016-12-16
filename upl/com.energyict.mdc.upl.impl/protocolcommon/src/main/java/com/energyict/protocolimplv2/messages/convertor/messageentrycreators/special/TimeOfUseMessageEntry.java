@@ -46,20 +46,20 @@ public class TimeOfUseMessageEntry implements MessageEntryCreator {
         OfflineDeviceMessageAttribute activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activationDateAttributeName);
         OfflineDeviceMessageAttribute codeTableIdAndDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, codeIdAttributeName);
         MessageTag messageTag = new MessageTag("TimeOfUse");
-        messageTag.add(new MessageAttribute("name", name.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute("activationDate", activationDate.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute("name", name.getValue()));
+        messageTag.add(new MessageAttribute("activationDate", activationDate.getValue()));
 
-        String[] split = codeTableIdAndDescription.getDeviceMessageAttributeValue().split(ESCAPED_SEPARATOR);
+        String[] split = codeTableIdAndDescription.getValue().split(ESCAPED_SEPARATOR);
         String codeTableId = split[0];
-        String codeTableDescription = codeTableIdAndDescription.getDeviceMessageAttributeValue().substring(codeTableId.length() + SEPARATOR.length());
+        String codeTableDescription = codeTableIdAndDescription.getValue().substring(codeTableId.length() + SEPARATOR.length());
 
         MessageTag codeIdTag = new MessageTag("CodeId");
         codeIdTag.add(new MessageValue(codeTableId));      //ID of the code table
         messageTag.add(codeIdTag);
 
         MessageTag activityCalendarTag = new MessageTag("Activity_Calendar");
-        codeTableDescription = codeTableDescription.replace("<ActivationDate>0</ActivationDate>", "<ActivationDate>" + activationDate.getDeviceMessageAttributeValue() + "</ActivationDate>");
-        codeTableDescription = codeTableDescription.replace("<CalendarName>0</CalendarName>", "<CalendarName>" + name.getDeviceMessageAttributeValue() + "</CalendarName>");
+        codeTableDescription = codeTableDescription.replace("<ActivationDate>0</ActivationDate>", "<ActivationDate>" + activationDate.getValue() + "</ActivationDate>");
+        codeTableDescription = codeTableDescription.replace("<CalendarName>0</CalendarName>", "<CalendarName>" + name.getValue() + "</CalendarName>");
         activityCalendarTag.add(new MessageValue(encode(codeTableDescription)));
         messageTag.add(activityCalendarTag);
 

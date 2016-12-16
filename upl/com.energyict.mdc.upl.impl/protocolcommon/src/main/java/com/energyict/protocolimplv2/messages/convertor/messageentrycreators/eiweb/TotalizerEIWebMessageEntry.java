@@ -32,7 +32,7 @@ public class TotalizerEIWebMessageEntry extends AbstractEIWebMessageEntry {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageParentTag = new MessageTag(LEGACY_TOTALIZER_TAG);
-        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getDeviceMessageAttributeValue()));
+        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getValue()));
         MessageTag messageValueTag = new MessageTag(getMessageName(offlineDeviceMessage));
         messageValueTag.add(new MessageValue(getValueAttribute(offlineDeviceMessage)));
         messageParentTag.add(messageValueTag);

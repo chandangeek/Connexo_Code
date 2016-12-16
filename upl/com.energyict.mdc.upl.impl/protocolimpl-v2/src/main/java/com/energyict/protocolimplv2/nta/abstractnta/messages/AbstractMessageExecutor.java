@@ -113,7 +113,7 @@ public abstract class AbstractMessageExecutor {
     protected String getDeviceMessageAttributeValue(OfflineDeviceMessage offlineDeviceMessage, String attributeName) throws IOException {
         for (OfflineDeviceMessageAttribute offlineDeviceMessageAttribute : offlineDeviceMessage.getDeviceMessageAttributes()) {
             if (offlineDeviceMessageAttribute.getName().equals(attributeName)) {
-                return offlineDeviceMessageAttribute.getDeviceMessageAttributeValue();
+                return offlineDeviceMessageAttribute.getValue();
             }
         }
         throw DataParseException.ioException(new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName));
@@ -207,11 +207,11 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected int getIntegerAttribute(OfflineDeviceMessage pendingMessage) {
-        return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
     }
 
     protected boolean getBooleanAttribute(OfflineDeviceMessage pendingMessage) {
-        return Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        return Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
     }
 
 
@@ -248,12 +248,12 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected void configureLoadLimitParameters(OfflineDeviceMessage pendingMessage) throws IOException {
-        String normalThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, normalThresholdAttributeName).getDeviceMessageAttributeValue();
-        String emergencyThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyThresholdAttributeName).getDeviceMessageAttributeValue();
-        String overThresholdDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, overThresholdDurationAttributeName).getDeviceMessageAttributeValue();
-        String emergencyProfileId = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileIdAttributeName).getDeviceMessageAttributeValue();
-        String emergencyProfileActivationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileActivationDateAttributeName).getDeviceMessageAttributeValue();
-        String emergencyProfileDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileDurationAttributeName).getDeviceMessageAttributeValue();
+        String normalThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, normalThresholdAttributeName).getValue();
+        String emergencyThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyThresholdAttributeName).getValue();
+        String overThresholdDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, overThresholdDurationAttributeName).getValue();
+        String emergencyProfileId = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileIdAttributeName).getValue();
+        String emergencyProfileActivationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileActivationDateAttributeName).getValue();
+        String emergencyProfileDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileDurationAttributeName).getValue();
 
         byte theMonitoredAttributeType = -1;
         Limiter loadLimiter = getCosemObjectFactory().getLimiter();

@@ -29,12 +29,12 @@ public class ConfigureAutoConnectModeMessageEntry implements MessageEntryCreator
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String autoConnectWindow = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.windowAttributeName).getDeviceMessageAttributeValue();
-        String autoConnectMode = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectMode).getDeviceMessageAttributeValue();
-        String autoConnectStartTime = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectStartTime).getDeviceMessageAttributeValue();
-        String autoConnectEndTime = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectEndTime).getDeviceMessageAttributeValue();
-        String autoConnectDestination1 = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectDestionation1).getDeviceMessageAttributeValue();
-        String autoConnectDestionation2 = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectDestionation2).getDeviceMessageAttributeValue();
+        String autoConnectWindow = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.windowAttributeName).getValue();
+        String autoConnectMode = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectMode).getValue();
+        String autoConnectStartTime = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectStartTime).getValue();
+        String autoConnectEndTime = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectEndTime).getValue();
+        String autoConnectDestination1 = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectDestionation1).getValue();
+        String autoConnectDestionation2 = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectDestionation2).getValue();
 
         MessageTag msgTag = new MessageTag(messageTag);
         msgTag.add(new MessageAttribute(windowAttributeTag, autoConnectWindow));

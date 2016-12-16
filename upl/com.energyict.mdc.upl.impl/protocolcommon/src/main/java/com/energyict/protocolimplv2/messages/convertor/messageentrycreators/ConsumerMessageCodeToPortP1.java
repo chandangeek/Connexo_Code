@@ -29,7 +29,7 @@ public class ConsumerMessageCodeToPortP1 implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute p1Message = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, p1InformationAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.P1CODEMESSAGE);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.P1CODE, p1Message.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.P1CODE, p1Message.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

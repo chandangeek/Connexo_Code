@@ -34,7 +34,7 @@ public class SetDisplayMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute thresholdAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, displayMessageAttributeName);
         MessageTag messageTag = new MessageTag("SET_DISPLAY_MESSAGE");
-        messageTag.add(new MessageValue(thresholdAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(thresholdAttribute.getValue()));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

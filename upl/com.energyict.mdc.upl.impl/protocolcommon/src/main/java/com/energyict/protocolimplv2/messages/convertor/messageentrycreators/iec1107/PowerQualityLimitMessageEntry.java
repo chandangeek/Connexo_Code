@@ -34,7 +34,7 @@ public class PowerQualityLimitMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute thresholdAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, powerQualityThresholdAttributeName);
         MessageTag messageTag = new MessageTag("CLASS_37_UPDATE");
-        messageTag.add(new MessageValue(thresholdAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(thresholdAttribute.getValue()));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

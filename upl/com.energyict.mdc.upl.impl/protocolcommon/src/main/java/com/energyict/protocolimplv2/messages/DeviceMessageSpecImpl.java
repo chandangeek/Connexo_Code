@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -21,7 +20,6 @@ import java.util.List;
  */
 public class DeviceMessageSpecImpl implements DeviceMessageSpec {
     private final long id;
-    private final DeviceMessageSpecPrimaryKey primaryKey;
     private final TranslationKey translationKey;
     private final DeviceMessageCategorySupplier categoryFactory;
     private final List<PropertySpec> propertySpecs;
@@ -29,9 +27,8 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
 
-    public DeviceMessageSpecImpl(long id, DeviceMessageSpecPrimaryKey primaryKey, TranslationKey translationKey, DeviceMessageCategorySupplier categoryFactory, List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageSpecImpl(long id, TranslationKey translationKey, DeviceMessageCategorySupplier categoryFactory, List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, NlsService nlsService) {
         this.id = id;
-        this.primaryKey = primaryKey;
         this.translationKey = translationKey;
         this.categoryFactory = categoryFactory;
         this.propertySpecs = propertySpecs;
@@ -40,21 +37,16 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
     }
 
     @Override
-    public long getMessageId() {
-        return this.id;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return this.primaryKey;
-    }
-
-    @Override
     public String getName() {
         return this.nlsService
                 .getThesaurus(Thesaurus.ID.toString())
                 .getFormat(this.getNameTranslationKey())
                 .format();
+    }
+
+    @Override
+    public long getId() {
+        return this.id;
     }
 
     @Override

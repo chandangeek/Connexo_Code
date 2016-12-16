@@ -27,13 +27,13 @@ public class SendDisplayMessage extends AbstractConfigMessage {
 
         String message = "";
         if (mode == 1) {
-            message = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SHORT_DISPLAY_MESSAGE).getDeviceMessageAttributeValue();
+            message = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SHORT_DISPLAY_MESSAGE).getValue();
             if (message.length() > 8) {
                 failMessage("Display message failed, invalid arguments");
                 return;
             }
         } else if (mode == 2) {
-            message = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.LONG_DISPLAY_MESSAGE).getDeviceMessageAttributeValue();
+            message = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.LONG_DISPLAY_MESSAGE).getValue();
             if (message.length() > 1024) {
                 failMessage("Display message failed, invalid arguments");
                 return;

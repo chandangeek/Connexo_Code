@@ -34,7 +34,7 @@ public class ABBA1350UserFileMessageEntry implements MessageEntryCreator {
                 : DeviceMessageConstants.SwitchPointClockUpdateSettings;
 
         OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileAttributeName);
-        String fileContent = userFileAttribute.getDeviceMessageAttributeValue();
+        String fileContent = userFileAttribute.getValue();
 
         MessageTag messageTag = new MessageTag(tag);
         messageTag.add(new MessageValue(fileContent));

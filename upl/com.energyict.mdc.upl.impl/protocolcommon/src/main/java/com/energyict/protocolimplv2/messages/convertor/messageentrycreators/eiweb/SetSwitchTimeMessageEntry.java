@@ -46,27 +46,27 @@ public class SetSwitchTimeMessageEntry extends AbstractEIWebMessageEntry {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageParentTag = new MessageTag(LEGACY_PEAKSHAVER_TAG);
-        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getDeviceMessageAttributeValue()));
+        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getValue()));
 
         MessageTag messageSubTag = new MessageTag(getMessageName(offlineDeviceMessage));
 
         MessageTag dayTag = new MessageTag(LEGACY_DAY_TAG);
-        dayTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.day).getDeviceMessageAttributeValue()));
+        dayTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.day).getValue()));
 
         MessageTag monthTag = new MessageTag(LEGACY_MONTH_TAG);
-        monthTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.month).getDeviceMessageAttributeValue()));
+        monthTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.month).getValue()));
 
         MessageTag yearTag = new MessageTag(LEGACY_YEAR_TAG);
-        yearTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.year).getDeviceMessageAttributeValue()));
+        yearTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.year).getValue()));
 
         MessageTag hourTag = new MessageTag(LEGACY_HOUR_TAG);
-        hourTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getDeviceMessageAttributeValue()));
+        hourTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getValue()));
 
         MessageTag minuteTag = new MessageTag(LEGACY_MINUTE_TAG);
-        minuteTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.minute).getDeviceMessageAttributeValue()));
+        minuteTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.minute).getValue()));
 
         MessageTag secondTag = new MessageTag(LEGACY_SECOND_TAG);
-        secondTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.second).getDeviceMessageAttributeValue()));
+        secondTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.second).getValue()));
 
         messageSubTag.add(dayTag);
         messageSubTag.add(monthTag);

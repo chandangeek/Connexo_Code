@@ -135,8 +135,8 @@ public class ACE4000MessageExecutor {
 
     private CollectedMessage readProfileData(OfflineDeviceMessage pendingMessage) {
 
-        String fromDateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.fromDateAttributeName).getDeviceMessageAttributeValue();
-        String toDateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.toDateAttributeName).getDeviceMessageAttributeValue();
+        String fromDateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.fromDateAttributeName).getValue();
+        String toDateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.toDateAttributeName).getValue();
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date fromDate = null;
         Date toDate = null;

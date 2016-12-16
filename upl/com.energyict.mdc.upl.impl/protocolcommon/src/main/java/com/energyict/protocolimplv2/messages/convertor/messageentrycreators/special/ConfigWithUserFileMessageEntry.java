@@ -37,7 +37,7 @@ public class ConfigWithUserFileMessageEntry implements MessageEntryCreator {
         OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileIdAttributeName);
         MessageTag mainTag = new MessageTag(tag);
         MessageTag subTag1 = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE_INCLUDED_FILE);
-        subTag1.add(new MessageValue(userFileAttribute.getDeviceMessageAttributeValue()));  //The userFile bytes
+        subTag1.add(new MessageValue(userFileAttribute.getValue()));  //The userFile bytes
         mainTag.add(subTag1);
         return new MessageEntry(SimpleTagWriter.writeTag(mainTag), offlineDeviceMessage.getTrackingId());
     }

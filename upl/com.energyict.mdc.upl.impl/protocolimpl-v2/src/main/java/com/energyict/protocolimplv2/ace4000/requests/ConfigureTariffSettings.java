@@ -29,9 +29,9 @@ public class ConfigureTariffSettings extends AbstractConfigMessage {
             return;   //Don't send if result is already known
         }
 
-        int number = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.UNIQUE_TARIFF_ID_NO).getDeviceMessageAttributeValue());
-        int numberOfRates = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_TARIFF_RATES).getDeviceMessageAttributeValue());
-        String codeTableBase64 = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.CODE_TABLE_ID).getDeviceMessageAttributeValue();
+        int number = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.UNIQUE_TARIFF_ID_NO).getValue());
+        int numberOfRates = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_TARIFF_RATES).getValue());
+        String codeTableBase64 = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.CODE_TABLE_ID).getValue();
 
         if (numberOfRates > 4 || numberOfRates < 0) {
             failMessage("Tariff configuration failed, invalid number of rates");

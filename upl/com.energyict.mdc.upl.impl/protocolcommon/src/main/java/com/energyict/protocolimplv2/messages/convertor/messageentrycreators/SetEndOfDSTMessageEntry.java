@@ -42,10 +42,10 @@ public class SetEndOfDSTMessageEntry implements MessageEntryCreator {
         OfflineDeviceMessageAttribute dayOfWeek = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, dayOfWeekAttributeName);
         OfflineDeviceMessageAttribute hour = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, hourAttributeName);
         MessageTag messageTag = new MessageTag("EndOfDST");
-        messageTag.add(new MessageAttribute("Month", month.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute("Day of month", dayOfMonth.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute("Day of week", dayOfWeek.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute("Hour", hour.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute("Month", month.getValue()));
+        messageTag.add(new MessageAttribute("Day of month", dayOfMonth.getValue()));
+        messageTag.add(new MessageAttribute("Day of week", dayOfWeek.getValue()));
+        messageTag.add(new MessageAttribute("Hour", hour.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

@@ -28,7 +28,7 @@ public class ChangeTemporaryKeyMessage extends AbstractChangeKeyMessage {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String key = getDeviceMessageAttribute(message, DeviceMessageConstants.temporaryKeyAttributeName).getDeviceMessageAttributeValue();
+        String key = getDeviceMessageAttribute(message, DeviceMessageConstants.temporaryKeyAttributeName).getValue();
         super.doExecuteMessage(message, key);
         return null;
     }

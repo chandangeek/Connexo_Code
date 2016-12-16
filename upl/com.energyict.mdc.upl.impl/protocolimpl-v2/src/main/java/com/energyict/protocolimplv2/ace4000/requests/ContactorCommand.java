@@ -34,7 +34,7 @@ public class ContactorCommand extends AbstractRequest<OfflineDeviceMessage, Coll
     protected void doRequest() {
         Date date = null;
         if(useActivationDate){
-            Long epoch = Long.valueOf(getInput().getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+            Long epoch = Long.valueOf(getInput().getDeviceMessageAttributes().get(0).getValue());
             date = new Date(epoch);  //EIServer system timezone
         }
         trackingId = getAce4000().getObjectFactory().sendContactorCommand(date, command);

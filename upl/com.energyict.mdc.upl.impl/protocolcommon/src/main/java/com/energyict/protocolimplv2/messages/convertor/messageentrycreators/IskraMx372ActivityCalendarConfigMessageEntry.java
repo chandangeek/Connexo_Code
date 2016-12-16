@@ -33,7 +33,7 @@ public class IskraMx372ActivityCalendarConfigMessageEntry implements MessageEntr
         OfflineDeviceMessageAttribute codeTableAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, codeTableAttributeName);
 
         MessageTag messageTag = new MessageTag("UserFile ID of tariff program");
-        messageTag.add(new MessageValue(codeTableAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(codeTableAttribute.getValue()));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

@@ -32,7 +32,7 @@ public class ActivateDlmsEncryptionMessageEntry implements MessageEntryCreator{
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute encryptionLevelAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, encryptionLevelAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_SECURITYLEVEL, encryptionLevelAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_SECURITYLEVEL, encryptionLevelAttribute.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

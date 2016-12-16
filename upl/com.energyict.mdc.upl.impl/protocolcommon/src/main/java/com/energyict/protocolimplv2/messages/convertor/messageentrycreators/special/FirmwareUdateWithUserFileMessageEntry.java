@@ -49,7 +49,7 @@ public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreato
         String extraTrackingId = "";
         String extraTrackingId2 = "";
         if (resumeAttributeName != null) {
-            boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeAttributeName).getDeviceMessageAttributeValue());
+            boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeAttributeName).getValue());
             if (!resume) {
                 extraTrackingId = "noresume ";
             } else {
@@ -57,7 +57,7 @@ public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreato
             }
         }
         if (typeAttributeName != null) {   //Attribute that indicates the firmware upgrade type (true: PLC, false: normal)
-            boolean plc = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, typeAttributeName).getDeviceMessageAttributeValue());
+            boolean plc = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, typeAttributeName).getValue());
             if (plc) {
                 extraTrackingId2 = "plc ";   //Add "plc" to the trackingId in case of PLC firmware upgrade
             }
@@ -65,7 +65,7 @@ public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreato
 
         MessageTag mainTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE);
         MessageTag subTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE_INCLUDED_FILE);
-        subTag.add(new MessageValue(userFileBytesAttribute.getDeviceMessageAttributeValue()));  //The userFile bytes
+        subTag.add(new MessageValue(userFileBytesAttribute.getValue()));  //The userFile bytes
         mainTag.add(subTag);
         return new MessageEntry(SimpleTagWriter.writeTag(mainTag), extraTrackingId + extraTrackingId2 + offlineDeviceMessage.getTrackingId());
     }

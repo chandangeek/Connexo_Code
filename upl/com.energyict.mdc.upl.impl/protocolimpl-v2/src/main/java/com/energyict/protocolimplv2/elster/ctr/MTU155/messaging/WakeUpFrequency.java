@@ -32,7 +32,7 @@ public class WakeUpFrequency extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        int periodInHours = Integer.parseInt(getDeviceMessageAttribute(message, DeviceMessageConstants.wakeupPeriodAttributeName).getDeviceMessageAttributeValue());
+        int periodInHours = Integer.parseInt(getDeviceMessageAttribute(message, DeviceMessageConstants.wakeupPeriodAttributeName).getValue());
 
         writeWakeUp(periodInHours);
         return null;

@@ -38,9 +38,9 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String loadProfileXML= getDeviceMessageAttribute(message, DeviceMessageConstants.loadProfileAttributeName).getDeviceMessageAttributeValue();
-        Date fromDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.fromDateAttributeName).getDeviceMessageAttributeValue()));
-        Date toDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.toDateAttributeName).getDeviceMessageAttributeValue()));
+        String loadProfileXML= getDeviceMessageAttribute(message, DeviceMessageConstants.loadProfileAttributeName).getValue();
+        Date fromDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.fromDateAttributeName).getValue()));
+        Date toDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.toDateAttributeName).getValue()));
 
         return readPartialProfileData(message, loadProfileXML, fromDate, toDate);
     }

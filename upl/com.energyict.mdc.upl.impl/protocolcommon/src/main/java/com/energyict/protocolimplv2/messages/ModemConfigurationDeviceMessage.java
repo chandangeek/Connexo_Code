@@ -55,9 +55,7 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecSupplier
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
-                this.id,
-                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
-                new TranslationKeyImpl(this.getNameResourceKey(), this.deviceMessageConstantDefaultTranslation),
+                id, new TranslationKeyImpl(this.getNameResourceKey(), this.deviceMessageConstantDefaultTranslation),
                 DeviceMessageCategories.MODEM_CONFIGURATION,
                 Collections.singletonList(this.getPropertySpec(propertySpecService)),
                 propertySpecService, nlsService);

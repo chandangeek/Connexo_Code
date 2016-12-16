@@ -35,9 +35,9 @@ public class ApnCredentialsMessageEntry implements MessageEntryCreator {
         OfflineDeviceMessageAttribute passwordAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, gprsPassword);
         OfflineDeviceMessageAttribute apnAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, gprsApn);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.GPRS_MODEM_SETUP);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.GPRS_APN, apnAttribute.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute(RtuMessageConstant.GPRS_USERNAME, userNameAttribute.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute(RtuMessageConstant.GPRS_PASSWORD, passwordAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.GPRS_APN, apnAttribute.getValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.GPRS_USERNAME, userNameAttribute.getValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.GPRS_PASSWORD, passwordAttribute.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

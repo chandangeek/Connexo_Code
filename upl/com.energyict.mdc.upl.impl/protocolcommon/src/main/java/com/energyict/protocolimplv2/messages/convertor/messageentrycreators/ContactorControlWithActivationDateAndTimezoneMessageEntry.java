@@ -33,7 +33,7 @@ public class ContactorControlWithActivationDateAndTimezoneMessageEntry implement
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageTag = new MessageTag(tag);
-        messageTag.add(new MessageAttribute("Date (dd/mm/yyyy hh:mm)", offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute("Date (dd/mm/yyyy hh:mm)", offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue()));
         messageTag.add(new MessageAttribute("TimeZone", TimeZone.getDefault().getID()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(SimpleTagWriter.writeTag(messageTag), offlineDeviceMessage.getTrackingId());

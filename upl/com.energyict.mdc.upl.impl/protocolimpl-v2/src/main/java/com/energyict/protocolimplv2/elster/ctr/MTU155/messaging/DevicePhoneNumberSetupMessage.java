@@ -41,7 +41,7 @@ public class DevicePhoneNumberSetupMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String phoneNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.devicePhoneNumberAttributeName).getDeviceMessageAttributeValue();
+        String phoneNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.devicePhoneNumberAttributeName).getValue();
 
         validatePhoneNumberSetupParameters(phoneNumber);
         writeDevicePhoneNumber(phoneNumber);

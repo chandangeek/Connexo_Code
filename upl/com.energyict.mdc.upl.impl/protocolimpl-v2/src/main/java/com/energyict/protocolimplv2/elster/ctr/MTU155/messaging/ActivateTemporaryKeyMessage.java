@@ -26,13 +26,13 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY.getPrimaryKey().getValue());
+        return message.getDeviceMessageId() == SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY.getPrimaryKey().getValue();
     }
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        Boolean keyTActivationStatus = SecurityMessage.KeyTUsage.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.keyTActivationStatusAttributeName).getDeviceMessageAttributeValue());
-        String activationTimeDurationString = getDeviceMessageAttribute(message, DeviceMessageConstants.SecurityTimeDurationAttributeName).getDeviceMessageAttributeValue();
+        Boolean keyTActivationStatus = SecurityMessage.KeyTUsage.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.keyTActivationStatusAttributeName).getValue());
+        String activationTimeDurationString = getDeviceMessageAttribute(message, DeviceMessageConstants.SecurityTimeDurationAttributeName).getValue();
         int activationTimeDuration = validateActivationTimeDuration(activationTimeDurationString);
 
         if (keyTActivationStatus != null) {
