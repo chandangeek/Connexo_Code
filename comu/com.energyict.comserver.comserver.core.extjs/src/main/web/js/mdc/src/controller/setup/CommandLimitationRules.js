@@ -75,9 +75,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             '#mdc-command-rule-add-commands-addButton': {
                 click: me.onAddChosenCommands
             },
-            'commandRuleAddEdit': {
-                render: me.initializeStores
-            },
             'commandRulesPendingChangesOverview #uni-pendingChangesPnl-approve': {
                 click: me.onApprovePendingChanges
             },
@@ -85,6 +82,20 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 click: me.onRejectPendingChanges
             }
         });
+    },
+
+    getCommandsForRuleStore: function() {
+        if (Ext.isEmpty(this.commandsForRuleStore)) {
+            this.commandsForRuleStore = Ext.getStore('Mdc.store.CommandsForRule');
+        }
+        return this.commandsForRuleStore;
+    },
+
+    getSelectedCommandsStore: function() {
+        if (Ext.isEmpty(this.selectedCommandsStore)) {
+            this.selectedCommandsStore = Ext.getStore('Mdc.store.SelectedCommands');
+        }
+        return this.selectedCommandsStore;
     },
 
     showRulesView: function () {
@@ -186,7 +197,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             if (me.newCommandsAdded) {
                 me.newCommandsAdded = false; // and don't touch the (previously updated) commandsForRuleStore
             } else {
-                me.commandsForRuleStore.removeAll();
+                me.getCommandsForRuleStore().removeAll();
             }
             if (me.clipBoardHasData()) {
                 me.setFormValues(widget); // Set back previously filled in name or limits
@@ -210,20 +221,19 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         rulesModel.load(ruleId, {
             success: function (commandRule) {
                 me.commandRuleBeingEdited = commandRule;
-                if (!Ext.isEmpty(commandRule.getDualControl())) { // Pending changes
-                    if (commandRule.get('active')) {
+                if (commandRule.get('active')) {
+                    if (!Ext.isEmpty(commandRule.getDualControl())) { // Pending changes
                         editView.down('#mdc-command-rule-addEdit-infoMsg').setText(
-                            Uni.I18n.translate('commandLimitationRule.xHasPendingChanges', 'MDC',
-                                "'{0}' already has pending changes. Your edit will cancel the current changes.",
-                                commandRule.get('name')) + '</br>' +
+                            Uni.I18n.translate('commandLimitationRule.pendingChanges.editingWillCancel', 'MDC',
+                                'There are already pending changes on this command limitation rule. After saving, the current pending changes will be canceled.'),
+                                + '</br>' +
                             Uni.I18n.translate('commandLimitationRule.editingRequiresApproval', 'MDC',
-                                'Editing the attributes requires approval of other users')
+                                'Editing the attributes below requires approval before taking effect.')
                         );
                     } else {
                         editView.down('#mdc-command-rule-addEdit-infoMsg').setText(
-                            Uni.I18n.translate('commandLimitationRule.xHasPendingChanges', 'MDC',
-                                "'{0}' already has pending changes. Your edit will cancel the current changes.",
-                                commandRule.get('name'))
+                            Uni.I18n.translate('commandLimitationRule.editingRequiresApproval', 'MDC',
+                                'Editing the attributes below requires approval before taking effect.')
                         );
                     }
                     infoPanel.show();
@@ -238,12 +248,12 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 if (me.newCommandsAdded) {
                     me.newCommandsAdded = false;
                 } else {
-                    me.commandsForRuleStore.suspendEvents();
-                    me.commandsForRuleStore.removeAll();
+                    me.getCommandsForRuleStore().suspendEvents();
+                    me.getCommandsForRuleStore().removeAll();
                     commandRule.commands().each(function (command) {
-                        me.commandsForRuleStore.add(command);
+                        me.getCommandsForRuleStore().add(command);
                     });
-                    me.commandsForRuleStore.resumeEvents();
+                    me.getCommandsForRuleStore().resumeEvents();
                     editView.updateCommandsGrid();
                 }
                 editView.loadCommandRule(commandRule);
@@ -258,10 +268,10 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             ? me.router.getRoute('administration/commandrules/view').buildUrl({ ruleId: me.commandRuleBeingEdited.get('id') })
             : me.router.getRoute('administration/commandrules').buildUrl();
 
-        me.commandsForRuleStore.removeAll();
+        me.getCommandsForRuleStore().removeAll();
         if (me.commandRuleBeingEdited) {
             me.commandRuleBeingEdited.commands().each(function (command) {
-                me.commandsForRuleStore.add(command);
+                me.getCommandsForRuleStore().add(command);
             });
         }
         me.commandRuleBeingEdited = null;
@@ -307,7 +317,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             if (!Ext.isEmpty(me.commandRuleBeingEdited)) {
                 record.commands().removeAll();
             }
-            me.commandsForRuleStore.each(function (command) {
+            me.getCommandsForRuleStore().each(function (command) {
                 record.commands().add(command);
             });
             record.endEdit();
@@ -429,8 +439,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             : Number(storedObject.monthLimit) );
 
         Ext.suspendLayouts();
-        emptyCommandsLabel.setVisible(me.commandsForRuleStore.count() === 0);
-        commandsForRuleGrid.setVisible(me.commandsForRuleStore.count() > 0);
+        emptyCommandsLabel.setVisible(me.getCommandsForRuleStore().count() === 0);
+        commandsForRuleGrid.setVisible(me.getCommandsForRuleStore().count() > 0);
         Ext.resumeLayouts(true);
     },
 
@@ -439,7 +449,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             commandsStore = me.getStore('Mdc.store.Commands'),
             alreadyChosenCommands = [];
 
-        me.commandsForRuleStore.each(function(command){
+        me.getCommandsForRuleStore().each(function (command) {
             alreadyChosenCommands.push(command.get('commandName'));
         });
         me.getApplication().fireEvent('changecontentevent', Ext.widget('AddCommandsToRuleView', {
@@ -464,27 +474,18 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     onAddChosenCommands: function() {
         var me = this;
 
-        me.selectedCommandsStore.each(function(command){
-            me.commandsForRuleStore.add(command);
+        me.getSelectedCommandsStore().each(function(command){
+            me.getCommandsForRuleStore().add(command);
         });
-        me.selectedCommandsStore.removeAll();
+        me.getSelectedCommandsStore().removeAll();
         me.newCommandsAdded = true;
         me.forwardToPreviousPage();
     },
 
     onCancelAddingCommands: function() {
         var me = this;
-        me.selectedCommandsStore.removeAll();
+        me.getSelectedCommandsStore().removeAll();
         me.forwardToPreviousPage();
-    },
-
-    initializeStores: function() {
-        if (Ext.isEmpty(this.commandsForRuleStore)) {
-            this.commandsForRuleStore = Ext.getStore('Mdc.store.CommandsForRule');
-        }
-        if (Ext.isEmpty(this.selectedCommandsStore)) {
-            this.selectedCommandsStore = Ext.getStore('Mdc.store.SelectedCommands');
-        }
     },
 
     activateRule: function (rule) {
@@ -498,7 +499,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             });
 
         confirmationWindow.show({
-            msg: Uni.I18n.translate('commandLimitationRule.changeSentForApproval', 'MDC', 'The requested change is now pending and sent for approval.'),
+            msg: Uni.I18n.translate('commandLimitationRule.activate.msg', 'MDC', 'Activating a command limitation rule requires approval before taking effect.'),
             title: Uni.I18n.translate('general.activateX', 'MDC', "Activate '{0}'?", rule.get('name'))
         });
     },
@@ -515,7 +516,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 } else {
                     me.router.getRoute('administration/commandrules').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.activate.success', 'MDC', 'Command limitation rule activation pending approval'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.activate.success', 'MDC', 'Command limitation rule activation waiting for approval'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -539,9 +540,9 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             });
         confirmationWindow.show({
             msg: Ext.isEmpty(rule.getDualControl())
-                ? Uni.I18n.translate('commandLimitationRule.changeSentForApproval', 'MDC', 'The requested change is now pending and sent for approval.')
+                ? Uni.I18n.translate('commandLimitationRule.deactivate.msg', 'MDC', 'Deactivating a command limitation rule requires approval before taking effect.')
                 : Uni.I18n.translate('commandLimitationRule.pendingChanges.deactivate.msg', 'MDC',
-                    'There are already pending changes on this command limitation rule. After deactivation, the current pending changes will be canceled.'),
+                    'There are already pending changes on this command limitation rule. After deactivation, the current pending changes will be canceled. Deactivating a command limitation rule requires approval before taking effect.'),
             title: Uni.I18n.translate('general.deactivateX', 'MDC', "Deactivate '{0}'?", rule.get('name'))
         });
     },
@@ -558,7 +559,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 } else {
                     me.router.getRoute('administration/commandrules').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.deactivate.success', 'MDC', 'Command limitation rule deactivation pending approval'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('commandLimitationRule.deactivate.success', 'MDC', 'Command limitation rule deactivation waiting for approval'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -581,7 +582,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 }
             });
         confirmationWindow.show({
-            msg:  record.get('active')
+            msg: record.get('active')
                 ? Uni.I18n.translate('commandLimitationRule.removeActive.msg', 'MDC',
                     'The creation of commands will no longer be limited by this command limitation rule. Removing an active command limitation rule requires approval before taking effect.')
                 : Uni.I18n.translate('commandLimitationRule.removeInactive.msg', 'MDC', 'This command limitation rule will no longer be available.'),
@@ -593,7 +594,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         var me = this,
             activeRule = record.get('active'),
             acknowledgeMessage = activeRule
-                ? Uni.I18n.translate('commandLimitationRule.active.remove.success', 'MDC', 'Command limitation rule removal pending approval')
+                ? Uni.I18n.translate('commandLimitationRule.active.remove.success', 'MDC', 'Command limitation rule removal waiting for approval')
                 : Uni.I18n.translate('commandLimitationRule.inactive.remove.success', 'MDC', 'Command limitation rule removed');
 
         record.destroy({
