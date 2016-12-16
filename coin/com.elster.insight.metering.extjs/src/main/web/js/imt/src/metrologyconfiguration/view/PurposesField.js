@@ -3,7 +3,7 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
     alias: 'widget.purposes-field',
     requires: [
         'Uni.grid.column.Check',
-        'Uni.grid.column.ReadingType'
+        'Uni.form.field.ReadingTypeDisplay'
     ],
 
     mixins: {
@@ -58,17 +58,39 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
             ],
             listeners: {
                 select: function (selectionModel, record) {
-                    var outputsGrid = me.down('#outputs-grid'),
+                    var outputsDetailsPanel = me.down('#purpose-outputs-details-panel'),
+                        outputsContainer = me.down('#purpose-outputs-container'),
                         readingTypeDeliverables = record.readingTypeDeliverables();
 
-
                     Ext.suspendLayouts();
+                    outputsDetailsPanel.setTitle(record.get('name'));
+                    outputsContainer.removeAll();
                     if (readingTypeDeliverables.getCount()) {
-                        outputsGrid.show();
-                        outputsGrid.setTitle(record.get('name'));
-                        outputsGrid.reconfigure(readingTypeDeliverables);
+                        readingTypeDeliverables.each(function (readingTypeDeliverable) {
+                            outputsContainer.add({
+                                xtype: 'fieldcontainer',
+                                fieldLabel: undefined,
+                                layout: 'hbox',
+                                width: '100%',
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        value: readingTypeDeliverable.get('name'),
+                                        style: 'margin-right: 10px'
+                                    },
+                                    {
+                                        xtype: 'reading-type-displayfield',
+                                        fieldLabel: undefined,
+                                        value: readingTypeDeliverable.get('readingType')
+                                    }
+                                ]
+                            });
+                        });
                     } else {
-                        outputsGrid.hide();
+                        outputsContainer.add({
+                            xtype: 'displayfield',
+                            value: '-'
+                        });
                     }
                     Ext.resumeLayouts(true);
                 }
@@ -76,22 +98,14 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
         };
 
         me.previewComponent = {
-            xtype: 'grid',
-            itemId: 'outputs-grid',
-            ui: 'medium',
-            style: 'padding-left: 0;padding-right: 0;',
-            store: null,
-            columns: [
-                {
-                    header: Uni.I18n.translate('general.outputName', 'IMT', 'Output name'),
-                    dataIndex: 'name',
-                    flex: 1
-                },
-                {
-                    xtype: 'reading-type-column',
-                    dataIndex: 'readingType'
-                }
-            ]
+            xtype: 'form',
+            itemId: 'purpose-outputs-details-panel',
+            frame: true,
+            items: {
+                xtype: 'fieldcontainer',
+                itemId: 'purpose-outputs-container',
+                fieldLabel: Uni.I18n.translate('general.outputs', 'IMT', 'Outputs')
+            }
         };
 
         me.callParent(arguments);
