@@ -755,8 +755,8 @@ public class UsagePointResource {
 
     private Stream<TranslationKey> defaultRelativePeriodDefinitionTranslationKeys() {
         return Stream.concat(
-                    Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()),
-                    Stream.of(GasDayOptions.RelativePeriodTranslationKey.values()));
+                Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()),
+                Stream.of(GasDayOptions.RelativePeriodTranslationKey.values()));
     }
 
     private List<? extends RelativePeriod> getRelativePeriodsDefaultOnTop(TemporalAmount intervalLength) {

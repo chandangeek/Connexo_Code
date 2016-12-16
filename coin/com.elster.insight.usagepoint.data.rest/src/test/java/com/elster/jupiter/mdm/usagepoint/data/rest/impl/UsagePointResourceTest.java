@@ -13,7 +13,6 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
@@ -571,7 +570,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Test
     public void testGetValidationTasksOnUsagePoint() throws Exception {
 
-        Response response = target("usagepoints/" +  USAGE_POINT_NAME + "/validationtasks").request().get();
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationtasks").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
