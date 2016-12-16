@@ -18,6 +18,14 @@ public interface DeviceMessageCategory {
     String getName();
 
     /**
+     * Gets the resource key that determines the name
+     * of this category to the user's language settings.
+     *
+     * @return The resource key
+     */
+    String getNameResourceKey();
+
+    /**
      * Gets the description of this DeviceMessageCategory.
      *
      * @return The description
@@ -30,13 +38,6 @@ public interface DeviceMessageCategory {
      * @return The identifier
      */
     int getId();
-
-    /**
-     * Gets the PrimaryKey for this {@link DeviceMessageCategory}
-     *
-     * @return the primary key
-     */
-    DeviceMessageCategoryPrimaryKey getPrimaryKey();
 
     /**
      * Gets the {@link DeviceMessageSpec}s that are part of this DeviceMessageCategory.

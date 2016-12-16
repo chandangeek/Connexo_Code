@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -165,5 +166,12 @@ public interface OfflineDevice extends Offline {
      */
     @XmlAttribute
     DeviceProtocolCache getDeviceProtocolCache();
+
+    @XmlElement(name = "type")
+    default String getXmlType() {
+        return getClass().getName();
+    }
+
+    default void setXmlType(String ignore) {}
 
 }
