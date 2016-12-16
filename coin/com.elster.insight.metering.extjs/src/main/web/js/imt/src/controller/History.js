@@ -577,6 +577,13 @@ Ext.define('Imt.controller.History', {
                     action: 'showBulkAction'
                 }
             }
+        },
+        dashboard: {
+            title: Uni.I18n.translate('general.label.dashboard', 'IMT', 'Dashboard'),
+            route: 'dashboard',
+            controller: 'Imt.dashboard.controller.OperatorDashboard',
+            action: 'showOverview'
         }
+
     }
 });
