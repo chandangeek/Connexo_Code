@@ -13,10 +13,10 @@ public enum  TranslationKeys implements TranslationKey {
     WEEKLIMIT("weekLimit", "Week limit"),
     MONTHLIMIT("monthLimit", "Month limit"),
     REMOVED("removed", "Removed"),
-    PENDING_ACTIVATION("pendingActivation", "Request for activation is pending and waiting for approval."),
-    PENDING_DEACTIVATION("pendingDeactivation", "Request for deactivation is pending and waiting for approval."),
-    PENDING_UPDATE("pendingUpdate", "Request for changes is pending and waiting for approval."),
-    PENDING_REMOVAL("pendingRemoval", "Request for removal is pending and waiting for approval.");
+    PENDING_ACTIVATION("pendingActivation", "Activation request is waiting for approval."),
+    PENDING_DEACTIVATION("pendingDeactivation", "Deactivation request is waiting for approval."),
+    PENDING_UPDATE("pendingUpdate", "Change request is waiting for approval."),
+    PENDING_REMOVAL("pendingRemoval", "Removal request is waiting for approval.");
     private final String key;
     private final String defaultFormat;
 
