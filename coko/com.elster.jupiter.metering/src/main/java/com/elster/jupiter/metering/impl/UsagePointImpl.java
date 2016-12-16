@@ -536,6 +536,10 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
+        UsagePointStage.Key usagePointStage = this.getState().getStage().getKey();
+        if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
+            throw UsagePointManagementException.incorrectStage(thesaurus);
+        }
         validateEffectiveMetrologyConfigurationInterval(start, end);
         validateAndClosePreviousMetrologyConfigurationIfExists(start);
         Range<Instant> effectiveInterval = end != null ? Range.closedOpen(start, end) : Range.atLeast(start);

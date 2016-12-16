@@ -69,10 +69,10 @@ public class UsagePointDetailImplIT {
     @Transactional
     public void testElectricityUsagePointDetails() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
-            DataModel dataModel = meteringService.getDataModel();
-            ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
-            assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
+        DataModel dataModel = meteringService.getDataModel();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
+        assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
         //add details valid from 1 january 2014
         ElectricityDetail elecDetail = newElectricityDetail(usagePoint, JANUARY_2014);
@@ -120,10 +120,10 @@ public class UsagePointDetailImplIT {
     @Transactional
     public void testGasUsagePointDetails() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
-            DataModel dataModel = meteringService.getDataModel();
-            ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
-            assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
+        DataModel dataModel = meteringService.getDataModel();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS).get();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
+        assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
         //add details valid from 1 january 2014
         GasDetail gasDetail = newGasDetail(usagePoint, JANUARY_2014);
