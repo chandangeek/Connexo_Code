@@ -135,8 +135,9 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         return counters;
     }
 
+    @Override
     public Optional<CommandRulePendingUpdate> getCommandRulePendingUpdate() {
-        return commandRulePendingUpdate.getOptional();
+        return getPendingUpdate();
     }
 
     @Override
@@ -161,7 +162,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     }
 
     private CommandRulePendingUpdateImpl createNewPendingUpdate() {
-        clearUpdate();
+        reject();
         CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
         update.initialize(this);
         return update;
@@ -185,7 +186,9 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     @Override
     public void reject() {
-        this.getMonitor().reject(this);
+        if(getPendingUpdate().isPresent()) {
+            this.getMonitor().reject(this);
+        }
     }
 
     @Override
@@ -199,6 +202,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
                 .map(command -> deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.valueOf(command).dbValue()).get())
                 .collect(Collectors.toList());
         if (!isActive()) {
+            reject();
             this.name = name;
             this.dayLimit = dayLimit;
             this.weekLimit = weekLimit;
