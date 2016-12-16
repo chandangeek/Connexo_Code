@@ -72,7 +72,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     @Mock
     Clock clock;
 
-    DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService, clock);
+    DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService);
 
     DeviceMessage<Device> command1;
 

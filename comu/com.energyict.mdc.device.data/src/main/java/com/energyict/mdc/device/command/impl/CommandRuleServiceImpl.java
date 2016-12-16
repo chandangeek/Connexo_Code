@@ -335,6 +335,10 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
             applicableCounters.forEach(CommandRuleCounter::increaseCount);
             createNewCounters(commandRule, releaseDate, applicableCounters);
         }
+        long numberOfCountersRemoved = ((CommandRuleImpl) commandRule).cleanUpCounters(getDayFor(Instant.now(clock)).lowerEndpoint());
+        if(numberOfCountersRemoved > 0) {
+            getCommandRuleStats().decreaseNumberOfCommandRuleCounters(numberOfCountersRemoved);
+        }
     }
 
     private void createNewCounters(CommandRule commandRule, Instant releaseDate, List<CommandRuleCounter> applicableCounters) {
@@ -387,7 +391,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                 .collect(Collectors.toList());
     }
 
-    private Range getDayFor(Instant instant) {
+    private Range<Instant> getDayFor(Instant instant) {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, clock.getZone());
         ZonedDateTime startOfDay = zonedDateTime.toLocalDate().atStartOfDay(clock.getZone());
         ZonedDateTime endOfDay = startOfDay.plusDays(1);
@@ -398,7 +402,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         return Range.closedOpen(start, end);
     }
 
-    private Range getWeekFor(Instant instant) {
+    private Range<Instant> getWeekFor(Instant instant) {
         ZonedDateTime releaseDateTime = ZonedDateTime.ofInstant(instant, clock.getZone());
         LocalDate mondayOfThisWeek = releaseDateTime.toLocalDate().with(ChronoField.DAY_OF_WEEK, 1);
         LocalDate mondayOfNextWeek = mondayOfThisWeek.plusDays(7);
@@ -409,7 +413,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         return Range.closedOpen(start, end);
     }
 
-    private Range getMonthFor(Instant instant) {
+    private Range<Instant> getMonthFor(Instant instant) {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, clock.getZone());
         LocalDate startOfMonth = zonedDateTime.withDayOfMonth(1).toLocalDate();
         LocalDate startOfNextMonth = startOfMonth.plusDays(startOfMonth.lengthOfMonth());

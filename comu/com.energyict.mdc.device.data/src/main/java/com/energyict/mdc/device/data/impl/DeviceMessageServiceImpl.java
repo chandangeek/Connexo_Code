@@ -32,14 +32,12 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
 
     private final DeviceDataModelService deviceDataModelService;
     private final ThreadPrincipalService threadPrincipalService;
-    private final Clock clock;
 
     @Inject
-    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService, Clock clock) {
+    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.threadPrincipalService = threadPrincipalService;
-        this.clock = clock;
     }
 
     @Override

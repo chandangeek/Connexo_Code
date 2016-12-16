@@ -57,14 +57,15 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         public String fieldName() {
             return javaFieldName;
         }
-    }
 
+    }
     private final DataModel dataModel;
+
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DualControlService dualControlService;
     private final CommandRuleService commandRuleService;
-
     private long id;
+
     @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String name;
@@ -76,8 +77,8 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     private long monthLimit;
     private boolean active = false;
     private boolean isRemoved = false;
-
     private Reference<Monitor> monitor = Reference.empty();
+
     private Reference<CommandRulePendingUpdate> commandRulePendingUpdate = Reference.empty();
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_COMMAND_REQUIRED + "}")
     @Valid
@@ -91,7 +92,6 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-
     @Inject
     public CommandRuleImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService, DualControlService dualControlService, CommandRuleService commandRuleService) {
         this.dataModel = dataModel;
@@ -225,6 +225,16 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         counters.add(counter);
         this.save();
         ((CommandRuleServiceImpl) commandRuleService).counterCreated();
+    }
+
+    public long cleanUpCounters(Instant before) {
+        List<CommandRuleCounter> countersToCleanUp = counters.stream()
+                .filter(counter -> counter.getTo().isBefore(before) || counter.getTo().equals(before))
+                .collect(Collectors.toList());
+
+        counters.removeIf(countersToCleanUp::contains);
+        this.save();
+        return countersToCleanUp.size();
     }
 
     public void save() {

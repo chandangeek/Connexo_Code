@@ -598,7 +598,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
-        this.deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, clock);
+        this.deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService);
     }
 
     private void registerRealServices(BundleContext bundleContext) {

@@ -60,8 +60,8 @@ public class CommandRuleStats {
         save();
     }
 
-    public void decreaseNumberOfCommandRuleCounters() {
-        nrOfCounters--;
+    public void decreaseNumberOfCommandRuleCounters(long amount) {
+        nrOfCounters-=amount;
         save();
     }
 
