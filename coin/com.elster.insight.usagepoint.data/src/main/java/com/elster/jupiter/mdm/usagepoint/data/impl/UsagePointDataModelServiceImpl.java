@@ -253,14 +253,4 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     public Thesaurus thesaurus() {
         return thesaurus;
     }
-
-    @Override
-    public UsagePointDataCompletionService usagePointDataCompletionService() {
-        return usagePointDataCompletionService;
-    }
-
-    @Override
-    public FavoritesService favoritesService() {
-        return favoritesService;
-    }
 }

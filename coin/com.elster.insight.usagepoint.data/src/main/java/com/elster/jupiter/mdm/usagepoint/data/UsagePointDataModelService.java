@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data;
 
-import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -21,8 +20,4 @@ public interface UsagePointDataModelService {
     DataModel dataModel();
 
     Thesaurus thesaurus();
-
-    UsagePointDataCompletionService usagePointDataCompletionService();
-
-    FavoritesService favoritesService();
 }

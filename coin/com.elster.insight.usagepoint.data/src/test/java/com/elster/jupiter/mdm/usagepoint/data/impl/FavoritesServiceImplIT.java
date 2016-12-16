@@ -74,7 +74,7 @@ public class FavoritesServiceImplIT {
             UserService userService = inMemoryBootstrapModule.getUserService();
             MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
             MeteringGroupsService meteringGroupsService = inMemoryBootstrapModule.getMeteringGroupsService();
-            favoritesService = inMemoryBootstrapModule.getUsagePointDataModelService().favoritesService();
+            favoritesService = inMemoryBootstrapModule.getFavoritesService();
 
             user1 = userService.createUser("user1", "user1 descr");
             user2 = userService.createUser("user2", "user2 descr");

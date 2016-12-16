@@ -13,7 +13,9 @@ import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.impl.UsagePointConfigModule;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -124,6 +126,14 @@ public class UsagePointDataInMemoryBootstrapModule {
 
     public UsagePointDataModelService getUsagePointDataModelService() {
         return injector.getInstance(UsagePointDataModelService.class);
+    }
+
+    public UsagePointDataCompletionService getUsagePointDataCompletionService() {
+        return injector.getInstance(UsagePointDataCompletionService.class);
+    }
+
+    public FavoritesService getFavoritesService() {
+        return injector.getInstance(FavoritesService.class);
     }
 
     public PropertySpecService getPropertySpecService() {
