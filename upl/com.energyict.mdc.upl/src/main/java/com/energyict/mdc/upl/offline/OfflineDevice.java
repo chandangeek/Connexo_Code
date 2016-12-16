@@ -87,7 +87,7 @@ public interface OfflineDevice extends Offline {
      * @return a list of slave devices
      */
     @XmlAttribute
-    List<OfflineDevice> getAllSlaveDevices();
+    List<? extends OfflineDevice> getAllSlaveDevices();
 
     /**
      * Get a list of {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice}.<br/>

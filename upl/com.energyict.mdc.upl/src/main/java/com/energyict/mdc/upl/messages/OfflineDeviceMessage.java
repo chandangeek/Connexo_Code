@@ -33,8 +33,7 @@ public interface OfflineDeviceMessage extends Offline {
     DeviceMessageSpec getSpecification();
 
     /**
-     * The value of the {@link FactoryBasedDeviceMessageSpecPrimaryKey} to uniquely identify
-     * the DeviceMessageSpec of this message.
+     * The value that uniquely identifies the DeviceMessageSpec of this message.
      *
      * @return the value of the DeviceMessageSpecPrimaryKey
      */
