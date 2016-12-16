@@ -74,7 +74,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
+import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -271,6 +273,7 @@ public class DemoTest {
                 new BpmModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new UsagePointLifeCycleModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -768,6 +771,7 @@ public class DemoTest {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(UsagePointLifeCycleService.class); // install default usage point life cycle
             initializeCustomPropertySets();
             createRequiredProtocols();
             createDefaultStuff();
