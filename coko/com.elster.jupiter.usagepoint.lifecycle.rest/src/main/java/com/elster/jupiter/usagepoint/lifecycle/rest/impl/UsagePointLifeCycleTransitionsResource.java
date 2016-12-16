@@ -69,6 +69,7 @@ public class UsagePointLifeCycleTransitionsResource {
     public UsagePointLifeCycleTransitionInfo newTransition(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleTransitionInfo transitionInfo) {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         new RestValidationBuilder()
+                .on(transitionInfo.name).check(name -> !name.isEmpty()).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).field("name").test()
                 .on(transitionInfo.fromState.id).check(id -> id > 0).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).field("fromState").test()
                 .on(transitionInfo.toState.id).check(id -> id > 0).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).field("toState").test()
                 .validate();

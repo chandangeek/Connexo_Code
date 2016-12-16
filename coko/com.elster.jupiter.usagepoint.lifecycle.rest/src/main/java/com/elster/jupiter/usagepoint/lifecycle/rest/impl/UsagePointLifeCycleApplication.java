@@ -14,6 +14,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.MicroActionAndCheckInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
@@ -48,6 +49,7 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
     private UsagePointLifeCycleService usagePointLifeCycleService;
     private FiniteStateMachineService finiteStateMachineService;
     private MeteringService meteringService;
+    private UsagePointMicroActionFactory usagePointMicroActionFactory;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -97,6 +99,11 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setUsagePointMicroActionFactory(UsagePointMicroActionFactory usagePointMicroActionFactory) {
+        this.usagePointMicroActionFactory = usagePointMicroActionFactory;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -118,6 +125,7 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
             bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(usagePointMicroActionFactory).to(UsagePointMicroActionFactory.class);
         }
     }
 
