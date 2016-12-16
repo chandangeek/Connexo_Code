@@ -448,17 +448,16 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     showAddCommandsPage: function() {
         var me = this,
-            commandsStore = me.getStore('Mdc.store.Commands'),
-            alreadyChosenCommands = [];
+            commandsStore = me.getStore('Mdc.store.Commands');
 
-        me.getCommandsForRuleStore().each(function (command) {
-            alreadyChosenCommands.push(command.get('commandName'));
-        });
-        me.getApplication().fireEvent('changecontentevent', Ext.widget('AddCommandsToRuleView', {
-            defaultFilters: {
-                selectedcommands: alreadyChosenCommands
+        commandsStore.filter([
+            {
+                filterFn: function(command) {
+                    return me.getCommandsForRuleStore().findExact('commandName', command.get('commandName')) === -1;
+                }
             }
-        }));
+        ]);
+        me.getApplication().fireEvent('changecontentevent', Ext.widget('AddCommandsToRuleView'));
 
         commandsStore.on('beforeload', function () {
             me.getAddCommandsButton().setDisabled(true);

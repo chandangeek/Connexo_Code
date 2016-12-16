@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleView', {
     alias: 'widget.AddCommandsToRuleView',
     itemId: 'mdc-command-rule-add-commands',
     overflowY: true,
-    defaultFilters: null,
 
     requires: [
         'Mdc.view.setup.commandrules.AddCommandsToRuleGrid',
@@ -67,8 +66,7 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleView', {
                 dockedItems: [
                     {
                         xtype: 'AddCommandsToRuleFilter',
-                        itemId: 'mdc-command-rule-add-commands-filter-panel-top',
-                        defaultFilters: me.defaultFilters
+                        itemId: 'mdc-command-rule-add-commands-filter-panel-top'
                     }
                 ]
             }

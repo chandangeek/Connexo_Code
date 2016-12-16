@@ -11,6 +11,9 @@ Ext.define('Mdc.store.Commands',{
         url: '/api/crr/commandrules/commands',
         reader: {
             type: 'json'
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     }
 });

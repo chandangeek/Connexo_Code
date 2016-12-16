@@ -8,7 +8,6 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleFilter', {
     ],
 
     store: 'Mdc.store.Commands',
-    defaultFilters: null,
 
     requires: [
         'Mdc.store.Commands',
@@ -16,15 +15,7 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleFilter', {
     ],
 
     initComponent: function () {
-        var me = this,
-            selectedCommandsFilter;
-
-        if (!Ext.isEmpty(me.defaultFilters)) {
-            me.hasDefaultFilters = true;
-            selectedCommandsFilter = me.defaultFilters.selectedcommands
-                ? me.defaultFilters.selectedcommands
-                : null;
-        }
+        var me = this;
 
         me.filters = [
             {
@@ -36,13 +27,6 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleFilter', {
                 valueField: 'id',
                 itemId: 'mdc-commands-filter-category-combo',
                 store: 'Mdc.store.CommandCategories'
-            },
-            {
-                type: 'noui',
-                dataIndex: 'selectedcommands',
-                itemId: 'mdc-commands-filter-selectedCommandsFilter',
-                initialValue: selectedCommandsFilter,
-                value: selectedCommandsFilter
             }
         ];
 
