@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
@@ -71,6 +72,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
     @Mock
     private MetrologyContract metrologyContract;
     @Mock
+    private UsagePointGroup usagePointGroup;
+    @Mock
     private MetrologyPurpose metrologyPurpose;
     @Mock
     private DataValidationTask validationTask;
@@ -115,6 +118,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(effectiveMetrologyConfiguration.getChannelsContainer(eq(metrologyContract), any(Instant.class))).thenReturn(Optional
                 .of(channelsContainer));
         setMetrologyContractStub();
+        setUsagePointGroupStub();
         setChannelStub();
         setDeliverableStub();
         setValidationRuleStub();
@@ -136,12 +140,16 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(dataValidationTaskQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(validationTask));
         when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
-        when(validationTask.getMetrologyContract()).thenReturn(Optional.of(metrologyContract));
+        when(validationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
         when(validationTask.getId()).thenReturn(1L);
         when(validationTask.getName()).thenReturn("Validation Task");
         when(validationTask.getScheduleExpression()).thenReturn(new TemporalExpression(TimeDuration.days(5)));
         when(validationTask.getLastRun()).thenReturn(Optional.empty());
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
+    }
+
+    private void setUsagePointGroupStub() {
+        when(usagePointGroup.getId()).thenReturn(1L);
     }
 
     private void setMetrologyContractStub() {
@@ -194,14 +202,6 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(validationRuleSetVersion.getId()).thenReturn(1L);
         when(validationRuleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
         when(validationRuleSet.getId()).thenReturn(1L);
-    }
-
-    @Test
-    public void testDataValidationTaskInfoOnMetrologyContract() {
-        String json = target("/usagepoints/UP/purposes").queryParam("withValidationTasks", true).request().get(String.class);
-        JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.purposes[0].dataValidationTasks[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.purposes[0].dataValidationTasks[0].name")).isEqualTo("Validation Task");
     }
 
     @Test

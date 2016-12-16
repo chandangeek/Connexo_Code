@@ -1,6 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
@@ -10,6 +14,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -33,7 +38,13 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
+import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfoFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -85,7 +96,14 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile TimeService timeService;
     private volatile LicenseService licenseService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
+    private volatile UsagePointCalendarService usagePointCalendarService;
+    private volatile CalendarService calendarService;
+    private volatile CalendarInfoFactory calendarInfoFactory;
+    private volatile AppService appService;
+    private volatile JsonService jsonService;
     private volatile SearchService searchService;
+    private volatile MessageService messageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -96,6 +114,9 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointOutputResource.class,
                 GoingOnResource.class,
                 RestValidationExceptionMapper.class,
+                UsagePointCalendarResource.class,
+                UsagePointCalendarHistoryResource.class,
+                BulkScheduleResource.class,
                 UsagePointGroupResource.class
         );
     }
@@ -260,8 +281,43 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setCalendarOnUsagePointInfoFactory(CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory) {
+        this.calendarOnUsagePointInfoFactory = calendarOnUsagePointInfoFactory;
+    }
+
+    @Reference
+    public void setUsagePointCalendarService(UsagePointCalendarService usagePointCalendarService) {
+        this.usagePointCalendarService = usagePointCalendarService;
+    }
+
+    @Reference
+    public void setCalendarInfoFactory(CalendarInfoFactory calendarInfoFactory) {
+        this.calendarInfoFactory = calendarInfoFactory;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    @Reference
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     class HK2Binder extends AbstractBinder {
@@ -307,8 +363,20 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
             bind(ValidationStatusFactory.class).to(ValidationStatusFactory.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
-            bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
+            bind(calendarOnUsagePointInfoFactory).to(CalendarOnUsagePointInfoFactory.class);
+            bind(usagePointCalendarService).to(UsagePointCalendarService.class);
+            bind(calendarService).to(CalendarService.class);
+            bind(appService).to(AppService.class);
+            bind(AppServerHelper.class).to(AppServerHelper.class);
+            bind(jsonService).to(JsonService.class);
             bind(searchService).to(SearchService.class);
+            bind(messageService).to(MessageService.class);
+            bind(calendarInfoFactory).to(CalendarInfoFactory.class);
+            bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
+            bind(UsagePointLifeCycleInfoFactory.class).to(UsagePointLifeCycleInfoFactory.class);
+            bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
+            bind(UsagePointLifeCycleTransitionInfoFactory.class).to(UsagePointLifeCycleTransitionInfoFactory.class);
+            bind(BusinessProcessInfoFactory.class).to(BusinessProcessInfoFactory.class);
         }
     }
 

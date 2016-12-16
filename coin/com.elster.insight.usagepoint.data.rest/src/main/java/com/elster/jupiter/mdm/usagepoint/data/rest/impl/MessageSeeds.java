@@ -41,7 +41,11 @@ public enum MessageSeeds implements MessageSeed {
     SEARCHABLE_PROPERTY_INVALID_VALUE(40, "SearchablePropertyInvalidValue", "Invalid value"),
     NO_SUCH_METROLOGY_PURPOSE(41, Keys.NO_SUCH_METROLOGY_PURPOSE, "No such metrology purpose with ID {0}"),
     CANNOT_ACTIVATE_METROLOGY_PURPOSE(42, Keys.CANNOT_ACTIVATE_METROLOGY_PURPOSE, "Can''t activate metrology purpose with ID {0}"),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS(43, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don''t provide reading types specified in the metrology contract.");
+    UNSATISFIED_READING_TYPE_REQUIREMENTS(43, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don''t provide reading types specified in the metrology contract."),
+    NO_SUCH_CALENDAR(44, "NoSuchCalendar", "No such calendar."),
+    NO_APPSERVER(45, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
+    NO_SUCH_MESSAGE_QUEUE(46, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}");
 
     private final int number;
     private final String key;

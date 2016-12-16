@@ -12,4 +12,5 @@ public class UsagePointSearchInfo {
     public String displayConnectionState;
     public String geoCoordinates;
     public String location;
+    public String state;
 }

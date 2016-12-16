@@ -1,6 +1,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -20,6 +23,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -44,6 +48,8 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.Priority;
@@ -115,7 +121,21 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     PropertyValueInfoService propertyValueInfoService;
     @Mock
+    UsagePointCalendarService usagePointCalendarService;
+    @Mock
+    CalendarOnUsagePointInfoFactory calendarOnUsagePointInfoFactory;
+    @Mock
+    CalendarService calendarService;
+    @Mock
+    CalendarInfoFactory calendarInfoFactory;
+    @Mock
+    JsonService jsonService;
+    @Mock
+    AppService appService;
+    @Mock
     SearchService searchService;
+    @Mock
+    MessageService messageService;
 
     @Override
     protected Application getApplication() {
@@ -151,7 +171,14 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLicenseService(licenseService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setUsagePointCalendarService(usagePointCalendarService);
+        application.setCalendarOnUsagePointInfoFactory(calendarOnUsagePointInfoFactory);
+        application.setCalendarService(calendarService);
+        application.setCalendarInfoFactory(calendarInfoFactory);
+        application.setJsonService(jsonService);
+        application.setAppService(appService);
         application.setSearchService(searchService);
+        application.setMessageService(messageService);
         return application;
     }
 
