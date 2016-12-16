@@ -151,7 +151,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
                 .filter(UsagePointState::isInitial)
                 .findFirst()
                 .get();
-        usagePoint.setState(initialState, installationTime);
+        usagePoint.setState(initialState, usagePoint.getInstallationTime());
         return usagePoint;
     }
 }
