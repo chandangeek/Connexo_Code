@@ -65,7 +65,7 @@ public class MK10MiniEConnection extends MK10Connection  implements ProtocolConn
 			}
 		}
 
-	} // void sendData(byte[] cmdData) throws ConnectionException
+	} // void doSendCommand(byte[] rawData) throws ConnectionException
 
     private byte[] getMiniECommandHeader(){
         return miniECommandHeader;
@@ -110,7 +110,7 @@ public class MK10MiniEConnection extends MK10Connection  implements ProtocolConn
                 }
 
                 if (CRCGenerator.ccittCRC(rxFrame) == 0) {
-                    return new ResponseData(ProtocolUtils.getSubArray(rxFrame,1, rxFrame.length-2)); //remove header and last 2 CRC bytes
+                    return new ResponseData(ProtocolUtils.getSubArray(rxFrame,1, rxFrame.length-3)); //remove header and last 2 CRC bytes
                 } else {
                     // ERROR, CRC error
                     throw new ProtocolConnectionException("receiveFrame() response crc error",CRC_ERROR);
@@ -128,4 +128,4 @@ public class MK10MiniEConnection extends MK10Connection  implements ProtocolConn
 
     } // public void receiveFrame() throws ConnectionException
 
-} // public class MK10Connection extends Connection  implements ProtocolConnection
+} // public class MK10MiniEConnection extends Connection  implements ProtocolConnection
