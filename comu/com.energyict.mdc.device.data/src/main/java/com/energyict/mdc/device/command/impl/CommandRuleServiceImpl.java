@@ -249,14 +249,14 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     private boolean limitsExceededForcommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
-        List<CommandRule> commandRulesByDeviceMessageId = this.getCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
+        List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
         return commandRulesByDeviceMessageId.isEmpty() || commandRulesByDeviceMessageId.stream()
                 .filter(commandRule -> this.wouldCommandExceedLimits(commandRule, deviceMessage.getReleaseDate(), oldReleaseDate))
                 .findFirst()
                 .isPresent();
     }
 
-    private List<CommandRule> getCommandRulesByDeviceMessageId(DeviceMessageId deviceMessageId) {
+    private List<CommandRule> getActiveCommandRulesByDeviceMessageId(DeviceMessageId deviceMessageId) {
         return findAllCommandRules().stream()
                 .filter(ServerCommandRule::isActive)
                 .filter(commandRule ->
@@ -295,7 +295,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                 limitToCheck = commandRule.getMonthLimit();
                 break;
         }
-        return currentCount < limitToCheck && limitToCheck != 0;
+        return currentCount >= limitToCheck && limitToCheck != 0;
     }
 
     @Override
@@ -318,7 +318,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     private void increaseOrCreateCounters(DeviceMessage deviceMessage, Instant releaseDate) {
-        List<CommandRule> commandRulesByDeviceMessageId = this.getCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
+        List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
         if(commandRulesByDeviceMessageId.isEmpty()) {
             return;
         }
@@ -367,7 +367,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     private void decreaseExistingCounters(DeviceMessage deviceMessage, Instant oldReleaseDate) {
-        List<CommandRule> commandRulesByDeviceMessageId = this.getCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
+        List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
         if(commandRulesByDeviceMessageId.isEmpty()) {
             return;
         }

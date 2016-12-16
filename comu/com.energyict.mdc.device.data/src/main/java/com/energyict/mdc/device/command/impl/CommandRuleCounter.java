@@ -95,9 +95,9 @@ public class CommandRuleCounter {
 
     public CounterType getCounterType() {
         long differenceInMillis = getTo().toEpochMilli() - getFrom().toEpochMilli();
-        if (differenceInMillis < TimeUnit.DAYS.toMillis(1)) {
+        if (differenceInMillis <= TimeUnit.DAYS.toMillis(1)) {
             return CounterType.DAY;
-        } else if (differenceInMillis < TimeUnit.DAYS.toMillis(7)) {
+        } else if (differenceInMillis <= TimeUnit.DAYS.toMillis(7)) {
             return CounterType.WEEK;
         } else {
             return CounterType.MONTH;
