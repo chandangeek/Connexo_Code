@@ -5,15 +5,19 @@ import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -50,9 +54,9 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import java.io.ByteArrayOutputStream;
@@ -113,7 +117,6 @@ public class MiniMax implements DeviceProtocol {
     private MiniMaxProperties properties = new MiniMaxProperties();
 
     private OfflineDevice offlineDevice;
-    private ComChannel comChannel;
 
     private List<ObisCode> channelObisCodes;
 
@@ -340,12 +343,7 @@ public class MiniMax implements DeviceProtocol {
             // Get the channels for this load profile
             List<ChannelInfo> channelInfos = lpReader.getChannelInfos();
             for (ChannelInfo channelInfo : channelInfos) {
-                ObisCode obisCodeFromChannelInfo = null;
-                try {
-                    obisCodeFromChannelInfo = channelInfo.getChannelObisCode();
-                } catch (IOException ioe) {
-                    throw NotFoundException.notFound(ObisCode.class, channelInfo.getMeterIdentifier());
-                }
+                ObisCode obisCodeFromChannelInfo = channelInfo.getChannelObisCode();
 
                 // Check if the obis code for this channel exists in the device
                 if (obisCodesFromDevice.contains(obisCodeFromChannelInfo)) {
@@ -391,14 +389,8 @@ public class MiniMax implements DeviceProtocol {
             List<Integer> interestedIn = new ArrayList<Integer>();
 
             for (ChannelInfo channelInfo : channelInfosFromEiServer) {
-                int index = -1;
-                try {
-                    ObisCode obis = channelInfo.getChannelObisCode();
-                    index = channelObisCodes.indexOf(obis);
-                } catch (IOException ioe) {
-                    // TODO
-                    ioe.printStackTrace();
-                }
+                ObisCode obis = channelInfo.getChannelObisCode();
+                int index = channelObisCodes.indexOf(obis);
 
                 if (index != -1) {
                     interestedIn.add(index);
@@ -574,7 +566,6 @@ public class MiniMax implements DeviceProtocol {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        this.comChannel = comChannel;
         connection = new MiniMaxConnection(comChannel, properties, logger);
     }
 
@@ -585,7 +576,7 @@ public class MiniMax implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(new DeviceProtocolCapabilities[]{DeviceProtocolCapabilities.PROTOCOL_SESSION, DeviceProtocolCapabilities.PROTOCOL_MASTER});
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION, DeviceProtocolCapabilities.PROTOCOL_MASTER);
     }
 
     @Override
@@ -728,30 +719,34 @@ public class MiniMax implements DeviceProtocol {
             List<String> registerIds = ObisCodeMapper.mapRegisters(list);
             ResponseFrame response = getConnection().readMultipleRegisterValues(registerIds);
             MultiReadResponseData data = (MultiReadResponseData) response.getData();
-            List<CollectedRegister> retVal = new ArrayList<CollectedRegister>();
+            List<CollectedRegister> retVal = new ArrayList<>();
             Unit unit = null;
-            Date eventDate = null;
+            Date eventDate;
             for (int i = 0; i < list.size(); i++) {
                 eventDate = null;
                 String str = data.getResponse(i);
                 String obisCode = list.get(i).getObisCode().getValue();
-                if (obisCode.equals(ObisCodeMapper.OBIS_BATTERY_READING)) {
-                    unit = UnitMapper.getVoltageUnits();
-                } else if (obisCode.equals(ObisCodeMapper.OBIS_CORRECTED_VOLUME) ||
-                        obisCode.equals(ObisCodeMapper.OBIS_MAX_DAY_CORRECTED_VOLUME)) {
-                    unit = UnitMapper.getCorVolUnits();
-                    if (obisCode.equals(ObisCodeMapper.OBIS_MAX_DAY_CORRECTED_VOLUME)) {
-                        // We also have to get the event time from a register in the device
-                        String maxValDate = ((SingleReadResponseData) getConnection().readSingleRegisterValue(OBJECT_MAX_DAY_DATE).getData()).getValue();
-                        try {
-                            eventDate = UnitMapper.getDateFormat().parse(maxValDate);
-                        } catch (ParseException e) {
-                            getLogger().warning("Failed to parse the date for the max corrected volume day: " + maxValDate);
-                            // TODO: throw the correct type of exception
+                switch (obisCode) {
+                    case ObisCodeMapper.OBIS_BATTERY_READING:
+                        unit = UnitMapper.getVoltageUnits();
+                        break;
+                    case ObisCodeMapper.OBIS_CORRECTED_VOLUME:  // Intentional fall-through
+                    case ObisCodeMapper.OBIS_MAX_DAY_CORRECTED_VOLUME:
+                        unit = UnitMapper.getCorVolUnits();
+                        if (obisCode.equals(ObisCodeMapper.OBIS_MAX_DAY_CORRECTED_VOLUME)) {
+                            // We also have to get the event time from a register in the device
+                            String maxValDate = ((SingleReadResponseData) getConnection().readSingleRegisterValue(OBJECT_MAX_DAY_DATE).getData()).getValue();
+                            try {
+                                eventDate = UnitMapper.getDateFormat().parse(maxValDate);
+                            } catch (ParseException e) {
+                                getLogger().warning("Failed to parse the date for the max corrected volume day: " + maxValDate);
+                                // TODO: throw the correct type of exception
+                            }
                         }
-                    }
-                } else if (obisCode.equals(ObisCodeMapper.OBIS_UNCORRECTED_VOLUME)) {
-                    unit = UnitMapper.getUncVolUnits();
+                        break;
+                    case ObisCodeMapper.OBIS_UNCORRECTED_VOLUME:
+                        unit = UnitMapper.getUncVolUnits();
+                        break;
                 }
 
                 RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode());
@@ -774,7 +769,7 @@ public class MiniMax implements DeviceProtocol {
             return retVal;
         } catch (Throwable t) {
             t.printStackTrace();
-            return new ArrayList<CollectedRegister>();
+            return new ArrayList<>();
         }
     }
 
@@ -790,4 +785,30 @@ public class MiniMax implements DeviceProtocol {
         // Only master
         return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return null;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return null;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return null;
+    }
+
 }
