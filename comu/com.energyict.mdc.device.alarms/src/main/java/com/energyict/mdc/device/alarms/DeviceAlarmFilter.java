@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.alarms;
 
+import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -13,11 +15,15 @@ import java.util.Optional;
 
 @ProviderType
 public class DeviceAlarmFilter {
+    private String alarmId;
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
-    private Optional<User> assignee = Optional.empty();
+    private Optional<User> userAssignee = Optional.empty();
+    private List<WorkGroup> workGroupAssignees = new ArrayList<>();
+    private List<DueDateRange> dueDates = new ArrayList<>();
     private boolean unassignedOnly = false;
+    private boolean unassignedWorkGroupSelected = false;
 
     public DeviceAlarmFilter() {
     }
@@ -26,8 +32,8 @@ public class DeviceAlarmFilter {
         this.unassignedOnly = true;
     }
 
-    public void setAssignee(User assignee) {
-        this.assignee = Optional.of(assignee);
+    public void setUserAssignee(User userAssignee) {
+        this.userAssignee = Optional.of(userAssignee);
     }
 
     public void setDevice(EndDevice device) {
@@ -48,8 +54,8 @@ public class DeviceAlarmFilter {
         }
     }
 
-    public Optional<User> getAssignee() {
-        return assignee;
+    public Optional<User> getUserAssignee() {
+        return userAssignee;
     }
 
     public boolean isUnassignedOnly() {
@@ -66,5 +72,37 @@ public class DeviceAlarmFilter {
 
     public List<IssueStatus> getStatuses() {
         return this.statuses;
+    }
+
+    public String getAlarmId() {
+        return alarmId;
+    }
+
+    public void setAlarmId(String alarmId) {
+        this.alarmId = alarmId;
+    }
+
+    public List<WorkGroup> getWorkGroupAssignees() {
+        return workGroupAssignees;
+    }
+
+    public void addWorkGroupAssignees(WorkGroup workGroup) {
+        this.workGroupAssignees.add(workGroup);
+    }
+
+    public List<DueDateRange> getDueDates() {
+        return dueDates;
+    }
+
+    public void setDueDates(long startTime, long endTime) {
+        this.dueDates.add(new DueDateRange(startTime, endTime));
+    }
+
+    public boolean isUnassignedWorkGroupSelected() {
+        return unassignedWorkGroupSelected;
+    }
+
+    public void setUnassignedWorkGroupSelected() {
+        this.unassignedWorkGroupSelected = true;
     }
 }

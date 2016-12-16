@@ -290,10 +290,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
     private Condition buildConditionFromFilter(DeviceAlarmFilter filter) {
         Condition condition = Condition.TRUE;
-        //filter by assignee
+        //filter by user assignee
         Condition assigneeCondition = Condition.TRUE;
-        if (filter.getAssignee().isPresent()) {
-            assigneeCondition = where("baseIssue.user").isEqualTo(filter.getAssignee().get());
+        if (filter.getUserAssignee().isPresent()) {
+            assigneeCondition = where("baseIssue.user").isEqualTo(filter.getUserAssignee().get());
         }
         if (filter.isUnassignedOnly()) {
             assigneeCondition = where("baseIssue.user").isNull();
