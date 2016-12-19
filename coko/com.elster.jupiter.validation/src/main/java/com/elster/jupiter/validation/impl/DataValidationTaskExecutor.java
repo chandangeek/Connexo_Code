@@ -18,6 +18,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
@@ -25,6 +26,8 @@ import com.elster.jupiter.validation.ValidationContextImpl;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -154,8 +157,13 @@ class DataValidationTaskExecutor implements TaskExecutor {
                                             .execute(VoidTransaction.of(() ->
                                                     MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY
                                                             .log(logger, thesaurus, metrologyConfigurationOnUsagePoint.getUsagePoint()
-                                            .getName(), occurrence.getStartDate().get())));
+                                                                    .getName(), getTimeFormatter().format(occurrence.getStartDate().get()))));
                                 }));
+    }
+
+    private DateTimeFormatter getTimeFormatter() {
+        Locale locale = threadPrincipalService.getLocale();
+        return DefaultDateTimeFormatters.longDate(locale).withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(locale);
     }
 
     private void validateUsagePointInputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
