@@ -26,7 +26,6 @@ public class UpgraderV10_3 implements Upgrader {
     private final UserService userService;
     private final InstallerV10_3Impl installerV10_3;
 
-
     @Inject
     public UpgraderV10_3(DataModel dataModel,
                          ServerMeteringService meteringService,
@@ -44,6 +43,7 @@ public class UpgraderV10_3 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, VERSION);
         installNewEventTypes();
         GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService);
         userService.addModulePrivileges(installerV10_3);
@@ -54,4 +54,3 @@ public class UpgraderV10_3 implements Upgrader {
                 .forEach(eventType -> eventType.install(eventService));
     }
 }
-

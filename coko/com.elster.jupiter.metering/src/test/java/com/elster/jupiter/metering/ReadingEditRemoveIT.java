@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -12,43 +10,16 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -56,11 +27,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
@@ -68,189 +39,138 @@ import static com.elster.jupiter.cbo.MetricMultiplier.quantity;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingEditRemoveIT {
 
-    private Injector injector;
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    @Rule
+    public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
-
-    private TransactionService transactionService;
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
+    @BeforeClass
+    public static void setUp() {
+        inMemoryBootstrapModule.activate();
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new BasicPropertiesModule(),
-                new TimeModule(),
-                new MeteringModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(false),
-                new BpmModule(),
-                new FiniteStateMachineModule(),
-                new NlsModule(),
-                new CustomPropertySetsModule(),
-                new BasicPropertiesModule()
-        );
-        transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(() -> {
-            injector.getInstance(CustomPropertySetService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringService.class);
-            return null;
-        });
-    }
-
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void test() {
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         Meter meter;
         String readingTypeCode;
         Instant existDate = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant newDate = ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        try (TransactionContext ctx = transactionService.getContext()) {
-            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter", "myName").create();
-            ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                    .accumulate(Accumulation.BULKQUANTITY)
-                    .flow(FlowDirection.FORWARD)
-                    .measure(MeasurementKind.ENERGY)
-                    .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
-            readingTypeCode = builder.code();
-            ctx.commit();
-        }
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
-            reading.addQuality("2.5.258");
-            reading.addQuality("2.6.1");
-            meter.store(QualityCodeSystem.MDC, MeterReadingImpl.of(reading));
-            ctx.commit();
-        }
+
+        //step 1
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        meter = amrSystem.newMeter("myMeter", "myName").create();
+        ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+        readingTypeCode = builder.code();
+
+        //step 2
+        ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
+        reading.addQuality("2.5.258");
+        reading.addQuality("2.6.1");
+        meter.store(QualityCodeSystem.MDC, MeterReadingImpl.of(reading));
+
+        // step 3
         Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
         assertQualities(channel, existDate, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT),
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE)
         }, new ReadingQualityType[0]);
-        try (TransactionContext ctx = transactionService.getContext()) {
-            CimChannel cimChannel = channel.getCimChannel(readingType).get();
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ESTIMATEGENERIC), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ESTIMATEGENERIC), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), existDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), newDate);
-            cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), newDate);
-            ctx.commit();
-        }
+
+        //step 4
+        CimChannel cimChannel = channel.getCimChannel(readingType).get();
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ESTIMATEGENERIC), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ESTIMATEGENERIC), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), existDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), newDate);
+        cimChannel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), newDate);
+
+        // step 5
         // test add & edit
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
-            ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
-            channel.editReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2));
-            // existDate qualities
-            assertQualities(channel, existDate, new ReadingQualityType[]{
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)
-            }, new ReadingQualityType[]{
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE),
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED)
-            });
-            // newDate qualities
-            assertQualities(channel, newDate, new ReadingQualityType[]{
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED)
-            }, new ReadingQualityType[]{
-                    ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
-                    ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
-                    ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD)
-            });
-            Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
-            assertThat(channelReading).isPresent();
-            assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), KILO, WATTHOUR));
-            channelReading = channel.getReading(newDate);
-            assertThat(channelReading).isPresent();
-            assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), KILO, WATTHOUR));
-            ctx.commit();
-        }
+        ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
+        ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
+        channel.editReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2));
+        // existDate qualities
+        assertQualities(channel, existDate, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)
+        }, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE),
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED)
+        });
+        // newDate qualities
+        assertQualities(channel, newDate, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED)
+        }, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD)
+        });
+        Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
+        assertThat(channelReading).isPresent();
+        assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), KILO, WATTHOUR));
+        channelReading = channel.getReading(newDate);
+        assertThat(channelReading).isPresent();
+        assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), KILO, WATTHOUR));
+
+        // step 6
         // test re-edit
-        try (TransactionContext ctx = transactionService.getContext()) {
-            ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(3), newDate);
-            channel.editReadings(QualityCodeSystem.MDM, ImmutableList.of(reading2));
-            assertQualities(channel, newDate, new ReadingQualityType[]{
-                    ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC)
-            }, new ReadingQualityType[]{
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
-                    ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
-                    ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
-                    ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD)
-            });
-            Optional<BaseReadingRecord> channelReading = channel.getReading(newDate);
-            assertThat(channelReading).isPresent();
-            assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(3), KILO, WATTHOUR));
-            ctx.commit();
-        }
+        reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(3), newDate);
+        channel.editReadings(QualityCodeSystem.MDM, ImmutableList.of(reading2));
+        assertQualities(channel, newDate, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC)
+        }, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD)
+        });
+        channelReading = channel.getReading(newDate);
+        assertThat(channelReading).isPresent();
+        assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(3), KILO, WATTHOUR));
+
+        // step 7
         // test remove
-        try (TransactionContext ctx = transactionService.getContext()) {
-            BaseReadingRecord reading1 = channel.getReading(existDate).get();
-            BaseReadingRecord reading2 = channel.getReading(newDate).get();
-            channel.removeReadings(QualityCodeSystem.MDM, ImmutableList.of(reading1));
-            assertQualities(channel, existDate, new ReadingQualityType[]{
-                    ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)
-            }, new ReadingQualityType[0]);
-            assertThat(channel.getReading(existDate)).isEmpty();
-            channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(reading2));
-            assertQualities(channel, newDate, new ReadingQualityType[]{
-                    ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)
-            }, new ReadingQualityType[0]);
-            assertThat(channel.getReading(newDate)).isEmpty();
-            ctx.commit();
-        }
+        BaseReadingRecord baseReadingRecord1 = channel.getReading(existDate).get();
+        BaseReadingRecord baseReadingRecord2 = channel.getReading(newDate).get();
+        channel.removeReadings(QualityCodeSystem.MDM, ImmutableList.of(baseReadingRecord1));
+        assertQualities(channel, existDate, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)
+        }, new ReadingQualityType[0]);
+        assertThat(channel.getReading(existDate)).isEmpty();
+        channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(baseReadingRecord2));
+        assertQualities(channel, newDate, new ReadingQualityType[]{
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)
+        }, new ReadingQualityType[0]);
+        assertThat(channel.getReading(newDate)).isEmpty();
     }
 
     private static void assertQualities(Channel channel, Instant date, ReadingQualityType[] actual, ReadingQualityType[] nonActual) {
