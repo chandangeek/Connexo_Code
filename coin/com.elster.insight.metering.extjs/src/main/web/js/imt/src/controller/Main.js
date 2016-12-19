@@ -26,6 +26,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.devicemanagement.model.Device'
     ],
     controllers: [
+        'Imt.controller.Dashboard',
+        'Imt.dashboard.controller.OperatorDashboard',
         'Imt.usagepointmanagement.controller.View',
         'Imt.usagepointmanagement.controller.Edit',
         'Imt.devicemanagement.controller.Device',
@@ -70,6 +72,7 @@ Ext.define('Imt.controller.Main', {
 
     initHistorians: function () {
         this.getController('Imt.controller.History');
+        this.getController('Imt.controller.Dashboard');
     },
 
     initMenu: function () {
