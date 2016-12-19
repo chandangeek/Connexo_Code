@@ -15,8 +15,7 @@ Ext.define('Dal.model.AlarmAssignee', {
         type: 'rest',
         url: '/api/dal/assignees',
         reader: {
-            type: 'json',
-            root: 'data'
+            type: 'json'
         },
         buildUrl: function (request) {
             var idx = request.params.id,

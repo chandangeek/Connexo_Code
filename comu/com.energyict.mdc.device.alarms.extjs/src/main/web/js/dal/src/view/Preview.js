@@ -26,7 +26,7 @@ Ext.define('Dal.view.Preview', {
                 },
                 items: [
                     {
-                        xtype: me.fieldxtype,
+                        xtype: 'displayfield',
                         itemId: 'alarm-id',
                         fieldLabel: Uni.I18n.translate('general.title.alarmId', 'DAL', 'Id'),
                         name: 'alarmId'
@@ -130,7 +130,7 @@ Ext.define('Dal.view.Preview', {
                         }
                     },
                     {
-                        xtype: me.fieldxtype,
+                        xtype: 'displayfield',
                         itemId: 'alarm-due-date',
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'DAL', 'Due date'),
                         name: 'dueDate',

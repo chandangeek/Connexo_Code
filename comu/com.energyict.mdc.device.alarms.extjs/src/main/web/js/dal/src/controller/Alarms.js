@@ -146,9 +146,6 @@ Ext.define('Dal.controller.Alarms', {
             case 'reasonName':
                 button.filterBy = 'reason';
                 break;
-            case 'device':
-                button.filterBy = 'meter';
-                break;
         }
         me.callParent(arguments);
     }
