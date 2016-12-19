@@ -70,6 +70,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.energyict.mdc.device.command.CommandRuleService.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -93,6 +94,7 @@ public class CommandRuleIT {
     private static CommandRuleService commandRuleService;
     private static TransactionService transactionService;
     private static DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private static DeviceMessageService deviceMessageService;
     private static DualControlService dualControlService;
     private static ThreadPrincipalService threadPrincipalService;
     private static JsonService jsonService;
@@ -150,6 +152,7 @@ public class CommandRuleIT {
             commandRuleService = injector.getInstance(CommandRuleService.class);
             deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
             dualControlService = injector.getInstance(DualControlService.class);
+            deviceMessageService = injector.getInstance(DeviceMessageService.class);
             threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             userService = injector.getInstance(UserService.class);
             createUserAndChange();
@@ -473,6 +476,45 @@ public class CommandRuleIT {
         commandRuleService.commandCreated(deviceMessage);
         assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(30, ChronoUnit.DAYS));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testUpdatedCommandLimits() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[0];
+        CommandRule rule = createRule("test5", 1, 0, 0, 1);
+        activateAndApproveRule(rule);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        DeviceMessage deviceMessageReloaded = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+        when(deviceMessageReloaded.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessageReloaded.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+        when(deviceMessageService.findDeviceMessageById(anyLong())).thenReturn(Optional.of(deviceMessageReloaded));
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(1, ChronoUnit.DAYS));
+        commandRuleService.commandUpdated(deviceMessage);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testNoLimitsInactiveRule() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[0];
+        CommandRule rule = createRule("TEST", 1, 2, 3, 1);
+
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        commandRuleService.commandCreated(deviceMessage);
         assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
     }
 
