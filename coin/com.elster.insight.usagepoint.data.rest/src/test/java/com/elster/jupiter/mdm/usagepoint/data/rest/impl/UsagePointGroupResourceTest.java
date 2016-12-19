@@ -26,6 +26,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.impl.SearchBuilderImpl;
 import com.elster.jupiter.search.impl.SearchMonitor;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -489,7 +490,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         EnumeratedUsagePointGroup usagePointGroup = mock(EnumeratedUsagePointGroup.class);
         when(meteringGroupsService.findUsagePointGroup(111)).thenReturn(Optional.of(usagePointGroup));
         List<UsagePoint> usagePoints = Arrays.asList(
-                mockUsagePoint(1, ServiceKind.ELECTRICITY, null, true, true, ConnectionState.UNDER_CONSTRUCTION, "Cosmos"),
+                mockUsagePoint(1, ServiceKind.ELECTRICITY, null, true, true, ConnectionState.LOGICALLY_DISCONNECTED, "Cosmos"),
                 mockUsagePoint(2, ServiceKind.HEAT, "LivingHeatProsumer", true, false, ConnectionState.CONNECTED, "Earth"));
         when(usagePointGroup.getMembers(any(Instant.class))).thenReturn(usagePoints);
 
@@ -503,7 +504,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         assertThat(jsonModel.<String>get("$.usagePoints[0].displayMetrologyConfiguration")).isNull();
         assertThat(jsonModel.<String>get("$.usagePoints[1].displayMetrologyConfiguration")).isEqualTo("LivingHeatProsumer");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayType")).containsExactly("Virtual SDP", "Physical SDP");
-        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Under construction", "Connected");
+        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Logically disconnected", "Connected");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].location")).containsExactly("Cosmos", "Earth");
     }
 
@@ -517,7 +518,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         doReturn(finder).when(searchDomain).finderFor(any());
 
         List<UsagePoint> usagePoints = Arrays.asList(
-                mockUsagePoint(1, ServiceKind.ELECTRICITY, null, true, true, ConnectionState.UNDER_CONSTRUCTION, "Cosmos"),
+                mockUsagePoint(1, ServiceKind.ELECTRICITY, null, true, true, ConnectionState.LOGICALLY_DISCONNECTED, "Cosmos"),
                 mockUsagePoint(2, ServiceKind.HEAT, "LivingHeatProsumer", true, false, ConnectionState.CONNECTED, "Earth"));
         when(finder.from(any())).thenReturn(finder);
         when(finder.stream()).thenReturn(usagePoints.stream());
@@ -532,7 +533,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         assertThat(jsonModel.<String>get("$.usagePoints[0].displayMetrologyConfiguration")).isNull();
         assertThat(jsonModel.<String>get("$.usagePoints[1].displayMetrologyConfiguration")).isEqualTo("LivingHeatProsumer");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayType")).containsExactly("Virtual SDP", "Physical SDP");
-        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Under construction", "Connected");
+        assertThat(jsonModel.<List<String>>get("$.usagePoints[*].displayConnectionState")).containsExactly("Logically disconnected", "Connected");
         assertThat(jsonModel.<List<String>>get("$.usagePoints[*].location")).containsExactly("Cosmos", "Earth");
     }
 
@@ -663,10 +664,13 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
                 .thenReturn(effectiveMCOptional);
         when(usagePoint.isSdp()).thenReturn(isSdp);
         when(usagePoint.isVirtual()).thenReturn(isVirtual);
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(connectionState));
         when(usagePoint.getConnectionStateDisplayName()).thenReturn(connectionState.getDefaultFormat());
         Optional<Location> locationOptional = Optional.ofNullable(location).map(UsagePointGroupResourceTest::mockLocation);
         when(usagePoint.getLocation()).thenReturn(locationOptional);
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
+        UsagePointState usagePointState = mock(UsagePointState.class);
+        when(usagePoint.getState()).thenReturn(usagePointState);
         return usagePoint;
     }
 

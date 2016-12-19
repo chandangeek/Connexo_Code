@@ -9,7 +9,8 @@ public enum UsagePointModelTranslationKeys implements TranslationKey {
     METROLOGY_CONFIGURATION_MODEL("displayMetrologyConfiguration", "Metrology configuration"),
     TYPE_MODEL("displayType", "Type"),
     CONNECTION_STATE_MODEL("displayConnectionState", "Connection state"),
-    LOCATION_MODEL("location", "Location");
+    LOCATION_MODEL("location", "Location"),
+    STATE("state", "State");
     private final String key;
     private final String defaultFormat;
 
