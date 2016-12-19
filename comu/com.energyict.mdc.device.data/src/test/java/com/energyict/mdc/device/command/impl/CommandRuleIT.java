@@ -7,6 +7,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -15,6 +16,7 @@ import com.elster.jupiter.dualcontrol.impl.DualControlModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -34,6 +36,7 @@ import com.elster.jupiter.util.json.JsonService;
 
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
+import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandRuleStatsException;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.InMemoryIntegrationPersistence;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -48,6 +51,8 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.beans.DesignMode;
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -67,9 +72,9 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.command.CommandRuleService.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -97,6 +102,7 @@ public class CommandRuleIT {
     private static DeviceMessageService deviceMessageService;
     private static DualControlService dualControlService;
     private static ThreadPrincipalService threadPrincipalService;
+    private static DataModel dataModel;
     private static JsonService jsonService;
     //THIS IS A MONDAY
     static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 8, 1, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
@@ -118,7 +124,7 @@ public class CommandRuleIT {
     }
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() throws Exception {
 
         try {
             injector = Guice.createInjector(
@@ -159,6 +165,10 @@ public class CommandRuleIT {
             return null;
         });
         jsonService = injector.getInstance(JsonService.class);
+
+        Field dataModelField = CommandRuleServiceImpl.class.getDeclaredField("dataModel");
+        dataModelField.setAccessible(true);
+        dataModel = (DataModel) dataModelField.get(commandRuleService);
     }
 
     private static void createUserAndChange() {
@@ -531,6 +541,48 @@ public class CommandRuleIT {
         assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
         commandRuleService.commandDeleted(deviceMessage);
         assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testStatsCounterForRules() {
+        CommandRule rule = createRule("test5", 1, 0, 0, 1);
+
+        assertThat(getCommandRuleStats().getNrOfMessageRules()).isEqualTo(1);
+        commandRuleService.deleteRule(rule);
+        assertThat(getCommandRuleStats().getNrOfMessageRules()).isEqualTo(0);
+    }
+
+    @Test
+    @Transactional
+    public void testStatsCounterForCounters() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[0];
+        CommandRule rule = createRule("test5", 1, 2, 0, 1);
+        activateAndApproveRule(rule);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(getCommandRuleStats().getNrOfCounters()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    @Expected(InvalidCommandRuleStatsException.class)
+    public void testMistakeInCounters() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[0];
+        CommandRule rule = createRule("test5", 1, 2, 0, 1);
+        activateAndApproveRule(rule);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+        getCommandRuleStats().decreaseNumberOfCommandRules();
+
+       commandRuleService.limitsExceededForNewCommand(deviceMessage);
+    }
+
+    private CommandRuleStats getCommandRuleStats() {
+        return dataModel.mapper(CommandRuleStats.class).select(where(CommandRuleStats.Fields.ID.fieldName()).isEqualTo(CommandRuleStats.ID)).get(0);
     }
 
     private void activateAndApproveRule(CommandRule rule) {
