@@ -56,7 +56,7 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return categoryFactory.get(this.propertySpecService, this.nlsService);
+        return categoryFactory.get(this.propertySpecService, this.nlsService, converter);
     }
 
     @Override

@@ -35,7 +35,7 @@ public class DeviceMessageCategoriesTest extends TestCase {
         List<Long> messageIds;
         for (DeviceMessageCategories categories : DeviceMessageCategories.values()) {
             messageIds = new ArrayList<>();
-            for (DeviceMessageSpec deviceMessageSpec : categories.get(propertySpecService, nlsService).getMessageSpecifications()) {
+            for (DeviceMessageSpec deviceMessageSpec : categories.get(propertySpecService, nlsService, converter).getMessageSpecifications()) {
                 boolean condition = messageIds.contains(deviceMessageSpec.getId());
                 if (condition) {
                     Logger logger = Logger.getLogger(DeviceMessageCategoriesTest.class.getSimpleName());

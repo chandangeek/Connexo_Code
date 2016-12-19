@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
@@ -57,7 +58,7 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategorySupplier
     }
 
     @Override
-    public DeviceMessageCategory get(PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageCategory get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageCategoryImpl(
                 this.ordinal(),
                 new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
