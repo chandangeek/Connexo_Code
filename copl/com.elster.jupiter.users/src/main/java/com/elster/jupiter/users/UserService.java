@@ -9,6 +9,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface UserService {
@@ -157,4 +158,6 @@ public interface UserService {
     PrivilegeCategory getDefaultPrivilegeCategory();
 
     ResourceBuilder buildResource();
+
+    Set<User> findUsers(Group group);
 }

@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Group;
 
@@ -30,6 +31,8 @@ public class GroupIT extends EqualsContractTest {
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private UserServiceImpl userService;
+    @Mock
+    private Publisher publisher;
 
     private static final String TEST_GROUP_NAME = "groupName";
     private static final String TEST_GROUP_DESCRIPTION = "groupName";
@@ -52,7 +55,7 @@ public class GroupIT extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (group == null) {
-            group =  new GroupImpl(mock(QueryService.class),dataModel, userService, threadPrincipalService, thesaurus).init(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION);
+            group =  new GroupImpl(mock(QueryService.class),dataModel, userService, threadPrincipalService, thesaurus, publisher).init(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION);
             setId(group, ID);
         }
         return group;
@@ -60,14 +63,14 @@ public class GroupIT extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-      Group  groupB =  new GroupImpl(mock(QueryService.class), dataModel, userService, threadPrincipalService, thesaurus).init(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION);
+      Group  groupB =  new GroupImpl(mock(QueryService.class), dataModel, userService, threadPrincipalService, thesaurus, publisher).init(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION);
         setId(groupB, ID);
         return groupB;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        Group  groupC = new  GroupImpl(mock(QueryService.class),dataModel, userService, threadPrincipalService, thesaurus).init(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION);
+        Group  groupC = new  GroupImpl(mock(QueryService.class),dataModel, userService, threadPrincipalService, thesaurus, publisher).init(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION);
         setId(groupC, OTHER_ID);
         return Collections.singletonList(groupC);
     }

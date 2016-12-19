@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
@@ -89,6 +90,7 @@ public class UserIT extends EqualsContractTest {
                     new TransactionModule(),
                     new UserModule(),
                     new NlsModule(),
+                    new PubSubModule(),
                     new DataVaultModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -110,22 +112,26 @@ public class UserIT extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (user == null) {
-            user = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+            user = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
             setId(user, ID);
         }
         return user;
     }
 
+    private Publisher getPublisher() {
+        return injector.getInstance(Publisher.class);
+    }
+
     @Override
     protected Object getInstanceEqualToA() {
-        User userB = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+        User userB = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
         setId(userB, ID);
         return userB;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        User userC = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+        User userC = new UserImpl(dataModel, getPublisher()).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
         setId(userC, OTHER_ID);
         return Collections.singletonList(userC);
     }

@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -65,6 +66,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -94,6 +96,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile UpgradeService upgradeService;
+    private volatile Publisher publisher;
     private volatile Clock clock;
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
@@ -156,6 +159,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
                 bind(BundleContext.class).toInstance(context);
+                bind(Publisher.class).toInstance(publisher);
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
@@ -164,7 +168,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                     version(10, 2), UpgraderV10_2.class, version(10, 3), V10_3SimpleUpgrader.class
             ));
         }
-
     }
 
     public Optional<User> authenticate(String domain, String userName, String password, String ipAddr) {
@@ -642,6 +645,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         applicationPrivilegesProviders.add(applicationPrivilegesProvider);
     }
 
+    @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
     @SuppressWarnings("unused")
     public void removeApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
         applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
@@ -778,6 +786,14 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public ResourceBuilder buildResource() {
         return new ResourceBuilderImpl(dataModel);
+    }
+
+    @Override
+    public Set<User> findUsers(Group group) {
+        return dataModel.stream(UserInGroup.class)
+                .filter(Operator.EQUAL.compare("groupId", group.getId()))
+                .map(UserInGroup::getUser)
+                .collect(Collectors.toSet());
     }
 
     void createDefaultPrivilegeCategory() {

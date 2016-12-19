@@ -7,6 +7,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
@@ -64,13 +65,15 @@ final class GroupImpl implements Group {
     private final UserServiceImpl userService;
     private final ThreadPrincipalService threadPrincipalService;
     private final Thesaurus thesaurus;
+    private final Publisher publisher;
 
     @Inject
-    GroupImpl(QueryService queryService, DataModel dataModel, UserService userService, ThreadPrincipalService threadPrincipalService, Thesaurus thesaurus) {
+    GroupImpl(QueryService queryService, DataModel dataModel, UserService userService, ThreadPrincipalService threadPrincipalService, Thesaurus thesaurus, Publisher publisher) {
         this.queryService = queryService;
         this.dataModel = dataModel;
         this.threadPrincipalService = threadPrincipalService;
         this.thesaurus = thesaurus;
+        this.publisher = publisher;
         this.userService = (UserServiceImpl) userService;
     }
 
@@ -144,6 +147,7 @@ final class GroupImpl implements Group {
 		PrivilegeInGroup privilegeInGroup = PrivilegeInGroup.from(dataModel, this, applicationName, privilege);
 		privilegeInGroup.persist();
 		getPrivilegeInGroups(applicationName).add(privilegeInGroup);
+        publisher.publish(this, privilege);
         return false;
 	}
 
