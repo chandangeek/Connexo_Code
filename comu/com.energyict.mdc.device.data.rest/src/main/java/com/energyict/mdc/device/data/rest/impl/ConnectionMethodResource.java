@@ -120,7 +120,7 @@ public class ConnectionMethodResource {
         info.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         task.saveAllProperties();
         pauseOrResumeTask(info, task);
-        if (info.isDefault) {
+        if (info.isDefault && !wasConnectionTaskDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
         } else if (wasConnectionTaskDefault) {
             connectionTaskService.clearDefaultConnectionTask(device);
