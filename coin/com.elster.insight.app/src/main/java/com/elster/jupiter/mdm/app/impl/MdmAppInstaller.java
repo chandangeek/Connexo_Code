@@ -120,9 +120,16 @@ public class MdmAppInstaller {
                     //Import services
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
 
+                    // Usage point life cycle
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW,
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_1,
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_2,
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_3,
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_4,
+
                     //Usage point groups
                     com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
-                    
+
                     //estimation
                     com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
                     com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
