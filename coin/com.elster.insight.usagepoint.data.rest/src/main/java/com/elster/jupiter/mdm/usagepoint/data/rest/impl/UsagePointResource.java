@@ -228,7 +228,7 @@ public class UsagePointResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.MANAGE_USAGE_POINT_ATTRIBUTES})
     @Transactional
     public UsagePointInfo updateUsagePoint(UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
