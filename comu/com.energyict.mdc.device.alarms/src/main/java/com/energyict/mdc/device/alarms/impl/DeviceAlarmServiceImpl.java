@@ -39,7 +39,6 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
-import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -47,7 +46,6 @@ import com.energyict.mdc.device.alarms.impl.install.Installer;
 import com.energyict.mdc.device.alarms.impl.install.UpgraderV10_3;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -77,8 +75,6 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
-
-    private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -96,7 +92,6 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   NlsService nlsService,
                                   OrmService ormService,
                                   QueryService queryService,
-                                  TopologyService topologyService,
                                   DeviceService deviceService,
                                   EventService eventService,
                                   UpgradeService upgradeService,
@@ -108,7 +103,6 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setNlsService(nlsService);
         setOrmService(ormService);
         setQueryService(queryService);
-        setTopologyService(topologyService);
         setDeviceService(deviceService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
@@ -131,7 +125,6 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(IssueActionService.class).toInstance(issueActionService);
                 bind(DeviceAlarmService.class).toInstance(DeviceAlarmServiceImpl.this);
                 bind(QueryService.class).toInstance(queryService);
-                bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
@@ -175,11 +168,6 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setTopologyService(TopologyService topologyService) {
-        this.topologyService = topologyService;
     }
 
     @Reference
@@ -231,18 +219,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     }
 
     @Override
-    public OpenDeviceAlarm createAlarm(OpenDeviceAlarm baseAlarm, IssueEvent issueEvent) {
-        return null; //TODO
-    }
-
-    @Override
     public OpenDeviceAlarm createAlarm(OpenIssue baseIssue, IssueEvent issueEvent) {
         OpenDeviceAlarmImpl issue = dataModel.getInstance(OpenDeviceAlarmImpl.class);
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);
-        if (issueEvent instanceof DeviceAlarmEvent) {
-            //TODO
-        }
         issue.save();
         return issue;
     }

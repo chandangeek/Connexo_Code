@@ -91,17 +91,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void publishEvents() {
-        Set<EventType> eventTypesToPublish = new HashSet<>();
-       /* eventService.getEventType("com/elster/jupiter/metering/enddeviceevent/CREATED")
-                .ifPresent(eventTypesToPublish::add);
-        for (DeviceAlarmEventDescription deviceAlarmEventDescription : DeviceAlarmEventDescription.values()) {
-            eventService.getEventType(deviceAlarmEventDescription.getTopic()).ifPresent(eventTypesToPublish::add);
-        }
-        for (EventType eventType : eventTypesToPublish) {
-            eventType.setPublish(true);
-            eventType.update();
-        }*/
-
         Stream.of(DeviceAlarmEventDescription.values()).findFirst()
                 .map(deviceAlarmEventDescription -> eventService.getEventType(deviceAlarmEventDescription.getTopic()))
                 .ifPresent(eventType -> {

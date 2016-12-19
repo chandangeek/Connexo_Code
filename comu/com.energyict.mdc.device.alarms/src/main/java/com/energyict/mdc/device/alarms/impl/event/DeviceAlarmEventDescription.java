@@ -22,7 +22,7 @@ public enum DeviceAlarmEventDescription implements EventDescription {
         }
     },
 
-    // Dummy - tobe removed
+    // Dummy - to be removed
     END_DEVICE_EVENT_CREATED1(
             "com/elster/jupiter/metering/enddeviceevent/CREATED",
             EndDeviceEventCreatedEvent.class,
@@ -61,12 +61,6 @@ public enum DeviceAlarmEventDescription implements EventDescription {
     @Override
     public List<Map<?, ?>> splitEvents(Map<?, ?> map) {
         return Collections.singletonList(map);
-    }
-
-    @Override
-    //TODO FixME
-    public boolean canBeAggregated() {
-        return false;
     }
 
     @Override

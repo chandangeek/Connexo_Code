@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.alarms.impl.event;
 
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.alarms.DeviceAlarmService;
-import com.energyict.mdc.device.alarms.impl.ModuleConstants;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -18,6 +10,10 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.impl.ModuleConstants;
+import com.energyict.mdc.device.data.DeviceService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -28,15 +24,14 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
 @Component(name = "com.energyict.mdc.device.alarms.DeviceAlarmEventHandlerFactory",
-           service = MessageHandlerFactory.class,
-           property = {"subscriber=" + ModuleConstants.AQ_DEVICE_ALARM_EVENT_SUBSC, "destination=" + EventService.JUPITER_EVENTS},
-           immediate = true)
+        service = MessageHandlerFactory.class,
+        property = {"subscriber=" + ModuleConstants.AQ_DEVICE_ALARM_EVENT_SUBSC, "destination=" + EventService.JUPITER_EVENTS},
+        immediate = true)
 public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile IssueCreationService issueCreationService;
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
-    private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile Thesaurus thesaurus;
@@ -52,7 +47,6 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
             JsonService jsonService,
             IssueService issueService,
             MeteringService meteringService,
-            TopologyService topologyService,
             DeviceService deviceService,
             DeviceAlarmService deviceAlarmService,
             NlsService nlsService) {
@@ -60,7 +54,6 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
         setJsonService(jsonService);
         setIssueService(issueService);
         setMeteringService(meteringService);
-        setTopologyService(topologyService);
         setDeviceService(deviceService);
         setDeviceAlarmService(deviceAlarmService);
         setNlsService(nlsService);
@@ -75,7 +68,6 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MeteringService.class).toInstance(meteringService);
-                bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(IssueCreationService.class).toInstance(issueCreationService);
                 bind(IssueService.class).toInstance(issueService);
@@ -99,11 +91,6 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
     @Reference
     public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setTopologyService(TopologyService topologyService) {
-        this.topologyService = topologyService;
     }
 
     @Reference

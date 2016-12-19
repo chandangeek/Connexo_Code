@@ -48,8 +48,6 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
         this.baseIssue.set(baseAlarm);
     }
 
-    //TODO add and remove event
-
     public HistoricalDeviceAlarm close(IssueStatus status) {
         HistoricalDeviceAlarmImpl historicalDeviceAlarm = getDataModel().getInstance(HistoricalDeviceAlarmImpl.class);
         historicalDeviceAlarm.copy(this);
@@ -87,15 +85,12 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
             /*if (!eventType.isPresent()) {
                 eventType = Optional.of(meteringService.createEndDeviceEventType(endDeviceEventType));
             }*/
-
             List<EndDeviceEventRecord> events = getDevice().getDeviceEvents(Range.closedOpen(eventTimestamp, eventTimestamp.plusMillis(1)), Collections.singletonList(eventType
                     .get()));
             // Beautify
             if (events.size() == 1) {
                 event.init(this, events.get(0));
                 deviceAlarmRelatedEvents.add(event);
-            } else {
-                //do something
             }
         }
 
