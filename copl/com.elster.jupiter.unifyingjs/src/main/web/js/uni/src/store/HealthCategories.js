@@ -8,7 +8,7 @@ Ext.define('Uni.store.HealthCategories', {
         {type: 'all',displayValue: Uni.I18n.translate('HealthCategories.all', 'UNI', 'All')},
         {type: 'alarm',displayValue: Uni.I18n.translate('HealthCategories.alarm', 'UNI', 'Alarm')},
         {type: 'issue',displayValue: Uni.I18n.translate('HealthCategories.issue', 'UNI', 'Issue')},
-        {type: 'servicecall',displayValue: Uni.I18n.translate('HealthCategories.serviceCall', 'UNI', 'Service call')},
-        {type: 'process',displayValue: Uni.I18n.translate('HealthCategories.process', 'UNI', 'Process')}
+        {type: 'process',displayValue: Uni.I18n.translate('HealthCategories.process', 'UNI', 'Process')},
+        {type: 'servicecall',displayValue: Uni.I18n.translate('HealthCategories.serviceCall', 'UNI', 'Service call')}
     ]
 });
