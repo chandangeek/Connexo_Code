@@ -27,8 +27,8 @@ public class DeviceAlarmInfo {
     public DeviceAlarmInfo(DeviceAlarm deviceAlarm){
         this.id = deviceAlarm.getId();
         this.alarmId = deviceAlarm.getIssueId();
-        this.reason = new IdWithNameInfo(deviceAlarm.getReason().getId(), deviceAlarm.getReason().getName());
-        this.status = new IdWithNameInfo(deviceAlarm.getStatus().getId(), deviceAlarm.getStatus().getName());
+        this.reason = new IdWithNameInfo(deviceAlarm.getReason().getKey(), deviceAlarm.getReason().getName());
+        this.status = new IdWithNameInfo(deviceAlarm.getStatus().getKey(), deviceAlarm.getStatus().getName());
         this.dueDate = deviceAlarm.getDueDate() != null ? deviceAlarm.getDueDate().toEpochMilli() : 0;
         this.workGroupAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("WORKGROUP", deviceAlarm.getAssignee()) : null);
         this.userAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("USER", deviceAlarm.getAssignee()) : null);
