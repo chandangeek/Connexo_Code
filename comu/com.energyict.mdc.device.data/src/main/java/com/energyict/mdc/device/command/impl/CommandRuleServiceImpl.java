@@ -18,6 +18,7 @@ import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.ServerCommandRule;
+import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandRuleStatsException;
 import com.energyict.mdc.device.command.security.Privileges;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -236,7 +237,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     public boolean limitsExceededForUpdatedCommand(DeviceMessage deviceMessage) {
         Optional<DeviceMessage> reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId());
         if(reloadedDeviceMessage.isPresent()) {
-            return limitsExceededForcommand(deviceMessage, reloadedDeviceMessage.get().getReleaseDate());
+            return limitsExceededForCommand(deviceMessage, reloadedDeviceMessage.get().getReleaseDate());
         } else {
             return  limitsExceededForNewCommand(deviceMessage);
         }
@@ -244,16 +245,26 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public boolean limitsExceededForNewCommand(DeviceMessage deviceMessage) {
-        return limitsExceededForcommand(deviceMessage, null);
+        return limitsExceededForCommand(deviceMessage, null);
 
     }
 
-    private boolean limitsExceededForcommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
+    private boolean limitsExceededForCommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
+        checkCommandRuleStats();
         List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
         return !commandRulesByDeviceMessageId.isEmpty() && commandRulesByDeviceMessageId.stream()
                 .filter(commandRule -> this.wouldCommandExceedLimits(commandRule, deviceMessage.getReleaseDate(), oldReleaseDate))
                 .findFirst()
                 .isPresent();
+    }
+
+    private void checkCommandRuleStats() {
+        CommandRuleStats commandRuleStats = getCommandRuleStats();
+        int numberOfCommandRules = findAllCommandRules().size();
+        int numberOfCounters = dataModel.mapper(CommandRuleCounter.class).find().size();
+        if(commandRuleStats.getNrOfCounters() != numberOfCounters || commandRuleStats.getNrOfMessageRules() != numberOfCommandRules) {
+            throw new InvalidCommandRuleStatsException(thesaurus, MessageSeeds.INVALID_STATS);
+        }
     }
 
     private List<CommandRule> getActiveCommandRulesByDeviceMessageId(DeviceMessageId deviceMessageId) {
