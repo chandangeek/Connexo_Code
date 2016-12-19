@@ -6,7 +6,6 @@ import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
-import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -200,14 +199,19 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 filter.setUnassignedWorkGroupSelected();
             }
         }
-
+        if(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL) !=null){
+            filter.setStartCreateTime(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL));
+        }
+        if(jsonFilter.getLong(DeviceAlarmRestModuleConst.END_INTERVAL) !=null){
+            filter.setEndCreateTime(jsonFilter.getLong(DeviceAlarmRestModuleConst.END_INTERVAL));
+        }
         getDueDates(jsonFilter).stream().forEach(dd -> filter.setDueDates(dd.startTime, dd.endTime));
         return filter;
     }
 
-    public List<IssueDueDateInfo> getDueDates(JsonQueryFilter filter) {
+    private List<IssueDueDateInfo> getDueDates(JsonQueryFilter filter) {
         IssueDueDateInfoAdapter issueDueDateInfoAdapter = new IssueDueDateInfoAdapter();
-        return filter.getStringList(IssueRestModuleConst.DUE_DATE).stream().map(dd -> {
+        return filter.getStringList(DeviceAlarmRestModuleConst.DUE_DATE).stream().map(dd -> {
             try {
                 return issueDueDateInfoAdapter.unmarshal(dd);
             } catch (Exception ex){
@@ -215,4 +219,5 @@ public class DeviceAlarmResource extends BaseAlarmResource{
             }
         }).collect(Collectors.toList());
     }
+
 }
