@@ -26,8 +26,6 @@ public interface DeviceAlarmService {
 
     Optional<HistoricalDeviceAlarm> findHistoricalAlarm(long id);
 
-    OpenDeviceAlarm createAlarm(OpenDeviceAlarm baseAlarm, IssueEvent issueEvent);
-
     <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
 
     Finder<? extends DeviceAlarm> findAlarms(DeviceAlarmFilter filter, Class<?>... eagers);

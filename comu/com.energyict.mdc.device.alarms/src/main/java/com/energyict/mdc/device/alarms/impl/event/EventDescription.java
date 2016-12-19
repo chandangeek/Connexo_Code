@@ -21,10 +21,6 @@ public interface EventDescription {
     */
     List<Map<?, ?>> splitEvents(Map<?, ?> map);
     /**
-     * @return true if event of this type can be used for event aggregation
-     */
-    boolean canBeAggregated();
-    /**
      * @return string which is a unique key for the specific type of event
      */
     String getUniqueKey();

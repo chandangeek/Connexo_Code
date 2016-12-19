@@ -5,14 +5,11 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
-import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -28,8 +25,8 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
 
 
     @Inject
-    public EndDeviceEventCreatedEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
-        super(deviceAlarmService, issueService, meteringService, deviceService, topologyService, thesaurus, injector);
+    public EndDeviceEventCreatedEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, Injector injector) {
+        super(deviceAlarmService, issueService, meteringService, deviceService, thesaurus, injector);
     }
 
     @Override
@@ -58,12 +55,5 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
 
 
         }
-    }
-
-    @Override
-    protected Condition getConditionForExistingIssue() {
-        //TODO
-        return null;
-        //where("issue.id").isEqualTo().and(where().isNull());
     }
 }
