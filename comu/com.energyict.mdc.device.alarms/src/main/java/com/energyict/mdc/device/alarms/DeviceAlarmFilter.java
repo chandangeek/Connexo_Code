@@ -22,8 +22,11 @@ public class DeviceAlarmFilter {
     private Optional<User> userAssignee = Optional.empty();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
+    private List<Boolean> cleared = new ArrayList<>();
     private boolean unassignedOnly = false;
     private boolean unassignedWorkGroupSelected = false;
+    private Long startCreateTime = null;
+    private Long endCreateTime = null;
 
     public DeviceAlarmFilter() {
     }
@@ -104,5 +107,29 @@ public class DeviceAlarmFilter {
 
     public void setUnassignedWorkGroupSelected() {
         this.unassignedWorkGroupSelected = true;
+    }
+
+    public List<Boolean> getCleared() {
+        return cleared;
+    }
+
+    public void addToClearead(boolean cleared) {
+        this.cleared.add(cleared);
+    }
+
+    public Long getStartCreateTime() {
+        return startCreateTime;
+    }
+
+    public void setStartCreateTime(Long startCreateTime) {
+        this.startCreateTime = startCreateTime;
+    }
+
+    public Long getEndCreateTime() {
+        return endCreateTime;
+    }
+
+    public void setEndCreateTime(Long endCreateTime) {
+        this.endCreateTime = endCreateTime;
     }
 }

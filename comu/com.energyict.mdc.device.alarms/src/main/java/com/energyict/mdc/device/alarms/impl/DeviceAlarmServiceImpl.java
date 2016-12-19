@@ -270,6 +270,15 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
     private Condition buildConditionFromFilter(DeviceAlarmFilter filter) {
         Condition condition = Condition.TRUE;
+        //filter by issue id
+        if (filter.getAlarmId() != null) {
+            String[] alarmIdPart = filter.getAlarmId().split("-");
+            if (alarmIdPart.length == 2) {
+                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(alarmIdPart[1])));
+            } else {
+                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(filter.getAlarmId())));
+            }
+        }
         //filter by user assignee
         Condition assigneeCondition = Condition.TRUE;
         if (filter.getUserAssignee().isPresent()) {
@@ -283,6 +292,19 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         if (!filter.getAlarmReasons().isEmpty()) {
             condition = condition.and(where("baseIssue.reason").in(filter.getAlarmReasons()));
         }
+        //cleared alarm cleared status
+        if(!filter.getCleared().isEmpty()){
+            condition = condition.and(where("clearedStatus").in(filter.getCleared()));
+        }
+        //filter by workGroup
+        if (!filter.getWorkGroupAssignees().isEmpty()) {
+            Condition wgCondition = Condition.TRUE;
+            wgCondition = wgCondition.and(where("baseIssue.workGroup").in(filter.getWorkGroupAssignees()));
+            if (filter.isUnassignedWorkGroupSelected()) {
+                wgCondition = wgCondition.or(where("baseIssue.workGroup").isNull());
+            }
+            condition = condition.and(wgCondition);
+        }
         //filter by device
         if (!filter.getDevices().isEmpty()) {
             condition = condition.and(where("baseIssue.device").in(filter.getDevices()));
@@ -290,6 +312,22 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {
             condition = condition.and(where("baseIssue.status").in(filter.getStatuses()));
+        }
+        //filter by due date
+        if (!filter.getDueDates().isEmpty()) {
+            Condition dueDateCondition = Condition.FALSE;
+            for (int i = 0; i < filter.getDueDates().size(); i++) {
+                dueDateCondition = dueDateCondition.or(where("baseIssue.dueDate").isGreaterThanOrEqual(filter.getDueDates().get(i).getStartTimeAsInstant())
+                        .and(where("baseIssue.dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
+            }
+            condition = condition.and(dueDateCondition);
+        }
+        //filter by create time
+        if(filter.getStartCreateTime() != null){
+            condition = condition.and(where("createTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
+        }
+        if(filter.getEndCreateTime() != null){
+            condition = condition.and(where("createTime").isLessThanOrEqual(filter.getEndCreateTime()));
         }
         return condition;
     }
@@ -327,6 +365,14 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     @Override
     public Optional<? extends Issue> findIssue(long l) {
         return findAlarm(l);
+    }
+
+    private long getNumericValueOrZero(String id) {
+        try {
+            return Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
 
