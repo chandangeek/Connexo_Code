@@ -141,8 +141,8 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.ID)) {
             filter.setAlarmId(jsonFilter.getString(DeviceAlarmRestModuleConst.ID));
         }
-        jsonFilter.getStringList(DeviceAlarmRestModuleConst.CLEARED).stream().forEach(c -> {
-            switch (c) {
+        jsonFilter.getStringList(DeviceAlarmRestModuleConst.CLEARED).stream().forEach(cleared -> {
+            switch (cleared) {
                 case "yes":
                     filter.addToClearead(true);
                     break;
@@ -155,9 +155,8 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 .flatMap(s -> getIssueService().findStatus(s).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::setStatus);
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.REASON)) {
-//            issueService.findReason(jsonFilter.getString(DeviceAlarmRestModuleConst.REASON))
-//                    .ifPresent(filter::setIssueReason);
-            System.out.println("reason");
+            getIssueService().findReason(jsonFilter.getString(DeviceAlarmRestModuleConst.REASON))
+                    .ifPresent(filter::setAlarmReason);
         }
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.METER)) {
             getMeteringService().findEndDeviceByName(jsonFilter.getString(DeviceAlarmRestModuleConst.METER))
