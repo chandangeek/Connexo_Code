@@ -518,6 +518,21 @@ public class CommandRuleIT {
         assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
     }
 
+    @Test
+    @Transactional
+    public void testDeletedCommandLimits() {
+        DeviceMessageId deviceMessageId = DeviceMessageId.values()[0];
+        CommandRule rule = createRule("test5", 1, 0, 0, 1);
+        activateAndApproveRule(rule);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
+        commandRuleService.commandCreated(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        commandRuleService.commandDeleted(deviceMessage);
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+    }
+
     private void activateAndApproveRule(CommandRule rule) {
         rule.activate();
         createUserAndChange();
