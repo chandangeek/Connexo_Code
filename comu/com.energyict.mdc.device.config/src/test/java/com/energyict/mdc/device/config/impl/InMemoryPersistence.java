@@ -90,7 +90,6 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Provides initialization services that is typically used by classes that focus
@@ -266,7 +265,7 @@ public class InMemoryPersistence {
         this.mockProtocolPluggableService = mockedProtocolPluggableService;
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
         if (this.mockProtocolPluggableService) {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);

@@ -53,6 +53,7 @@ import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -710,7 +711,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Test
     @Transactional
     public void currentUserHasCorrectLevelTest() {
-        User mockedUser = inMemoryPersistence.getMockedUser();
+        User mockedUser = mock(User.class);
         when(mockedUser.hasPrivilege(anyString(), Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserHasCorrectLevelTest").add();
