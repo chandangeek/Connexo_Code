@@ -140,7 +140,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShowProcesses', 'UNI', 'No active processes to show');
                             break;
                         default:
-                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active issues, processes or service calls to show');
+                            emptyText = Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active alarms, issues, processes or service calls to show');
                             break;
 
                     }
