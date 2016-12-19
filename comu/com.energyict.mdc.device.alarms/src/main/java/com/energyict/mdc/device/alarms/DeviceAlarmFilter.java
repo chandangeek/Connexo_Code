@@ -25,6 +25,8 @@ public class DeviceAlarmFilter {
     private List<Boolean> cleared = new ArrayList<>();
     private boolean unassignedOnly = false;
     private boolean unassignedWorkGroupSelected = false;
+    private Long startCreateTime = null;
+    private Long endCreateTime = null;
 
     public DeviceAlarmFilter() {
     }
@@ -113,5 +115,21 @@ public class DeviceAlarmFilter {
 
     public void addToClearead(boolean cleared) {
         this.cleared.add(cleared);
+    }
+
+    public Long getStartCreateTime() {
+        return startCreateTime;
+    }
+
+    public void setStartCreateTime(Long startCreateTime) {
+        this.startCreateTime = startCreateTime;
+    }
+
+    public Long getEndCreateTime() {
+        return endCreateTime;
+    }
+
+    public void setEndCreateTime(Long endCreateTime) {
+        this.endCreateTime = endCreateTime;
     }
 }

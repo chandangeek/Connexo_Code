@@ -313,6 +313,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         if (!filter.getStatuses().isEmpty()) {
             condition = condition.and(where("baseIssue.status").in(filter.getStatuses()));
         }
+        //filter by due date
         if (!filter.getDueDates().isEmpty()) {
             Condition dueDateCondition = Condition.FALSE;
             for (int i = 0; i < filter.getDueDates().size(); i++) {
@@ -320,6 +321,13 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                         .and(where("baseIssue.dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
             }
             condition = condition.and(dueDateCondition);
+        }
+        //filter by create time
+        if(filter.getStartCreateTime() != null){
+            condition = condition.and(where("createTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
+        }
+        if(filter.getEndCreateTime() != null){
+            condition = condition.and(where("createTime").isLessThanOrEqual(filter.getEndCreateTime()));
         }
         return condition;
     }
