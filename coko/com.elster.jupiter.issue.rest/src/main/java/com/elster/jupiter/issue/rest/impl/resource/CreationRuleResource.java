@@ -45,6 +45,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/creationrules")
 public class CreationRuleResource extends BaseResource {
@@ -66,12 +67,13 @@ public class CreationRuleResource extends BaseResource {
     public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
         Query<CreationRule> query = getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
         List<CreationRule> rules;
+        Condition conditionAlarm = where("template").isEqualToIgnoreCase("BasicDeviceAlarmRuleTemplate");
         if (queryParams.getStart().isPresent()) {
             int from = queryParams.getStart().get() + 1;
             int to = from + queryParams.getLimit().orElse(0);
-            rules = query.select(Condition.TRUE, from, to, Order.ascending("name"));
+            rules = query.select(conditionAlarm.not(), from, to, Order.ascending("name"));
         } else {
-            rules = query.select(Condition.TRUE, Order.ascending("name"));
+            rules = query.select(conditionAlarm.not(), Order.ascending("name"));
         }
         List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asInfo).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("creationRules", infos, queryParams);
