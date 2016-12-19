@@ -84,21 +84,23 @@ Ext.define('Isu.view.issues.SortingToolbar', {
             }
 
             menuItem = me.down('#issues-sorting-menu [action=' + type + ']');
-            buttons.push({
-                xtype: 'sort-item-btn',
-                itemId: 'issues-sort-by-' + type + '-button',
-                text: menuItem.text,
-                sortValue: sortItem,
-                iconCls: cls,
-                listeners: {
-                    closeclick: {
-                        fn: Ext.bind(me.removeSortItem, me)
-                    },
-                    click: {
-                        fn: Ext.bind(me.changeSortDirection, me)
+            if (menuItem) {
+                buttons.push({
+                    xtype: 'sort-item-btn',
+                    itemId: 'issues-sort-by-' + type + '-button',
+                    text: menuItem.text,
+                    sortValue: sortItem,
+                    iconCls: cls,
+                    listeners: {
+                        closeclick: {
+                            fn: Ext.bind(me.removeSortItem, me)
+                        },
+                        click: {
+                            fn: Ext.bind(me.changeSortDirection, me)
+                        }
                     }
-                }
-            });
+                });
+            }
         });
         if (buttons.length) {
             buttonsContainer.add(buttons);
