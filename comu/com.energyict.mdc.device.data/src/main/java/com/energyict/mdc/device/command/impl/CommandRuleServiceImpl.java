@@ -325,6 +325,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public void commandDeleted(DeviceMessage deviceMessage) {
+        checkCommandRuleStats();
         decreaseExistingCounters(deviceMessage, deviceMessage.getReleaseDate());
     }
 
