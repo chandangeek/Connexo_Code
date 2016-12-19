@@ -33,7 +33,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandRuleStatsException;
@@ -51,11 +50,9 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.beans.DesignMode;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -71,9 +68,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
 import static com.elster.jupiter.util.conditions.Where.where;
-import static com.energyict.mdc.device.command.CommandRuleService.*;
+import static com.energyict.mdc.device.command.CommandRuleService.CommandRuleBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
