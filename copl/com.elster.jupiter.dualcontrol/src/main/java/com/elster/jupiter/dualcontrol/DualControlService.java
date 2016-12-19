@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface DualControlService {
 
     String COMPONENT_NAME = "DUC";
+    String DUAL_CONTROL_APPROVE_CATEGORY = "DualControlApprove";
+    String DUAL_CONTROL_GRANT_CATEGORY = "DualControlGrant";
 
     Monitor createMonitor();
 

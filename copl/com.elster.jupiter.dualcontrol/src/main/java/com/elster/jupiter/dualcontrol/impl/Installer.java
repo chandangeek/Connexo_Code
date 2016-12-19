@@ -36,8 +36,8 @@ class Installer implements FullInstaller {
     }
 
     public Void createResource() {
-        PrivilegeCategory dualControlApprove = userService.createPrivilegeCategory("DualControlApprove");
-        PrivilegeCategory dualControlGrant = userService.createPrivilegeCategory("DualControlGrant");
+        PrivilegeCategory dualControlApprove = userService.createPrivilegeCategory(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY);
+        PrivilegeCategory dualControlGrant = userService.createPrivilegeCategory(DualControlService.DUAL_CONTROL_GRANT_CATEGORY);
 
         Resource resource = userService.buildResource()
                 .component(DualControlService.COMPONENT_NAME)
