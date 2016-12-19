@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -28,6 +29,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
     public static final String BASIC_DATA_COLLECTION_RULE_TEMPLATE = "BasicDataCollectionRuleTemplate";
     public static final String BASIC_DATA_VALIDATION_RULE_TEMPLATE = "DataValidationIssueCreationRuleTemplate";
+    public static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
 
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
@@ -122,6 +124,10 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             if (!deviceConfigurations.isEmpty()) {
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
+        } else if (template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE)) {
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.EVENTTYPE,
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
         }
         return properties;
     }
