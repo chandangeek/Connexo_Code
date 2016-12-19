@@ -31,9 +31,9 @@ Ext.define('Imt.usagepointmanagement.view.bulk.UsagePointsSelectionGrid', {
 
     columns: [
         {
-            itemId: 'MRID',
-            header: Uni.I18n.translate('usagepoints.bulk.mrid', 'IMT', ' MRID'),
-            dataIndex: 'mRID',
+            itemId: 'name',
+            header: Uni.I18n.translate('general.name', 'IMT', ' Name'),
+            dataIndex: 'name',
             flex: 1,
             renderer: function (value) {
                 return '<a href="#usagepoints/' + value + '">' + Ext.String.htmlEncode(value) + '</a>';
