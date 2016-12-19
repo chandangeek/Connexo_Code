@@ -50,7 +50,11 @@ Ext.define('Imt.controller.Main', {
         'Imt.metrologyconfiguration.controller.EstimationConfiguration',
         'Imt.usagepointgroups.controller.UsagePointGroups',
         'Imt.usagepointmanagement.controller.Calendars',
-        'Imt.controller.SearchItemsBulkAction'
+        'Imt.controller.SearchItemsBulkAction',        
+        'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+        'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+        'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
+        'Imt.usagepointmanagement.controller.UsagePointTransitionExecute'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
@@ -88,14 +92,14 @@ Ext.define('Imt.controller.Main', {
 	        Uni.store.MenuItems.add(menuItem);
 	
 	        var portalItem1 = Ext.create('Uni.model.PortalItem', {
-	            title: Uni.I18n.translate('general.label.administration', 'IMT', 'Administration'),
+	            title: Uni.I18n.translate('general.usagePointLifecycleManagement', 'IMT', 'Usage point lifecycle management'),
 	            portal: 'usagepoints',
 	            items: [
 	                {
 	                    text: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
 	                    href: '#/usagepoints/add',
 	                    itemId: 'add-usagepoints'
-	                },
+	                }
 	            ]
 	        });
 	
@@ -141,6 +145,21 @@ Ext.define('Imt.controller.Main', {
                         text: Uni.I18n.translate('general.serviceCategories', 'IMT', 'Service categories'),
                         href: '#/administration/servicecategories',
                         itemId: 'overview-servicecategories'
+                    }
+                ]
+            }));
+        }
+
+        if (Imt.privileges.UsagePointLifeCycle.canView()) {
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.usagePointLifecycleManagement', 'IMT', 'Usage point lifecycle management'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.usagePointLifeCycles', 'IMT', 'Usage point life cycles'),
+                        href: '#/administration/usagepointlifecycles',
+                        itemId: 'usagepointlifecycles-portal-item',
+                        route: 'usagepointlifecycles'
                     }
                 ]
             }));

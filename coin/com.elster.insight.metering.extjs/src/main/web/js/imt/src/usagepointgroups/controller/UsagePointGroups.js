@@ -223,6 +223,9 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
                     icon: 'icon-warning2',
                     style: 'font-size: 34px;'
                 });
+            },
+            callback: function () {
+                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     },
