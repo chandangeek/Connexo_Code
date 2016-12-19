@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-//FixMe do we need alarms reasons ?
 @Path("/reasons")
 public class ReasonResource extends BaseAlarmResource {
 
@@ -31,7 +30,7 @@ public class ReasonResource extends BaseAlarmResource {
     public Response getReasons(@BeanParam StandardParametersBean params) {
         Condition condition = Condition.TRUE;
         Query<IssueReason> query = getIssueService().query(IssueReason.class);
-        List<IssueReason> reasons = query.select(condition);
+        List<IssueReason> reasons = query.select(condition).stream().filter(reason -> reason.getIssueType().getKey().toLowerCase().equals("devicealarm")).collect(Collectors.toList());
         if (params.getFirst("like") != null) {
             reasons = reasons.stream().filter(reason -> reason.getName().toLowerCase().contains(params.getFirst("like").toLowerCase())).collect(Collectors
                     .toList());
