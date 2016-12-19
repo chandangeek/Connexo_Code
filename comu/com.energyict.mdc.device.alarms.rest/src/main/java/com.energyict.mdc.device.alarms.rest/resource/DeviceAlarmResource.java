@@ -141,6 +141,16 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.ID)) {
             filter.setAlarmId(jsonFilter.getString(DeviceAlarmRestModuleConst.ID));
         }
+        jsonFilter.getStringList(DeviceAlarmRestModuleConst.CLEARED).stream().forEach(c -> {
+            switch (c) {
+                case "yes":
+                    filter.addToClearead(true);
+                    break;
+                case "no":
+                    filter.addToClearead(false);
+                    break;
+            }
+        });
         jsonFilter.getStringList(DeviceAlarmRestModuleConst.STATUS).stream()
                 .flatMap(s -> getIssueService().findStatus(s).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::setStatus);
