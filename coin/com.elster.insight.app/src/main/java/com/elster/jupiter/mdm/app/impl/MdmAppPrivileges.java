@@ -12,6 +12,7 @@ class MdmAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS,
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+                com.elster.jupiter.metering.security.Privileges.Constants.MANAGE_USAGE_POINT_ATTRIBUTES,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
