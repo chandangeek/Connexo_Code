@@ -86,6 +86,10 @@ import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
 import com.energyict.mdc.common.Password;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
+import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplate;
+import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -380,7 +384,8 @@ public class DemoTest {
                 new MailModule(),
                 new DemoModule(),
                 new CalendarModule(),
-                new PropertyValueInfoServiceModule()
+                new PropertyValueInfoServiceModule(),
+                new DeviceAlarmModule()
         );
         doPreparations();
     }
@@ -719,7 +724,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
-        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(4);
+        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(5);
     }
 
     @Test
@@ -834,6 +839,7 @@ public class DemoTest {
         injector.getInstance(MeteringDataModelService.class).addHeadEndInterface(injector.getInstance(MultiSenseHeadEndInterfaceImpl.class));
         injector.getInstance(IssueDataCollectionService.class);
         injector.getInstance(IssueDataValidationService.class);
+        injector.getInstance(DeviceAlarmService.class);
         fixIssueTemplates();
         fixEstimators(propertySpecService, injector.getInstance(TimeService.class));
     }
@@ -841,10 +847,12 @@ public class DemoTest {
     private void fixIssueTemplates() {
         AbstractDataCollectionTemplate template = injector.getInstance(BasicDataCollectionRuleTemplate.class);
         DataValidationIssueCreationRuleTemplate dataValidationIssueCreationRuleTemplate = injector.getInstance(DataValidationIssueCreationRuleTemplate.class);
+        AbstractDeviceAlarmTemplate alarmTemplate = injector.getInstance(BasicDeviceAlarmRuleTemplate.class);
 
         IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
         issueService.addCreationRuleTemplate(template);
         issueService.addCreationRuleTemplate(dataValidationIssueCreationRuleTemplate);
+        issueService.addCreationRuleTemplate(alarmTemplate);
     }
 
     private void fixEstimators(PropertySpecService propertySpecService, TimeService timeService) {
