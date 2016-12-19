@@ -22,6 +22,7 @@ public class DeviceAlarmFilter {
     private Optional<User> userAssignee = Optional.empty();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
+    private List<Boolean> cleared = new ArrayList<>();
     private boolean unassignedOnly = false;
     private boolean unassignedWorkGroupSelected = false;
 
@@ -104,5 +105,13 @@ public class DeviceAlarmFilter {
 
     public void setUnassignedWorkGroupSelected() {
         this.unassignedWorkGroupSelected = true;
+    }
+
+    public List<Boolean> getCleared() {
+        return cleared;
+    }
+
+    public void addToClearead(boolean cleared) {
+        this.cleared.add(cleared);
     }
 }
