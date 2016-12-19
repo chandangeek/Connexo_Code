@@ -2,10 +2,12 @@ package com.energyict.mdc.device.alarms.rest;
 
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 
 import javax.ws.rs.core.Response;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +50,11 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest{
         doReturn(alarmFinder).when(deviceAlarmService).findAlarms(any(DeviceAlarmFilter.class), anyVararg());
         List<? extends DeviceAlarm> alarms = Collections.singletonList(getDefaultAlarm());
         doReturn(alarms).when(alarmFinder).find();
+        Optional<IssueStatus> status = Optional.of(getDefaultStatus());
+        when(issueService.findStatus("open")).thenReturn(status);
 
-        Map<?, ?> map = target("/alarms").queryParam("start", "0").queryParam("limit", "1").request().get(Map.class);
+        String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]}]");
+        Map<?, ?> map = target("/alarms").queryParam("filter", filter).queryParam("start", "0").queryParam("limit", "1").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(1);
 
         List<?> data = (List<?>) map.get("data");
@@ -64,11 +69,11 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest{
         assertThat(alarmMap.get("alarmId")).isEqualTo("ALM-001");
 
         Map<?, ?> reasonMap = (Map<?, ?>) alarmMap.get("reason");
-        assertThat(reasonMap.get("id")).isEqualTo(0);
+        assertThat(reasonMap.get("id")).isEqualTo("1");
         assertThat(reasonMap.get("name")).isEqualTo("Reason");
 
         Map<?, ?> statusMap = (Map<?, ?>) alarmMap.get("status");
-        assertThat(statusMap.get("id")).isEqualTo(0);
+        assertThat(statusMap.get("id")).isEqualTo("1");
         assertThat(statusMap.get("name")).isEqualTo("open");
 
         Map<?, ?> userAssignee = (Map<?, ?>) alarmMap.get("userAssignee");

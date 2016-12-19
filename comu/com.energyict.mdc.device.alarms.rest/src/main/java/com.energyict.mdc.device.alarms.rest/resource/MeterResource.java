@@ -32,7 +32,7 @@ public class MeterResource extends BaseAlarmResource{
         MeterFilter filter = new MeterFilter();
         filter.setName(dbSearchText);
         List<Meter> listMeters = getMeteringService().findMeters(filter).paged(params.getStart(), params.getLimit()).find();
-        return Response.ok().entity(listMeters.stream().map(MeterShortInfo::new).collect(Collectors.toList())).build(); //FixMe possible issue with start and end limit !!!
+        return Response.ok().entity(listMeters.stream().map(MeterShortInfo::new).collect(Collectors.toList())).build();
     }
 
     @GET
