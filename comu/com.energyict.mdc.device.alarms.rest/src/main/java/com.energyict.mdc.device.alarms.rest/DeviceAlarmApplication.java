@@ -18,7 +18,7 @@ import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
 import com.energyict.mdc.device.alarms.rest.resource.MeterResource;
 import com.energyict.mdc.device.alarms.rest.resource.ReasonResource;
 import com.energyict.mdc.device.alarms.rest.resource.StatusResource;
-import com.energyict.mdc.device.alarms.rest.resource.UserReource;
+import com.energyict.mdc.device.alarms.rest.resource.UserResource;
 import com.energyict.mdc.device.alarms.rest.resource.WorkGroupsResource;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
 import com.energyict.mdc.device.data.DeviceService;
@@ -65,7 +65,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
                 WorkGroupsResource.class,
                 ReasonResource.class,
                 MeterResource.class,
-                UserReource.class);
+                UserResource.class);
     }
 
     @Override

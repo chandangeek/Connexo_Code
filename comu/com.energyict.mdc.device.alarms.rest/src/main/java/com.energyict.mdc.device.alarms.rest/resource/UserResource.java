@@ -5,6 +5,8 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.AssigneeFilterListInfo;
 import com.elster.jupiter.issue.rest.response.PagedInfoListCustomized;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
@@ -15,16 +17,20 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys.ALARM_ASSIGNEE_UNASSIGNED;
 
 @Path("/assignees")
-public class UserReource extends BaseAlarmResource{
+public class UserResource extends BaseAlarmResource{
 
 
     @GET
@@ -50,6 +56,24 @@ public class UserReource extends BaseAlarmResource{
             assigneeFilterListInfo = new AssigneeFilterListInfo(listUsers);
         }
         return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM,Privileges.Constants.ASSIGN_ALARM,Privileges.Constants.CLOSE_ALARM,Privileges.Constants.COMMENT_ALARM,Privileges.Constants.ACTION_ALARM})
+    public Response getAssignee(@PathParam("id") long id){
+        IssueAssignee assignee = getIssueService().findIssueAssignee(id, null);
+        if (assignee.getUser() == null) {
+            //Takes care of Unassigned issues which would have userId of "-1"
+            if (id < 0){
+                String unassignedText = getThesaurus().getFormat(ALARM_ASSIGNEE_UNASSIGNED).format();
+                Response.ok().entity(new IdWithNameInfo( -1L, unassignedText)).build();
+            }
+            //Not unassigned, so this user really doesn't exist
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        return Response.ok().entity(new IdWithNameInfo(assignee.getId(), assignee.getName())).build();
     }
 
 }
