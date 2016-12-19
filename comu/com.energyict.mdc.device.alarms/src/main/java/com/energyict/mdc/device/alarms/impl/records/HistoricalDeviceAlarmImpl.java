@@ -33,7 +33,7 @@ public final class HistoricalDeviceAlarmImpl extends DeviceAlarmImpl implements 
         return baseIssue.orNull();
     }
 
-    void setIssue(HistoricalIssue issue) {
+    public void setIssue(HistoricalIssue issue) {
         this.baseIssue.set(issue);
     }
 

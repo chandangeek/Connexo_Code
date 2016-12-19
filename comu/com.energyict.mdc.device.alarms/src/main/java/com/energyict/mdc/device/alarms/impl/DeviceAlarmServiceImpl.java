@@ -252,6 +252,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 .size()]));
     }
 
+    public DataModel getDataModel() {
+        return this.dataModel;
+    }
+
     private List<Class<?>> determineMainApiClass(DeviceAlarmFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
