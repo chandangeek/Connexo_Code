@@ -78,7 +78,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private int maxNumberOfTries = -1;
     private UpdateStrategy updateStrategy = new Noop();
     private boolean calledByComtaskExecution = false;
-
     private final ServerCommunicationTaskService communicationTaskService;
 
     @Inject
@@ -165,7 +164,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         } else {
             // Old strategy is asap and therefore the new strategy is to minimize connections
             this.updateNextExecutionTimestamp(PostingMode.LATER);
-            this.rescheduleComTaskExecutions();
         }
     }
 
@@ -235,7 +233,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             } else {
                 priority = earliestNextExecutionTimestampAndPriority.priority;
             }
-            this.synchronizeScheduledComTaskExecution(this.getNextExecutionTimestamp(), priority);
+            if(!calledByComtaskExecution) {
+                this.synchronizeScheduledComTaskExecution(this.getNextExecutionTimestamp(), priority);
+            }
         }
     }
 
@@ -549,8 +549,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
                 this.synchronizeScheduledComTaskExecution(when, highestPriority);
             }
         }
-        calledByComtaskExecution = false;
         this.applyNextExecutionTimestampAndPriority(when, highestPriority, postingMode);
+        calledByComtaskExecution = false;
         return when;
     }
 
