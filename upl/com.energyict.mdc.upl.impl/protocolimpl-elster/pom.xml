@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.elster</groupId>
             <artifactId>ElsterDlmsLibrary</artifactId>
-            <version>1.0.14.6772</version>
+            <version>2.0</version>
         </dependency>
         <dependency>
             <groupId>com.elster</groupId>
