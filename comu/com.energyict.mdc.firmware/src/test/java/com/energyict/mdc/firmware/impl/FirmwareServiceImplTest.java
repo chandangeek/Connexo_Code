@@ -5,15 +5,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -130,11 +131,21 @@ public class FirmwareServiceImplTest extends PersistenceTest {
 
     private DeviceType getMockedDeviceTypeWithMessageIds(DeviceMessageId... deviceMessageIds) {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(new HashSet<>(Arrays.asList(deviceMessageIds)));
+        when(deviceProtocol.getSupportedMessages()).thenReturn(mockMessages(deviceMessageIds));
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         return deviceType;
+    }
+
+    private List<DeviceMessageSpec> mockMessages(DeviceMessageId... deviceMessageIds) {
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> result = new ArrayList<>();
+        for (DeviceMessageId deviceMessageId : deviceMessageIds) {
+            com.energyict.mdc.upl.messages.DeviceMessageSpec spec = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(spec.getMessageId()).thenReturn(deviceMessageId.dbValue());
+            result.add(spec);
+        }
+        return result;
     }
 }

@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -237,7 +238,11 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     public Optional<DeviceMessageId> getFirmwareMessageId() {
         if (deviceType.isPresent() && deviceType.get().getDeviceProtocolPluggableClass().isPresent() && getFirmwareManagementOption() != null) {
-            return deviceType.get().getDeviceProtocolPluggableClass().get().getDeviceProtocol().getSupportedMessages()
+            return deviceType.get().getDeviceProtocolPluggableClass()
+                    .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                            .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                            .map(DeviceMessageId::havingId)
+                            .collect(Collectors.toList())).orElse(Collections.emptyList())
                     .stream()
                     .filter(firmwareMessageCandidate -> {
                         Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
