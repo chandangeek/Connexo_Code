@@ -38,6 +38,8 @@ Ext.define('Uni.grid.column.Check', {
     renderer: function (value, meta, record, rowIdx, colIdx, store, view) {
         var me = this;
 
+        meta.tdCls += ' row-checker'; // for automation tests
+
         if (!me.disabled && me.isDisabled(record)) {
             meta.tdCls += ' ' + me.disabledCls;
         }
