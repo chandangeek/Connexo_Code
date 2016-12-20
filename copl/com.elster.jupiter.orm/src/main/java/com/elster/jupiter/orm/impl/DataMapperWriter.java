@@ -61,12 +61,11 @@ public class DataMapperWriter<T> {
             List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(false))) {
                 int index = 1;
-                Long nextVal = null;
                 ColumnImpl macColumn = null;
                 int macColumnIndex = 0;
                 for (ColumnImpl column : getColumns()) {
                     if (column.isAutoIncrement()) {
-                        nextVal = getNext(connection, column.getQualifiedSequenceName());
+                        Long nextVal = getNext(connection, column.getQualifiedSequenceName());
                         column.setDomainValue(object, nextVal);
                         statement.setObject(index++, column.hasIntValue() ? nextVal.intValue() : nextVal);
                     } else if (column.isMAC()) {
@@ -77,7 +76,7 @@ public class DataMapperWriter<T> {
                     }
                 }
                 if (macColumn != null) {
-                    macColumn.setMACValue(statement, macColumnIndex, object, nextVal);
+                    macColumn.setMACValue(statement, macColumnIndex, object);
                 }
                 statement.executeUpdate();
             } finally {

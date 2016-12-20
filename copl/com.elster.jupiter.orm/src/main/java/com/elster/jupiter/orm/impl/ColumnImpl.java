@@ -483,22 +483,22 @@ public class ColumnImpl implements Column {
 
     Optional<IOResource> setObject(PreparedStatement statement, int index, Object target) throws SQLException {
         if (isMAC()) {
-            setMACValue(statement, index, target, null);
+            setMACValue(statement, index, target);
             return Optional.empty();
         }
         return this.conversion.setObject(this, statement, index, this.domainValue(target));
     }
 
-    void setMACValue(PreparedStatement statement, int index, Object target, Long autoIdValue) throws SQLException {
-        String base64Encoded = macValue(target, autoIdValue);
+    void setMACValue(PreparedStatement statement, int index, Object target) throws SQLException {
+        String base64Encoded = macValue(target);
         this.conversion.setObject(this, statement, index, base64Encoded);
     }
 
-    private String macValue(Object target, Long autoIdValue) {
+    String macValue(Object target) {
         Object[] objects = getTable().getColumns()
                 .stream()
                 .filter(not(ColumnImpl::isMAC))
-                .map(column -> column.isAutoIncrement() && autoIdValue != null ? autoIdValue : column.domainValue(target))
+                .map(column -> column.domainValue(target))
                 .map(Objects::toString)
                 .toArray();
         int hash = Objects.hash(objects);
@@ -507,9 +507,6 @@ public class ColumnImpl implements Column {
         return Base64.getEncoder().encodeToString(encrypted.getBytes());
     }
 
-    String macValue(Object target) {
-        return macValue(target, null);
-    }
     private byte[] getBytes(int value) {
         int mask = 0xFF;
         byte[] bytes = new byte[BYTES_IN_AN_INTEGER];
