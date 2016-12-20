@@ -57,4 +57,6 @@ public interface Issue extends Entity {
     Priority getPriority();
 
     void setPriority(long urgency, long impact);
+
+    void setPriority(Priority priority);
 }

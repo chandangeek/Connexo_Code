@@ -212,6 +212,14 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
+    public void setPriority(Priority priority) {
+        if (priority != null) {
+            this.urgency = priority.getUrgency();
+            this.impact = priority.getImpact();
+        }
+    }
+
+    @Override
     public Optional<UsagePoint> getUsagePoint() {
         EndDevice endDevice = getDevice();
         if (endDevice != null && Meter.class.isInstance(endDevice)) {

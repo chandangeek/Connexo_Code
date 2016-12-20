@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.Priority;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
@@ -57,6 +58,8 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private Reference<IssueType>  issueType = ValueReference.absent();//transient in fact - needed for form validation
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<IssueReason> reason = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    private Reference<Priority> priority = ValueReference.absent();
     private long dueInValue;
     private DueInType dueInType;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -118,6 +121,15 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     void setReason(IssueReason reason) {
         this.reason.set(reason);
+    }
+
+    @Override
+    public Priority getPriority(){
+        return priority.get();
+    }
+
+    void setPriority(Priority priority) {
+        this.priority.set(priority);
     }
 
     @Override

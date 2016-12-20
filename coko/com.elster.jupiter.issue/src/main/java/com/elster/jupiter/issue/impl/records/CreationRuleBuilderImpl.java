@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.orm.DataModel;
@@ -38,6 +39,12 @@ public class CreationRuleBuilderImpl implements CreationRuleBuilder {
     @Override
     public CreationRuleBuilder setReason(IssueReason reason) {
         this.underConstruction.setReason(reason);
+        return this;
+    }
+
+    @Override
+    public CreationRuleBuilder setPriority(Priority priority) {
+        this.underConstruction.setPriority(priority);
         return this;
     }
 

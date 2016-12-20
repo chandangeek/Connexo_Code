@@ -181,6 +181,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
+        baseIssue.setPriority(firedRule.getPriority());
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));
