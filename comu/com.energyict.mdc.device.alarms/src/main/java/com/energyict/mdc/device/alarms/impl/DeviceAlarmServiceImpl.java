@@ -45,6 +45,7 @@ import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.install.Installer;
 import com.energyict.mdc.device.alarms.impl.install.UpgraderV10_3;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
+import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.ImmutableMap;
@@ -59,6 +60,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
@@ -344,7 +348,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
