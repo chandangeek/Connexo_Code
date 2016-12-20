@@ -187,7 +187,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 title: title,
                 fn: function (btnId) {
                     if (btnId == 'confirm') {
-                        record.set('status', {value: 'REVOKED'});
+                        record.set('status', {value: 'CANCELED'});
                         record.save({
                             isNotEdit: true,
                             url: '/api/ddr/devices/' + mRID + '/devicemessages/',
