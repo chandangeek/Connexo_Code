@@ -117,6 +117,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
             }
             limiter.writeEmergencyProfileGroupIdList(groupIdList);
         } catch (NotInObjectListException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             setNotInObjectListMessage(collectedMessage, Limiter.getDefaultObisCode().getValue(), pendingMessage, e);
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -188,6 +189,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 }
             }
         } else {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String errorMsg = "The ImageTransfer is in an invalid state: expected state '1' (Image transfer initiated), but was '" +
                     imageTransferStatus.getValue() + "' (" + imageTransferStatus.getInfo() + "). " +
                     "The verification and activation will not be executed.";
@@ -281,9 +283,11 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
                 Data data = getCosemObjectFactory().getData(securityGroupEventObis);
                 data.setValueAttr(new Unsigned16(0));
             } catch (NotInObjectListException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 setNotInObjectListMessage(collectedMessage, securityGroupEventObis.getValue(), pendingMessage, e);
                 break;
             } catch (IOException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 String errorMsg = "Resetting " + securityGroupEventCounter + " with obisCode = " + securityGroupEventObis + " back to 0, failed. " + e.getMessage();
                 setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
                 break;
@@ -298,8 +302,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
             long value = data.getValue();
             data.setValueAttr(new Unsigned32(value));
         } catch (NotInObjectListException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             setNotInObjectListMessage(collectedMessage, MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS.getValue(), pendingMessage, e);
         } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String errorMsg = "Exception occurred while trying to write a new value for object with obisCode: " + MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS + ". " + e.getMessage();
             setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
         }
@@ -323,8 +329,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
             limiter.writeMinUnderThresholdDuration(new Unsigned32(underThresholdDuration));
             writeActions(actionWhenOverThreshold, actionWhenUnderThreshold, limiter);
         } catch (NotInObjectListException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             setNotInObjectListMessage(collectedMessage, Limiter.getDefaultObisCode().getValue(), pendingMessage, e);
         } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String errorMsg = "Exception occurred while trying to write the action scripts for object with obisCode: " + Limiter.getDefaultObisCode() + ". " + e.getMessage();
             setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
         }
