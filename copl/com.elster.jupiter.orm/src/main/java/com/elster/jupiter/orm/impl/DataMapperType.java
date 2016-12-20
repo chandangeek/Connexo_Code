@@ -28,7 +28,7 @@ abstract class DataMapperType<T> {
 	abstract void addSqlFragment(List<SqlFragment> fragments , Class<? extends T> api, String alias);
 	abstract Condition condition(Class<? extends T> api);
 	abstract boolean needsRestriction(Class<? extends T> api);
-	
+
 	final Injector getInjector() {
 		return table.getDataModel().getInjector();
 	}
@@ -41,5 +41,5 @@ abstract class DataMapperType<T> {
 	final TableImpl<T> getTable() {
 		return table;
 	}
-	
+
 }

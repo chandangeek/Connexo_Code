@@ -15,6 +15,11 @@ public interface Column {
 	 */
 	String TYPEFIELDNAME = "class";
 
+	/**
+	 * The dummy fieldname of a discriminator column
+	 */
+	String MACFIELDNAME = "mac";
+
 	Table<?> getTable();
 	String getName();
 	String getName(String alias);

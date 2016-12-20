@@ -1,7 +1,6 @@
 package com.elster.jupiter.orm.query.impl;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.impl.ColumnImpl;
@@ -67,14 +66,9 @@ abstract class JoinDataMapper<T> {
 
 	final List<ColumnAndAlias> getColumnAndAliases(String fieldName) {
 		FieldMapping mapping = getTable().getFieldMapping(fieldName);
-		if (mapping == null) {
-			return null;
-		}
-		List<ColumnAndAlias> result = new ArrayList<>();
-		for (Column column : mapping.getColumns()) {
-			result.add(new ColumnAndAlias((ColumnImpl) column,getAlias()));
-		}
-		return result;
+		return mapping == null ? null : mapping.getColumns().stream()
+				.map(column -> new ColumnAndAlias(column, getAlias()))
+				.collect(Collectors.toList());
 	}
 
 	final ColumnAndAlias getColumnAndAlias(String fieldName) {
@@ -180,29 +174,7 @@ abstract class JoinDataMapper<T> {
 	}
 
 	final List<String> getQueryFields() {
-		List<String> result = new ArrayList<>();
-		for (Column each : getTable().getColumns()) {
-			String fieldName = each.getFieldName();
-			if (fieldName != null) {
-				String[] parts = fieldName.split("\\.");
-				String part = "";
-				for (int i = 0 ; i < parts.length - 1 ; i++) {
-					part += parts[i];
-					if (!result.contains(part)) {
-						result.add(part);
-					}
-					part += ".";
-				}
-			}
-			result.add(fieldName);
-		}
-		for (ForeignKeyConstraint each : getTable().getForeignKeyConstraints()) {
-			String fieldName = each.getFieldName();
-			if (fieldName != null) {
-				result.add(fieldName);
-			}
-		}
-		return result;
+		return new ArrayList<>(dataMapper.getQueryFields());
 	}
 
 	public abstract boolean isReachable();

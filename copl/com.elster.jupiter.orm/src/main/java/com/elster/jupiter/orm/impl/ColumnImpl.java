@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
@@ -32,10 +33,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.intersection;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class ColumnImpl implements Column {
     private static final int MAX_ORACLE_VARCHAR_DATATYPE_SIZE = 4000;
     private static final Logger LOGGER = Logger.getLogger(ColumnImpl.class.getName());
+    public static final int BYTES_IN_AN_INTEGER = 4;
+    public static final int BITS_PER_BYTE = 8;
 
     // persistent fields
 
@@ -445,6 +449,10 @@ public class ColumnImpl implements Column {
         }
     }
 
+    boolean isMAC() {
+        return Column.MACFIELDNAME.equals(fieldName);
+    }
+
     void prepare(Object target, boolean update, Instant now) {
         if (conversion == ColumnConversionImpl.NUMBER2NOW && !(update && skipOnUpdate())) {
             getDomainMapper().set(target, fieldName, now);
@@ -463,6 +471,9 @@ public class ColumnImpl implements Column {
     }
 
     void setDomainValue(Object target, Object value) {
+        if (isMAC()) {
+            return;
+        }
         getDomainMapper().set(target, fieldName, value, getTable().getDataModel().getInjector());
     }
 
@@ -471,8 +482,41 @@ public class ColumnImpl implements Column {
     }
 
     Optional<IOResource> setObject(PreparedStatement statement, int index, Object target) throws SQLException {
+        if (isMAC()) {
+            setMACValue(statement, index, target);
+            return Optional.empty();
+        }
         return this.conversion.setObject(this, statement, index, this.domainValue(target));
     }
+
+    void setMACValue(PreparedStatement statement, int index, Object target) throws SQLException {
+        String base64Encoded = macValue(target);
+        this.conversion.setObject(this, statement, index, base64Encoded);
+    }
+
+    String macValue(Object target) {
+        Object[] objects = getTable().getColumns()
+                .stream()
+                .filter(not(ColumnImpl::isMAC))
+                .map(column -> column.domainValue(target))
+                .map(Objects::toString)
+                .toArray();
+        int hash = Objects.hash(objects);
+        byte[] bytes = getBytes(hash);
+        String encrypted = getTable().getEncrypter().encrypt(bytes);
+        return Base64.getEncoder().encodeToString(encrypted.getBytes());
+    }
+
+    private byte[] getBytes(int value) {
+        int mask = 0xFF;
+        byte[] bytes = new byte[BYTES_IN_AN_INTEGER];
+        for (int i = 0; i < BYTES_IN_AN_INTEGER; i++) {
+            bytes[i] = (byte) (value & mask);
+            value = value >>> BITS_PER_BYTE;
+        }
+        return bytes;
+    }
+
 
     String getFormula() {
         return formula;
