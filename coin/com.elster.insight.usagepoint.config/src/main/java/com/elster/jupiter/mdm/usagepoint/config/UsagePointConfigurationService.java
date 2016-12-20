@@ -77,6 +77,14 @@ public interface UsagePointConfigurationService {
      */
     void removeEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet);
 
+    /**
+     * Reorders the {@link EstimationRuleSet}s from the specified {@link MetrologyConfiguration}.
+     *
+     * @param metrologyContract The MetrologyContract
+     * @param newOrder The list of EstimationRuleSets with new order
+     */
+    void reorderEstimationRuleSets(MetrologyContract metrologyContract, List<EstimationRuleSet> newOrder);
+
     boolean isLinkableEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet, List<EstimationRuleSet> linkedEstimationRuleSets);
 
     boolean isEstimationRuleSetInUse(EstimationRuleSet ruleset);

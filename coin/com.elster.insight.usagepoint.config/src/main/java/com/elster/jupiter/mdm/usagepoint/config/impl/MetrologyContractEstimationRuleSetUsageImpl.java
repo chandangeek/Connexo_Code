@@ -21,7 +21,8 @@ class MetrologyContractEstimationRuleSetUsageImpl implements MetrologyContractEs
 
     enum Fields {
         METROLOGY_CONTRACT("metrologyContract"),
-        ESTIMATION_RULE_SET("estimationRuleSet");
+        ESTIMATION_RULE_SET("estimationRuleSet"),
+        POSITION("position");
 
         private final String javaFieldName;
 
@@ -40,6 +41,7 @@ class MetrologyContractEstimationRuleSetUsageImpl implements MetrologyContractEs
     @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
     @IsPresent
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
+    private long position;
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
     @SuppressWarnings("unused") // Managed by ORM
@@ -56,9 +58,10 @@ class MetrologyContractEstimationRuleSetUsageImpl implements MetrologyContractEs
         this.dataModel = dataModel;
     }
 
-    MetrologyContractEstimationRuleSetUsageImpl initAndSave(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
+    MetrologyContractEstimationRuleSetUsageImpl initAndSave(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet, long position) {
         this.estimationRuleSet.set(estimationRuleSet);
         this.metrologyContract.set(metrologyContract);
+        this.position = position;
         this.dataModel.persist(this);
         return this;
     }
@@ -73,4 +76,14 @@ class MetrologyContractEstimationRuleSetUsageImpl implements MetrologyContractEs
         return metrologyContract.get();
     }
 
+    @Override
+    public long getPosition() {
+        return position;
+    }
+
+    @Override
+    public void setPosition(long position) {
+        this.position = position;
+        this.dataModel.update(this);
+    }
 }
