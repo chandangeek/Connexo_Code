@@ -23,6 +23,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.User;
 
 import javax.inject.Provider;
@@ -123,6 +124,8 @@ public class UsagePointImplTest {
     private MeterRole meterRole;
     @Mock
     private DataMapper<Meter> meterFactory;
+    @Mock
+    private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Before
     public void setUp() {
@@ -149,7 +152,7 @@ public class UsagePointImplTest {
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
         usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider,
-                customPropertySetService, metrologyConfigurationService, dataAggregationService)
+                customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService)
                 .init(NAME, serviceCategory);
         usagePoint.setInstallationTime(Instant.EPOCH);
     }
@@ -228,7 +231,7 @@ public class UsagePointImplTest {
     public void testGetConnectionState() {
         usagePoint.setConnectionState(ConnectionState.CONNECTED);
 
-        assertThat(usagePoint.getConnectionState()).isEqualTo(ConnectionState.CONNECTED);
+        assertThat(usagePoint.getCurrentConnectionState()).contains(ConnectionState.CONNECTED);
     }
 
     @Test

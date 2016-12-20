@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -30,6 +31,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 import com.google.common.collect.Range;
 
@@ -400,6 +402,18 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
                 .activate(meter2, meterRole)
                 .throwingValidation()
                 .complete();
+    }
+
+    @Test(expected = VerboseConstraintViolationException.class)
+    @Transactional
+    public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory
+                .newUsagePoint("testUP", now)
+                .create();
+        usagePoint.getState().startUpdate().setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        usagePoint.linkMeters().activate(meter, meterRole).complete();
     }
 
     private static class TestHeadEndInterface implements HeadEndInterface {

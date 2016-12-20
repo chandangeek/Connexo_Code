@@ -51,6 +51,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -141,7 +143,8 @@ public class UsagePointSearchTest {
                 new DataVaultModule(),
                 new NlsModule(),
                 new CustomPropertySetsModule(),
-                new BasicPropertiesModule()
+                new BasicPropertiesModule(),
+                new UsagePointLifeCycleConfigurationModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext context = transactionService.getContext()) {
@@ -155,6 +158,7 @@ public class UsagePointSearchTest {
             injector.getInstance(MeteringTranslationService.class);
             usagePointSearchDomain = injector.getInstance(UsagePointSearchDomain.class);
             propertySpecService = injector.getInstance(PropertySpecService.class);
+            createDefaultUsagePointLifeCycle();
             context.commit();
         }
         thesaurus = mock(Thesaurus.class, RETURNS_DEEP_STUBS);
@@ -165,6 +169,11 @@ public class UsagePointSearchTest {
         ExecutionTimer timer = mock(ExecutionTimer.class);
         doAnswer(invocation -> ((Callable)invocation.getArguments()[0]).call()).when(timer).time(any(Callable.class));
         when(dummyMonitor.searchTimer(usagePointSearchDomain)).thenReturn(timer);
+    }
+
+    private static void createDefaultUsagePointLifeCycle() {
+        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+        usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
 
     @AfterClass

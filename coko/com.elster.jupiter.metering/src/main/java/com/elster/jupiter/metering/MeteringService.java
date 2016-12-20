@@ -52,6 +52,8 @@ public interface MeteringService {
 
     Optional<UsagePoint> findAndLockUsagePointByMRIDAndVersion(String mRID, long version);
 
+    Optional<UsagePoint> findAndLockUsagePointByNameAndVersion(String name, long version);
+
     Optional<UsagePoint> findUsagePointByMRID(String mRID);
 
     Optional<UsagePoint> findUsagePointByName(String name);

@@ -67,23 +67,20 @@ public class UsagePointConnectionStateImplIT {
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
         //get connection state
-        ConnectionState connectionState = usagePoint.getConnectionState();
-        assertThat(connectionState.equals(ConnectionState.UNDER_CONSTRUCTION)).isTrue();
+        assertThat(usagePoint.getCurrentConnectionState().isPresent()).isFalse();
 
         //add connection state valid from 1 january 2014
         usagePoint.setConnectionState(ConnectionState.CONNECTED, JANUARY_2014);
 
         //get connection state
-        connectionState = usagePoint.getConnectionState();
-        assertThat(connectionState.equals(ConnectionState.CONNECTED)).isTrue();
+        assertThat(usagePoint.getCurrentConnectionState()).contains(ConnectionState.CONNECTED);
 
         //add connection state valid from 1 february 2014 (this closes the previous detail on this date)
         usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED, FEBRUARY_2014);
 
 
         //get connection state
-        connectionState = usagePoint.getConnectionState();
-        assertThat(connectionState.equals(ConnectionState.LOGICALLY_DISCONNECTED)).isTrue();
+        assertThat(usagePoint.getCurrentConnectionState()).contains(ConnectionState.LOGICALLY_DISCONNECTED);
     }
 }
 

@@ -200,6 +200,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Optional<UsagePoint> findAndLockUsagePointByNameAndVersion(String name, long version) {
+        return findUsagePointByName(name).flatMap(usagePoint ->
+                dataModel.mapper(UsagePoint.class).lockObjectIfVersion(version, usagePoint.getId()));
+    }
+
+    @Override
     public Optional<UsagePoint> findUsagePointByMRID(String mRID) {
         return dataModel.mapper(UsagePoint.class).getUnique("mRID", mRID);
     }
@@ -277,7 +283,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
                         EndDevice.class,
                         UsagePointAccountability.class,
                         Party.class,
-                        PartyRepresentation.class));
+                        PartyRepresentation.class,
+                        UsagePointStateTemporalImpl.class));
     }
 
     @Override
