@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.Priority;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -34,6 +35,8 @@ public class IssueImpl extends EntityImpl implements Issue {
     private Instant dueDate;
     private Reference<IssueReason> reason = ValueReference.absent();
     private Reference<IssueStatus> status = ValueReference.absent();
+    private long urgency;
+    private long impact;
 
     private boolean overdue;
 
@@ -52,7 +55,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     private static final String DEFAULT_ISSUE_PREFIX = "ISU";
 
     @Inject
-    public IssueImpl(DataModel dataModel, IssueService issueService, Clock clock){
+    public IssueImpl(DataModel dataModel, IssueService issueService, Clock clock) {
         super(dataModel);
         this.issueService = issueService;
         this.clock = clock;
@@ -187,7 +190,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public void assignTo(String type, long id){
+    public void assignTo(String type, long id) {
         assignTo(id, null);
     }
 
@@ -195,6 +198,17 @@ public class IssueImpl extends EntityImpl implements Issue {
     public void autoAssign() {
         IssueForAssign wrapper = new IssueForAssignImpl(this, Instant.now(clock));
         issueAssignmentService.assignIssue(Collections.singletonList(wrapper));
+    }
+
+    @Override
+    public Priority getPriority() {
+        return Priority.get(urgency, impact);
+    }
+
+    @Override
+    public void setPriority(long urgency, long impact) {
+        this.urgency = urgency;
+        this.impact = impact;
     }
 
     @Override

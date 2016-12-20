@@ -53,4 +53,8 @@ public interface Issue extends Entity {
     void assignTo(String type, long id);
 
     void autoAssign();
+
+    Priority getPriority();
+
+    void setPriority(long urgency, long impact);
 }
