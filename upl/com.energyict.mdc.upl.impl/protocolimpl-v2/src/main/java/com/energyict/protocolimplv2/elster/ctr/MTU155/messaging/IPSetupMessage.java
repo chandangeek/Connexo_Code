@@ -41,8 +41,8 @@ public class IPSetupMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String ipAddress = getDeviceMessageAttribute(message, DeviceMessageConstants.ipAddressAttributeName).getDeviceMessageAttributeValue();
-        String tcpPort = getDeviceMessageAttribute(message, DeviceMessageConstants.portNumberAttributeName).getDeviceMessageAttributeValue();
+        String ipAddress = getDeviceMessageAttribute(message, DeviceMessageConstants.ipAddressAttributeName).getValue();
+        String tcpPort = getDeviceMessageAttribute(message, DeviceMessageConstants.portNumberAttributeName).getValue();
 
         validateIPSetupParameters(ipAddress, tcpPort);
         writeIpAddressAndPortNumberSetup();

@@ -258,7 +258,7 @@ public class MessageFactory implements DeviceMessageSupport {
     protected String getDeviceMessageAttributeValue(OfflineDeviceMessage offlineDeviceMessage, String attributeName) {
         for (OfflineDeviceMessageAttribute offlineDeviceMessageAttribute : offlineDeviceMessage.getDeviceMessageAttributes()) {
             if (offlineDeviceMessageAttribute.getName().equals(attributeName)) {
-                return offlineDeviceMessageAttribute.getDeviceMessageAttributeValue();
+                return offlineDeviceMessageAttribute.getValue();
             }
         }
         throw DataParseException.ioException(new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName));

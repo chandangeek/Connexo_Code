@@ -29,15 +29,15 @@ public class DateConfigurationMessage implements MessageEntryCreator {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute callDistanceDays = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.day);
-        int callDistanceHours = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getDeviceMessageAttributeValue());
-        int callDistanceMinutes = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.minute).getDeviceMessageAttributeValue());
-        int callDistanceSeconds = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.second).getDeviceMessageAttributeValue());
+        int callDistanceHours = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getValue());
+        int callDistanceMinutes = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.minute).getValue());
+        int callDistanceSeconds = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.second).getValue());
 
         MessageTag msgTag = new MessageTag(messageTag);
 
         StringBuilder callDistance = new StringBuilder();
-        if (!callDistanceDays.getDeviceMessageAttributeValue().equals("0")) {
-            callDistance.append(callDistanceDays.getDeviceMessageAttributeValue());
+        if (!callDistanceDays.getValue().equals("0")) {
+            callDistance.append(callDistanceDays.getValue());
             callDistance.append(" ");
         }
         callDistance.append(String.format("%02d", callDistanceHours));

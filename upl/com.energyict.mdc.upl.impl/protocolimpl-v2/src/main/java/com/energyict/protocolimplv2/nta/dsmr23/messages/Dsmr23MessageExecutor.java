@@ -323,8 +323,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
-        String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getDeviceMessageAttributeValue();
-        String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getDeviceMessageAttributeValue();
+        String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
+        String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
 
         String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage(
                 "LoadProfileRegister",
@@ -406,9 +406,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     private CollectedMessage partialLoadProfileRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         try {
-            String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getDeviceMessageAttributeValue();
-            String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getDeviceMessageAttributeValue();
-            String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getDeviceMessageAttributeValue();
+            String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
+            String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
+            String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getValue();
             String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", "fromDate", "toDate", loadProfileContent);
             Date fromDate = new Date(Long.valueOf(fromDateEpoch));
             Date toDate = new Date(Long.valueOf(toDateEpoch));
@@ -497,15 +497,15 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeGPRSSettings(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getDeviceMessageAttributeValue();
-        String password = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getDeviceMessageAttributeValue();
+        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getValue();
+        String password = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getValue();
         writeGprsSettings(userName, password);
     }
 
     private void changeGPRSParameters(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getDeviceMessageAttributeValue();
-        String password = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getDeviceMessageAttributeValue();
-        String apn = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, apnAttributeName).getDeviceMessageAttributeValue();
+        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getValue();
+        String password = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getValue();
+        String apn = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, apnAttributeName).getValue();
         writeGprsSettings(userName, password);
         if (apn != null) {
             getCosemObjectFactory().getGPRSModemSetup().writeAPN(apn);
@@ -514,7 +514,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     protected void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
         //semicolon separated list of phone numbers
-        String numbers = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, whiteListPhoneNumbersAttributeName).getDeviceMessageAttributeValue();
+        String numbers = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, whiteListPhoneNumbersAttributeName).getValue();
         Array list = new Array();
         for (String number : numbers.split(SEPARATOR)) {
             list.addDataType(OctetString.fromString(number));
@@ -563,7 +563,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     protected void upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
         String userFile = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateUserFileAttributeName);
-        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getValue();
         byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
@@ -612,8 +612,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void activityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
-        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
-        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
+        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getValue();
         if (calendarName.length() > 8) {
             calendarName = calendarName.substring(0, 8);
         }
@@ -626,7 +626,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void writeSpecialDays(OfflineDeviceMessage pendingMessage) throws IOException {
-        String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getValue();
         Array sdArray = AXDRDecoder.decode(ProtocolTools.getBytesFromHexString(specialDayArrayBEREncodedBytes, ""), Array.class);
         SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
 
@@ -636,9 +636,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
-        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
+        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getValue();
         if (calendarName.length() > 8) {
             calendarName = calendarName.substring(0, 8);
         }

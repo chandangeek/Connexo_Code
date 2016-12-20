@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
-import com.energyict.mdc.upl.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
@@ -20,31 +20,26 @@ import java.util.stream.Collectors;
  */
 public class DeviceMessageCategoryImpl implements DeviceMessageCategory {
     private final int id;
-    private final DeviceMessageCategoryPrimaryKey primaryKey;
     private final TranslationKey nameTranslationKey;
     private final TranslationKey descriptionTranslationKey;
     private final List<DeviceMessageSpecSupplier> factories;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
+    private final Converter converter;
 
-    public DeviceMessageCategoryImpl(int id, DeviceMessageCategoryPrimaryKey primaryKey, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, List<DeviceMessageSpecSupplier> factories, PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageCategoryImpl(int id, TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey, List<DeviceMessageSpecSupplier> factories, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.id = id;
-        this.primaryKey = primaryKey;
         this.nameTranslationKey = nameTranslationKey;
         this.descriptionTranslationKey = descriptionTranslationKey;
         this.factories = factories;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
     public int getId() {
         return this.id;
-    }
-
-    @Override
-    public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-        return this.primaryKey;
     }
 
     @Override
@@ -72,7 +67,7 @@ public class DeviceMessageCategoryImpl implements DeviceMessageCategory {
     public List<DeviceMessageSpec> getMessageSpecifications() {
         return this.factories
                 .stream()
-                .map(factory -> factory.get(this.propertySpecService, this.nlsService, ))
+                .map(factory -> factory.get(this.propertySpecService, this.nlsService, this.converter))
                 .collect(Collectors.toList());
     }
 

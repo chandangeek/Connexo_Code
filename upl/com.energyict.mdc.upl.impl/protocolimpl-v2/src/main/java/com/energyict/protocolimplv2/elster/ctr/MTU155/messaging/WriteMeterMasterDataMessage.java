@@ -37,9 +37,9 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String meterTypeString = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        String meterCaliberString = message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue().trim();
-        String meterSerialNumber = message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue().trim();
+        String meterTypeString = message.getDeviceMessageAttributes().get(0).getValue().trim();
+        String meterCaliberString = message.getDeviceMessageAttributes().get(1).getValue().trim();
+        String meterSerialNumber = message.getDeviceMessageAttributes().get(2).getValue().trim();
 
         MeterType meterType = MeterType.fromString(meterTypeString);
         int meterCaliber = validateAndGetMeterCaliber(meterCaliberString);

@@ -32,7 +32,7 @@ public class ChangeNTADataTransportEncryptionKeyMessageEntry implements MessageE
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute msgAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, newEncryptionKeyAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_NEW_ENCRYPTION_KEY, msgAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_NEW_ENCRYPTION_KEY, msgAttribute.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

@@ -86,13 +86,13 @@ public class WebRTUZ3EMeterMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeConnectControlMode(OfflineDeviceMessage pendingMessage) throws IOException {
-        int mode = Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        int mode = Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getCorrectedObisCode(DISCONNECTOR_OBIS, pendingMessage));
         connectorMode.writeControlMode(new TypeEnum(mode));
     }
 
     private void contactorCloseWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getValue();
 
         Array executionTimeArray = convertEpochToDateTimeArray(epoch);
         SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS, pendingMessage));
@@ -106,7 +106,7 @@ public class WebRTUZ3EMeterMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void contactorOpenWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getValue();
 
         Array executionTimeArray = convertEpochToDateTimeArray(epoch);
         SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS, pendingMessage));

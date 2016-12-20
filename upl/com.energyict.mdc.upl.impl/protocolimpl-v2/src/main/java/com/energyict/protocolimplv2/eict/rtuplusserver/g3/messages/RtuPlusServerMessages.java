@@ -299,8 +299,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
 
-        String b64EncodedImage = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
-        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
+        String b64EncodedImage = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue(); // Will return empty string if the MessageAttribute could not be found
         byte[] image = new Base64EncoderDecoder().decode(b64EncodedImage);
 
         ImageTransfer it = session.getCosemObjectFactory().getImageTransfer();
@@ -332,23 +332,23 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void configureFWWAN(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getDeviceMessageAttributeValue());
-        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getDeviceMessageAttributeValue());
-        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getDeviceMessageAttributeValue());
+        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getValue());
+        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getValue());
+        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getValue());
         this.session.getCosemObjectFactory().getFirewallSetup().setWANPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
     }
 
     private void configureFWLAN(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getDeviceMessageAttributeValue());
-        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getDeviceMessageAttributeValue());
-        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getDeviceMessageAttributeValue());
+        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getValue());
+        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getValue());
+        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getValue());
         this.session.getCosemObjectFactory().getFirewallSetup().setLANPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
     }
 
     private void configureFWGPRS(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getDeviceMessageAttributeValue());
-        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getDeviceMessageAttributeValue());
-        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getDeviceMessageAttributeValue());
+        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getValue());
+        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getValue());
+        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getValue());
         this.session.getCosemObjectFactory().getFirewallSetup().setGPRSPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
     }
 
@@ -361,8 +361,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void writeOutputState(OfflineDeviceMessage pendingMessage) throws IOException {
-        int outputId = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.outputId).getDeviceMessageAttributeValue());
-        boolean newState = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newState).getDeviceMessageAttributeValue());
+        int outputId = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.outputId).getValue());
+        boolean newState = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newState).getValue());
 
         final ObisCode obisCode = new ObisCode(0, outputId, 96, 3, 10, 255);
         final Disconnector disconnector = this.session.getCosemObjectFactory().getDisconnector(obisCode);
@@ -374,7 +374,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void writeFullConfig(OfflineDeviceMessage pendingMessage) throws IOException {
-        String hex = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String hex = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         String xmlData = new String(ProtocolTools.getBytesFromHexString(hex));
         XMLParser parser = new XMLParser(session.getLogger(), session.getCosemObjectFactory());
         parser.parseXML(xmlData);
@@ -413,14 +413,14 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void changeHlsSecret(OfflineDeviceMessage pendingMessage) throws IOException {
-        String hex = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String hex = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getAssociationLN().changeHLSSecret(ProtocolTools.getBytesFromHexString(hex, ""));
     }
 
     protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
-        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
+        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getValue();
+        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getValue();
         String oldHexKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
 
         Array encryptionKeyArray = new Array();
@@ -444,8 +444,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected void changeAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
-        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
+        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName).getValue();
+        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName).getValue();
 
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
@@ -490,7 +490,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void setNTPAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String address = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         this.session.getCosemObjectFactory().getNTPServerAddress().writeNTPServerName(address);
     }
 
@@ -499,7 +499,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void setDeviceName(OfflineDeviceMessage pendingMessage) throws IOException {
-        String name = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String name = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         this.session.getCosemObjectFactory().getData(DEVICE_NAME_OBISCODE).setValueAttr(OctetString.fromString(name));
     }
 
@@ -523,16 +523,16 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void enableEventNotifications(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         GenericInvoke genericInvoke = this.session.getCosemObjectFactory().getGenericInvoke(EVENT_NOTIFICATION_OBISCODE, DLMSClassId.EVENT_NOTIFICATION.getClassId(), 1);
         genericInvoke.invoke(new BooleanObject(enable).getBEREncodedByteArray());
     }
 
     private void setModemWatchdogParameters(OfflineDeviceMessage pendingMessage) throws IOException {
-        int modemWatchdogInterval = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemWatchdogInterval).getDeviceMessageAttributeValue());
-        int pppDaemonResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PPPDaemonResetThreshold).getDeviceMessageAttributeValue());
-        int modemResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemResetThreshold).getDeviceMessageAttributeValue());
-        int systemRebootThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.systemRebootThreshold).getDeviceMessageAttributeValue());
+        int modemWatchdogInterval = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemWatchdogInterval).getValue());
+        int pppDaemonResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PPPDaemonResetThreshold).getValue());
+        int modemResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemResetThreshold).getValue());
+        int systemRebootThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.systemRebootThreshold).getValue());
 
         this.session.getCosemObjectFactory().getModemWatchdogConfiguration().writeConfigParameters(
                 modemWatchdogInterval,
@@ -543,7 +543,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void enableModemWatchdog(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         this.session.getCosemObjectFactory().getModemWatchdogConfiguration().enableWatchdog(enable);
     }
 
@@ -556,53 +556,53 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void configurePushEventNotification(OfflineDeviceMessage pendingMessage) throws IOException {
-        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getDeviceMessageAttributeValue();
+        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getValue();
         int transportType = AlarmConfigurationMessage.TransportType.valueOf(transportTypeString).getId();
 
-        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getDeviceMessageAttributeValue();
+        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getValue();
 
-        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getDeviceMessageAttributeValue();
+        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getValue();
         int messageType = AlarmConfigurationMessage.MessageType.valueOf(messageTypeString).getId();
 
         this.session.getCosemObjectFactory().getEventPushNotificationConfig().writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
     }
 
     private void writeUplinkPingTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
-        Integer timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        Integer timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         this.session.getCosemObjectFactory().getUplinkPingConfiguration().writeTimeout(timeout);
     }
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         this.session.getCosemObjectFactory().getWebPortalConfig().changeUser1Password(newPassword);
     }
 
     private void changePasswordUser2(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         this.session.getCosemObjectFactory().getWebPortalConfig().changeUser2Password(newPassword);
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        Integer interval = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        Integer interval = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         this.session.getCosemObjectFactory().getUplinkPingConfiguration().writeInterval(interval);
     }
 
     private void writeUplinkPingDestinationAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        String destinationAddress = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String destinationAddress = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         this.session.getCosemObjectFactory().getUplinkPingConfiguration().writeDestAddress(destinationAddress);
     }
 
     private void enableUplinkPing(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         this.session.getCosemObjectFactory().getUplinkPingConfiguration().enableUplinkPing(enable);
     }
 
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {
-        return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
     }
 
     private boolean getSingleBooleanAttribute(OfflineDeviceMessage pendingMessage) {
-        return Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        return Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {

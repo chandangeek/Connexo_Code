@@ -227,7 +227,7 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void xmlConfig(OfflineDeviceMessage pendingMessage) throws IOException {
-        String xml = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String xml = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xml));
     }
 
@@ -237,19 +237,19 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void sendTextToP1(OfflineDeviceMessage pendingMessage) throws IOException {
-        String text = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String text = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageText().getObisCode());
         dataCode.setValueAttr(OctetString.fromString(text));
     }
 
     private void sendCodeToP1(OfflineDeviceMessage pendingMessage) throws IOException {
-        String code = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String code = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageCode().getObisCode());
         dataCode.setValueAttr(OctetString.fromString(code));
     }
 
     private void addPhoneNumbersToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
-        String[] phoneNumbers = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().split(";");
+        String[] phoneNumbers = pendingMessage.getDeviceMessageAttributes().get(0).getValue().split(";");
 
         AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
         Array array = new Array();
@@ -260,9 +260,9 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeGPRSSettings(OfflineDeviceMessage pendingMessage) throws IOException {
-        String user = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getDeviceMessageAttributeValue();
-        String pass = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getDeviceMessageAttributeValue();
-        String apn = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, apnAttributeName).getDeviceMessageAttributeValue();
+        String user = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getValue();
+        String pass = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getValue();
+        String apn = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, apnAttributeName).getValue();
 
         PPPSetup.PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
         pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
@@ -284,12 +284,12 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        long epoch = Long.parseLong(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        long epoch = Long.parseLong(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getProtocol().getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(new Date(epoch), getProtocol().getTimeZone()));
     }
 
     private void changeHlsSecret(OfflineDeviceMessage pendingMessage) throws IOException {
-        String hexHlsSecret = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String hexHlsSecret = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         byte[] hlsSecret = ProtocolTools.getBytesFromHexString(hexHlsSecret, "");
 
         if (getProtocol().getDlmsSession().getReference() == ProtocolLink.LN_REFERENCE) {
@@ -312,7 +312,7 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        String wrappedHexKey = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String wrappedHexKey = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         byte[] key = ProtocolTools.getBytesFromHexString(wrappedHexKey, "");
         keyData.addDataType(OctetString.fromByteArray(key));
         globalKeyArray.addDataType(keyData);
@@ -322,21 +322,21 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
-        int level = Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        int level = Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(level));
     }
 
     private void writeSpecialDays(OfflineDeviceMessage pendingMessage) throws IOException {
         SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-        String specialDaysHex = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String specialDaysHex = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         Array specialDaysArray = new Array(ProtocolTools.getBytesFromHexString(specialDaysHex, ""), 0, 0);
         specialDaysTable.writeSpecialDays(specialDaysArray);
     }
 
     private void writeActivityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
-        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
-        String profiles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
+        String profiles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
 
         String[] profilesSplit = profiles.split("\\|");
         String dayProfileHex = profilesSplit[0];
@@ -363,8 +363,8 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String hexUserFileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
-        String activationEpochString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String hexUserFileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String activationEpochString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getValue();
 
         byte[] imageData = ProtocolTools.getBytesFromHexString(hexUserFileContent, "");
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
@@ -380,28 +380,28 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeConnectControlMode(OfflineDeviceMessage pendingMessage) throws IOException {
-        int outputId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, digitalOutputAttributeName).getDeviceMessageAttributeValue()).intValue();
-        int mode = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorModeAttributeName).getDeviceMessageAttributeValue()).intValue();
+        int outputId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, digitalOutputAttributeName).getValue()).intValue();
+        int mode = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorModeAttributeName).getValue()).intValue();
 
         Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getDisconnectorObisCode(outputId));
         connectorMode.writeControlMode(new TypeEnum(mode));
     }
 
     private void contactorOpen(OfflineDeviceMessage pendingMessage) throws IOException {
-        int outputId = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).intValue();
+        int outputId = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getValue()).intValue();
         Disconnector disconnector = getCosemObjectFactory().getDisconnector(getDisconnectorObisCode(outputId));
         disconnector.remoteDisconnect();
     }
 
     private void contactorClose(OfflineDeviceMessage pendingMessage) throws IOException {
-        int outputId = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).intValue();
+        int outputId = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getValue()).intValue();
         Disconnector disconnector = getCosemObjectFactory().getDisconnector(getDisconnectorObisCode(outputId));
         disconnector.remoteReconnect();
     }
 
     private void contactorCloseWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        int outputId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, digitalOutputAttributeName).getDeviceMessageAttributeValue()).intValue();
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getDeviceMessageAttributeValue();
+        int outputId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, digitalOutputAttributeName).getValue()).intValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getValue();
 
         Array executionTimeArray = convertEpochToDateTimeArray(epoch);
         SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getDisconnectControlScheduleObis(outputId));
@@ -417,8 +417,8 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void contactorOpenWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        int outputId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, digitalOutputAttributeName).getDeviceMessageAttributeValue()).intValue();
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getDeviceMessageAttributeValue();
+        int outputId = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, digitalOutputAttributeName).getValue()).intValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getValue();
 
         Array executionTimeArray = convertEpochToDateTimeArray(epoch);
         SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getDisconnectControlScheduleObis(outputId));

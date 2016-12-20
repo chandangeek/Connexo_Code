@@ -32,7 +32,7 @@ public class ChangeExecutionKeyMessage extends AbstractChangeKeyMessage {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String key = getDeviceMessageAttribute(message, DeviceMessageConstants.executionKeyAttributeName).getDeviceMessageAttributeValue();
+        String key = getDeviceMessageAttribute(message, DeviceMessageConstants.executionKeyAttributeName).getValue();
         super.doExecuteMessage(message, key);
         return null;
     }

@@ -61,20 +61,20 @@ public class BroadcastUpgrade {
     //TODO fully test parsing & format, use NTA sim & eiserver
     public CollectedMessage broadcastFirmware(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
 
-        final String serializedDeviceInfos = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastDevicesGroupAttributeName).getDeviceMessageAttributeValue();
+        final String serializedDeviceInfos = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastDevicesGroupAttributeName).getValue();
 
-        final byte[] image = new Base64EncoderDecoder().decode(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue());
-        final String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+        final byte[] image = new Base64EncoderDecoder().decode(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateUserFileAttributeName).getValue());
+        final String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName).getValue();
 
-        final int broadcastLogicalDeviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastLogicalDeviceIdAttributeName).getDeviceMessageAttributeValue());
-        final int initialTimeBetweenBlocksInMilliSeconds = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName).getDeviceMessageAttributeValue());
-        final int numberOfBlocksPerCycle = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastNumberOfBlocksInCycleAttributeName).getDeviceMessageAttributeValue());
-        final int broadcastGroupId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastGroupIdAttributeName).getDeviceMessageAttributeValue());
+        final int broadcastLogicalDeviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastLogicalDeviceIdAttributeName).getValue());
+        final int initialTimeBetweenBlocksInMilliSeconds = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName).getValue());
+        final int numberOfBlocksPerCycle = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastNumberOfBlocksInCycleAttributeName).getValue());
+        final int broadcastGroupId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastGroupIdAttributeName).getValue());
 
-        final BigDecimal broadcastClientMacAddress = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastClientMacAddressAttributeName).getDeviceMessageAttributeValue());
-        final String broadcastEncryptionHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
-        final String broadcastAuthenticationHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
-        final int encryptionLevel = DlmsEncryptionLevelMessageValues.getValueFor(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptionLevelAttributeName).getDeviceMessageAttributeValue());
+        final BigDecimal broadcastClientMacAddress = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastClientMacAddressAttributeName).getValue());
+        final String broadcastEncryptionHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastEncryptionKeyAttributeName).getValue();
+        final String broadcastAuthenticationHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastAuthenticationKeyAttributeName).getValue();
+        final int encryptionLevel = DlmsEncryptionLevelMessageValues.getValueFor(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptionLevelAttributeName).getValue());
 
         DeviceInfo[] deviceInfos;
         try {

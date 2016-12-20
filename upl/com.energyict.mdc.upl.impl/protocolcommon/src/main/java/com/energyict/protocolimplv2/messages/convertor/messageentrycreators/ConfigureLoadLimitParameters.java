@@ -47,13 +47,13 @@ public class ConfigureLoadLimitParameters implements MessageEntryCreator {
         OfflineDeviceMessageAttribute emergencyProfileDurationAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileDurationAttributeName);
 
         MessageTag messageTag = new MessageTag(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_NORMAL_THRESHOLD, normalThresholdAttribute.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_THRESHOLD, emergencyThresholdAttribute.getDeviceMessageAttributeValue()));
-        messageTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION, overThresholdDurationAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_NORMAL_THRESHOLD, normalThresholdAttribute.getValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_THRESHOLD, emergencyThresholdAttribute.getValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION, overThresholdDurationAttribute.getValue()));
         MessageTag emergencyProfileTag = new MessageTag(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE);
-        emergencyProfileTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID, emergencyProfileIdAttribute.getDeviceMessageAttributeValue()));
-        emergencyProfileTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME, emergencyProfileActivationDateAttribute.getDeviceMessageAttributeValue()));
-        emergencyProfileTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_EP_DURATION, emergencyProfileDurationAttribute.getDeviceMessageAttributeValue()));
+        emergencyProfileTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID, emergencyProfileIdAttribute.getValue()));
+        emergencyProfileTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME, emergencyProfileActivationDateAttribute.getValue()));
+        emergencyProfileTag.add(new MessageAttribute(RtuMessageConstant.LOAD_LIMIT_EP_DURATION, emergencyProfileDurationAttribute.getValue()));
         emergencyProfileTag.add(new MessageValue(" "));
         messageTag.add(emergencyProfileTag);
         messageTag.add(new MessageValue(" "));

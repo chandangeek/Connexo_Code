@@ -35,7 +35,7 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
                 : DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
 
         OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileAttributeName);
-        String fileContent = userFileAttribute.getDeviceMessageAttributeValue();
+        String fileContent = userFileAttribute.getValue();
 
         MessageTag messageTag = new MessageTag(tag);
         messageTag.add(new MessageValue(fileContent));

@@ -96,20 +96,20 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void writeMBusCapturePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
-        int capturePeriodInSeconds = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).intValue();
+        int capturePeriodInSeconds = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getValue()).intValue();
         getMBusClient(pendingMessage).setCapturePeriod(capturePeriodInSeconds);
     }
 
     protected void writeCaptureDefinition(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] dibInstance1 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dibInstance1).getDeviceMessageAttributeValue(), "");
-        byte[] dibInstance2 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dibInstance2).getDeviceMessageAttributeValue(), "");
-        byte[] dibInstance3 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dibInstance3).getDeviceMessageAttributeValue(), "");
-        byte[] dibInstance4 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dibInstance4).getDeviceMessageAttributeValue(), "");
+        byte[] dibInstance1 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dibInstance1).getValue(), "");
+        byte[] dibInstance2 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dibInstance2).getValue(), "");
+        byte[] dibInstance3 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dibInstance3).getValue(), "");
+        byte[] dibInstance4 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dibInstance4).getValue(), "");
 
-        byte[] vibInstance1 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.vibInstance1).getDeviceMessageAttributeValue(), "");
-        byte[] vibInstance2 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.vibInstance2).getDeviceMessageAttributeValue(), "");
-        byte[] vibInstance3 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.vibInstance3).getDeviceMessageAttributeValue(), "");
-        byte[] vibInstance4 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.vibInstance4).getDeviceMessageAttributeValue(), "");
+        byte[] vibInstance1 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.vibInstance1).getValue(), "");
+        byte[] vibInstance2 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.vibInstance2).getValue(), "");
+        byte[] vibInstance3 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.vibInstance3).getValue(), "");
+        byte[] vibInstance4 = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.vibInstance4).getValue(), "");
 
         Structure element1 = new Structure();
         element1.addDataType(OctetString.fromByteArray(dibInstance1));
@@ -134,8 +134,8 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] openKey = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.openKeyAttributeName).getDeviceMessageAttributeValue(), "");
-        byte[] transferKey = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transferKeyAttributeName).getDeviceMessageAttributeValue(), "");
+        byte[] openKey = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.openKeyAttributeName).getValue(), "");
+        byte[] transferKey = ProtocolTools.getBytesFromHexString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transferKeyAttributeName).getValue(), "");
 
         MBusClient mBusClient = getMBusClient(pendingMessage);
         mBusClient.setTransportKey(transferKey);
@@ -158,7 +158,7 @@ public class IDISMBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void timedAction(OfflineDeviceMessage offlineDeviceMessage, int action) throws IOException {
-        Long epoch = Long.valueOf(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        Long epoch = Long.valueOf(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue());
         Date actionTime = new Date(epoch);  //EIServer system timezone
 
         SingleActionSchedule singleActionSchedule = getCosemObjectFactory().getSingleActionSchedule(TIMED_CONNECTOR_ACTION_MBUS_OBISCODE);

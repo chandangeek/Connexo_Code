@@ -38,17 +38,17 @@ public class SetSetpointMessageEntry extends AbstractEIWebMessageEntry {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageParentTag = new MessageTag(LEGACY_PEAKSHAVER_TAG);
-        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getDeviceMessageAttributeValue()));
+        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getValue()));
 
         MessageTag messageSubTag = new MessageTag(getMessageName(offlineDeviceMessage));
-        String tariffAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.tariff).getDeviceMessageAttributeValue();
+        String tariffAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.tariff).getValue();
         messageSubTag.add(new MessageAttribute(DeviceMessageConstants.tariff, tariffAttribute));
 
         MessageTag currentValueTag = new MessageTag(LEGACY_CURRENTVALUE_TAG);
-        currentValueTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.CurrentValueAttributeName).getDeviceMessageAttributeValue()));
+        currentValueTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.CurrentValueAttributeName).getValue()));
 
         MessageTag newValueTag = new MessageTag(LEGACY_NEWVALUE_TAG);
-        newValueTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.NewValueAttributeName).getDeviceMessageAttributeValue()));
+        newValueTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.NewValueAttributeName).getValue()));
 
         messageSubTag.add(currentValueTag);
         messageSubTag.add(newValueTag);

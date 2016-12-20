@@ -35,7 +35,7 @@ public class WritePDRMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String pdrString = getDeviceMessageAttribute(message, DeviceMessageConstants.newPDRAttributeName).getDeviceMessageAttributeValue();
+        String pdrString = getDeviceMessageAttribute(message, DeviceMessageConstants.newPDRAttributeName).getValue();
 
         validatePdr(pdrString);
         writePdr(pdrString);

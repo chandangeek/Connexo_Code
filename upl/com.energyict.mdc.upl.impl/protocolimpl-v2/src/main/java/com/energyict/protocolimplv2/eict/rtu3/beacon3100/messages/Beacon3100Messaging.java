@@ -632,7 +632,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         configureFWWAN(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
 
-                        String[] macAddressesAndProtocols = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
+                        String[] macAddressesAndProtocols = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName).getValue().split(SEPARATOR);
 
                         for (String macAddressAndProtocol : macAddressesAndProtocols) {
                             String[] split = macAddressAndProtocol.split(SEPARATOR2);
@@ -692,14 +692,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void generateKeyPair(OfflineDeviceMessage pendingMessage) throws IOException {
-        String certificateTypeAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getDeviceMessageAttributeValue();
+        String certificateTypeAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getValue();
         SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(certificateTypeAttributeValue);
 
         getCosemObjectFactory().getSecuritySetup().generateKeyPair(certificateType.getId());
     }
 
     private CollectedMessage generateCSR(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String certificateTypeAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getDeviceMessageAttributeValue();
+        String certificateTypeAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getValue();
         SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(certificateTypeAttributeValue);
 
         byte[] encodedCSR = getCosemObjectFactory().getSecuritySetup().generateCSR(certificateType.getId());
@@ -717,8 +717,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * this needs to be done manually, using the API.
      */
     private void deleteCertificateBySerialNumber(OfflineDeviceMessage pendingMessage) throws IOException {
-        String serialNumber = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, meterSerialNumberAttributeName).getDeviceMessageAttributeValue();
-        String certificateIssuer = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateIssuerAttributeName).getDeviceMessageAttributeValue();
+        String serialNumber = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, meterSerialNumberAttributeName).getValue();
+        String certificateIssuer = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateIssuerAttributeName).getValue();
 
         getCosemObjectFactory().getSecuritySetup().deleteCertificate(serialNumber, certificateIssuer);
     }
@@ -731,11 +731,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * this needs to be done manually, using the API.
      */
     private void deleteCertificateByType(OfflineDeviceMessage pendingMessage) throws IOException {
-        String certificateEntityAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateEntityAttributeName).getDeviceMessageAttributeValue();
+        String certificateEntityAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateEntityAttributeName).getValue();
         SecurityMessage.CertificateEntity certificateEntity = SecurityMessage.CertificateEntity.fromName(certificateEntityAttributeValue);
-        String certificateTypeAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getDeviceMessageAttributeValue();
+        String certificateTypeAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getValue();
         SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(certificateTypeAttributeValue);
-        String commonName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, commonNameAttributeName).getDeviceMessageAttributeValue();
+        String commonName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, commonNameAttributeName).getValue();
 
         //Parse the common name as ASCII by default.
         byte[] systemTitle = commonName.getBytes();
@@ -758,7 +758,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * In case of sub-CA or root-CA certificates, their CN must end in "CA".
      */
     private void importCACertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateAliasAttributeName).getDeviceMessageAttributeValue();
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateAliasAttributeName).getValue();
         byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
         getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
     }
@@ -772,7 +772,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
      */
     private void importEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperIdAttributeName).getDeviceMessageAttributeValue();
+        String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperIdAttributeName).getValue();
         byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
 
         getCosemObjectFactory().getSecuritySetup().importCertificate(derEncodedCertificate);
@@ -888,7 +888,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * The Beacon returns the proper certificate for the security suite it is currently operating in.
      */
     private CollectedMessage exportEndDeviceCertificate(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getDeviceMessageAttributeValue());
+        SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getValue());
 
         if (getProtocol().getDlmsSessionProperties().getSecuritySuite() == 0
                 && (certificateType.equals(SecurityMessage.CertificateType.DigitalSignature)
@@ -1065,25 +1065,25 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      */
     private CollectedMessage dcMulticastUpgrade(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
 
-        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
-        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue();
 
-        String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getDeviceMessageAttributeValue();
-        String broadcastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BroadcastClientWPort).getDeviceMessageAttributeValue();
-        String multicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MulticastClientWPort).getDeviceMessageAttributeValue();
-        String logicalDeviceLSap = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, LogicalDeviceLSap).getDeviceMessageAttributeValue();
-        String securityLevelUnicast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelUnicast).getDeviceMessageAttributeValue();
-        String securityLevelBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelBroadcast).getDeviceMessageAttributeValue();
-        String securityPolicyBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityPolicyBroadcast).getDeviceMessageAttributeValue();
-        String delayAfterLastBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayAfterLastBlock).getDeviceMessageAttributeValue();
-        String delayPerBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayPerBlock).getDeviceMessageAttributeValue();
-        String delayBetweenBlockSentFast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentFast).getDeviceMessageAttributeValue();
-        String delayBetweenBlockSentSlow = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentSlow).getDeviceMessageAttributeValue();
-        String blocksPerCycle = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BlocksPerCycle).getDeviceMessageAttributeValue();
-        String maxCycles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MaxCycles).getDeviceMessageAttributeValue();
-        String requestedBlockSize = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, RequestedBlockSize).getDeviceMessageAttributeValue();
-        String padLastBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, PadLastBlock).getDeviceMessageAttributeValue();
-        String useTransferredBlockStatus = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UseTransferredBlockStatus).getDeviceMessageAttributeValue();
+        String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getValue();
+        String broadcastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BroadcastClientWPort).getValue();
+        String multicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MulticastClientWPort).getValue();
+        String logicalDeviceLSap = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, LogicalDeviceLSap).getValue();
+        String securityLevelUnicast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelUnicast).getValue();
+        String securityLevelBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelBroadcast).getValue();
+        String securityPolicyBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityPolicyBroadcast).getValue();
+        String delayAfterLastBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayAfterLastBlock).getValue();
+        String delayPerBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayPerBlock).getValue();
+        String delayBetweenBlockSentFast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentFast).getValue();
+        String delayBetweenBlockSentSlow = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentSlow).getValue();
+        String blocksPerCycle = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BlocksPerCycle).getValue();
+        String maxCycles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MaxCycles).getValue();
+        String requestedBlockSize = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, RequestedBlockSize).getValue();
+        String padLastBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, PadLastBlock).getValue();
+        String useTransferredBlockStatus = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UseTransferredBlockStatus).getValue();
 
         ArrayList<MulticastProperty> multicastProperties = new ArrayList<>();
         multicastProperties.add(new MulticastProperty("UnicastClientWPort", unicastClientWPort));
@@ -1143,16 +1143,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private CollectedMessage configurePartialMulticastBlockTransfer(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
 
-        String skipStepEnable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepEnable).getDeviceMessageAttributeValue();
-        String skipStepVerify = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepVerify).getDeviceMessageAttributeValue();
-        String skipStepActivate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepActivate).getDeviceMessageAttributeValue();
-        String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getDeviceMessageAttributeValue();
-        String multicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MulticastClientWPort).getDeviceMessageAttributeValue();
-        String unicastFrameCounterType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastFrameCounterType).getDeviceMessageAttributeValue();
-        String timeZone = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MeterTimeZone).getDeviceMessageAttributeValue();
-        String securityLevelMulticast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelMulticast).getDeviceMessageAttributeValue();
-        String securityPolicyMulticastV0 = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityPolicyMulticastV0).getDeviceMessageAttributeValue();
-        String delayBetweenBlockSentFast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentFast).getDeviceMessageAttributeValue();
+        String skipStepEnable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepEnable).getValue();
+        String skipStepVerify = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepVerify).getValue();
+        String skipStepActivate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SkipStepActivate).getValue();
+        String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getValue();
+        String multicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MulticastClientWPort).getValue();
+        String unicastFrameCounterType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastFrameCounterType).getValue();
+        String timeZone = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MeterTimeZone).getValue();
+        String securityLevelMulticast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelMulticast).getValue();
+        String securityPolicyMulticastV0 = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityPolicyMulticastV0).getValue();
+        String delayBetweenBlockSentFast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentFast).getValue();
 
         ArrayList<MulticastProperty> multicastProperties = new ArrayList<>();
         multicastProperties.add(new MulticastProperty("SkipStepEnable", skipStepEnable));
@@ -1188,8 +1188,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private CollectedMessage transferSlaveFirmwareFileToDC(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
 
-        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
-        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue();
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
 
@@ -1344,23 +1344,23 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void configureFWWAN(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getDeviceMessageAttributeValue());
-        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getDeviceMessageAttributeValue());
-        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getDeviceMessageAttributeValue());
+        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getValue());
+        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getValue());
+        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getValue());
         getCosemObjectFactory().getFirewallSetup().setWANPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
     }
 
     private void configureFWLAN(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getDeviceMessageAttributeValue());
-        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getDeviceMessageAttributeValue());
-        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getDeviceMessageAttributeValue());
+        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getValue());
+        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getValue());
+        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getValue());
         getCosemObjectFactory().getFirewallSetup().setLANPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
     }
 
     private void configureFWGPRS(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getDeviceMessageAttributeValue());
-        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getDeviceMessageAttributeValue());
-        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getDeviceMessageAttributeValue());
+        boolean isDLMSAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableDLMS).getValue());
+        boolean isHTTPAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableHTTP).getValue());
+        boolean isSSHAllowed = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableSSH).getValue());
         getCosemObjectFactory().getFirewallSetup().setGPRSPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
     }
 
@@ -1373,9 +1373,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void changeGPRSParameters(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getDeviceMessageAttributeValue();
-        String password = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getDeviceMessageAttributeValue();
-        String apn = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, apnAttributeName).getDeviceMessageAttributeValue();
+        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getValue();
+        String password = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getValue();
+        String apn = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, apnAttributeName).getValue();
         writeGprsSettings(userName, password);
         if (apn != null) {
             getCosemObjectFactory().getGPRSModemSetup().writeAPN(apn);
@@ -1397,8 +1397,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private CollectedMessage pingMeter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        final String hexMacAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.macAddress).getDeviceMessageAttributeValue();
-        final long timeoutInMillis = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.timeout).getDeviceMessageAttributeValue());
+        final String hexMacAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.macAddress).getValue();
+        final long timeoutInMillis = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.timeout).getValue());
 
         try {
             ProtocolTools.getBytesFromHexString(hexMacAddress, "");
@@ -1417,7 +1417,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private CollectedMessage kickMeter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        String macAddress = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String macAddress = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
 
         final boolean result = getCosemObjectFactory().getG3NetworkManagement().detachNode(macAddress);
 
@@ -1434,7 +1434,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private CollectedMessage addMetersToBlackList(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         List<String> macAddresses = new ArrayList<>();
 
-        for (String macAddress : pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().split(SEPARATOR)) {
+        for (String macAddress : pendingMessage.getDeviceMessageAttributes().get(0).getValue().split(SEPARATOR)) {
             final String errorMsg = "MAC addresses should be a list of 16 hex characters, separated by a semicolon.";
             try {
                 final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");
@@ -1469,7 +1469,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private CollectedMessage removeMetersFromBlackList(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         List<String> macAddresses = new ArrayList<>();
 
-        for (String macAddress : pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().split(SEPARATOR)) {
+        for (String macAddress : pendingMessage.getDeviceMessageAttributes().get(0).getValue().split(SEPARATOR)) {
             final String errorMsg = "MAC addresses should be a list of 16 hex characters, separated by a semicolon.";
             try {
                 final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");
@@ -1513,8 +1513,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
-        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getValue();
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue(); // Will return empty string if the MessageAttribute could not be found
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
 
@@ -1541,17 +1541,17 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void changeHlsSecret(OfflineDeviceMessage pendingMessage) throws IOException {
-        String hex = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String hex = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         final CosemObjectFactory cof = getCosemObjectFactory();
         cof.getAssociationLN().changeHLSSecret(ProtocolTools.getBytesFromHexString(hex, ""));
     }
 
     private void enableNetworkInterfaces(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean isEthernetWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_WAN).getDeviceMessageAttributeValue());
-        boolean isEthernetLanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_LAN).getDeviceMessageAttributeValue());
-        boolean isWirelessWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.WIRELESS_WAN).getDeviceMessageAttributeValue());
-        boolean isIp6_TunnelEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.IP6_TUNNEL).getDeviceMessageAttributeValue());
-        boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getDeviceMessageAttributeValue());
+        boolean isEthernetWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_WAN).getValue());
+        boolean isEthernetLanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_LAN).getValue());
+        boolean isWirelessWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.WIRELESS_WAN).getValue());
+        boolean isIp6_TunnelEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.IP6_TUNNEL).getValue());
+        boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getValue());
         boolean allInterfacesEnabled = isEthernetWanEnabled && isEthernetLanEnabled && isWirelessWanEnabled && isIp6_TunnelEnabled && isPlc_NetworkEnabled;
 
         Array interfacesArray = new Array();
@@ -1578,8 +1578,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
-        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
+        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getValue();
+        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getValue();
         String oldHexKey = ProtocolTools.getHexStringFromBytes(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey(), "");
 
         Array encryptionKeyArray = new Array();
@@ -1603,8 +1603,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     protected void changeAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
-        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
+        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName).getValue();
+        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName).getValue();
 
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
@@ -1620,12 +1620,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void activateAdvancedDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
         int securitySuite = getProtocol().getDlmsSessionProperties().getSecuritySuite();
 
-        boolean authenticatedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.authenticatedRequestsAttributeName).getDeviceMessageAttributeValue());
-        boolean encryptedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptedRequestsAttributeName).getDeviceMessageAttributeValue());
-        boolean signedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.signedRequestsAttributeName).getDeviceMessageAttributeValue());
-        boolean authenticatedResponses = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.authenticatedResponsesAttributeName).getDeviceMessageAttributeValue());
-        boolean encryptedResponses = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptedResponsesAttributeName).getDeviceMessageAttributeValue());
-        boolean signedResponse = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.signedResponsesAttributeName).getDeviceMessageAttributeValue());
+        boolean authenticatedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.authenticatedRequestsAttributeName).getValue());
+        boolean encryptedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptedRequestsAttributeName).getValue());
+        boolean signedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.signedRequestsAttributeName).getValue());
+        boolean authenticatedResponses = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.authenticatedResponsesAttributeName).getValue());
+        boolean encryptedResponses = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptedResponsesAttributeName).getValue());
+        boolean signedResponse = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.signedResponsesAttributeName).getValue());
 
         int securityPolicy = 0;
         if (securitySuite == 0) {
@@ -1682,7 +1682,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setNTPAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String address = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getNTPServerAddress().writeNTPServerName(address);
     }
 
@@ -1691,7 +1691,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setDeviceName(OfflineDeviceMessage pendingMessage) throws IOException {
-        String name = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String name = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getData(DEVICE_NAME_OBISCODE).setValueAttr(OctetString.fromString(name));
     }
 
@@ -1704,18 +1704,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void enableEventNotifications(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getCosemObjectFactory().getBeaconEventPushNotificationConfig().enable(enable);
     }
 
     private void setModemWatchdogParameters(OfflineDeviceMessage pendingMessage) throws IOException {
 
         //Note that all values here are expressed in seconds
-        int modemWatchdogInterval = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemWatchdogInterval).getDeviceMessageAttributeValue());
-        int modemWatchdogInitialDelay = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemWatchdogInitialDelay).getDeviceMessageAttributeValue());
-        int pppDaemonResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PPPDaemonResetThreshold).getDeviceMessageAttributeValue());
-        int modemResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemResetThreshold).getDeviceMessageAttributeValue());
-        int systemRebootThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.systemRebootThreshold).getDeviceMessageAttributeValue());
+        int modemWatchdogInterval = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemWatchdogInterval).getValue());
+        int modemWatchdogInitialDelay = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemWatchdogInitialDelay).getValue());
+        int pppDaemonResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PPPDaemonResetThreshold).getValue());
+        int modemResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemResetThreshold).getValue());
+        int systemRebootThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.systemRebootThreshold).getValue());
 
         getCosemObjectFactory().getModemWatchdogConfiguration().writeExtendedConfigParameters(
                 modemWatchdogInterval,
@@ -1727,106 +1727,106 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void enableModemWatchdog(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getCosemObjectFactory().getModemWatchdogConfiguration().enableWatchdog(enable);
     }
 
     private void configurePushEventNotification(OfflineDeviceMessage pendingMessage) throws IOException {
-        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getDeviceMessageAttributeValue();
+        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getValue();
         int transportType = AlarmConfigurationMessage.TransportType.valueOf(transportTypeString).getId();
 
-        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getDeviceMessageAttributeValue();
+        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getValue();
 
-        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getDeviceMessageAttributeValue();
+        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getValue();
         int messageType = AlarmConfigurationMessage.MessageType.valueOf(messageTypeString).getId();
 
         getCosemObjectFactory().getBeaconEventPushNotificationConfig().writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
     }
 
     private void writeUplinkPingTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
-        Integer timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        Integer timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getCosemObjectFactory().getUplinkPingConfiguration().writeTimeout(timeout);
     }
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getWebPortalConfig().changeUser1Password(newPassword);
     }
 
     private void changePasswordUser2(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getWebPortalConfig().changeUser2Password(newPassword);
     }
 
     private void changeUserPassword(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getDeviceMessageAttributeValue();
-        String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getDeviceMessageAttributeValue();
+        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getValue();
+        String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getValue();
 
         getCosemObjectFactory().getWebPortalConfig().changeUserPassword(userName, newPassword);
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
-        Integer interval = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        Integer interval = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getCosemObjectFactory().getUplinkPingConfiguration().writeInterval(interval);
     }
 
     private void writeUplinkPingDestinationAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        String destinationAddress = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String destinationAddress = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getUplinkPingConfiguration().writeDestAddress(destinationAddress);
     }
 
     private void enableUplinkPing(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getCosemObjectFactory().getUplinkPingConfiguration().enableUplinkPing(enable);
     }
 
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {
-        return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
     }
 
     private void writePrimaryDNSAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String address = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getIPv4Setup().setPrimaryDNSAddress(address);
     }
 
     private void writeSecondaryDNSAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String address = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         getCosemObjectFactory().getIPv4Setup().setSecondaryDNSAddress(address);
     }
 
     private void setHttpPort(OfflineDeviceMessage pendingMessage) throws IOException {
-        String httpPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpPortAttributeName).getDeviceMessageAttributeValue();
+        String httpPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpPortAttributeName).getValue();
         getCosemObjectFactory().getWebPortalConfig().setHttpPort(httpPort);
     }
 
     private void setHttpsPort(OfflineDeviceMessage pendingMessage) throws IOException {
-        String httpsPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpsPortAttributeName).getDeviceMessageAttributeValue();
+        String httpsPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpsPortAttributeName).getValue();
         getCosemObjectFactory().getWebPortalConfig().setHttpsPort(httpsPort);
     }
 
     private void setMaxLoginAttempts(OfflineDeviceMessage pendingMessage) throws IOException {
         /*final long logAttempts = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue());*/
-        String logAttempts = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue();
+        String logAttempts = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getValue();
         getCosemObjectFactory().getWebPortalConfig().setMaxLoginAttempts(logAttempts);
     }
 
     private void setLockoutDuration(OfflineDeviceMessage pendingMessage) throws IOException {
-        String duration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_LOCKOUT_DURATION).getDeviceMessageAttributeValue();
+        String duration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_LOCKOUT_DURATION).getValue();
         getCosemObjectFactory().getWebPortalConfig().setLockoutDuration(duration);
     }
 
     private void enableGzipCompression(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean enableGzip = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ENABLE_GZIP_COMPRESSION).getDeviceMessageAttributeValue());
+        boolean enableGzip = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ENABLE_GZIP_COMPRESSION).getValue());
         getCosemObjectFactory().getWebPortalConfig().enableGzipCompression(enableGzip);
     }
 
     private void enableSSL(OfflineDeviceMessage pendingMessage) throws IOException {
-        boolean enableSSL = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableSSL).getDeviceMessageAttributeValue());
+        boolean enableSSL = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableSSL).getValue());
         getCosemObjectFactory().getWebPortalConfig().enableSSL(enableSSL);
     }
 
     private void setAuthenticationMechanism(OfflineDeviceMessage pendingMessage) throws IOException {
-        String authName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM).getDeviceMessageAttributeValue();
+        String authName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM).getValue();
         int auth = AuthenticationMechanism.fromAuthName(authName);
         getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
     }

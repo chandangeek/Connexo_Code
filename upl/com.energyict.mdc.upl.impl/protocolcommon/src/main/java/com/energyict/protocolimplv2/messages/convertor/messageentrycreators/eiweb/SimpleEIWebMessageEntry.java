@@ -28,7 +28,7 @@ public class SimpleEIWebMessageEntry extends AbstractEIWebMessageEntry {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         String messageName = getMessageName(offlineDeviceMessage);
         MessageTag messageTag = new MessageTag(messageName);
-        messageTag.add(new MessageValue(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue()));
         return createMessageEntry(messageTag, offlineDeviceMessage.getTrackingId());
     }
 }

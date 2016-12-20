@@ -36,9 +36,9 @@ public class PartialLoadProfileMessageEntry implements MessageEntryCreator {
         OfflineDeviceMessageAttribute fromDateAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, fromDateAttributeName);
         OfflineDeviceMessageAttribute toDateAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, toDateAttributeName);
         final String partialLoadProfileMessage = LoadProfileMessageUtils.createPartialLoadProfileMessage(
-                MESSAGETAG, fromDateAttribute.getDeviceMessageAttributeValue(),
-                toDateAttribute.getDeviceMessageAttributeValue(),
-                loadProfileAttribute.getDeviceMessageAttributeValue());
+                MESSAGETAG, fromDateAttribute.getValue(),
+                toDateAttribute.getValue(),
+                loadProfileAttribute.getValue());
         return new MessageEntry(partialLoadProfileMessage, offlineDeviceMessage.getTrackingId());
     }
 }

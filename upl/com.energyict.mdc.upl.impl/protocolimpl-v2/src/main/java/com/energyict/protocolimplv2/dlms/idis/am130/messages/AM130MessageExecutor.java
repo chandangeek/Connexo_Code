@@ -112,17 +112,17 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private CollectedMessage configurePushSetupSendDestination(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
+        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
         pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
-        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getDeviceMessageAttributeValue();
+        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getValue();
         int transportType = AlarmConfigurationMessage.TransportType.valueOf(transportTypeString).getId();
 
-        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getDeviceMessageAttributeValue();
+        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getValue();
 
-        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getDeviceMessageAttributeValue();
+        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getValue();
         int messageType = AlarmConfigurationMessage.MessageType.valueOf(messageTypeString).getId();
 
         eventPushNotificationConfig.writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
@@ -130,12 +130,12 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private CollectedMessage configurePushSetupObjectDefinitions(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
+        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
         pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
-        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
+        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getValue();
         List<ObjectDefinition> objectDefinitions;
         try {
             objectDefinitions = composePushSetupObjectDefinitions(pushSetupObisCode, objectDefinitionsAttributeValue);
@@ -152,12 +152,12 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private CollectedMessage configurePushSetup(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
+        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
         pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
-        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
+        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getValue();
         List<ObjectDefinition> objectDefinitions;
         try {
             objectDefinitions = composePushSetupObjectDefinitions(pushSetupObisCode, objectDefinitionsAttributeValue);
@@ -169,12 +169,12 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
             return collectedMessage;
         }
 
-        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getDeviceMessageAttributeValue();
+        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getValue();
         int transportType = AlarmConfigurationMessage.TransportType.valueOf(transportTypeString).getId();
 
-        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getDeviceMessageAttributeValue();
+        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getValue();
 
-        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getDeviceMessageAttributeValue();
+        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getValue();
         int messageType = AlarmConfigurationMessage.MessageType.valueOf(messageTypeString).getId();
 
         eventPushNotificationConfig.writePushObjectList(objectDefinitions);
@@ -259,20 +259,20 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     protected void setAutoConnectMode(OfflineDeviceMessage pendingMessage) throws IOException {
-        int mode = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).intValue();
+        int mode = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getValue()).intValue();
         getCosemObjectFactory().getAutoConnect().writeMode(mode);
     }
 
     protected void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
         //semicolon separated list of phone numbers
-        String phoneNumbers = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, whiteListPhoneNumbersAttributeName).getDeviceMessageAttributeValue();
+        String phoneNumbers = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, whiteListPhoneNumbersAttributeName).getValue();
         getCosemObjectFactory().getAutoAnswer().addListOfAllowedCallers(Arrays.asList(phoneNumbers.split(";")));
     }
 
     private void changeGPRSParameters(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getDeviceMessageAttributeValue();
-        String password = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getDeviceMessageAttributeValue();
-        String apn = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, apnAttributeName).getDeviceMessageAttributeValue();
+        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, usernameAttributeName).getValue();
+        String password = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, passwordAttributeName).getValue();
+        String apn = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, apnAttributeName).getValue();
         writeGprsSettings(userName, password);
         if (apn != null) {
             getCosemObjectFactory().getGPRSModemSetup().writeAPN(apn);
@@ -294,7 +294,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private void setUseDHCPFlag(OfflineDeviceMessage pendingMessage) throws IOException {
-        Boolean dhcp = Boolean.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        Boolean dhcp = Boolean.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getIPv4Setup().setDHCPFlag(dhcp);
     }
 
@@ -353,7 +353,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private Long parseIpAddressAttribute(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
-        String ipAddressString = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String ipAddressString = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         String[] split = ipAddressString.split("\\.");
         List<Integer> result = new ArrayList<>();
 
@@ -390,8 +390,8 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private CollectedMessage writeFilterForAlarm1or2(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
-        BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getDeviceMessageAttributeValue());
+        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getValue());
+        BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue());
         ObisCode alarmFilterObisCode;
         switch (register) {
             case 1:
@@ -413,7 +413,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private CollectedMessage resetAlarmBits(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
+        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getValue());
         ObisCode alarmRegisterObisCode;
         switch (register) {
             case 1:
@@ -436,8 +436,8 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     private CollectedMessage resetAlarmDescriptor(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
-        BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getDeviceMessageAttributeValue());
+        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getValue());
+        BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getValue());
         ObisCode alarmDescriptorObisCode;
         switch (register) {
             case 1:

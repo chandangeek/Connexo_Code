@@ -102,7 +102,7 @@ public abstract class AbstractMessageConverterTest {
     /**
      * Getter for the {@link Messaging} protocol which will be the purpose of the test
      */
-    abstract protected Messaging getMessagingProtocol();
+    protected abstract Messaging getMessagingProtocol();
 
     /**
      * Getter for the {@link LegacyMessageConverter} which will be purpose of the test
@@ -120,7 +120,7 @@ public abstract class AbstractMessageConverterTest {
     /**
      * Gets the value to use for the given {@link PropertySpec}
      */
-    abstract protected Object getPropertySpecValue(PropertySpec propertySpec);
+    protected abstract Object getPropertySpecValue(PropertySpec propertySpec);
 
     /**
      * An offline implementation version of an {@link com.energyict.mdc.messages.DeviceMessageAttribute} used for test purposes.
@@ -134,7 +134,7 @@ public abstract class AbstractMessageConverterTest {
         private String deviceMessageAttributeValue;
         private int deviceMessageId;
 
-        public TestOfflineDeviceMessageAttribute(DeviceMessageAttribute deviceMessageAttribute, LegacyMessageConverter messageConverter) {
+        TestOfflineDeviceMessageAttribute(DeviceMessageAttribute deviceMessageAttribute, LegacyMessageConverter messageConverter) {
             this.deviceMessageAttribute = deviceMessageAttribute;
             this.messageConverter = messageConverter;
             goOffline();
@@ -153,22 +153,14 @@ public abstract class AbstractMessageConverterTest {
         }
 
         @Override
-        public String getDeviceMessageAttributeValue() {
+        public String getValue() {
             return deviceMessageAttributeValue;
         }
 
         @Override
-        public int getDeviceMessageId() {
+        public long getDeviceMessageId() {
             return deviceMessageId;
         }
 
-        @Override
-        public String getXmlType() {
-            return this.getClass().getName();
-        }
-
-        @Override
-        public void setXmlType(String ignore) {
-        }
     }
 }

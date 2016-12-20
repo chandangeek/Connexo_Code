@@ -129,8 +129,8 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
         try {
             super.getLogger().info("Loading the software identifier and the activation date.");
 
-            String firmwareVersionString = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateVersionNumberAttributeName).getDeviceMessageAttributeValue();
-            String activationDateString = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
+            String firmwareVersionString = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateVersionNumberAttributeName).getValue();
+            String activationDateString = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName).getValue();
 
             newSoftwareIdentifier = new Identify(Integer.parseInt(firmwareVersionString, 16));
             activationDate = Calendar.getInstance();
@@ -144,7 +144,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
     private void loadUserFile(OfflineDeviceMessage message) {
         super.getLogger().info("Loading the Firmware file.");
-        String base64Firmware = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String base64Firmware = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateUserFileAttributeName).getValue();
 
 //        Base64EncoderDecoder decoder = new Base64EncoderDecoder();
 //        this.firmwareUpgradeFile = decoder.decode(base64Firmware);

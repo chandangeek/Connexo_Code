@@ -30,9 +30,9 @@ public class WriteModbusRegisterMessage implements MessageEntryCreator {
         OfflineDeviceMessageAttribute registerAddressAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.RegisterAddressAttributeName);
         OfflineDeviceMessageAttribute registerValueAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.RegisterValueAttributeName);
 
-        messageTag.add(new MessageValue(radixAttribute.getDeviceMessageAttributeValue() + DELIMITER +
-                registerAddressAttribute.getDeviceMessageAttributeValue() + DELIMITER +
-                registerValueAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(radixAttribute.getValue() + DELIMITER +
+                registerAddressAttribute.getValue() + DELIMITER +
+                registerValueAttribute.getValue()));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 

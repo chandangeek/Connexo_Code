@@ -26,9 +26,9 @@ public class IDISRepeaterCallConfigurationMessageEntry implements MessageEntryCr
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String interval = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.interval).getDeviceMessageAttributeValue();
-        String duration = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.receptionThreshold).getDeviceMessageAttributeValue();
-        String numberOfTimeSlots = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.numberOfTimeSlotsForNewSystems).getDeviceMessageAttributeValue();
+        String interval = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.interval).getValue();
+        String duration = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.receptionThreshold).getValue();
+        String numberOfTimeSlots = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.numberOfTimeSlotsForNewSystems).getValue();
         String messageContent = OPEN_TAG + OPEN_SUBTAG1 + interval + CLOSE_SUBTAG1 + OPEN_SUBTAG2 + duration + CLOSE_SUBTAG2 + OPEN_SUBTAG3 + numberOfTimeSlots + CLOSE_SUBTAG3 + CLOSE_TAG;
         return new MessageEntry(messageContent, offlineDeviceMessage.getTrackingId());
     }

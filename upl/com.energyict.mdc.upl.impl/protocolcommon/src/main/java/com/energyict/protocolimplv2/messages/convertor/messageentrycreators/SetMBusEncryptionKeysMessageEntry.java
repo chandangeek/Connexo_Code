@@ -37,8 +37,8 @@ public class SetMBusEncryptionKeysMessageEntry implements MessageEntryCreator {
      */
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String openKey = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, openKeyAttributeName).getDeviceMessageAttributeValue();
-        String transferKey = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, transferKeyAttributeName).getDeviceMessageAttributeValue();
+        String openKey = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, openKeyAttributeName).getValue();
+        String transferKey = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, transferKeyAttributeName).getValue();
 
         MessageTag messageTag = new MessageTag(tag);
         messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_OPEN_KEY, openKey));

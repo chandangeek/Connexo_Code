@@ -27,7 +27,7 @@ public class AdvancedTagMessageEntry implements MessageEntryCreator {
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String deviceMessageAttributeValue = offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String deviceMessageAttributeValue = offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue();
         MessageTag messageTag = new MessageTag(tag + deviceMessageAttributeValue);
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());

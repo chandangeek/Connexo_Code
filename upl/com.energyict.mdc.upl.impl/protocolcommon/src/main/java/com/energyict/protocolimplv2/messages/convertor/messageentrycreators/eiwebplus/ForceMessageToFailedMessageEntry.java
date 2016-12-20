@@ -17,8 +17,8 @@ public class ForceMessageToFailedMessageEntry implements MessageEntryCreator {
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String deviceId = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.deviceId).getDeviceMessageAttributeValue();
-        String trackingID = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.trackingId).getDeviceMessageAttributeValue();
+        String deviceId = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.deviceId).getValue();
+        String trackingID = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.trackingId).getValue();
         String messageContent = "<ForceMessageToFailed><RtuID>" + deviceId + "</RtuID><TrackingID>" + trackingID + "</TrackingID> </ForceMessageToFailed>";
         return new MessageEntry(messageContent, offlineDeviceMessage.getTrackingId());
     }

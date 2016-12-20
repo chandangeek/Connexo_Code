@@ -4,9 +4,6 @@ import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Copyrights EnergyICT
  * Date: 12/11/12
@@ -25,9 +22,9 @@ public class SendMaxDemandConfigurationRequest extends AbstractConfigMessage {
             return;   //Don't send if result is already known
         }
 
-        int register = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ACTIVE_REGISTERS_0_OR_REACTIVE_REGISTERS_1).getDeviceMessageAttributeValue());
-        int numberOfSubIntervals = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_SUBINTERVALS).getDeviceMessageAttributeValue());
-        int subIntervalDuration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SUB_INTERVAL_DURATION).getDeviceMessageAttributeValue());
+        int register = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ACTIVE_REGISTERS_0_OR_REACTIVE_REGISTERS_1).getValue());
+        int numberOfSubIntervals = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_SUBINTERVALS).getValue());
+        int subIntervalDuration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SUB_INTERVAL_DURATION).getValue());
 
         if (convertToNumberOfSubIntervalsCode(numberOfSubIntervals) == null) {
             failMessage("Max demand configuration message failed, invalid arguments");

@@ -32,7 +32,7 @@ public class ChangeHLSSecretMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute msgAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, newPasswordAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_HLS_SECRET, msgAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_HLS_SECRET, msgAttribute.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

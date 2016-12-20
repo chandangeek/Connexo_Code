@@ -32,7 +32,7 @@ public class ChangeDSTMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        boolean enableDST = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.enableDSTAttributeName).getDeviceMessageAttributeValue());
+        boolean enableDST = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.enableDSTAttributeName).getValue());
         writeDST(enableDST);
         return null;
     }

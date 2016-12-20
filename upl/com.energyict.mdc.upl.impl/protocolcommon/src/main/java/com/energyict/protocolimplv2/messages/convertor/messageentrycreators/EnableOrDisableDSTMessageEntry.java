@@ -36,7 +36,7 @@ public class EnableOrDisableDSTMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute attribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, enableDSTAttributeName);
         MessageTag messageTag = new MessageTag(ENABLE_DST);
-        messageTag.add(new MessageValue(attribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(attribute.getValue()));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

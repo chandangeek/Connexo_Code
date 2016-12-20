@@ -22,9 +22,9 @@ public class LoadProfileConfigRequest extends AbstractConfigMessage {
             return;   //Don't send if result is already known
         }
 
-        int enable = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ENABLE_DISABLE).getDeviceMessageAttributeValue());
-        int intervalInMinutes = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.CONFIG_LOAD_PROFILE_INTERVAL).getDeviceMessageAttributeValue());
-        int maxNumberOfRecords = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.MAX_NUMBER_RECORDS).getDeviceMessageAttributeValue());
+        int enable = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ENABLE_DISABLE).getValue());
+        int intervalInMinutes = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.CONFIG_LOAD_PROFILE_INTERVAL).getValue());
+        int maxNumberOfRecords = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.MAX_NUMBER_RECORDS).getValue());
         if (enable != 0 && enable != 1) {
             failMessage("Load profile configuration message failed, invalid arguments");
             return;

@@ -29,14 +29,14 @@ public class ChangeSealStatusMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        Boolean eventLogReset = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.eventLogResetSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean restoreFactorySettings = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreFactorySettingsSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean restoreDefaultSettings = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultSettingsSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean statusChange = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.statusChangeSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean remoteConversionParamConfig = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean remoteAnalysisParamConfig = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean downloadProgram = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.downloadProgramSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean restoreDefaultPasswords = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultPasswordSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean eventLogReset = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.eventLogResetSealAttributeName).getValue());
+        Boolean restoreFactorySettings = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreFactorySettingsSealAttributeName).getValue());
+        Boolean restoreDefaultSettings = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultSettingsSealAttributeName).getValue());
+        Boolean statusChange = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.statusChangeSealAttributeName).getValue());
+        Boolean remoteConversionParamConfig = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName).getValue());
+        Boolean remoteAnalysisParamConfig = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName).getValue());
+        Boolean downloadProgram = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.downloadProgramSealAttributeName).getValue());
+        Boolean restoreDefaultPasswords = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultPasswordSealAttributeName).getValue());
 
         changeAllSealStatuses(eventLogReset, restoreFactorySettings, restoreDefaultSettings, statusChange, remoteConversionParamConfig, remoteAnalysisParamConfig, downloadProgram, restoreDefaultPasswords);
         return null;

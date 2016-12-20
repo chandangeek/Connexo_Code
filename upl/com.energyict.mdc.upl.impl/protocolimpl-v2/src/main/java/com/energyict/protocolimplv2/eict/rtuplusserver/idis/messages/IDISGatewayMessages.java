@@ -335,7 +335,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
     private void changeOutputState(OfflineDeviceMessage pendingMessage) throws IOException {
         int outputId = getIntegerMessageAttributeValue(pendingMessage, DeviceMessageConstants.outputId);
-        boolean newState = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newState).getDeviceMessageAttributeValue());
+        boolean newState = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newState).getValue());
 
         final ObisCode obisCode = ProtocolTools.setObisCodeField(DEFAULT_DISCONNECTOR_OBISCODE, 1, (byte) outputId);
         final Disconnector disconnector = this.session.getCosemObjectFactory().getDisconnector(obisCode);
@@ -371,14 +371,14 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     private String getMessageAttributeValue(OfflineDeviceMessage pendingMessage, String attributeName) {
         return MessageConverterTools.getDeviceMessageAttribute(
                 pendingMessage,
-                attributeName).getDeviceMessageAttributeValue();
+                attributeName).getValue();
     }
 
     private int getIntegerMessageAttributeValue(OfflineDeviceMessage pendingMessage, String attributeName) {
         return Integer.parseInt(
                 MessageConverterTools.getDeviceMessageAttribute(
                         pendingMessage,
-                        attributeName).getDeviceMessageAttributeValue()
+                        attributeName).getValue()
         );
     }
 
@@ -387,7 +387,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         return ProtocolTools.getBooleanFromString(
                 MessageConverterTools.getDeviceMessageAttribute(
                         pendingMessage,
-                        attributeName).getDeviceMessageAttributeValue()
+                        attributeName).getValue()
         );
     }
 

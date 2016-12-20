@@ -44,13 +44,13 @@ public class WriteGasParametersMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String gasDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.gasDensityAttributeName).getDeviceMessageAttributeValue();
-        String airDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.airDensityAttributeName).getDeviceMessageAttributeValue();
-        String relativeDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.relativeDensityAttributeName).getDeviceMessageAttributeValue();
-        String molecularNitrogenPercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.molecularNitrogenPercentageAttributeName).getDeviceMessageAttributeValue();
-        String carbonDioxidePercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.carbonDioxidePercentageAttributeName).getDeviceMessageAttributeValue();
-        String molecularHydrogenPercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.molecularHydrogenPercentageAttributeName).getDeviceMessageAttributeValue();
-        String higherCalorificValueString = getDeviceMessageAttribute(message, DeviceMessageConstants.higherCalorificValueAttributeName).getDeviceMessageAttributeValue();
+        String gasDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.gasDensityAttributeName).getValue();
+        String airDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.airDensityAttributeName).getValue();
+        String relativeDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.relativeDensityAttributeName).getValue();
+        String molecularNitrogenPercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.molecularNitrogenPercentageAttributeName).getValue();
+        String carbonDioxidePercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.carbonDioxidePercentageAttributeName).getValue();
+        String molecularHydrogenPercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.molecularHydrogenPercentageAttributeName).getValue();
+        String higherCalorificValueString = getDeviceMessageAttribute(message, DeviceMessageConstants.higherCalorificValueAttributeName).getValue();
 
         int gasDensity = validateAndGetDensity(gasDensityString);
         int airDensity = validateAndGetDensity(airDensityString);

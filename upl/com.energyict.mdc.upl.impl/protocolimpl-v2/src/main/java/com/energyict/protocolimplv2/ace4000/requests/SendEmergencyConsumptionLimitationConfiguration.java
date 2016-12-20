@@ -22,10 +22,10 @@ public class SendEmergencyConsumptionLimitationConfiguration extends AbstractCon
             return;   //Don't send if result is already known
         }
 
-        int duration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.DURATION_MINUTES).getDeviceMessageAttributeValue());
-        int threshold = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.TRESHOLD_VALUE).getDeviceMessageAttributeValue());
-        int unit = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.TRESHOLD_UNIT).getDeviceMessageAttributeValue());
-        int overrideRate = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.OVERRIDE_RATE).getDeviceMessageAttributeValue());
+        int duration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.DURATION_MINUTES).getValue());
+        int threshold = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.TRESHOLD_VALUE).getValue());
+        int unit = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.TRESHOLD_UNIT).getValue());
+        int overrideRate = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.OVERRIDE_RATE).getValue());
         String failMsg = "Emergency consumption limitation configuration message failed, invalid arguments";
         if (duration > 0xFFFF || duration < 0) {
             failMessage(failMsg);

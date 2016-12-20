@@ -41,11 +41,11 @@ public class ConfigWithUserFileAndActivationDateMessageEntry implements MessageE
         MessageTag mainTag = new MessageTag(tag);
 
         MessageTag subTag1 = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE_INCLUDED_FILE);
-        subTag1.add(new MessageValue(userFileAttribute.getDeviceMessageAttributeValue()));  //The userFile bytes
+        subTag1.add(new MessageValue(userFileAttribute.getValue()));  //The userFile bytes
         mainTag.add(subTag1);
 
         MessageTag subTag2 = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE_ACTIVATION_DATE);
-        subTag2.add(new MessageValue(activationDateAttribute.getDeviceMessageAttributeValue())); // The activation date
+        subTag2.add(new MessageValue(activationDateAttribute.getValue())); // The activation date
         mainTag.add(subTag2);
         return new MessageEntry(SimpleTagWriter.writeTag(mainTag), offlineDeviceMessage.getTrackingId());
     }

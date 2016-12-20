@@ -151,7 +151,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS)) {
             resetAllErrorBits(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_ALARM_FILTER)) {
-            long filter = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).longValue();
+            long filter = new BigDecimal(pendingMessage.getDeviceMessageAttributes().get(0).getValue()).longValue();
             writeAlarmFilter(ALARM_FILTER_OBISCODE, filter);
         } else if (pendingMessage.getSpecification().equals(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION)) {
             configurationDownload(pendingMessage);
@@ -201,8 +201,8 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     protected void firmwareUpgrade(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
 
         OfflineDeviceMessageAttribute imageAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateUserFileAttributeName);
-        byte[] binaryImage = ProtocolTools.getBytesFromHexString(imageAttribute.getDeviceMessageAttributeValue(), "");
-        boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeFirmwareUpdateAttributeName).getDeviceMessageAttributeValue());
+        byte[] binaryImage = ProtocolTools.getBytesFromHexString(imageAttribute.getValue(), "");
+        boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeFirmwareUpdateAttributeName).getValue());
 
         String firmwareIdentifier;
         int length = binaryImage[0];
@@ -239,7 +239,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void setTimeoutNotAddressed(OfflineDeviceMessage pendingMessage) throws IOException {
-        int timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        int timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         getCosemObjectFactory().getSFSKSyncTimeouts().setTimeoutNotAddressed(timeout);
     }
 
@@ -273,15 +273,15 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void writeCapturePeriod(OfflineDeviceMessage offlineDeviceMessage, int dField) throws IOException {
-        long captureTimeInSeconds = Long.valueOf(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        long captureTimeInSeconds = Long.valueOf(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue());
         ObisCode lpObisCode = ObisCode.fromString("1.0.99.1.0.255");
         lpObisCode = ProtocolTools.setObisCodeField(lpObisCode, 3, (byte) dField);  //1 or 2 in D-field, selects the LP
         getCosemObjectFactory().getProfileGeneric(lpObisCode).setCapturePeriodAttr(new Unsigned32(captureTimeInSeconds));
     }
 
     private CollectedMessage superVision(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        int phase = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, phaseAttributeName).getDeviceMessageAttributeValue()).intValue();
-        long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).longValue();
+        int phase = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, phaseAttributeName).getValue()).intValue();
+        long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getValue()).longValue();
         return updateThresholds(collectedMessage, offlineDeviceMessage, phase, threshold);
     }
 
@@ -315,16 +315,16 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
     private void loadControlledConnect(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
 
-        int monitoredValue = MonitoredValue.fromDescription(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitoredValueAttributeName).getDeviceMessageAttributeValue());
-        long normalThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, normalThresholdAttributeName).getDeviceMessageAttributeValue()).longValue();
-        long emergencyThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyThresholdAttributeName).getDeviceMessageAttributeValue()).longValue();
-        int overThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, overThresholdDurationAttributeName).getDeviceMessageAttributeValue());
-        int underThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, underThresholdDurationAttributeName).getDeviceMessageAttributeValue());
-        int emergencyProfileId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileIdAttributeName).getDeviceMessageAttributeValue());
-        Date emergencyProfileActivationDate = new Date(new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileActivationDateAttributeName).getDeviceMessageAttributeValue()).longValue());
-        int emergencyProfileDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileDurationAttributeName).getDeviceMessageAttributeValue());
-        String emergencyProfileGroupIdList = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileGroupIdListAttributeName).getDeviceMessageAttributeValue();
-        int actionWhenUnderThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, actionWhenUnderThresholdAttributeName).getDeviceMessageAttributeValue());
+        int monitoredValue = MonitoredValue.fromDescription(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitoredValueAttributeName).getValue());
+        long normalThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, normalThresholdAttributeName).getValue()).longValue();
+        long emergencyThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyThresholdAttributeName).getValue()).longValue();
+        int overThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, overThresholdDurationAttributeName).getValue());
+        int underThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, underThresholdDurationAttributeName).getValue());
+        int emergencyProfileId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileIdAttributeName).getValue());
+        Date emergencyProfileActivationDate = new Date(new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileActivationDateAttributeName).getValue()).longValue());
+        int emergencyProfileDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileDurationAttributeName).getValue());
+        String emergencyProfileGroupIdList = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileGroupIdListAttributeName).getValue();
+        int actionWhenUnderThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, actionWhenUnderThresholdAttributeName).getValue());
 
         Limiter limiter = getCosemObjectFactory().getLimiter();
         setMonitoredValue(limiter, monitoredValue);
@@ -397,12 +397,12 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
 
     private void setControlMode(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        int controlMode = new BigDecimal(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).intValue();
+        int controlMode = new BigDecimal(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue()).intValue();
         getCosemObjectFactory().getDisconnector().writeControlMode(new TypeEnum(controlMode));
     }
 
     protected void closeRelay(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        int relayControlNumber = new BigDecimal(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).intValue();
+        int relayControlNumber = new BigDecimal(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue()).intValue();
         ObisCode obisCode = RELAY_CONTROL_OBISCODE;
         obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) relayControlNumber);
         getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode).remoteReconnect();
@@ -413,7 +413,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void timedAction(OfflineDeviceMessage offlineDeviceMessage, int action) throws IOException {
-        Long epoch = Long.valueOf(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        Long epoch = Long.valueOf(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue());
         Date actionTime = new Date(epoch);  //EIServer system timezone
 
         SingleActionSchedule singleActionSchedule = getProtocol().getDlmsSession().getCosemObjectFactory().getSingleActionSchedule(TIMED_CONNECTOR_ACTION_OBISCODE);
@@ -433,7 +433,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void openRelay(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        int relayControlNumber = new BigDecimal(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()).intValue();
+        int relayControlNumber = new BigDecimal(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue()).intValue();
         ObisCode obisCode = RELAY_CONTROL_OBISCODE;
         obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) relayControlNumber);
         getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode).remoteDisconnect();
@@ -456,9 +456,9 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void writeActivityCalendar(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String name = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
-        String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
-        String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        String name = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarNameAttributeName).getValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarActivationDateAttributeName).getValue();
+        String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarCodeTableAttributeName).getValue();
         String typeTag = "Activity_Calendar";
 
         //Insert attribute values in the XML description, this was not done in the format method (since we only have one message attribute at a time there...)
@@ -483,7 +483,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void writeSpecialDays(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, specialDaysCodeTableAttributeName).getDeviceMessageAttributeValue();
+        String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, specialDaysCodeTableAttributeName).getValue();
         String type = "Special_Days";
 
         MessageTag mainTag = new MessageTag(type);
@@ -514,7 +514,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
     private void configurationDownload(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
 
-        String xmlData = new String(ProtocolTools.getBytesFromHexString(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue(), ""));
+        String xmlData = new String(ProtocolTools.getBytesFromHexString(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue(), ""));
         XMLParser parser = new XMLParser(getProtocol().getLogger(), getProtocol().getDlmsSession().getCosemObjectFactory());
 
         parser.parseXML(xmlData);

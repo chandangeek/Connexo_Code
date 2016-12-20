@@ -124,8 +124,8 @@ public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
-        String openKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, openKeyAttributeName).getDeviceMessageAttributeValue();
-        String transferKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, transferKeyAttributeName).getDeviceMessageAttributeValue();
+        String openKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, openKeyAttributeName).getValue();
+        String transferKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, transferKeyAttributeName).getValue();
 
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getCorrectedObisCode(MBUS_CLIENT_OBIS, pendingMessage));
         mbusClient.setEncryptionKey(ProtocolTools.getBytesFromHexString(openKey, ""));
@@ -138,13 +138,13 @@ public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeConnectControlMode(OfflineDeviceMessage pendingMessage) throws IOException {
-        int mode = Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+        int mode = Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_OBIS, pendingMessage));
         connectorMode.writeControlMode(new TypeEnum(mode));
     }
 
     private void contactorCloseWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getValue();
 
         Array executionTimeArray = convertEpochToDateTimeArray(epoch);
         SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS, pendingMessage));
@@ -158,7 +158,7 @@ public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void contactorOpenWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorActivationDateAttributeName).getValue();
 
         Array executionTimeArray = convertEpochToDateTimeArray(epoch);
         SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS, pendingMessage));

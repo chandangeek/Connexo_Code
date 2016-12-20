@@ -25,9 +25,9 @@ public class EK280ActivityCalendarMessageEntry implements MessageEntryCreator {
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String codeTable = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
-        String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
-        String defaultTariffCode = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.defaultTariffCodeAttrributeName).getDeviceMessageAttributeValue();
+        String codeTable = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.activityCalendarCodeTableAttributeName).getValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getValue();
+        String defaultTariffCode = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.defaultTariffCodeAttrributeName).getValue();
 
         MessageTag msgTag = new MessageTag(messageTag);
         msgTag.add(new MessageAttribute(codeTableAttributeTag, codeTable));

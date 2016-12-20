@@ -39,7 +39,7 @@ public class MultipleInnerTagsMessageEntry implements MessageEntryCreator {
         for (int index = 0; index < attributeTags.size(); index++) {
             String attributeTag = attributeTags.get(index);
             String attributeName = offlineDeviceMessage.getSpecification().getPropertySpecs().get(index).getName();
-            String value = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, attributeName).getDeviceMessageAttributeValue();
+            String value = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, attributeName).getValue();
 
             MessageTag innerTag = new MessageTag(attributeTag);
             innerTag.add(new MessageValue(value));

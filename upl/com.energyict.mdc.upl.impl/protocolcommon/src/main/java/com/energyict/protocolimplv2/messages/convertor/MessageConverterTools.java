@@ -27,23 +27,15 @@ public class MessageConverterTools {
         }
 
         @Override
-        public String getDeviceMessageAttributeValue() {
+        public String getValue() {
             return "";
         }
 
         @Override
-        public int getDeviceMessageId() {
+        public long getDeviceMessageId() {
             return 0;
         }
 
-        @Override
-        public String getXmlType() {
-            return this.getClass().getName();
-        }
-
-        @Override
-        public void setXmlType(String ignore) {
-        }
     };
 
     /**

@@ -31,9 +31,9 @@ public class FirmwareUpgrade extends AbstractRequest<OfflineDeviceMessage, Colle
 
     @Override
     protected void doRequest() {
-        String path = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.URL_PATH).getDeviceMessageAttributeValue();
-        int jarSize = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.JAR_FILE_SIZE).getDeviceMessageAttributeValue());
-        int jadSize = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.JAD_FILE_SIZE).getDeviceMessageAttributeValue());
+        String path = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.URL_PATH).getValue();
+        int jarSize = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.JAR_FILE_SIZE).getValue());
+        int jadSize = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.JAD_FILE_SIZE).getValue());
         trackingId = getAce4000().getObjectFactory().sendFirmwareUpgradeRequest(path, jarSize, jadSize);
     }
 

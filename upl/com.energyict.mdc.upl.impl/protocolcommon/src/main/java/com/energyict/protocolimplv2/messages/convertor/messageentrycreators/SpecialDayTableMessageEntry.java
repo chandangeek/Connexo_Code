@@ -32,7 +32,7 @@ public class SpecialDayTableMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute codeTableAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, codeTableAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.TOU_SPECIAL_DAYS);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, codeTableAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, codeTableAttribute.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

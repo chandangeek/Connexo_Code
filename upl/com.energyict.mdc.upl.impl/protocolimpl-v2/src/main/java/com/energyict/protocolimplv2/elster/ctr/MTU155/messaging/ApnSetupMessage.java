@@ -36,14 +36,14 @@ public class ApnSetupMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getPrimaryKey().getValue());
+        return message.getDeviceMessageId() == NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getPrimaryKey().getValue();
     }
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String apn = getDeviceMessageAttribute(message, DeviceMessageConstants.apnAttributeName).getDeviceMessageAttributeValue();
-        String user = getDeviceMessageAttribute(message, DeviceMessageConstants.usernameAttributeName).getDeviceMessageAttributeValue();
-        String pssw = getDeviceMessageAttribute(message, DeviceMessageConstants.passwordAttributeName).getDeviceMessageAttributeValue();
+        String apn = getDeviceMessageAttribute(message, DeviceMessageConstants.apnAttributeName).getValue();
+        String user = getDeviceMessageAttribute(message, DeviceMessageConstants.usernameAttributeName).getValue();
+        String pssw = getDeviceMessageAttribute(message, DeviceMessageConstants.passwordAttributeName).getValue();
 
         validateApnSetupParameters(apn, user, pssw);
         writeApnSetup(apn, user, pssw);

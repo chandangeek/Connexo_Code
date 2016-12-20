@@ -6,7 +6,9 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -26,8 +28,8 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
             return;   //Don't send if result is already known
         }
 
-        int numberOfSubIntervals = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_SUBINTERVALS).getDeviceMessageAttributeValue());
-        int subIntervalDuration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SUB_INTERVAL_DURATION).getDeviceMessageAttributeValue());
+        int numberOfSubIntervals = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.NUMBER_OF_SUBINTERVALS).getValue());
+        int subIntervalDuration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SUB_INTERVAL_DURATION).getValue());
         String failMsg = "Consumption limitation configuration message failed, invalid arguments";
         if (convertToNumberOfSubIntervalsCode(numberOfSubIntervals) == null) {
             failMessage(failMsg);
@@ -37,24 +39,24 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
             failMessage(failMsg);
             return;
         }
-        int ovl = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.OVERRIDE_RATE).getDeviceMessageAttributeValue());
+        int ovl = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.OVERRIDE_RATE).getValue());
         if (ovl < 0 || ovl > 4) {
             failMessage(failMsg);
             return;
         }
-        int thresholdTolerance = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ALLOWED_EXCESS_TOLERANCE).getDeviceMessageAttributeValue());
+        int thresholdTolerance = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ALLOWED_EXCESS_TOLERANCE).getValue());
         if (thresholdTolerance < 0 || thresholdTolerance > 100) {
             failMessage(failMsg);
             return;
         }
-        int thresholdSelection = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLD_SELECTION).getDeviceMessageAttributeValue());
+        int thresholdSelection = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLD_SELECTION).getValue());
         if (thresholdSelection < 0 || thresholdSelection > 1) {
             failMessage(failMsg);
             return;
         }
         List<String> switchingTimesDP0 = new ArrayList<String>();
         try {
-            String[] switchingTimesStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE0).getDeviceMessageAttributeValue().split(",");
+            String[] switchingTimesStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE0).getValue().split(",");
             for (String switchingTime : switchingTimesStrings) {
                 int hour = Integer.parseInt(switchingTime.split(":")[0]);
                 int minute = Integer.parseInt(switchingTime.split(":")[1]);
@@ -71,7 +73,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
 
         List<Integer> thresholdsDP0 = new ArrayList<Integer>();
         try {
-            String[] thresholdStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE0).getDeviceMessageAttributeValue().split(",");
+            String[] thresholdStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE0).getValue().split(",");
             for (String thresholdString : thresholdStrings) {
                 int threshold = Integer.parseInt(thresholdString);
                 if (threshold < 0) {
@@ -91,7 +93,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
 
         List<Integer> unitsDP0 = new ArrayList<Integer>();
         try {
-            String[] unitStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLDS_MOMENTS).getDeviceMessageAttributeValue().split(",");
+            String[] unitStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLDS_MOMENTS).getValue().split(",");
             for (String threshold : unitStrings) {
                 unitsDP0.add(Integer.parseInt(threshold));
             }
@@ -106,7 +108,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
 
         List<String> actionsDP0 = new ArrayList<String>();
         try {
-            String[] actionStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE0).getDeviceMessageAttributeValue().split(",");
+            String[] actionStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE0).getValue().split(",");
             for (String action : actionStrings) {
                 actionsDP0.add(pad(action));
             }
@@ -120,7 +122,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
         }
         List<String> switchingTimesDP1 = new ArrayList<String>();
         try {
-            String[] switchingTimesStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE1).getDeviceMessageAttributeValue().split(",");
+            String[] switchingTimesStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE1).getValue().split(",");
             for (String switchingTime : switchingTimesStrings) {
                 int hour = Integer.parseInt(switchingTime.split(":")[0]);
                 int minute = Integer.parseInt(switchingTime.split(":")[1]);
@@ -137,7 +139,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
 
         List<Integer> thresholdsDP1 = new ArrayList<Integer>();
         try {
-            String[] thresholdStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE1).getDeviceMessageAttributeValue().split(",");
+            String[] thresholdStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE1).getValue().split(",");
             for (String thresholdString : thresholdStrings) {
                 int threshold = Integer.parseInt(thresholdString);
                 if (threshold < 0) {
@@ -157,7 +159,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
 
         List<Integer> unitsDP1 = new ArrayList<Integer>();
         try {
-            String[] unitStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLDS_MOMENTS).getDeviceMessageAttributeValue().split(",");
+            String[] unitStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.THRESHOLDS_MOMENTS).getValue().split(",");
             for (String threshold : unitStrings) {
                 unitsDP1.add(Integer.parseInt(threshold));
             }
@@ -172,7 +174,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
 
         List<String> actionsDP1 = new ArrayList<String>();
         try {
-            String[] actionStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE1).getDeviceMessageAttributeValue().split(",");
+            String[] actionStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE1).getValue().split(",");
             for (String action : actionStrings) {
                 actionsDP1.add(pad(action));
             }
@@ -187,7 +189,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
 
         List<Integer> weekProfile = new ArrayList<Integer>();
         try {
-            String[] dayStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.DAY_PROFILES).getDeviceMessageAttributeValue().split(",");
+            String[] dayStrings = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.DAY_PROFILES).getValue().split(",");
             for (String day : dayStrings) {
                 weekProfile.add(Integer.parseInt(day));
             }
@@ -204,7 +206,7 @@ public class ConfigureConsumptionLimitationsSettings extends AbstractConfigMessa
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            String dateString = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ACTIVATION_DATE).getDeviceMessageAttributeValue();
+            String dateString = MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.ACTIVATION_DATE).getValue();
             date = formatter.parse(dateString);
         } catch (ParseException e) {
             failMessage(failMsg);

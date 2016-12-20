@@ -39,7 +39,7 @@ public class SetTimeMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute dateAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, dateAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.SET_TIME);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.SET_TIME_VALUE, dateAttribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.SET_TIME_VALUE, dateAttribute.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

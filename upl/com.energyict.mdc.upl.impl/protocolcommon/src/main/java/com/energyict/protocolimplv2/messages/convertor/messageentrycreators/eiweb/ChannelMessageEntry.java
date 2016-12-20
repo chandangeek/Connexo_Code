@@ -32,7 +32,7 @@ public class ChannelMessageEntry extends AbstractEIWebMessageEntry {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageParentTag = new MessageTag(LEGACY_CHANNEL_TAG);
-        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getDeviceMessageAttributeValue()));
+        messageParentTag.add(new MessageAttribute(LEGACY_ID_TAG, getIdAttribute(offlineDeviceMessage).getValue()));
 
         MessageTag messageValue = new MessageTag(getMessageName(offlineDeviceMessage));
         messageValue.add(new MessageValue(getValueAttribute(offlineDeviceMessage)));

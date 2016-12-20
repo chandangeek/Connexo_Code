@@ -46,27 +46,27 @@ public class ChangeMBusClientAttributesEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute attribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, mbusClientChannel);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.MBUS_INSTALL_CHANNEL);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_INSTALL_CHANNEL, attribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_INSTALL_CHANNEL, attribute.getValue()));
         messageTag.add(new MessageValue(" "));
         messagingProtocol.writeTag(messageTag);
         attribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, identificationNumberAttributeName);
         messageTag = new MessageTag(RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER, attribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER, attribute.getValue()));
         messageTag.add(new MessageValue(" "));
         messagingProtocol.writeTag(messageTag);
         attribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, manufacturerIdAttributeName);
         messageTag = new MessageTag(RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID, attribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID, attribute.getValue()));
         messageTag.add(new MessageValue(" "));
         messagingProtocol.writeTag(messageTag);
         attribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, deviceTypeAttributeName);
         messageTag = new MessageTag(RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE, attribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE, attribute.getValue()));
         messageTag.add(new MessageValue(" "));
         messagingProtocol.writeTag(messageTag);
         attribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, deviceVersionAttributeName);
         messageTag = new MessageTag(RtuMessageConstant.MBUS_CLIENT_VERSION);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_CLIENT_VERSION, attribute.getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageAttribute(RtuMessageConstant.MBUS_CLIENT_VERSION, attribute.getValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

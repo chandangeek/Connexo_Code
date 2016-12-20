@@ -242,9 +242,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
-                this.id,
-                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
-                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.PEAK_SHAVER_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService);

@@ -35,14 +35,14 @@ public class DeviceMessageCategoriesTest extends TestCase {
         List<Long> messageIds;
         for (DeviceMessageCategories categories : DeviceMessageCategories.values()) {
             messageIds = new ArrayList<>();
-            for (DeviceMessageSpec deviceMessageSpec : categories.get(propertySpecService, nlsService).getMessageSpecifications()) {
-                boolean condition = messageIds.contains(deviceMessageSpec.getMessageId());
+            for (DeviceMessageSpec deviceMessageSpec : categories.get(propertySpecService, nlsService, converter).getMessageSpecifications()) {
+                boolean condition = messageIds.contains(deviceMessageSpec.getId());
                 if (condition) {
                     Logger logger = Logger.getLogger(DeviceMessageCategoriesTest.class.getSimpleName());
                     logger.severe("Unique message ID violation: " + deviceMessageSpec.getName());
                 }
                 assertFalse(condition);
-                messageIds.add(deviceMessageSpec.getMessageId());
+                messageIds.add(deviceMessageSpec.getId());
             }
         }
     }

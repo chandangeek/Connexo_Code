@@ -27,43 +27,43 @@ public class ConfigureSpecialDataMode extends AbstractConfigMessage {
 
         String failMsg = "Special data mode configuration message failed, invalid arguments";
 
-        int duration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_DATE_MODE_DURATION_DAYS).getDeviceMessageAttributeValue());
+        int duration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_DATE_MODE_DURATION_DAYS).getValue());
         Date date;
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-            date = formatter.parse(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_DATE_MODE_DURATION_DATE).getDeviceMessageAttributeValue());
+            date = formatter.parse(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_DATE_MODE_DURATION_DATE).getValue());
         } catch (Exception e) {
             failMessage(failMsg);
             return;
         }
 
-        int billingEnable = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING).getDeviceMessageAttributeValue());
+        int billingEnable = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING).getValue());
         if (billingEnable != 0 && billingEnable != 1) {
             failMessage(failMsg);
             return;
         }
-        int billingInterval = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING_INTERVAL).getDeviceMessageAttributeValue());
+        int billingInterval = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING_INTERVAL).getValue());
         if (billingInterval != 0 && billingInterval != 1 && billingInterval != 2) {
             failMessage(failMsg);
             return;
         }
-        int billingNumber = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS).getDeviceMessageAttributeValue());
+        int billingNumber = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS).getValue());
         if (billingNumber > 0xFFFF || billingNumber < 0) {
             failMessage(failMsg);
             return;
         }
 
-        int loadProfileEnable = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_LOAD_PROFILE).getDeviceMessageAttributeValue());
+        int loadProfileEnable = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_LOAD_PROFILE).getValue());
         if (loadProfileEnable != 0 && loadProfileEnable != 1) {
             failMessage(failMsg);
             return;
         }
-        int loadProfileInterval = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_LOAD_PROFILE_INTERVAL).getDeviceMessageAttributeValue());
+        int loadProfileInterval = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_LOAD_PROFILE_INTERVAL).getValue());
         if (loadProfileInterval != 1 && loadProfileInterval != 2 && loadProfileInterval != 3 && loadProfileInterval != 5 && loadProfileInterval != 6 && loadProfileInterval != 0x0A && loadProfileInterval != 0x0C && loadProfileInterval != 0x0F && loadProfileInterval != 0x14 && loadProfileInterval != 0x1E && loadProfileInterval != 0x3C && loadProfileInterval != 0x78 && loadProfileInterval != 0xF0) {
             failMessage(failMsg);
             return;
         }
-        int loadProfileNumber = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_LOAD_PROFILE_MAX_NO).getDeviceMessageAttributeValue());
+        int loadProfileNumber = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(getInput(), DeviceMessageConstants.SPECIAL_LOAD_PROFILE_MAX_NO).getValue());
         if (loadProfileNumber > 0xFFFF || loadProfileNumber < 0) {
             failMessage(failMsg);
             return;

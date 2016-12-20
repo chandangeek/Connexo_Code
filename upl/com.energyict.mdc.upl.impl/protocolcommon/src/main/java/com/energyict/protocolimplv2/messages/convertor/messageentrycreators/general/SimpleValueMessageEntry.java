@@ -27,7 +27,7 @@ public class SimpleValueMessageEntry implements MessageEntryCreator {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageTag = new MessageTag(tag);
-        messageTag.add(new MessageValue(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()));
+        messageTag.add(new MessageValue(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue()));
         return new MessageEntry(writeTag(messagingProtocol, messageTag), offlineDeviceMessage.getTrackingId());
     }
 

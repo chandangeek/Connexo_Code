@@ -183,9 +183,7 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
-                this.id,
-                new EnumBasedDeviceMessageSpecPrimaryKey(this, name()),
-                new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
+                id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.LOAD_PROFILES,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService);

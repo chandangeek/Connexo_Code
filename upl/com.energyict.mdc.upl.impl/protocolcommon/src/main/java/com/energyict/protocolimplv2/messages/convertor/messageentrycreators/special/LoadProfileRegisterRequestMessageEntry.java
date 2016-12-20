@@ -32,8 +32,8 @@ public class LoadProfileRegisterRequestMessageEntry implements MessageEntryCreat
         OfflineDeviceMessageAttribute fromDateAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, fromDateAttributeName);
         final String loadProfileRegisterMessage = LoadProfileMessageUtils.createLoadProfileRegisterMessage(
                 MESSAGETAG,
-                fromDateAttribute.getDeviceMessageAttributeValue(),
-                loadProfileAttribute.getDeviceMessageAttributeValue());
+                fromDateAttribute.getValue(),
+                loadProfileAttribute.getValue());
 
         return new MessageEntry(loadProfileRegisterMessage, offlineDeviceMessage.getTrackingId());
     }

@@ -24,8 +24,8 @@ public class A1ActivityCalendarMessageEntry implements MessageEntryCreator {
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
-        String tariffCalendarsUserFile = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.XmlUserFileAttributeName).getDeviceMessageAttributeValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getValue();
+        String tariffCalendarsUserFile = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.XmlUserFileAttributeName).getValue();
         tariffCalendarsUserFile = tariffCalendarsUserFile.replaceAll("\"", "''");
 
         return createMessageEntry(offlineDeviceMessage, activationDate, tariffCalendarsUserFile);

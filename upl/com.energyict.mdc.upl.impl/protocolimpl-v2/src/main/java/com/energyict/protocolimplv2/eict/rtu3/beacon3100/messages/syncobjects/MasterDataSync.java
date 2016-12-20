@@ -144,7 +144,7 @@ public class MasterDataSync {
 
         syncDevices(meterDetails);
 
-        boolean cleanupUnusedMasterData = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName).getDeviceMessageAttributeValue());
+        boolean cleanupUnusedMasterData = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName).getValue());
         if (cleanupUnusedMasterData) {
             //Remove the device types in the Beacon3100 data that are no longer defined in EIServer
 

@@ -41,7 +41,7 @@ public class SMSCenterSetupMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String smscNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.smsCenterPhoneNumberAttributeName).getDeviceMessageAttributeValue();
+        String smscNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.smsCenterPhoneNumberAttributeName).getValue();
 
         validateParameters(smscNumber);
         writeSMSCNumber(smscNumber);

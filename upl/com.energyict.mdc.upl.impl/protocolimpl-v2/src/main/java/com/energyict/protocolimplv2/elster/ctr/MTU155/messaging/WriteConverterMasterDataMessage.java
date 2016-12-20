@@ -36,8 +36,8 @@ public class WriteConverterMasterDataMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String converterTypeString = getDeviceMessageAttribute(message, DeviceMessageConstants.converterTypeAttributeName).getDeviceMessageAttributeValue();
-        String converterSerialNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.converterSerialNumberAttributeName).getDeviceMessageAttributeValue();
+        String converterTypeString = getDeviceMessageAttribute(message, DeviceMessageConstants.converterTypeAttributeName).getValue();
+        String converterSerialNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.converterSerialNumberAttributeName).getValue();
 
         ConverterType converterType = ConverterType.fromString(converterTypeString);
         validateConverterSerialNumber(converterSerialNumber);

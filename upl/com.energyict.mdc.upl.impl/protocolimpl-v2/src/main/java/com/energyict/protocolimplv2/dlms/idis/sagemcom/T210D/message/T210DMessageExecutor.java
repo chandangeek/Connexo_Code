@@ -97,8 +97,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     }
 
     private CollectedMessage resetAlarmDescriptor(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
-        BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getDeviceMessageAttributeValue());
+        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getValue());
+        BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getValue());
         ObisCode alarmDescriptorObisCode;
         switch (register) {
             case 1:
@@ -123,7 +123,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     }
 
     private CollectedMessage resetAlarmBits(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
+        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getValue());
         ObisCode alarmRegisterObisCode;
         switch (register) {
             case 1:
@@ -149,8 +149,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     }
 
     private CollectedMessage writeFilter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
-        BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getDeviceMessageAttributeValue());
+        int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getValue());
+        BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue());
         ObisCode alarmFilterObisCode;
         switch (register) {
             case 1:
@@ -195,9 +195,9 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     }
 
     private CollectedMessage configureSuperVisionMonitor(OfflineDeviceMessage offlineDeviceMessage, CollectedMessage collectedMessage) throws IOException {
-        int phase = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, phaseAttributeName).getDeviceMessageAttributeValue()).intValue();
-        int positiveThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, positiveThresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).intValue();
-        int negativeThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, negativeThresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).intValue();
+        int phase = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, phaseAttributeName).getValue()).intValue();
+        int positiveThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, positiveThresholdInAmpereAttributeName).getValue()).intValue();
+        int negativeThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, negativeThresholdInAmpereAttributeName).getValue()).intValue();
         return updateThresholds(offlineDeviceMessage, collectedMessage, phase, positiveThreshold, negativeThreshold);
     }
 
@@ -231,7 +231,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     }
 
     private CollectedMessage configureConsumerP1port(OfflineDeviceMessage offlineDeviceMessage, CollectedMessage collectedMessage) throws IOException {
-        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
+        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getValue();
         List<ObjectDefinition> objectDefinitions = new ArrayList<>();
         //add first the P1 port version and clock obis as these two will always be present
         //When only these are present the GeneralLocalPortReadout object is considered disabled
@@ -311,9 +311,9 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     protected void firmwareUpgrade(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
 
         OfflineDeviceMessageAttribute imageAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateUserFileAttributeName);
-        byte[] binaryImage = ProtocolTools.getBytesFromHexString(imageAttribute.getDeviceMessageAttributeValue(), "");
-        boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeFirmwareUpdateAttributeName).getDeviceMessageAttributeValue());
-        String firmwareIdentifier = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+        byte[] binaryImage = ProtocolTools.getBytesFromHexString(imageAttribute.getValue(), "");
+        boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeFirmwareUpdateAttributeName).getValue());
+        String firmwareIdentifier = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateImageIdentifierAttributeName).getValue();
         int length = binaryImage[0];
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
         if (resume) {
@@ -339,8 +339,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     }
 
     private CollectedMessage enablePushOnInterval(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
-        String executionMinutesForEachHour = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionMinutesForEachHour).getDeviceMessageAttributeValue();
-        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
+        String executionMinutesForEachHour = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionMinutesForEachHour).getValue();
+        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
         pushSetupObisCode.setB(ConfigurationChangeDeviceMessage.PushType.valueOf(setupType).getId());
         List<String> executionMinutes = extractExecutionMinutesFromString(pendingMessage, collectedMessage, executionMinutesForEachHour);
