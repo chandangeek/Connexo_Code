@@ -3,9 +3,9 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.CollectedMessageListDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
@@ -36,8 +36,13 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
     }
 
     @Override
-    public void addCollectedMessages(CollectedMessage collectedMessage) {
+    public void addCollectedMessage(CollectedMessage collectedMessage) {
         this.add(collectedMessage);
+    }
+
+    @Override
+    public void addCollectedMessages(CollectedMessageList collectedMessages) {
+        collectedMessages.getCollectedMessages().stream().forEach(this::add);
     }
 
     @Override
@@ -45,7 +50,7 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
         return this.getElements();
     }
 
-    public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier){
+    public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier) {
         return this.getCollectedMessages()
                 .stream()
                 .filter(x -> x.getMessageIdentifier().equals(messageIdentifier))

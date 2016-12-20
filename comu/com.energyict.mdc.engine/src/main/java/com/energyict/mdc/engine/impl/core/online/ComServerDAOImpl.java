@@ -64,14 +64,15 @@ import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInforma
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -308,7 +309,10 @@ public class ComServerDAOImpl implements ComServerDAO {
                     new OfflineDeviceMessageImpl(
                             deviceMessage,
                             deviceProtocolPluggableClass.get().getDeviceProtocol(),
-                            this.serviceProvider.identificationService()));
+                            this.serviceProvider.identificationService(),
+                            new OfflineDeviceImpl(device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider())
+                    )
+            );
         } else {
             return Optional.empty();
         }
@@ -607,11 +611,14 @@ public class ComServerDAOImpl implements ComServerDAO {
     private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage> deviceMessages) {
         List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
         deviceMessages.forEach(deviceMessage -> {
-            Device device = (Device) deviceMessage.getDevice();
-            if (device.getDeviceProtocolPluggableClass().isPresent()) {       //Downcast to Connexo Device
-                        offlineDeviceMessages.add(new OfflineDeviceMessageImpl(deviceMessage, device
-                                .getDeviceProtocolPluggableClass().get()
-                                .getDeviceProtocol(), serviceProvider.identificationService()));
+                    Device device = (Device) deviceMessage.getDevice();
+                    if (device.getDeviceProtocolPluggableClass().isPresent()) {       //Downcast to Connexo Device
+                        offlineDeviceMessages.add(new OfflineDeviceMessageImpl(
+                                deviceMessage,
+                                device.getDeviceProtocolPluggableClass().get().getDeviceProtocol(),
+                                serviceProvider.identificationService(),
+                                new OfflineDeviceImpl(device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider())
+                        ));
                     }
                 }
         );

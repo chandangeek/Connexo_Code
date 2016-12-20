@@ -4,7 +4,7 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierFor
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import org.junit.Before;
 import org.junit.Test;

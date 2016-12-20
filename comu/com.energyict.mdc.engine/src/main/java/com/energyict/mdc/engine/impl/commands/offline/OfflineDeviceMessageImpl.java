@@ -4,23 +4,27 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Straightforward implementation of an OfflineDeviceMessage
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/6/14
  * Time: 8:55 AM
@@ -29,8 +33,8 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
     private final DeviceMessage deviceMessage;
     private final DeviceProtocol deviceProtocol;
+    private final OfflineDevice offlineDevice;
     private IdentificationService identificationService;
-
     private DeviceMessageSpec specification;
     private DeviceMessageStatus deviceMessageStatus;
     private DeviceMessageId deviceMessageId;
@@ -42,19 +46,23 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private Instant releaseDate;
     private Instant creationDate;
     private Device device;
+    private String preparedContext;
+    private String deviceMessageSpecPrimaryKey;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public OfflineDeviceMessageImpl() {
+    private OfflineDeviceMessageImpl() {
         this.deviceMessage = null;
         this.deviceProtocol = null;
+        this.offlineDevice = null;
     }
 
-    public OfflineDeviceMessageImpl(DeviceMessage deviceMessage, DeviceProtocol deviceProtocol, IdentificationService identificationService) {
+    public OfflineDeviceMessageImpl(DeviceMessage deviceMessage, DeviceProtocol deviceProtocol, IdentificationService identificationService, OfflineDevice offlineDevice) {
         this.deviceMessage = deviceMessage;
         this.deviceProtocol = deviceProtocol;
         this.identificationService = identificationService;
+        this.offlineDevice = offlineDevice;
         goOffline();
     }
 
@@ -62,7 +70,8 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
         Device device = ((Device) this.deviceMessage.getDevice());      //Downcast to Connexo Device
 
         this.deviceMessageId = this.deviceMessage.getDeviceMessageId();
-        this.specification = this.deviceMessage.getSpecification();
+        this.specification = new ConnexoDeviceMessageSpecAdapter(this.deviceMessage.getSpecification());
+        this.deviceMessageSpecPrimaryKey = specification.getPrimaryKey().getValue();
         this.deviceId = device.getId();
         this.deviceSerialNumber = device.getSerialNumber();
         this.releaseDate = this.deviceMessage.getReleaseDate();
@@ -72,22 +81,22 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
         this.creationDate = this.deviceMessage.getCreationDate();
         this.device = device;
 
-        List<DeviceMessageAttribute> collect = this.deviceMessage.getAttributes().stream()
+        List<DeviceMessageAttribute> attributes = this.deviceMessage.getAttributes().stream()
                 .map(DeviceMessageAttribute.class::cast)      //Downcast to Connexo DeviceMessageAttribute
                 .collect(Collectors.toList());
-        getOfflineDeviceMessageAttributes(collect);
+        getOfflineDeviceMessageAttributes(attributes);
+
+        this.preparedContext = deviceProtocol.prepareMessageContext(offlineDevice, deviceMessage);
     }
 
     private void getOfflineDeviceMessageAttributes(List<DeviceMessageAttribute> attributes) {
         this.deviceMessageAttributes = new ArrayList<>(attributes.size());
-        for (DeviceMessageAttribute attribute : attributes) {
-            this.deviceMessageAttributes.add(new OfflineDeviceMessageAttributeImpl(attribute, deviceProtocol));
-        }
+        this.deviceMessageAttributes.addAll(attributes.stream().map(attribute -> new OfflineDeviceMessageAttributeImpl(attribute, this, offlineDevice, deviceProtocol)).collect(Collectors.toList()));
     }
 
     @Override
-    public DeviceMessageId getDeviceMessageId() {
-        return deviceMessageId;
+    public long getDeviceMessageId() {
+        return deviceMessageId.dbValue();
     }
 
     @Override
@@ -96,7 +105,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     @Override
-    public DeviceMessageSpec getSpecification () {
+    public DeviceMessageSpec getSpecification() {
         return specification;
     }
 
@@ -111,8 +120,8 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     @Override
-    public Instant getReleaseDate() {
-        return this.releaseDate;
+    public Date getReleaseDate() {
+        return releaseDate == null ? null : Date.from(releaseDate);
     }
 
     @Override
@@ -131,8 +140,8 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     @Override
-    public Instant getCreationDate() {
-        return this.creationDate;
+    public Date getCreationDate() {
+        return creationDate == null ? null : Date.from(creationDate);
     }
 
     @Override
@@ -148,5 +157,26 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+    }
+
+    @Override
+    public String getDeviceMessageSpecPrimaryKey() {
+        return deviceMessageSpecPrimaryKey;
+    }
+
+    @Override
+    public String getPreparedContext() {
+        return preparedContext;
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

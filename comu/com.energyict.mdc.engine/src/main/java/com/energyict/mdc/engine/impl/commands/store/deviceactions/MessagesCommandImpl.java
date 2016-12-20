@@ -15,12 +15,12 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -232,7 +232,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         this.pendingInvalidMessages
                 .stream()
                 .map(this::toCollectedMessage)
-                .forEach(messageList::addCollectedMessages);
+                .forEach(messageList::addCollectedMessage);
         return messageList;
     }
 
