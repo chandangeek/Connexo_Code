@@ -20,7 +20,7 @@ public class RelatedEventsInfo {
         this.domain = endDeviceEventType.getDomain().getMnemonic() + " (" + endDeviceEventType.getDomain().getCode() + ")";
         this.subDomain = endDeviceEventType.getSubDomain().getMnemonic() + " (" + endDeviceEventType.getSubDomain().getCode() + ")";
         this.eventOrAction = endDeviceEventType.getEventOrAction().getMnemonic() + " (" + endDeviceEventType.getEventOrAction().getCode() + ")";
-        this.eventDate = endDeviceEventRecord.getCreateTime().toEpochMilli();
+        this.eventDate = endDeviceEventRecord.getCreatedDateTime().toEpochMilli();
     }
 
 }
