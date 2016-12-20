@@ -30,9 +30,11 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -64,6 +66,7 @@ public class UsagePointDataInMemoryBootstrapModule {
                 new EventsModule(),
                 new PartyModule(),
                 new FiniteStateMachineModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new CustomPropertySetsModule(),
                 new UsagePointConfigModule(),
