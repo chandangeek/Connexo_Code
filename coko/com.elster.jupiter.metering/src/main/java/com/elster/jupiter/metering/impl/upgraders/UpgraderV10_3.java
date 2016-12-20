@@ -23,7 +23,10 @@ public class UpgraderV10_3 implements Upgrader {
     private final TimeService timeService;
 
     @Inject
-    public UpgraderV10_3(DataModel dataModel, ServerMeteringService meteringService, TimeService timeService, EventService eventService) {
+    public UpgraderV10_3(DataModel dataModel,
+                         ServerMeteringService meteringService,
+                         TimeService timeService,
+                         EventService eventService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.meteringService = meteringService;
@@ -42,4 +45,3 @@ public class UpgraderV10_3 implements Upgrader {
                 .forEach(eventType -> eventType.install(eventService));
     }
 }
-

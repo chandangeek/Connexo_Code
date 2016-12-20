@@ -87,7 +87,7 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
                 .specForValuesOf(new EnumFactory(ConnectionState.class))
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(ConnectionState.values())
+                .addValues(ConnectionState.CONNECTED, ConnectionState.PHYSICALLY_DISCONNECTED, ConnectionState.LOGICALLY_DISCONNECTED)
                 .markExhaustive()
                 .finish();
     }

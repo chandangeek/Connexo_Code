@@ -56,6 +56,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -113,6 +114,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private volatile LicenseService licenseService;
     private volatile UpgradeService upgradeService;
     private volatile TimeService timeService;
+    private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
     private List<CustomUsagePointMeterActivationValidator> customValidators = new CopyOnWriteArrayList<>();
@@ -142,7 +144,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                         PartyService partyService, Clock clock, UserService userService, EventService eventService, NlsService nlsService,
                                         MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
-                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, TimeService timeService) {
+                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, TimeService timeService,
+                                        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         setIdsService(idsService);
         setQueryService(queryService);
         setPartyService(partyService);
@@ -160,6 +163,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         setUpgradeService(upgradeService);
         setTimeService(timeService);
         setOrmService(ormService);
+        setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
 
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -235,6 +239,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
                 bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
+                bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(TimeService.class).toInstance(timeService);
             }
         });
@@ -316,7 +321,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
             this.serviceRegistrations.add(
                     bundleContext.registerService(
                             new String[]{
-                            MetrologyConfigurationService.class.getName(),
+                                    MetrologyConfigurationService.class.getName(),
                                     ServerMetrologyConfigurationService.class.getName()},
                             this.metrologyConfigurationService,
                             noServiceProperties()));
@@ -480,6 +485,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Thesaurus myThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus cboThesaurus = nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN);
         this.thesaurus = myThesaurus.join(cboThesaurus);
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @Override

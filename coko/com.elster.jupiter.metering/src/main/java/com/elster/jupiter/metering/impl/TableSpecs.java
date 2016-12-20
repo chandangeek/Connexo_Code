@@ -75,6 +75,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.google.common.collect.Range;
 
@@ -1872,7 +1873,34 @@ public enum TableSpecs {
                     .map(fieldName)
                     .add();
         }
-    };
+    },
+    MTR_UPL_STATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointStateTemporalImpl> table = dataModel.addTable(name(), UsagePointStateTemporalImpl.class);
+            table.map(UsagePointStateTemporalImpl.class);
+            table.since(version(10, 3));
+            Column usagePoint = table.column("USAGE_POINT").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            Column state = table.column("UPL_STATE").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_UPL_STATE_PK").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_UPL_STATE_2_UP_FK")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(CASCADE)
+                    .map("usagePoint")
+                    .reverseMap("state")
+                    .composition()
+                    .add();
+            table.foreignKey("FK_UPL_STATE_2_STATE")
+                    .on(state)
+                    .references(UsagePointState.class)
+                    .onDelete(RESTRICT)
+                    .map("state")
+                    .add();
+        }
+    },;
 
     abstract void addTo(DataModel dataModel);
 
