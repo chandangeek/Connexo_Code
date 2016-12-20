@@ -153,7 +153,7 @@ public enum DomainMapper {
     Class<?> getType(Class<?> implementation, String fieldPath) {
         Class<?> result = implementation;
         for (String fieldName : fieldPath.split("\\.")) {
-            if (fieldName.equals(Column.TYPEFIELDNAME)) {
+            if (Column.TYPEFIELDNAME.equals(fieldName) || Column.MACFIELDNAME.equals(fieldName)) {
                 result = String.class;
             } else {
                 Field field = getField(result, fieldName);

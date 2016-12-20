@@ -2,6 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -15,6 +16,8 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
+
+import com.google.common.base.Objects;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -304,6 +307,10 @@ public class DataMapperReader<T> implements TupleParser<T> {
     T construct(ResultSet rs, int startIndex) throws SQLException {
         T result = getMapperType().hasMultiple() ? newInstance(rs, startIndex) : dataMapper.cast(getMapperType().newInstance());
         List<Pair<ColumnImpl, Object>> columnValues = new ArrayList<>();
+
+        ColumnImpl macColumn = null;
+        String mac = null;
+
         for (ColumnImpl column : this.getRealColumns()) {
             Object value = column.convertFromDb(rs, startIndex++);
             if (column.isForeignKeyPart()) {
@@ -312,7 +319,12 @@ public class DataMapperReader<T> implements TupleParser<T> {
             if (column.getFieldName() != null) {
                 column.setDomainValue(result, value);
             }
+            if (column.isMAC()) {
+                macColumn = column;
+                mac = (String) value;
+            }
         }
+
         for (ForeignKeyConstraintImpl constraint : getTable().getReferenceConstraints()) {
             KeyValue keyValue = createKey(constraint, columnValues);
             constraint.setField(result, keyValue);
@@ -320,6 +332,14 @@ public class DataMapperReader<T> implements TupleParser<T> {
         for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
             constraint.setReverseField(result);
         }
+
+        if (macColumn != null) {
+            String calculatedMac = macColumn.macValue(result);
+            if (!Objects.equal(mac, calculatedMac)) {
+                throw new MacException();
+            }
+        }
+
         return result;
     }
 

@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Encrypter;
 import com.elster.jupiter.orm.FieldType;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.LifeCycleClass;
@@ -91,6 +92,9 @@ public class TableImpl<T> implements Table<T> {
 
     // mapping
     private DataMapperType<T> mapperType;
+
+    //encrypting
+    private Encrypter encrypter;
 
     // transient, protection against forgetting to call add() on a builder
     private boolean activeBuilder;
@@ -495,6 +499,19 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public Column addPositionColumn() {
         return column("POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
+    }
+
+    @Override
+    public Column addMessageAuthenticationCodeColumn(Encrypter encrypter) {
+        if (this.encrypter != null) {
+            throw new IllegalStateException("Table " + getName() + " : already has a MAC column.");
+        }
+        this.encrypter = Objects.requireNonNull(encrypter);
+        return column("MAC")
+                .varChar(4000)
+                .notNull()
+                .map(Column.MACFIELDNAME)
+                .add();
     }
 
     @Override
@@ -1152,6 +1169,10 @@ public class TableImpl<T> implements Table<T> {
                 .values()
                 .stream()
                 .collect(Collectors.toSet());
+    }
+
+    Encrypter getEncrypter() {
+        return encrypter;
     }
 
     private class JournalTableVersionOptionsImpl implements JournalTableVersionOptions {

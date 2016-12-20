@@ -328,7 +328,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		if (fieldNames.length == 0) {
 			return table.getStandardColumns();
 		}
-		List<ColumnImpl> columns = new ArrayList<>(fieldNames.length);
+		List<ColumnImpl> columns = new ArrayList<>(fieldNames.length + 1);
 		for (String fieldName : fieldNames) {
 			FieldMapping mapping = getTable().getFieldMapping(fieldName);
 			if (mapping == null) {
@@ -346,6 +346,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 				}
 			}
 		}
+		getTable().getColumns()
+				.stream()
+				.filter(ColumnImpl::isMAC)
+				.findAny()
+				.ifPresent(columns::add);
 		return columns;
 	}
 

@@ -74,6 +74,4 @@ public class SingleDataMapperType<T> extends DataMapperType<T> {
 	boolean needsRestriction(Class<? extends T> api) {
 		return false;
 	}
-	
-	
 }

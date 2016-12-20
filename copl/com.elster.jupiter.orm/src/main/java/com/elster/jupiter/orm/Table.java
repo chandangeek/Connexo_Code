@@ -75,6 +75,8 @@ public interface Table<T> {
      */
     Column addPositionColumn();
 
+    Column addMessageAuthenticationCodeColumn(Encrypter encrypter);
+
     /*
      * Adds the following columns:
      *
