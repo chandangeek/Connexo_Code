@@ -104,8 +104,10 @@ public class ResourceHelper {
      */
     public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String firmwareOption) {
         ProtocolSupportedFirmwareOptions targetFirmwareOptions = findProtocolSupportedFirmwareOptionsOrThrowException(firmwareOption);
-        return deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet())
+        return deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptyList())
                 .stream()
+                .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                .map(DeviceMessageId::havingId)
                 .filter(firmwareMessageCandidate -> {
                     Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
                     return firmwareOptionForCandidate.isPresent() && targetFirmwareOptions.equals(firmwareOptionForCandidate.get());
