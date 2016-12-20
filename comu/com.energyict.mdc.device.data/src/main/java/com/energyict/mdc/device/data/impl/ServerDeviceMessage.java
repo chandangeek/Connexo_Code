@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 /**
  * Adds functionality to a DeviceMessage which should not be in the public API

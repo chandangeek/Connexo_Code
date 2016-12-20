@@ -14,8 +14,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDoma
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -90,7 +89,7 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
                     serviceCall.log(LogLevel.INFO, MessageFormat.format("Execution of device command with ID {0} failed", deviceMessage.getId()));
                     deviceMessageFailed(deviceMessage, serviceCall);
                     break;
-                case REVOKED:
+                case CANCELED:
                     serviceCall.log(LogLevel.INFO, MessageFormat.format("Device command with ID {0} has been revoked", deviceMessage.getId()));
                     deviceMessageRevoked(deviceMessage, serviceCall);
                     break;

@@ -9,11 +9,8 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -21,12 +18,16 @@ import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -36,10 +37,8 @@ import com.energyict.protocol.LogBookReader;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Insert your comments here.
@@ -55,6 +54,10 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     public TestProtocolWithOnlySecurityProperties(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
+    }
+
+    public static CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> getCustomPropertySet(PropertySpecService propertySpecService) {
+        return new BasicAuthenticationCustomPropertySet(propertySpecService);
     }
 
     @Override
@@ -118,17 +121,12 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-
-    }
-
-    @Override
     public DeviceProtocolCache getDeviceCache() {
         return null;
     }
 
     @Override
-    public void setTime(Date timeToSet) {
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
 
     }
 
@@ -148,13 +146,18 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     }
 
     @Override
+    public void setTime(Date timeToSet) {
+
+    }
+
+    @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         return null;
     }
 
     @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
-        return EnumSet.noneOf(DeviceMessageId.class);
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -168,7 +171,12 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return null;
+    }
+
+    @Override
+    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return null;
     }
 
@@ -185,10 +193,6 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     @Override
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         return Optional.of(getCustomPropertySet(this.propertySpecService));
-    }
-
-    public static CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> getCustomPropertySet(PropertySpecService propertySpecService) {
-        return new BasicAuthenticationCustomPropertySet(propertySpecService);
     }
 
     @Override

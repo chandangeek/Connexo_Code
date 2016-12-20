@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.util.List;
 

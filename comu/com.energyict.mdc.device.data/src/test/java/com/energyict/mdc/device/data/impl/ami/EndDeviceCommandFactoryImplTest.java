@@ -28,13 +28,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,6 +36,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -146,7 +147,12 @@ public class EndDeviceCommandFactoryImplTest {
         when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenReturn(Optional.of(messageSpec));
         when(endDeviceControlType.getMRID()).thenReturn(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH.getEndDeviceControlTypeMRID());
 
-        when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_CLOSE));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
 
         // Business method
         EndDeviceCommand command = commandFactory.createConnectCommand(endDevice, null);
@@ -172,7 +178,12 @@ public class EndDeviceCommandFactoryImplTest {
         when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenReturn(Optional.of(messageSpec));
         when(endDeviceControlType.getMRID()).thenReturn(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH.getEndDeviceControlTypeMRID());
 
-        when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_OPEN));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
 
         // Business method
         commandFactory.createConnectCommand(endDevice, Instant.now());

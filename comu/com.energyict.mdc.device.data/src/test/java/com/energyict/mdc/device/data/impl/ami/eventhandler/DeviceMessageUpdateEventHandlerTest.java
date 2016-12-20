@@ -12,20 +12,18 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDoma
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ConnectServiceCallHandler;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-
-import org.osgi.service.event.Event;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.service.event.Event;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -158,7 +156,7 @@ public class DeviceMessageUpdateEventHandlerTest {
 
         DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService, completionOptionsCallBack);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
-        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.REVOKED);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
         when(deviceMessage.getTrackingCategory()).thenReturn(TrackingCategory.serviceCall);
         when(deviceMessage.getTrackingId()).thenReturn(Long.toString(SERVICE_CALL_ID));
         LocalEvent localEvent = createEventFor(deviceMessage, DeviceMessageStatus.PENDING);

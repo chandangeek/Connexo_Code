@@ -41,6 +41,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.sql.Date;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -75,13 +76,10 @@ public class EndDeviceCommandImplTest {
             return "Activation date";
         }
     };
-
-    @Rule
-    public TestRule expectedRule = new ExpectedExceptionRule();
-
     private static final String END_DEVICE_MRID = "endDeviceMRID";
     private static final long SERVICE_CALL_ID = 1;
-
+    @Rule
+    public TestRule expectedRule = new ExpectedExceptionRule();
     @Mock
     private EndDevice endDevice;
     @Mock
@@ -139,7 +137,13 @@ public class EndDeviceCommandImplTest {
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(deviceService.findByUniqueMrid(END_DEVICE_MRID)).thenReturn(Optional.of(device));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE));
+
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(protocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(protocolPluggableClass));

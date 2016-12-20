@@ -22,9 +22,9 @@ import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -247,7 +247,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     public void revoke() {
         this.revokeChecker = new RevokeChecker(deviceMessageStatus);
         this.oldDeviceMessageStatus = getStatus().dbValue();
-        this.deviceMessageStatus = DeviceMessageStatus.REVOKED;
+        this.deviceMessageStatus = DeviceMessageStatus.CANCELED;
         Save.UPDATE.validate(this.getDataModel(), this, Revoke.class);
         this.update("deviceMessageStatus");
         this.notifyUpdated();
@@ -338,12 +338,12 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         }
 
         /**
-         * Tests if a state transition from current DeviceMessageStatus to DeviceMessageStatus.REVOKED is allowed or not
+         * Tests if a state transition from current DeviceMessageStatus to DeviceMessageStatus.CANCELED is allowed or not
          *
          * @return true in case the state change is allowed
          */
         public boolean isRevokeStatusChangeAllowed() {
-            return initialStatus.isPredecessorOf(DeviceMessageStatus.REVOKED);
+            return initialStatus.isPredecessorOf(DeviceMessageStatus.CANCELED);
         }
 
         /**

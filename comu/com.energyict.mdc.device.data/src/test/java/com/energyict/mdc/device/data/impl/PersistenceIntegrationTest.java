@@ -12,21 +12,12 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.TimeZone;
-
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -36,6 +27,16 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,29 +49,25 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class PersistenceIntegrationTest {
 
+    protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     static final String DEVICE_TYPE_NAME = PersistenceIntegrationTest.class.getName() + "Type";
     static final String DEVICE_CONFIGURATION_NAME = PersistenceIntegrationTest.class.getName() + "Config";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-    protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
-    protected DeviceType deviceType;
-    protected DeviceConfiguration deviceConfiguration;
-    protected SecurityPropertySet securityPropertySet;
-
+    protected static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    protected static DeviceProtocol deviceProtocol;
+    protected static InMemoryIntegrationPersistence inMemoryPersistence;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
+    protected DeviceType deviceType;
+    protected DeviceConfiguration deviceConfiguration;
+    protected SecurityPropertySet securityPropertySet;
+    List<DeviceMessageSpec> deviceMessageIds;
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
-
-    protected static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    protected static DeviceProtocol deviceProtocol;
-    protected static InMemoryIntegrationPersistence inMemoryPersistence;
-
-    EnumSet<DeviceMessageId> deviceMessageIds;
 
     @BeforeClass
     public static void initialize() throws SQLException {
@@ -93,14 +90,33 @@ public abstract class PersistenceIntegrationTest {
         return inMemoryPersistence.getTransactionService();
     }
 
+    private static void initializeClock() {
+        when(inMemoryPersistence.getClock().getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+    }
+
     @Before
     public void initializeMocks() {
-        deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
-                DeviceMessageId.CONTACTOR_OPEN,
-                DeviceMessageId.CONTACTOR_ARM,
-                DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT,
-                DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
-                DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
+        deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        deviceMessageIds.add(deviceMessageSpec2);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec3.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+        deviceMessageIds.add(deviceMessageSpec3);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec4.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
+        deviceMessageIds.add(deviceMessageSpec4);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec5.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec5);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec6 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec6.getMessageId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
+        deviceMessageIds.add(deviceMessageSpec6);
+
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
@@ -133,7 +149,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     @After
-    public void resetClock () {
+    public void resetClock() {
         initializeClock();
     }
 
@@ -142,24 +158,19 @@ public abstract class PersistenceIntegrationTest {
         inMemoryPersistence.getDeviceService().clearMultiplierTypeCache();
     }
 
-    private static void initializeClock() {
-        when(inMemoryPersistence.getClock().getZone()).thenReturn(utcTimeZone.toZoneId());
-        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
-    }
-
-    protected Instant freezeClock (int year, int month, int day) {
+    protected Instant freezeClock(int year, int month, int day) {
         return freezeClock(year, month, day, 0, 0, 0, 0);
     }
 
-    protected Instant freezeClock (int year, int month, int day, TimeZone timeZone) {
+    protected Instant freezeClock(int year, int month, int day, TimeZone timeZone) {
         return freezeClock(year, month, day, 0, 0, 0, 0, timeZone);
     }
 
-    protected Instant freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
+    protected Instant freezeClock(int year, int month, int day, int hour, int minute, int second, int millisecond) {
         return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
     }
 
-    protected Instant freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
+    protected Instant freezeClock(int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, millisecond);

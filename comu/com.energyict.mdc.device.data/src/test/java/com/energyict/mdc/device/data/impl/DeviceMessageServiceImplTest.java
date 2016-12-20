@@ -20,12 +20,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -54,11 +54,6 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 10/31/14.
  */
 public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
-    private Device device;
-    private DeviceConfiguration deviceConfiguration;
-    private DeviceMessageCategory wrongCategory = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR);
-    private DeviceMessageCategory deviceMessageCategory = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS);
-
     @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
@@ -69,10 +64,12 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     PropertySpecService propertySpecService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
-
     DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService);
-
     DeviceMessage command1;
+    private Device device;
+    private DeviceConfiguration deviceConfiguration;
+    private DeviceMessageCategory wrongCategory = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR);
+    private DeviceMessageCategory deviceMessageCategory = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS);
 
     @Before
     public void setUp() throws Exception {
@@ -107,7 +104,25 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT.dbValue());
+        deviceMessageIds.add(deviceMessageSpec2);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec3.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+        deviceMessageIds.add(deviceMessageSpec3);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec4.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec4);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec5.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        deviceMessageIds.add(deviceMessageSpec5);
+
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);

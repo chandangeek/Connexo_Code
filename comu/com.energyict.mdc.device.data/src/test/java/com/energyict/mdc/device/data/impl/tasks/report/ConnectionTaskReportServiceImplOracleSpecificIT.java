@@ -24,18 +24,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
 import com.google.common.collect.BoundType;
-
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -47,6 +36,16 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
 
 import static com.google.common.collect.Range.range;
 import static org.mockito.Mockito.mock;
@@ -65,23 +64,20 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
     private static final String DEVICE_CONFIGURATION_NAME = ConnectionTaskReportServiceImplOracleSpecificIT.class.getSimpleName() + "Config";
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
-    private DeviceConfiguration deviceConfiguration;
-
+    private static OracleIntegrationPersistence oracleIntegrationPersistence;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
+    private DeviceConfiguration deviceConfiguration;
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private DeviceProtocol deviceProtocol;
-
-    private static OracleIntegrationPersistence oracleIntegrationPersistence;
 
     @BeforeClass
     public static void initialize() throws SQLException {
@@ -99,16 +95,33 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
         return oracleIntegrationPersistence.getTransactionService();
     }
 
+    private static void initializeClock() {
+        when(oracleIntegrationPersistence.getClock().getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(oracleIntegrationPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+    }
+
     @Before
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        EnumSet<DeviceMessageId> deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
-                DeviceMessageId.CONTACTOR_OPEN,
-                DeviceMessageId.CONTACTOR_ARM,
-                DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT,
-                DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
-                DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
+
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+        deviceMessageIds.add(deviceMessageSpec2);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec3.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
+        deviceMessageIds.add(deviceMessageSpec3);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec4.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec4);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec5.getMessageId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
+        deviceMessageIds.add(deviceMessageSpec5);
+
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
@@ -144,11 +157,6 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
     @After
     public void resetClock() {
         initializeClock();
-    }
-
-    private static void initializeClock() {
-        when(oracleIntegrationPersistence.getClock().getZone()).thenReturn(utcTimeZone.toZoneId());
-        when(oracleIntegrationPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
 
     @Test
@@ -519,8 +527,7 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
         Optional<EndDeviceGroup> endDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().findEndDeviceGroup("static");
         if (endDeviceGroup.isPresent()) {
             return (EnumeratedEndDeviceGroup) endDeviceGroup.get();
-        }
-        else {
+        } else {
             EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup().setName("myDevices").create();
             Device device = oracleIntegrationPersistence.getDeviceService()
                     .newDevice(deviceConfiguration, "myDevice", "ZAFO007", Instant.now());
@@ -537,14 +544,13 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
         Optional<EndDeviceGroup> endDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().findEndDeviceGroup("dynamic");
         if (endDeviceGroup.isPresent()) {
             return (QueryEndDeviceGroup) endDeviceGroup.get();
-        }
-        else {
+        } else {
             return oracleIntegrationPersistence
                     .getMeteringGroupsService()
                     .createQueryEndDeviceGroup(createSearchablePropertyValue("deviceConfiguration.deviceType.name", Collections.singletonList("myType")))
-                        .setMRID("dynamic")
-                        .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
-                        .create();
+                    .setMRID("dynamic")
+                    .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                    .create();
         }
     }
 

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
 
@@ -90,8 +91,11 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
 
     protected boolean deviceHasSupportFor(DeviceMessageId deviceMessageId) {
         return findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
-                        .getSupportedMessages()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()
+                        .stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .map(DeviceMessageId::havingId)
+                        .collect(Collectors.toList())
                         .contains(deviceMessageId))
                 .orElse(false);
     }

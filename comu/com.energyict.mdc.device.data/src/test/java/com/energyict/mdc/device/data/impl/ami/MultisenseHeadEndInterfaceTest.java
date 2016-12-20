@@ -62,12 +62,11 @@ import org.osgi.framework.BundleContext;
 import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
@@ -87,7 +86,18 @@ public class MultisenseHeadEndInterfaceTest {
     private static final long COMTASK_ID = 1;
 
     private final String url = "https://demo.eict.local:8080/apps/multisense/index.html#";
-
+    @Mock
+    User user;
+    @Mock
+    ServiceCallCommands serviceCallCommands;
+    @Mock
+    ServiceCall serviceCall;
+    @Mock
+    ComTaskExecutionImpl comTaskExecution;
+    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
+    Device device;
+    @Mock
+    BundleContext context;
     @Mock
     private EndDevice endDevice;
     @Mock
@@ -122,19 +132,6 @@ public class MultisenseHeadEndInterfaceTest {
     private EndDeviceControlType contactorOpenEndDeviceControlType;
     @Mock
     private EndDeviceControlType contactoCloseEndDeviceControlType;
-    @Mock
-    User user;
-    @Mock
-    ServiceCallCommands serviceCallCommands;
-    @Mock
-    ServiceCall serviceCall;
-    @Mock
-    ComTaskExecutionImpl comTaskExecution;
-    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
-    Device device;
-    @Mock
-    BundleContext context;
-
     private MultiSenseHeadEndInterfaceImpl headEndInterface;
 
     @Before
@@ -157,9 +154,15 @@ public class MultisenseHeadEndInterfaceTest {
         when(device.getmRID()).thenReturn(DEVICE_MRID);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        Set<DeviceMessageId> deviceMessageIds = new HashSet<>();
-        deviceMessageIds.add(DeviceMessageId.CONTACTOR_OPEN);
-        deviceMessageIds.add(DeviceMessageId.CONTACTOR_CLOSE);
+
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec2);
+
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(protocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);

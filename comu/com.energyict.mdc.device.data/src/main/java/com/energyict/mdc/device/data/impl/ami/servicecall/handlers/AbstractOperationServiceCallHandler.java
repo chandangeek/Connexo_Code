@@ -12,7 +12,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertyS
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.ConstraintViolation;
@@ -144,7 +144,7 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
         serviceCall.log(LogLevel.WARNING, MessageFormat.format("Revoking device messages with ids {0}", Arrays.toString(deviceMsgIds.toArray())));
         interruptCandidates.stream()
                 .filter(msg -> deviceMsgIds.contains(Long.toString(msg.getId())))
-                .filter(msg -> msg.getStatus().isPredecessorOf(DeviceMessageStatus.REVOKED))
+                .filter(msg -> msg.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED))
                 .forEach(msg -> {
                     tryToRevokeDeviceMessage(msg, serviceCall);
                 });
