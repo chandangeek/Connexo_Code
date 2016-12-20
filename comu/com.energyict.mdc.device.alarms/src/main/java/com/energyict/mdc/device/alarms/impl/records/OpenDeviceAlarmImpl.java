@@ -40,7 +40,7 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
         super(dataModel, deviceAlarmService);
     }
 
-    protected OpenIssue getBaseIssue() {
+    public OpenIssue getBaseIssue() {
         return baseIssue.orNull();
     }
 

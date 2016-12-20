@@ -12,6 +12,7 @@ import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,13 +27,13 @@ public final class HistoricalDeviceAlarmImpl extends DeviceAlarmImpl implements 
     }
 
     @Valid
-    private List<HistoricalDeviceAlarmRelatedEventImpl> deviceAlarmRelatedEvents;
+    private List<HistoricalDeviceAlarmRelatedEventImpl> deviceAlarmRelatedEvents = new ArrayList<>();
 
     protected HistoricalIssue getBaseIssue() {
         return baseIssue.orNull();
     }
 
-    void setIssue(HistoricalIssue issue) {
+    public void setIssue(HistoricalIssue issue) {
         this.baseIssue.set(issue);
     }
 

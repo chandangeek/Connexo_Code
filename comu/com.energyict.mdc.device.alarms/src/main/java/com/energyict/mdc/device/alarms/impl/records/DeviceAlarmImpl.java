@@ -248,7 +248,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -258,11 +258,11 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
         DeviceAlarmImpl that = (DeviceAlarmImpl) o;
 
-        return this.id == that.id;
+        return Objects.equals(this.getBaseIssue(), that.getBaseIssue());
     }
 
     @Override
-    public final int hashCode() {
-        return Objects.hash(id);
+    public int hashCode() {
+        return Objects.hash(getBaseIssue());
     }
 }

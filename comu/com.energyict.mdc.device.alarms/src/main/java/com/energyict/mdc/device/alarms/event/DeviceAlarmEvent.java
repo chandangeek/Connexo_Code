@@ -96,8 +96,8 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
     protected void getEventTimestamp(Map<?, ?> rawEvent) {
-        Long eventTimeSTamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_TIMESTAMP));
-        timestamp = Instant.ofEpochSecond(eventTimeSTamp);
+        Long eventTimeStamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_TIMESTAMP));
+        timestamp = Instant.ofEpochSecond(eventTimeStamp);
     }
 
     private Optional<EndDevice> findEndDeviceByMdcDevice() {
