@@ -2,7 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.util.stream.Stream;
 
@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  */
 public enum DeviceMessageStatusTranslationKeys implements TranslationKey {
 
-    REVOKED(DeviceMessageStatus.REVOKED, "Revoked"),
+    REVOKED(DeviceMessageStatus.CANCELED, "Revoked"),
     CONFIRMED(DeviceMessageStatus.CONFIRMED, "Confirmed"),
     FAILED(DeviceMessageStatus.FAILED, "Failed"),
     INDOUBT(DeviceMessageStatus.INDOUBT, "In doubt"),
