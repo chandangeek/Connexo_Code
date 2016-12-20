@@ -205,10 +205,11 @@ public class IssueCreationServiceImplTest extends BaseTest {
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         properties = rule.getCreationRuleProperties();
         assertThat(properties).hasSize(2);
-        assertThat(properties.get(0).getName()).isEqualTo(STRING_PROPERTY_NAME);
-        assertThat(properties.get(0).getValue()).isEqualTo("string again");
-        assertThat(properties.get(1).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
-        assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(17));
+        assertThat(properties.get(0).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
+        assertThat(properties.get(0).getValue()).isEqualTo(BigDecimal.valueOf(17));
+        assertThat(properties.get(1).getName()).isEqualTo(STRING_PROPERTY_NAME);
+        assertThat(properties.get(1).getValue()).isEqualTo("string again");
+
     }
 
     @Test
