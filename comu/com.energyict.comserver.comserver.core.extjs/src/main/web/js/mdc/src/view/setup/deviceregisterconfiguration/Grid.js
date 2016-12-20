@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.RegisterConfigsOfDevice',
-        'Mdc.view.setup.deviceregisterconfiguration.ActionMenu'
+        'Mdc.view.setup.deviceregisterconfiguration.ActionMenu',
+        'Uni.util.Common'
     ],
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' },
@@ -86,7 +87,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 params: [
-                    {deviceId: me.deviceId}
+                    {deviceId: Uni.util.Common.decodeURIArguments(me.deviceId)}
                 ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceregisterconfiguration.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Registers per page'),
                 dock: 'bottom'

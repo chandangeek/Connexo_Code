@@ -59,7 +59,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             },
             '#activate-passive-calendar-button': {
                 click: this.activatePassiveCalendar
-            },
+            }
         });
     },
 
@@ -86,7 +86,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 }
                 Ext.Ajax.request(
                     {
-                        url: '/api/ddr/devices/' + deviceId + '/timeofuse',
+                        url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse',
                         method: 'GET',
                         success: function (response, opt) {
                             result = JSON.parse(response.responseText);
@@ -176,7 +176,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         var me = this;
         Ext.Ajax.request(
             {
-                url: '/api/ddr/devices/' + deviceId + '/timeofuse/verify',
+                url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse/verify',
                 method: 'PUT',
                 success: function (response, opt) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.verifyCalendarTaskPlannedMessage', 'MDC', 'The task has been planned. Actual calendar information will be available as soon as the task has completed.'));
@@ -374,7 +374,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
 
     sendCalendar: function (deviceId, payload) {
         var me = this,
-            url = '/api/ddr/devices/' + deviceId + '/timeofuse/send';
+            url = '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse/send';
 
 
         me.getSendCalendarContainer().setLoading(true);

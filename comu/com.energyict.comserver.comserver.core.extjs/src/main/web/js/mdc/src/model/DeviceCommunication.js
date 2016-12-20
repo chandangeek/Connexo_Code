@@ -12,7 +12,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
             method: 'PUT',
             isNotEdit: true,
             jsonData: body,
-            url: this.proxy.url + '/{id}/run'.replace('{id}', this.get('comTask').id),
+            url: this.buildUrl(body.device.name) + '/run',
             callback: callback
         });
     },
@@ -22,7 +22,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
             method: 'PUT',
             isNotEdit: true,
             jsonData: body,
-            url: this.proxy.url + '/{id}/runnow'.replace('{id}', this.get('comTask').id),
+            url: this.buildUrl(body.device.name) + '/runnow',
             callback: callback
         });
     },
@@ -32,7 +32,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
             method: 'PUT',
             isNotEdit: true,
             jsonData: body,
-            url: this.proxy.url + '/{id}/activate'.replace('{id}', this.get('comTask').id),
+            url: this.buildUrl(body.device.name) + '/activate',
             callback: callback
         });
     },
@@ -42,9 +42,13 @@ Ext.define('Mdc.model.DeviceCommunication', {
             method: 'PUT',
             isNotEdit: true,
             jsonData: body,
-            url: this.proxy.url + '/{id}/deactivate'.replace('{id}', this.get('comTask').id),
+            url: this.buildUrl(body.device.name) + '/deactivate',
             callback: callback
         });
+    },
+
+    buildUrl: function (deviceId) {
+        return this.proxy.url.replace('{deviceId}', deviceId) + '/' + this.get('comTask').id;
     },
 
     proxy: {

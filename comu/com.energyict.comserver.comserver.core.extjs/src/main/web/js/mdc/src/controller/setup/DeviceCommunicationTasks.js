@@ -31,7 +31,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     init: function () {
         this.control({
                 '#deviceCommunicationTaskGrid': {
-                    selectionchange: this.showDeviceCommunicationTaskPreview
+                    select: this.showDeviceCommunicationTaskPreview
                 },
                 'device-communication-task-action-menu': {
                     beforeshow: this.configureMenu
@@ -164,15 +164,18 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         }
     },
 
-    showDeviceCommunicationTaskPreview: function () {
-        var deviceCommunicationTasks = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection();
-        if (deviceCommunicationTasks.length == 1) {
-            this.getDeviceCommunicationTaskPreviewForm().loadRecord(deviceCommunicationTasks[0]);
-            var communicationTaskName = deviceCommunicationTasks[0].get('comTask').name;
-            this.getDeviceCommunicationTaskPreview().getLayout().setActiveItem(1);
-            this.getDeviceCommunicationTaskPreview().setTitle(Ext.String.htmlEncode(communicationTaskName));
-        } else {
-            this.getConnectionMethodPreview().getLayout().setActiveItem(0);
+    showDeviceCommunicationTaskPreview: function (selectionModel, record) {
+        var me = this,
+            preview = me.getDeviceCommunicationTaskPreview(),
+            menu = preview.down('device-communication-task-action-menu');
+
+        Ext.suspendLayouts();
+        me.getDeviceCommunicationTaskPreviewForm().loadRecord(record);
+        preview.getLayout().setActiveItem(1);
+        preview.setTitle(Ext.String.htmlEncode(record.get('comTask').name));
+        Ext.resumeLayouts(true);
+        if (menu) {
+            menu.record = record;
         }
     },
 
@@ -285,13 +288,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     activateDeviceComTask: function () {
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.get('comTask').id + '/activate',Uni.I18n.translate('device.communication.toggle.activate', 'MDC', 'Communication task activated'));
+        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/activate', Uni.I18n.translate('device.communication.toggle.activate', 'MDC', 'Communication task activated'));
     },
 
     deactivateDeviceComTask: function () {
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.get('comTask').id + '/deactivate',Uni.I18n.translate('device.communication.toggle.deactivate', 'MDC', 'Communication task deactivated'));
+        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/deactivate', Uni.I18n.translate('device.communication.toggle.deactivate', 'MDC', 'Communication task deactivated'));
     },
 
     sendToServer: function (request, actionUrl, actionMsg) {
@@ -335,7 +338,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         });
     },
 
-    showHistory: function(){
-        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/communicationtasks/' + encodeURIComponent(this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0].get('comTask').id) + '/history';
+    showHistory: function (menuItem) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('devices/device/communicationtasks/history').forward(Ext.merge({comTaskId: menuItem.up().record.get('comTask').id}, router.arguments));
     }
 });

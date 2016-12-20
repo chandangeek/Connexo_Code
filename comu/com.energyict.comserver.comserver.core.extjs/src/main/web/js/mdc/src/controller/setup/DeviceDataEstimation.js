@@ -94,7 +94,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
 
     activateDataValidation: function (activate) {
         var me = this,
-            url = '/api/ddr/devices/' + me.device.get('name') + '/estimationrulesets/esimationstatus',
+            deviceId = me.device.get('name'),
+            url = '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/estimationrulesets/esimationstatus',
             page = me.getPage();
 
         me.device.set('estimationStatus', { active: activate });
@@ -109,8 +110,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', activate
-                    ? Uni.I18n.translate('estimationDevice.activation.activated', 'MDC', 'Data estimation on device {0} was activated successfully', [me.deviceId])
-                    : Uni.I18n.translate('estimationDevice.activation.deactivated', 'MDC', 'Data estimation on device {0} was deactivated successfully', [me.deviceId])
+                    ? Uni.I18n.translate('estimationDevice.activation.activated', 'MDC', 'Data estimation on device {0} was activated successfully', [deviceId], false)
+                    : Uni.I18n.translate('estimationDevice.activation.deactivated', 'MDC', 'Data estimation on device {0} was deactivated successfully', [deviceId], false)
                 );
             },
             callback: function () {

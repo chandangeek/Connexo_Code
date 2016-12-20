@@ -40,6 +40,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
             items: [
                 {
                     xtype: 'preview-container',
+                    itemId: 'device-load-profile-channels-preview-container',
                     grid: {
                         xtype: 'deviceLoadProfileChannelsGrid',
                         deviceId: me.deviceId,

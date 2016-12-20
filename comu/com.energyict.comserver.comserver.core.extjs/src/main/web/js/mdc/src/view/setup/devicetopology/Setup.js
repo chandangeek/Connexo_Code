@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
     itemId: 'deviceTopologySetup',
     router: null,
     device: null,
+    hasgateway: false,
 
     requires: [
         'Mdc.view.setup.devicetopology.Grid',
@@ -43,6 +44,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
             items: [
                 {
                     xtype: 'preview-container',
+                    hidden: !me.hasgateway,
                     grid: {
                         xtype: 'deviceTopologyGrid',
                         router: me.router
@@ -76,10 +78,12 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                         },
                         {
                             xtype: 'container',
-                            html: '<h2>' + Uni.I18n.translate('deviceCommunicationTopology.slaves', 'MDC', 'Slaves') + '</h2>'
+                            html: '<h2>' + Uni.I18n.translate('deviceCommunicationTopology.slaves', 'MDC', 'Slaves') + '</h2>',
+                            hidden: !me.hasgateway
                         },
                         {
-                            xtype: 'mdc-view-setup-devicechannels-topologiestopfilter'
+                            xtype: 'mdc-view-setup-devicechannels-topologiestopfilter',
+                            hidden: !me.hasgateway
                         }
                     ]
                 }

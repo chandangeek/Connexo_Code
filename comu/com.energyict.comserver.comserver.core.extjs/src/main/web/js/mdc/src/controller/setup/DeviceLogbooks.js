@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.DeviceLogbooks', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.util.Common'
+    ],
+
     views: [
         'Mdc.view.setup.devicelogbooks.Setup',
         'Mdc.view.setup.devicelogbooks.EditWindow'
@@ -112,7 +116,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
                 me.getPreview().setLogbook(logbookRecordInGrid);
             };
 
-        logbookModel.getProxy().setExtraParam('deviceId', deviceId);
+        logbookModel.getProxy().setExtraParam('deviceId', Uni.util.Common.decodeURIArguments(deviceId));
         logbookModel.load(logbookId, {
             success: onLogbookLoaded
         });

@@ -23,6 +23,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
     refs: [
         {ref: 'deviceCommunicationTaskHistoryGrid', selector: '#deviceCommunicationTaskHistoryGrid'},
         {ref: 'deviceCommunicationTaskHistoryPreviewForm', selector: '#deviceCommunicationTaskHistoryPreviewForm'},
+        {ref: 'deviceCommunicationTaskHistoryPreview', selector: '#deviceCommunicationTaskHistoryPreview'},
         {ref: 'deviceConnectionHistoryPreviewForm', selector: '#deviceConnectionHistoryPreviewForm'},
         {ref: 'deviceConnectionHistoryPreviewPanel', selector: '#deviceConnectionHistoryPreviewPanel'},
         {
@@ -38,7 +39,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
     init: function () {
         this.control({
             '#deviceCommunicationTaskHistoryGrid': {
-                selectionchange: this.previewDeviceCommunicationTaskHistory
+                select: this.previewDeviceCommunicationTaskHistory
             },
             '#viewCommunicationLog[action=viewCommunicationLog]': {
                 click: this.viewCommunicationLog
@@ -77,33 +78,47 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         });
     },
 
-    previewDeviceCommunicationTaskHistory: function () {
+    previewDeviceCommunicationTaskHistory: function (selectionModel, record) {
         var me = this,
+            communicationPreview = me.getDeviceCommunicationTaskHistoryPreview(),
+            communicationMenu = communicationPreview.down('menu'),
+            connectionPreview = me.getDeviceConnectionHistoryPreviewPanel(),
+            connectionMenu = connectionPreview.down('menu'),
             communicationTaskHistory = me.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
 
+        Ext.suspendLayouts();
         me.getDeviceCommunicationTaskHistoryPreviewForm().loadRecord(communicationTaskHistory);
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communicationTaskHistory.get('comSession').comPort, '<a href="#/administration/comservers/' + communicationTaskHistory.get('comSession').comServer.id + '/overview">' + communicationTaskHistory.get('comSession').comServer.name + '</a>'));
         me.getDeviceConnectionHistoryPreviewForm().loadRecord(communicationTaskHistory.getComSession());
-        me.getDeviceConnectionHistoryPreviewPanel().setTitle(Ext.String.format(Uni.I18n.translate('devicecommunicationtaskhistory.connectionPreviewTitle', 'MDC', '{0} on {1}'), communicationTaskHistory.getComSession().get('connectionMethod').name, communicationTaskHistory.getComSession().get('device').name));
+        connectionPreview.setTitle(Uni.I18n.translate('devicecommunicationtaskhistory.connectionPreviewTitle', 'MDC', '{0} on {1}', [communicationTaskHistory.getComSession().get('connectionMethod').name, communicationTaskHistory.getComSession().get('device').name]));
+        Ext.resumeLayouts(true);
+        if (communicationMenu) {
+            communicationMenu.record = record;
+        }
+        if (connectionMenu) {
+            connectionMenu.record = record;
+        }
     },
 
-    viewCommunicationLog: function () {
-        var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
-        location.href = '#/devices/' + communicationTaskHistory.get('device').name
-        + '/communicationtasks/' + communicationTaskHistory.get('comTasks')[0].id
-        + '/history/' + communicationTaskHistory.get('id')
-        + '/viewlog' +
-        '?logLevels=Error&logLevels=Warning&logLevels=Information';
+    viewCommunicationLog: function (menuItem) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
 
+        router.getRoute('devices/device/communicationtasks/history/viewlog').forward(
+            Ext.merge({historyId: menuItem.up().record.getId()}, router.arguments),
+            {logLevels: ['Error', 'Warning', 'Information']}
+        );
     },
 
-    viewConnectionLog: function () {
-        var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
-        location.href = '#/devices/' + communicationTaskHistory.getComSession().get('device').name
-        + '/connectionmethods/' + communicationTaskHistory.getComSession().get('connectionMethod').id
-        + '/history/' + communicationTaskHistory.getComSession().get('id')
-        + '/viewlog'
-        + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
+    viewConnectionLog: function (menuItem) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            comSession = menuItem.up().record.getComSession();
+
+        router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
+            Ext.merge({connectionMethodId: comSession.get('connectionMethod').id, historyId: comSession.getId()}, router.arguments),
+            {logLevels: ['Error', 'Warning', 'Information'], logTypes: ['Connections', 'Communications']}
+        );
     },
 
     showDeviceCommunicationTaskHistoryLog: function (deviceId, comTaskId, comTaskHistoryId) {

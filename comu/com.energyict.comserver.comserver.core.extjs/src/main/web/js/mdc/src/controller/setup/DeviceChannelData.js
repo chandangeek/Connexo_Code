@@ -159,6 +159,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             channelId = params['channelId'],
             issueId = params['issueId'],
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            channelsView = viewport.down('#device-load-profile-channels-preview-container'),
             channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
             prevNextstore = contentName === 'block' ? 'Mdc.store.ValidationBlocks' : 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
@@ -213,6 +214,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
         }
 
+        if (channelsView) { // remove 'onload' handler to avoid changing channelId in router arguments
+            channelsView.bindStore('ext-empty-store');
+        }
         me.getStore(prevNextstore).load(onDependenciesLoad);
 
         if (contentName === 'spec') {

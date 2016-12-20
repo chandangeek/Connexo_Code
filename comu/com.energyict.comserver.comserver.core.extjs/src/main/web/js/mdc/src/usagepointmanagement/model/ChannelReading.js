@@ -33,6 +33,13 @@ Ext.define('Mdc.usagepointmanagement.model.ChannelReading', {
 
                 return result;
             }
+        },
+        {
+            name: 'interval_end',
+            persist: false,
+            mapping: 'interval.end',
+            dateFormat: 'time',
+            type: 'date'
         }
     ],
     proxy: {
