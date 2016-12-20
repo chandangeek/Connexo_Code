@@ -45,11 +45,11 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Wizard', {
                 itemId: 'usagepoints-bulk-step5',
                 navigationIndex: 4
             },
-        //    {
-        //        xtype: 'searchitems-bulk-step5-viewdevices',
-        //        itemId: 'searchitems-bulk-step5-viewdevices',
-        //        navigationIndex: 5
-        //    }
+            //    {
+            //        xtype: 'searchitems-bulk-step5-viewdevices',
+            //        itemId: 'searchitems-bulk-step5-viewdevices',
+            //        navigationIndex: 5
+            //    }
         ];
 
         this.callParent(arguments);

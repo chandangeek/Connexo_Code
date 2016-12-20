@@ -11,7 +11,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             ptype: 'bufferedrenderer'
         }
     ],
-    viewConfig: {        
+    viewConfig: {
         doFocus: Ext.emptyFn // workaround to avoid page jump during row selection
     },
     store: 'Imt.purpose.store.Readings',

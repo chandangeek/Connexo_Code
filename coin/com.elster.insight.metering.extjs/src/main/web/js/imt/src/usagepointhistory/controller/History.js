@@ -163,30 +163,30 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 success: function (record) {
                     var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
 
-                    if (newCard.rendered) {
-                        Ext.suspendLayouts();
-                        isEditable = record.get('isEditable');
-                        addBtn = newCard.down('#custom-attribute-set-add-version-btn');
-                        addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
-                        actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');
-                        actionBtn = newCard.down('#custom-attribute-set-versions-preview-action-button');
+                if (newCard.rendered) {
+                    Ext.suspendLayouts();
+                    isEditable = record.get('isEditable');
+                    addBtn = newCard.down('#custom-attribute-set-add-version-btn');
+                    addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
+                    actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');
+                    actionBtn = newCard.down('#custom-attribute-set-versions-preview-action-button');
 
-                        if (addBtn) {
-                            addBtn.setVisible(isEditable);
-                        }
-                        if (addBtnTop) {
-                            addBtnTop.setVisible(isEditable);
-                        }
-                        if (actionColumn) {
-                            actionColumn.setVisible(isEditable);
-                        }
-                        if (actionBtn) {
-                            actionBtn.setVisible(isEditable);
-                        }
-                        Ext.resumeLayouts(true);
+                    if (addBtn) {
+                        addBtn.setVisible(isEditable);
                     }
+                    if (addBtnTop) {
+                        addBtnTop.setVisible(isEditable);
+                    }
+                    if (actionColumn) {
+                        actionColumn.setVisible(isEditable);
+                    }
+                    if (actionBtn) {
+                        actionBtn.setVisible(isEditable);
+                    }
+                    Ext.resumeLayouts(true);
                 }
-            });
+                }
+        });
         }
     },
 

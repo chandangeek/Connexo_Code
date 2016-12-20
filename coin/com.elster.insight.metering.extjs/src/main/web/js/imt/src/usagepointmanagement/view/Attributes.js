@@ -45,10 +45,11 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
         }
     },
 
+    canManageUsagePoint: Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.manageAttributes),
+
     initComponent: function () {
         var me = this,
-            canManageUsagePoint = Imt.privileges.UsagePoint.canAdministrate(),
-            dynamicElements = me.prepareDynamicElements(canManageUsagePoint);
+            dynamicElements = me.prepareDynamicElements();
 
         me.content = [
             {
@@ -63,7 +64,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                     {
                         xtype: 'uni-button-action',
                         itemId: 'usage-point-attributes-actions-button',
-                        privileges: Imt.privileges.UsagePoint.admin,
+                        privileges: me.canManageUsagePoint,
                         usagePoint: me.usagePoint,
                         margin: '0 16 0 0',
                         menu: {
@@ -89,7 +90,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                                 record: me.usagePoint,
                                 viewDefaults: me.viewDefaults,
                                 editDefaults: me.editDefaults,
-                                hasEditMode: canManageUsagePoint
+                                hasEditMode: me.canManageUsagePoint
                             },
                             {
                                 xtype: me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].form,
@@ -98,7 +99,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                                 record: Ext.create(me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].model, me.usagePoint.get('techInfo')),
                                 viewDefaults: me.viewDefaults,
                                 editDefaults: me.editDefaults,
-                                hasEditMode: canManageUsagePoint
+                                hasEditMode: me.canManageUsagePoint
                             }
                         ]
                     },
@@ -131,10 +132,10 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
         me.callParent(arguments);
     },
 
-    prepareDynamicElements: function (canManageUsagePoint) {
+    prepareDynamicElements: function () {
         var me = this,
             forms = [],
-            menuItems = canManageUsagePoint ? [
+            menuItems = me.canManageUsagePoint ? [
                 {
                     text: Uni.I18n.translate('general.editGeneralInformation', 'IMT', "Edit 'General information'"),
                     itemId: 'edit-general-attributes',
@@ -151,7 +152,9 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
             var customPropertySetId =cps.get('customPropertySetId'),
                 itemId = 'custom-attribute-set-form-' + customPropertySetId,
                 name = cps.get('name'),
-                hasEditMode = !cps.get('isVersioned') || cps.get('isActive');
+                hasEditMode = me.canManageUsagePoint
+                    && cps.get('isEditable')
+                    && (!cps.get('isVersioned') || cps.get('isActive'));
 
             forms.push({
                 xtype: 'custom-attribute-set-form',
@@ -168,7 +171,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 router: me.router
             });
 
-            if (hasEditMode && canManageUsagePoint) {
+            if (hasEditMode && me.canManageUsagePoint) {
                 menuItems.push({
                     text: Uni.I18n.translate('general.editX', 'IMT', "Edit '{0}'", [name]),
                     itemId: 'edit-custom-attribute-set-' + customPropertySetId,
