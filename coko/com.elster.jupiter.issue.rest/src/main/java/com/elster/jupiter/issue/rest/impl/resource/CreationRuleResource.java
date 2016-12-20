@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.Priority;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
@@ -168,6 +169,10 @@ public class CreationRuleResource extends BaseResource {
         if (rule.reason != null) {
             getIssueService().findReason(rule.reason.id).ifPresent(builder::setReason);
         }
+        if (rule.priority != null) {
+            builder.setPriority(Priority.get(rule.priority.urgency, rule.priority.impact));
+        }
+
     }
 
     private void setTemplate(CreationRuleInfo rule, CreationRuleBuilder builder) {

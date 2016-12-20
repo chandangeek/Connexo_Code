@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.rest.response.cep;
 
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
+import com.elster.jupiter.issue.rest.response.PriorityInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo.DueInInfo;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
@@ -29,6 +30,7 @@ public class CreationRuleInfoFactory {
         info.name = rule.getName();
         info.comment = rule.getComment();
         info.reason = new IssueReasonInfo(rule.getReason());
+        info.priority = new PriorityInfo(rule.getPriority());
         info.issueType = new IssueTypeInfo(rule.getIssueType());
         if (rule.getDueInType() != null) {
             info.dueIn = new DueInInfo(rule.getDueInType().getName(), rule.getDueInValue());

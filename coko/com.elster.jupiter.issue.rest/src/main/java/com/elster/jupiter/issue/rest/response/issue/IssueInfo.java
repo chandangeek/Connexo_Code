@@ -4,6 +4,7 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.IssueStatusInfo;
 import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
+import com.elster.jupiter.issue.rest.response.PriorityInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -13,6 +14,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     public long id;
     public String issueId;
     public IssueReasonInfo reason;
+    public PriorityInfo priority;
     public IssueStatusInfo status;
     public long dueDate;
     public IssueAssigneeInfo assignee;
@@ -38,6 +40,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             this.id = issue.getId();
             this.issueId = issue.getIssueId();
             this.reason = new IssueReasonInfo(issue.getReason());
+            this.priority = new PriorityInfo(issue.getPriority());
             this.status = new IssueStatusInfo(issue.getStatus());
             this.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : 0;
             this.assignee = (issue.getAssignee() != null ? new IssueAssigneeInfo(issue.getAssignee()) : null);

@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.rest.response.cep;
 
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
+import com.elster.jupiter.issue.rest.response.PriorityInfo;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,6 +16,7 @@ public class CreationRuleInfo {
     public String name;
     public String comment;
     public IssueReasonInfo reason;
+    public PriorityInfo priority;
     public IssueTypeInfo issueType;
     public CreationRuleTemplateInfo template;
     public DueInInfo dueIn;
