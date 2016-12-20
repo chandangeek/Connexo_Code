@@ -1,8 +1,9 @@
 package com.energyict.mdc.upl.offline;
 
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -118,7 +119,7 @@ public interface OfflineRegister extends Offline {
     DeviceIdentifier getDeviceIdentifier();
 
     /**
-     * The identifier that uniquely identifies this {@link OfflineRegister}
+     * The identifier that uniquely identifies this {@link OfflineRegister}.
      */
     RegisterIdentifier getRegisterIdentifier();
 

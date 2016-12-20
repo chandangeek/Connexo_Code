@@ -36,15 +36,6 @@ public interface OfflineDeviceMessage extends Offline {
     MessageIdentifier getIdentifier();
 
     /**
-     * The value of the {@link FactoryBasedDeviceMessageSpecPrimaryKey} to uniquely identify
-     * the DeviceMessageSpec of this message.
-     *
-     * @return the value of the DeviceMessageSpecPrimaryKey
-     */
-    @XmlAttribute
-    String getDeviceMessageSpecPrimaryKey();
-
-    /**
      * Returns a freeform string that contains extra context information that was prepared by the protocol implementation.
      * The message executor of the protocol implementation can access this field.
      */
@@ -124,7 +115,7 @@ public interface OfflineDeviceMessage extends Offline {
     Date getCreationDate();
 
     /**
-     * The list of {@link OfflineDeviceMessageAttribute DeviceMessageAttributes} which are owned
+     * The list of {@link OfflineDeviceMessageAttribute}s which are owned
      * by this DeviceMessage. The information contained in these attributes should be sufficient
      * to perform the DeviceMessage.
      *
@@ -133,10 +124,11 @@ public interface OfflineDeviceMessage extends Offline {
     @XmlAttribute
     List<? extends OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
 
-    // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")
-    String getXmlType();
+    default String getXmlType() {
+        return getClass().getName();
+    }
 
-    void setXmlType(String ignore);
+    default void setXmlType(String ignore) {}
 
 }

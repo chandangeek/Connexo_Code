@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * Represents an Offline version of a {@link com.energyict.mdc.messages.DeviceMessageAttribute}
+ * Represents an Offline version of a DeviceMessageAttribute.
  * <p/>
  * Copyrights EnergyICT
  * Date: 18/02/13
@@ -32,7 +32,7 @@ public interface OfflineDeviceMessageAttribute {
      * @return this will contain the information to send or the action to perform on the Device
      */
     @XmlAttribute
-    String getDeviceMessageAttributeValue();
+    String getValue();
 
     /**
      * The id of the {@link DeviceMessage} which owns this OfflineDeviceMessageAttribute
@@ -44,8 +44,10 @@ public interface OfflineDeviceMessageAttribute {
 
     // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")
-    String getXmlType();
+    default String getXmlType() {
+        return getClass().getName();
+    }
 
-    void setXmlType(String ignore);
+    default void setXmlType(String ignore) {}
 
 }

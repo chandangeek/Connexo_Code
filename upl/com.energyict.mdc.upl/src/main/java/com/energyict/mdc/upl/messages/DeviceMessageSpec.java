@@ -15,7 +15,7 @@ import java.util.Optional;
  * for the purpose of a single customer installation.
  * Any DeviceMessageSpec that is created through the ComServer
  * API will by default be a non-standard DeviceMessage.
- * Note that non standard message can still be part
+ * Note that non standard messages can still be part
  * of standard {@link DeviceMessageCategory DeviceMessageCategories}.
  * <p/>
  * When adding new messages, keep in mind to also add the translation key (category.message) in the NLS database.
@@ -32,6 +32,11 @@ public interface DeviceMessageSpec {
      * @return The DeviceMessageCategory
      */
     DeviceMessageCategory getCategory();
+
+    /**
+     * Gets the globally unique identifier of this DeviceMessageSpec.
+     */
+    long getId();
 
     /**
      * Returns the translatable name of this DeviceMessageSpec.
@@ -68,20 +73,5 @@ public interface DeviceMessageSpec {
                     .filter(each -> each.getName().equals(name))
                     .findAny();
     }
-
-    /**
-     * Gets the PrimaryKey for this {@link DeviceMessageSpec}.
-     * @deprecated Retained to support existing environments that are using string based primary keys
-     *             because the globally unique identification mechanism did not exist at that time
-     * @return the primary key
-     * @see #getMessageId()
-     */
-    @Deprecated
-    DeviceMessageSpecPrimaryKey getPrimaryKey();
-
-    /**
-     * Gets the globally unique identifier of this DeviceMessageSpec.
-     */
-    long getMessageId();
 
 }
