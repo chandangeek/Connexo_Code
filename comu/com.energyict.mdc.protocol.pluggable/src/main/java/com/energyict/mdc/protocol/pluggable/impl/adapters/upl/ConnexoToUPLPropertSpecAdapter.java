@@ -16,10 +16,10 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-09 (11:45)
  */
-class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
+public class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
     private final com.elster.jupiter.properties.PropertySpec actual;
 
-    ConnexoToUPLPropertSpecAdapter(com.elster.jupiter.properties.PropertySpec actual) {
+    public ConnexoToUPLPropertSpecAdapter(com.elster.jupiter.properties.PropertySpec actual) {
         this.actual = actual;
     }
 

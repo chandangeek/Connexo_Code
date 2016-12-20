@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
@@ -95,4 +95,9 @@ public class MockCollectedMessage implements CollectedMessage {
 
     }
 
+    @Override
+    public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+        this.setResultType(resultType);
+        this.issues.addAll(issues);
+    }
 }

@@ -9,15 +9,17 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -27,11 +29,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -43,16 +43,16 @@ import java.util.logging.Logger;
  */
 public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
 
-    @Override
-    public String getProtocolDescription() {
-        return this.getClass().getName();
-    }
-
     private final PropertySpecService propertySpecService;
 
     public MockMeterProtocol(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return this.getClass().getName();
     }
 
     @Override
@@ -151,13 +151,13 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public void setCache(Object cacheObject) {
-
+    public Object getCache() {
+        return null;
     }
 
     @Override
-    public Object getCache() {
-        return null;
+    public void setCache(Object cacheObject) {
+
     }
 
     @Override
@@ -184,12 +184,12 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
         List<PropertySpec> required = new ArrayList<>(1);
         String propertyName = "RequiredProperty";
         required.add(
-            this.propertySpecService
-                .stringSpec()
-                .named(propertyName, propertyName)
-                .describedAs(propertyName)
-                .markRequired()
-                .finish());
+                this.propertySpecService
+                        .stringSpec()
+                        .named(propertyName, propertyName)
+                        .describedAs(propertyName)
+                        .markRequired()
+                        .finish());
         return required;
     }
 
@@ -198,11 +198,11 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
         List<PropertySpec> optional = new ArrayList<>(1);
         String propertyName = "OptionalProperty";
         optional.add(
-            this.propertySpecService
-                .stringSpec()
-                .named(propertyName, propertyName)
-                .describedAs(propertyName)
-                .finish());
+                this.propertySpecService
+                        .stringSpec()
+                        .named(propertyName, propertyName)
+                        .describedAs(propertyName)
+                        .finish());
         return optional;
     }
 
@@ -227,8 +227,8 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
-        return EnumSet.noneOf(DeviceMessageId.class);
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -242,8 +242,12 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public String format(com.elster.jupiter.properties.PropertySpec propertySpec, Object messageAttribute) {
-        return null;
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return "";
     }
 
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
+    }
 }

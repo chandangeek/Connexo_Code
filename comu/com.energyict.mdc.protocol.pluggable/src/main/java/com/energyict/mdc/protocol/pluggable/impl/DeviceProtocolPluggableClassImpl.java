@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -38,17 +39,17 @@ import java.util.stream.Stream;
 
 /**
  * Defines a PluggableClass based on a {@link DeviceProtocol}.
- * <p/>
+ * <p>
  * We are responsible for wrapping the given Pluggable with a correct Adapter
  * ({@link com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter} or
  * {@link SmartMeterProtocolAdapterImpl})
  * or a correct cast to {@link DeviceProtocol}.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/07/12
  * Time: 9:00
  */
-@HasValidProperties(groups = { Save.Update.class, Save.Create.class })
+@HasValidProperties(groups = {Save.Update.class, Save.Create.class})
 public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrapper<DeviceProtocol> implements DeviceProtocolPluggableClass {
 
     private final CustomPropertySetService customPropertySetService;
@@ -61,9 +62,10 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
@@ -75,13 +77,14 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
         this.meteringService = meteringService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-    static DeviceProtocolPluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
+    static DeviceProtocolPluggableClassImpl from(DataModel dataModel, PluggableClass pluggableClass) {
         return dataModel.getInstance(DeviceProtocolPluggableClassImpl.class).initializeFrom(pluggableClass);
     }
 
-    DeviceProtocolPluggableClassImpl initializeFrom (PluggableClass pluggableClass) {
+    DeviceProtocolPluggableClassImpl initializeFrom(PluggableClass pluggableClass) {
         this.setPluggableClass(pluggableClass);
         return this;
     }
@@ -102,8 +105,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         DeviceProtocol deviceProtocol;
         if (protocol instanceof DeviceProtocol) {
             deviceProtocol = (DeviceProtocol) protocol;
-        }
-        else {
+        } else {
             // Must be a lecagy pluggable class
             deviceProtocol = this.checkForProtocolWrappers(protocol);
         }
@@ -116,18 +118,16 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
      *
      * @param protocol the instantiated protocol
      * @throws ProtocolCreationException if and only if the given protocol does not implement: <ul>
-     * <li>{@link SmartMeterProtocol}</li>
-     * <li>{@link MeterProtocol}</li>
-     * </ul>
+     *                                   <li>{@link SmartMeterProtocol}</li>
+     *                                   <li>{@link MeterProtocol}</li>
+     *                                   </ul>
      */
     private DeviceProtocol checkForProtocolWrappers(Object protocol) {
         if (protocol instanceof SmartMeterProtocol) {
-            return new SmartMeterProtocolAdapterImpl((SmartMeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory, meteringService, this.getThesaurus());
-        }
-        else if (protocol instanceof MeterProtocol) {
-            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory, meteringService, this.getThesaurus());
-        }
-        else {
+            return new SmartMeterProtocolAdapterImpl((SmartMeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory, meteringService, this.getThesaurus(), deviceMessageSpecificationService);
+        } else if (protocol instanceof MeterProtocol) {
+            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory, meteringService, this.getThesaurus(), deviceMessageSpecificationService);
+        } else {
             throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, protocol.getClass());
         }
     }
@@ -199,7 +199,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public PluggableClassType getPluggableClassType () {
+    public PluggableClassType getPluggableClassType() {
         return PluggableClassType.DeviceProtocol;
     }
 
@@ -214,7 +214,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public DeviceProtocol getDeviceProtocol () {
+    public DeviceProtocol getDeviceProtocol() {
         DeviceProtocol deviceProtocol = this.newInstance();
         deviceProtocol.addDeviceProtocolDialectProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
         return deviceProtocol;
@@ -234,5 +234,4 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     protected DeleteEventType deleteEventType() {
         return DeleteEventType.DEVICEPROTOCOL;
     }
-
 }

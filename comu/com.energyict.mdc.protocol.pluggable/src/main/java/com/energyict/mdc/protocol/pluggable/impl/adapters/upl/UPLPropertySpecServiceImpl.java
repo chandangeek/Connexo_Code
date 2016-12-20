@@ -9,7 +9,6 @@ import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.LocalTimeFactory;
 import com.energyict.mdc.dynamic.impl.EncryptedStringFactory;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.pluggable.impl.IntegerFactory;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
@@ -23,7 +22,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -59,7 +57,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
     // For testing purposes
     @Inject
-    public UPLPropertySpecServiceImpl(PropertySpecServiceImpl propertySpecService, DataVaultService dataVaultService, ServerProtocolPluggableService protocolPluggableService) {
+    public UPLPropertySpecServiceImpl(com.energyict.mdc.dynamic.PropertySpecService propertySpecService, DataVaultService dataVaultService, ServerProtocolPluggableService protocolPluggableService) {
         this();
         this.setActualPropertySpecService(propertySpecService);
         this.setDataVaultService(dataVaultService);

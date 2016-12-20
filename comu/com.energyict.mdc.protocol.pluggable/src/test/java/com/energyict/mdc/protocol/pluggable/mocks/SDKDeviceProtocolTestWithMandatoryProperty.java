@@ -11,10 +11,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -23,12 +21,16 @@ import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -41,10 +43,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,11 +53,9 @@ import java.util.logging.Logger;
  */
 public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtocol {
 
-    private Logger logger = Logger.getLogger(SDKDeviceProtocolTestWithMandatoryProperty.class.getSimpleName());
-
     private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
-
+    private Logger logger = Logger.getLogger(SDKDeviceProtocolTestWithMandatoryProperty.class.getSimpleName());
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
      */
@@ -169,29 +167,13 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.deviceProtocolCache = deviceProtocolCache;
-    }
-
-    @Override
     public DeviceProtocolCache getDeviceCache() {
         return this.deviceProtocolCache;
     }
 
     @Override
-    public void setTime(Date timeToSet) {
-        if (getTimeDeviationPropertyForWrite().getSeconds() == 0) {
-            this.logger.log(Level.INFO, "Setting the time of the device to " + timeToSet);
-            this.comChannel.write(timeToSet.toString().getBytes());
-        }
-        else {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(timeToSet);
-            calendar.add(Calendar.SECOND, getTimeDeviationPropertyForWrite().getSeconds());
-            this.logger.log(Level.INFO, "Setting the time of the device to " + calendar.getTime() + ". " +
-                    "This is the time added with the deviation property value of " + getTimeDeviationPropertyForWrite().getSeconds() + " seconds");
-            this.comChannel.write(calendar.getTime().toString().getBytes());
-        }
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        this.deviceProtocolCache = deviceProtocolCache;
     }
 
     @Override
@@ -203,8 +185,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
             CollectedLoadProfileConfiguration loadProfileConfiguration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
-            }
-            else {
+            } else {
                 this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the NotSupportedLoadProfile property");
                 loadProfileConfiguration.setSupportedByMeter(false);
             }
@@ -228,23 +209,38 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
+    public void setTime(Date timeToSet) {
+        if (getTimeDeviationPropertyForWrite().getSeconds() == 0) {
+            this.logger.log(Level.INFO, "Setting the time of the device to " + timeToSet);
+            this.comChannel.write(timeToSet.toString().getBytes());
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(timeToSet);
+            calendar.add(Calendar.SECOND, getTimeDeviationPropertyForWrite().getSeconds());
+            this.logger.log(Level.INFO, "Setting the time of the device to " + calendar.getTime() + ". " +
+                    "This is the time added with the deviation property value of " + getTimeDeviationPropertyForWrite().getSeconds() + " seconds");
+            this.comChannel.write(calendar.getTime().toString().getBytes());
+        }
+    }
+
+    @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         //TODO
         return Collections.emptyList();
     }
 
     @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
-        return EnumSet.of(
-                DeviceMessageId.ACTIVITY_CALENDER_SEND,
-                DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME,
-                DeviceMessageId.CONTACTOR_ARM,
-                DeviceMessageId.CONTACTOR_CLOSE,
-                DeviceMessageId.CONTACTOR_OPEN,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER,
-                DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE);
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return Arrays.asList(
+                new TestDeviceMessageSpecImpl(DeviceMessageId.ACTIVITY_CALENDER_SEND),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.CONTACTOR_ARM),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.CONTACTOR_CLOSE),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.CONTACTOR_OPEN),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE));
     }
 
     @Override
@@ -260,8 +256,13 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return "";  //Todo change body of implemented methods use File | Settings | File Templates.
+    public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return null;
+    }
+
+    @Override
+    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return null;
     }
 
     @Override
@@ -375,6 +376,15 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         return this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
     }
 
+    private PropertySpec clientMacAddressPropertySpec() {
+        return propertySpecService
+                .bigDecimalSpec()
+                .named("ClientMacAddress", "ClientMacAddress")
+                .describedAs(null)
+                .markRequired()
+                .finish();
+    }
+
     private enum AuthenticationAccessLevelIds {
         NO_AUTHENTICATION(0);
 
@@ -424,15 +434,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
             return Collections.singletonList(clientMacAddressPropertySpec());
         }
 
-    }
-
-    private PropertySpec clientMacAddressPropertySpec() {
-        return propertySpecService
-                .bigDecimalSpec()
-                .named("ClientMacAddress", "ClientMacAddress")
-                .describedAs(null)
-                .markRequired()
-                .finish();
     }
 
     protected class NoMessageEncryption implements EncryptionDeviceAccessLevel {

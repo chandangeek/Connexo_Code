@@ -1,61 +1,66 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.tasks.support.UsesLegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Abstract class for implementing the {@link DeviceMessageSupport}
  * for legacy protocols.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/03/13
  * Time: 11:27
  */
-public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMessageSupport{
+public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMessageSupport {
 
     private static final int UPDATE_SENT_MASK = 0b0001;
     private static final int EXECUTE_PENDING_MASK = 0b0010;
-
+    /**
+     * Mask indicating that both method calls are made.
+     */
+    private static final int FIRE_MESSAGES_MASK = UPDATE_SENT_MASK | EXECUTE_PENDING_MASK;
     private final DataModel dataModel;
     private final MessageAdapterMappingFactory messageAdapterMappingFactory;
     private final ProtocolPluggableService protocolPluggableService;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private MessageProtocol messageProtocol;
     private String serialNumber = "";
-
-    /**
-     * Mask indicating that both method calls are made.
-     */
-    private static final int FIRE_MESSAGES_MASK = UPDATE_SENT_MASK | EXECUTE_PENDING_MASK;
-
     /**
      * The messageConverter which will be used.
      */
@@ -75,13 +80,14 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
 
     private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new LinkedHashMap<>(); // Specific chosen for a LinkedHashMap, cause the order in which messages are added is important & should be kept
 
-    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super();
         this.dataModel = dataModel;
         this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.protocolPluggableService = protocolPluggableService;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     /**
@@ -156,7 +162,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         }
         if (continueOnSendingPendingMessages) {
             for (Map.Entry<MessageEntry, OfflineDeviceMessage> messageEntryMapElement : messageEntries.entrySet()) {
-                collectedMessageList.addCollectedMessages(
+                collectedMessageList.addCollectedMessage(
                         delegatePendingMessageToProtocol(messageEntryMapElement.getKey(), messageEntryMapElement.getValue()));
             }
         }
@@ -164,7 +170,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         return collectedMessageList;
     }
 
-    private Issue getIssue(Object source, MessageSeed description, Object... arguments){
+    private Issue getIssue(Object source, MessageSeed description, Object... arguments) {
         return this.issueService.newProblem(source, description, arguments);
     }
 
@@ -209,8 +215,14 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
      * @return a <code>List</code> of Standard supported messages
      */
     @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
-        return getLegacyMessageConverter().getSupportedMessages();
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        Set<DeviceMessageId> deviceMessageIds = getLegacyMessageConverter().getSupportedMessages();
+        return deviceMessageIds.stream()
+                .map(id -> deviceMessageSpecificationService.findMessageSpecById(id.dbValue()))     //Find the spec for the given ID
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(ConnexoDeviceMessageSpecAdapter::new)                                          //Adapt the CXO spec to an UPL spec
+                .collect(Collectors.toList());
     }
 
     /**
@@ -253,9 +265,10 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         }
     }
 
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         if (messagesAreSupported()) {
-            return getLegacyMessageConverter().format(propertySpec, messageAttribute);
+            return getLegacyMessageConverter().format(new UPLToConnexoPropertySpecAdapter(propertySpec), messageAttribute);
         } else {
             return "";
         }
@@ -283,4 +296,8 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         return this.messageAdapterMappingFactory;
     }
 
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
+    }
 }

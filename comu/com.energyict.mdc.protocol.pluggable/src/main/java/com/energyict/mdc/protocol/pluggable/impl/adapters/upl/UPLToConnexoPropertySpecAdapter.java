@@ -20,10 +20,10 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  * @since 2016-12-12 (13:27)
  * @see ConnexoToUPLPropertSpecAdapter#getConnexoPropertySpec()
  */
-class UPLToConnexoPropertySpecAdapter implements PropertySpec {
+public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
     private final com.energyict.mdc.upl.properties.PropertySpec actual;
 
-    UPLToConnexoPropertySpecAdapter(com.energyict.mdc.upl.properties.PropertySpec actual) {
+    public UPLToConnexoPropertySpecAdapter(com.energyict.mdc.upl.properties.PropertySpec actual) {
         this.actual = actual;
     }
 

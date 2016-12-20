@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -16,19 +16,20 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMessageConverter;
-
-import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.Collections;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,6 +47,9 @@ public class MeterProtocolMessageAdapterTest {
 
     @Mock
     private CollectedDataFactory collectedDataFactory;
+
+    @Mock
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
@@ -102,7 +106,9 @@ public class MeterProtocolMessageAdapterTest {
                 new MessageAdapterMappingFactoryImpl(dataModel),
                 this.protocolPluggableService,
                 this.inMemoryPersistence.getIssueService(),
-                this.collectedDataFactory);
+                this.collectedDataFactory,
+                this.deviceMessageSpecificationService
+        );
 
         // all is safe if no errors occur
     }
@@ -111,7 +117,7 @@ public class MeterProtocolMessageAdapterTest {
     public void testUnKnownMeterProtocol() {
         MeterProtocol meterProtocol = mock(MeterProtocol.class, withSettings().extraInterfaces(MessageProtocol.class));
         try {
-            new MeterProtocolMessageAdapter(meterProtocol, this.protocolPluggableService.getDataModel(), mock(MessageAdapterMappingFactory.class), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory);
+            new MeterProtocolMessageAdapter(meterProtocol, this.protocolPluggableService.getDataModel(), mock(MessageAdapterMappingFactory.class), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         } catch (DeviceProtocolAdapterCodingExceptions e) {
             if (!e.getMessageSeed().equals(MessageSeeds.NON_EXISTING_MAP_ELEMENT)) {
                 fail("Exception should have indicated that the given MeterProtocol is not known in the adapter mapping, but was " + e.getMessage());
@@ -124,7 +130,7 @@ public class MeterProtocolMessageAdapterTest {
     @Test
     public void testNotAMessageSupportClass() {
         MeterProtocol meterProtocol = new ThirdSimpleTestMeterProtocol();
-        MeterProtocolMessageAdapter protocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.protocolPluggableService.getDataModel(), mock(MessageAdapterMappingFactory.class), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory);
+        MeterProtocolMessageAdapter protocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.protocolPluggableService.getDataModel(), mock(MessageAdapterMappingFactory.class), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         when(this.collectedDataFactory.createEmptyCollectedMessageList()).thenReturn(mock(CollectedMessageList.class));
 
         assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isNotNull();
