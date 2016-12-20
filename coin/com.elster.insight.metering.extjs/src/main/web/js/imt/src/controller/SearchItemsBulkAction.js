@@ -246,17 +246,17 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         if (me.allDevices) {
             switch (me.operation) {
                 case 'addCalendar':
-                    titleText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg', 'IMT',
-                        "Add calendar '{0}' to all devices?", Ext.String.htmlEncode(me.calendarName));
+                    titleText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllUsagePoints.confirmMsg', 'IMT',
+                        "Add calendar '{0}' to all usage points?", Ext.String.htmlEncode(me.calendarName));
                     break;
             }
         } else {
             switch (me.operation) {
                 case 'addCalendar':
                     if (me.devices.length === 1) {
-                        pattern = Uni.I18n.translate('searchItems.bulk.addCalendarXTo1Device.confirmMsg', 'IMT', "Add calendar '{0}' to {1} device?")
+                        pattern = Uni.I18n.translate('searchItems.bulk.addCalendarXTo1UsagePoint.confirmMsg', 'IMT', "Add calendar '{0}' to {1} usage point?")
                     } else {
-                        pattern = Uni.I18n.translate('searchItems.bulk.addCalendarXToYDevices.confirmMsg', 'IMT', "Add calendar '{0}' to {1} devices?")
+                        pattern = Uni.I18n.translate('searchItems.bulk.addCalendarXToYUsagePoints.confirmMsg', 'IMT', "Add calendar '{0}' to {1} usage points?")
                     }
                     titleText = Ext.String.format(pattern, Ext.String.htmlEncode(me.calendarName), me.devices.length);
                     break;
@@ -265,7 +265,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
 
         switch (me.operation) {
             case 'addCalendar':
-                bodyText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.addMsg', 'IMT', 'The selected devices will use this calendar');
+                bodyText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllUsagePoints.infoMsg', 'IMT', 'The selected usage points will use this calendar');
                 break;
         }
 
