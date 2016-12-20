@@ -70,9 +70,11 @@ public class UserResource extends BaseAlarmResource{
             //Takes care of Unassigned issues which would have userId of "-1"
             if (id < 0){
                 String unassignedText = getThesaurus().getFormat(ALARM_ASSIGNEE_UNASSIGNED).format();
-                Response.ok().entity(new IdWithNameInfo( -1L, unassignedText)).build();
+                IdWithNameInfo user = new IdWithNameInfo( -1L, unassignedText);
+                return PagedInfoList.fromCompleteList("data", Collections.singletonList(user), queryParameters);
             }
-            //Not unassigned, so this user really doesn't exist
+            //Not unassigned, so this user
+            // doesn't exist
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         IdWithNameInfo user = new IdWithNameInfo(assignee.getId(), assignee.getName());
