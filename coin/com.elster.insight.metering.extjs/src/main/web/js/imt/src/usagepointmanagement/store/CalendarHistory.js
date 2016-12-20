@@ -4,15 +4,15 @@ Ext.define('Imt.usagepointmanagement.store.CalendarHistory', {
     //  fields: ['fromTime','toTime','next','calendar'],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{usagePointMRID}/history/calendars',
+        urlTpl: '/api/udr/usagepoints/{usagePointName}/history/calendars',
         reader: {
             type: 'json',
             root: 'calendars'
         }
     },
 
-    setMrid: function (mrid) {
+    setName: function (name) {
         this.getProxy().url = this.getProxy()
-            .urlTpl.replace('{usagePointMRID}', encodeURIComponent(mrid));
+            .urlTpl.replace('{usagePointName}', encodeURIComponent(name));
     }
 });

@@ -87,7 +87,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         }
 
         if(newCard.itemId === 'calendar-tab'){
-            calendarStore.setMrid(mRID);
+            calendarStore.setName(usagePointId);
             newCard.add({
                 xtype: 'calendars-versions-overview',
                 store: calendarStore,

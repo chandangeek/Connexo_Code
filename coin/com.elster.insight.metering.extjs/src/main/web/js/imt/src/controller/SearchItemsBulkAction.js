@@ -246,19 +246,19 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         if (me.allDevices) {
             switch (me.operation) {
                 case 'addCalendar':
-                        titleText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg', 'IMT',
-                            "Add calendar '{0}' to all devices?", Ext.String.htmlEncode(me.calendarName));
+                    titleText = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg', 'IMT',
+                        "Add calendar '{0}' to all devices?", Ext.String.htmlEncode(me.calendarName));
                     break;
             }
         } else {
             switch (me.operation) {
                 case 'addCalendar':
-                        if (me.devices.length <= 1) {
-                            pattern = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsg0', 'IMT', "Add shared communication schedule '{1}' to {0} device?")
-                        } else {
-                            pattern = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.confirmMsgn', 'IMT', "Add shared communication schedule '{1}' to {0} devices?")
-                        }
-                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.calendarName));
+                    if (me.devices.length === 1) {
+                        pattern = Uni.I18n.translate('searchItems.bulk.addCalendarXTo1Device.confirmMsg', 'IMT', "Add calendar '{0}' to {1} device?")
+                    } else {
+                        pattern = Uni.I18n.translate('searchItems.bulk.addCalendarXToYDevices.confirmMsg', 'IMT', "Add calendar '{0}' to {1} devices?")
+                    }
+                    titleText = Ext.String.format(pattern, Ext.String.htmlEncode(me.calendarName), me.devices.length);
                     break;
             }
         }
