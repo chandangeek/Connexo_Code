@@ -64,8 +64,12 @@ public class DeviceMessagesResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
 
-        Set<DeviceMessageId> supportedMessages = deviceType.getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet());
+        List<DeviceMessageId> supportedMessages = deviceType.getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .map(DeviceMessageId::havingId)
+                        .collect(Collectors.toList())).orElse(Collections.emptyList());
+
         if (supportedMessages.isEmpty()) {
             return PagedInfoList.fromPagedList("categories", Collections.emptyList(), queryParameters);
         }

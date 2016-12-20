@@ -56,8 +56,8 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         String response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
 
-        assertThat(jsonModel.<Integer> get("$.total")).isEqualTo(0);
-        assertThat(jsonModel.<List<Object>> get("$.categories")).hasSize(0);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<Object>>get("$.categories")).hasSize(0);
     }
 
     @Test
@@ -66,16 +66,27 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         DeviceType deviceType = deviceConfiguration.getDeviceType();
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol protocol = mock(DeviceProtocol.class);
-        Set<DeviceMessageId> supportedMessages = new HashSet<>();
-        supportedMessages.add(DeviceMessageId.CLOCK_SET_TIME);
-        supportedMessages.add(DeviceMessageId.CLOCK_SET_DST);
-        supportedMessages.add(DeviceMessageId.DISPLAY_SET_MESSAGE);
-        supportedMessages.add(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
-        supportedMessages.add(DeviceMessageId.SECURITY_CHANGE_CLIENT_PASSWORDS);
+
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CLOCK_SET_DST.dbValue());
+        deviceMessageIds.add(deviceMessageSpec2);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec3.getMessageId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec3);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec4.getMessageId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
+        deviceMessageIds.add(deviceMessageSpec4);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec5.getMessageId()).thenReturn(DeviceMessageId.SECURITY_CHANGE_CLIENT_PASSWORDS.dbValue());
+        deviceMessageIds.add(deviceMessageSpec5);
 
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(pluggableClass.getDeviceProtocol()).thenReturn(protocol);
-        when(protocol.getSupportedMessages()).thenReturn(supportedMessages);
+        when(protocol.getSupportedMessages()).thenReturn(deviceMessageIds);
 
         DeviceMessageCategory clockCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec clockSetTimeMessage = mock(DeviceMessageSpec.class);
@@ -200,6 +211,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().build(HttpMethod.DELETE, Entity.json(requestBody)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
+
     @Test
     public void testDeactivateDeviceMessagesBadVersion() {
         DeviceType deviceType = mockDeviceType("Some", 1L);
