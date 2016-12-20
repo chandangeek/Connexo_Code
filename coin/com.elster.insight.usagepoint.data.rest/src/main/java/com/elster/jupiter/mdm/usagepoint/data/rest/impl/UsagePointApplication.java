@@ -39,6 +39,10 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
+import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfoFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -372,6 +376,10 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(messageService).to(MessageService.class);
             bind(calendarInfoFactory).to(CalendarInfoFactory.class);
             bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
+            bind(UsagePointLifeCycleInfoFactory.class).to(UsagePointLifeCycleInfoFactory.class);
+            bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
+            bind(UsagePointLifeCycleTransitionInfoFactory.class).to(UsagePointLifeCycleTransitionInfoFactory.class);
+            bind(BusinessProcessInfoFactory.class).to(BusinessProcessInfoFactory.class);
         }
     }
 
