@@ -16,10 +16,10 @@ public class RelatedEventsInfo {
 
     public RelatedEventsInfo(EndDeviceEventRecord endDeviceEventRecord){
         EndDeviceEventType endDeviceEventType = endDeviceEventRecord.getEventType();
-        this.deviceType = endDeviceEventType.getType().getMnemonic();
-        this.domain = endDeviceEventType.getDomain().getMnemonic();
-        this.subDomain = endDeviceEventType.getSubDomain().getMnemonic();
-        this.eventOrAction = endDeviceEventType.getEventOrAction().getMnemonic();
+        this.deviceType = endDeviceEventType.getType().getMnemonic() + " (" + endDeviceEventType.getType().getCode() + ")";
+        this.domain = endDeviceEventType.getDomain().getMnemonic() + " (" + endDeviceEventType.getDomain().getCode() + ")";
+        this.subDomain = endDeviceEventType.getSubDomain().getMnemonic() + " (" + endDeviceEventType.getSubDomain().getCode() + ")";
+        this.eventOrAction = endDeviceEventType.getEventOrAction().getMnemonic() + " (" + endDeviceEventType.getEventOrAction().getCode() + ")";
         this.eventDate = endDeviceEventRecord.getCreateTime().toEpochMilli();
     }
 
