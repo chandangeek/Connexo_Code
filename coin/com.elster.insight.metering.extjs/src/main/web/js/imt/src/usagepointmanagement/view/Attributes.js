@@ -45,11 +45,11 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
         }
     },
 
-    canManageUsagePoint: Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.manageAttributes),
-
     initComponent: function () {
         var me = this,
             dynamicElements = me.prepareDynamicElements();
+
+        me.canManageUsagePoint = Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.manageAttributes);
 
         me.content = [
             {
