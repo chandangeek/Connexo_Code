@@ -33,7 +33,7 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.tariffs', 'UNI', 'Tariffs'),
+                    fieldLabel: Uni.I18n.translate('general.eventTypes', 'UNI', 'Event types'),
                     itemId: 'tariffsField'
                 }
             ]

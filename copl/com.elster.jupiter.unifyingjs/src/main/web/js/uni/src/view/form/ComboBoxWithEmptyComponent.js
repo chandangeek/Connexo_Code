@@ -37,7 +37,7 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
                 if (success && storeObject.count() > 0) {
                     combo = Ext.create('Ext.form.ComboBox', {
                         queryMode: 'local',
-                        itemId: 'theComboBox',
+                        itemId: me.itemId,
                         store: storeObject,
                         allowBlank: me.allowBlank,
                         width: me.config.width - me.getLabelWidth(),
@@ -45,9 +45,6 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
                         valueField: me.config.valueField,
                         emptyText: me.config.emptyText
                     });
-                    //me.config.store = storeObject;
-                    //Ext.apply(combo, me.config);
-                    //combo.setWidth(me.config.width - me.getLabelWidth());
                     me.add(combo);
                 } else {
                     me.add({
