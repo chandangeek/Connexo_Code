@@ -11,11 +11,16 @@ import java.util.List;
 public interface DeviceMessageCategory {
 
     /**
-     * Gets the name of this DeviceMessageCategory.
+     * Gets the translated name of this DeviceMessageCategory.
      *
-     * @return The name
+     * @return The translated name
      */
     String getName();
+
+    /**
+     * Get the key for the translation of the name of this message
+     */
+    String getNameResourceKey();
 
     /**
      * Gets the description of this DeviceMessageCategory.

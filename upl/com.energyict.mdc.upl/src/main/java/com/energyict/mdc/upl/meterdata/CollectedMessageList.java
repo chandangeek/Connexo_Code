@@ -1,11 +1,13 @@
 package com.energyict.mdc.upl.meterdata;
 
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+
 import java.util.List;
 
 /**
  * A CollectedMessageList identifies a list of {@link com.energyict.mdc.upl.messages.DeviceMessage}s
  * executed by the device and the result from the execution.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 21/03/13
  * Time: 16:31
@@ -25,5 +27,7 @@ public interface CollectedMessageList extends CollectedData {
     void addCollectedMessages(CollectedMessageList collectedMessages);
 
     List<CollectedMessage> getCollectedMessages();
+
+    List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier);
 
 }

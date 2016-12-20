@@ -1,8 +1,9 @@
 package com.energyict.mdc.upl.messages;
 
 import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.offline.Offline;
-
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * Represents an Offline version of a {@link com.energyict.mdc.upl.messages.DeviceMessage}
  * which should contain all necessary information needed to perform the actual DeviceMessage.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/02/13
  * Time: 16:27
@@ -31,6 +32,8 @@ public interface OfflineDeviceMessage extends Offline {
      * @return The DeviceMessageSpec
      */
     DeviceMessageSpec getSpecification();
+
+    MessageIdentifier getIdentifier();
 
     /**
      * The value of the {@link FactoryBasedDeviceMessageSpecPrimaryKey} to uniquely identify
@@ -74,6 +77,11 @@ public interface OfflineDeviceMessage extends Offline {
      */
     @XmlAttribute
     String getDeviceSerialNumber();
+
+    /**
+     * @return the identifier of the device which owns this devicemessage
+     */
+    DeviceIdentifier getDeviceIdentifier();
 
     /**
      * The configured date of when this message <i>could</i> be executed
@@ -123,7 +131,7 @@ public interface OfflineDeviceMessage extends Offline {
      * @return the list of OfflineDeviceMessageAttribute
      */
     @XmlAttribute
-    List<OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
+    List<? extends OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
 
     // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")
