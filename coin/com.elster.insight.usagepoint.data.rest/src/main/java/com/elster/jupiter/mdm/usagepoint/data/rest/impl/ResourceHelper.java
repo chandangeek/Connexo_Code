@@ -1,9 +1,11 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -20,12 +22,14 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
-import java.time.Clock;
-import java.util.ArrayList;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,8 +44,7 @@ public class ResourceHelper {
     private final Clock clock;
 
     @Inject
-    public ResourceHelper(MeteringService meteringService,
-                          MeteringGroupsService meteringGroupsService,
+    public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
                           MetrologyConfigurationService metrologyConfigurationService, Clock clock) {
@@ -114,7 +117,7 @@ public class ResourceHelper {
     public ConcurrentModificationException usagePointAlreadyLinkedException(String name) {
         return conflictFactory.conflict().withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, name).withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, name).build();
     }
-    
+
     public Optional<MetrologyPurpose> findMetrologyPurpose(long id) {
         return metrologyConfigurationService.findMetrologyPurpose(id);
     }
@@ -156,7 +159,7 @@ public class ResourceHelper {
             throw exceptionFactory.newException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
         }
     }
-    
+
         public UsagePointGroup findUsagePointGroupOrThrowException(long id) {
         return meteringGroupsService.findUsagePointGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
@@ -168,6 +171,41 @@ public class ResourceHelper {
                                 .map(UsagePointGroup::getVersion)
                                 .orElse(null))
                         .supplier());
+    }
+
+    public List<MetrologyConfigurationInfo> getAvailableMetrologyConfigurations(UsagePoint usagePoint, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        return metrologyConfigurationService
+                .findLinkableMetrologyConfigurations(usagePoint)
+                .stream()
+                .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
+                .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
+                        .stream()
+                        .sorted(Comparator.comparing(rcps -> rcps.getCustomPropertySet()
+                                .getName(), String.CASE_INSENSITIVE_ORDER))
+                        .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
+    }
+
+    public void activateMeters(UsagePointInfo info, UsagePoint usagePoint) {
+        if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
+            UsagePointMeterActivator linker = usagePoint.linkMeters();
+            info.meterActivations
+                    .stream()
+                    .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id)
+                            .emptyOrOnlyWhiteSpace())
+                    .forEach(meterActivation -> {
+                        MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
+                        if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name)
+                                .emptyOrOnlyWhiteSpace()) {
+                            Meter meter = findMeterByNameOrThrowException(meterActivation.meter.name);
+                            linker.activate(meter, meterRole);
+                        } else {
+                            linker.clear(meterRole);
+                        }
+                    });
+            linker.complete();
+        }
     }
 
     public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {

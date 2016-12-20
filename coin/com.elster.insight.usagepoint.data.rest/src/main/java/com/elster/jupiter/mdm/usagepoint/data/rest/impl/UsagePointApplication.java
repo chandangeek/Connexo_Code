@@ -117,7 +117,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointCalendarResource.class,
                 UsagePointCalendarHistoryResource.class,
                 BulkScheduleResource.class,
-                UsagePointGroupResource.class
+                UsagePointGroupResource.class,
+                FieldResource.class
         );
     }
 
