@@ -76,13 +76,14 @@ import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
@@ -791,7 +792,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId) {
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
-                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), new Order[]{Order.ascending("deviceType"), Order.ascending("name")});
+                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("deviceType"), Order.ascending("name"));
     }
 
 
@@ -911,7 +912,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType, boolean checkForVerifyCalendar) {
         Set<ProtocolSupportedCalendarOptions> protocolSupportedCalendarOptions = deviceType.getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet())
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(DeviceMessageSpec::getMessageId)
+                        .map(DeviceMessageId::havingId)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.<DeviceMessageId>emptyList())
                 .stream()
                 .map(this.deviceMessageSpecificationService::getProtocolSupportedCalendarOptionsFor)
                 .filter(Optional::isPresent)

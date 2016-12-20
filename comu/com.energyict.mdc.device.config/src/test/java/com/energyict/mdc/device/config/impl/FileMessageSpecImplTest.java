@@ -13,29 +13,28 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link DeviceMessageSpecImpl} component.
+ * Tests the {@link FileMessageSpecImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-13 (11:18)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceMessageSpecImplTest {
+public class FileMessageSpecImplTest {
 
     private static final String EXPECTED_SPEC_NAME = "DeviceMessageSpecImplTest";
     private static final DeviceMessageId EXPECTED_DEVICE_MESSAGE_ID = DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE;
@@ -68,7 +67,7 @@ public class DeviceMessageSpecImplTest {
         when(this.deviceMessageSpec.getPropertySpecs()).thenReturn(Collections.emptyList());
 
         // Business method
-        DeviceMessageSpecImpl deviceMessageSpec = this.getTestInstance();
+        FileMessageSpecImpl deviceMessageSpec = this.getTestInstance();
 
         // Asserts
         assertThat(deviceMessageSpec.getId()).isEqualTo(EXPECTED_DEVICE_MESSAGE_ID);
@@ -92,7 +91,7 @@ public class DeviceMessageSpecImplTest {
         when(this.deviceMessageSpec.getPropertySpecs()).thenReturn(Arrays.asList(string1, string2));
 
         // Business method
-        DeviceMessageSpecImpl deviceMessageSpec = this.getTestInstance();
+        FileMessageSpecImpl deviceMessageSpec = this.getTestInstance();
 
         // Asserts
         assertThat(deviceMessageSpec.getId()).isEqualTo(EXPECTED_DEVICE_MESSAGE_ID);
@@ -127,7 +126,7 @@ public class DeviceMessageSpecImplTest {
         when(this.deviceMessageSpec.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
 
         // Business method
-        DeviceMessageSpecImpl deviceMessageSpec = this.getTestInstance();
+        FileMessageSpecImpl deviceMessageSpec = this.getTestInstance();
 
         // Asserts
         assertThat(deviceMessageSpec.getId()).isEqualTo(EXPECTED_DEVICE_MESSAGE_ID);
@@ -151,8 +150,8 @@ public class DeviceMessageSpecImplTest {
         assertThat(possibleValues.getDefault()).isNull();
     }
 
-    private DeviceMessageSpecImpl getTestInstance() {
-        return new DeviceMessageSpecImpl(
+    private FileMessageSpecImpl getTestInstance() {
+        return new FileMessageSpecImpl(
                 this.deviceType,
                 this.deviceMessageSpec,
                 this.propertySpecService);

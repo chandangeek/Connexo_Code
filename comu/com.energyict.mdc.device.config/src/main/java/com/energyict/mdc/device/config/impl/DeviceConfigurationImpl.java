@@ -1278,7 +1278,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             if (supportsAllProtocolMessages()) {
                 Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = this.getDeviceType().getDeviceProtocolPluggableClass();
                 if ((deviceProtocolPluggableClass.isPresent()
-                        && deviceProtocolPluggableClass.get().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId))) {
+                        && deviceProtocolPluggableClass.get().getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .collect(Collectors.toList())
+                        .contains(deviceMessageId.dbValue()))) {
                     return getAllProtocolMessagesUserActions().stream()
                             .anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
                 }
@@ -1311,19 +1314,21 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category) {
-        Set<DeviceMessageId> supportedMessagesSpecs =
-                this.getDeviceType()
-                        .getDeviceProtocolPluggableClass()
-                        .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet());
+        List<Long> ids = this.getDeviceType().getDeviceProtocolPluggableClass()
+                .map(pluggableClass -> pluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
 
         EnumSet<DeviceMessageId> enabledDeviceMessageIds = EnumSet.noneOf(DeviceMessageId.class);
         this.getDeviceMessageEnablements()
                 .stream()
                 .map(DeviceMessageEnablement::getDeviceMessageId)
                 .forEach(enabledDeviceMessageIds::add);
+
         return category.getMessageSpecifications()
                 .stream()
-                .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
+                .filter(deviceMessageSpec -> ids.contains(deviceMessageSpec.getId().dbValue())) // limit to device message specs supported by the protocol
                 .filter(deviceMessageSpec -> enabledDeviceMessageIds.contains(deviceMessageSpec.getId())) // limit to device message specs enabled on the config
                 .filter(deviceMessageSpec -> this.isAuthorized(deviceMessageSpec.getId())) // limit to device message specs whom the user is authorized to
                 .map(this::replaceDeviceMessageFileValueFactories)
@@ -1343,7 +1348,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private DeviceMessageSpec replaceDeviceMessageFileValueFactories(DeviceMessageSpec spec) {
-        return new DeviceMessageSpecImpl(this.getDeviceType(), spec, this.propertySpecService);
+        return new FileMessageSpecImpl(this.getDeviceType(), spec, this.propertySpecService);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {

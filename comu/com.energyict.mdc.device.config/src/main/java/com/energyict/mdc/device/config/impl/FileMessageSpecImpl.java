@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-13 (10:40)
  */
-class DeviceMessageSpecImpl implements DeviceMessageSpec {
+class FileMessageSpecImpl implements DeviceMessageSpec {
     private final DeviceType deviceType;
     private final DeviceMessageSpec source;
     private final PropertySpecService propertySpecService;
 
-    DeviceMessageSpecImpl(DeviceType deviceType, DeviceMessageSpec source, PropertySpecService propertySpecService) {
+    FileMessageSpecImpl(DeviceType deviceType, DeviceMessageSpec source, PropertySpecService propertySpecService) {
         this.deviceType = deviceType;
         this.source = source;
         this.propertySpecService = propertySpecService;

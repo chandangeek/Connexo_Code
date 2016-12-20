@@ -73,12 +73,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -94,12 +91,16 @@ import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -125,11 +126,9 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -146,13 +145,12 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectConfigurationPropertiesImplTest {
 
-    private static final String MY_PROPERTY = "myProperty";
     public static final String PROTOCOL_DIALECT = "protocolDialect";
     public static final String VERY_LARGE_STRING = Strings.repeat("0123456789", 10000); // String containing 100_000 characters which >> 4K
-    private SharedData sharedData;
+    private static final String MY_PROPERTY = "myProperty";
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
+    private SharedData sharedData;
     @Mock
     private DeviceType myDeviceType;
     private DeviceConfiguration deviceConfiguration;
@@ -174,17 +172,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private DeviceProtocolService deviceProtocolService;
     @Mock
     private License license;
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(LicenseService.class).toInstance(licenseService);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
-    }
 
     public void initializeDatabase(boolean showSqlLogging) throws SQLException {
         bootstrapModule = new InMemoryBootstrapModule();
@@ -257,17 +244,10 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         table.map(Whatever.class);
         Column id = table.addAutoIdColumn();
         table
-            .primaryKey("PK_TST_DEVPROTDIALECT").on(id)
-            .add();
+                .primaryKey("PK_TST_DEVPROTDIALECT").on(id)
+                .add();
         dataModel.install(true, false);
         dataModel.register();
-    }
-
-    private static class DeviceProtocolDialectTestImpl implements HasId {
-        @Override
-        public long getId() {
-            return 0;
-        }
     }
 
     @Before
@@ -338,8 +318,16 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         // Asserts: see expected constraint violation rule
     }
 
+    private static class DeviceProtocolDialectTestImpl implements HasId {
+        @Override
+        public long getId() {
+            return 0;
+        }
+    }
+
     private static class Whatever implements DeviceProtocolDialectPropertyProvider {
         private long id;
+
         @Override
         public List<DeviceProtocolDialectProperty> getProperties() {
             return Collections.emptyList();
@@ -347,7 +335,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     }
 
     public static class MyDialectProperties extends CommonDeviceProtocolDialectProperties {
-        @Size(max= Table.MAX_STRING_LENGTH)
+        @Size(max = Table.MAX_STRING_LENGTH)
         private String myProperty;
 
         @Override
@@ -365,19 +353,13 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         }
     }
+
     public static class SharedData {
         private static DeviceProtocolDialect protocolDialect;
         private static PropertySpec propertySpec;
         private static ValueFactory valueFactory;
         private static CustomPropertySet<DeviceProtocolDialectPropertyProvider, MyDialectProperties> customPropertySet;
         private static PersistenceSupport<DeviceProtocolDialectPropertyProvider, MyDialectProperties> persistenceSupport;
-
-        private interface State {
-            DeviceProtocolDialect getProtocolDialect();
-            PropertySpec getPropertySpec();
-            ValueFactory getValueFactory();
-        }
-
         private static State actual;
 
         public SharedData() {
@@ -444,6 +426,14 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         void invalidate() {
             actual = null;
         }
+
+        private interface State {
+            DeviceProtocolDialect getProtocolDialect();
+
+            PropertySpec getPropertySpec();
+
+            ValueFactory getValueFactory();
+        }
     }
 
     public static class MyDeviceProtocolPluggableClass implements DeviceProtocol {
@@ -472,7 +462,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
 
         }
-
 
 
         @Override
@@ -526,25 +515,18 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
-        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        }
-
-        @Override
         public DeviceProtocolCache getDeviceCache() {
             return null;
         }
 
         @Override
-        public void setTime(Date timeToSet) {
-
+        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         }
 
         @Override
         public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
             return null;
         }
-
-
 
         @Override
         public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
@@ -557,13 +539,18 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
+        public void setTime(Date timeToSet) {
+
+        }
+
+        @Override
         public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
             return null;
         }
 
         @Override
-        public Set<DeviceMessageId> getSupportedMessages() {
-            return EnumSet.noneOf(DeviceMessageId.class);
+        public List<DeviceMessageSpec> getSupportedMessages() {
+            return Collections.emptyList();
         }
 
         @Override
@@ -577,7 +564,12 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
-        public String format(PropertySpec propertySpec, Object messageAttribute) {
+        public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+            return null;
+        }
+
+        @Override
+        public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
             return null;
         }
 
@@ -631,6 +623,17 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         @Override
         public CollectedCalendar getCollectedCalendar() {
             return null;
+        }
+    }
+
+    private class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
