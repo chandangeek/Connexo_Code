@@ -5,7 +5,6 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.support.ConnectionTypeSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceProtocolDialectSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
 
@@ -15,7 +14,7 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
  */
 @ProviderType
 public interface DeviceProtocol extends Pluggable, DeviceProtocolDialectSupport,
-        DeviceTopologySupport, DeviceMessageSupport, DeviceSecuritySupport, ConnectionTypeSupport, com.energyict.mdc.upl.DeviceProtocol {
+        DeviceTopologySupport, DeviceSecuritySupport, ConnectionTypeSupport, com.energyict.mdc.upl.DeviceProtocol {
 
     /**
      * Initializes the DeviceProtocol.
@@ -27,6 +26,6 @@ public interface DeviceProtocol extends Pluggable, DeviceProtocolDialectSupport,
      * @param offlineDevice contains the complete definition/configuration of a Device
      * @param comChannel    the used ComChannel where all read/write actions are going to be performed
      */
-    public void init(final OfflineDevice offlineDevice, ComChannel comChannel);
+    void init(final OfflineDevice offlineDevice, ComChannel comChannel);
 
 }

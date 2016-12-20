@@ -3,8 +3,8 @@ package com.energyict.mdc.protocol.api.inbound;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import javax.servlet.http.HttpServletRequest;

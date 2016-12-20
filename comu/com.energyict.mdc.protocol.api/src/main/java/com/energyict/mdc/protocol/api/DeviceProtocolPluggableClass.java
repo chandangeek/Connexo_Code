@@ -3,12 +3,14 @@ package com.energyict.mdc.protocol.api;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Models a {@link DeviceProtocol} that was registered in the HeadEnd as a {@link PluggableClass}.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/07/12
  * Time: 8:58
@@ -21,18 +23,19 @@ public interface DeviceProtocolPluggableClass extends PluggableClass {
      *
      * @return The DeviceProtocol version
      */
-    String getVersion ();
+    String getVersion();
 
-    DeviceProtocol getDeviceProtocol ();
+    DeviceProtocol getDeviceProtocol();
 
-    TypedProperties getProperties ();
+    TypedProperties getProperties();
 
     default boolean supportsFileManagement() {
-        Set<DeviceMessageId> fileMessages = DeviceMessageId.fileManagementRelated();
+        Set<Long> fileMessages = DeviceMessageId.fileManagementRelated().stream().map(DeviceMessageId::dbValue).collect(Collectors.toSet());
+
         return this.getDeviceProtocol()
                 .getSupportedMessages()
                 .stream()
+                .map(DeviceMessageSpec::getMessageId)
                 .anyMatch(fileMessages::contains);
     }
-
 }

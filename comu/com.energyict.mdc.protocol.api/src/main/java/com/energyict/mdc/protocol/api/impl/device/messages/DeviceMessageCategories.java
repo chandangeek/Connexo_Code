@@ -2,17 +2,12 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Serves as a implementation to summarize <b>all</b> the supported standard
@@ -396,16 +391,6 @@ public enum DeviceMessageCategories implements TranslationKey {
 
     public abstract List<DeviceMessageSpec> getMessageSpecifications(DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus);
 
-    protected List<DeviceMessageSpec> wrapAll(PropertySpecService propertySpecService, Thesaurus thesaurus, DeviceMessageCategory category, DeviceMessageSpecEnum... deviceMessageSpecs) {
-        return Arrays.stream(deviceMessageSpecs).
-                map(deviceMessageSpec -> this.wrap(category, deviceMessageSpec, propertySpecService, thesaurus)).
-                collect(Collectors.toList());
-    }
-
-    private DeviceMessageSpec wrap(DeviceMessageCategory category, DeviceMessageSpecEnum baseSpec, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        return new DeviceMessageSpecImpl(baseSpec, category, propertySpecService, thesaurus);
-    }
-
     @Override
     public String getKey() {
         return getNameResourceKey();
@@ -414,47 +399,6 @@ public enum DeviceMessageCategories implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return defaultTranslation;
-    }
-
-
-    private class DeviceMessageSpecImpl implements DeviceMessageSpec {
-        private final DeviceMessageSpecEnum baseSpec;
-        private final DeviceMessageCategory category;
-        private final PropertySpecService propertySpecService;
-        private final Thesaurus thesaurus;
-
-        private DeviceMessageSpecImpl(DeviceMessageSpecEnum baseSpec, DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super();
-            this.baseSpec = baseSpec;
-            this.category = category;
-            this.propertySpecService = propertySpecService;
-            this.thesaurus = thesaurus;
-        }
-
-        @Override
-        public String getName() {
-            return this.thesaurus.getFormat(this.baseSpec).format();
-        }
-
-        @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return this.baseSpec.getPropertySpecs(this.propertySpecService, this.thesaurus);
-        }
-
-        @Override
-        public Optional<PropertySpec> getPropertySpec(String name) {
-            return this.baseSpec.getPropertySpec(name, this.propertySpecService, this.thesaurus);
-        }
-
-        @Override
-        public DeviceMessageId getId() {
-            return this.baseSpec.getId();
-        }
-
-        @Override
-        public DeviceMessageCategory getCategory() {
-            return this.category;
-        }
     }
 
 }

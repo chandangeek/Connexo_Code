@@ -4,6 +4,7 @@ import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.Device;
 
 import java.time.Instant;
@@ -14,7 +15,7 @@ import java.util.Optional;
  * The lifecycle of a DeviceMessage is as following:
  * <ol>
  * <li>{@link DeviceMessageStatus#WAITING}</li>
- * <li>{@link DeviceMessageStatus#PENDING} or {@link DeviceMessageStatus#REVOKED}</li>
+ * <li>{@link DeviceMessageStatus#PENDING} or {@link DeviceMessageStatus#CANCELED}</li>
  * <li>{@link DeviceMessageStatus#SENT}</li>
  * <li>{@link DeviceMessageStatus#CONFIRMED}, {@link DeviceMessageStatus#FAILED} or {@link DeviceMessageStatus#INDOUBT}</li>
  * </ol>
