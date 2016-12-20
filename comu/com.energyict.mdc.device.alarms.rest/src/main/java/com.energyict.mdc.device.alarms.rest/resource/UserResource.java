@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.rest.response.PagedInfoListCustomized;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -24,6 +25,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.Collections;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -62,7 +64,7 @@ public class UserResource extends BaseAlarmResource{
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM,Privileges.Constants.ASSIGN_ALARM,Privileges.Constants.CLOSE_ALARM,Privileges.Constants.COMMENT_ALARM,Privileges.Constants.ACTION_ALARM})
-    public Response getAssignee(@PathParam("id") long id){
+    public PagedInfoList getAssignee(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters){
         IssueAssignee assignee = getIssueService().findIssueAssignee(id, null);
         if (assignee.getUser() == null) {
             //Takes care of Unassigned issues which would have userId of "-1"
@@ -73,7 +75,8 @@ public class UserResource extends BaseAlarmResource{
             //Not unassigned, so this user really doesn't exist
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return Response.ok().entity(new IdWithNameInfo(assignee.getId(), assignee.getName())).build();
+        IdWithNameInfo user = new IdWithNameInfo(assignee.getId(), assignee.getName());
+        return PagedInfoList.fromCompleteList("data", Collections.singletonList(user), queryParameters);
     }
 
 }

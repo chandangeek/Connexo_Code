@@ -244,6 +244,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
 
         when(event.getEventRecord()).thenReturn(eventRecord);
         when(eventRecord.getCreateTime()).thenReturn(now);
+        when(eventRecord.getCreatedDateTime()).thenReturn(now);
         when(eventRecord.getLogBookId()).thenReturn(1L);
         when(logBookService.findById(anyLong())).thenReturn(Optional.of(logBook));
         when(logBook.getId()).thenReturn(1L);
