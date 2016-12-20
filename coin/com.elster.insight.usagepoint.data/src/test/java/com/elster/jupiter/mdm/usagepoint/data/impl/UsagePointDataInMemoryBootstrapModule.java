@@ -37,6 +37,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -96,6 +97,9 @@ public class UsagePointDataInMemoryBootstrapModule {
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
+            injector.getInstance(UsagePointLifeCycleConfigurationService.class)
+                    .newUsagePointLifeCycle("Default life cycle")
+                    .markAsDefault();
             injector.getInstance(UsagePointConfigurationService.class);
             injector.getInstance(UsagePointDataModelService.class);
             ctx.commit();
