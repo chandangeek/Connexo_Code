@@ -11,12 +11,14 @@ Ext.define('Imt.usagepointhistory.controller.History', {
     stores: [
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint',
-        'Imt.usagepointmanagement.store.CalendarHistory'
+        'Imt.usagepointmanagement.store.CalendarHistory',
+        'Imt.usagepointhistory.store.LifeCycleAndState'
     ],
     views: [
         'Imt.usagepointhistory.view.Overview',
         'Imt.usagepointhistory.view.VersionsOverview',
-        'Imt.usagepointhistory.view.CalendarsVersionsOverview'
+        'Imt.usagepointhistory.view.CalendarsVersionsOverview',
+        'Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState'
     ],
     refs: [
         {
@@ -31,6 +33,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         me.control({
             '#usage-point-history #usage-point-history-tab-panel': {
                 beforetabchange: me.onBeforeHistoryTabChange
+            },
+            'life-cycle-and-state actioncolumn': {
+                abortTransition: me.abortTransition
             }
         });
     },
@@ -50,12 +55,12 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 customAttributesStore.load(function () {
                     var widget, tabPanel;
 
-                    widget =  Ext.widget('usage-point-history', {
+                    widget = Ext.widget('usage-point-history', {
                         itemId: 'usage-point-history',
                         router: router,
                         usagePoint: usagePoint
                     });
-                    app.fireEvent('changecontentevent',widget);
+                    app.fireEvent('changecontentevent', widget);
                     viewport.setLoading(false);
                     tabPanel = widget.down('#usage-point-history-tab-panel');
                     tabPanel.fireEvent('beforetabchange', tabPanel, tabPanel.getActiveTab(), undefined, undefined, true);
@@ -74,6 +79,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),
+            lifeCycleAndStateStore = me.getStore('Imt.usagepointhistory.store.LifeCycleAndState'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             calendarStore = me.getStore('Imt.usagepointmanagement.store.CalendarHistory'),
             usagePointId = router.arguments.usagePointId,
@@ -95,13 +101,30 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 ui: 'medium',
                 padding: 0
             });
+        }
+        if (!customAttributeSetId) {
+            if (router.queryParams.customAttributeSetId) {
+                delete router.queryParams.customAttributeSetId;
+                url = router.getRoute().buildUrl(router.arguments, router.queryParams);
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
+                window.location.replace(url);
+            }
+            lifeCycleAndStateStore.getProxy().setParams(usagePointId);
+            Ext.suspendLayouts();
+            cardView = newCard.add({
+                xtype: 'life-cycle-and-state',
+                itemId: 'life-cycle-and-state',
+                margin: '10 0 0 0'
+            });
+            Ext.resumeLayouts(true);
+            lifeCycleAndStateStore.load();
         } else {
             if (customAttributeSetId != router.queryParams.customAttributeSetId) {
                 router.queryParams.customAttributeSetId = customAttributeSetId;
                 url = router.getRoute().buildUrl(router.arguments, router.queryParams);
                 Uni.util.History.setParsePath(false);
                 Uni.util.History.suspendEventsForNextCall();
-                router.queryParams.customAttributeSetId = customAttributeSetId;
                 delete router.queryParams.selectCurrent;
                 if (isInit) {
                     window.location.replace(url);
@@ -109,11 +132,8 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                     window.location.href = url;
                 }
             }
-
-        versionsStore.getProxy().setParams(usagePointId, customAttributeSetId);
-
+            versionsStore.getProxy().setParams(usagePointId, customAttributeSetId);
             Ext.suspendLayouts();
-
             cardView = newCard.add({
                 xtype: 'custom-attribute-set-versions-overview',
                 itemId: 'custom-attribute-set-versions-setup-id',
@@ -129,20 +149,19 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 onVersionsStoreLoad = function () {
                     var currentVersion = versionsStore.find('isActive', true);
 
-                if (cardView.rendered) {
-                    cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
-                }
-            };
-            versionsStore.on('load', onVersionsStoreLoad, me);
-            cardView.on('destroy', function () {
-                versionsStore.un('load', onVersionsStoreLoad, me);
-            });
-        }
-
-        attributeSetModel.getProxy().setExtraParam('usagePointId', usagePointId);
-        attributeSetModel.load(customAttributeSetId, {
-            success: function (record) {
-                var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
+                    if (cardView.rendered) {
+                        cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
+                    }
+                };
+                versionsStore.on('load', onVersionsStoreLoad, me);
+                cardView.on('destroy', function () {
+                    versionsStore.un('load', onVersionsStoreLoad, me);
+                });
+            }
+            attributeSetModel.getProxy().setExtraParam('usagePointId', usagePointId);
+            attributeSetModel.load(customAttributeSetId, {
+                success: function (record) {
+                    var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
 
                 if (newCard.rendered) {
                     Ext.suspendLayouts();
@@ -169,5 +188,28 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 }
         });
         }
+    },
+
+    abortTransition: function (record) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        record.getProxy().setParams(router.arguments.usagePointId);
+        Ext.create('Uni.view.window.Confirmation', {confirmText: Uni.I18n.translate('general.abort', 'IMT', 'Abort')}).show({
+            title: Uni.I18n.translate('usagePointHistory.abortTransitionTitle', 'IMT', "Abort state change from '{0}' to '{1}'?", [record.get('fromStateName'), record.get('toStateName')]),
+            msg: Uni.I18n.translate('usagePointHistory.abortTransitionMsg', 'IMT', 'The scheduled state change will be aborted.'),
+            config: {
+                record: record
+            },
+            fn: function (action) {
+                if (action == 'confirm') {
+                    record.save({
+                        success: function () {
+                            router.getRoute().forward();
+                        }
+                    });
+                }
+            }
+        });
     }
 });
