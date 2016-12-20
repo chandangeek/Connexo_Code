@@ -108,13 +108,12 @@ Ext.define('Uni.util.ReadingsGraph', {
                         if (typeof(e.rangeSelectorButton) !== 'undefined') {
                             var grid = Ext.ComponentQuery.query('grid')[0],
                                 record = grid.getSelectionModel().getLastSelected(),
-                                intervalEnd = record.get('interval_end').getTime(),
+                                interval = record.get('interval'),
+                                centerOfInterval = interval.start + (interval.end - interval.start) / 2,
                                 xAxis = graphView.chart.xAxis[0],
                                 range = e.max - e.min;
 
-                            if (!(intervalEnd > e.min && intervalEnd < e.max)) {
-                                xAxis.setExtremes(intervalEnd - range / 2, intervalEnd + range / 2);
-                            }
+                            xAxis.setExtremes(centerOfInterval - range / 2, centerOfInterval + range / 2);
                         }
                     }
                 }
