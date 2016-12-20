@@ -43,7 +43,7 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
                 .map(SearchablePropertyCondition::getProperty)
                 .map(SearchableDeviceProperty.class::cast)
                 .forEach(p -> p.appendJoinClauses(this));
-        this.joins.stream().forEach(each -> each.appendTo(this.underConstruction));
+        this.joins.forEach(each -> each.appendTo(this.underConstruction));
     }
 
     private void appendWhereClauses() {
