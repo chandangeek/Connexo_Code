@@ -14,8 +14,8 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;

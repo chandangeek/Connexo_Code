@@ -35,15 +35,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -57,12 +54,15 @@ import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
@@ -86,7 +86,6 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -147,7 +146,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .plusSeconds(10), null, deviceMessageCategoryDeviceActions);
         DeviceMessage command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "15", "Jeff", created
                 .minusSeconds(5), created.plusSeconds(5), sent, deviceMessageCategoryClock);
-        when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
+        when(device.getMessages()).thenReturn(Arrays.asList(command1, command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         when(serviceCallService.getServiceCall(14L)).thenReturn(Optional.empty());
         ServiceCall serviceCall = mock(ServiceCall.class);
@@ -161,7 +160,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> messages = mockMessages(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(messages);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -212,7 +212,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> messages = mockMessages(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(messages);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -242,7 +243,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .minusSeconds(10), null, deviceMessageCategoryDeviceActions);
         DeviceMessage command4 = mockCommand(device, 4L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "14", "Jeff", created, created
                 .minusSeconds(20), null, deviceMessageCategoryDeviceActions);
-        when(device.getMessages()).thenReturn(Arrays.asList(command1,command2, command3, command4));
+        when(device.getMessages()).thenReturn(Arrays.asList(command1, command2, command3, command4));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
@@ -253,7 +254,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> messages = mockMessages(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(messages);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -277,7 +279,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .plusSeconds(10), null, deviceMessageCategoryDeviceActions);
         DeviceMessage command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "15", "Jeff", created
                 .minusSeconds(5), null, sent, deviceMessageCategoryClock);
-        when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
+        when(device.getMessages()).thenReturn(Arrays.asList(command1, command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
@@ -288,7 +290,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> messages = mockMessages(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(messages);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -323,7 +326,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CLOCK_SET_TIME, DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> messages = mockMessages(DeviceMessageId.CLOCK_SET_TIME, DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(messages);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -369,7 +373,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> messages = mockMessages(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(messages);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -407,7 +412,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
         when(deviceConfiguration
                 .getEnabledAndAuthorizedDeviceMessageSpecsIn(contactorCategory))
-            .thenReturn(Arrays.asList(deviceMessageSpec2, deviceMessageSpec1));
+                .thenReturn(Arrays.asList(deviceMessageSpec2, deviceMessageSpec1));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, true, true);
@@ -465,7 +470,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> messages = mockMessages(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(messages);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -489,6 +495,16 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageSpecs[0].properties[0].required")).isEqualTo(true);
     }
 
+    private List<com.energyict.mdc.upl.messages.DeviceMessageSpec> mockMessages(DeviceMessageId... deviceMessageIds) {
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> result = new ArrayList<>();
+        for (DeviceMessageId deviceMessageId : deviceMessageIds) {
+            com.energyict.mdc.upl.messages.DeviceMessageSpec spec = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(spec.getMessageId()).thenReturn(deviceMessageId.dbValue());
+            result.add(spec);
+        }
+        return result;
+    }
+
     @Test
     public void testCreateDeviceMessage() throws Exception {
 
@@ -501,12 +517,12 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessageBuilder.add()).thenReturn(deviceMessage);
         when(device.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN)).thenReturn(deviceMessageBuilder);
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
-        deviceMessageInfo.releaseDate=Instant.now();
-        deviceMessageInfo.messageSpecification=new DeviceMessageSpecInfo();
-        deviceMessageInfo.messageSpecification.id="CONTACTOR_OPEN";
-        deviceMessageInfo.properties=new ArrayList<>();
+        deviceMessageInfo.releaseDate = Instant.now();
+        deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
+        deviceMessageInfo.messageSpecification.id = "CONTACTOR_OPEN";
+        deviceMessageInfo.properties = new ArrayList<>();
         deviceMessageInfo.properties.add(new PropertyInfo("ID", "ID", new PropertyValueInfo<>(123L, null, null, true), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
-        deviceMessageInfo.properties.add(new PropertyInfo("Time","Time",new PropertyValueInfo<>(1414067539213L, null, null, true),new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
+        deviceMessageInfo.properties.add(new PropertyInfo("Time", "Time", new PropertyValueInfo<>(1414067539213L, null, null, true), new PropertyTypeInfo(SimplePropertyType.CLOCK, null, null, null), true));
         Response response = target("/devices/ZABF010000080004/devicemessages").request().post(Entity.json(deviceMessageInfo));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -532,7 +548,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage msg1 = mock(DeviceMessage.class);
         when(msg1.getId()).thenReturn(1L);
         when(msg1.getSpecification()).thenReturn(deviceMessageSpecification);
-        DeviceMessage msg2 = mockCommand(device, 2L, DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, "spec", "error", DeviceMessageStatus.REVOKED, "13333", "admin", null, null, null, deviceMessageCategoryActivityCalendar);
+        DeviceMessage msg2 = mockCommand(device, 2L, DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, "spec", "error", DeviceMessageStatus.CANCELED, "13333", "admin", null, null, null, deviceMessageCategoryActivityCalendar);
         when(deviceMessageService.findDeviceMessageById(2)).thenReturn(Optional.of(msg2));
         when(deviceMessageService.findAndLockDeviceMessageByIdAndVersion(2, 1L)).thenReturn(Optional.of(msg2));
 
@@ -545,8 +561,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
 
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
-        deviceMessageInfo.status=new DeviceMessageInfo.StatusInfo();
-        deviceMessageInfo.status.value = DeviceMessageStatusTranslationKeys.REVOKED.getDeviceMessageStatus().name();
+        deviceMessageInfo.status = new DeviceMessageInfo.StatusInfo();
+        deviceMessageInfo.status.value = DeviceMessageStatusTranslationKeys.CANCELED.getDeviceMessageStatus().name();
         deviceMessageInfo.version = 1L;
         deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
         deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
@@ -623,7 +639,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
-        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.REVOKED);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
         when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
         when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getDevice()).thenReturn(device);
@@ -795,17 +811,12 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         }
 
         @Override
-        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-
-        }
-
-        @Override
         public DeviceProtocolCache getDeviceCache() {
             return null;
         }
 
         @Override
-        public void setTime(Date timeToSet) {
+        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
 
         }
 
@@ -825,13 +836,18 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         }
 
         @Override
+        public void setTime(Date timeToSet) {
+
+        }
+
+        @Override
         public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
             return null;
         }
 
         @Override
-        public Set<DeviceMessageId> getSupportedMessages() {
-            return deviceMessageIds;
+        public List<com.energyict.mdc.upl.messages.DeviceMessageSpec> getSupportedMessages() {
+            return deviceMessageIds.stream().map(deviceMessageId -> new TestDeviceMessageSpecImpl(deviceMessageId.dbValue())).collect(Collectors.toList());
         }
 
         @Override
@@ -845,7 +861,12 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         }
 
         @Override
-        public String format(PropertySpec propertySpec, Object messageAttribute) {
+        public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+            return null;
+        }
+
+        @Override
+        public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
             return null;
         }
 

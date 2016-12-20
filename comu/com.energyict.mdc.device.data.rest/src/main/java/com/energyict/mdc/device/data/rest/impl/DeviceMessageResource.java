@@ -17,8 +17,8 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -145,7 +144,7 @@ public class DeviceMessageResource {
     public DeviceMessageInfo updateDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         deviceMessageInfo.id = deviceMessageId;
         DeviceMessage deviceMessage = resourceHelper.lockDeviceMessageOrThrowException(deviceMessageInfo);
-        if (deviceMessageInfo.status != null && DeviceMessageStatus.REVOKED.name().equals(deviceMessageInfo.status.value)) {
+        if (deviceMessageInfo.status != null && DeviceMessageStatus.CANCELED.name().equals(deviceMessageInfo.status.value)) {
             deviceMessage.revoke();
         }
         if (!is(deviceMessage.getReleaseDate()).equalTo(deviceMessageInfo.releaseDate)) {
@@ -157,12 +156,15 @@ public class DeviceMessageResource {
     }
 
     private boolean hasCommandsWithPrivileges (Device device) {
-        Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet());
+        List<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .map(DeviceMessageId::havingId)
+                        .collect(Collectors.toList())).orElse(Collections.emptyList());
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
         return deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
-                .flatMap(category->
+                .flatMap(category ->
                         category.getMessageSpecifications()
                                 .stream()
                                 .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol

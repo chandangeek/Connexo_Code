@@ -49,14 +49,14 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.jayway.jsonpath.JsonModel;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -66,6 +66,12 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -78,18 +84,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -114,7 +113,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static DeviceProtocol deviceProtocol;
     private static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
-    private static EnumSet<DeviceMessageId> deviceMessageIds;
+    private static List<DeviceMessageSpec> deviceMessageIds;
     private static PartialScheduledConnectionTaskImpl as1440WithoutProperties;
     private static PartialScheduledConnectionTaskImpl as1440WithProperties;
     private static OutboundComPortPool whirlpool;
@@ -191,12 +190,26 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     public static void initializeMocks() {
         try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
 
-            deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
-                    DeviceMessageId.CONTACTOR_OPEN,
-                    DeviceMessageId.CONTACTOR_ARM,
-                    DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT,
-                    DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
-                    DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
+            deviceMessageIds = new ArrayList<>();
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec0 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec0.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+            deviceMessageIds.add(deviceMessageSpec0);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+            deviceMessageIds.add(deviceMessageSpec1);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+            deviceMessageIds.add(deviceMessageSpec2);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec3.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
+            deviceMessageIds.add(deviceMessageSpec3);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec4.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+            deviceMessageIds.add(deviceMessageSpec4);
+            com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+            when(deviceMessageSpec5.getMessageId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
+            deviceMessageIds.add(deviceMessageSpec5);
+
             when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
             AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
             int anySecurityLevel = 0;
@@ -227,6 +240,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             context.commit();
         }
     }
+
     @AfterClass
     public static void resetClock() {
         initializeClock();
@@ -506,7 +520,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
-        Response response = target("/devices/AGENT011/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        Response response = target("/devices/AGENT011/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
         assertThat(agent).isPresent();
@@ -549,7 +563,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
                 new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
-        Response response = target("/devices/AGENT012/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        Response response = target("/devices/AGENT012/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
         assertThat(agent).isPresent();
@@ -589,7 +603,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", true, null),
                 new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
 
-        Response response = target("/devices/AGENT013/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        Response response = target("/devices/AGENT013/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
         assertThat(agent).isPresent();
@@ -665,7 +679,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
-        Response response = target("/devices/AGENT015/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        Response response = target("/devices/AGENT015/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
         assertThat(agent).isPresent();
@@ -706,7 +720,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
-        Response response = target("/devices/AGENT016/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        Response response = target("/devices/AGENT016/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("connectionTaskProperty.required");
@@ -745,7 +759,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.properties = new ArrayList<>();
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, true, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
-        Response response = target("/devices/AGENT017/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        Response response = target("/devices/AGENT017/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("connectionTaskProperty.required");
@@ -784,7 +798,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(4096, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
-        Response response = target("/devices/AGENT018/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        Response response = target("/devices/AGENT018/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("connectionTaskProperty.required");
@@ -823,7 +837,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         info.properties.add(new PropertyInfo("ipAddress", "ipAddress", new PropertyValueInfo<Object>("10.10.10.1", null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.TEXT, null, null, null), true));
         info.properties.add(new PropertyInfo("port", "port", new PropertyValueInfo<Object>(null, null, null), new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true));
 
-        Response response = target("/devices/AGENT019/connectionmethods/"+scheduledConnectionTask.getId()).request().put(Entity.json(info));
+        Response response = target("/devices/AGENT019/connectionmethods/" + scheduledConnectionTask.getId()).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         Optional<Device> agent = inMemoryPersistence.getDeviceService().findByUniqueMrid(device.getmRID());
         assertThat(agent).isPresent();

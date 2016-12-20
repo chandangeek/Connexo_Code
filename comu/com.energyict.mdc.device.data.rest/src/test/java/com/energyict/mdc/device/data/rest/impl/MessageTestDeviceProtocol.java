@@ -8,10 +8,8 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -20,12 +18,16 @@ import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -38,7 +40,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Insert your comments here.
@@ -47,6 +49,7 @@ import java.util.Set;
  * @since 2016-01-06 (16:23)
  */
 public class MessageTestDeviceProtocol implements DeviceProtocol {
+
     private EnumSet<DeviceMessageId> deviceMessageIds =
             EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
                     DeviceMessageId.CONTACTOR_OPEN,
@@ -134,17 +137,12 @@ public class MessageTestDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-
-    }
-
-    @Override
     public DeviceProtocolCache getDeviceCache() {
         return null;
     }
 
     @Override
-    public void setTime(Date timeToSet) {
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
 
     }
 
@@ -164,13 +162,18 @@ public class MessageTestDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
+    public void setTime(Date timeToSet) {
+
+    }
+
+    @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         return null;
     }
 
     @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
-        return deviceMessageIds;
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return deviceMessageIds.stream().map(deviceMessageId -> new TestDeviceMessageSpecImpl(deviceMessageId.dbValue())).collect(Collectors.toList());
     }
 
     @Override
@@ -184,7 +187,12 @@ public class MessageTestDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return null;
+    }
+
+    @Override
+    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return null;
     }
 

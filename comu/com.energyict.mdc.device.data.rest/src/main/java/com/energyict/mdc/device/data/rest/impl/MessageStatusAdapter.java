@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.util.stream.Stream;
 
