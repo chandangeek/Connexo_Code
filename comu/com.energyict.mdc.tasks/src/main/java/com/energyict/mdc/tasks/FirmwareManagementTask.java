@@ -1,6 +1,6 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 
 /**
  * Models the protocol task that can upgrade the firmware of a Device
