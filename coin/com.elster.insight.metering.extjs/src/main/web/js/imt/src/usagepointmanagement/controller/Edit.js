@@ -35,7 +35,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         'Imt.usagepointmanagement.store.measurementunits.Pressure',
         'Imt.usagepointmanagement.store.measurementunits.Capacity',
         'Imt.usagepointmanagement.store.measurementunits.EstimationLoad',
-        'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'
+        'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations',
+        'Imt.usagepointmanagement.store.MeterActivations'
     ],
 
     refs: [
@@ -148,7 +149,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             if (stepView.xtype === 'cps-info-form') {
                 validationParams.customPropertySetId = stepView.getRecord().getId();
             } else {
-                validationParams.step = currentStep;
+                validationParams.step = stepView.stepName;
             }
             me.doRequest({
                 params: validationParams,
@@ -232,6 +233,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 title: Uni.I18n.translate('usagepoint.wizard.step2title', 'IMT', 'Step 2: Technical information'),
                 itemId: 'add-usage-point-step2',
                 navigationIndex: 2,
+                stepName: 'techInfo',
                 ui: 'large',
                 isWizardStep: true,
                 predefinedRecord: Ext.create(category.model),
@@ -269,6 +271,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 xtype: 'cps-info-form',
                 title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, record.get('name')]),
                 navigationIndex: stepNumber,
+                stepName: 'casInfo',
                 itemId: 'add-usage-point-step' + stepNumber,
                 ui: 'large',
                 isWizardStep: true,
@@ -292,6 +295,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             xtype: 'metrology-configuration-with-meters-info-form',
             title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, title]),
             navigationIndex: stepNumber,
+            stepName: 'metrologyConfigurationWithMetersInfo',
             itemId: 'add-usage-point-step' + stepNumber,
             ui: 'large',
             isWizardStep: true
@@ -305,7 +309,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         var me = this,
             wizard = me.getWizard(),
             record = wizard.getRecord(),
-            linkMetrologyConfigurationWithMetersStep = wizard.down('metrology-configuration-with-meters-info-form');
+            linkMetrologyConfigurationWithMetersStep = wizard.down('metrology-configuration-with-meters-info-form'),
+            metrologyConfigurationCombo = linkMetrologyConfigurationWithMetersStep.down('#metrology-configuration-combo');
 
         wizard.setLoading();
         Ext.Ajax.request({
@@ -313,10 +318,15 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             method: 'POST',
             jsonData: record.getProxy().getWriter().getRecordData(record),
             success: function (response) {
-                var availableMetrologyConfigurations = Ext.decode(response.responseText);
+                var linkableMetrologyConfigurationsStore = me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'),
+                    availableMetrologyConfigurations = Ext.decode(response.responseText),
+                    currentMetrologyConfiguration = metrologyConfigurationCombo ? metrologyConfigurationCombo.getValue() : null;
 
-                linkMetrologyConfigurationWithMetersStep.prepareStep(!Ext.isEmpty(availableMetrologyConfigurations));
-                me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations').loadData(availableMetrologyConfigurations);
+                linkMetrologyConfigurationWithMetersStep.usagePoint = record;
+                linkableMetrologyConfigurationsStore.loadData(availableMetrologyConfigurations);
+                if (!currentMetrologyConfiguration || !linkableMetrologyConfigurationsStore.getById(currentMetrologyConfiguration.id)) {
+                    linkMetrologyConfigurationWithMetersStep.prepareStep(!Ext.isEmpty(availableMetrologyConfigurations));
+                }
             },
             callback: function () {
                 wizard.setLoading(false)

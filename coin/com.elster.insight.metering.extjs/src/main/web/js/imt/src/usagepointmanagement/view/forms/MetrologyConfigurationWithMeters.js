@@ -1,7 +1,13 @@
 Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters', {
     extend: 'Ext.form.Panel',
     alias: 'widget.metrology-configuration-with-meters-info-form',
-    requires: [],
+    requires: [
+        'Uni.form.field.ComboReturnedRecordData',
+        'Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMetersInfo',
+        'Imt.metrologyconfiguration.model.MetrologyConfiguration'
+    ],
+
+    usagePoint: null,
 
     initComponent: function () {
         var me = this;
@@ -27,14 +33,18 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
 
     prepareStep: function (hasAvailableMetrologyConfigurations) {
         var me = this,
-            metrologyConfigurationContainer = me.down('#metrology-configuration-container');
+            metrologyConfigurationContainer = me.down('#metrology-configuration-container'),
+            metrologyConfigurationInfo = me.down('#metrology-configuration-with-meters-info');
 
         Ext.suspendLayouts();
         metrologyConfigurationContainer.removeAll();
+        if (metrologyConfigurationInfo) {
+            metrologyConfigurationInfo.destroy();
+        }
         if (hasAvailableMetrologyConfigurations) {
             metrologyConfigurationContainer.add([
                 {
-                    xtype: 'combobox',
+                    xtype: 'combo-returned-record-data',
                     name: 'id',
                     itemId: 'metrology-configuration-combo',
                     afterSubTpl: '<span class="field-additional-info" style="color: #686868; font-style: italic">'
@@ -46,6 +56,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                     queryMode: 'local',
                     forceSelection: true,
                     emptyText: Uni.I18n.translate('metrologyConfiguration.wizard.emptyText', 'IMT', 'Select metrology configuration...'),
+                    width: 320,
                     listeners: {
                         change: Ext.bind(me.onMetrologyConfigurationChange, me)
                     }
@@ -61,6 +72,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                     handler: Ext.bind(me.resetMetrologyConfiguration, me)
                 }
             ]);
+            me.add({
+                xtype: 'metrology-configuration-with-meters-info',
+                itemId: 'metrology-configuration-with-meters-info'
+            });
         } else {
             metrologyConfigurationContainer.add({
                 xtype: 'displayfield',
@@ -75,10 +90,32 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     },
 
     onMetrologyConfigurationChange: function (combo, newValue) {
-        var me = this;
+        var me = this,
+            metrologyConfigurationInfo = me.down('#metrology-configuration-with-meters-info'),
+            meterActivationsField = me.down('#meter-activations-field'),
+            purposesField = me.down('#purposes-field');
 
         Ext.suspendLayouts();
         me.down('#reset-metrology-configuration').setDisabled(!newValue);
+        if (!Ext.isEmpty(newValue)) {
+            meterActivationsField.show();
+            purposesField.show();
+            metrologyConfigurationInfo.setLoading();
+            Ext.ModelManager.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue.id, {
+                success: function (record) {
+                    Ext.suspendLayouts();
+                    meterActivationsField.setMeterRoles(record.get('meterRoles'), me.usagePoint.get('installationTime'));
+                    purposesField.setStore(record.metrologyContracts());
+                    Ext.resumeLayouts(true);
+                },
+                callback: function () {
+                    metrologyConfigurationInfo.setLoading(false);
+                }
+            });
+        } else {
+            meterActivationsField.hide();
+            purposesField.hide();
+        }
         Ext.resumeLayouts(true);
     },
 
@@ -86,5 +123,24 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
         var me = this;
 
         me.down('#metrology-configuration-combo').reset();
+    },
+
+    getRecord: function () {
+        var me = this,
+            metrologyConfigurationCombo = me.down('#metrology-configuration-combo'),
+            meterActivationsField = me.down('#meter-activations-field'),
+            purposesField = me.down('#purposes-field'),
+            metrologyConfiguration = metrologyConfigurationCombo ? metrologyConfigurationCombo.getValue() : null,
+            meterActivations = null;
+
+        if (metrologyConfiguration) {
+            metrologyConfiguration.purposes = purposesField.getValue();
+            meterActivations = meterActivationsField.getValue();
+        }
+
+        return {
+            metrologyConfiguration: metrologyConfiguration,
+            meterActivations: meterActivations
+        }
     }
 });

@@ -25,6 +25,7 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                 title: Uni.I18n.translate('usagepoint.wizard.step1title', 'IMT', 'Step 1: General information'),
                 isWizardStep: true,
                 navigationIndex: 1,
+                stepName: 'generalInfo',
                 ui: 'large',
                 isPossibleAdd: me.isPossibleAdd
             }
@@ -73,17 +74,21 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         var me = this,
             step = me.getLayout().getActiveItem();
 
-        switch (step.navigationIndex) {
-            case 1:
+        switch (step.stepName) {
+            case 'generalInfo':
                 me.callParent(arguments);
                 break;
-            case 2:
+            case 'techInfo':
                 step.updateRecord();
                 me.getRecord().set('techInfo', step.getRecord().getData());
                 break;
-            default:
+            case 'casInfo':
                 step.updateRecord();
                 me.getRecord().customPropertySets().add(step.getRecord());
+                break;
+            case 'metrologyConfigurationWithMetersInfo':
+                me.getRecord().set(step.getRecord());
+
         }
     },
 
