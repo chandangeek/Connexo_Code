@@ -11,7 +11,6 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @ProviderType
 public class DeviceAlarmFilter {
@@ -19,7 +18,7 @@ public class DeviceAlarmFilter {
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
-    private Optional<User> userAssignee = Optional.empty();
+    private List<User> userAssignee = new ArrayList<>();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
     private List<Boolean> cleared = new ArrayList<>();
@@ -36,7 +35,7 @@ public class DeviceAlarmFilter {
     }
 
     public void setUserAssignee(User userAssignee) {
-        this.userAssignee = Optional.of(userAssignee);
+        this.userAssignee.add(userAssignee);
     }
 
     public void setDevice(EndDevice device) {
@@ -57,7 +56,7 @@ public class DeviceAlarmFilter {
         }
     }
 
-    public Optional<User> getUserAssignee() {
+    public List<User> getUserAssignee() {
         return userAssignee;
     }
 
