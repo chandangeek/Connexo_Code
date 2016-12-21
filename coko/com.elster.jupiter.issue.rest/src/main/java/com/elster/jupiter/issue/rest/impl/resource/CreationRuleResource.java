@@ -169,10 +169,6 @@ public class CreationRuleResource extends BaseResource {
         if (rule.reason != null) {
             getIssueService().findReason(rule.reason.id).ifPresent(builder::setReason);
         }
-        if (rule.priority != null) {
-            builder.setPriority(Priority.get(rule.priority.urgency, rule.priority.impact));
-        }
-
     }
 
     private void setTemplate(CreationRuleInfo rule, CreationRuleBuilder builder) {
