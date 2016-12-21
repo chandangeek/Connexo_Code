@@ -207,6 +207,12 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
+    public void setPriority(Priority priority) {
+        if(priority!=null) {
+            this.setPriority(priority.getUrgency(), priority.getImpact());
+        }
+    }
+    @Override
     public List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents() {
         Optional<? extends DeviceAlarm> alarm;
         if (getStatus().isHistorical()) {
