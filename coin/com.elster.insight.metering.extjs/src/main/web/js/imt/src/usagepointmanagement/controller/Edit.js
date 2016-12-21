@@ -11,7 +11,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         'Imt.usagepointmanagement.view.forms.GasInfo',
         'Imt.usagepointmanagement.view.forms.WaterInfo',
         'Imt.usagepointmanagement.view.forms.ThermalInfo',
-        'Imt.usagepointmanagement.view.forms.CustomPropertySetInfo'
+        'Imt.usagepointmanagement.view.forms.CustomPropertySetInfo',
+        'Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters'
     ],
 
     models: [
@@ -33,7 +34,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         'Imt.usagepointmanagement.store.measurementunits.Volume',
         'Imt.usagepointmanagement.store.measurementunits.Pressure',
         'Imt.usagepointmanagement.store.measurementunits.Capacity',
-        'Imt.usagepointmanagement.store.measurementunits.EstimationLoad'
+        'Imt.usagepointmanagement.store.measurementunits.EstimationLoad',
+        'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'
     ],
 
     refs: [
@@ -81,6 +83,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             },
             '#add-usage-point add-usage-point-wizard button[action=add]': {
                 click: me.saveUsagePoint
+            },
+            '#add-usage-point metrology-configuration-with-meters-info-form': {
+                beforeshow: me.loadAvailableMetrologyConfigurations
             }
         });
     },
@@ -273,8 +278,49 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 text: record.get('name')
             });
         });
+        me.addLinkMetrologyConfigurationStep(stepsToAdd, navigationItemsToAdd, stepNumber);
         navigation.add(navigationItemsToAdd);
         wizard.add(stepsToAdd);
         Ext.resumeLayouts(true);
+    },
+
+    addLinkMetrologyConfigurationStep: function (stepsToAdd, navigationItemsToAdd, stepNumber) {
+        var title = Uni.I18n.translate('general.linkMetrologyConfiguration', 'IMT', 'Link metrology configuration');
+
+        stepNumber++;
+        stepsToAdd.push({
+            xtype: 'metrology-configuration-with-meters-info-form',
+            title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, title]),
+            navigationIndex: stepNumber,
+            itemId: 'add-usage-point-step' + stepNumber,
+            ui: 'large',
+            isWizardStep: true
+        });
+        navigationItemsToAdd.push({
+            text: title
+        });
+    },
+
+    loadAvailableMetrologyConfigurations: function () {
+        var me = this,
+            wizard = me.getWizard(),
+            record = wizard.getRecord(),
+            linkMetrologyConfigurationWithMetersStep = wizard.down('metrology-configuration-with-meters-info-form');
+
+        wizard.setLoading();
+        Ext.Ajax.request({
+            url: '/api/udr/field/metrologyconfigurations',
+            method: 'POST',
+            jsonData: record.getProxy().getWriter().getRecordData(record),
+            success: function (response) {
+                var availableMetrologyConfigurations = Ext.decode(response.responseText);
+
+                linkMetrologyConfigurationWithMetersStep.prepareStep(!Ext.isEmpty(availableMetrologyConfigurations));
+                me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations').loadData(availableMetrologyConfigurations);
+            },
+            callback: function () {
+                wizard.setLoading(false)
+            }
+        });
     }
 });
