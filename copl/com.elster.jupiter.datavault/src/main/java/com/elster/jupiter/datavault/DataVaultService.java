@@ -8,7 +8,4 @@ import com.elster.jupiter.orm.Encrypter;
 public interface DataVaultService extends Encrypter {
     public static final String COMPONENT_NAME = "DVA";
 
-    public String encrypt(byte[] decrypted);
-    public byte[] decrypt(String encrypted);
-
 }
