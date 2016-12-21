@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, UpgradeService upgradeService, BundleContext bundleContext) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, UpgradeService upgradeService, BundleContext bundleContext, Publisher publisher) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -140,6 +140,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
         setUpgradeService(upgradeService);
+        setPublisher(publisher);
         activate(bundleContext);
     }
 
