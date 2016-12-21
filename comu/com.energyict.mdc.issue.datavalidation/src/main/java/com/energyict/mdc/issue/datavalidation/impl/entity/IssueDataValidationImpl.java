@@ -232,6 +232,13 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
+    public void setPriority(Priority priority) {
+        if(priority!=null) {
+            this.setPriority(priority.getUrgency(), priority.getImpact());
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
