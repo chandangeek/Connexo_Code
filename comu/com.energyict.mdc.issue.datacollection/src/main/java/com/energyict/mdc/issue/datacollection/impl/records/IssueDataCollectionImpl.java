@@ -178,15 +178,8 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public void setPriority(long urgency, long impact) {
-        getBaseIssue().setPriority(urgency, impact);
-    }
-
-    @Override
     public void setPriority(Priority priority) {
-        if(priority!=null) {
-            this.setPriority(priority.getUrgency(), priority.getImpact());
-        }
+        getBaseIssue().setPriority(priority);
     }
 
     @Override
