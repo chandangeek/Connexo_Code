@@ -4,10 +4,8 @@ package com.elster.jupiter.issue.impl.database;
 import com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction;
 import com.elster.jupiter.issue.impl.actions.UnassignIssueAction;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -19,7 +17,6 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -83,7 +80,7 @@ public class UpgraderV10_3 implements Upgrader {
 
     private void upgradeOpenIssue(Connection connection) {
         String[] sqlStatements = { "ALTER TABLE ISU_ISSUE_HISTORY DROP COLUMN ASSIGNEE_TYPE",
-        "ALTER TABLE ISU_ISSUE_OPEN DROP COLUMN ASSIGNEE_TYPE"};
+        "ALTER TABLE ISU_ISSUE_OPEN DROP COLUMN ASSIGNEE_TYPE", "CREATE OR REPLACE VIEW ISU_ISSUE_ALL AS SELECT * FROM ISU_ISSUE_OPEN UNION SELECT * FROM ISU_ISSUE_HISTORY"};
         for (String sqlStatement : sqlStatements) {
             try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
                 statement.executeUpdate();
