@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.rest.response;
 
-import com.elster.jupiter.issue.share.entity.Priority;
+import com.elster.jupiter.issue.share.Priority;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
