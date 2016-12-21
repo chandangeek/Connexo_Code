@@ -9,7 +9,7 @@ import java.util.List;
 public interface DeviceMessage {
 
     /**
-     * Gets the globally unique identifier of this DeviceMessageSpec.
+     * Gets the globally unique identifier of the related DeviceMessageSpec.
      */
     long getMessageId();
 
