@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.command.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -68,6 +69,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     private volatile Clock clock;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile DataVaultService dataVaultService;
 
     private final DelayedRegistrationHandler delayedNotifications = new DelayedRegistrationHandler();
 
@@ -76,7 +78,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Inject
-    CommandRuleServiceImpl(OrmService ormService, NlsService nlsService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService, DeviceMessageSpecificationService deviceMessageSpecificationService, UpgradeService upgradeService, UserService userService, DualControlService dualControlService, Clock clock, DeviceMessageService deviceMessageService) {
+    CommandRuleServiceImpl(OrmService ormService, NlsService nlsService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService, DeviceMessageSpecificationService deviceMessageSpecificationService, UpgradeService upgradeService, UserService userService, DualControlService dualControlService, Clock clock, DeviceMessageService deviceMessageService, DataVaultService dataVaultService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
@@ -87,6 +89,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         setDualControlService(dualControlService);
         setClock(clock);
         setDeviceMessageService(deviceMessageService);
+        setDataVaultService(dataVaultService);
         activate(bundleContext);
     }
 
@@ -155,7 +158,10 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         LOGGER.info(() -> "Activating " + this.toString() + " from thread " + Thread.currentThread().getName());
         try {
             this.context = context;
-
+            dataModel = ormService.newDataModel(CommandRuleService.COMPONENT_NAME, "MultiSense Command limitation rule");
+            for (TableSpecs each : TableSpecs.values()) {
+                each.addTo(dataModel, dataVaultService);
+            }
             dataModel.register(new AbstractModule() {
                 @Override
                 protected void configure() {
@@ -168,6 +174,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                     bind(CommandRuleService.class).toInstance(commandRuleService);
                     bind(DualControlService.class).toInstance(dualControlService);
                     bind(DeviceMessageService.class).toInstance(deviceMessageService);
+                    bind(DataVaultService.class).toInstance(dataVaultService);
                 }
             });
 
@@ -188,10 +195,6 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     @Reference(name = "ZZZOrmService")
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
-        dataModel = ormService.newDataModel(CommandRuleService.COMPONENT_NAME, "MultiSense Command limitation rule");
-        for (TableSpecs each : TableSpecs.values()) {
-            each.addTo(dataModel);
-        }
     }
 
     @Reference(name = "AAANlsService")
@@ -231,6 +234,11 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     @Reference
     public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
         this.deviceMessageService = deviceMessageService;
+    }
+
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     @Override

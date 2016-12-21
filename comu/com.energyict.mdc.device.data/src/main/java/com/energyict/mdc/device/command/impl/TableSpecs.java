@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.command.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Encrypter;
 import com.elster.jupiter.orm.Table;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -22,7 +24,7 @@ public enum TableSpecs {
 
     CLR_CMDRULEPENDINGUPDATE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<CommandRulePendingUpdate> table = dataModel.addTable(name(), CommandRulePendingUpdate.class);
             table.since(version(10, 3));
             table.map(CommandRulePendingUpdateImpl.class);
@@ -38,6 +40,7 @@ public enum TableSpecs {
             table.column("ISACTIVATION").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISACTIVATION.fieldName()).add();
             table.column("ISDEACTIVATION").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISDEACTIVATION.fieldName()).add();
             table.column("ISREMOVAL").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISREMOVAL.fieldName()).add();
+            table.addMessageAuthenticationCodeColumn(encrypter);
 
             table.primaryKey("PK_CLR_CMDRULETPU").on(idColumn).add();
         }
@@ -45,7 +48,7 @@ public enum TableSpecs {
 
     CLR_COMMANDRULE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<CommandRule> table = dataModel.addTable(name(), CommandRule.class);
             table.since(version(10, 3));
             table.map(CommandRuleImpl.class);
@@ -60,6 +63,7 @@ public enum TableSpecs {
             table.column("ACTIVE").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRuleImpl.Fields.ACTIVE.fieldName()).add();
             Column commandRuleTemplate = table.column("COMMANDRULETEMPLATEID").number().add();
             Column monitor = table.column("MONITOR").number().add();
+            table.addMessageAuthenticationCodeColumn(encrypter);
 
             table.primaryKey("PK_CLR_COMMANDRULE").on(idColumn).add();
             table.unique("CLR_U_COMMANDRULE_NAME").on(nameColumn).add();
@@ -80,7 +84,7 @@ public enum TableSpecs {
 
     CLR_COMMANDINRULE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<CommandInRule> table = dataModel.addTable(name(), CommandInRule.class);
             table.since(version(10,3));
             table.map(CommandInRuleImpl.class);
@@ -89,6 +93,7 @@ public enum TableSpecs {
             table.column("COMMAND").number().conversion(ColumnConversion.NUMBER2INT).map(CommandInRuleImpl.Fields.COMMANDID.fieldName()).notNull().add();
             Column commandRule = table.column("COMMANDRULEID").number().add();
             Column commandRuleTemplate = table.column("COMMANDRULETEMPLATEID").number().add();
+            table.addMessageAuthenticationCodeColumn(encrypter);
 
             table.primaryKey("PK_CLR_CMDINRULE").on(idColumn).add();
             table.foreignKey("FK_CLR_CMDINRULE_CMDRULE").
@@ -112,7 +117,7 @@ public enum TableSpecs {
 
     CLR_COMMAND_RULE_STATS {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<CommandRuleStats> table = dataModel.addTable(name(), CommandRuleStats.class);
             table.since(version(10,3));
             table.map(CommandRuleStats.class);
@@ -120,6 +125,7 @@ public enum TableSpecs {
             Column idColumn = table.column("ID").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleStats.Fields.ID.fieldName()).notNull().add();
             table.column("NR_OF_COMMAND_RULES").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleStats.Fields.NR_OF_COMMAND_RULES.fieldName()).notNull().add();
             table.column("NR_OF_COUNTERS").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleStats.Fields.NR_OF_COUNTERS.fieldName()).notNull().add();
+            table.addMessageAuthenticationCodeColumn(encrypter);
 
             table.primaryKey("PK_COMMANDRULESTATS").on(idColumn).add();
         }
@@ -127,7 +133,7 @@ public enum TableSpecs {
 
     CLR_COMMAND_RULE_COUNTER {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel,Encrypter encrypter) {
             Table<CommandRuleCounter> table = dataModel.addTable(name(), CommandRuleCounter.class);
             table.since(version(10,3));
             table.map(CommandRuleCounter.class);
@@ -137,6 +143,7 @@ public enum TableSpecs {
             table.column("TOTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(CommandRuleCounter.Fields.TO.fieldName()).notNull().add();
             table.column("COUNT").number().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleCounter.Fields.COUNT.fieldName()).notNull().add();
             Column commandRule = table.column("COMMANDRULEID").number().notNull().add();
+            table.addMessageAuthenticationCodeColumn(encrypter);
 
             table.primaryKey("PK_CLR_CMDRULECOUNTER").on(idColumn).add();
             table.foreignKey("FK_CLR_COUNTER_RULE").
@@ -150,5 +157,5 @@ public enum TableSpecs {
         }
     };
 
-    abstract void addTo(DataModel dataModel);
+    abstract void addTo(DataModel dataModel, Encrypter encrypter);
 }
