@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.UserNames;
@@ -23,7 +22,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Provides a summary of all <i>Security</i> related messages
+ * Provides a summary of all <i>Security</i> related messages.
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/03/13
@@ -332,7 +331,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress),
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation).finish(),
                     this.passwordSpec(service, DeviceMessageConstants.masterKey, DeviceMessageConstants.masterKeyDefaultTranslation),
                     this.passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
                     this.passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)

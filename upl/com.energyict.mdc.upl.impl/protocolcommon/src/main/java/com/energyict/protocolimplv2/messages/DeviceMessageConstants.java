@@ -137,6 +137,7 @@ public final class DeviceMessageConstants {
     public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
     public static final String newWrappedAuthenticationKeyAttributeDefaultTranslation = "New wrapped authentication key";
     public static final String clientMacAddress = "ClientMacAddress";
+    public static final String clientMacAddressDefaultTranslation = "ClientMacAddress";
     public static final String masterKey = "SecurityMessage.masterkey";
     public static final String masterKeyDefaultTranslation = "Master key";
     public static final String pskAttributeName = "SecurityMessage.psk";

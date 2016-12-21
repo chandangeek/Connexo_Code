@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,25 +87,25 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     @Override
     protected Duration getConnectTimeout() {
         Object value = this.properties.getTypedProperty(AT_CONNECT_TIMEOUT);
-        return value != null ? (TemporalAmount) value : DEFAULT_AT_CONNECT_TIMEOUT;
+        return value != null ? (Duration) value : DEFAULT_AT_CONNECT_TIMEOUT;
     }
 
     @Override
-    protected TemporalAmount getDelayAfterConnect() {
+    protected Duration getDelayAfterConnect() {
         Object value = this.properties.getTypedProperty(DELAY_AFTER_CONNECT);
-        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_AFTER_CONNECT;
+        return value != null ? (Duration) value : DEFAULT_DELAY_AFTER_CONNECT;
     }
 
     @Override
-    protected TemporalAmount getDelayBeforeSend() {
+    protected Duration getDelayBeforeSend() {
         Object value = this.properties.getTypedProperty(DELAY_BEFORE_SEND);
-        return value != null ? (TemporalAmount) value : DEFAULT_DELAY_BEFORE_SEND;
+        return value != null ? (Duration) value : DEFAULT_DELAY_BEFORE_SEND;
     }
 
     @Override
-    protected TemporalAmount getCommandTimeOut() {
+    protected Duration getCommandTimeOut() {
         Object value = this.properties.getTypedProperty(AT_COMMAND_TIMEOUT);
-        return value != null ? (TemporalAmount) value : DEFAULT_AT_COMMAND_TIMEOUT;
+        return value != null ? (Duration) value : DEFAULT_AT_COMMAND_TIMEOUT;
     }
 
     @Override
@@ -138,9 +137,9 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     @Override
-    protected TemporalAmount getLineToggleDelay() {
+    protected Duration getLineToggleDelay() {
         Object value = this.properties.getTypedProperty(DTR_TOGGLE_DELAY);
-        return value != null ? (TemporalAmount) value : DEFAULT_DTR_TOGGLE_DELAY;
+        return value != null ? (Duration) value : DEFAULT_DTR_TOGGLE_DELAY;
     }
 
     @Override
