@@ -314,6 +314,9 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
             }
             condition = condition.and(wgCondition);
         }
+        if (filter.getWorkGroupAssignees().isEmpty() && filter.isUnassignedWorkGroupSelected()) {
+            condition = condition.and(where("baseIssue.workGroup").isNull());
+        }
         //filter by device
         if (!filter.getDevices().isEmpty()) {
             condition = condition.and(where("baseIssue.device").in(filter.getDevices()));
