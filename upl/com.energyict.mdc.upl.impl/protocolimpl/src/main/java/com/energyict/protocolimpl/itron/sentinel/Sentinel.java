@@ -73,6 +73,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     int reduceMaxNumberOfUomEntryBy;
     int chunkSize;
     boolean validateControlToggleBit;
+    int eventChunkSize;
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     SerialCommunicationChannel commChannel;
@@ -311,6 +312,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         limitRegisterReadSize = Boolean.parseBoolean(properties.getProperty("LimitRegisterReadSize", "false"));
         reduceMaxNumberOfUomEntryBy = Integer.parseInt(properties.getProperty("ReduceMaxNumberOfUomEntryBy", "0"));
         this.validateControlToggleBit = Integer.parseInt(properties.getProperty("ValidateFrameControlToggleBit", "1")) == 1;
+        this.eventChunkSize = Integer.parseInt(properties.getProperty("EventChunkSize", "5"));
     }
 
     protected List doGetOptionalKeys() {
@@ -326,6 +328,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         result.add("LimitRegisterReadSize");
         result.add("ReduceMaxNumberOfUomEntryBy");
         result.add("ValidateFrameControlToggleBit");
+        result.add("EventChunkSize");
         return result;
     }
 
@@ -338,7 +341,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
         standardProcedureFactory = new StandardProcedureFactory(this);
         manufacturerProcedureFactory = new ManufacturerProcedureFactory(this);
         setDataReadFactory(new DataReadFactory(manufacturerTableFactory));
-        sentinelLoadProfile = new SentinelLoadProfile(this, readLoadProfilesChunked, chunkSize);
+        sentinelLoadProfile = new SentinelLoadProfile(this, readLoadProfilesChunked, chunkSize, eventChunkSize);
         return c12Layer2;
     }
 
