@@ -68,7 +68,7 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
 
     @Override
     public boolean isRequired() {
-        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
+        return false;
     }
 
     @Override

@@ -73,7 +73,7 @@ public class UsagePointAntennaCPS implements CustomPropertySet<UsagePoint, Usage
 
     @Override
     public boolean isRequired() {
-        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
+        return true;
     }
 
     @Override

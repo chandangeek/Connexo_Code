@@ -68,7 +68,7 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
 
     @Override
     public boolean isRequired() {
-        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
+        return false;
     }
 
     @Override

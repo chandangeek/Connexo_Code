@@ -68,7 +68,7 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
 
     @Override
     public boolean isRequired() {
-        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
+        return false;
     }
 
     @Override

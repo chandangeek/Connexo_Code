@@ -58,7 +58,7 @@ class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySet<Usage
 
     @Override
     public boolean isRequired() {
-        return getPropertySpecs().stream().anyMatch(PropertySpec::isRequired);
+        return false;
     }
 
     @Override
