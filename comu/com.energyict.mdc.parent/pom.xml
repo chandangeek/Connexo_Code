@@ -608,6 +608,7 @@
                 <module>../com.energyict.mdc.device.lifecycle.config.rest</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.extjs</module>
                 <module>../com.energyict.mdc.device.topology</module>
+                <module>../com.energyict.mdc.device.topology.rest</module>
                 <module>../com.energyict.mdc.device.data.rest</module>
                 <module>../com.energyict.mdc.device.data.importers</module>
                 <module>../com.energyict.mdc.device.data.validation</module>
