@@ -11,7 +11,8 @@ Ext.define('Dal.view.AlarmFilter', {
         'Dal.store.AlarmStatuses',
         'Dal.store.AlarmWorkgroupAssignees',
         'Dal.store.ClearStatus',
-        'Dal.store.DueDate'
+        'Dal.store.DueDate',
+        'Dal.store.Devices'
     ],
 
     initComponent: function () {

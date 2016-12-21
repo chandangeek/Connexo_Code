@@ -15,7 +15,8 @@ Ext.define('Dal.controller.Alarms', {
         'Dal.store.AlarmStatuses',
         'Dal.store.AlarmWorkgroupAssignees',
         'Dal.store.ClearStatus',
-        'Dal.store.DueDate'
+        'Dal.store.DueDate',
+        'Dal.store.Devices'
     ],
 
     models: [
