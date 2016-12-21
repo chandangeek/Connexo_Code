@@ -494,7 +494,13 @@ public class ColumnImpl implements Column {
         this.conversion.setObject(this, statement, index, base64Encoded);
     }
 
-    String macValue(Object target) {
+    private String macValue(Object target) {
+        byte[] bytes = calculateHash(target);
+        String encrypted = getTable().getEncrypter().encrypt(bytes);
+        return Base64.getEncoder().encodeToString(encrypted.getBytes());
+    }
+
+    private byte[] calculateHash(Object target) {
         Object[] objects = getTable().getColumns()
                 .stream()
                 .filter(not(ColumnImpl::isMAC))
@@ -502,9 +508,14 @@ public class ColumnImpl implements Column {
                 .map(Objects::toString)
                 .toArray();
         int hash = Objects.hash(objects);
-        byte[] bytes = getBytes(hash);
-        String encrypted = getTable().getEncrypter().encrypt(bytes);
-        return Base64.getEncoder().encodeToString(encrypted.getBytes());
+        return getBytes(hash);
+    }
+
+    boolean verifyMacValue(String macValue, Object target) {
+        byte[] decodedMac = Base64.getDecoder().decode(macValue);
+        byte[] decryptedHash = getTable().getEncrypter().decrypt(new String(decodedMac));
+        byte[] hash = calculateHash(target);
+        return Arrays.equals(hash, decryptedHash);
     }
 
     private byte[] getBytes(int value) {

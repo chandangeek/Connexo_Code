@@ -39,6 +39,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -390,7 +391,12 @@ public class MacColumnTest {
 
         @Override
         public String encrypt(byte[] decrypted) {
-            return new String(decrypted);
+            return new String(Base64.getEncoder().encode(decrypted));
+        }
+
+        @Override
+        public byte[] decrypt(String encrypted) {
+            return Base64.getDecoder().decode(encrypted);
         }
     }
 

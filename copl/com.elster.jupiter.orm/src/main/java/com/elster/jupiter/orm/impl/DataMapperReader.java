@@ -334,8 +334,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
         }
 
         if (macColumn != null) {
-            String calculatedMac = macColumn.macValue(result);
-            if (!Objects.equal(mac, calculatedMac)) {
+            if (!macColumn.verifyMacValue(mac, result)) {
                 throw new MacException();
             }
         }
