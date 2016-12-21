@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.command.rest.impl;
 
+import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -38,26 +40,32 @@ public class CommandRuleResource {
     private final CommandRuleService commandRuleService;
     private final CommandRuleInfoFactory commandRuleInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final ExceptionFactory exceptionFactory;
 
 
     @Inject
-    public CommandRuleResource(DeviceMessageSpecificationService deviceMessageSpecificationService, CommandRuleService commandRuleService, CommandRuleInfoFactory commandRuleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public CommandRuleResource(DeviceMessageSpecificationService deviceMessageSpecificationService, CommandRuleService commandRuleService, CommandRuleInfoFactory commandRuleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, ExceptionFactory exceptionFactory) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.commandRuleService = commandRuleService;
         this.commandRuleInfoFactory = commandRuleInfoFactory;
         this.conflictFactory = conflictFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE, Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public Response getCommandRules(@BeanParam JsonQueryParameters queryParameters) {
-        List<CommandRuleInfo> data = commandRuleService.findAllCommandRules()
-                .stream()
-                .sorted((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()))
-                .map(commandRuleInfoFactory::createWithChanges)
-                .collect(Collectors.toList());
-        return Response.ok(PagedInfoList.fromCompleteList("commandrules", data, queryParameters)).build();
+        try {
+            List<CommandRuleInfo> data = commandRuleService.findAllCommandRules()
+                    .stream()
+                    .sorted((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()))
+                    .map(commandRuleInfoFactory::createWithChanges)
+                    .collect(Collectors.toList());
+            return Response.ok(PagedInfoList.fromCompleteList("commandrules", data, queryParameters)).build();
+        } catch (MacException e) {
+            throw exceptionFactory.newException(MessageSeeds.MESSAGE_AUTHENTICATION_CHECK_FAILED_ONE_OR_MORE);
+        }
     }
 
     @POST
@@ -82,8 +90,12 @@ public class CommandRuleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE, Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE})
     public CommandRuleInfo getCommandRule(@PathParam("id") long id) {
-        CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return commandRuleInfoFactory.createWithChanges(commandRule);
+        try {
+            CommandRule commandRule = commandRuleService.findCommandRule(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            return commandRuleInfoFactory.createWithChanges(commandRule);
+        } catch (MacException e) {
+            throw exceptionFactory.newException(MessageSeeds.MESSAGE_AUTHENTICATION_CHECK_FAILED_ONE);
+        }
     }
 
     @PUT
@@ -130,7 +142,6 @@ public class CommandRuleResource {
         commandRule.approve();
         return Response.ok(commandRuleInfoFactory.createWithChanges(commandRule)).build();
     }
-
 
     @POST
     @Path("/{id}/reject")
@@ -179,10 +190,15 @@ public class CommandRuleResource {
     }
 
     private CommandRule findAndLockCommandRule(long id,CommandRuleInfo info) {
-        return commandRuleService.findAndLockCommandRule(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> commandRuleService.findCommandRule(id).map(CommandRule::getVersion).orElse(null))
-                        .supplier());
+        try {
+            return commandRuleService.findAndLockCommandRule(id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualVersion(() -> commandRuleService.findCommandRule(id).map(CommandRule::getVersion).orElse(null))
+                            .supplier());
+        } catch (MacException e) {
+            throw exceptionFactory.newException(MessageSeeds.MESSAGE_AUTHENTICATION_CHECK_FAILED_ONE);
+        }
+
     }
 
 }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.command.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.energyict.mdc.device.command.CommandInRule;
@@ -45,6 +46,8 @@ public class CommandRuleResourceTest extends FelixRestApplicationJerseyTest {
     @Mock
     private JsonService jsonService;
     @Mock
+    private ExceptionFactory exceptionFactory;
+    @Mock
     private License license;
 
 
@@ -57,6 +60,7 @@ public class CommandRuleResourceTest extends FelixRestApplicationJerseyTest {
         application.setNlsService(nlsService);
         application.setJsonService(jsonService);
         application.setLicense(license);
+        application.setExceptionFactory(exceptionFactory);
         return application;
     }
 

@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -40,6 +41,8 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
     private volatile CommandRuleService commandRuleService;
 
     private volatile License license;
+    private volatile ExceptionFactory exceptionFactory;
+
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -81,6 +84,11 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
         this.license = license;
     }
 
+    @Reference
+    public void setExceptionFactory(ExceptionFactory exceptionFactory) {
+        this.exceptionFactory = exceptionFactory;
+    }
+
     public String getComponentName() {
         return COMPONENT_NAME;
     }
@@ -113,6 +121,7 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(commandRuleService).to(CommandRuleService.class);
             bind(CommandRuleInfoFactory.class).to(CommandRuleInfoFactory.class);
+            bind(exceptionFactory).to(ExceptionFactory.class);
         }
     }
 }
