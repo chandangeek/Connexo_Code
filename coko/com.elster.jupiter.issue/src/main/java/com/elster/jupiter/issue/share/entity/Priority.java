@@ -1,6 +1,8 @@
 package com.elster.jupiter.issue.share.entity;
 
-public final class Priority implements Comparable<Priority> {
+import javax.xml.bind.annotation.XmlTransient;
+
+public final class Priority implements Comparable<Priority>, Cloneable {
 
     private volatile long urgency;
     private volatile long impact;
@@ -67,6 +69,23 @@ public final class Priority implements Comparable<Priority> {
     public void setImpact(int impact) {
         this.impact = impact;
     }
+
+    public Priority copy() {
+        try {
+            Priority result = (Priority) this.clone();
+            result.urgency = this.urgency;
+            result.impact = this.impact;
+            return result;
+        } catch (CloneNotSupportedException ex) {
+            throw new UnsupportedOperationException(ex);
+        }
+    }
+
+    @XmlTransient
+    public boolean isEmpty() {
+        return  urgency == 0 && impact == 0;
+    }
+
 
     @Override
     public boolean equals(Object o) {

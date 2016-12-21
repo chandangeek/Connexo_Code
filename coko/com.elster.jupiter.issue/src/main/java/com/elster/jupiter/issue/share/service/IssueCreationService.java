@@ -43,8 +43,6 @@ public interface IssueCreationService {
         CreationRuleBuilder setIssueType(IssueType issueType);
 
         CreationRuleBuilder setReason(IssueReason reason);
-
-        CreationRuleBuilder setPriority(Priority priority);
         
         CreationRuleBuilder setDueInTime(DueInType dueInType, long dueInValue);
         

@@ -35,8 +35,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     private Instant dueDate;
     private Reference<IssueReason> reason = ValueReference.absent();
     private Reference<IssueStatus> status = ValueReference.absent();
-    private long urgency;
-    private long impact;
+    private Priority priority;
 
     private boolean overdue;
 
@@ -200,23 +199,15 @@ public class IssueImpl extends EntityImpl implements Issue {
         issueAssignmentService.assignIssue(Collections.singletonList(wrapper));
     }
 
-    @Override
-    public Priority getPriority() {
-        return Priority.get(urgency, impact);
-    }
 
     @Override
-    public void setPriority(long urgency, long impact) {
-        this.urgency = urgency;
-        this.impact = impact;
+    public Priority getPriority() {
+        return priority == null || priority.isEmpty() ? null : priority.copy();
     }
 
     @Override
     public void setPriority(Priority priority) {
-        if (priority != null) {
-            this.urgency = priority.getUrgency();
-            this.impact = priority.getImpact();
-        }
+        this.priority = priority.copy();
     }
 
     @Override

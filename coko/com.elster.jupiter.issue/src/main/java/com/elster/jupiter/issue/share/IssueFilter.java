@@ -4,6 +4,7 @@ import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.Priority;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
@@ -27,6 +28,8 @@ public interface IssueFilter {
     void addDevice(EndDevice device);
 
     void setIssueReason(IssueReason issueReason);
+
+    void setPriority(Priority priority);
 
     void addStatus(IssueStatus status);
 
@@ -55,5 +58,7 @@ public interface IssueFilter {
     List<IssueType> getIssueTypes();
 
     void addIssueType(IssueType issueType);
+
+    List<Priority> getPriorities();
 
 }

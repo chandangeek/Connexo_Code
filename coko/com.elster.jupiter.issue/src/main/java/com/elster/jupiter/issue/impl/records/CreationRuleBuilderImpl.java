@@ -43,12 +43,6 @@ public class CreationRuleBuilderImpl implements CreationRuleBuilder {
     }
 
     @Override
-    public CreationRuleBuilder setPriority(Priority priority) {
-        this.underConstruction.setPriority(priority);
-        return this;
-    }
-
-    @Override
     public CreationRuleBuilder setDueInTime(DueInType dueInType, long dueInValue) {
         this.underConstruction.setDueInType(dueInType);
         this.underConstruction.setDueInValue(dueInValue);

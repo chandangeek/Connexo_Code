@@ -16,6 +16,7 @@ import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.Priority;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -181,7 +182,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
-        baseIssue.setPriority(firedRule.getPriority());
+        baseIssue.setPriority(Priority.MEDIUM);
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));

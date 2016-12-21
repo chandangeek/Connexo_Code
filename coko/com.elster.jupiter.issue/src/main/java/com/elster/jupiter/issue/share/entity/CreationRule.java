@@ -22,8 +22,6 @@ public interface CreationRule extends Entity, UniqueNamed, HasDynamicPropertiesW
 
     IssueReason getReason();
 
-    Priority getPriority();
-
     IssueType getIssueType();
 
     long getDueInValue();
