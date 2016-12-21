@@ -6,10 +6,14 @@ public final class Priority implements Comparable<Priority> {
     private volatile long impact;
 
     public static final Priority HIGHEST = new Priority(100L, Long.MAX_VALUE);
+    public static final Priority HIGH = new Priority(80L, 80L);
+    public static final Priority MEDIUM = new Priority(50L, 50L);
+    public static final Priority LOW = new Priority(25L, 25L);
     public static final Priority LOWEST = new Priority(0, 0);
 
     private Priority(long urgency, long impact) {
         this.urgency = urgency;
+        this.impact = impact;
     }
 
     public static Priority get(long urgency, long impact) {
