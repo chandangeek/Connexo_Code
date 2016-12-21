@@ -47,7 +47,7 @@ public interface ConnectionType extends HasDynamicProperties{
      * (This does not mean that we cannot provide a list of properties)</li>
      * </ul>
      */
-    enum ConnectionTypeDirection {
+    public enum ConnectionTypeDirection {
         OUTBOUND,
         INBOUND,
 

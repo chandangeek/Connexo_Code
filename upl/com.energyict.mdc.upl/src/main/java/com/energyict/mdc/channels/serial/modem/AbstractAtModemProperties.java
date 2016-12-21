@@ -10,6 +10,8 @@ import com.google.common.base.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author sva
@@ -40,14 +42,27 @@ public abstract class AbstractAtModemProperties extends AbstractModemProperties 
      * @return the list of AbstractAtPostDialCommands
      */
     public List<AbstractAtPostDialCommand> parseAndValidatePostDialCommands(String commands) {
-        ArrayList<AbstractAtPostDialCommand> postDialCommands = new ArrayList<>();
-        String[] splittedCommands = split(commands);
-        for (String splittedCommand : splittedCommands) {
-            AbstractAtPostDialCommand postDialCommand = getCommand(splittedCommand);
-            postDialCommand.initAndVerifyCommand();
-            postDialCommands.add(postDialCommand);
+        return Stream
+                .of(split(commands))
+                .map(this::getCommand)
+                .map(this::initAndReturn)
+                .collect(Collectors.toList());
+    }
+
+    private String[] split(String commands) {
+        String escapedCommand = commands.replaceAll("([\\\\][\\(])", "--").replaceAll("[\\\\][\\)]", "--");
+        escapedCommand = escapedCommand.replaceAll("\\)", "");
+        String[] split = escapedCommand.split("\\(");
+        int pos = 0;
+        for (int i = 0; i < split.length; i++) {
+            int commandLength = split[i].length();
+            if (commandLength > 0) {
+                pos++;
+                split[i] = commands.substring(pos, pos + commandLength);
+                pos += commandLength + 1;
+            }
         }
-        return postDialCommands;
+        return unEscapeCommands(split);
     }
 
     private AbstractAtPostDialCommand getCommand(String splittedCommand) {
@@ -66,20 +81,9 @@ public abstract class AbstractAtModemProperties extends AbstractModemProperties 
         }
     }
 
-    private String[] split(String commands) {
-        String escapedCommand = commands.replaceAll("([\\\\][\\(])", "--").replaceAll("[\\\\][\\)]", "--");
-        escapedCommand = escapedCommand.replaceAll("\\)", "");
-        String[] split = escapedCommand.split("\\(");
-        int pos = 0;
-        for (int i = 0; i < split.length; i++) {
-            int commandLength = split[i].length();
-            if (commandLength > 0) {
-                pos++;
-                split[i] = commands.substring(pos, pos + commandLength);
-                pos += commandLength + 1;
-            }
-        }
-        return unEscapeCommands(split);
+    private AbstractAtPostDialCommand initAndReturn (AbstractAtPostDialCommand command) {
+        command.initAndVerifyCommand();
+        return command;
     }
 
     private String[] unEscapeCommands(String[] commands) {

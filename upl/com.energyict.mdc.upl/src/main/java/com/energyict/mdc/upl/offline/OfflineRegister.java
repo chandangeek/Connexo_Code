@@ -146,8 +146,12 @@ public interface OfflineRegister extends Offline {
 
     // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")
-    String getXmlType();
+    default String getXmlType() {
+        return getClass().getName();
+    }
 
-    void setXmlType(String ignore);
+    default void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 
 }
