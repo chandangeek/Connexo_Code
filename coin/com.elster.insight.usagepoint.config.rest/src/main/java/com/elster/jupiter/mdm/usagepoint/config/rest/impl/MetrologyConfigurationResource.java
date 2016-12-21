@@ -295,7 +295,7 @@ public class MetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response updateMetrologyContracts(@PathParam("contractId") long contractId, @QueryParam("action") String action, MetrologyContractInfos metrologyContractInfos) {
+    public Response editMetrologyContracts(@PathParam("contractId") long contractId, @QueryParam("action") String action, MetrologyContractInfos metrologyContractInfos) {
         for (MetrologyContractInfo contract : metrologyContractInfos.contracts) {
             MetrologyContract metrologyContract = resourceHelper.findContractOnMetrologyConfiguration(contract.id);
             usagePointConfigurationService.reorderEstimationRuleSets(metrologyContract, contract.estimationRuleSets.stream()
