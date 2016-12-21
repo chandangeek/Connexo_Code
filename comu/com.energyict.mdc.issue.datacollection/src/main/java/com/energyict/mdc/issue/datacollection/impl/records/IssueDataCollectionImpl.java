@@ -183,6 +183,13 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public void setPriority(Priority priority) {
+        if(priority!=null) {
+            this.setPriority(priority.getUrgency(), priority.getImpact());
+        }
+    }
+
+    @Override
     public Optional<ConnectionTask> getConnectionTask() {
         return connectionTask.getOptional();
     }
