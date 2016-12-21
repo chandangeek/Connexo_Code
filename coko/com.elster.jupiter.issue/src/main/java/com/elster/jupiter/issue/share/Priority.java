@@ -1,11 +1,14 @@
-package com.elster.jupiter.issue.share.entity;
+package com.elster.jupiter.issue.share;
 
+import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.xml.bind.annotation.XmlTransient;
 
 public final class Priority implements Comparable<Priority>, Cloneable {
-
-    private volatile long urgency;
-    private volatile long impact;
+    @Valid
+    private long urgency;
+    @Valid
+    private long impact;
 
     public static final Priority HIGHEST = new Priority(100L, Long.MAX_VALUE);
     public static final Priority HIGH = new Priority(80L, 80L);
@@ -13,18 +16,27 @@ public final class Priority implements Comparable<Priority>, Cloneable {
     public static final Priority LOW = new Priority(25L, 25L);
     public static final Priority LOWEST = new Priority(0, 0);
 
-    private Priority(long urgency, long impact) {
+    public Priority() {
+    }
+
+/*  public Priority init() {
+        return this;
+    } */
+
+    @Inject
+    public Priority(long urgency, long impact) {
         this.urgency = urgency;
         this.impact = impact;
     }
 
-    public static Priority get(long urgency, long impact) {
+   /* public static Priority get(long urgency, long impact) {
         return new Priority(urgency, impact);
     }
 
     public static Priority get(long urgency) {
         return get(urgency, 0L);
     }
+    */
 
     @Override
     // for the moment there is no weight attributed to urgency with respect to impact
@@ -37,7 +49,7 @@ public final class Priority implements Comparable<Priority>, Cloneable {
     }
 
     public boolean isLowest() {
-        return urgency < 0 && impact < 0;
+        return urgency < 0 || impact < 0;
     }
 
     public void increaseUrgency() {

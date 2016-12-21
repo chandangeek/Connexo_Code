@@ -4,7 +4,6 @@ import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.Priority;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
