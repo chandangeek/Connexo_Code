@@ -323,7 +323,7 @@ public class SentinelLoadProfile {
         Calendar lastReadingCal = Calendar.getInstance();
         lastReadingCal.setTime(lastReading);
         Calendar currentCal = Calendar.getInstance();
-        currentCal.setTime(currentDate);
+        currentCal.setTime(sentinel.getTime());
 
         // Filter out any that are outside of the required range
         for (List<LoadProfileBlockData> aList : blockData) {
@@ -335,7 +335,6 @@ public class SentinelLoadProfile {
                     // Remove this, it is outside the time frame we are interested in
                     String msg = "Sentinel serial no. " + sentinel.getSerialNumber() + ", dropping block with end time out of read range: " + lpbd.getBlockEndTime();
                     getLogger().severe(msg);
-                    System.out.println(msg);
                     continue inner;
                 }
                 blah.add(lpbd);
