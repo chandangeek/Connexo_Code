@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
-import com.elster.jupiter.metering.groups.impl.search.UsagePointGroupSearchableProperty;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.search.SearchService;
@@ -15,8 +14,6 @@ import com.elster.jupiter.util.time.ExecutionTimer;
 
 import javax.inject.Inject;
 import java.util.function.Supplier;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 class QueryUsagePointGroupImpl extends AbstractQueryGroup<UsagePoint> implements QueryUsagePointGroup {
     private final MeteringService meteringService;
@@ -65,17 +62,5 @@ class QueryUsagePointGroupImpl extends AbstractQueryGroup<UsagePoint> implements
         @Inject
         QueryUsagePointGroupConditionValue() {
         }
-    }
-
-    @Override
-    public void delete() {
-        getDataModel().query(QueryUsagePointGroupConditionValue.class, QueryUsagePointGroupCondition.class)
-                .select(where(QueryUsagePointGroupConditionValue.Fields.VALUE.fieldName()).isEqualTo(String.valueOf(getId()))
-                        .and(where(QueryUsagePointGroupConditionValue.Fields.GROUP_CONDITION.fieldName() + "." + QueryUsagePointGroupCondition.Fields.PROPERTY.fieldName())
-                                .isEqualTo(UsagePointGroupSearchableProperty.PROPERTY_NAME)))
-                .stream().findFirst().ifPresent(group -> {
-            throw new VetoDeleteUsagePointGroupException(this.getThesaurus());
-        });
-        super.delete();
     }
 }

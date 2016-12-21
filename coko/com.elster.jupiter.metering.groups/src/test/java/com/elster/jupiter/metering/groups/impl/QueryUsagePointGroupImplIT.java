@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
-import com.elster.jupiter.metering.groups.impl.search.UsagePointGroupSearchableProperty;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.nls.Layer;
@@ -220,37 +219,6 @@ public class QueryUsagePointGroupImplIT {
         members = group.getMembers(NOW);
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(usagePoint.getId());
-    }
-
-    @Test(expected = VetoDeleteUsagePointGroupException.class)
-    @Transactional
-    public void deleteLinkedGroup() {
-        MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-        meteringGroupsService.createQueryUsagePointGroup(
-                mockSearchablePropertyValue("type", SearchablePropertyOperator.EQUAL,
-                        Collections.singletonList(UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name())))
-                .setMRID("MDM:linked")
-                .setName("linked")
-                .setSearchDomain(searchDomain)
-                .setQueryProviderName(SimpleUsagePointQueryProvider.SIMPLE_USAGE_POINT_QUERY_PROVIDER)
-                .create();
-
-        UsagePointGroup linkedGroup = meteringGroupsService.findUsagePointGroup("MDM:linked")
-                .orElseThrow(() -> new NoSuchElementException("The group is created but not found afterwards"));
-
-        meteringGroupsService.createQueryUsagePointGroup(
-                mockSearchablePropertyValue(UsagePointGroupSearchableProperty.PROPERTY_NAME, SearchablePropertyOperator.EQUAL,
-                        Collections.singletonList(String.valueOf(linkedGroup.getId()))))
-                .setMRID("MDM:mine")
-                .setName("mine")
-                .setSearchDomain(searchDomain)
-                .setQueryProviderName(SimpleUsagePointQueryProvider.SIMPLE_USAGE_POINT_QUERY_PROVIDER)
-                .create();
-
-        meteringGroupsService.findUsagePointGroup("MDM:mine")
-                .orElseThrow(() -> new NoSuchElementException("The group is created but not found afterwards"));
-
-        linkedGroup.delete();
     }
 
     private SearchablePropertyValue mockSearchablePropertyValue(String property,
