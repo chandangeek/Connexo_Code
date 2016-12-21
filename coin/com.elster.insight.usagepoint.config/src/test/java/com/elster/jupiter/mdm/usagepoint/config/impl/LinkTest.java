@@ -16,6 +16,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
+import java.util.Arrays;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -85,6 +87,12 @@ public class LinkTest {
             EstimationRuleSet ers2 = estimationService.createEstimationRuleSet("Rule #2", QualityCodeSystem.MDM);
             usagePointConfigurationService.addEstimationRuleSet(contractBilling, ers2);
             assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling)).hasSize(2);
+            assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling).get(0)).isEqualTo(ers1);
+            assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling).get(1)).isEqualTo(ers2);
+            usagePointConfigurationService.reorderEstimationRuleSets(contractBilling, Arrays.asList(ers2, ers1));
+            assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling)).hasSize(2);
+            assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling).get(0)).isEqualTo(ers2);
+            assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling).get(1)).isEqualTo(ers1);
             usagePointConfigurationService.removeEstimationRuleSet(contractBilling, ers1);
             assertThat(usagePointConfigurationService.getEstimationRuleSets(contractBilling)).hasSize(1);
             usagePointMetrologyConfiguration.removeMetrologyContract(contractBilling);
