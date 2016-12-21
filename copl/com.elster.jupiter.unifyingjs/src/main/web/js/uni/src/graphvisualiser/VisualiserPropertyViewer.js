@@ -1,7 +1,7 @@
 Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
     extend: 'Ext.form.Panel',
     width: 300,
-    height: 400,
+ //   height: 400,
     itemId: 'property-viewer',
     floating: true,
     collapsed: true,
