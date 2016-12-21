@@ -39,7 +39,7 @@ class H2BootstrapService implements BootstrapService {
         decoratedDataSource = new DecoratedDataSource(source);
 
         try (Connection connection = decoratedDataSource.getConnection()){
-            this.executeStatement(connection, "create alias if not exists regexp_like as $$ boolean regexpLike(String s, String p, String ignore) { return s.matches(p); } $$;");
+//            this.executeStatement(connection, "create alias if not exists regexp_like as $$ boolean regexpLike(String s, String p, String ignore) { return s.matches(p); } $$;");
             this.executeStatement(connection, "create domain if not exists SDO_GEOMETRY as VARCHAR(255)");
             this.executeStatement(connection, "create schema if not exists MDSYS AUTHORIZATION SA");
             this.executeStatement(connection, "create table if not exists MDSYS.USER_SDO_GEOM_METADATA(TABLE_NAME VARCHAR2(32),COLUMN_NAME VARCHAR2(1024),DIMINFO VARCHAR2(1024),SRID INT)");
