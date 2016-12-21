@@ -48,7 +48,7 @@ public class C1222Layer extends C12Layer2 {
                       int maxRetries,
                       long forcedDelay,
                       int echoCancelling,
-                      HalfDuplexController halfDuplexController, Logger logger, boolean validateControlToggleBit) throws ConnectionException {
+                      HalfDuplexController halfDuplexController, Logger logger, int validateControlToggleBit) throws ConnectionException {
         super(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController, logger, validateControlToggleBit);
         this.timeout = timeout;
         this.maxRetries = maxRetries;

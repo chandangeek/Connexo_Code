@@ -75,7 +75,7 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
     
     String c12User;
     int c12UserId;
-    boolean validateControlToggleBit;
+    int controlToggleBitMode;
     private int useSnapshotProcedure;
     
     /** Creates a new instance of GEKV */
@@ -164,7 +164,7 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         setUseSnapshotProcedure(Integer.parseInt(properties.getProperty("UseSnapshotProcedure","1").trim()));
-        this.validateControlToggleBit = Integer.parseInt(properties.getProperty("ValidateFrameControlToggleBit", "0")) == 1;
+        this.controlToggleBitMode = Integer.parseInt(properties.getProperty("FrameControlToggleBitMode", "2"));
     }
     
     protected List doGetOptionalKeys() {
@@ -173,12 +173,12 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
         result.add("C12User");
         result.add("C12UserId");
         result.add("UseSnapshotProcedure");
-        result.add("ValidateFrameControlToggleBit");
+        result.add("FrameControlToggleBitMode");
         return result;
     }
     
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), validateControlToggleBit);
+        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), controlToggleBitMode);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);

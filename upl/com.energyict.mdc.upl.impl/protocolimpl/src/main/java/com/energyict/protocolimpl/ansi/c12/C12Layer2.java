@@ -28,13 +28,12 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Koen
  */
-public class C12Layer2 extends Connection  implements ProtocolConnection {
+public class C12Layer2 extends Connection implements ProtocolConnection {
 
-    protected static final int DEBUG=0;
-    protected static final long TIMEOUT=600000;
+    protected static final int DEBUG = 0;
+    protected static final long TIMEOUT = 600000;
 
     protected static final int MULTIPLE_PACKET_TRANSMISSION = 0x80;
     protected static final int MULTIPLE_PACKET_FIRST_PACKET = 0x40;
@@ -46,21 +45,21 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     protected int timeout;
     protected int maxRetries;
 
-    protected byte[] previousPacket,packet;
+    protected byte[] previousPacket, packet;
     // layer2 specific locals
-    protected int previousControl,control;
-    protected int previousSequence,sequence;
+    protected int previousControl, control;
+    protected int previousSequence, sequence;
     protected boolean multiplePacket;
 
     int receivedIdentity;
-    int receivedControl,previousReceivedControl;
-    int receivedSequence,previousReceivedSequence;
+    Integer receivedControl, previousReceivedControl;
+    int receivedSequence, previousReceivedSequence;
     int receivedLength;
 
     // KV_TO_DO gebruik nog implementeren...
-    protected NegotiateResponse negotiateResponse=null;
+    protected NegotiateResponse negotiateResponse = null;
     private Logger logger;
-    private boolean validateControlToggleBit;
+    private int controlToggleBitMode;
 
     /**
      * Creates a new instance of C12Connection
@@ -73,19 +72,19 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                      int echoCancelling,
                      HalfDuplexController halfDuplexController,
                      Logger logger,
-                     boolean validateControlToggleBit) throws ConnectionException {
+                     int controlToggleBitMode) throws ConnectionException {
         super(inputStream, outputStream, forcedDelay, echoCancelling, halfDuplexController);
         this.timeout = timeout;
         this.maxRetries = maxRetries;
         this.logger = logger;
-        this.validateControlToggleBit = validateControlToggleBit;
+        this.controlToggleBitMode = controlToggleBitMode;
     }
 
     public void initStates() {
         previousControl = 0;
         control = 0x20;
-       previousSequence=sequence=0;
-       multiplePacket=false;
+        previousSequence = sequence = 0;
+        multiplePacket = false;
     }
 
     /*******************************************************************************************
@@ -95,68 +94,64 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
 
     public ResponseData sendRequest(RequestData requestData) throws IOException {
 
-        int retry=0;
+        int retry = 0;
 
         buildPacket(requestData);
 
-        while(true) {
+        while (true) {
             try {
                 sendOut(getPacket());
                 ResponseData responseData = receiveResponseData();
                 return responseData;
-            }
-            catch(ConnectionException e) {
-                int mr=getMaxRetries();
-                if (retry++>=mr) {
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage(), MAX_RETRIES_ERROR);
+            } catch (ConnectionException e) {
+                int mr = getMaxRetries();
+                if (retry++ >= mr) {
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries (" + mr + "), " + e.getMessage(), MAX_RETRIES_ERROR);
                 }
             }
         }
     }
 
     public ResponseData sendBytes(byte[] requestData) throws IOException {
-        int retry=0;
+        int retry = 0;
 
-        while(true) {
+        while (true) {
             try {
                 sendOut(requestData);
                 return receiveResponseData();
-            }
-            catch(ConnectionException e) {
-                int mr=getMaxRetries();
-                if (retry++>=mr) {
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage(), MAX_RETRIES_ERROR);
+            } catch (ConnectionException e) {
+                int mr = getMaxRetries();
+                if (retry++ >= mr) {
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries (" + mr + "), " + e.getMessage(), MAX_RETRIES_ERROR);
                 }
             }
         }
     }
 
-    static private final int STATE_WAIT_FOR_START_OF_PACKET=0;
-    static private final int STATE_WAIT_FOR_IDENTITY=1;
-    static private final int STATE_WAIT_FOR_CONTROL=2;
-    static private final int STATE_WAIT_FOR_SEQUENCE_NUMBER=3;
-    static private final int STATE_WAIT_FOR_LENGTH=4;
-    static private final int STATE_WAIT_FOR_DATA=5;
-    static private final int STATE_WAIT_FOR_CRC=6;
+    static private final int STATE_WAIT_FOR_START_OF_PACKET = 0;
+    static private final int STATE_WAIT_FOR_IDENTITY = 1;
+    static private final int STATE_WAIT_FOR_CONTROL = 2;
+    static private final int STATE_WAIT_FOR_SEQUENCE_NUMBER = 3;
+    static private final int STATE_WAIT_FOR_LENGTH = 4;
+    static private final int STATE_WAIT_FOR_DATA = 5;
+    static private final int STATE_WAIT_FOR_CRC = 6;
 
     protected ResponseData receiveResponseData() throws IOException {
-        long protocolTimeout,interFrameTimeout;
+        long protocolTimeout, interFrameTimeout;
         int kar;
-        int state=STATE_WAIT_FOR_START_OF_PACKET;
-        int count=0;
-        int calculatedCrc=0;
-        int receivedCrc=0;
+        int state = STATE_WAIT_FOR_START_OF_PACKET;
+        int count = 0;
+        int calculatedCrc = 0;
+        int receivedCrc = 0;
 
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
         ByteArrayOutputStream allDataArrayOutputStream = new ByteArrayOutputStream();
-        ResponseData responseData=new ResponseData();
+        ResponseData responseData = new ResponseData();
 
-        receivedIdentity=0;
-        receivedControl=0;
-        receivedSequence=0;
-        receivedLength=0;
-        previousReceivedControl=0;
-        previousReceivedSequence=0;
+        receivedIdentity = 0;
+        receivedSequence = 0;
+        receivedLength = 0;
+        previousReceivedSequence = 0;
 
         interFrameTimeout = System.currentTimeMillis() + timeout;
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
@@ -166,91 +161,92 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
 
         if (DEBUG == 1) System.out.println("receiveResponseData(...):");
         copyEchoBuffer();
-        while(true) {
+        while (true) {
 
             if ((kar = readIn()) != -1) {
                 if (DEBUG == 1) {
                     System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
+                    ProtocolUtils.outputHex(((int) kar));
                 }
                 allDataArrayOutputStream.write(kar);
 
-                switch(state) {
+                switch (state) {
                     case STATE_WAIT_FOR_START_OF_PACKET: {
                         if (kar == 0xEE) {
                             state = STATE_WAIT_FOR_IDENTITY;
                             interFrameTimeout = System.currentTimeMillis() + timeout;
-                        }
-                        else if (kar == ACK) {
+                        } else if (kar == ACK) {
                             //absorb
                             allDataArrayOutputStream.reset();
-                        }
-                        else if (kar == NAK) {
+                        } else if (kar == NAK) {
                             // KV_TO_DO 
                             allDataArrayOutputStream.reset();
-                        }
-                        else {
+                        } else {
                             // KV_TO_DO 
                             allDataArrayOutputStream.reset();
                         }
 
-                    } break; // STATE_WAIT_FOR_START_OF_PACKET
+                    }
+                    break; // STATE_WAIT_FOR_START_OF_PACKET
 
                     case STATE_WAIT_FOR_IDENTITY: {
-                        receivedIdentity = (int)kar;
+                        receivedIdentity = (int) kar;
                         state = STATE_WAIT_FOR_CONTROL;
-                    } break; // STATE_WAIT_FOR_IDENTITY
+                    }
+                    break; // STATE_WAIT_FOR_IDENTITY
 
                     case STATE_WAIT_FOR_CONTROL: {
                         previousReceivedControl = receivedControl;
-                        receivedControl = (int)kar;
+                        receivedControl = (int) kar;
 
                         // KV_TO_DO check for duplicates...
 
                         state = STATE_WAIT_FOR_SEQUENCE_NUMBER;
-                    } break; // STATE_WAIT_FOR_CONTROL
+                    }
+                    break; // STATE_WAIT_FOR_CONTROL
 
                     case STATE_WAIT_FOR_SEQUENCE_NUMBER: {
                         previousReceivedSequence = receivedSequence;
-                        receivedSequence = (int)kar;
+                        receivedSequence = (int) kar;
 
                         // KV_TO_DO check for duplicates...
 
                         state = STATE_WAIT_FOR_LENGTH;
-                        count=2;
-                    } break; // STATE_WAIT_FOR_SEQUENCE_NUMBER
+                        count = 2;
+                    }
+                    break; // STATE_WAIT_FOR_SEQUENCE_NUMBER
 
                     case STATE_WAIT_FOR_LENGTH: {
-                        if (count==2) {
-                           receivedLength = (int)(kar<<8);
-                           count--;
-                        }
-                        else {
-                            receivedLength |= (int)(kar);
+                        if (count == 2) {
+                            receivedLength = (int) (kar << 8);
+                            count--;
+                        } else {
+                            receivedLength |= (int) (kar);
                             state = STATE_WAIT_FOR_DATA;
                         }
-                    } break; // STATE_WAIT_FOR_LENGTH
+                    }
+                    break; // STATE_WAIT_FOR_LENGTH
 
                     case STATE_WAIT_FOR_DATA: {
                         resultArrayOutputStream.write(kar);
                         if (receivedLength-- <= 1) {
                             calculatedCrc = CRCGenerator.calcHDLCCRC(allDataArrayOutputStream.toByteArray());
                             state = STATE_WAIT_FOR_CRC;
-                            count=2;
+                            count = 2;
                         }
 
-                    } break; // STATE_WAIT_FOR_DATA
+                    }
+                    break; // STATE_WAIT_FOR_DATA
 
                     case STATE_WAIT_FOR_CRC: {
                         // validate CRC
                         byte[] data = allDataArrayOutputStream.toByteArray();
 
-                        if (count==2) {
-                           receivedCrc = (int)(kar<<8);
-                           count--;
-                        }
-                        else {
-                            receivedCrc |= (int)(kar);
+                        if (count == 2) {
+                            receivedCrc = (int) (kar << 8);
+                            count--;
+                        } else {
+                            receivedCrc |= (int) (kar);
                             if (receivedCrc == calculatedCrc) {
                                 // Bugfix CRM TKT-30314-S6563
                                 // In some cases, the device sends an invalid response missing the last (2th CRC) byte!
@@ -264,10 +260,10 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                                 if (((receivedControl & MULTIPLE_PACKET_TRANSMISSION) == MULTIPLE_PACKET_TRANSMISSION) &&
                                         (receivedSequence > 0)) {
                                     // continue cause we have an ongoing multiple packet transmission here...
-                                    if (checkForMatchingControlToggleBit(getControl(), receivedControl)) {
+                                    if (checkForMatchingControlToggleBit(getControl(), previousReceivedControl, receivedControl)) {
                                         allDataArrayOutputStream.reset();
                                         state = STATE_WAIT_FOR_START_OF_PACKET;
-                                        toggleControlIfControlToggleShouldBeValidated();    //Ensure the control toggle bit is toggled
+                                        toggleControlBitIfNeeded();    //Ensure the control toggle bit is toggled
                                     } else {
                                         // Mismatch in control toggle bit
                                         // Consider the response as a retry response, which can be ignored
@@ -278,7 +274,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                                         getLogger().severe("C12 connection layer - Received response during multiple packet transmission with incorrect toggle control bit, the response will be ignored (as it was probably a retry).");
                                     }
                                 } else {
-                                    if (checkForMatchingControlToggleBit(getControl(), receivedControl)) {
+                                    if (checkForMatchingControlToggleBit(getControl(), previousReceivedControl, receivedControl)) {
                                         responseData.setData(resultArrayOutputStream.toByteArray());
                                         return responseData;
                                     } else {
@@ -292,10 +288,11 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                                     }
                                 }
                             } else {
-                                throw new ProtocolConnectionException("receiveFrame() response crc error",CRC_ERROR);
+                                throw new ProtocolConnectionException("receiveFrame() response crc error", CRC_ERROR);
                             }
                         }
-                    } break; // STATE_WAIT_FOR_CRC
+                    }
+                    break; // STATE_WAIT_FOR_CRC
                 } // switch(iState)
             } // if ((iNewKar = readIn()) != -1)
             if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
@@ -307,9 +304,16 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
         } // while(true)
     }
 
-    private boolean checkForMatchingControlToggleBit(int sendControl, int receivedControl) {
-        return !validateControlToggleBit ||     // If the toggle bit should not be validated, then always return true
-                (receivedControl & 0x20) == (sendControl & 0x20);
+    private boolean checkForMatchingControlToggleBit(int sendControl, Integer previousReceivedControl, Integer receivedControl) {
+        if (controlToggleBitMode == 1) {
+            return (receivedControl & 0x20) == (sendControl & 0x20);
+        } else if (controlToggleBitMode == 2) {
+            return (previousReceivedControl == null) // If previousReceivedControl is 'null'(which should be only the case for the first response we receive), then return true
+                                                     // as there is off course no previous received control to validate against
+                    || (receivedControl & 0x20) != (previousReceivedControl & 0x20); // Received control should be different from the previous one
+        } else {
+            return true; // Don't validate control toggle bit
+        }
     }
 
     /*******************************************************************************************
@@ -318,17 +322,21 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
 
     }
+
     public HHUSignOn getHhuSignOn() {
         return null;
     }
+
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
 
     }
-    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
+
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
         setIdentity(Integer.parseInt(nodeId));
         return null;
     }
-    public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {
+
+    public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {
         return null;
     }
 
@@ -336,24 +344,25 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     /*******************************************************************************************
      * Private methods
      ******************************************************************************************/
-    static protected final int HEADER_LENGTH=6;
-    static protected final int CRC_LENGTH=2;
-    static protected final int LENGTH_OFFSET=4;
+    static protected final int HEADER_LENGTH = 6;
+    static protected final int CRC_LENGTH = 2;
+    static protected final int LENGTH_OFFSET = 4;
+
     protected void buildPacket(RequestData requestData) {
         byte[] data = requestData.getAssembledData();
-        packet = new byte[data.length+HEADER_LENGTH+CRC_LENGTH];
-        System.arraycopy(data,0,packet,HEADER_LENGTH,data.length);
-        packet[0] = (byte)0xEE;
-        packet[1] = (byte)getIdentity(); //0x40; // KV_DEBUG was 0 // changed to use nodeaddress 14/02/2006
+        packet = new byte[data.length + HEADER_LENGTH + CRC_LENGTH];
+        System.arraycopy(data, 0, packet, HEADER_LENGTH, data.length);
+        packet[0] = (byte) 0xEE;
+        packet[1] = (byte) getIdentity(); //0x40; // KV_DEBUG was 0 // changed to use nodeaddress 14/02/2006
         buildControl(false);
-        packet[2] = (byte)getControl();
+        packet[2] = (byte) getControl();
         buildSequence();
-        packet[3] = (byte)getSequence();
-        packet[LENGTH_OFFSET] = (byte)((data.length>>8)&0xFF);
-        packet[LENGTH_OFFSET+1] = (byte)(data.length&0xFF);
-        int crc = CRCGenerator.calcHDLCCRC(packet, packet.length-2);
-        packet[packet.length-2]=(byte)((crc>>8)&0xFF);
-        packet[packet.length-1]=(byte)(crc&0xFF);
+        packet[3] = (byte) getSequence();
+        packet[LENGTH_OFFSET] = (byte) ((data.length >> 8) & 0xFF);
+        packet[LENGTH_OFFSET + 1] = (byte) (data.length & 0xFF);
+        int crc = CRCGenerator.calcHDLCCRC(packet, packet.length - 2);
+        packet[packet.length - 2] = (byte) ((crc >> 8) & 0xFF);
+        packet[packet.length - 1] = (byte) (crc & 0xFF);
         //  save everything...
         previousControl = getControl();
         previousSequence = getSequence();
@@ -372,25 +381,28 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     }
 
     protected void buildControl(boolean firstMultipleTransmissionPacket) {
-       if (isMultiplePacket())
-           control |= MULTIPLE_PACKET_TRANSMISSION;
-       else
-           control &= (MULTIPLE_PACKET_TRANSMISSION^0xFF);
+        if (isMultiplePacket()) {
+            control |= MULTIPLE_PACKET_TRANSMISSION;
+        } else {
+            control &= (MULTIPLE_PACKET_TRANSMISSION ^ 0xFF);
+        }
 
-       if (firstMultipleTransmissionPacket)
-           control |= MULTIPLE_PACKET_FIRST_PACKET;
-       else
-           control &= (MULTIPLE_PACKET_FIRST_PACKET^0xFF);
+        if (firstMultipleTransmissionPacket) {
+            control |= MULTIPLE_PACKET_FIRST_PACKET;
+        } else {
+            control &= (MULTIPLE_PACKET_FIRST_PACKET ^ 0xFF);
+        }
 
-       boolean toggleBit = ((control & TOGGLE_BIT) == TOGGLE_BIT);
-       if (toggleBit)
-           control &= (TOGGLE_BIT^0xFF);
-       else
-           control |= TOGGLE_BIT;
+        boolean toggleBit = ((control & TOGGLE_BIT) == TOGGLE_BIT);
+        if (toggleBit) {
+            control &= (TOGGLE_BIT ^ 0xFF);
+        } else {
+            control |= TOGGLE_BIT;
+        }
     }
 
-    protected void toggleControlIfControlToggleShouldBeValidated() {
-        if (validateControlToggleBit) {
+    protected void toggleControlBitIfNeeded() {
+        if (controlToggleBitMode == 1) {
             boolean toggleBit = ((control & TOGGLE_BIT) == TOGGLE_BIT);
             if (toggleBit) {
                 control &= (TOGGLE_BIT ^ 0xFF);
@@ -398,6 +410,8 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                 control |= TOGGLE_BIT;
             }
         }
+        // Else, if 0 (= control toggle bit validation disabled) or
+        // if 2 (= separate Tx/Rx control toggle bit), toggle should not be done
     }
 
     /*
@@ -409,8 +423,9 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     }
 
     protected void buildSequence() {
-        if (sequence--<1)
-            sequence=0;
+        if (sequence-- < 1) {
+            sequence = 0;
+        }
     }
 
     protected byte[] getPreviousPacket() {
@@ -442,7 +457,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     }
 
     public void setNegotiateResponse(NegotiateResponse negotiateResponse) {
-         this.negotiateResponse=negotiateResponse;
+        this.negotiateResponse = negotiateResponse;
 
     }
 

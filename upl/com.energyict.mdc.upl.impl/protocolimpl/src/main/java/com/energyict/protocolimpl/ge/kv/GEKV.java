@@ -75,7 +75,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     
     String c12User;
     int c12UserId;
-    boolean validateControlToggleBit;
+    int controlToggleBitMode;
     
     private long timeStampAtLogon;
     
@@ -136,7 +136,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     }
     
     protected void doDisConnect() throws IOException {
-        getPSEMServiceFactory().logOff();  
+        getPSEMServiceFactory().logOff();
     }
     
 
@@ -146,7 +146,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"64"));
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
-        validateControlToggleBit = Integer.parseInt(properties.getProperty("ValidateFrameControlToggleBit", "0")) == 1;
+        controlToggleBitMode = Integer.parseInt(properties.getProperty("FrameControlToggleBitMode", "2"));
     }
     
     protected List doGetOptionalKeys() {
@@ -154,12 +154,12 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
         
         result.add("C12User");
         result.add("C12UserId");
-        result.add("ValidateFrameControlToggleBit");
+        result.add("FrameControlToggleBitMode");
         return result;
     }
     
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), validateControlToggleBit);
+        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), controlToggleBitMode);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);
