@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,15 +38,15 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
                     this.getClockOffsetToWritePropertySpec());
     }
 
-    private PropertySpec<Duration> getClockOffsetToWritePropertySpec() {
+    private PropertySpec getClockOffsetToWritePropertySpec() {
         return this.durationPropertySpec(CLOCK_OFFSET_TO_WRITE_PROPERTY_NAME);
     }
 
-    private PropertySpec<Duration> getClockOffsetToReadPropertySpec() {
+    private PropertySpec getClockOffsetToReadPropertySpec() {
         return this.durationPropertySpec(CLOCK_OFFSET_TO_READ_PROPERTY_NAME);
     }
 
-    private PropertySpec<Duration> durationPropertySpec(String name) {
+    private PropertySpec durationPropertySpec(String name) {
         return Services
                 .propertySpecService()
                 .durationSpec()

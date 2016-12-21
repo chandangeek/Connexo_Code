@@ -17,9 +17,12 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
@@ -66,8 +69,11 @@ import java.util.logging.Logger;
 public class SDKDeviceProtocol implements DeviceProtocol {
 
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
-
     private static final String DEFAULT_OPTIONAL_PROPERTY_NAME = "defaultOptionalProperty";
+
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
@@ -96,6 +102,13 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      * The securityPropertySet that will be used for this session
      */
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
+
+    public SDKDeviceProtocol(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super();
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -227,15 +240,15 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.<DeviceMessageSpec>asList(
-                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND,
-                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME,
-                ContactorDeviceMessage.CONTACTOR_ARM,
-                ContactorDeviceMessage.CONTACTOR_CLOSE,
-                ContactorDeviceMessage.CONTACTOR_OPEN,
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE,
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE,
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_ACTIVATE,
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE);
+                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.get(this.propertySpecService, this.nlsService, this.converter),
+                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(this.propertySpecService, this.nlsService, this.converter),
+                ContactorDeviceMessage.CONTACTOR_ARM.get(this.propertySpecService, this.nlsService, this.converter),
+                ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter),
+                ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override

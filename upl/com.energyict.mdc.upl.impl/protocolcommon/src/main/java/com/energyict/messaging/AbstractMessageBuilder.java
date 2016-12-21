@@ -1,5 +1,6 @@
 package com.energyict.messaging;
 
+import com.energyict.cbo.BusinessException;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;

@@ -26,17 +26,17 @@ import static com.google.common.collect.BoundType.OPEN;
  */
 public final class UPLPropertySpecFactory {
 
-    public static PropertySpec<Integer> integer(String name, boolean required) {
+    public static PropertySpec integer(String name, boolean required) {
         return integerSpecBuilder(name, required).finish();
     }
 
-    public static PropertySpec<Integer> integer(String name, boolean required, Range<Integer> validRange) {
+    public static PropertySpec integer(String name, boolean required, Range<Integer> validRange) {
         PropertySpecBuilder<Integer> builder = integerSpecBuilder(name, required);
         builder.addValues(toIntegerStream(validRange).collect(Collectors.toList()));
         return builder.finish();
     }
 
-    public static PropertySpec<Integer> integer(String name, boolean required, Integer... validValues) {
+    public static PropertySpec integer(String name, boolean required, Integer... validValues) {
         PropertySpecBuilder<Integer> builder = integerSpecBuilder(name, required);
         builder.addValues(Arrays.asList(validValues));
         return builder.finish();
@@ -46,17 +46,17 @@ public final class UPLPropertySpecFactory {
         return specBuilder(name, required, () -> Services.propertySpecService().integerSpec());
     }
 
-    public static PropertySpec<Long> longValue(String name, boolean required) {
+    public static PropertySpec longValue(String name, boolean required) {
         return longSpecBuilder(name, required).finish();
     }
 
-    public static PropertySpec<Long> longValue(String name, boolean required, Range<Long> validRange) {
+    public static PropertySpec longValue(String name, boolean required, Range<Long> validRange) {
         PropertySpecBuilder<Long> builder = longSpecBuilder(name, required);
         builder.addValues(toLongStream(validRange).collect(Collectors.toList()));
         return builder.finish();
     }
 
-    public static PropertySpec<Long> longValue(String name, boolean required, Long... validValues) {
+    public static PropertySpec longValue(String name, boolean required, Long... validValues) {
         PropertySpecBuilder<Long> builder = longSpecBuilder(name, required);
         builder.addValues(Arrays.asList(validValues));
         return builder.finish();
@@ -66,11 +66,11 @@ public final class UPLPropertySpecFactory {
         return specBuilder(name, required, () -> Services.propertySpecService().longSpec());
     }
 
-    public static PropertySpec<Boolean> booleanValue(String name, boolean required) {
+    public static PropertySpec booleanValue(String name, boolean required) {
         return booleanSpecBuilder(name, required).finish();
     }
 
-    public static PropertySpec<Boolean> booleanValue(String name, boolean required, boolean defaultValue) {
+    public static PropertySpec booleanValue(String name, boolean required, boolean defaultValue) {
         return booleanSpecBuilder(name, required).setDefaultValue(defaultValue).finish();
     }
 
@@ -78,15 +78,15 @@ public final class UPLPropertySpecFactory {
         return specBuilder(name, required, () -> Services.propertySpecService().booleanSpec());
     }
 
-    public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required) {
+    public static PropertySpec bigDecimal(String name, boolean required) {
         return bigDecimalSpecBuilder(name, required).finish();
     }
 
-    public static PropertySpec<BigDecimal> positiveBigDecimal(String name, boolean required) {
+    public static PropertySpec positiveBigDecimal(String name, boolean required) {
         return specBuilder(name, required, () -> Services.propertySpecService().positiveBigDecimalSpec()).finish();
     }
 
-    public static PropertySpec<BigDecimal> bigDecimal(String name, boolean required, BigDecimal defaultValue, BigDecimal... possibleValues) {
+    public static PropertySpec bigDecimal(String name, boolean required, BigDecimal defaultValue, BigDecimal... possibleValues) {
         PropertySpecBuilder<BigDecimal> builder = bigDecimalSpecBuilder(name, required);
         builder.addValues(Arrays.asList(possibleValues));
         if (possibleValues.length > 0) {
@@ -100,19 +100,19 @@ public final class UPLPropertySpecFactory {
         return specBuilder(name, required, () -> Services.propertySpecService().bigDecimalSpec());
     }
 
-    public static PropertySpec<String> string(String name, boolean required) {
+    public static PropertySpec string(String name, boolean required) {
         return new StringPropertySpec(name, required);
     }
 
-    public static PropertySpec<String> string(String name, boolean required, String... possibleValues) {
+    public static PropertySpec string(String name, boolean required, String... possibleValues) {
         return string(name, required, Optional.empty(), possibleValues);
     }
 
-    public static PropertySpec<String> stringWithDefault(String name, boolean required, String defaultValue, String... possibleValues) {
+    public static PropertySpec stringWithDefault(String name, boolean required, String defaultValue, String... possibleValues) {
         return string(name, required, Optional.of(defaultValue), possibleValues);
     }
 
-    private static PropertySpec<String> string(String name, boolean required, Optional<String> defaultValue, String... possibleValues) {
+    private static PropertySpec string(String name, boolean required, Optional<String> defaultValue, String... possibleValues) {
         PropertySpecBuilder<String> builder = stringSpecBuilder(name, required);
         builder.addValues(Arrays.asList(possibleValues));
         if (possibleValues.length > 0) {
