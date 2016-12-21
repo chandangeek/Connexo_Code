@@ -24,6 +24,9 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
@@ -489,22 +492,34 @@ public class ColumnImpl implements Column {
         return this.conversion.setObject(this, statement, index, this.domainValue(target));
     }
 
+    private List<Long> currentVersions(Object target) {
+        return Arrays.stream(getTable().getVersionColumns())
+                .map(column -> column.domainValue(target))
+                .map(Long.class::cast)
+                .collect(Collectors.toList());
+    }
+
     void setMACValue(PreparedStatement statement, int index, Object target) throws SQLException {
-        String base64Encoded = macValue(target);
+        setMACValue(statement, index, target, currentVersions(target));
+    }
+
+    void setMACValue(PreparedStatement statement, int index, Object target, List<Long> versions) throws SQLException {
+        String base64Encoded = macValue(target, versions);
         this.conversion.setObject(this, statement, index, base64Encoded);
     }
 
-    private String macValue(Object target) {
-        byte[] bytes = calculateHash(target);
+    private String macValue(Object target, List<Long> versions) {
+        byte[] bytes = calculateHash(target, versions);
         String encrypted = getTable().getEncrypter().encrypt(bytes);
         return Base64.getEncoder().encodeToString(encrypted.getBytes());
     }
 
-    private byte[] calculateHash(Object target) {
+    private byte[] calculateHash(Object target, List<Long> versions) {
+        Iterator<Long> versionIterator = versions.iterator();
         Object[] objects = getTable().getColumns()
                 .stream()
                 .filter(not(ColumnImpl::isMAC))
-                .map(column -> column.domainValue(target))
+                .map(column -> column.isVersion() ? versionIterator.next() : column.domainValue(target))
                 .map(Objects::toString)
                 .toArray();
         int hash = Objects.hash(objects);
@@ -514,7 +529,7 @@ public class ColumnImpl implements Column {
     boolean verifyMacValue(String macValue, Object target) {
         byte[] decodedMac = Base64.getDecoder().decode(macValue);
         byte[] decryptedHash = getTable().getEncrypter().decrypt(new String(decodedMac));
-        byte[] hash = calculateHash(target);
+        byte[] hash = calculateHash(target, currentVersions(target));
         return Arrays.equals(hash, decryptedHash);
     }
 

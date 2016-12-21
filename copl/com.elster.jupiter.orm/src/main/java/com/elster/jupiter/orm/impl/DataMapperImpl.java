@@ -320,7 +320,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		if (table.getAutoUpdateColumns().isEmpty()) {
 			throw new IllegalStateException("Nothing to touch");
 		} else {
-			update(object, Collections.emptyList());
+			update(object, table.getColumns().stream().filter(ColumnImpl::isMAC).collect(Collectors.toList()));
 		}
 	}
 

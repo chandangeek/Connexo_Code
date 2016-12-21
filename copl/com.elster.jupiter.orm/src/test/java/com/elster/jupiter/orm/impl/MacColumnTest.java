@@ -41,6 +41,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import org.junit.After;
@@ -61,6 +62,14 @@ public class MacColumnTest {
     static class Movie1 {
         private long id;
         private String title;
+        @SuppressWarnings("unused")
+        private String userName;
+        @SuppressWarnings("unused")
+        private long version;
+        @SuppressWarnings("unused")
+        private Instant createTime;
+        @SuppressWarnings("unused")
+        private Instant modTime;
     }
 
     static class Movie2 {
@@ -106,7 +115,8 @@ public class MacColumnTest {
 
     @Before
     public void setUp() {
-        clock = new ProgrammableClock(ZoneId.of("UTC"), now);
+        AtomicReference<Instant> times = new AtomicReference<>(now);
+        clock = new ProgrammableClock(ZoneId.of("UTC"), () -> times.getAndUpdate(instant -> instant.plusSeconds(10)));
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -246,6 +256,7 @@ public class MacColumnTest {
             Column idColumn = movieTable.addAutoIdColumn();
             movieTable.column("TITLE").map("title").varChar(80).add();
             movieTable.addMessageAuthenticationCodeColumn(MyEncrypter.INSTANCE);
+            movieTable.addAuditColumns();
             movieTable.primaryKey("TST_MOVIE1_PK").on(idColumn).add();
         }
         {
@@ -347,6 +358,34 @@ public class MacColumnTest {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    public void testPersistMultipleChildren() {
+        DataModel dataModel = dbSetup();
+        DataMapper<DVDCollection> mapper = dataModel.mapper(DVDCollection.class);
+
+        long id1, id2;
+
+        try (TransactionContext context = transactionService.getContext()) {
+            DVDCollection dvdCollection = new DVDCollection();
+            Movie2 jaws = new Movie2();
+            jaws.title = "Jaws";
+            jaws.collection.set(dvdCollection);
+            dvdCollection.movies.add(jaws);
+            id1 = jaws.id;
+            Movie2 missionImpossible = new Movie2();
+            missionImpossible.title = "MissionImpossible";
+            missionImpossible.collection.set(dvdCollection);
+            dvdCollection.movies.add(missionImpossible);
+            mapper.persist(dvdCollection);
+            id2 = missionImpossible.id;
+
+            context.commit();
+        }
+
+        DVDCollection loadedDvdCollection = mapper.find().get(0); // assert no MAcException occurs
+        loadedDvdCollection.movies.size(); // assert no MAcException occurs
     }
 
     @Test

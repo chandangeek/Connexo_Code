@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.util.Pair;
@@ -11,9 +12,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DataMapperWriter<T> {
@@ -117,14 +122,34 @@ public class DataMapperWriter<T> {
         }
         try (Connection connection = getConnection(true)) {
             List<IOResource> resources = new ArrayList<>();
-            try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(true))) {
+            SqlDialect sqlDialect = getTable().getDataModel().getSqlDialect();
+            try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(false))) {
+                Map<String, Iterator<Long>> nextVals = new HashMap<>();
                 for (T tuple : objects) {
                     prepare(tuple, false, now);
                     int index = 1;
+                    ColumnImpl macColumn = null;
+                    int macColumnIndex = 0;
                     for (ColumnImpl column : getColumns()) {
-                        if (!column.isAutoIncrement() && !column.hasInsertValue()) {
+                        if(column.isAutoIncrement()) {
+                            String sequenceName = column.getQualifiedSequenceName();
+                            if(nextVals.get(sequenceName) == null) {
+                                try (Statement stmt = connection.createStatement()) {
+                                    nextVals.put(sequenceName, sqlDialect.getMultipleNextVals(stmt, column.getQualifiedSequenceName(), objects.size()).iterator());
+                                }
+                            }
+                            Long nextVal = nextVals.get(sequenceName).next();
+                            column.setDomainValue(tuple,nextVal);
+                            statement.setObject(index++, column.hasIntValue() ? nextVal.intValue() : nextVal);
+                        } else if (column.isMAC()) {
+                            macColumn = column;
+                            macColumnIndex = index++;
+                        } else if (!column.hasInsertValue()) {
                             column.setObject(statement, index++, tuple).ifPresent(resources::add);
                         }
+                    }
+                    if (macColumn != null) {
+                        macColumn.setMACValue(statement, macColumnIndex, tuple);
                     }
                     statement.addBatch();
                 }
@@ -201,8 +226,16 @@ public class DataMapperWriter<T> {
             List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int index = 1;
+                ColumnImpl macColumn = null;
+                int macIndex = -1;
+                List<Long> versions = new ArrayList<>();
                 for (ColumnImpl column : columns) {
-                    column.setObject(statement, index++, object).ifPresent(resources::add);
+                    if (column.isMAC()) {
+                        macColumn = column;
+                        macIndex = index++;
+                    } else {
+                        column.setObject(statement, index++, object).ifPresent(resources::add);
+                    }
                 }
                 for (ColumnImpl column : getTable().getAutoUpdateColumns()) {
                     column.setObject(statement, index++, object).ifPresent(resources::add);
@@ -212,6 +245,10 @@ public class DataMapperWriter<T> {
                     Long value = (Long) column.domainValue(object);
                     versionCounts.add(Pair.of(column, value));
                     statement.setObject(index++, value);
+                    versions.add(value + 1);
+                }
+                if (macColumn != null) {
+                    macColumn.setMACValue(statement, macIndex, object, versions);
                 }
                 int result = statement.executeUpdate();
                 if (result != 1) {
