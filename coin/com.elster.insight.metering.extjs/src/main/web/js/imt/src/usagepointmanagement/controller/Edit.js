@@ -146,10 +146,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
         wizard.clearInvalid();
         if (direction > 0) {
+            validationParams.step = stepView.stepName;
             if (stepView.xtype === 'cps-info-form') {
                 validationParams.customPropertySetId = stepView.getRecord().getId();
-            } else {
-                validationParams.step = stepView.stepName;
             }
             me.doRequest({
                 params: validationParams,
