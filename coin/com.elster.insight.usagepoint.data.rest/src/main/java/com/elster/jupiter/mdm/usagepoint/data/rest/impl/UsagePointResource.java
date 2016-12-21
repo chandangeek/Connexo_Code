@@ -417,7 +417,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public Response createUsagePoint(UsagePointInfo info,
                                      @QueryParam("validate") boolean validate,
-                                     @QueryParam("step") long step,
+                                     @QueryParam("step") String step,
                                      @QueryParam("customPropertySetId") long customPropertySetId) {
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
         validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
@@ -432,14 +432,16 @@ public class UsagePointResource {
         validateServiceKind(info.serviceCategory);
 
         if (validate) {
-            if (step == 1) {
+            if (step.equals("generalInfo")) {
                 usagePointInfoFactory.newUsagePointBuilder(info).validate();
-            } else if (step == 2) {
+            } else if (step.equals("techInfo")) {
                 if (info.techInfo == null) {
                     throw exceptionFactory.newException(MessageSeeds.NO_SUCH_TECHNICAL_INFO, info.serviceCategory);
                 }
                 info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
                         .validate(), clock).validate();
+            } else if (step.equals("metrologyConfigurationWithMetersInfo")) {
+                activateMeters(info);
             } else if (customPropertySetId > 0) {
                 RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                         .stream()
@@ -665,7 +667,8 @@ public class UsagePointResource {
         if (interval.isConnected(upToNow)) {
             interval = interval.intersection(upToNow); // find out interval in past, or else throw an exception
             if (!interval.isEmpty()) {
-                interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval).orElse(Range.openClosed(now, now));
+                interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval)
+                        .orElse(Range.openClosed(now, now));
                 List<ChannelDataValidationSummaryInfo> result = usagePointDataService
                         .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
@@ -831,5 +834,14 @@ public class UsagePointResource {
         }
 
         return usagePoint;
+    }
+
+    private void activateMeters(UsagePointInfo info) {
+        try (TransactionContext transaction = transactionService.getContext()) {
+            UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
+            info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+
+            resourceHelper.activateMeters(info, usagePoint);
+        }
     }
 }
