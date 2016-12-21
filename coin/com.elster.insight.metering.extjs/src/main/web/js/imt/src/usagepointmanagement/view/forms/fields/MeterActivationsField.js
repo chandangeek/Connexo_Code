@@ -1,109 +1,123 @@
 Ext.define('Imt.usagepointmanagement.view.forms.fields.MeterActivationsField', {
-    extend: 'Ext.grid.Panel',
+    extend: 'Uni.view.container.EmptyGridContainer',
+    requires: [
+        'Uni.util.FormInfoMessage'
+    ],
     alias: 'widget.meter-activations-field',
-    name: 'loadLimit',
-    title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
-    ui: 'medium',
-    style: 'padding-left: 0;padding-right: 0;',
-
-    plugins: {
-        ptype: 'cellediting',
-        clicksToEdit: 1
-    },
 
     mixins: {
-        field: 'Ext.form.field.Field'
+        field: 'Ext.form.field.Field',
+        bindable: 'Ext.util.Bindable'
     },
-
-    store: Ext.create('Ext.data.Store', {
-        fields: ['meterRole', 'meter', 'activationDate']
-    }),
 
     initComponent: function () {
         var me = this;
 
-        me.columns = [
-            {
-                header: Uni.I18n.translate('general.meterRole', 'IMT', 'Meter role'),
-                dataIndex: 'meterRole',
-                flex: 1,
-                renderer: function (value) {
-                    return value ? value.name : '-';
-                }
+        me.grid = {
+            xtype: 'grid',
+            itemId: 'meter-activations-grid',
+            title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
+            ui: 'medium',
+            style: 'padding-left: 0;padding-right: 0;',
+            store: Ext.create('Ext.data.Store', {
+                fields: ['meterRole', 'meter', 'activationDate']
+            }),
+            plugins: {
+                ptype: 'cellediting',
+                clicksToEdit: 1
             },
-            {
-                header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
-                dataIndex: 'meter',
-                flex: 1,
-                editor: {
-                    xtype: 'combobox',
-                    labelWidth: 120,
-                    width: 360,
-                    multiSelect: false,
-                    emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
-                    store: 'Imt.usagepointsetup.store.Devices',
-                    displayField: 'name',
-                    valueField: 'name',
-                    anyMatch: true,
-                    queryMode: 'remote',
-                    queryParam: 'like',
-                    queryCaching: false,
-                    minChars: 1,
-                    loadStore: false,
-                    forceSelection: false,
-                    listeners: me.meterComboLiseners
-                }
-            },
-            {
-                header: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
-                dataIndex: 'activationDate',
-                flex: 1,
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+            columns: [
+                {
+                    header: Uni.I18n.translate('general.meterRole', 'IMT', 'Meter role'),
+                    dataIndex: 'meterRole',
+                    flex: 1,
+                    renderer: function (value) {
+                        return value ? value.name : '-';
+                    }
                 },
-                editor: {
-                    xtype: 'date-time',
-                    itemId: 'installation-time-date',
-                    required: true,
-                    layout: 'hbox',
-                    dateConfig: {
-                        width: 128
+                {
+                    header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
+                    dataIndex: 'meter',
+                    flex: 1,
+                    editor: {
+                        xtype: 'combobox',
+                        labelWidth: 120,
+                        width: 360,
+                        multiSelect: false,
+                        emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
+                        store: 'Imt.usagepointsetup.store.Devices',
+                        displayField: 'name',
+                        valueField: 'name',
+                        anyMatch: true,
+                        queryMode: 'remote',
+                        queryParam: 'like',
+                        queryCaching: false,
+                        minChars: 1,
+                        loadStore: false,
+                        forceSelection: false,
+                        listeners: me.meterComboLiseners
+                    }
+                },
+                {
+                    header: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
+                    dataIndex: 'activationDate',
+                    flex: 1,
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                     },
-                    dateTimeSeparatorConfig: {
-                        html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase(),
-                        style: 'color: #686868'
-                    },
-                    hoursConfig: {
-                        width: 80
-                    },
-                    minutesConfig: {
-                        width: 80
+                    editor: {
+                        xtype: 'date-time',
+                        itemId: 'installation-time-date',
+                        required: true,
+                        layout: 'hbox',
+                        dateConfig: {
+                            width: 128
+                        },
+                        dateTimeSeparatorConfig: {
+                            html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase(),
+                            style: 'color: #686868'
+                        },
+                        hoursConfig: {
+                            width: 80
+                        },
+                        minutesConfig: {
+                            width: 80
+                        }
                     }
                 }
-            }
-        ];
+            ]
+        };
+
+        me.emptyComponent = {
+            xtype: 'uni-form-info-message',
+            text: Uni.I18n.translate('meterActivationsField.emptyMessage', 'IMT', 'No meter roles defined on the selected metrology configuration')
+        };
 
         me.callParent(arguments);
     },
 
     setMeterRoles: function (meterRoles, usagePointCreationDate) {
-        var me = this;
-
-        me.getStore().loadData(_.map(meterRoles,
-            function (meterRole) {
-                return {
-                    meterRole: meterRole,
-                    activationDate: usagePointCreationDate ? new Date(usagePointCreationDate) : new Date()
+        var me = this,
+            store = me.down('#meter-activations-grid').getStore(),
+            data = _.map(meterRoles,
+                function (meterRole) {
+                    return {
+                        meterRole: meterRole,
+                        activationDate: usagePointCreationDate ? new Date(usagePointCreationDate) : new Date()
+                    }
                 }
-            }
-        ));
+            );
+
+        store.loadData(data);
+        store.fireEvent('load', data);
     },
 
     getValue: function () {
         var me = this,
+            store = me.down('#meter-activations-grid').getStore(),
             value = [];
 
-        me.getStore().each(function (record) {
+        store.each(function (record) {
             var result = record.getData();
 
             if (!Ext.isEmpty(result.meter)) {
