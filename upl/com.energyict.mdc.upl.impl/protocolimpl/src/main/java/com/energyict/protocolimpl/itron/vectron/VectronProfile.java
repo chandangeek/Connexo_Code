@@ -10,16 +10,24 @@
 
 package com.energyict.protocolimpl.itron.vectron;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.vectron.basepages.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.itron.vectron.basepages.MassMemoryRecordBasePage;
+import com.energyict.protocolimpl.itron.vectron.basepages.RegisterConfig;
 
-import java.io.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,7 +49,6 @@ public class VectronProfile {
     }
     
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-
         getLogger().info("read from " + lastReading);
         
         ProfileData profileData = new ProfileData();
@@ -175,15 +182,10 @@ public class VectronProfile {
 
                     IntervalData intervalData = new IntervalData(new Date(cal.getTime().getTime()), eiStatus, protocolStatus );
 
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("   > ").append(format(cal)).append(", recordNr=").append(recordNr).append(", interval=").append(interval);
-
                     for (int channel=0;channel<nrOfChannels;channel++) {
                         intervalData.addValue(massMemoryRecord.getIntervalRecords()[interval].getValues()[channel]);
-                        sb.append(", ch"+channel+"="+massMemoryRecord.getIntervalRecords()[interval].getValues()[channel]);
 
                     } // for (int channel=0;channel<nrOfChannels;channel++)
-                    getLogger().info(sb.toString());
 
                     intervalDatas.add(intervalData);
                     cal.add(Calendar.MINUTE,(-1)*profileInterval);

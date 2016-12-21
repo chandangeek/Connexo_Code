@@ -102,13 +102,13 @@ public class SentinelLoadProfile {
                 offset += nrOfEntriesRemaining;
             }
             HistoryEntry[] historyEntries = historyLog.getEntries();
-            getLogger().fine("Got " + historyEntries.length + " history entries");
+            getLogger().finest("Got " + historyEntries.length + " history entries");
             for (HistoryEntry historyEntry : historyEntries) {
                 if (historyEntry.getHistoryTime().after(to)) {
-                    getLogger().severe(Utils.format("Skipping history ({0}), because date is in the future", new Object[]{historyEntry.getHistoryTime()}));
+                    getLogger().fine(Utils.format("Skipping history ({0}), because date is in the future", new Object[]{historyEntry.getHistoryTime()}));
                     stopReading = true;
                 } else if (historyEntry.getHistoryTime().before(lastReading)) {
-                    getLogger().finest(Utils.format("Skipping history ({0}), because date is before last reading", new Object[]{historyEntry.getHistoryTime()}));
+                    getLogger().fine(Utils.format("Skipping history ({0}), because date is before last reading", new Object[]{historyEntry.getHistoryTime()}));
                 }
 
                 meterEvents.add(createMeterEvent(historyEntry));
@@ -154,7 +154,7 @@ public class SentinelLoadProfile {
 
                 lpbd = sentinel.getStandardTableFactory().getLoadProfileDataSetTable(0,block,1).getLoadProfileDataSet().getLoadProfileDataSets()[0];
                 loadProfileBlockDatas.add(lpbd);
-                getLogger().info("KV_DEBUG> save block "+block+", lpbd end time="+lpbd.getBlockEndTime());
+                getLogger().finest("KV_DEBUG> save block "+block+", lpbd end time="+lpbd.getBlockEndTime());
 
                 currentDayBlock=(block==lastBlock);
                 if  (currentDayBlock || (lpbd.getBlockEndTime().after(newTo))) break;
@@ -196,7 +196,7 @@ public class SentinelLoadProfile {
 
             Calendar cal = Calendar.getInstance(sentinel.getTimeZone());
             cal.setTime(lpbd.getBlockEndTime());
-            getLogger().info("KV_DEBUG> ************************ Block "+block+", EndTime="+lpbd.getBlockEndTime());
+            getLogger().finest("KV_DEBUG> ************************ Block "+block+", EndTime="+lpbd.getBlockEndTime());
 
             IntervalSet[] intervalSets = lpbd.getLoadProfileInterval();
             int nrOfIntervals = currentDayBlock?nrOfValidIntervals:intervalSets.length;
@@ -220,7 +220,6 @@ public class SentinelLoadProfile {
         } // for (int channel=0;channel<sentinel.getNumberOfChannels();channel++)
         intervalDatas.add(intervalData);
         cal.add(Calendar.SECOND,(-1)*sentinel.getProfileInterval());
-        getLogger().info("KV_DEBUG> interval "+i+", time="+cal.getTime());
     }
 
     public com.energyict.protocolimpl.itron.sentinel.tables.AbstractLoadProfileDataSetTable getLoadProfileDataSetTable(int blockNrOffset, int nrOfBlocksToRequest, int intervalsets, int count, int chunkSize, byte[] partialReadData) throws IOException {
@@ -348,7 +347,7 @@ public class SentinelLoadProfile {
             List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
             for (List<LoadProfileBlockData> aList : filtered) {
                 Calendar cal = Calendar.getInstance(sentinel.getTimeZone());
-                sentinel.getLogger().info("Set timezone to " + sentinel.getTimeZone());
+                sentinel.getLogger().finest("Set timezone to " + sentinel.getTimeZone());
                 boolean calSet = false;
                 for (int loop = (aList.size() - 1); loop >= 0; loop--) {
                     LoadProfileBlockData lpbd = aList.get(loop);
