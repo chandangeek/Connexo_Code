@@ -239,10 +239,6 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.alarms.extjs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
         </dependency>
         <dependency>
@@ -318,11 +314,15 @@
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.eneryict</groupId>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.alarms</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.eneryict</groupId>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.alarms.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.alarms.rest</artifactId>
         </dependency>
     </dependencies>
