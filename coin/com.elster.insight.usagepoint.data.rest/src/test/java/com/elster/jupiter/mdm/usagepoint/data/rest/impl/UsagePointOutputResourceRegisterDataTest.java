@@ -13,11 +13,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.AbstractCimChannel;
-import com.elster.jupiter.metering.impl.BaseReadingRecordImpl;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -32,7 +28,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -333,7 +328,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM),anyListOf(BaseReading.class));
+        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM), anyListOf(BaseReading.class));
     }
 
     @Test

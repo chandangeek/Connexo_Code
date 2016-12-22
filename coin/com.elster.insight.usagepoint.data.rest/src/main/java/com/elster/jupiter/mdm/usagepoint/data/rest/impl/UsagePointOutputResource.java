@@ -282,7 +282,8 @@ public class UsagePointOutputResource {
                     .min(Instant::compareTo)
                     .map(r -> r.minusSeconds(1L))
                     .get();
-            if(currentLastChecked.filter(instant -> lastChecked.isBefore(instant.plus(channel.getIntervalLength().get()))).isPresent()) {
+            if (currentLastChecked.filter(instant -> lastChecked.isBefore(instant.plus(channel.getIntervalLength()
+                    .get()))).isPresent()) {
                 validationService.updateLastChecked(channel, lastChecked);
             }
         }
@@ -376,10 +377,12 @@ public class UsagePointOutputResource {
         List<OutputRegisterDataInfo> outputRegisterData = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
-            ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
+            ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
+                    .get();
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
-                AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType())
+                AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable
+                        .getReadingType())
                         .get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
 
@@ -455,8 +458,10 @@ public class UsagePointOutputResource {
         if (readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_REGULAR, outputId);
         }
-        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract).get();
-        AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType())
+        ChannelsContainer channelsContainer = effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
+                .get();
+        AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable
+                .getReadingType())
                 .get();
         ValidationEvaluator evaluator = validationService.getEvaluator();
         Instant requestedTime = Instant.ofEpochMilli(requestedTimeStamp);
@@ -523,7 +528,7 @@ public class UsagePointOutputResource {
             Optional<Instant> currentLastChecked = validationService.getLastChecked(channel);
             channel.editReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
             Instant lastChecked = reading.getTimeStamp().minusSeconds(1L);
-            if(currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
+            if (currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
                 validationService.updateLastChecked(channel, lastChecked);
             }
         }
@@ -551,7 +556,7 @@ public class UsagePointOutputResource {
         channel.getReading(Instant.ofEpochMilli(timeStamp))
                 .ifPresent(reading -> channel.removeReadings(QualityCodeSystem.MDM, Collections.singletonList(reading)));
         Instant lastChecked = Instant.ofEpochMilli(timeStamp).minusSeconds(1L);
-        if(currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
+        if (currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
             validationService.updateLastChecked(channel, lastChecked);
         }
         return registerDataInfo;

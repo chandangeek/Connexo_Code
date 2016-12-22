@@ -93,7 +93,8 @@ public class EstimationHelper {
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 
         List<IntervalReadingRecord> channelData = ranges.stream()
-                .flatMap(r -> channel.getIntervalReadings(Ranges.openClosed(r.lowerEndpoint(), r.upperEndpoint())).stream())
+                .flatMap(r -> channel.getIntervalReadings(Ranges.openClosed(r.lowerEndpoint(), r.upperEndpoint()))
+                        .stream())
                 .collect(Collectors.toList());
 
         for (EstimationResult result : results) {
@@ -116,8 +117,10 @@ public class EstimationHelper {
 
 
     private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData) {
-        return channelData.stream().filter(readingRecord -> readingRecord.getTimeStamp().equals(estimatable.getTimestamp()))
-                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable)).findFirst();
+        return channelData.stream()
+                .filter(readingRecord -> readingRecord.getTimeStamp().equals(estimatable.getTimestamp()))
+                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable))
+                .findFirst();
     }
 
     private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable) {
