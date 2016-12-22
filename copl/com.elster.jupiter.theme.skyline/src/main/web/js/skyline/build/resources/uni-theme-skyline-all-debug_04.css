@@ -10413,6 +10413,11 @@ a.x-datepicker-date:hover {
   border-radius: 10px 10px 0 0;
 }
 
+/* line 11, ../../sass/src/grid/header/Container.scss */
+.x-td-content-middle {
+  vertical-align: middle;
+}
+
 /* line 1, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu {
   -webkit-border-radius: 8px;

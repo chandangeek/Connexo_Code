@@ -1,3 +1,8 @@
+/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-tab-small-top-br {
+  background-position: right -15px;
+}
+
 /* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-tab-small-top-ml {
   background-position: 0 top;

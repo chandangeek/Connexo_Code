@@ -15037,6 +15037,11 @@ a.x-datepicker-date:hover {
   border-radius: 10px 10px 0 0;
 }
 
+/* line 11, ../../sass/src/grid/header/Container.scss */
+.x-td-content-middle {
+  vertical-align: middle;
+}
+
 /* line 1, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu {
   -webkit-border-radius: 8px;
@@ -18171,9 +18176,4 @@ a.x-datepicker-date:hover {
 /* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-tab-small-top-bl {
   background-position: 0 -12px;
-}
-
-/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-tab-small-top-br {
-  background-position: right -15px;
 }
