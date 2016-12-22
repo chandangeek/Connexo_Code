@@ -145,7 +145,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     upStreamFromNode: function(id){
         var me = this;
-        console.log(arguments);
         var neighbours = {};
         function areNeighboursOf(item){
             return neighbours[item.id];
@@ -200,7 +199,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     downStreamFromNode: function(id){
         var me = this;
-        console.log(arguments);
         var neighbours = {};
         function areNeighboursOf(item){
             return neighbours[item.id];
@@ -237,14 +235,21 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         var nodes = this.store.data.items[0].nodes();
         var links = this.store.data.items[0].links();
         var me = this;
+        var nodeStoreForComboBox = new Ext.data.SimpleStore({
+            fields: ['id', 'name']
+        });
         me.top = ["1"];
         nodes.each(function(node){
+            nodeStoreForComboBox.add({
+                id: node.get('id'),
+                name: node.get('name')
+            });
             me.chartData.items.push({
                         id: node.get('id'),
                         type: 'node',
                        // t: node.deviceType,
-                        b: "rgb(0, 102, 153)",
-                        c: "rgb(255,255,255)",
+                        b: "#BEE64B",
+                        c: "#BEE64B",
                         t: node.get('name'),
                         e: 1,
                         fb: true,
@@ -275,6 +280,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         me.chart.load(me.chartData, function () {
                     me.chart.layout();
                 });
+        me.sideMenu.down('combobox').bindStore(nodeStoreForComboBox);
+     //   debugger;
     },
 
     clearLayers: function(){
