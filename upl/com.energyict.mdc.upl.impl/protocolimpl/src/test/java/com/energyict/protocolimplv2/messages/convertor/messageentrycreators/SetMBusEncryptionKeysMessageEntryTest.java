@@ -6,6 +6,8 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 
 import com.energyict.cpo.PropertySpec;
@@ -15,10 +17,8 @@ import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice;
 

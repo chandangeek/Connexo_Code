@@ -1,7 +1,19 @@
 package com.energyict.protocolimpl.coronis.amco.rtm;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ProfileType;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -37,147 +49,147 @@ public class RtmMessages implements MessageProtocol {
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (messageEntry.getContent().indexOf("<ForceTimeSync") >= 0) {
+            if (messageEntry.getContent().contains("<ForceTimeSync")) {
                 return forceTimeSync(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<EncoderModelDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<EncoderModelDetection")) {
                 return encoderModelDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteIndexA") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteIndexA")) {
                 return writeIndex(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<WriteIndexB") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteIndexB")) {
                 return writeIndex(messageEntry, 2);
-            } else if (messageEntry.getContent().indexOf("<WriteIndexC") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteIndexC")) {
                 return writeIndex(messageEntry, 3);
-            } else if (messageEntry.getContent().indexOf("<WriteIndexD") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteIndexD")) {
                 return writeIndex(messageEntry, 4);
-            } else if (messageEntry.getContent().indexOf("<WriteEncoderUnit") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteEncoderUnit")) {
                 return writeEncoderUnit(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetAlarmWindowConfiguration") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetAlarmWindowConfiguration")) {
                 return setAlarmWindowConfiguration(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<AutoConfigAlarmRoute") >= 0) {
+            } else if (messageEntry.getContent().contains("<AutoConfigAlarmRoute")) {
                 return autoConfigAlarmRoute(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WritePulseWeight") >= 0) {
+            } else if (messageEntry.getContent().contains("<WritePulseWeight")) {
                 return writePulseWeight(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMeterModelA") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMeterModelA")) {
                 return setMeterModel(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<SetMeterModelB") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMeterModelB")) {
                 return setMeterModel(messageEntry, 2);
-            } else if (messageEntry.getContent().indexOf("<SetMeterModelC") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMeterModelC")) {
                 return setMeterModel(messageEntry, 3);
-            } else if (messageEntry.getContent().indexOf("<SetMeterModelD") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMeterModelD")) {
                 return setMeterModel(messageEntry, 4);
-            } else if (messageEntry.getContent().indexOf("<SetOperatingMode") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetOperatingMode")) {
                 return setOperatingMode(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatus") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatus")) {
                 return resetApplicationStatus(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetAlarmConfiguration") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetAlarmConfiguration")) {
                 return setAlarmConfiguration(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<EnableAllAlarms") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnableAllAlarms")) {
                 return enableAllAlarms(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAllAlarms") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAllAlarms")) {
                 return disableAllAlarms(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnBackFlow") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnBackFlow")) {
                 return setAlarmOnBackFlow(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnCutCable") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnCutCable")) {
                 return setAlarmOnCutCable(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnCutRegisterCable") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnCutRegisterCable")) {
                 return setAlarmOnCutRegisterCable(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnDefaultValve") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnDefaultValve")) {
                 return setAlarmOnDefaultValve(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnEncoderCommunicationFailure") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnEncoderCommunicationFailure")) {
                 return setAlarmOnEncoderCommunicationFailure(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnEncoderMisread") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnEncoderMisread")) {
                 return setAlarmOnEncoderMisread(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnHighThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnHighThreshold")) {
                 return setAlarmOnHighThreshold(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnLowBattery") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnLowBattery")) {
                 return setAlarmOnLowBattery(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<setAlarmOnLowThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<setAlarmOnLowThreshold")) {
                 return setAlarmOnLowThreshold(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnBackFlow") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnBackFlow")) {
                 return setAlarmOnBackFlow(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnCutCable") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnCutCable")) {
                 return setAlarmOnCutCable(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnCutRegisterCable") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnCutRegisterCable")) {
                 return setAlarmOnCutRegisterCable(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnDefaultValve") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnDefaultValve")) {
                 return setAlarmOnDefaultValve(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnEncoderCommunicationFailure") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnEncoderCommunicationFailure")) {
                 return setAlarmOnEncoderCommunicationFailure(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnEncoderMisread") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnEncoderMisread")) {
                 return setAlarmOnEncoderMisread(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnHighThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnHighThreshold")) {
                 return setAlarmOnHighThreshold(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnLowBattery") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnLowBattery")) {
                 return setAlarmOnLowBattery(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<disableAlarmOnLowThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<disableAlarmOnLowThreshold")) {
                 return setAlarmOnLowThreshold(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfRepeaters") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfRepeaters")) {
                 return setNumberOfRepeaters(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRepeaterAddress") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRepeaterAddress")) {
                 return setRepeaterAddress(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRecipientAddress") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRecipientAddress")) {
                 return setRecipientAddress(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteSamplingPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteSamplingPeriod")) {
                 return writeSamplingPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteDayOfWeekOrMonth") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteDayOfWeekOrMonth")) {
                 return writeDayOfWeekOrMonth(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetHourOfMeasurement") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetHourOfMeasurement")) {
                 return setHourOfMeasurement(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<StopDataLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<StopDataLogging")) {
                 return stopDataLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetPeriodicStepsLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetPeriodicStepsLogging")) {
                 return setPeriodicStepsLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetWeeklyDataLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetWeeklyDataLogging")) {
                 return setWeeklyLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMonthlyDataLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMonthlyDataLogging")) {
                 return setMonthlyLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteTOUBucketStartHour") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteTOUBucketStartHour")) {
                 return writeTOUBucketStartHour(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<EnableTOUBuckets") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnableTOUBuckets")) {
                 return enableTOUBuckets(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableTOUBuckets") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableTOUBuckets")) {
                 return disableTOUBuckets(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<RestartDataLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<RestartDataLogging")) {
                 return restartDataLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetWakeUpChannel") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetWakeUpChannel")) {
                 return setWakeUpChannel(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetInterAnswerDelay") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetInterAnswerDelay")) {
                 return setInterAnswerDelay(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetStartOfMechanism") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetStartOfMechanism")) {
                 return setStartOfMechanism(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetEndOfMechanism") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetEndOfMechanism")) {
                 return setEndOfMechanism(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetTransmissionPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetTransmissionPeriod")) {
                 return setTransmissionPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMaxCancelTimeout") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMaxCancelTimeout")) {
                 return setMaxCancelTimeout(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<AddCommandToBuffer") >= 0) {
+            } else if (messageEntry.getContent().contains("<AddCommandToBuffer")) {
                 return addCommandToBuffer(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<EnableBubbleUpMechanism") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnableBubbleUpMechanism")) {
                 return enableBubbleUpMechanism(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableBubbleUpMechanism") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableBubbleUpMechanism")) {
                 return disableBubbleUpMechanism(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ClearCommandBuffer") >= 0) {
+            } else if (messageEntry.getContent().contains("<ClearCommandBuffer")) {
                 return clearCommandBuffer(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<StartBubbleUpMechanism") >= 0) {
+            } else if (messageEntry.getContent().contains("<StartBubbleUpMechanism")) {
                 return startBubbleUpMechanism(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetLeakageConsumptionRate") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetLeakageConsumptionRate")) {
                 return setLeakageConsumptionRate(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetLeakageDetectionPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetLeakageDetectionPeriod")) {
                 return setLeakageDetectionPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetBackflowDetectionPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetBackflowDetectionPeriod")) {
                 return setBackflowDetectionPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfBackflowsBeforeIndication") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfBackflowsBeforeIndication")) {
                 return setNumberOfBackflowsBeforeIndication(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteBackflowThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteBackflowThreshold")) {
                 return writeBackflowThreshold(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ClearBackFlowFlags") >= 0) {
+            } else if (messageEntry.getContent().contains("<ClearBackFlowFlags")) {
                 return clearBackFlowFlags(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<OpenWaterValve") >= 0) {
+            } else if (messageEntry.getContent().contains("<OpenWaterValve")) {
                 return openWaterValve(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<CloseWaterValve") >= 0) {
+            } else if (messageEntry.getContent().contains("<CloseWaterValve")) {
                 return closeWaterValve(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<CleanWaterValve") >= 0) {
+            } else if (messageEntry.getContent().contains("<CleanWaterValve")) {
                 return cleanWaterValve(messageEntry);
             } else {
                 return MessageResult.createFailed(messageEntry);
@@ -1110,9 +1122,7 @@ public class RtmMessages implements MessageProtocol {
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
         tagSpec.add(addAttribute);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1120,13 +1130,9 @@ public class RtmMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithTwoAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1134,15 +1140,10 @@ public class RtmMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithThreeAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(addAttribute3);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1150,55 +1151,35 @@ public class RtmMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithFourAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(addAttribute3);
-        MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, true);
-        tagSpec.add(addAttribute4);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageAttributeSpec(attr4, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-
 
     protected MessageSpec addBasicMsgWithOptionalAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, false);
-        tagSpec.add(addAttribute2);
-        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, false);
-        tagSpec.add(addAttribute3);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, false));
+        tagSpec.add(new MessageAttributeSpec(attr3, false));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
 
-
     protected MessageSpec addBasicMsgWithOptionalAttr2(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, false);
-        tagSpec.add(addAttribute2);
-        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, false);
-        tagSpec.add(addAttribute3);
-        MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, true);
-        tagSpec.add(addAttribute4);
-        MessageAttributeSpec addAttribute5 = new MessageAttributeSpec(attr5, true);
-        tagSpec.add(addAttribute5);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, false));
+        tagSpec.add(new MessageAttributeSpec(attr3, false));
+        tagSpec.add(new MessageAttributeSpec(attr4, true));
+        tagSpec.add(new MessageAttributeSpec(attr5, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1206,23 +1187,14 @@ public class RtmMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithSevenAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5, String attr6, String attr7) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(addAttribute3);
-        MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, false);
-        tagSpec.add(addAttribute4);
-        MessageAttributeSpec addAttribute5 = new MessageAttributeSpec(attr5, false);
-        tagSpec.add(addAttribute5);
-        MessageAttributeSpec addAttribute6 = new MessageAttributeSpec(attr6, false);
-        tagSpec.add(addAttribute6);
-        MessageAttributeSpec addAttribute7 = new MessageAttributeSpec(attr7, false);
-        tagSpec.add(addAttribute7);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageAttributeSpec(attr4, false));
+        tagSpec.add(new MessageAttributeSpec(attr5, false));
+        tagSpec.add(new MessageAttributeSpec(attr6, false));
+        tagSpec.add(new MessageAttributeSpec(attr7, false));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1247,43 +1219,42 @@ public class RtmMessages implements MessageProtocol {
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Object o1 : msgTag.getAttributes()) {
-            MessageAttribute att = (MessageAttribute) o1;
-            if (att.getValue() == null || att.getValue().length() == 0) {
+        for (MessageAttribute att : msgTag.getAttributes()) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Object o : msgTag.getSubElements()) {
             MessageElement elt = (MessageElement) o;
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {

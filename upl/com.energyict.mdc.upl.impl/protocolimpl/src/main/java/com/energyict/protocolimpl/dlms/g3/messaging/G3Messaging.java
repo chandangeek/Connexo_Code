@@ -1,5 +1,10 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+
 import com.energyict.cbo.ApplicationException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
@@ -18,11 +23,7 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.g3.G3Clock;
@@ -198,8 +199,7 @@ public class G3Messaging extends AnnotatedMessaging {
             int codeId = 0;
 
             // b. Attributes
-            for (Object o1 : msgTag.getAttributes()) {
-                MessageAttribute att = (MessageAttribute) o1;
+            for (MessageAttribute att : msgTag.getAttributes()) {
                 if (RtuMessageConstant.TOU_ACTIVITY_NAME.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
                         name = att.getValue();
@@ -298,7 +298,7 @@ public class G3Messaging extends AnnotatedMessaging {
 
     @Override
     public void applyMessages(List messageEntries) throws IOException {
-        List<AnnotatedMessage> annotatedMessages = new ArrayList<AnnotatedMessage>(messageEntries.size());
+        List<AnnotatedMessage> annotatedMessages = new ArrayList<>(messageEntries.size());
         for (Object msgObject : messageEntries) {
             if (msgObject instanceof MessageEntry) {
                 MessageEntry messageEntry = (MessageEntry) msgObject;

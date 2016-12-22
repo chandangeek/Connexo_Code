@@ -1,11 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -37,9 +42,9 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebR
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfigMessageEntry;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
@@ -70,58 +75,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // contactor related
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
-        //TODO: add optional activation date and outputId!
-
-        // firmware upgrade related
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE, new WebRTUFirmwareUpgradeWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, firmwareUpdateActivationDateAttributeName));
-
-        // activity calendar related
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND, new ActivityCalendarConfigMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new ActivityCalendarConfigWithActivationDateMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName, activityCalendarActivationDateAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDayTableMessageEntry(specialDaysCodeTableAttributeName));
-
-        // security related
-        registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new ActivateDlmsEncryptionMessageEntry(encryptionLevelAttributeName));
-        registry.put(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL, new ChangeDlmsAuthenticationLevelMessageEntry(authenticationLevelAttributeName));
-        registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY, new ChangeNTADataTransportEncryptionKeyMessageEntry(newEncryptionKeyAttributeName));
-        registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY, new ChangeNTADataTransportAuthenticationKeyMessageEntry(newAuthenticationKeyAttributeName));
-        registry.put(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD, new ChangeHLSSecretMessageEntry(newPasswordAttributeName));
-
-        // clock related
-        registry.put(ClockDeviceMessage.SET_TIME, new SetTimeMessageEntry(meterTimeAttributeName));
-
-        // network and connectivity
-        registry.put(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM, new ActivateNTASmsWakeUpMessageEntry());
-        registry.put(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP, new DeactivateNTASmsWakeUpMessageEntry());
-        registry.put(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS, new GprsUserCredentialsMessageEntry(usernameAttributeName, passwordAttributeName));
-        registry.put(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS, new ApnCredentialsMessageEntry(apnAttributeName, usernameAttributeName, passwordAttributeName));
-        registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName));
-
-        // Device Actions
-        registry.put(DeviceActionMessage.GLOBAL_METER_RESET, new GlobalMeterReset());
-
-        // Advanced test
-        registry.put(AdvancedTestMessage.XML_CONFIG, new XmlConfigMessageEntry(xmlConfigAttributeName));
-
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public WebRTUZ3MessageConverter() {
-        super();
+    public WebRTUZ3MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
@@ -137,9 +92,9 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return String.valueOf(((UserFile) messageAttribute).getId());
+            return String.valueOf(((DeviceMessageFile) messageAttribute).getId());
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return String.valueOf(((Code) messageAttribute).getId());
+            return String.valueOf(((TariffCalender) messageAttribute).getId());
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
@@ -156,6 +111,45 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                    .<DeviceMessageSpec, MessageEntryCreator>builder()
+                    // contactor related
+                    .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new DisconnectLoadMessageEntry())
+                    .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new ConnectLoadMessageEntry())
+                    .put(messageSpec(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE), new ConnectControlModeMessageEntry(contactorModeAttributeName))
+                    //TODO: add optional activation date and outputId!
+
+                    // firmware upgrade related
+                    .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new WebRTUFirmwareUpgradeWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName))
+                    .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE), new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, firmwareUpdateActivationDateAttributeName))
+
+                    // activity calendar related
+                    .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND), new ActivityCalendarConfigMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName))
+                    .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new ActivityCalendarConfigWithActivationDateMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName, activityCalendarActivationDateAttributeName))
+                    .put(messageSpec(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND), new SpecialDayTableMessageEntry(specialDaysCodeTableAttributeName))
+
+                    // security related
+                    .put(messageSpec(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION), new ActivateDlmsEncryptionMessageEntry(encryptionLevelAttributeName))
+                    .put(messageSpec(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL), new ChangeDlmsAuthenticationLevelMessageEntry(authenticationLevelAttributeName))
+                    .put(messageSpec(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY), new ChangeNTADataTransportEncryptionKeyMessageEntry(newEncryptionKeyAttributeName))
+                    .put(messageSpec(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY), new ChangeNTADataTransportAuthenticationKeyMessageEntry(newAuthenticationKeyAttributeName))
+                    .put(messageSpec(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD), new ChangeHLSSecretMessageEntry(newPasswordAttributeName))
+
+                    // clock related
+                    .put(messageSpec(ClockDeviceMessage.SET_TIME), new SetTimeMessageEntry(meterTimeAttributeName))
+
+                    // network and connectivity
+                    .put(messageSpec(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM), new ActivateNTASmsWakeUpMessageEntry())
+                    .put(messageSpec(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP), new DeactivateNTASmsWakeUpMessageEntry())
+                    .put(messageSpec(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS), new GprsUserCredentialsMessageEntry(usernameAttributeName, passwordAttributeName))
+                    .put(messageSpec(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS), new ApnCredentialsMessageEntry(apnAttributeName, usernameAttributeName, passwordAttributeName))
+                    .put(messageSpec(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST), new AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName))
+
+                    // Device Actions
+                    .put(messageSpec(DeviceActionMessage.GLOBAL_METER_RESET), new GlobalMeterReset())
+
+                    // Advanced test
+                    .put(messageSpec(AdvancedTestMessage.XML_CONFIG), new XmlConfigMessageEntry(xmlConfigAttributeName))
+                    .build();
     }
 }

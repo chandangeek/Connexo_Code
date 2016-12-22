@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 
 /**
  * @author jme
@@ -14,16 +14,11 @@ public final class MessagingTools {
 		// Hide the constructor of this util class
 	}
 
-	/**
-	 * @param messageEntry
-	 * @param tagName
-	 * @return
-	 */
 	public static String getContentOfAttribute(MessageEntry messageEntry, String tagName) {
-		if ((tagName != null) && (tagName.length() > 0)) {
+		if ((tagName != null) && (!tagName.isEmpty())) {
 			String messageContent = messageEntry.getContent();
 			String startingTag = tagName + "=\"";
-			if (messageContent.indexOf(startingTag) != -1) {
+			if (messageContent.contains(startingTag)) {
 				int begin = messageContent.indexOf(startingTag) + tagName.length() + 2;
 				if (begin <= messageContent.length()) {
 					String value = messageContent.substring(begin);
@@ -38,9 +33,7 @@ public final class MessagingTools {
 	}
 
     public static MessageValueSpec getEmptyMessageValueSpec() {
-        MessageValueSpec valueSpec = new MessageValueSpec();
-        valueSpec.setValue(" ");
-        return valueSpec;
+	    return new MessageValueSpec(" ");
     }
 
     public static MessageTagSpec getAttributesOnlyMessageTagSpec(String tagName) {

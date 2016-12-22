@@ -1,8 +1,16 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdw.core.*;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
-import java.util.*;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdw.core.CodeDayType;
+import com.energyict.mdw.core.CodeDayTypeDef;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Converts a given {@link Code} to easily usable objects for XML parsing
@@ -12,7 +20,7 @@ public class CodeTableParser {
     /**
      * The used CodeTable for this parser
      */
-    private final Code codeTable;
+    private final TariffCalender calender;
 
     /**
      * Defines a relation between the DayType Database ID and the ID that will be used in the xml file
@@ -45,8 +53,8 @@ public class CodeTableParser {
     /**
      * Default constructor
      */
-    public CodeTableParser(Code codeTable) {
-        this.codeTable = codeTable;
+    public CodeTableParser(TariffCalender calender) {
+        this.calender = calender;
     }
 
     /**
@@ -76,7 +84,7 @@ public class CodeTableParser {
      */
     private void createTempDayIDMap() {
         int counter = 0;
-        for (CodeDayType cdt : codeTable.getDayTypes()) {
+        for (CodeDayType cdt : calender.getDayTypes()) {
             tempDayIDMap.put(cdt.getId(), counter++);
         }
     }
@@ -86,7 +94,7 @@ public class CodeTableParser {
      */
     private void createTempSeasonIdMap(){
         int counter = 0;
-        for(CodeCalendar cCalendars : codeTable.getCalendars()){
+        for(CodeCalendar cCalendars : calender.getCalendars()){
             if(!tempSeasonIdMap.containsKey(cCalendars.getSeason()) && (cCalendars.getSeason() != 0)){
                 tempSeasonIdMap.put(cCalendars.getSeason(), counter++);
             }
@@ -107,7 +115,7 @@ public class CodeTableParser {
      * Construct a list of {@link com.energyict.mdw.core.CodeDayType}s
      */
     private final void constructDayProfileMap() {
-        for (CodeDayType cdt : codeTable.getDayTypes()) {
+        for (CodeDayType cdt : calender.getDayTypes()) {
             dayProfiles.put(getDayIDValue(cdt.getId()), getDayTypeStartsFromCodeDayType(cdt));
         }
     }
@@ -130,7 +138,7 @@ public class CodeTableParser {
      * Constructs a list of available seasons
      */
     private final void constructSeasons() {
-        List<com.energyict.mdw.core.CodeCalendar> calendars = codeTable.getCalendars();
+        List<com.energyict.mdw.core.CodeCalendar> calendars = calender.getCalendars();
 
         for (CodeCalendar cc : calendars) {
             if(tempSeasonIdMap.get(cc.getSeason()) != null){
@@ -172,7 +180,7 @@ public class CodeTableParser {
      */
     private List<WeekDayDefinitions> getWeekDayTypes(int seasonId) {
         List<WeekDayDefinitions> weekDayDefs = new ArrayList<WeekDayDefinitions>();
-        for (CodeCalendar cc : codeTable.getCalendars()) {
+        for (CodeCalendar cc : calender.getCalendars()) {
             if(tempSeasonIdMap.containsKey(cc.getSeason())){
                 if (tempSeasonIdMap.get(cc.getSeason()) == seasonId) {
                     weekDayDefs.add(new WeekDayDefinitions(this, cc));
@@ -186,7 +194,7 @@ public class CodeTableParser {
      * Construct a list of SpecialDays
      */
     private final void constructSpecialDays() {
-        for (CodeCalendar cc : codeTable.getCalendars()) {
+        for (CodeCalendar cc : calender.getCalendars()) {
             if (cc.getSeason() == 0) { // '0' means no Calendar is defined so it is a special day
                 specialDays.add(new SpecialDayDefinition(this, cc));
             }

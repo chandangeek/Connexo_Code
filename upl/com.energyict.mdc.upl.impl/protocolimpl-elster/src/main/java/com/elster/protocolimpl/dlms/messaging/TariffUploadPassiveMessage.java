@@ -1,5 +1,11 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.elster.dlms.cosem.classes.class11.SpecialDayEntry;
 import com.elster.dlms.cosem.classes.class20.DayProfile;
 import com.elster.dlms.cosem.classes.class20.Season;
@@ -25,11 +31,6 @@ import com.elster.protocolimpl.dlms.tariff.objects.CodeObject;
 import com.elster.protocolimpl.dlms.tariff.objects.SeasonObject;
 import com.elster.protocolimpl.dlms.tariff.objects.SeasonTransitionObject;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -170,7 +171,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
 
     private void writeSpecialDaysTable(List<CodeCalendarObject> calendars, Calendar activeDate) throws IOException {
 
-        TreeMap<Calendar, CodeCalendarObject> holidays = new TreeMap<Calendar, CodeCalendarObject>();
+        TreeMap<Calendar, CodeCalendarObject> holidays = new TreeMap<>();
 
         Calendar tst = (Calendar) activeDate.clone();
         tst.set(Calendar.HOUR_OF_DAY, 0);
@@ -196,7 +197,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         final SimpleSpecialDaysTable specialDaysTable = objectManager.getSimpleCosemObject(Ek280Defs.SPECIAL_DAYS_TABLE, SimpleSpecialDaysTable.class);
 
         //System.out.println("Holiday list:");
-        ArrayList<SpecialDayEntry> specialDays = new ArrayList<SpecialDayEntry>();
+        ArrayList<SpecialDayEntry> specialDays = new ArrayList<>();
 
         //EK280 array attribute workaround...
         //set empty array to clear entries in ek280
@@ -215,7 +216,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         specialDaysTable.setEntries(specialDays.toArray(new SpecialDayEntry[specialDays.size()]));
     }
 
-    private void addEntryToHolidays(TreeMap<Calendar, CodeCalendarObject> holidays, CodeCalendarObject entry, int year, Calendar testDate) {
+    private void addEntryToHolidays(Map<Calendar, CodeCalendarObject> holidays, CodeCalendarObject entry, int year, Calendar testDate) {
         Calendar c = new GregorianCalendar(year, entry.getMonth() - 1, entry.getDay());
         if (!c.before(testDate) && !holidays.containsKey(c)) {
             holidays.put(c, entry);
@@ -223,8 +224,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
     }
 
     private SeasonAndDate getNextBillingPeriod(List<SeasonObject> seasons, Calendar activeDate) {
-
-        TreeMap<Calendar, SeasonObject> ssos = new TreeMap<Calendar, SeasonObject>();
+        Map<Calendar, SeasonObject> ssos = new TreeMap<>();
 
         for (SeasonObject entry : seasons) {
             List<SeasonTransitionObject> transitions = entry.getTransitions();
@@ -255,7 +255,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
 
         List<CodeDayTypeDefObject> bands;
 
-        List<DayProfile.DayProfileAction> dayProfileActions = new ArrayList<DayProfile.DayProfileAction>();
+        List<DayProfile.DayProfileAction> dayProfileActions = new ArrayList<>();
         for (CodeDayTypeObject dayType : dayTypes) {
             String name = dayType.getExternalName().toUpperCase();
             if (name.startsWith(cmp) && name.endsWith(day)) {
@@ -285,12 +285,10 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
     public static MessageSpec getMessageSpec(boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(MESSAGE_DESCRIPTION, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
         tagSpec.add(new MessageAttributeSpec(ATTR_CODE_TABLE_ID, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_ACTIVATION_TIME, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_DEFAULT_TARIFF, true));
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -300,7 +298,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         private final SeasonObject season;
         private final Calendar cal;
 
-        public SeasonAndDate(SeasonObject season, Calendar cal) {
+        SeasonAndDate(SeasonObject season, Calendar cal) {
             this.season = season;
             this.cal = cal;
         }

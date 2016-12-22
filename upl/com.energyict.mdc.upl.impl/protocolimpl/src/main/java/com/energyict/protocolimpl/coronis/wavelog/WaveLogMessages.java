@@ -1,7 +1,19 @@
 package com.energyict.protocolimpl.coronis.wavelog;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,59 +33,59 @@ public class WaveLogMessages implements MessageProtocol {
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (messageEntry.getContent().indexOf("<ForceTimeSync") >= 0) {
+            if (messageEntry.getContent().contains("<ForceTimeSync")) {
                 return forceTimeSync(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetOperatingMode") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetOperatingMode")) {
                 return setOperatingMode(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteOutputLevel") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteOutputLevel")) {
                 return writeOutputLevel(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteInput1ConfigurationByte") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteInput1ConfigurationByte")) {
                 return writeInputConfigurationByte(1, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteInput2ConfigurationByte") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteInput2ConfigurationByte")) {
                 return writeInputConfigurationByte(2, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteInput3ConfigurationByte") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteInput3ConfigurationByte")) {
                 return writeInputConfigurationByte(3, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteInput4ConfigurationByte") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteInput4ConfigurationByte")) {
                 return writeInputConfigurationByte(4, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteInput1StabilityDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteInput1StabilityDuration")) {
                 return writeInputStabilityDuration(1, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteInput2StabilityDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteInput2StabilityDuration")) {
                 return writeInputStabilityDuration(2, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteInput3StabilityDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteInput3StabilityDuration")) {
                 return writeInputStabilityDuration(3, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteInput4StabilityDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteInput4StabilityDuration")) {
                 return writeInputStabilityDuration(4, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteOutput1ImpulseDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteOutput1ImpulseDuration")) {
                 return writeOutputImpulseDuration(1, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteOutput2ImpulseDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteOutput2ImpulseDuration")) {
                 return writeOutputImpulseDuration(2, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteOutput3ImpulseDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteOutput3ImpulseDuration")) {
                 return writeOutputImpulseDuration(3, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteOutput4ImpulseDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteOutput4ImpulseDuration")) {
                 return writeOutputImpulseDuration(4, messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetEventTable") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetEventTable")) {
                 return resetEventTable(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<InitializeAlarmRoute") >= 0) {
+            } else if (messageEntry.getContent().contains("<InitializeAlarmRoute")) {
                 return initializeAlarmRoute(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<InitializeRouteAndConfigBytes") >= 0) {
+            } else if (messageEntry.getContent().contains("<InitializeRouteAndConfigBytes")) {
                 return initializeAlarmRouteAndConfigByte(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatus") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatus")) {
                 return resetApplicationStatus(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfRepeaters") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfRepeaters")) {
                 return setNumberOfRepeaters(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRepeaterAddress") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRepeaterAddress")) {
                 return setRepeaterAddress(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRecipientAddress") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRecipientAddress")) {
                 return setRecipientAddress(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfRetries") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfRetries")) {
                 return setNumberOfRetries(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetTimeBetweenRetries") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetTimeBetweenRetries")) {
                 return setTimeBetweenRetries(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetTimeBetweenPeriodicRetries") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetTimeBetweenPeriodicRetries")) {
                 return setTimeBetweenPeriodicRetries(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetTransmissionPeriodOfPeriodicFrames") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetTransmissionPeriodOfPeriodicFrames")) {
                 return setTransmissionPeriodOfPeriodicFrames(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfPeriodicRetries") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfPeriodicRetries")) {
                 return setNumberOfPeriodicRetries(messageEntry);
             } else {
                 return MessageResult.createFailed(messageEntry);
@@ -277,7 +289,7 @@ public class WaveLogMessages implements MessageProtocol {
     }
 
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
 
         MessageCategorySpec cat1 = new MessageCategorySpec("Wavelog general messages");
         cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode", "SetOperatingMode", false));
@@ -324,11 +336,8 @@ public class WaveLogMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithAttr(final String keyId, final String tagName, final boolean advanced, String attr) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
-        tagSpec.add(addAttribute);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -336,13 +345,9 @@ public class WaveLogMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithTwoAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -350,17 +355,11 @@ public class WaveLogMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithFourAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(addAttribute3);
-        MessageAttributeSpec addAttribute4 = new MessageAttributeSpec(attr4, true);
-        tagSpec.add(addAttribute4);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageAttributeSpec(attr4, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -368,15 +367,10 @@ public class WaveLogMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithThreeAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageAttributeSpec addAttribute3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(addAttribute3);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -401,43 +395,42 @@ public class WaveLogMessages implements MessageProtocol {
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Object o1 : msgTag.getAttributes()) {
-            MessageAttribute att = (MessageAttribute) o1;
-            if (att.getValue() == null || att.getValue().length() == 0) {
+        for (MessageAttribute att : msgTag.getAttributes()) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Object o : msgTag.getSubElements()) {
             MessageElement elt = (MessageElement) o;
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {

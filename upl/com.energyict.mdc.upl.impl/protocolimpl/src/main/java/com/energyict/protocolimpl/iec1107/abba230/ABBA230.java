@@ -22,6 +22,15 @@ import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -36,7 +45,6 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -46,14 +54,6 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ContactorController;
@@ -953,27 +953,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     @Override
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
-
-        MessageSpec msgSpec = addBasicMsg(DISCONNECT_DISPLAY, DISCONNECT, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(ARM_DISPLAY, ARM, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(CONNECT_DISPLAY, CONNECT, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(TARIFFPROGRAM_DISPLAY, TARIFFPROGRAM, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true);
-        cat.addMessageSpec(msgSpec);
-
+        cat.addMessageSpec(addBasicMsg(DISCONNECT_DISPLAY, DISCONNECT, false));
+        cat.addMessageSpec(addBasicMsg(ARM_DISPLAY, ARM, false));
+        cat.addMessageSpec(addBasicMsg(CONNECT_DISPLAY, CONNECT, false));
+        cat.addMessageSpec(addBasicMsg(TARIFFPROGRAM_DISPLAY, TARIFFPROGRAM, false));
+        cat.addMessageSpec(addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false));
+        cat.addMessageSpec(addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true));
         theCategories.add(cat);
         return theCategories;
     }
@@ -999,8 +986,8 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = (MessageAttribute) it.next();
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
+            MessageAttribute att = it.next();
             if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
@@ -1083,10 +1070,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                 this.firmwareUpgrade = true;
             } else if (messageEntry.getContent().contains("<" + BILLINGRESET)) {
                 this.logger.info("************************* MD RESET *************************");
-                int start = messageEntry.getContent().indexOf(BILLINGRESET) + BILLINGRESET.length() + 1;
-                int end = messageEntry.getContent().lastIndexOf(BILLINGRESET) - 2;
-                String mdresetXMLData = messageEntry.getContent().substring(start, end);
-
                 try {
                     doBillingReset();
                 } catch (Exception e) {

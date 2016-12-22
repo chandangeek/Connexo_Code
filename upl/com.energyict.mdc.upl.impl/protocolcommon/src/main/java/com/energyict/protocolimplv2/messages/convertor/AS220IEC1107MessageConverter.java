@@ -1,8 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
@@ -18,8 +23,8 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.PowerQualityResetMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.RegistersResetMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.SetDisplayMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayMessageAttributeName;
@@ -33,37 +38,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Displ
  */
 public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // contactor related
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_ARM, new ArmLoadMessageEntry());
-
-        // display related
-        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE, new SetDisplayMessageEntry(DisplayMessageAttributeName));
-        registry.put(DisplayDeviceMessage.CLEAR_DISPLAY_MESSAGE, new ClearDisplayMessageEntry());
-
-        // reset messages
-        registry.put(DeviceActionMessage.DEMAND_RESET, new DemandResetMessageEntry());
-        registry.put(DeviceActionMessage.POWER_OUTAGE_RESET, new PowerOutageResetMessageEntry());
-        registry.put(DeviceActionMessage.POWER_QUALITY_RESET, new PowerQualityResetMessageEntry());
-        registry.put(DeviceActionMessage.ERROR_STATUS_RESET, new ErrorStatusResetMessageEntry());
-        registry.put(DeviceActionMessage.REGISTERS_RESET, new RegistersResetMessageEntry());
-        registry.put(DeviceActionMessage.LOAD_LOG_RESET, new LoadLogResetMessageEntry());
-        registry.put(DeviceActionMessage.EVENT_LOG_RESET, new EventLogResetMessageEntry());
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public AS220IEC1107MessageConverter() {
-        super();
+    public AS220IEC1107MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
@@ -75,6 +51,25 @@ public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                // contactor related
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new DisconnectLoadMessageEntry())
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new ConnectLoadMessageEntry())
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_ARM), new ArmLoadMessageEntry())
+
+                // display related
+                .put(messageSpec(DisplayDeviceMessage.SET_DISPLAY_MESSAGE), new SetDisplayMessageEntry(DisplayMessageAttributeName))
+                .put(messageSpec(DisplayDeviceMessage.CLEAR_DISPLAY_MESSAGE), new ClearDisplayMessageEntry())
+
+                // reset messages
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new DemandResetMessageEntry())
+                .put(messageSpec(DeviceActionMessage.POWER_OUTAGE_RESET), new PowerOutageResetMessageEntry())
+                .put(messageSpec(DeviceActionMessage.POWER_QUALITY_RESET), new PowerQualityResetMessageEntry())
+                .put(messageSpec(DeviceActionMessage.ERROR_STATUS_RESET), new ErrorStatusResetMessageEntry())
+                .put(messageSpec(DeviceActionMessage.REGISTERS_RESET), new RegistersResetMessageEntry())
+                .put(messageSpec(DeviceActionMessage.LOAD_LOG_RESET), new LoadLogResetMessageEntry())
+                .put(messageSpec(DeviceActionMessage.EVENT_LOG_RESET), new EventLogResetMessageEntry())
+                .build();
     }
 }

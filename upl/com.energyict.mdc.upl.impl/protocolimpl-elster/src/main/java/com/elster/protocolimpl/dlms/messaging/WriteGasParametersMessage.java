@@ -1,10 +1,16 @@
 package com.elster.protocolimpl.dlms.messaging;
 
-import com.elster.dlms.cosem.simpleobjectmodel.*;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleRegisterObject;
 import com.elster.dlms.types.basic.ObisCode;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -124,8 +130,6 @@ public class WriteGasParametersMessage extends AbstractDlmsMessage {
     public static MessageSpec getMessageSpec(boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(MESSAGE_DESCRIPTION, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
         tagSpec.add(new MessageAttributeSpec(ATTR_GAS_DENSITY, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_REL_DENSITY, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_N2_PERCENTAGE, true));
@@ -134,7 +138,7 @@ public class WriteGasParametersMessage extends AbstractDlmsMessage {
         tagSpec.add(new MessageAttributeSpec(ATTR_H2_PERCENTAGE, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_CH4_PERCENTAGE, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_HCV, true));
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

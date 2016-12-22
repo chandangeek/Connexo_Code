@@ -5,6 +5,8 @@ import com.energyict.mdc.messages.DeviceMessageSpecFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
@@ -25,8 +27,6 @@ import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;

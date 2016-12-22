@@ -1,10 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -24,9 +29,9 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleInnerTagsMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,113 +42,8 @@ import java.util.Map;
  */
 public class EIWebPlusMessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-
-        // Digital output switch rules
-        registry.put(OutputConfigurationMessage.AbsoluteDOSwitchRule, new MultipleAttributeMessageEntry("DOSwitchRule", DeviceMessageConstants.id, DeviceMessageConstants.startTime, DeviceMessageConstants.endTime, DeviceMessageConstants.outputBitMap));
-        registry.put(OutputConfigurationMessage.DeleteDOSwitchRule, new MultipleAttributeMessageEntry("DOSwitchRule", DeviceMessageConstants.id, DeviceMessageConstants.delete));
-        registry.put(OutputConfigurationMessage.RelativeDOSwitchRule, new MultipleAttributeMessageEntry("DOSwitchRule", DeviceMessageConstants.id, DeviceMessageConstants.duration, DeviceMessageConstants.outputBitMap));
-
-        // Firewall messages
-        registry.put(ConfigurationChangeDeviceMessage.EnableFW, new SimpleTagMessageEntry("EnableFW"));
-        registry.put(ConfigurationChangeDeviceMessage.DisableFW, new SimpleTagMessageEntry("DisableFW"));
-
-        // General Commands
-        registry.put(DeviceActionMessage.RtuPlusServerEnterMaintenanceMode, new SimpleTagMessageEntry("RtuPlusServerEnterMaintenanceMode"));
-        registry.put(DeviceActionMessage.RtuPlusServerExitMaintenanceMode, new SimpleTagMessageEntry("RtuPlusServerExitMaintenanceMode"));
-        registry.put(DeviceActionMessage.ForceMessageToFailed, new ForceMessageToFailedMessageEntry());
-        registry.put(ClockDeviceMessage.FTIONForceTimeSync, new SimpleTagMessageEntry("FTIONForceTimeSync"));
-        registry.put(DeviceActionMessage.FTIONInitDatabaseKeepConfig, new SimpleTagMessageEntry("FTIONInitDatabaseKeepConfig"));
-        registry.put(DeviceActionMessage.FTIONReboot, new SimpleTagMessageEntry("FTIONReboot"));
-        registry.put(DeviceActionMessage.FTIONRestart, new SimpleTagMessageEntry("FTIONRestart"));
-        registry.put(DeviceActionMessage.FTIONScanBus, new SimpleTagMessageEntry("FTIONScanBus"));
-        registry.put(DeviceActionMessage.SyncMasterdata, new SimpleTagMessageEntry("SyncMasterdata"));
-        registry.put(FirmwareDeviceMessage.FTIONUpgradeRFMeshFirmware, new SimpleTagMessageEntry("FTIONUpgradeRFMeshFirmware"));
-        registry.put(DeviceActionMessage.FTIONUpgrade, new SimpleTagMessageEntry("FTIONUpgrade"));
-        registry.put(DeviceActionMessage.FTIONUpgradeAndInit, new SimpleTagMessageEntry("FTIONUpgradeAndInit"));
-        registry.put(DeviceActionMessage.FTIONUpgradeAndInitWithNewEIServerURL, new SimpleValueMessageEntry("FTIONUpgradeAndInitWithNewEIServerURL"));
-        registry.put(DeviceActionMessage.FTIONUpgradeWithNewEIServerURL, new SimpleValueMessageEntry("FTIONUpgradeWithNewEIServerURL"));
-        registry.put(FirmwareDeviceMessage.UpgradeBootloader, new SimpleValueMessageEntry("UpgradeBootloader"));
-
-        // General Parameters
-        registry.put(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD, new SimpleValueMessageEntry("Password"));
-        registry.put(FirmwareDeviceMessage.RFMeshUpgradeURL, new SimpleValueMessageEntry("RFMeshUpgradeURL"));
-        registry.put(ConfigurationChangeDeviceMessage.WhitelistedPhoneNumbers, new SimpleValueMessageEntry("WhitelistedPhoneNumbers"));
-        registry.put(ConfigurationChangeDeviceMessage.BootSyncEnable, new SimpleValueMessageEntry("BootSyncEnable"));
-        registry.put(EIWebConfigurationDeviceMessage.UpdateEIWebSSLCertificate, new SimpleValueMessageEntry("UpdateEIWebSSLCertificate"));
-        registry.put(ConfigurationChangeDeviceMessage.SetUpgradeUrl, new SimpleEIWebMessageEntry());
-
-        //IDIS stuff
-        registry.put(PLCConfigurationDeviceMessage.IDISDiscoveryConfiguration, new IDISDiscoveryConfigurationMessageEntry());
-        registry.put(PLCConfigurationDeviceMessage.IDISRepeaterCallConfiguration, new IDISRepeaterCallConfigurationMessageEntry());
-        registry.put(PLCConfigurationDeviceMessage.IDISRunRepeaterCallNow, new SimpleTagMessageEntry("IDISRunRepeaterCallNow"));
-        registry.put(PLCConfigurationDeviceMessage.IDISRunNewMeterDiscoveryCallNow, new SimpleTagMessageEntry("IDISRunNewMeterDiscoveryCallNow"));
-        registry.put(PLCConfigurationDeviceMessage.IDISRunAlarmDiscoveryCallNow, new SimpleTagMessageEntry("IDISRunAlarmDiscoveryCallNow"));
-        registry.put(PLCConfigurationDeviceMessage.IDISWhitelistConfiguration, new MultipleInnerTagsMessageEntry("IDISWhitelistConfiguration", "Enabled (true/false)", "Group Name (the group containing the meters included in the whitelist)"));
-        registry.put(PLCConfigurationDeviceMessage.IDISOperatingWindowConfiguration, new MultipleInnerTagsMessageEntry("IDISOperatingWindowConfiguration", "Enabled (true/false)", "Start time (MM:SS) (GMT)", "End time (MM:SS) (GMT)"));
-        registry.put(PLCConfigurationDeviceMessage.IDISPhyConfiguration, new MultipleInnerTagsMessageEntry("IDISPhyConfiguration", "Bit sync", "Zero cross adjust", "TX gain", "RX gain"));
-        registry.put(PLCConfigurationDeviceMessage.IDISCreditManagementConfiguration, new MultipleInnerTagsMessageEntry("IDISCreditManagementConfiguration", "Add credit", "Min credit"));
-
-        //Logging
-        registry.put(LoggingConfigurationDeviceMessage.DownloadFile, new SimpleValueMessageEntry("DownloadFile"));
-        registry.put(LoggingConfigurationDeviceMessage.PushConfiguration, new SimpleTagMessageEntry("PushConfiguration"));
-        registry.put(LoggingConfigurationDeviceMessage.PushLogsNow, new SimpleTagMessageEntry("PushLogsNow"));
-
-        //Output
-        registry.put(OutputConfigurationMessage.OutputOff, new SimpleValueMessageEntry("OutputOff"));
-        registry.put(OutputConfigurationMessage.OutputOn, new SimpleValueMessageEntry("OutputOn"));
-
-        //PLC control
-        registry.put(PLCConfigurationDeviceMessage.PLCEnableDisable, new SimpleValueMessageEntry("PLCEnableDisable"));
-        registry.put(PLCConfigurationDeviceMessage.PLCFreqPairSelection, new SimpleValueMessageEntry("PLCFreqPairSelection"));
-        registry.put(PLCConfigurationDeviceMessage.PLCRequestConfig, new SimpleTagMessageEntry("PLCRequestConfig"));
-        registry.put(PLCConfigurationDeviceMessage.CIASEDiscoveryMaxCredits, new SimpleValueMessageEntry("CIASEDiscoveryMaxCredits"));
-        registry.put(PLCConfigurationDeviceMessage.PLCChangeMacAddress, new SimpleValueMessageEntry("PLCChangeMacAddress"));
-
-        //PLC Prime control
-        registry.put(PLCConfigurationDeviceMessage.PLCPrimeCancelFirmwareUpgrade, new SimpleTagMessageEntry("PLCPrimeCancelFirmwareUpgrade"));
-        registry.put(PLCConfigurationDeviceMessage.PLCPrimeReadPIB, new SimpleValueMessageEntry("PLCPrimeReadPIB"));
-        registry.put(PLCConfigurationDeviceMessage.PLCPrimeRequestFirmwareVersion, new SimpleValueMessageEntry("PLCPrimeRequestFirmwareVersion"));
-        registry.put(FirmwareDeviceMessage.PLCPrimeStartFirmwareUpgradeNodeList, new SimpleValueMessageEntry("PLCPrimeStartFirmwareUpgradeNodeList"));
-        registry.put(FirmwareDeviceMessage.PLCPrimeSetFirmwareUpgradeFile, new SimpleValueMessageEntry("PLCPrimeSetFirmwareUpgradeFile"));
-        registry.put(PLCConfigurationDeviceMessage.PLCPrimeWritePIB, new SimpleValueMessageEntry("PLCPrimeWritePIB"));
-
-        //Wavenis stuff
-        registry.put(WavenisDeviceMessage.WavenisAddAddressGetNetworkId, new SimpleValueMessageEntry("WavenisAddAddressGetNetworkId"));
-        registry.put(WavenisDeviceMessage.WavenisAddAddressWithNetworkId, new SimpleValueMessageEntry("WavenisAddAddressWithNetworkId"));
-        registry.put(WavenisDeviceMessage.WavenisBranchMove, new SimpleValueMessageEntry("WavenisBranchMove"));
-        registry.put(WavenisDeviceMessage.WavenisChangeMasterAddress, new SimpleValueMessageEntry("WavenisChangeMasterAddress"));
-        registry.put(WavenisDeviceMessage.WavenisCompareRepaireDatabases, new SimpleTagMessageEntry("WavenisCompareRepaireDatabases"));
-        registry.put(WavenisDeviceMessage.WavenisDeleteAddress, new SimpleValueMessageEntry("WavenisDeleteAddress"));
-        registry.put(WavenisDeviceMessage.WavenisInitBubbleUpSlotDatabase, new SimpleTagMessageEntry("WavenisInitBubbleUpSlotDatabase"));
-        registry.put(WavenisDeviceMessage.WavenisInitDatabases, new SimpleTagMessageEntry("WavenisInitDatabases"));
-        registry.put(WavenisDeviceMessage.WavenisProgramRadioAddress, new SimpleValueMessageEntry("WavenisProgramRadioAddress"));
-        registry.put(WavenisDeviceMessage.WavenisRemoveBubbleUpSlot, new SimpleValueMessageEntry("WavenisRemoveBubbleUpSlot"));
-        registry.put(WavenisDeviceMessage.WavenisRequestBubbleUpSlot, new SimpleValueMessageEntry("WavenisRequestBubbleUpSlot"));
-        registry.put(WavenisDeviceMessage.WavenisRequestModuleStatus, new SimpleValueMessageEntry("WavenisRequestModuleStatus"));
-        registry.put(WavenisDeviceMessage.WaveCardRadioAddress, new SimpleTagMessageEntry("WaveCardRadioAddress"));
-        registry.put(WavenisDeviceMessage.WavenisRestoreDatabasesUsingEIServerMasterdata, new SimpleTagMessageEntry("WavenisRestoreDatabasesUsingEIServerMasterdata"));
-        registry.put(WavenisDeviceMessage.WavenisRestoreBubbleUpDatabase, new SimpleTagMessageEntry("WavenisRestoreBubbleUpDatabase"));
-        registry.put(WavenisDeviceMessage.WavenisRestoreLocalFromEIServer, new SimpleTagMessageEntry("WavenisRestoreLocalFromEIServer"));
-        registry.put(WavenisDeviceMessage.WavenisRestoreRootDatabaseFromLocal, new SimpleTagMessageEntry("WavenisRestoreRootDatabaseFromLocal"));
-        registry.put(WavenisDeviceMessage.WavenisResynchronizeModule, new SimpleValueMessageEntry("WavenisResynchronizeModule"));
-        registry.put(WavenisDeviceMessage.WavenisFreeRequestResponse, new SimpleValueMessageEntry("WavenisFreeRequestResponse"));
-        registry.put(WavenisDeviceMessage.WavenisSetRunLevelIdle, new SimpleTagMessageEntry("WavenisSetRunLevelIdle"));
-        registry.put(WavenisDeviceMessage.WavenisSetRunLevelInit, new SimpleTagMessageEntry("WavenisSetRunLevelInit"));
-        registry.put(WavenisDeviceMessage.WavenisSetRunLevelRun, new SimpleTagMessageEntry("WavenisSetRunLevelRun"));
-        registry.put(WavenisDeviceMessage.WavenisSetFriendlyName, new SimpleValueMessageEntry("WavenisSetFriendlyName"));
-        registry.put(WavenisDeviceMessage.WavenisSetL1PreferredList, new SimpleValueMessageEntry("WavenisSetL1PreferredList"));
-        registry.put(WavenisDeviceMessage.WavenisSynchronizeModule, new SimpleValueMessageEntry("WavenisSynchronizeModule"));
-        registry.put(WavenisDeviceMessage.WavenisUpdateEIServerMasterdataUsingLocalDatabases, new SimpleTagMessageEntry("WavenisUpdateEIServerMasterdataUsingLocalDatabases"));
-        registry.put(FirmwareDeviceMessage.UpgradeWaveCard, new SimpleValueMessageEntry("UpgradeWaveCard"));
-        registry.put(WavenisDeviceMessage.WavenisEnableDisable, new SimpleValueMessageEntry("WavenisEnableDisable"));
-
+    public EIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
@@ -154,9 +54,9 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(DeviceMessageConstants.PricingInformationUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.nodeListUserFile)) {
             try {
-                return new String(((UserFile) messageAttribute).loadFileInByteArray(), "US-ASCII");
+                return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray(), "US-ASCII");
             } catch (UnsupportedEncodingException e) {
-                return new String(((UserFile) messageAttribute).loadFileInByteArray());
+                return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray());
             }
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return ((Password) messageAttribute).getValue();
@@ -166,6 +66,106 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                // Digital output switch rules
+                .put(messageSpec(OutputConfigurationMessage.AbsoluteDOSwitchRule), new MultipleAttributeMessageEntry("DOSwitchRule", DeviceMessageConstants.id, DeviceMessageConstants.startTime, DeviceMessageConstants.endTime, DeviceMessageConstants.outputBitMap))
+                .put(messageSpec(OutputConfigurationMessage.DeleteDOSwitchRule), new MultipleAttributeMessageEntry("DOSwitchRule", DeviceMessageConstants.id, DeviceMessageConstants.delete))
+                .put(messageSpec(OutputConfigurationMessage.RelativeDOSwitchRule), new MultipleAttributeMessageEntry("DOSwitchRule", DeviceMessageConstants.id, DeviceMessageConstants.duration, DeviceMessageConstants.outputBitMap))
+
+                // Firewall messages
+                .put(messageSpec(ConfigurationChangeDeviceMessage.EnableFW), new SimpleTagMessageEntry("EnableFW"))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.DisableFW), new SimpleTagMessageEntry("DisableFW"))
+
+                // General Commands
+                .put(messageSpec(DeviceActionMessage.RtuPlusServerEnterMaintenanceMode), new SimpleTagMessageEntry("RtuPlusServerEnterMaintenanceMode"))
+                .put(messageSpec(DeviceActionMessage.RtuPlusServerExitMaintenanceMode), new SimpleTagMessageEntry("RtuPlusServerExitMaintenanceMode"))
+                .put(messageSpec(DeviceActionMessage.ForceMessageToFailed), new ForceMessageToFailedMessageEntry())
+                .put(messageSpec(ClockDeviceMessage.FTIONForceTimeSync), new SimpleTagMessageEntry("FTIONForceTimeSync"))
+                .put(messageSpec(DeviceActionMessage.FTIONInitDatabaseKeepConfig), new SimpleTagMessageEntry("FTIONInitDatabaseKeepConfig"))
+                .put(messageSpec(DeviceActionMessage.FTIONReboot), new SimpleTagMessageEntry("FTIONReboot"))
+                .put(messageSpec(DeviceActionMessage.FTIONRestart), new SimpleTagMessageEntry("FTIONRestart"))
+                .put(messageSpec(DeviceActionMessage.FTIONScanBus), new SimpleTagMessageEntry("FTIONScanBus"))
+                .put(messageSpec(DeviceActionMessage.SyncMasterdata), new SimpleTagMessageEntry("SyncMasterdata"))
+                .put(messageSpec(FirmwareDeviceMessage.FTIONUpgradeRFMeshFirmware), new SimpleTagMessageEntry("FTIONUpgradeRFMeshFirmware"))
+                .put(messageSpec(DeviceActionMessage.FTIONUpgrade), new SimpleTagMessageEntry("FTIONUpgrade"))
+                .put(messageSpec(DeviceActionMessage.FTIONUpgradeAndInit), new SimpleTagMessageEntry("FTIONUpgradeAndInit"))
+                .put(messageSpec(DeviceActionMessage.FTIONUpgradeAndInitWithNewEIServerURL), new SimpleValueMessageEntry("FTIONUpgradeAndInitWithNewEIServerURL"))
+                .put(messageSpec(DeviceActionMessage.FTIONUpgradeWithNewEIServerURL), new SimpleValueMessageEntry("FTIONUpgradeWithNewEIServerURL"))
+                .put(messageSpec(FirmwareDeviceMessage.UpgradeBootloader), new SimpleValueMessageEntry("UpgradeBootloader"))
+
+                // General Parameters
+                .put(messageSpec(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD), new SimpleValueMessageEntry("Password"))
+                .put(messageSpec(FirmwareDeviceMessage.RFMeshUpgradeURL), new SimpleValueMessageEntry("RFMeshUpgradeURL"))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.WhitelistedPhoneNumbers), new SimpleValueMessageEntry("WhitelistedPhoneNumbers"))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.BootSyncEnable), new SimpleValueMessageEntry("BootSyncEnable"))
+                .put(messageSpec(EIWebConfigurationDeviceMessage.UpdateEIWebSSLCertificate), new SimpleValueMessageEntry("UpdateEIWebSSLCertificate"))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.SetUpgradeUrl), new SimpleEIWebMessageEntry())
+
+                //IDIS stuff
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISDiscoveryConfiguration), new IDISDiscoveryConfigurationMessageEntry())
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISRepeaterCallConfiguration), new IDISRepeaterCallConfigurationMessageEntry())
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISRunRepeaterCallNow), new SimpleTagMessageEntry("IDISRunRepeaterCallNow"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISRunNewMeterDiscoveryCallNow), new SimpleTagMessageEntry("IDISRunNewMeterDiscoveryCallNow"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISRunAlarmDiscoveryCallNow), new SimpleTagMessageEntry("IDISRunAlarmDiscoveryCallNow"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISWhitelistConfiguration), new MultipleInnerTagsMessageEntry("IDISWhitelistConfiguration", "Enabled (true/false)", "Group Name (the group containing the meters included in the whitelist)"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISOperatingWindowConfiguration), new MultipleInnerTagsMessageEntry("IDISOperatingWindowConfiguration", "Enabled (true/false)", "Start time (MM:SS) (GMT)", "End time (MM:SS) (GMT)"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISPhyConfiguration), new MultipleInnerTagsMessageEntry("IDISPhyConfiguration", "Bit sync", "Zero cross adjust", "TX gain", "RX gain"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.IDISCreditManagementConfiguration), new MultipleInnerTagsMessageEntry("IDISCreditManagementConfiguration", "Add credit", "Min credit"))
+
+                //Logging
+                .put(messageSpec(LoggingConfigurationDeviceMessage.DownloadFile), new SimpleValueMessageEntry("DownloadFile"))
+                .put(messageSpec(LoggingConfigurationDeviceMessage.PushConfiguration), new SimpleTagMessageEntry("PushConfiguration"))
+                .put(messageSpec(LoggingConfigurationDeviceMessage.PushLogsNow), new SimpleTagMessageEntry("PushLogsNow"))
+
+                //Output
+                .put(messageSpec(OutputConfigurationMessage.OutputOff), new SimpleValueMessageEntry("OutputOff"))
+                .put(messageSpec(OutputConfigurationMessage.OutputOn), new SimpleValueMessageEntry("OutputOn"))
+
+                //PLC control
+                .put(messageSpec(PLCConfigurationDeviceMessage.PLCEnableDisable), new SimpleValueMessageEntry("PLCEnableDisable"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.PLCFreqPairSelection), new SimpleValueMessageEntry("PLCFreqPairSelection"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.PLCRequestConfig), new SimpleTagMessageEntry("PLCRequestConfig"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.CIASEDiscoveryMaxCredits), new SimpleValueMessageEntry("CIASEDiscoveryMaxCredits"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.PLCChangeMacAddress), new SimpleValueMessageEntry("PLCChangeMacAddress"))
+
+                //PLC Prime control
+                .put(messageSpec(PLCConfigurationDeviceMessage.PLCPrimeCancelFirmwareUpgrade), new SimpleTagMessageEntry("PLCPrimeCancelFirmwareUpgrade"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.PLCPrimeReadPIB), new SimpleValueMessageEntry("PLCPrimeReadPIB"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.PLCPrimeRequestFirmwareVersion), new SimpleValueMessageEntry("PLCPrimeRequestFirmwareVersion"))
+                .put(messageSpec(FirmwareDeviceMessage.PLCPrimeStartFirmwareUpgradeNodeList), new SimpleValueMessageEntry("PLCPrimeStartFirmwareUpgradeNodeList"))
+                .put(messageSpec(FirmwareDeviceMessage.PLCPrimeSetFirmwareUpgradeFile), new SimpleValueMessageEntry("PLCPrimeSetFirmwareUpgradeFile"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.PLCPrimeWritePIB), new SimpleValueMessageEntry("PLCPrimeWritePIB"))
+
+                //Wavenis stuff
+                .put(messageSpec(WavenisDeviceMessage.WavenisAddAddressGetNetworkId), new SimpleValueMessageEntry("WavenisAddAddressGetNetworkId"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisAddAddressWithNetworkId), new SimpleValueMessageEntry("WavenisAddAddressWithNetworkId"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisBranchMove), new SimpleValueMessageEntry("WavenisBranchMove"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisChangeMasterAddress), new SimpleValueMessageEntry("WavenisChangeMasterAddress"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisCompareRepaireDatabases), new SimpleTagMessageEntry("WavenisCompareRepaireDatabases"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisDeleteAddress), new SimpleValueMessageEntry("WavenisDeleteAddress"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisInitBubbleUpSlotDatabase), new SimpleTagMessageEntry("WavenisInitBubbleUpSlotDatabase"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisInitDatabases), new SimpleTagMessageEntry("WavenisInitDatabases"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisProgramRadioAddress), new SimpleValueMessageEntry("WavenisProgramRadioAddress"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisRemoveBubbleUpSlot), new SimpleValueMessageEntry("WavenisRemoveBubbleUpSlot"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisRequestBubbleUpSlot), new SimpleValueMessageEntry("WavenisRequestBubbleUpSlot"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisRequestModuleStatus), new SimpleValueMessageEntry("WavenisRequestModuleStatus"))
+                .put(messageSpec(WavenisDeviceMessage.WaveCardRadioAddress), new SimpleTagMessageEntry("WaveCardRadioAddress"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisRestoreDatabasesUsingEIServerMasterdata), new SimpleTagMessageEntry("WavenisRestoreDatabasesUsingEIServerMasterdata"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisRestoreBubbleUpDatabase), new SimpleTagMessageEntry("WavenisRestoreBubbleUpDatabase"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisRestoreLocalFromEIServer), new SimpleTagMessageEntry("WavenisRestoreLocalFromEIServer"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisRestoreRootDatabaseFromLocal), new SimpleTagMessageEntry("WavenisRestoreRootDatabaseFromLocal"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisResynchronizeModule), new SimpleValueMessageEntry("WavenisResynchronizeModule"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisFreeRequestResponse), new SimpleValueMessageEntry("WavenisFreeRequestResponse"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisSetRunLevelIdle), new SimpleTagMessageEntry("WavenisSetRunLevelIdle"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisSetRunLevelInit), new SimpleTagMessageEntry("WavenisSetRunLevelInit"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisSetRunLevelRun), new SimpleTagMessageEntry("WavenisSetRunLevelRun"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisSetFriendlyName), new SimpleValueMessageEntry("WavenisSetFriendlyName"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisSetL1PreferredList), new SimpleValueMessageEntry("WavenisSetL1PreferredList"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisSynchronizeModule), new SimpleValueMessageEntry("WavenisSynchronizeModule"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisUpdateEIServerMasterdataUsingLocalDatabases), new SimpleTagMessageEntry("WavenisUpdateEIServerMasterdataUsingLocalDatabases"))
+                .put(messageSpec(FirmwareDeviceMessage.UpgradeWaveCard), new SimpleValueMessageEntry("UpgradeWaveCard"))
+                .put(messageSpec(WavenisDeviceMessage.WavenisEnableDisable), new SimpleValueMessageEntry("WavenisEnableDisable"))
+                .build();
     }
 }

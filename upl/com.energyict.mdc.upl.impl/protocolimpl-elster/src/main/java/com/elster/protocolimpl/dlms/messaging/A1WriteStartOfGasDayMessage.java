@@ -1,14 +1,14 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -63,7 +63,7 @@ public class A1WriteStartOfGasDayMessage extends AbstractDlmsMessage
 
     private Integer[] validateData(String data) throws BusinessException
     {
-        if ((data != null) && (data.length() > 0))
+        if ((data != null) && (!data.isEmpty()))
         {
             return processTimeString(data);
         }
@@ -90,12 +90,7 @@ public class A1WriteStartOfGasDayMessage extends AbstractDlmsMessage
         MessageSpec msgSpec = new MessageSpec(MESSAGE_DESCRIPTION, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
 
-        // Disable the value field in the EIServer message GUI
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-
         tagSpec.add(new MessageAttributeSpec(ATTR_SGD_TIME, true));
-
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -114,7 +109,7 @@ public class A1WriteStartOfGasDayMessage extends AbstractDlmsMessage
         for (int i = 0; i < match.groupCount() - 1; i++)
         {
             String groupValue = match.group(i + 1);
-            if ((groupValue != null) && (groupValue.trim().length() > 0))
+            if ((groupValue != null) && (!groupValue.trim().isEmpty()))
             {
                 switch (i)
                 {

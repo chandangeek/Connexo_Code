@@ -1,9 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging;
 
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
@@ -22,8 +23,8 @@ public class XemexWatchTalkMbusMessaging extends Dsmr23MbusMessaging {
     }
 
     @Override
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<>();
         MessageCategorySpec catDisconnect = getConnectControlCategory();
         MessageCategorySpec catMbusSetup = getMbusSetupCategory();
 
@@ -34,15 +35,17 @@ public class XemexWatchTalkMbusMessaging extends Dsmr23MbusMessaging {
 
     @Override
     public MessageCategorySpec getConnectControlCategory() {
-        MessageCategorySpec catDisconnect = new MessageCategorySpec(
-                RtuMessageCategoryConstants.DISCONNECTCONTROL);
-        MessageSpec msgSpec = addConnectControl(
-                RtuMessageKeyIdConstants.DISCONNECT,
-                RtuMessageConstant.DISCONNECT_LOAD, false);
-        catDisconnect.addMessageSpec(msgSpec);
-        msgSpec = addConnectControl(RtuMessageKeyIdConstants.CONNECT,
-                RtuMessageConstant.CONNECT_LOAD, false);
-        catDisconnect.addMessageSpec(msgSpec);
+        MessageCategorySpec catDisconnect = new MessageCategorySpec(RtuMessageCategoryConstants.DISCONNECTCONTROL);
+        catDisconnect.addMessageSpec(
+                addConnectControl(
+                        RtuMessageKeyIdConstants.DISCONNECT,
+                        RtuMessageConstant.DISCONNECT_LOAD,
+                        false));
+        catDisconnect.addMessageSpec(
+                addConnectControl(
+                        RtuMessageKeyIdConstants.CONNECT,
+                        RtuMessageConstant.CONNECT_LOAD,
+                        false));
         return catDisconnect;
     }
 
@@ -50,24 +53,24 @@ public class XemexWatchTalkMbusMessaging extends Dsmr23MbusMessaging {
     protected MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
 
     @Override
     public MessageCategorySpec getMbusSetupCategory() {
-        MessageCategorySpec catMbusSetup = new MessageCategorySpec(
-                RtuMessageCategoryConstants.MBUSSETUP);
-        MessageSpec msgSpec = addNoValueMsg(
-                RtuMessageKeyIdConstants.MBUSDECOMMISSION,
-                RtuMessageConstant.MBUS_DECOMMISSION, false);
-        catMbusSetup.addMessageSpec(msgSpec);
-        msgSpec = addEncryptionkeys(RtuMessageKeyIdConstants.MBUSENCRYPTIONKEY,
-                RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
-        catMbusSetup.addMessageSpec(msgSpec);
+        MessageCategorySpec catMbusSetup = new MessageCategorySpec(RtuMessageCategoryConstants.MBUSSETUP);
+        catMbusSetup.addMessageSpec(
+                addNoValueMsg(
+                    RtuMessageKeyIdConstants.MBUSDECOMMISSION,
+                    RtuMessageConstant.MBUS_DECOMMISSION,
+                        false));
+        catMbusSetup.addMessageSpec(
+                addEncryptionkeys(
+                        RtuMessageKeyIdConstants.MBUSENCRYPTIONKEY,
+                        RtuMessageConstant.MBUS_ENCRYPTION_KEYS,
+                        false));
         return catMbusSetup;
     }
 

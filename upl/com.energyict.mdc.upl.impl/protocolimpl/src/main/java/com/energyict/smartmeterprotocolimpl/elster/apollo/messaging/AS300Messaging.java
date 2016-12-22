@@ -1,8 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 
 import java.io.IOException;
@@ -43,8 +51,8 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol 
      * Abstract method to define your message categories *
      */
     @Override
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<>();
 
         MessageCategorySpec pricingInformationCategory = ProtocolMessageCategories.getPricingInformationCategory();
         pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Set price per unit (p/kWh)", SET_PRICE_PER_UNIT, false, ACTIVATION_DATE, ID_OF_USER_FILE));
@@ -79,9 +87,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol 
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, required));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -93,9 +99,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol 
             tagSpec.add(new MessageAttributeSpec(attribute, true));
         }
         tagSpec.add(new MessageAttributeSpec(lastAttribute, false));
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -103,10 +107,10 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol 
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * At a later timestamp the framework will query each {@link MessageEntry} (see {@link #queryMessage(MessageEntry)}) to actually
      * perform the message.
      *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @param messageEntries a list of {@link MessageEntry}s
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(final List messageEntries) throws IOException {

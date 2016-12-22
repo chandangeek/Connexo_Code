@@ -1,9 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -17,10 +22,10 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetE
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetStartOfDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
@@ -40,35 +45,28 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month
  */
 public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // Battery
-        registry.put(ConfigurationChangeDeviceMessage.ProgramBatteryExpiryDate, new MultipleAttributeMessageEntry("BatteryExpiry", "Date (dd/MM/yyyy)"));
-
-         // Daylight saving
-        registry.put(ClockDeviceMessage.EnableOrDisableDST, new EnableOrDisableDSTMessageEntry(enableDSTAttributeName));
-        registry.put(ClockDeviceMessage.SetEndOfDST, new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
-        registry.put(ClockDeviceMessage.SetStartOfDST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
-
-        // Demand reset
-        registry.put(DeviceActionMessage.BILLING_RESET, new DemandResetMessageEntry());
-
-        // Time of use
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-    }
-
-    public ActarisSL7000MessageConverter() {
-        super();
+    public ActarisSL7000MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                    .<DeviceMessageSpec, MessageEntryCreator>builder()
+                    // Battery
+                    .put(messageSpec(ConfigurationChangeDeviceMessage.ProgramBatteryExpiryDate), new MultipleAttributeMessageEntry("BatteryExpiry", "Date (dd/MM/yyyy)"))
+
+                    // Daylight saving
+                    .put(messageSpec(ClockDeviceMessage.EnableOrDisableDST), new EnableOrDisableDSTMessageEntry(enableDSTAttributeName))
+                    .put(messageSpec(ClockDeviceMessage.SetEndOfDST), new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour))
+                    .put(messageSpec(ClockDeviceMessage.SetStartOfDST), new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour))
+
+                    // Demand reset
+                    .put(messageSpec(DeviceActionMessage.BILLING_RESET), new DemandResetMessageEntry())
+
+                    // Time of use
+                    .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
+                    .build();
     }
 
     @Override
@@ -81,7 +79,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:
-                Code codeTable = (Code) messageAttribute;
+                TariffCalender codeTable = (TariffCalender) messageAttribute;
                 return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
             default:
                 return messageAttribute.toString();
@@ -92,9 +90,9 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
      * Return an XML representation of the code table.
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      */
-    protected String encode(Code messageAttribute) {
+    protected String encode(TariffCalender calender) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calender, 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

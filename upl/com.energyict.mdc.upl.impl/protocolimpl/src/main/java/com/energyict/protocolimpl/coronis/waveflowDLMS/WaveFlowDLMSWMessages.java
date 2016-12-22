@@ -1,15 +1,28 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class WaveFlowDLMSWMessages implements MessageProtocol {
 
@@ -22,7 +35,7 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (messageEntry.getContent().indexOf("<PairMeter") >= 0) {
+            if (messageEntry.getContent().contains("<PairMeter")) {
                 abstractDLMS.getLogger().info("************************* PairMeter *************************");
 
                 try {
@@ -33,11 +46,11 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
                     return MessageResult.createFailed(messageEntry);
                 }
 
-            } else if (messageEntry.getContent().indexOf("<ForceTimeSync") >= 0) {
+            } else if (messageEntry.getContent().contains("<ForceTimeSync")) {
                 abstractDLMS.getLogger().info("************************* ForceTimeSync (e-meter time)*************************");
                 abstractDLMS.forceSetTime();
                 return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<RemoteDisconnect") >= 0) {
+            } else if (messageEntry.getContent().contains("<RemoteDisconnect")) {
                 abstractDLMS.getLogger().info("************************* RemoteDisconnect *************************");
                 if (!abstractDLMS.isOptimizeChangeContactorStatus()) {
                     return doDisconnect(messageEntry);
@@ -59,7 +72,7 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
                         return doDisconnect(messageEntry);
                     }
                 }
-            } else if (messageEntry.getContent().indexOf("<RemoteConnect") >= 0) {
+            } else if (messageEntry.getContent().contains("<RemoteConnect")) {
                 abstractDLMS.getLogger().info("************************* RemoteConnect *************************");
                 if (!abstractDLMS.isOptimizeChangeContactorStatus()) {
                     return doReconnect(messageEntry);
@@ -83,11 +96,11 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
                         return MessageResult.createFailed(messageEntry);
                     }
                 }
-            } else if (messageEntry.getContent().indexOf("<SyncWaveFlowRTC") >= 0) {
+            } else if (messageEntry.getContent().contains("<SyncWaveFlowRTC")) {
                 abstractDLMS.getLogger().info("************************* SyncWaveFlowRTC (waveflow100mW time)*************************");
                 abstractDLMS.setWaveFlowTime();
                 return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetAlarmConfig") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetAlarmConfig")) {
                 abstractDLMS.getLogger().info("************************* SetAlarmConfig *************************");
                 int alarmConfigValue = WaveflowProtocolUtils.parseInt(getTagContents("SetAlarmConfig", messageEntry.getContent()));
                 abstractDLMS.getRadioCommandFactory().setAlarmRoute(alarmConfigValue);
@@ -103,7 +116,7 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
                 abstractDLMS.getLogger().info("Setting disconnector control mode to " + controlMode);
                 setControlMode(controlMode);
                 return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetOperatingMode") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetOperatingMode")) {
                 abstractDLMS.getLogger().info("************************* SetOperatingMode *************************");
                 int operatingModeValue = WaveflowProtocolUtils.parseInt(getTagContents("SetOperatingMode", messageEntry.getContent()));
                 abstractDLMS.getParameterFactory().writeOperatingMode(operatingModeValue);
@@ -113,16 +126,16 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
                     abstractDLMS.getLogger().severe("Message set operating mode readback failed!");
                     return MessageResult.createFailed(messageEntry);
                 }
-            } else if (messageEntry.getContent().indexOf("<SetApplicationStatus") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetApplicationStatus")) {
                 abstractDLMS.getLogger().info("************************* SetApplicationStatus *************************");
                 int applicationStatusValue = WaveflowProtocolUtils.parseInt(getTagContents("SetApplicationStatus", messageEntry.getContent()));
                 abstractDLMS.getParameterFactory().writeApplicationStatus(applicationStatusValue);
                 return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<InitializeKey") >= 0) {
+            } else if (messageEntry.getContent().contains("<InitializeKey")) {
                 abstractDLMS.getLogger().info("************************* InitializeKey *************************");
                 abstractDLMS.initializeEncryption(getTagContents("InitializeKey", messageEntry.getContent()));
                 return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<RenewKey") >= 0) {
+            } else if (messageEntry.getContent().contains("<RenewKey")) {
                 abstractDLMS.getLogger().info("************************* RenewKey *************************");
                 String content = getTagContents("RenewKey", messageEntry.getContent());
                 String[] keys = content.split(",");
@@ -168,7 +181,7 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
     }
 
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
 
         MessageCategorySpec cat1 = new MessageCategorySpec("WaveflowDLMS messages");
         cat1.addMessageSpec(addBasicMsgWithValue("Set the applicationstatus (0 to reset)", "SetApplicationStatus", false, "0"));
@@ -200,9 +213,7 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
     private MessageSpec addBasicMsgWithValue(final String keyId, final String tagName, final boolean advanced, String defaultValue) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec mspec = new MessageValueSpec();
-        mspec.setValue(defaultValue);
-        tagSpec.add(mspec);
+        tagSpec.add(new MessageValueSpec(defaultValue));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -212,43 +223,43 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0) {
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
+            MessageAttribute att = it.next();
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {
@@ -266,9 +277,9 @@ public class WaveFlowDLMSWMessages implements MessageProtocol {
      * @param messageContents The contents of the message to extract the data from.
      * @return The contents, <code>null</code> if for some reason the contents cannot be extracted. A warning will be issued in that case.
      */
-    private final String getTagContents(final String tagName, final String messageContents) {
-        final int startIndex = messageContents.indexOf(new StringBuilder("<").append(tagName).append(">").toString()) + tagName.length() + 2;
-        final int endIndex = messageContents.indexOf(new StringBuilder("</").append(tagName).append(">").toString());
+    private String getTagContents(final String tagName, final String messageContents) {
+        final int startIndex = messageContents.indexOf("<" + tagName + ">") + tagName.length() + 2;
+        final int endIndex = messageContents.indexOf("</" + tagName + ">");
 
         if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
             return messageContents.substring(startIndex, endIndex).trim();

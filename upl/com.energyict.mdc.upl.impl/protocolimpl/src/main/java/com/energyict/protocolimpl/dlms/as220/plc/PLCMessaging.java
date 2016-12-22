@@ -1,5 +1,12 @@
 package com.energyict.protocolimpl.dlms.as220.plc;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
@@ -11,13 +18,7 @@ import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.objects.PLCObject;
@@ -303,7 +304,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		}
 
         resetNewNotSynchronized();
-        
+
 	}
 
 	/**
@@ -391,7 +392,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		}
 
         resetNewNotSynchronized();
-        
+
 	}
 
     /**
@@ -458,7 +459,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
     /**
      * Allows a client system to 'reset' the server system. The submitted value corresponds to a client MAC address.
      * The writing is refused if the value does not correspond to a valid client MAC address or the predefined NO-BODY address.
-     * 
+     *
      * @throws IOException
      */
     private void resetNewNotSynchronized() throws IOException {
@@ -534,9 +535,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
 		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
+	    tagSpec.add(new MessageValueSpec(" "));
 
 		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.ACTIVE_CHANNEL.name(), false));
 
@@ -555,10 +554,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
 		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-
+		tagSpec.add(new MessageValueSpec(" "));
 		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.SEARCH_INITIATOR_TIMEOUT.name(), false));
 		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT.name(), false));
 		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED.name(), false));
@@ -573,9 +569,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
 		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
+		tagSpec.add(new MessageValueSpec(" "));
 
 		for (int channel = 0; channel < NR_OF_CHANNELS; channel++) {
 			for (int freqType = 0; freqType < FREQUENCIES_PER_PAIR; freqType++) {
@@ -592,9 +586,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
         // We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
+	    tagSpec.add(new MessageValueSpec(" "));
 
         for (int channel = 0; channel < NR_OF_CHANNELS; channel++) {
             for (int field = 0; field < (FREQUENCIES_PER_PAIR + 2); field++) {
@@ -612,9 +604,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
 		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
+		tagSpec.add(new MessageValueSpec(" "));
 
 		for (int freqType = 0; freqType < FREQUENCIES_PER_PAIR; freqType++) {
 			tagSpec.add(new MessageAttributeSpec(FREQUENCIES_NAME[0][freqType], false));
@@ -630,10 +620,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
 		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-
+		tagSpec.add(new MessageValueSpec(" "));
 		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.MAX_RECEIVING_GAIN.name(), false));
 		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.MAX_TRANSMITTING_GAIN.name(), false));
 		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.SEARCH_INITIATOR_GAIN.name(), false));
@@ -647,10 +634,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
 		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-
+		tagSpec.add(new MessageValueSpec(" "));
 		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.INITIATOR_ELECTRICAL_PHASE.name(), false));
 
 		msgSpec.add(tagSpec);
@@ -662,10 +646,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
 		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-
+		tagSpec.add(new MessageValueSpec(" "));
 		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.REPEATER.name(), false));
 
 		msgSpec.add(tagSpec);
@@ -677,10 +658,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
 		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-
+		tagSpec.add(new MessageValueSpec(" "));
 		tagSpec.add(new MessageAttributeSpec(SFSKIec61334LLCSetupAttribute.MAX_FRAME_LENGTH.name(), false));
 
 		msgSpec.add(tagSpec);

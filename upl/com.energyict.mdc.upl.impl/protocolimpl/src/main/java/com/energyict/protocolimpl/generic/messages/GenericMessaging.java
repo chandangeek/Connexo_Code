@@ -1,7 +1,20 @@
 package com.energyict.protocolimpl.generic.messages;
 
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+
+import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 
 import java.util.Iterator;
 import java.util.List;
@@ -33,56 +46,51 @@ public abstract class GenericMessaging implements Messaging {
      */
     protected static final String CREATEZIP_ATTRIBUTE_TAG = "createZip";
 
-    /**
-     * Abstract method to define your message categories *
-     */
-    public abstract List getMessageCategories();
-
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0) {
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
+            MessageAttribute att = it.next();
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
         if (msgTag.getSubElements().isEmpty()) {
-            buf.append("/>");
-            return buf.toString();
+            builder.append("/>");
+            return builder.toString();
         }
-        buf.append(">");
+        builder.append(">");
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue msgValue) {
@@ -132,9 +140,7 @@ public abstract class GenericMessaging implements Messaging {
                 RtuMessageKeyIdConstants.CONSUMERTEXTP1,
                 RtuMessageConstant.P1TEXTMESSAGE, false);
         catP1Messages.addMessageSpec(msgSpec);
-        msgSpec = addP1Code(RtuMessageKeyIdConstants.CONSUMERCODEP1,
-                RtuMessageConstant.P1CODEMESSAGE, false);
-        catP1Messages.addMessageSpec(msgSpec);
+        catP1Messages.addMessageSpec(addP1Code(RtuMessageKeyIdConstants.CONSUMERCODEP1, RtuMessageConstant.P1CODEMESSAGE, false));
         return catP1Messages;
     }
 
@@ -151,13 +157,11 @@ public abstract class GenericMessaging implements Messaging {
                 RtuMessageKeyIdConstants.DISCONNECT,
                 RtuMessageConstant.DISCONNECT_LOAD, false);
         catDisconnect.addMessageSpec(msgSpec);
-        msgSpec = addConnectControl(RtuMessageKeyIdConstants.CONNECT,
-                RtuMessageConstant.CONNECT_LOAD, false);
-        catDisconnect.addMessageSpec(msgSpec);
-        msgSpec = addConnectControlMode(
-                RtuMessageKeyIdConstants.CONNECTCONTROLMODE,
-                RtuMessageConstant.CONNECT_CONTROL_MODE, false);
-        catDisconnect.addMessageSpec(msgSpec);
+        catDisconnect.addMessageSpec(addConnectControl(RtuMessageKeyIdConstants.CONNECT, RtuMessageConstant.CONNECT_LOAD, false));
+        catDisconnect.addMessageSpec(
+                addConnectControlMode(
+                    RtuMessageKeyIdConstants.CONNECTCONTROLMODE,
+                    RtuMessageConstant.CONNECT_CONTROL_MODE, false));
         return catDisconnect;
     }
 
@@ -168,19 +172,20 @@ public abstract class GenericMessaging implements Messaging {
      * @return a category with three MessageSpecs for LoadLimit functionality
      */
     public MessageCategorySpec getLoadLimitCategory() {
-        MessageCategorySpec catLoadLimit = new MessageCategorySpec(
-                RtuMessageCategoryConstants.LOADLIMIT);
-        MessageSpec msgSpec = addConfigureLL(
-                RtuMessageKeyIdConstants.LOADLIMITCONFIG,
-                RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false);
-        catLoadLimit.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.LOADLIMITCLEAR,
-                RtuMessageConstant.LOAD_LIMIT_DISABLE, false);
-        catLoadLimit.addMessageSpec(msgSpec);
-        msgSpec = addGroupIdsLL(RtuMessageKeyIdConstants.LOADLIMITGROUPID,
-                RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST,
-                false);
-        catLoadLimit.addMessageSpec(msgSpec);
+        MessageCategorySpec catLoadLimit = new MessageCategorySpec(RtuMessageCategoryConstants.LOADLIMIT);
+        catLoadLimit.addMessageSpec(
+                addConfigureLL(
+                    RtuMessageKeyIdConstants.LOADLIMITCONFIG,
+                    RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false));
+        catLoadLimit.addMessageSpec(
+                addNoValueMsg(
+                        RtuMessageKeyIdConstants.LOADLIMITCLEAR,
+                        RtuMessageConstant.LOAD_LIMIT_DISABLE, false));
+        catLoadLimit.addMessageSpec(
+                addGroupIdsLL(
+                    RtuMessageKeyIdConstants.LOADLIMITGROUPID,
+                    RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST,
+                    false));
         return catLoadLimit;
     }
 
@@ -191,15 +196,17 @@ public abstract class GenericMessaging implements Messaging {
      * @return a category with two MessageSpecs for ActivityCalendar functionality
      */
     public MessageCategorySpec getActivityCalendarCategory(String prefix) {
-        MessageCategorySpec catActivityCal = new MessageCategorySpec(
-                prefix + RtuMessageCategoryConstants.ACTICITYCALENDAR);
-        MessageSpec msgSpec = addTimeOfUse(
-                RtuMessageKeyIdConstants.ACTIVITYCALENDAR,
-                prefix + RtuMessageConstant.TOU_ACTIVITY_CAL, false);
-        catActivityCal.addMessageSpec(msgSpec);
-        msgSpec = addSpecialDays(RtuMessageKeyIdConstants.SPECIALDAYS,
-                prefix + RtuMessageConstant.TOU_SPECIAL_DAYS, false);
-        catActivityCal.addMessageSpec(msgSpec);
+        MessageCategorySpec catActivityCal = new MessageCategorySpec(prefix + RtuMessageCategoryConstants.ACTICITYCALENDAR);
+        catActivityCal.addMessageSpec(
+                addTimeOfUse(
+                    RtuMessageKeyIdConstants.ACTIVITYCALENDAR,
+                    prefix + RtuMessageConstant.TOU_ACTIVITY_CAL,
+                        false));
+        catActivityCal.addMessageSpec(
+                addSpecialDays(
+                        RtuMessageKeyIdConstants.SPECIALDAYS,
+                        prefix + RtuMessageConstant.TOU_SPECIAL_DAYS,
+                        false));
         return catActivityCal;
     }
 
@@ -321,16 +328,17 @@ public abstract class GenericMessaging implements Messaging {
      * @return a category with one MessageSpec for webserverEnable functionality
      */
     public MessageCategorySpec getWebserverCategory() {
-        MessageCategorySpec catWebserver = new MessageCategorySpec(
-                RtuMessageCategoryConstants.WEBSERVER);
-        MessageSpec msgSpec = addNoValueMsg(
-                RtuMessageKeyIdConstants.WEBSERVER_DISABLE,
-                RtuMessageConstant.WEBSERVER_DISABLE, false);
-        catWebserver.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(
-                RtuMessageKeyIdConstants.WEBSERVER_ENABLE,
-                RtuMessageConstant.WEBSERVER_ENABLE, false);
-        catWebserver.addMessageSpec(msgSpec);
+        MessageCategorySpec catWebserver = new MessageCategorySpec(RtuMessageCategoryConstants.WEBSERVER);
+        catWebserver.addMessageSpec(
+                addNoValueMsg(
+                    RtuMessageKeyIdConstants.WEBSERVER_DISABLE,
+                    RtuMessageConstant.WEBSERVER_DISABLE,
+                    false));
+        catWebserver.addMessageSpec(
+                addNoValueMsg(
+                    RtuMessageKeyIdConstants.WEBSERVER_ENABLE,
+                    RtuMessageConstant.WEBSERVER_ENABLE,
+                        false));
         return catWebserver;
     }
 
@@ -378,18 +386,26 @@ public abstract class GenericMessaging implements Messaging {
 //		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGELLSSECRET,
 //				RtuMessageConstant.AEE_CHANGE_LLS_SECRET, false);
 //		catAuthEncrypt.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGEGLOBALKEY,
-                RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY, false);
-        catAuthEncrypt.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGEAUTHENTICATIONKEY,
-                RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY, false);
-        catAuthEncrypt.addMessageSpec(msgSpec);
-        msgSpec = addSecurityLevelMsg(RtuMessageKeyIdConstants.ACTIVATE_SECURITY,
-                RtuMessageConstant.AEE_ACTIVATE_SECURITY, true);
-        catAuthEncrypt.addMessageSpec(msgSpec);
-        msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.CHANGE_AUTHENTICATION_LEVEL,
-                RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL, true);
-        catAuthEncrypt.addMessageSpec(msgSpec);
+        catAuthEncrypt.addMessageSpec(
+                addNoValueMsg(
+                        RtuMessageKeyIdConstants.CHANGEGLOBALKEY,
+                        RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY,
+                        false));
+        catAuthEncrypt.addMessageSpec(
+                addNoValueMsg(
+                        RtuMessageKeyIdConstants.CHANGEAUTHENTICATIONKEY,
+                        RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY,
+                        false));
+        catAuthEncrypt.addMessageSpec(
+                addSecurityLevelMsg(
+                        RtuMessageKeyIdConstants.ACTIVATE_SECURITY,
+                        RtuMessageConstant.AEE_ACTIVATE_SECURITY,
+                        true));
+        catAuthEncrypt.addMessageSpec(
+                addAuthenticationLevelMsg(
+                        RtuMessageKeyIdConstants.CHANGE_AUTHENTICATION_LEVEL,
+                        RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL,
+                        true));
         return catAuthEncrypt;
     }
 
@@ -408,16 +424,24 @@ public abstract class GenericMessaging implements Messaging {
                 RtuMessageKeyIdConstants.MBUSDECOMMISSION,
                 RtuMessageConstant.MBUS_DECOMMISSION, false);
         catMbusSetup.addMessageSpec(msgSpec);
-        msgSpec = addEncryptionkeys(RtuMessageKeyIdConstants.MBUSENCRYPTIONKEY,
-                RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
-        catMbusSetup.addMessageSpec(msgSpec);
+        catMbusSetup.addMessageSpec(
+                addEncryptionkeys(
+                        RtuMessageKeyIdConstants.MBUSENCRYPTIONKEY,
+                        RtuMessageConstant.MBUS_ENCRYPTION_KEYS,
+                        false));
 //		msgSpec = addCorrectSwitchMsg(
 //				RtuMessageKeyIdConstants.MBUSGASCORRECTION,
 //				RtuMessageConstant.MBUS_CORRECTED_SWITCH, false);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.MBUSVALUESCORRECTED, RtuMessageConstant.MBUS_CORRECTED_VALUES, false);
-        catMbusSetup.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.MBUSVALUESUNCORRECTED, RtuMessageConstant.MBUS_UNCORRECTED_VALUES, false);
-        catMbusSetup.addMessageSpec(msgSpec);
+        catMbusSetup.addMessageSpec(
+                addNoValueMsg(
+                        RtuMessageKeyIdConstants.MBUSVALUESCORRECTED,
+                        RtuMessageConstant.MBUS_CORRECTED_VALUES,
+                        false));
+        catMbusSetup.addMessageSpec(
+                addNoValueMsg(
+                        RtuMessageKeyIdConstants.MBUSVALUESUNCORRECTED,
+                        RtuMessageConstant.MBUS_UNCORRECTED_VALUES,
+                        false));
         return catMbusSetup;
     }
 
@@ -453,12 +477,8 @@ public abstract class GenericMessaging implements Messaging {
                                          boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, true);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -492,12 +512,8 @@ public abstract class GenericMessaging implements Messaging {
                                         boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LOAD_LIMIT_EP_GRID_LOOKUP_ID, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_GRID_LOOKUP_ID, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -514,29 +530,15 @@ public abstract class GenericMessaging implements Messaging {
                                          boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LOAD_LIMIT_NORMAL_THRESHOLD, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LOAD_LIMIT_EMERGENCY_THRESHOLD, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION,
-                false);
-        tagSpec.add(msgAttrSpec);
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_NORMAL_THRESHOLD, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_THRESHOLD, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION, false));
         MessageTagSpec profileTagSpec = new MessageTagSpec("Emergency_Profile");
         profileTagSpec.add(msgVal);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID, false);
-        profileTagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME, false);
-        profileTagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.LOAD_LIMIT_EP_DURATION, false);
-        profileTagSpec.add(msgAttrSpec);
+        profileTagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID, false));
+        profileTagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME, false));
+        profileTagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_DURATION, false));
         tagSpec.add(msgVal);
         tagSpec.add(profileTagSpec);
         msgSpec.add(tagSpec);
@@ -555,17 +557,10 @@ public abstract class GenericMessaging implements Messaging {
                                              boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.GPRS_APN, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.GPRS_USERNAME, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.GPRS_PASSWORD, false);
-        tagSpec.add(msgAttrSpec);
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.GPRS_APN, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.GPRS_USERNAME, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.GPRS_PASSWORD, false));
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -582,13 +577,9 @@ public abstract class GenericMessaging implements Messaging {
     protected MessageSpec addGPRSModemCredantials(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_USERNAME, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_PASSWORD, false);
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.GPRS_USERNAME, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.GPRS_PASSWORD, false));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -601,25 +592,14 @@ public abstract class GenericMessaging implements Messaging {
      * @param advanced - indicates whether it's an advanced message or not
      * @return the newly created MessageSpec
      */
-    protected MessageSpec addCreateDBEntries(String keyId, String tagName,
-                                             boolean advanced) {
+    protected MessageSpec addCreateDBEntries(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.ME_START_DATE, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.ME_NUMBER_OF_ENTRIES, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_INTERVAL,
-                true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.ME_SET_CLOCK_BACK, false);
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.ME_START_DATE, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.ME_NUMBER_OF_ENTRIES, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.ME_INTERVAL,true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.ME_SET_CLOCK_BACK, false));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -636,12 +616,8 @@ public abstract class GenericMessaging implements Messaging {
                                          boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.SET_TIME_VALUE, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.SET_TIME_VALUE, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -649,18 +625,10 @@ public abstract class GenericMessaging implements Messaging {
     protected MessageSpec addMbusInstallMessage(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_EQUIPMENT_ID, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_DEFAULT_ENCRYPTION_KEY, true);
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_EQUIPMENT_ID, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_INSTALL_CHANNEL, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_DEFAULT_ENCRYPTION_KEY, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -668,12 +636,8 @@ public abstract class GenericMessaging implements Messaging {
     protected MessageSpec addSimpleMbusInstallMessage(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_INSTALL_CHANNEL, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -681,18 +645,12 @@ public abstract class GenericMessaging implements Messaging {
     private MessageSpec addResetMBusClientMessage(String keyId, String tagName, boolean advanced, boolean useSerialNoInClearMBusClientMessage) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec;
-        if(useSerialNoInClearMBusClientMessage) {
-            msgAttrSpec = new MessageAttributeSpec(
-                    RtuMessageConstant.MBUS_SERIAL_NUMBER, true);
+        if (useSerialNoInClearMBusClientMessage) {
+            tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_SERIAL_NUMBER, true));
         } else{
-            msgAttrSpec = new MessageAttributeSpec(
-                    RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
+            tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_INSTALL_CHANNEL, true));
         }
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -709,24 +667,12 @@ public abstract class GenericMessaging implements Messaging {
                                           boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.WAKEUP_NR1, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR2,
-                false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR3,
-                false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR4,
-                false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR5,
-                false);
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR1, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR2, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR3, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR4, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR5, false));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -743,12 +689,8 @@ public abstract class GenericMessaging implements Messaging {
                                          boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TEST_FILE, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.TEST_FILE, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -765,15 +707,9 @@ public abstract class GenericMessaging implements Messaging {
                                             boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec activationDateAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
-        MessageAttributeSpec outputIdAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.DISCONNECTOR_OUTPUT_ID, false);
-        tagSpec.add(msgVal);
-        tagSpec.add(activationDateAttrSpec);
-        tagSpec.add(outputIdAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.DISCONNECTOR_OUTPUT_ID, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -790,15 +726,9 @@ public abstract class GenericMessaging implements Messaging {
                                                 boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec connectModeAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.CONNECT_MODE, true);
-        MessageAttributeSpec outputIdAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.DISCONNECTOR_OUTPUT_ID, false);
-        tagSpec.add(msgVal);
-        tagSpec.add(connectModeAttrSpec);
-        tagSpec.add(outputIdAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.DISCONNECTOR_OUTPUT_ID, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -814,12 +744,8 @@ public abstract class GenericMessaging implements Messaging {
     protected MessageSpec addP1Code(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.P1CODE, false);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.P1CODE, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -835,12 +761,8 @@ public abstract class GenericMessaging implements Messaging {
     protected MessageSpec addP1Text(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.P1TEXT, false);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.P1TEXT, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -862,12 +784,9 @@ public abstract class GenericMessaging implements Messaging {
                                          boolean advanced, boolean imageIdentifier) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
         tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.FIRMWARE, true);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.FIRMWARE, true));
 
         /*
            * The Act. Now value is deleted, we use the ActivationDate to check if
@@ -879,12 +798,9 @@ public abstract class GenericMessaging implements Messaging {
         // MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW,
         // false);
         // tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false));
         if (imageIdentifier) {
-            msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_IMAGE_IDENTIFIER, false);
-            tagSpec.add(msgAttrSpec);
+            tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_IMAGE_IDENTIFIER, false));
         }
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -919,21 +835,11 @@ public abstract class GenericMessaging implements Messaging {
                                        boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TOU_ACTIVITY_NAME, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TOU_ACTIVITY_DATE, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.TOU_ACTIVITY_USER_FILE, false);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_NAME, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_DATE, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_USER_FILE, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -950,12 +856,8 @@ public abstract class GenericMessaging implements Messaging {
                                               boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.AEE_SECURITYLEVEL, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.AEE_SECURITYLEVEL, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -971,12 +873,8 @@ public abstract class GenericMessaging implements Messaging {
     protected MessageSpec addAuthenticationLevelMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.AEE_AUTHENTICATIONLEVEL, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.AEE_AUTHENTICATIONLEVEL, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -993,15 +891,9 @@ public abstract class GenericMessaging implements Messaging {
                                             boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_OPEN_KEY, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_TRANSFER_KEY, false);
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_OPEN_KEY, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_TRANSFER_KEY, false));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1018,8 +910,7 @@ public abstract class GenericMessaging implements Messaging {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.SMS_SMSC_NUMBER, true));
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1037,8 +928,7 @@ public abstract class GenericMessaging implements Messaging {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.DEVICE_PHONE_NUMBER, true));
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1056,15 +946,16 @@ public abstract class GenericMessaging implements Messaging {
                                                          boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
+    /**
+     * Abstract method to define your message categories *
+     */
+    public abstract List<MessageCategorySpec> getMessageCategories();
+
 
     /**
      * Add an openingTag to the Builder

@@ -1,14 +1,19 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,29 +24,23 @@ import java.util.Map;
  */
 public class IskraME37XMessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("CONNECT"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("DISCONNECT"));
-        registry.put(DeviceActionMessage.DEMAND_RESET, new SimpleTagMessageEntry(RtuMessageConstant.DEMAND_RESET, false));
-    }
-
-    public IskraME37XMessageConverter() {
-        super();
+    public IskraME37XMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new SimpleTagMessageEntry("CONNECT"))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new SimpleTagMessageEntry("DISCONNECT"))
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(RtuMessageConstant.DEMAND_RESET, false))
+                .build();
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         return messageAttribute.toString();
     }
+
 }

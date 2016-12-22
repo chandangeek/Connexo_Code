@@ -1,14 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import org.xml.sax.SAXException;

@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
@@ -71,7 +72,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterData;
 import com.energyict.protocol.MeterDataMessageResult;

@@ -1,9 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -11,9 +16,9 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA230UserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,39 +39,29 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
     private static final String UPGRADE_METER_FIRMWARE = "UpgradeMeterFirmware";
     private static final String UPGRADE_METER_SCHEME = "UpgradeMeterScheme";
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry(CONNECT_LOAD, false));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry(DISCONNECT_LOAD, false));
-        registry.put(ContactorDeviceMessage.CONTACTOR_ARM, new SimpleTagMessageEntry(ARM_METER, false));
-
-        registry.put(DeviceActionMessage.DEMAND_RESET, new SimpleTagMessageEntry(BILLING_RESET, false));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE, new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE));
-        registry.put(ConfigurationChangeDeviceMessage.UploadMeterScheme, new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME));
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public ABBA230MessageConverter() {
-        super();
+    public ABBA230MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            return new String(((UserFile) messageAttribute).loadFileInByteArray(), Charset.forName(CHARSET)); // Content should be a valid XML
+            return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray(), Charset.forName(CHARSET)); // Content should be a valid XML
         } else {
             return messageAttribute.toString();
         }
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new SimpleTagMessageEntry(CONNECT_LOAD, false))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new SimpleTagMessageEntry(DISCONNECT_LOAD, false))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_ARM), new SimpleTagMessageEntry(ARM_METER, false))
+
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.UploadMeterScheme), new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME))
+                .build();
     }
 }

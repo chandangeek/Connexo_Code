@@ -1,15 +1,20 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.NumberLookup;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
-import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -60,9 +65,10 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.google.common.collect.ImmutableMap;
 
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
@@ -111,82 +117,8 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
     private static final String RESET_ALARM_REGISTER = "Reset_Alarm_Register";
     private static final String DEFAULT_RESET_WINDOW = "Default_Reset_Window";
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        // contactor related
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
-        registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
-
-        // firmware upgrade related
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE, new WebRTUFirmwareUpgradeWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, firmwareUpdateActivationDateAttributeName));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, firmwareUpdateActivationDateAttributeName, firmwareUpdateImageIdentifierAttributeName));
-
-        // activity calendar related
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND, new ActivityCalendarConfigMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new ActivityCalendarConfigWithActivationDateMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName, activityCalendarActivationDateAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDayTableMessageEntry(specialDaysCodeTableAttributeName));
-
-        // security related
-        registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new ActivateDlmsEncryptionMessageEntry(encryptionLevelAttributeName));
-        registry.put(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL, new ChangeDlmsAuthenticationLevelMessageEntry(authenticationLevelAttributeName));
-        registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY, new ChangeNTADataTransportEncryptionKeyMessageEntry(newEncryptionKeyAttributeName));
-        registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY, new ChangeNTADataTransportAuthenticationKeyMessageEntry(newAuthenticationKeyAttributeName));
-        registry.put(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD, new ChangeHLSSecretMessageEntry(newPasswordAttributeName));
-
-        // network and connectivity
-        registry.put(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM, new ActivateNTASmsWakeUpMessageEntry());
-        registry.put(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP, new DeactivateNTASmsWakeUpMessageEntry());
-        registry.put(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS, new GprsUserCredentialsMessageEntry(usernameAttributeName, passwordAttributeName));
-        registry.put(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS, new ApnCredentialsMessageEntry(apnAttributeName, usernameAttributeName, passwordAttributeName));
-        registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName));
-
-        // display P1
-        registry.put(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1, new ConsumerMessageCodeToPortP1(p1InformationAttributeName));
-        registry.put(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1, new ConsumerMessageTextToPortP1(p1InformationAttributeName));
-
-        // Device Actions
-        registry.put(DeviceActionMessage.GLOBAL_METER_RESET, new GlobalMeterReset());
-
-        // Load balance
-        registry.put(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS, new ConfigureLoadLimitParameters(normalThresholdAttributeName, emergencyThresholdAttributeName, overThresholdDurationAttributeName, emergencyProfileIdAttributeName, emergencyProfileActivationDateAttributeName, emergencyProfileDurationAttributeName));
-        registry.put(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS, new SetEmergencyProfileGroupIds(emergencyProfileGroupIdListAttributeName));
-        registry.put(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION, new ClearLoadLimitConfigurations());
-
-        // Advanced test
-        registry.put(AdvancedTestMessage.XML_CONFIG, new XmlConfigMessageEntry(xmlConfigAttributeName));
-        registry.put(AdvancedTestMessage.USERFILE_CONFIG, new MultipleAttributeMessageEntry(TEST_MESSAGE, TEST_FILE));
-
-        // LoadProfiles
-        registry.put(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
-        registry.put(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
-
-        // clock related
-        registry.put(ClockDeviceMessage.SET_TIME, new SetTimeMessageEntry(meterTimeAttributeName));
-
-        // reset
-        registry.put(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow, new MultipleAttributeMessageEntry(DEFAULT_RESET_WINDOW, DEFAULT_RESET_WINDOW));
-        registry.put(DeviceActionMessage.ALARM_REGISTER_RESET, new OneTagMessageEntry(RESET_ALARM_REGISTER));
-
-        //MBus setup
-        registry.put(MBusSetupDeviceMessage.Commission_With_Channel, new MultipleAttributeMessageEntry(RtuMessageConstant.MBUS_INSTALL, RtuMessageConstant.MBUS_INSTALL_CHANNEL));
-        registry.put(MBusSetupDeviceMessage.MBusClientRemoteCommission, new MBusClientRemoteCommissionEntry(RtuMessageConstant.MBUS_INSTALL_CHANNEL, RtuMessageConstant.MBUS_SHORT_ID));
-        registry.put(MBusSetupDeviceMessage.ChangeMBusAttributes, new ChangeMBusClientAttributesEntry(RtuMessageConstant.MBUS_INSTALL_CHANNEL, RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER, RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID, RtuMessageConstant.MBUS_CLIENT_VERSION, RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE));
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public Dsmr23MessageConverter() {
-        super();
+    public Dsmr23MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
@@ -197,9 +129,9 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime() / 1000); // WebRTU format of the dateTime is seconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return String.valueOf(((UserFile) messageAttribute).getId());
+            return String.valueOf(((DeviceMessageFile) messageAttribute).getId());
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return String.valueOf(((Code) messageAttribute).getId());
+            return String.valueOf(((TariffCalender) messageAttribute).getId());
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
@@ -210,10 +142,10 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
-            return String.valueOf(((Lookup) messageAttribute).getId());
+            return String.valueOf(((NumberLookup) messageAttribute).getId());
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+            return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
             return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
@@ -226,6 +158,70 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                // contactor related
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new DisconnectLoadMessageEntry())
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE), new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new ConnectLoadMessageEntry())
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE), new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName))
+                .put(messageSpec(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE), new ConnectControlModeMessageEntry(contactorModeAttributeName))
+
+                // firmware upgrade related
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new WebRTUFirmwareUpgradeWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE), new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, firmwareUpdateActivationDateAttributeName))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER), new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, firmwareUpdateActivationDateAttributeName, firmwareUpdateImageIdentifierAttributeName))
+
+                // activity calendar related
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND), new ActivityCalendarConfigMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new ActivityCalendarConfigWithActivationDateMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName, activityCalendarActivationDateAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND), new SpecialDayTableMessageEntry(specialDaysCodeTableAttributeName))
+
+                // security related
+                .put(messageSpec(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION), new ActivateDlmsEncryptionMessageEntry(encryptionLevelAttributeName))
+                .put(messageSpec(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL), new ChangeDlmsAuthenticationLevelMessageEntry(authenticationLevelAttributeName))
+                .put(messageSpec(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY), new ChangeNTADataTransportEncryptionKeyMessageEntry(newEncryptionKeyAttributeName))
+                .put(messageSpec(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY), new ChangeNTADataTransportAuthenticationKeyMessageEntry(newAuthenticationKeyAttributeName))
+                .put(messageSpec(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD), new ChangeHLSSecretMessageEntry(newPasswordAttributeName))
+
+                // network and connectivity
+                .put(messageSpec(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM), new ActivateNTASmsWakeUpMessageEntry())
+                .put(messageSpec(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP), new DeactivateNTASmsWakeUpMessageEntry())
+                .put(messageSpec(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS), new GprsUserCredentialsMessageEntry(usernameAttributeName, passwordAttributeName))
+                .put(messageSpec(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS), new ApnCredentialsMessageEntry(apnAttributeName, usernameAttributeName, passwordAttributeName))
+                .put(messageSpec(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST), new AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName))
+
+                // display P1
+                .put(messageSpec(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1), new ConsumerMessageCodeToPortP1(p1InformationAttributeName))
+                .put(messageSpec(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1), new ConsumerMessageTextToPortP1(p1InformationAttributeName))
+
+                // Device Actions
+                .put(messageSpec(DeviceActionMessage.GLOBAL_METER_RESET), new GlobalMeterReset())
+
+                // Load balance
+                .put(messageSpec(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS), new ConfigureLoadLimitParameters(normalThresholdAttributeName, emergencyThresholdAttributeName, overThresholdDurationAttributeName, emergencyProfileIdAttributeName, emergencyProfileActivationDateAttributeName, emergencyProfileDurationAttributeName))
+                .put(messageSpec(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS), new SetEmergencyProfileGroupIds(emergencyProfileGroupIdListAttributeName))
+                .put(messageSpec(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION), new ClearLoadLimitConfigurations())
+
+                // Advanced test
+                .put(messageSpec(AdvancedTestMessage.XML_CONFIG), new XmlConfigMessageEntry(xmlConfigAttributeName))
+                .put(messageSpec(AdvancedTestMessage.USERFILE_CONFIG), new MultipleAttributeMessageEntry(TEST_MESSAGE, TEST_FILE))
+
+                // LoadProfiles
+                .put(messageSpec(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST), new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName))
+                .put(messageSpec(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST), new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName))
+
+                // clock related
+                .put(messageSpec(ClockDeviceMessage.SET_TIME), new SetTimeMessageEntry(meterTimeAttributeName))
+
+                // reset
+                .put(messageSpec(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow), new MultipleAttributeMessageEntry(DEFAULT_RESET_WINDOW, DEFAULT_RESET_WINDOW))
+                .put(messageSpec(DeviceActionMessage.ALARM_REGISTER_RESET), new OneTagMessageEntry(RESET_ALARM_REGISTER))
+
+                //MBus setup
+                .put(messageSpec(MBusSetupDeviceMessage.Commission_With_Channel), new MultipleAttributeMessageEntry(RtuMessageConstant.MBUS_INSTALL, RtuMessageConstant.MBUS_INSTALL_CHANNEL))
+                .put(messageSpec(MBusSetupDeviceMessage.MBusClientRemoteCommission), new MBusClientRemoteCommissionEntry(RtuMessageConstant.MBUS_INSTALL_CHANNEL, RtuMessageConstant.MBUS_SHORT_ID))
+                .put(messageSpec(MBusSetupDeviceMessage.ChangeMBusAttributes), new ChangeMBusClientAttributesEntry(RtuMessageConstant.MBUS_INSTALL_CHANNEL, RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER, RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID, RtuMessageConstant.MBUS_CLIENT_VERSION, RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE))
+                .build();
     }
 }

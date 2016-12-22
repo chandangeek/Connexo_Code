@@ -1,15 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dialer.core.LinkException;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
-import com.energyict.protocolimpl.dlms.elgama.eventlogging.PowerOverLimitLog;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -54,7 +56,7 @@ public class UkHubTestTool extends AbstractSmartDebuggingMain<UkHub> {
     public void doDebug() throws LinkException, IOException {
         //String content = "<Change_HAN_SAS HAN_SAS_EXTENDED_PAN_ID=\"0102030405060708\" HAN_SAS_PAN_ID=\"1234\" HAN_SAS_PAN_Channel_Mask=\"134215680\" HAN_SAS_Insecure_Join=\"1\"/>";
         String content = getProperties().getProperty(XML_TO_SEND);
-        MessageEntry messageEntry = new MessageEntry(content, "");
+        MessageEntry messageEntry = MessageEntry.fromContent(content).trackingId("").finish();
         getLogger().severe("Sending XML message: " + content);
         MessageResult messageResult = getMeterProtocol().queryMessage(messageEntry);
         getLogger().info(messageResult.toString());

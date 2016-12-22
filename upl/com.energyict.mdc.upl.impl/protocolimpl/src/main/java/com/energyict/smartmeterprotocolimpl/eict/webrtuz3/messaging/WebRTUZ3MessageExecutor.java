@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -52,7 +54,6 @@ import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;

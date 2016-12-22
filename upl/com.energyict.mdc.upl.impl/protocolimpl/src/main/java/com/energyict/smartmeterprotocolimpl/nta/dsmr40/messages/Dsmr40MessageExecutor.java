@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -21,7 +23,6 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;

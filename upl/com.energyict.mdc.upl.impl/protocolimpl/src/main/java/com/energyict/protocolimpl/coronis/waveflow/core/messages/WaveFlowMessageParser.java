@@ -1,7 +1,18 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.messages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ParameterFactoryHydreka;
@@ -28,13 +39,9 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithTwoAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -57,11 +64,8 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithAttr(final String keyId, final String tagName, final boolean advanced, String attr) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
-        tagSpec.add(addAttribute);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -69,12 +73,9 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithThreeValues(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute);
-        MessageAttributeSpec closeAttribute = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(closeAttribute);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -82,15 +83,10 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithFourValues(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute);
-        MessageAttributeSpec closeAttribute = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(closeAttribute);
-        MessageAttributeSpec thirdAttribute = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(thirdAttribute);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -98,23 +94,14 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithSevenAttributes(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5, String attr6, String attr7) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec attrSpec1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(attrSpec1);
-        MessageAttributeSpec attrSpec2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(attrSpec2);
-        MessageAttributeSpec attrSpec3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(attrSpec3);
-        MessageAttributeSpec attrSpec4 = new MessageAttributeSpec(attr4, true);
-        tagSpec.add(attrSpec4);
-        MessageAttributeSpec attrSpec5 = new MessageAttributeSpec(attr5, true);
-        tagSpec.add(attrSpec5);
-        MessageAttributeSpec attrSpec6 = new MessageAttributeSpec(attr6, true);
-        tagSpec.add(attrSpec6);
-        MessageAttributeSpec attrSpec7 = new MessageAttributeSpec(attr7, true);
-        tagSpec.add(attrSpec7);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageAttributeSpec(attr4, true));
+        tagSpec.add(new MessageAttributeSpec(attr5, true));
+        tagSpec.add(new MessageAttributeSpec(attr6, true));
+        tagSpec.add(new MessageAttributeSpec(attr7, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -122,37 +109,21 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithFourteenAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5, String attr6, String attr7, String attr8, String attr9, String attr10, String attr11, String attr12, String attr13, String attr14) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec attrSpec1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(attrSpec1);
-        MessageAttributeSpec attrSpec2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(attrSpec2);
-        MessageAttributeSpec attrSpec3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(attrSpec3);
-        MessageAttributeSpec attrSpec4 = new MessageAttributeSpec(attr4, true);
-        tagSpec.add(attrSpec4);
-        MessageAttributeSpec attrSpec5 = new MessageAttributeSpec(attr5, true);
-        tagSpec.add(attrSpec5);
-        MessageAttributeSpec attrSpec6 = new MessageAttributeSpec(attr6, true);
-        tagSpec.add(attrSpec6);
-        MessageAttributeSpec attrSpec7 = new MessageAttributeSpec(attr7, true);
-        tagSpec.add(attrSpec7);
-        MessageAttributeSpec attrSpec8 = new MessageAttributeSpec(attr8, true);
-        tagSpec.add(attrSpec8);
-        MessageAttributeSpec attrSpec9 = new MessageAttributeSpec(attr9, true);
-        tagSpec.add(attrSpec9);
-        MessageAttributeSpec attrSpec10 = new MessageAttributeSpec(attr10, true);
-        tagSpec.add(attrSpec10);
-        MessageAttributeSpec attrSpec11 = new MessageAttributeSpec(attr11, true);
-        tagSpec.add(attrSpec11);
-        MessageAttributeSpec attrSpec12 = new MessageAttributeSpec(attr12, true);
-        tagSpec.add(attrSpec12);
-        MessageAttributeSpec attrSpec13 = new MessageAttributeSpec(attr13, true);
-        tagSpec.add(attrSpec13);
-        MessageAttributeSpec attrSpec14 = new MessageAttributeSpec(attr14, true);
-        tagSpec.add(attrSpec14);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageAttributeSpec(attr4, true));
+        tagSpec.add(new MessageAttributeSpec(attr5, true));
+        tagSpec.add(new MessageAttributeSpec(attr6, true));
+        tagSpec.add(new MessageAttributeSpec(attr7, true));
+        tagSpec.add(new MessageAttributeSpec(attr8, true));
+        tagSpec.add(new MessageAttributeSpec(attr9, true));
+        tagSpec.add(new MessageAttributeSpec(attr10, true));
+        tagSpec.add(new MessageAttributeSpec(attr11, true));
+        tagSpec.add(new MessageAttributeSpec(attr12, true));
+        tagSpec.add(new MessageAttributeSpec(attr13, true));
+        tagSpec.add(new MessageAttributeSpec(attr14, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -160,39 +131,22 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithFifteenAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4, String attr5, String attr6, String attr7, String attr8, String attr9, String attr10, String attr11, String attr12, String attr13, String attr14, String attr15) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec attrSpec1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(attrSpec1);
-        MessageAttributeSpec attrSpec2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(attrSpec2);
-        MessageAttributeSpec attrSpec3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(attrSpec3);
-        MessageAttributeSpec attrSpec4 = new MessageAttributeSpec(attr4, true);
-        tagSpec.add(attrSpec4);
-        MessageAttributeSpec attrSpec5 = new MessageAttributeSpec(attr5, true);
-        tagSpec.add(attrSpec5);
-        MessageAttributeSpec attrSpec6 = new MessageAttributeSpec(attr6, true);
-        tagSpec.add(attrSpec6);
-        MessageAttributeSpec attrSpec7 = new MessageAttributeSpec(attr7, true);
-        tagSpec.add(attrSpec7);
-        MessageAttributeSpec attrSpec8 = new MessageAttributeSpec(attr8, true);
-        tagSpec.add(attrSpec8);
-        MessageAttributeSpec attrSpec9 = new MessageAttributeSpec(attr9, true);
-        tagSpec.add(attrSpec9);
-        MessageAttributeSpec attrSpec10 = new MessageAttributeSpec(attr10, true);
-        tagSpec.add(attrSpec10);
-        MessageAttributeSpec attrSpec11 = new MessageAttributeSpec(attr11, true);
-        tagSpec.add(attrSpec11);
-        MessageAttributeSpec attrSpec12 = new MessageAttributeSpec(attr12, true);
-        tagSpec.add(attrSpec12);
-        MessageAttributeSpec attrSpec13 = new MessageAttributeSpec(attr13, true);
-        tagSpec.add(attrSpec13);
-        MessageAttributeSpec attrSpec14 = new MessageAttributeSpec(attr14, true);
-        tagSpec.add(attrSpec14);
-        MessageAttributeSpec attrSpec15 = new MessageAttributeSpec(attr15, true);
-        tagSpec.add(attrSpec15);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageAttributeSpec(attr4, true));
+        tagSpec.add(new MessageAttributeSpec(attr5, true));
+        tagSpec.add(new MessageAttributeSpec(attr6, true));
+        tagSpec.add(new MessageAttributeSpec(attr7, true));
+        tagSpec.add(new MessageAttributeSpec(attr8, true));
+        tagSpec.add(new MessageAttributeSpec(attr9, true));
+        tagSpec.add(new MessageAttributeSpec(attr10, true));
+        tagSpec.add(new MessageAttributeSpec(attr11, true));
+        tagSpec.add(new MessageAttributeSpec(attr12, true));
+        tagSpec.add(new MessageAttributeSpec(attr13, true));
+        tagSpec.add(new MessageAttributeSpec(attr14, true));
+        tagSpec.add(new MessageAttributeSpec(attr15, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -200,15 +154,10 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithThreeAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec attrSpec1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(attrSpec1);
-        MessageAttributeSpec attrSpec2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(attrSpec2);
-        MessageAttributeSpec attrSpec3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(attrSpec3);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -216,17 +165,11 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     protected MessageSpec addBasicMsgWithFourAttributes(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2, String attr3, String attr4) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec attrSpec1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(attrSpec1);
-        MessageAttributeSpec attrSpec2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(attrSpec2);
-        MessageAttributeSpec attrSpec3 = new MessageAttributeSpec(attr3, true);
-        tagSpec.add(attrSpec3);
-        MessageAttributeSpec attrSpec4 = new MessageAttributeSpec(attr4, true);
-        tagSpec.add(attrSpec4);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageAttributeSpec(attr3, true));
+        tagSpec.add(new MessageAttributeSpec(attr4, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -247,43 +190,42 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Object o1 : msgTag.getAttributes()) {
-            MessageAttribute att = (MessageAttribute) o1;
-            if (att.getValue() == null || att.getValue().length() == 0) {
+        for (MessageAttribute att : msgTag.getAttributes()) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Object o : msgTag.getSubElements()) {
             MessageElement elt = (MessageElement) o;
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {
@@ -298,205 +240,205 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (messageEntry.getContent().indexOf("<RestartDataLogging") >= 0) {
+            if (messageEntry.getContent().contains("<RestartDataLogging")) {
                 return restartDataLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SimpleRestartDataLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SimpleRestartDataLogging")) {
                 return simpleRestartDataLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<StopDataLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<StopDataLogging")) {
                 return stopDataLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfInputs") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfInputs")) {
                 return setNumberOfInputs(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetIndexes") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetIndexes")) {
                 return resetIndexes(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteIndexA") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteIndexA")) {
                 return writeIndex(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<InitializeRoute") >= 0) {
+            } else if (messageEntry.getContent().contains("<InitializeRoute")) {
                 return initializeRoute(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteIndexB") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteIndexB")) {
                 return writeIndex(messageEntry, 2);
-            } else if (messageEntry.getContent().indexOf("<WriteIndexC") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteIndexC")) {
                 return writeIndex(messageEntry, 3);
-            } else if (messageEntry.getContent().indexOf("<WriteIndexD") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteIndexD")) {
                 return writeIndex(messageEntry, 4);
-            } else if (messageEntry.getContent().indexOf("<ForceTimeSync") >= 0) {
+            } else if (messageEntry.getContent().contains("<ForceTimeSync")) {
                 return forceTimeSync(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetBackflowDetectionMethod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetBackflowDetectionMethod")) {
                 return setBackflowDetectionMethod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetOperatingModeWithMask") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetOperatingModeWithMask")) {
                 return setOperationModeWithMask(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetOperatingMode") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetOperatingMode")) {
                 return setOperationMode(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetLeakageStatusReadingHour") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetLeakageStatusReadingHour")) {
                 return setLeakageStatusReadingHour(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetHistogramReadingHour") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetHistogramReadingHour")) {
                 return setHistogramReadingHour(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRTCResyncPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRTCResyncPeriod")) {
                 return setRTCResyncPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusFull") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatusFull")) {
                 return resetApplicationStatus(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit0") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatusBit0")) {
                 return resetApplicationStatusBit(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit1") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatusBit1")) {
                 return resetApplicationStatusBit(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit3") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatusBit3")) {
                 return resetApplicationStatusBit(messageEntry, 3);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit4") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatusBit4")) {
                 return resetApplicationStatusBit(messageEntry, 4);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit5") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatusBit5")) {
                 return resetApplicationStatusBit(messageEntry, 5);
-            } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit7") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetApplicationStatusBit7")) {
                 return resetApplicationStatusBit(messageEntry, 7);
-            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusFull") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetValveApplicationStatusFull")) {
                 return resetValveApplicationStatus(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusBit0") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetValveApplicationStatusBit0")) {
                 return resetValveApplicationStatusBit(messageEntry, 0);
-            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusBit1") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetValveApplicationStatusBit1")) {
                 return resetValveApplicationStatusBit(messageEntry, 1);
-            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusBit2") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetValveApplicationStatusBit2")) {
                 return resetValveApplicationStatusBit(messageEntry, 2);
-            } else if (messageEntry.getContent().indexOf("<ResetValveApplicationStatusBit3") >= 0) {
+            } else if (messageEntry.getContent().contains("<ResetValveApplicationStatusBit3")) {
                 return resetValveApplicationStatusBit(messageEntry, 3);
-            } else if (messageEntry.getContent().indexOf("<SetDayOfWeek") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetDayOfWeek")) {
                 return setDayOfWeekOrMonth(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetHourOfDailyIndexStorage") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetHourOfDailyIndexStorage")) {
                 return setHourForDailyIndexStorage(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetPeriodicStepLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetPeriodicStepLogging")) {
                 return setPeriodicStepLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMonthlyLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMonthlyLogging")) {
                 return setMonthlyLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetWeeklyLogging") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetWeeklyLogging")) {
                 return setWeeklyLogging(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DefinePulseWeight") >= 0) {
+            } else if (messageEntry.getContent().contains("<DefinePulseWeight")) {
                 return definePulseWeight(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetHourOfMeasurement") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetHourOfMeasurement")) {
                 return setHourOfMeasurement(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMinuteOfMeasurement") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMinuteOfMeasurement")) {
                 return setMinuteOfmeasurement(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<OpenWaterValve") >= 0) {
+            } else if (messageEntry.getContent().contains("<OpenWaterValve")) {
                 return openWaterValve(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<CloseWaterValve") >= 0) {
+            } else if (messageEntry.getContent().contains("<CloseWaterValve")) {
                 return closeWaterValve(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<CleanWaterValve") >= 0) {
+            } else if (messageEntry.getContent().contains("<CleanWaterValve")) {
                 return cleanWaterValve(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<AddCreditBeforeClosing") >= 0) {
+            } else if (messageEntry.getContent().contains("<AddCreditBeforeClosing")) {
                 return addCreditBeforeClosing(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetLeakageThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetLeakageThreshold")) {
                 return setLeakageThreshold(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetLeakageDetectionPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetLeakageDetectionPeriod")) {
                 return setLeakageDetectionPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMeasurementStep") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMeasurementStep")) {
                 return setMeasurementStep(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetProfileInterval") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetProfileInterval")) {
                 return setProfileInterval(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetSimpleBackflowThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetSimpleBackflowThreshold")) {
                 return setBackflowThreshold(messageEntry, true);
-            } else if (messageEntry.getContent().indexOf("<SetAdvancedBackflowThreshold") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetAdvancedBackflowThreshold")) {
                 return setBackflowThreshold(messageEntry, false);
-            } else if (messageEntry.getContent().indexOf("<SetSimpleBackflowDetectionPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetSimpleBackflowDetectionPeriod")) {
                 return setBackflowDetectionPeriod(messageEntry, true);
-            } else if (messageEntry.getContent().indexOf("<SetAdvancedBackflowDetectionPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetAdvancedBackflowDetectionPeriod")) {
                 return setBackflowDetectionPeriod(messageEntry, false);
-            } else if (messageEntry.getContent().indexOf("<EnablePushFrames") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnablePushFrames")) {
                 return enablePushFrames(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<StartPushFrames") >= 0) {
+            } else if (messageEntry.getContent().contains("<StartPushFrames")) {
                 return startPushFrames(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisablePushFrames") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisablePushFrames")) {
                 return disablePushFrames(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetStartOfMechanism") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetStartOfMechanism")) {
                 return setStartOfMechanism(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetTransmissionPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetTransmissionPeriod")) {
                 return setTransmissionPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetMaxCancelTimeout") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetMaxCancelTimeout")) {
                 return setMaxCancelTimeout(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<AddCommandToBuffer") >= 0) {
+            } else if (messageEntry.getContent().contains("<AddCommandToBuffer")) {
                 return addCommandToBuffer(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<ClearCommandBuffer") >= 0) {
+            } else if (messageEntry.getContent().contains("<ClearCommandBuffer")) {
                 return clearCommandBuffer(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetAlarmConfig") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetAlarmConfig")) {
                 return setAlarmConfig(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetNumberOfRepeaters") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetNumberOfRepeaters")) {
                 return setNumberOfRepeaters(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRepeaterAddress") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRepeaterAddress")) {
                 return setRepeaterAddress(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetRecipientAddress") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetRecipientAddress")) {
                 return setRecipientAddress(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnWirecutDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnWirecutDetection")) {
                 return sendAlarmOnWirecutDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnBatteryEnd") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnBatteryEnd")) {
                 return sendAlarmOnBatteryEnd(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnLowLeakDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnLowLeakDetection")) {
                 return sendAlarmOnLowLeakDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnHighLeakDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnHighLeakDetection")) {
                 return sendAlarmOnHighLeakDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnBackflowDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnBackflowDetection")) {
                 return sendAlarmOnBackflowDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnValveWirecut") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnValveWirecut")) {
                 return sendAlarmOnValveWirecut(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnValveCloseFault") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnValveCloseFault")) {
                 return sendAlarmOnValveCloseFault(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAlarmOnThresholdDetectionOfCreditAmount") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAlarmOnThresholdDetectionOfCreditAmount")) {
                 return sendAlarmOnThresholdDetectionOfCreditAmount(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnWirecutDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnWirecutDetection")) {
                 return disableAlarmOnWirecutDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnBatteryEnd") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnBatteryEnd")) {
                 return disableAlarmOnBatteryEnd(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnLowLeakDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnLowLeakDetection")) {
                 return disableAlarmOnLowLeakDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnHighLeakDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnHighLeakDetection")) {
                 return disableAlarmOnHighLeakDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnBackflowDetection") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnBackflowDetection")) {
                 return disableAlarmOnBackflowDetection(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnValveWirecut") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnValveWirecut")) {
                 return disableAlarmOnValveWirecut(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnValveCloseFault") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnValveCloseFault")) {
                 return disableAlarmOnValveCloseFault(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAlarmOnThresholdDetectionOfCreditAmount") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAlarmOnThresholdDetectionOfCreditAmount")) {
                 return disableAlarmOnThresholdDetectionOfCreditAmount(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableAllAlarms") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableAllAlarms")) {
                 return disableAllAlarms(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SendAllAlarms") >= 0) {
+            } else if (messageEntry.getContent().contains("<SendAllAlarms")) {
                 return sendAllAlarms(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetTimeSlotGranularity") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetTimeSlotGranularity")) {
                 return setTimeSlotGranularity(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetTimeSlotDuration") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetTimeSlotDuration")) {
                 return setTimeSlotDuration(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<EnableTimeSlotMechanism") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnableTimeSlotMechanism")) {
                 return enableTimeSlotMechanism(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<DisableTimeSlotMechanism") >= 0) {
+            } else if (messageEntry.getContent().contains("<DisableTimeSlotMechanism")) {
                 return disableTimeSlotMechanism(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteFeatureData") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteFeatureData")) {
                 return writeFeatureData(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WritePeakFlowSettings") >= 0) {
+            } else if (messageEntry.getContent().contains("<WritePeakFlowSettings")) {
                 return writePeakFlowSettings(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteOverSpeedParameters") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteOverSpeedParameters")) {
                 return writeOverSpeedParameters(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<Write7BandParameters") >= 0) {
+            } else if (messageEntry.getContent().contains("<Write7BandParameters")) {
                 return write7BandParameters(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<Write4DailySegmentsParameters") >= 0) {
+            } else if (messageEntry.getContent().contains("<Write4DailySegmentsParameters")) {
                 return write4DailySegmentsParameters(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteDateOfInstallation") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteDateOfInstallation")) {
                 return writeDateOfInstallation(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<WriteCustomerNumber") >= 0) {
+            } else if (messageEntry.getContent().contains("<WriteCustomerNumber")) {
                 return writeCustomerNumber(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<EnableRisingBlockTariffs") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnableRisingBlockTariffs")) {
                 return enableRisingBlockTariffs(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<EnableTimeOfUseTariffs") >= 0) {
+            } else if (messageEntry.getContent().contains("<EnableTimeOfUseTariffs")) {
                 return enableTimeOfUseTariffs(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetWakeUpSystemStatusWord") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetWakeUpSystemStatusWord")) {
                 return setWakeUpSystemStatusWord(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetDefaultWakeUpPeriod") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetDefaultWakeUpPeriod")) {
                 return setDefaultWakeUpPeriod(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetStartTimeForTimeWindow1") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetStartTimeForTimeWindow1")) {
                 return setStartTimeForTimeWindow1(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetWakeUpPeriodForTimeWindow1") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetWakeUpPeriodForTimeWindow1")) {
                 return setWakeUpPeriodForTimeWindow1(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetStartTimeForTimeWindow2") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetStartTimeForTimeWindow2")) {
                 return setStartTimeForTimeWindow2(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetWakeUpPeriodForTimeWindow2") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetWakeUpPeriodForTimeWindow2")) {
                 return setWakeUpPeriodForTimeWindow2(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetEnableTimeWindowsByDayOfWeek") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetEnableTimeWindowsByDayOfWeek")) {
                 return setEnableTimeWindowsByDayOfWeek(messageEntry);
-            } else if (messageEntry.getContent().indexOf("<SetEnableWakeUpPeriodsByDayOfWeek") >= 0) {
+            } else if (messageEntry.getContent().contains("<SetEnableWakeUpPeriodsByDayOfWeek")) {
                 return setEnableWakeUpPeriodsByDayOfWeek(messageEntry);
             } else {
                 waveFlow.getLogger().severe("Unknown message, cannot execute");

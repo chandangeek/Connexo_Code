@@ -1,11 +1,12 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleImageTransferObject;
 import com.elster.protocols.streams.TimeoutIOException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
 import sun.misc.BASE64Decoder;
 
 import java.io.ByteArrayInputStream;

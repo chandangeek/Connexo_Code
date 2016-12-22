@@ -1,14 +1,15 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleGprsModemSetupObject;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -94,16 +95,11 @@ public class ApnSetupMessage extends AbstractDlmsMessage {
         MessageSpec msgSpec = new MessageSpec(messageName, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(GPRS_MODEM_SETUP);
 
-        // Disable the value field in the EIServer message GUI
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-
         // Add 3 attributes: APN, username and password
         tagSpec.add(new MessageAttributeSpec(GPRS_APN, false));
         tagSpec.add(new MessageAttributeSpec(GPRS_USERNAME, false));
         tagSpec.add(new MessageAttributeSpec(GPRS_PASSWORD, false));
-
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

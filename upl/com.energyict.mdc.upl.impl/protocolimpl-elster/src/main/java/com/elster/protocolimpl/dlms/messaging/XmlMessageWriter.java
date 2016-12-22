@@ -1,15 +1,16 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+
 import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.core.UserFileFactory;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.Messaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,17 +31,15 @@ public class XmlMessageWriter implements Messaging {
     }
 
     public String writeTag(MessageTag tag) {
-        if (tag.getName().equals(TariffUploadPassiveMessage.MESSAGE_TAG)) {
-            return writeTariffTag(tag);
-        } else if (tag.getName().equals(A1WriteSpecialDaysTableMessage.MESSAGE_TAG))
-        {
-            return writeUserFileTag(tag, A1WriteSpecialDaysTableMessage.ATTR_SPT_FILE);
-        } else if (tag.getName().equals(A1WritePassiveCalendarMessage.MESSAGE_TAG))
-        {
-            return writeUserFileTag(tag, A1WritePassiveCalendarMessage.ATTR_TC_FILE);
-        } else
-        {
-            return writeNormalTag(tag);
+        switch (tag.getName()) {
+            case TariffUploadPassiveMessage.MESSAGE_TAG:
+                return writeTariffTag(tag);
+            case A1WriteSpecialDaysTableMessage.MESSAGE_TAG:
+                return writeUserFileTag(tag, A1WriteSpecialDaysTableMessage.ATTR_SPT_FILE);
+            case A1WritePassiveCalendarMessage.MESSAGE_TAG:
+                return writeUserFileTag(tag, A1WritePassiveCalendarMessage.ATTR_TC_FILE);
+            default:
+                return writeNormalTag(tag);
         }
     }
 
@@ -53,32 +52,25 @@ public class XmlMessageWriter implements Messaging {
         builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Object maObject : msgTag.getAttributes())
-        {
-            MessageAttribute ma = (MessageAttribute) maObject;
+        for (MessageAttribute ma : msgTag.getAttributes()) {
             String specName = ma.getSpec().getName();
-            if (specName.equals(fileTag))
-            {
-                if ((ma.getValue() != null) && (ma.getValue().length() != 0))
-                {
+            if (specName.equals(fileTag)) {
+                if ((ma.getValue() != null) && (!ma.getValue().isEmpty())) {
                     String[] nameParts = ma.getValue().split("\\.");
                     String name = nameParts[0];
                     UserFileFactory factory = MeteringWarehouse.getCurrent().getUserFileFactory();
                     List files = factory.findByName(name);
 
                     String data = "";
-                    if (files.size() > 0)
-                    {
+                    if (!files.isEmpty()) {
                         data = new String(((UserFile) files.get(0)).loadFileInByteArray());
                         data = data.replaceAll("\"", "''");
                     }
                     builder.append(" ").append(specName);
                     builder.append("=").append('"').append(data).append('"');
                 }
-            } else
-            {
-                if ((ma.getValue() != null) && (ma.getValue().length() != 0))
-                {
+            } else {
+                if ((ma.getValue() != null) && (!ma.getValue().isEmpty())) {
                     builder.append(" ").append(specName);
                     builder.append("=").append('"').append(ma.getValue()).append('"');
                 }
@@ -107,18 +99,17 @@ public class XmlMessageWriter implements Messaging {
 
         // b. Attributes
         int codeTableId;
-        for (Object maObject : msgTag.getAttributes()) {
-            MessageAttribute ma = (MessageAttribute) maObject;
+        for (MessageAttribute ma : msgTag.getAttributes()) {
             String specName = ma.getSpec().getName();
             if (specName.equals(TariffUploadPassiveMessage.ATTR_CODE_TABLE_ID)) {
-                if ((ma.getValue() != null) && (ma.getValue().length() != 0)) {
+                if ((ma.getValue() != null) && (!ma.getValue().isEmpty())) {
                     codeTableId = Integer.valueOf(ma.getValue());
                     String base64 = CodeTableBase64Builder.getXmlStringFromCodeTable(codeTableId);
                     builder.append(" ").append(specName);
                     builder.append("=").append('"').append(base64).append('"');
                 }
             } else {
-                if ((ma.getValue() != null) && (ma.getValue().length() != 0)) {
+                if ((ma.getValue() != null) && (!ma.getValue().isEmpty())) {
                     builder.append(" ").append(specName);
                     builder.append("=").append('"').append(ma.getValue()).append('"');
                 }
@@ -142,9 +133,8 @@ public class XmlMessageWriter implements Messaging {
         buf.append(msgTag.getName());
 
         // b. Attributes
-        for (Object o : msgTag.getAttributes()) {
-            MessageAttribute att = (MessageAttribute) o;
-            if (att.getValue() == null || att.getValue().length() == 0) {
+        for (MessageAttribute att : msgTag.getAttributes()) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
             buf.append(" ").append(att.getSpec().getName());
@@ -162,7 +152,7 @@ public class XmlMessageWriter implements Messaging {
                 buf.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
                 buf.append(value);

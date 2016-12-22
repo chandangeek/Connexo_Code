@@ -1,9 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd.messaging;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
@@ -34,8 +41,8 @@ public class InHomeDisplayMessaging extends GenericMessaging implements MessageP
      * Abstract method to define your message categories *
      */
     @Override
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<>();
         categories.add(getFirmwareUpgradeMessageCategorySpec());
         return categories;
     }
@@ -55,9 +62,7 @@ public class InHomeDisplayMessaging extends GenericMessaging implements MessageP
         if (lastAttribute != null) {
             tagSpec.add(new MessageAttributeSpec(lastAttribute, false));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -84,8 +89,7 @@ public class InHomeDisplayMessaging extends GenericMessaging implements MessageP
         builder.append(">");
 
         // b. Attributes
-        for (Object o1 : msgTag.getAttributes()) {
-            MessageAttribute att = (MessageAttribute) o1;
+        for (MessageAttribute att : msgTag.getAttributes()) {
             if (userFileAttributeName.equalsIgnoreCase(att.getSpec().getName())) {
                 if (att.getValue() != null) {
                     content = att.getValue();
@@ -97,13 +101,10 @@ public class InHomeDisplayMessaging extends GenericMessaging implements MessageP
             }
         }
 
-
-        builder.append("<IncludedFile>" + content + "</IncludedFile>");
-
+        builder.append("<IncludedFile>").append(content).append("</IncludedFile>");
         if (activationDate != null) {
-            builder.append("<ActivationDate>" + activationDate + "</ActivationDate>");
+            builder.append("<ActivationDate>").append(activationDate).append("</ActivationDate>");
         }
-
 
         // c. Closing tag
         builder.append("</");

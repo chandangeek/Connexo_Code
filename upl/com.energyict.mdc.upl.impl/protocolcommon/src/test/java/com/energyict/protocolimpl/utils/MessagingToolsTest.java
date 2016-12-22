@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import org.junit.Test;
 
-import com.energyict.protocol.MessageEntry;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author jme
@@ -15,12 +15,12 @@ import com.energyict.protocol.MessageEntry;
 public class MessagingToolsTest {
 
 	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.MessagingTools#getContentOfAttribute(com.energyict.protocol.MessageEntry, java.lang.String)}.
+	 * Test method for {@link com.energyict.protocolimpl.utils.MessagingTools#getContentOfAttribute(MessageEntry, java.lang.String)}.
 	 */
 	@Test
 	public final void testGetContentOfAttribute() {
-		MessageEntry validEntry = new MessageEntry("<mainTag testTag=\"value\"></mainTag>", "123");
-		MessageEntry invalidEntry = new MessageEntry("<mainTag testTag=\"value></mainTag>", "123");
+		MessageEntry validEntry = MessageEntry.fromContent("<mainTag testTag=\"value\"></mainTag>").trackingId("123").finish();
+		MessageEntry invalidEntry = MessageEntry.fromContent("<mainTag testTag=\"value></mainTag>").trackingId("123").finish();
 
 		assertNotNull(MessagingTools.getContentOfAttribute(validEntry, "testTag"));
 		assertNull(MessagingTools.getContentOfAttribute(validEntry, "testTag123"));

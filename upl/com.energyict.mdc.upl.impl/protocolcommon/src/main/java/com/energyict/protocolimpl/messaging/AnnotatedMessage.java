@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messaging;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 /**
  * Copyrights EnergyICT

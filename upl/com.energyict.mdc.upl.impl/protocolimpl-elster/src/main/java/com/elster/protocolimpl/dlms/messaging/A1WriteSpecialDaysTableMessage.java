@@ -1,5 +1,11 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.dlms.cosem.classes.class11.SpecialDayEntry;
 import com.elster.protocolimpl.dlms.messaging.utils.SaxUtils;
@@ -7,11 +13,6 @@ import com.elster.protocolimpl.dlms.messaging.utils.SpecialDayList;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -90,16 +91,9 @@ public class A1WriteSpecialDaysTableMessage extends AbstractDlmsMessage
     public static MessageSpec getMessageSpec(boolean advanced)
     {
         MessageSpec msgSpec = new MessageSpec(MESSAGE_DESCRIPTION, advanced);
-
         MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
-
-        // Disable the value field in the EIServer message GUI
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-
         tagSpec.add(new MessageAttributeSpec(ATTR_SPT_FILE, true));
-
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

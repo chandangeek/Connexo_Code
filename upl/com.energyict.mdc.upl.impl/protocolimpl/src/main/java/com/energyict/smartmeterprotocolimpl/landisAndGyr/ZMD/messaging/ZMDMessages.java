@@ -1,17 +1,24 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
+import com.energyict.protocolimpl.messages.ProtocolMessages;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
 import org.xml.sax.SAXException;
@@ -41,10 +48,10 @@ public class ZMDMessages extends ProtocolMessages {
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * At a later timestamp the framework will query each {@link MessageEntry} (see {@link #queryMessage(MessageEntry)}) to actually
      * perform the message.
      *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @param messageEntries a list of {@link MessageEntry}s
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(final List messageEntries) throws IOException {
@@ -103,21 +110,21 @@ public class ZMDMessages extends ProtocolMessages {
         return MessageResult.createFailed(messageEntry);
     }
 
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<>();
         MessageCategorySpec catDaylightSaving = new MessageCategorySpec("Daylight saving");
         START_OF_DST = "StartOfDST";
         catDaylightSaving.addMessageSpec(addMsgWithValues("Program Start of Daylight Saving Time", START_OF_DST, false, false, "Month", "Day of month", "Day of week", "Hour"));
         END_OF_DST = "EndOfDST";
         catDaylightSaving.addMessageSpec(addMsgWithValues("Program End of Daylight Saving Time", END_OF_DST, false, false, "Month", "Day of month", "Day of week", "Hour"));
-        catDaylightSaving.addMessageSpec(addMsgWithValue("Enable DST switch", ENABLE_DST, false, false));
+        catDaylightSaving.addMessageSpec(addMsgWithValue("Enable DST switch", ENABLE_DST, false));
 
         categories.add(ProtocolMessageCategories.getDemandResetCategory());
         categories.add(catDaylightSaving);
         return categories;
     }
 
-    protected MessageSpec addMsgWithValue(final String description, final String tagName, final boolean advanced, boolean required) {
+    protected MessageSpec addMsgWithValue(final String description, final String tagName, final boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(description, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
@@ -132,14 +139,12 @@ public class ZMDMessages extends ProtocolMessages {
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, required));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex = content.indexOf(tag + "=\"");
         if (startIndex != -1) {
             int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
@@ -159,7 +164,7 @@ public class ZMDMessages extends ProtocolMessages {
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
         final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder();
-        ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController((ZMD) this.protocol);
+        ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (builder.getCodeId() > 0) { // codeTable implementation
             infoLog("Parsing the content of the CodeTable.");
@@ -204,7 +209,7 @@ public class ZMDMessages extends ProtocolMessages {
             }
 
             String dayOfMonthString = getValueFromXMLAttribute("Day of month", messageEntry.getContent());
-            if (dayOfMonthString != null && dayOfMonthString.length() != 0) {
+            if (dayOfMonthString != null && !dayOfMonthString.isEmpty()) {
                 dayOfMonth = Integer.parseInt(dayOfMonthString);
                 if (dayOfMonth == -1) {
                     dayOfMonth = 0xFD;
@@ -218,7 +223,7 @@ public class ZMDMessages extends ProtocolMessages {
             }
 
             String dayOfWeekString = getValueFromXMLAttribute("Day of week", messageEntry.getContent());
-           if (dayOfWeekString != null && dayOfWeekString.length() != 0) {
+           if (dayOfWeekString != null && !dayOfWeekString.isEmpty()) {
                dayOfWeek = Integer.parseInt(dayOfWeekString);
                if (dayOfWeek < 1 || dayOfWeek > 7) {
                    throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. Message will fail.");

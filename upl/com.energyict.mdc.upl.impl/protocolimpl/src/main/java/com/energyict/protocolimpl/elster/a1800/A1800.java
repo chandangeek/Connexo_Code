@@ -1,5 +1,16 @@
 package com.energyict.protocolimpl.elster.a1800;
 
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -7,20 +18,9 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
 import com.energyict.protocolimpl.ansi.c12.PSEMServiceFactory;
 import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
@@ -201,8 +201,8 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	}
 
     @Override
-	public List getMessageCategories() {
-		List theCategories = new ArrayList();
+	public List<MessageCategorySpec> getMessageCategories() {
+		List<MessageCategorySpec> theCategories = new ArrayList<>();
 		// General Parameters
 		MessageCategorySpec cat = new MessageCategorySpec("LP Configuration");
 		MessageSpec msgSpec = addBasicMsg("setLPDivisor", "SETLPDIVISOR", true);
@@ -214,9 +214,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
+		tagSpec.add(new MessageValueSpec(" "));
 		tagSpec.add(new MessageAttributeSpec("Channel", true));
 		tagSpec.add(new MessageAttributeSpec("Divisor", true));
 		msgSpec.add(tagSpec);
@@ -237,8 +235,8 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 		builder.append( msgTag.getName() );
 
 		// b. Attributes
-		for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-			MessageAttribute att = (MessageAttribute)it.next();
+		for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
+			MessageAttribute att = it.next();
 			if (att.getValue()==null || att.getValue().isEmpty()) {
 				continue;
 			}

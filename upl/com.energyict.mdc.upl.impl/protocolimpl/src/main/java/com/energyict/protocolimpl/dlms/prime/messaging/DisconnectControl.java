@@ -1,12 +1,16 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
 
 import java.io.IOException;
 import java.util.Calendar;

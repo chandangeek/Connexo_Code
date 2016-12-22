@@ -1,13 +1,20 @@
 package com.energyict.protocolimpl.messaging;
 
-import java.lang.annotation.*;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * This annotation must be used on a public method of a class extending the {@link AnnotatedMessaging} class.
  * The method should return an {@link com.energyict.protocol.MessageResult} and should take one and only one argument,
  * a class that extends the {@link AnnotatedMessage} interface.
  * <p/>
- * When an Annotated message is received in the {@link AnnotatedMessaging#queryMessage(com.energyict.protocol.MessageEntry)} method,
+ * When an Annotated message is received in the {@link AnnotatedMessaging#queryMessage(MessageEntry)} method,
  * the matching handler method is found by looking for these {@link RtuMessageHandler} annotations. If there are multiple
  * methods found that can handle a given instance of the {@link AnnotatedMessage}, the {@link RtuMessageHandler#tag()} value
  * is used to find an unambiguous matching method that can handle the given message.

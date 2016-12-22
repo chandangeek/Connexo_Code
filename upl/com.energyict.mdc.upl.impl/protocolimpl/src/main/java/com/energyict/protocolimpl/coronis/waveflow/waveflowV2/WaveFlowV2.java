@@ -1,16 +1,17 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV2;
 
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BubbleUpObject;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.coronis.waveflow.core.BubbleUpFrameParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;

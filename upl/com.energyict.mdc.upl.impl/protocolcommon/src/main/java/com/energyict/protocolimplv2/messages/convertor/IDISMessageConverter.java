@@ -1,11 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -24,10 +29,11 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
+import com.google.common.collect.ImmutableMap;
 
 import java.text.SimpleDateFormat;
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -68,44 +74,6 @@ public class IDISMessageConverter extends AbstractMessageConverter {
 
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/mm/yyyy hh:mm");
 
-
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDaysMessageEntry(specialDaysCodeTableAttributeName));
-
-        registry.put(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS, new SimpleTagMessageEntry("ResetAllAlarmBits"));
-        registry.put(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS, new SimpleTagMessageEntry("ResetAllErrorBits"));
-        registry.put(AlarmConfigurationMessage.WRITE_ALARM_FILTER, new MultipleAttributeMessageEntry("WriteAlarmFilter", "Alarm filter (decimal value)"));
-        registry.put(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION, new ConfigWithUserFileMessageEntry(configUserFileAttributeName, "Configuration download"));
-
-        registry.put(ContactorDeviceMessage.CLOSE_RELAY, new MultipleAttributeMessageEntry("CloseRelay", "Relay number (1 or 2)"));
-        registry.put(ContactorDeviceMessage.OPEN_RELAY, new MultipleAttributeMessageEntry("OpenRelay", "Relay number (1 or 2)"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("RemoteDisconnect"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("RemoteConnect"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new ContactorControlWithActivationDateAndTimezoneMessageEntry("TimedDisconnect"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ContactorControlWithActivationDateAndTimezoneMessageEntry("TimedReconnect"));
-        registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new MultipleAttributeMessageEntry("SetControlMode", "Control mode (range 0 - 6)"));
-
-        registry.put(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS, new MultipleAttributeMessageEntry("LoadControlledConnect", getLimiterAttributes()));
-        registry.put(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR, new MultipleAttributeMessageEntry("SuperVision", "Phase (1, 2 or 3)", " Threshold (ampere)"));
-
-        registry.put(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1, new MultipleAttributeMessageEntry("WriteLP1CapturePeriod", "Capture period (seconds)"));
-        registry.put(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2, new MultipleAttributeMessageEntry("WriteLP2CapturePeriod", "Capture period (seconds)"));
-        //TODO: write LP captured objects, this uses optional property specs
-
-        registry.put(MBusSetupDeviceMessage.Commission, new SimpleTagMessageEntry("SlaveCommission"));
-        registry.put(PLCConfigurationDeviceMessage.SetTimeoutNotAddressed, new MultipleAttributeMessageEntry("SetTimeOutNotAddressed", "timeout_not_addressed"));
-
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName));
-    }
-
     private static String[] getLimiterAttributes() {
         String[] result = new String[10];
         result[0] = "Monitored value (1: Total inst. current, 2: Avg A+ (sliding demand), 3: Avg total A (sliding demand))";
@@ -121,12 +89,10 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         return result;
     }
 
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public IDISMessageConverter() {
-        super();
+    public IDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
+
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
@@ -147,14 +113,14 @@ public class IDISMessageConverter extends AbstractMessageConverter {
             simpleDateFormat.setTimeZone(TimeZone.getDefault());  //Use system timezone
             return simpleDateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((Code) messageAttribute);
+            return convertCodeTableToXML((TariffCalender) messageAttribute);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
+            return convertSpecialDaysCodeTableToXML((TariffCalender) messageAttribute);
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return ((Boolean) messageAttribute).toString();
         } else if (propertySpec.getName().equals(configUserFileAttributeName)
                 || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            UserFile userFile = (UserFile) messageAttribute;
+            DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
             return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(monitoredValueAttributeName)) {
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
@@ -166,14 +132,38 @@ public class IDISMessageConverter extends AbstractMessageConverter {
                 || (propertySpec.getName().equals(capturePeriodAttributeName))
                 || (propertySpec.getName().equals(underThresholdDurationAttributeName))
                 || (propertySpec.getName().equals(emergencyProfileDurationAttributeName))) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+            return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(TIME_OUT_NOT_ADDRESSEDAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds() / 60);  //Minutes
+            return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute) / 60);  //Minutes
         }
         return EMPTY_FORMAT;
     }
 
+    @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND), new SpecialDaysMessageEntry(specialDaysCodeTableAttributeName))
+                .put(messageSpec(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS), new SimpleTagMessageEntry("ResetAllAlarmBits"))
+                .put(messageSpec(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS), new SimpleTagMessageEntry("ResetAllErrorBits"))
+                .put(messageSpec(AlarmConfigurationMessage.WRITE_ALARM_FILTER), new MultipleAttributeMessageEntry("WriteAlarmFilter", "Alarm filter (decimal value)"))
+                .put(messageSpec(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION), new ConfigWithUserFileMessageEntry(configUserFileAttributeName, "Configuration download"))
+                .put(messageSpec(ContactorDeviceMessage.CLOSE_RELAY), new MultipleAttributeMessageEntry("CloseRelay", "Relay number (1 or 2)"))
+                .put(messageSpec(ContactorDeviceMessage.OPEN_RELAY), new MultipleAttributeMessageEntry("OpenRelay", "Relay number (1 or 2)"))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new SimpleTagMessageEntry("RemoteDisconnect"))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new SimpleTagMessageEntry("RemoteConnect"))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE), new ContactorControlWithActivationDateAndTimezoneMessageEntry("TimedDisconnect"))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE), new ContactorControlWithActivationDateAndTimezoneMessageEntry("TimedReconnect"))
+                .put(messageSpec(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE), new MultipleAttributeMessageEntry("SetControlMode", "Control mode (range 0 - 6)"))
+                .put(messageSpec(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS), new MultipleAttributeMessageEntry("LoadControlledConnect", getLimiterAttributes()))
+                .put(messageSpec(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR), new MultipleAttributeMessageEntry("SuperVision", "Phase (1, 2 or 3)", " Threshold (ampere)"))
+                .put(messageSpec(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1), new MultipleAttributeMessageEntry("WriteLP1CapturePeriod", "Capture period (seconds)"))
+                .put(messageSpec(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2), new MultipleAttributeMessageEntry("WriteLP2CapturePeriod", "Capture period (seconds)"))
+                .put(messageSpec(MBusSetupDeviceMessage.Commission), new SimpleTagMessageEntry("SlaveCommission"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetTimeoutNotAddressed), new MultipleAttributeMessageEntry("SetTimeOutNotAddressed", "timeout_not_addressed"))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName))
+                .build();
     }
+
 }

@@ -1,12 +1,21 @@
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageElementSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
 
 /**
  * @author jme
@@ -14,7 +23,7 @@ import com.energyict.protocol.messaging.*;
  */
 public abstract class AbstractSubMessageProtocol implements SubMessageProtocol {
 
-	private List<String> supportedMessageTags = new ArrayList<String>();
+	private List<String> supportedMessageTags = new ArrayList<>();
 
 	public List<String> getSupportedMessageTags() {
 		return supportedMessageTags;
@@ -34,8 +43,8 @@ public abstract class AbstractSubMessageProtocol implements SubMessageProtocol {
 	}
 
 	public boolean canHandleMessage(MessageSpec messageSpec) {
-		for (Iterator iterator = messageSpec.getElements().iterator(); iterator.hasNext();) {
-			MessageElementSpec messageElementSpec = (MessageElementSpec) iterator.next();
+		for (Iterator<MessageElementSpec> iterator = messageSpec.getElements().iterator(); iterator.hasNext();) {
+			MessageElementSpec messageElementSpec = iterator.next();
 			if (messageElementSpec.isTag()) {
 				MessageTagSpec mts = (MessageTagSpec) messageElementSpec;
 				if (canHandleMessage(mts.getName())) {
@@ -60,53 +69,49 @@ public abstract class AbstractSubMessageProtocol implements SubMessageProtocol {
 	}
 
 	public String writeTag(MessageTag tag) {
-    	StringBuffer buf = new StringBuffer();
+    	StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append( tag.getName() );
+        builder.append("<");
+        builder.append( tag.getName() );
 
         // b. Attributes
         for (Iterator<MessageAttribute> it = tag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = it.next();
-            if ((att.getValue()==null) || (att.getValue().length()==0)) {
+            if ((att.getValue()==null) || (att.getValue().isEmpty())) {
 				continue;
 			}
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator<MessageElement> it = tag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = it.next();
             if (elt.isTag()) {
-				buf.append( writeTag((MessageTag)elt) );
+				builder.append( writeTag((MessageTag)elt) );
 			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue)elt);
-                if ((value==null) || (value.length()==0)) {
+                if ((value==null) || (value.isEmpty())) {
 					return "";
 				}
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append( tag.getName() );
-        buf.append(">");
+        builder.append("</");
+        builder.append( tag.getName() );
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
 	}
 
 	public String writeValue(MessageValue value) {
 		return value.getValue();
 	}
 
-	/**
-	 * @param messageEntry
-	 * @return
-	 */
 	protected String getMessageEntryContent(MessageEntry messageEntry) {
 		String returnValue = "";
 		if ((messageEntry != null) && (messageEntry.getContent() != null)) {
@@ -121,7 +126,8 @@ public abstract class AbstractSubMessageProtocol implements SubMessageProtocol {
 	}
 
     /**
-     * Generate a {@link MessageSpec}, that can be added to the list of supported messages
+     * Generate a {@link MessageSpec}, that can be added to the list of supported messages.
+     *
      * @param keyId
      * @param tagName
      * @param advanced
@@ -134,13 +140,8 @@ public abstract class AbstractSubMessageProtocol implements SubMessageProtocol {
         return msgSpec;
     }
 
-	/**
-	 * @param tag
-	 * @param messageEntry
-	 * @return
-	 */
 	protected boolean isMessageTag(String tag, MessageEntry messageEntry) {
-		return (messageEntry.getContent().indexOf("<" + tag) >= 0);
+		return (messageEntry.getContent().contains("<" + tag));
 	}
 
 	public void applyMessages(List messageEntries) throws IOException {
@@ -162,10 +163,9 @@ public abstract class AbstractSubMessageProtocol implements SubMessageProtocol {
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
         // We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
         tagSpec.add(msgVal);
-        for(String attribute : attributes){
+        for (String attribute : attributes) {
             tagSpec.add(new MessageAttributeSpec(attribute, true));
         }
         msgSpec.add(tagSpec);

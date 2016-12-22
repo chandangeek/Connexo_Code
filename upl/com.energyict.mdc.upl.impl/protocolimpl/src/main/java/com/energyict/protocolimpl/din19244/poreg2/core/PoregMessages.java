@@ -1,7 +1,19 @@
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.request.register.DaylightAlgorithm;
 
@@ -30,13 +42,13 @@ public class PoregMessages implements MessageProtocol {
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (messageEntry.getContent().indexOf("<DemandReset") >= 0) {
+            if (messageEntry.getContent().contains("<DemandReset")) {
                 return resetDemand(messageEntry);
-            } else if (messageEntry.getContent().indexOf(START_OF_DST) >= 0) {
+            } else if (messageEntry.getContent().contains(START_OF_DST)) {
                 return setDSTTime(messageEntry, true);
-            }   else if (messageEntry.getContent().indexOf(END_OF_DST) >= 0) {
+            }   else if (messageEntry.getContent().contains(END_OF_DST)) {
                 return setDSTTime(messageEntry, false);
-            } else if (messageEntry.getContent().indexOf(ALGORITHMS) >= 0) {
+            } else if (messageEntry.getContent().contains(ALGORITHMS)) {
                 return setDSTAlgorithms(messageEntry);
             }
             return MessageResult.createFailed(messageEntry);
@@ -95,7 +107,7 @@ public class PoregMessages implements MessageProtocol {
     }
 
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
 
         MessageCategorySpec catPoreg = new MessageCategorySpec("Poreg 2/2P messages");
         catPoreg.addMessageSpec(addBasicMsg("Demand reset", "DemandReset", false));
@@ -123,14 +135,12 @@ public class PoregMessages implements MessageProtocol {
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, required));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex = content.indexOf(tag + "=\"");
         if (startIndex != -1) {
             int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
@@ -147,43 +157,42 @@ public class PoregMessages implements MessageProtocol {
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Object o1 : msgTag.getAttributes()) {
-            MessageAttribute att = (MessageAttribute) o1;
-            if (att.getValue() == null || att.getValue().length() == 0) {
+        for (MessageAttribute att : msgTag.getAttributes()) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Object o : msgTag.getSubElements()) {
             MessageElement elt = (MessageElement) o;
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {

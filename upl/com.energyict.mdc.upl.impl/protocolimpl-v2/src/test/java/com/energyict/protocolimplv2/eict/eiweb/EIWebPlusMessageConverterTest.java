@@ -5,7 +5,13 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -14,14 +20,12 @@ import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.OutputConfigurationMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
-import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -171,6 +175,9 @@ public class EIWebPlusMessageConverterTest {
      * Make the registry of this converter public, only for test usage
      */
     private class ExtendedEIWebPlusMessageConverter extends EIWebPlusMessageConverter {
+        private ExtendedEIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+            super(messagingProtocol, propertySpecService, nlsService, converter);
+        }
 
         @Override
         public Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {

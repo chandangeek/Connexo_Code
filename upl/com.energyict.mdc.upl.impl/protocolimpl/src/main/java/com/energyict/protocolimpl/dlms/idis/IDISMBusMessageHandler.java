@@ -1,12 +1,26 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -264,9 +278,7 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
             tagSpec.add(attributeSpec);
             index++;
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

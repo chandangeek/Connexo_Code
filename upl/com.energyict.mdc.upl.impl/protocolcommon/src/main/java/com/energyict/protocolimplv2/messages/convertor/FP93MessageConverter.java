@@ -1,17 +1,22 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.TotalizersConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a MessageConverter for the FP93 protocol
+ * Represents a MessageConverter for the FP93 protocol.
  * <p/>
  * Copyrights EnergyICT
  * Date: 8/03/13
@@ -19,23 +24,8 @@ import java.util.Map;
  */
 public class FP93MessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(ConfigurationChangeDeviceMessage.Clear_Faults_Flags, new SimpleTagMessageEntry("Clear_Faults_Flags"));
-        registry.put(ConfigurationChangeDeviceMessage.Clear_Statistical_Values, new SimpleTagMessageEntry("Clear_Statistical_Values"));
-        registry.put(TotalizersConfigurationDeviceMessage.ClearTotalizers, new SimpleTagMessageEntry("Clear_Totalizers"));
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public FP93MessageConverter() {
-        super();
+    public FP93MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
@@ -44,6 +34,9 @@ public class FP93MessageConverter extends AbstractMessageConverter {
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap.of(
+                messageSpec(ConfigurationChangeDeviceMessage.Clear_Faults_Flags), new SimpleTagMessageEntry("Clear_Faults_Flags"),
+                messageSpec(ConfigurationChangeDeviceMessage.Clear_Statistical_Values), new SimpleTagMessageEntry("Clear_Statistical_Values"),
+                messageSpec(TotalizersConfigurationDeviceMessage.ClearTotalizers), new SimpleTagMessageEntry("Clear_Totalizers"));
     }
 }

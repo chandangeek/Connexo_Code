@@ -1,18 +1,19 @@
 package com.energyict.protocolimpl.coronis.wavetherm;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -431,7 +432,7 @@ public class WaveThermMessages implements MessageProtocol {
 
     @Override
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
 
         MessageCategorySpec cat1 = new MessageCategorySpec("Wavetherm general messages");
         cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode", "SetOperatingMode", false));
@@ -496,11 +497,8 @@ public class WaveThermMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithAttr(final String keyId, final String tagName, final boolean advanced, String attr) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute = new MessageAttributeSpec(attr, true);
-        tagSpec.add(addAttribute);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -508,13 +506,9 @@ public class WaveThermMessages implements MessageProtocol {
     protected MessageSpec addBasicMsgWithTwoAttr(final String keyId, final String tagName, final boolean advanced, String attr1, String attr2) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageAttributeSpec addAttribute1 = new MessageAttributeSpec(attr1, true);
-        tagSpec.add(addAttribute1);
-        MessageAttributeSpec addAttribute2 = new MessageAttributeSpec(attr2, true);
-        tagSpec.add(addAttribute2);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(attr1, true));
+        tagSpec.add(new MessageAttributeSpec(attr2, true));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -548,8 +542,7 @@ public class WaveThermMessages implements MessageProtocol {
         builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Object o1 : msgTag.getAttributes()) {
-            MessageAttribute att = (MessageAttribute) o1;
+        for (MessageAttribute att : msgTag.getAttributes()) {
             if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
@@ -16,7 +18,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -186,62 +187,62 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     public void pulseContactor() throws IOException {
-        getMeterProtocol().queryMessage(new MessageEntry(DISCONNECT_EMETER, "1"));
-        getMeterProtocol().queryMessage(new MessageEntry(ARM_EMETER, "2"));
-        getMeterProtocol().queryMessage(new MessageEntry(CONNECT_EMETER, "3"));
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(DISCONNECT_EMETER).trackingId("1").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(ARM_EMETER).trackingId("2").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(CONNECT_EMETER).trackingId("3").finish());
     }
 
     public void rescanPLCBus() throws IOException {
-        getMeterProtocol().queryMessage(new MessageEntry(RESCAN_PLCBUS, ""));
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(RESCAN_PLCBUS).trackingId("").finish());
     }
 
     public void setPLCTimeouts() throws IOException {
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS1, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS2, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS3, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS4, ""));
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_TIMEOUTS1).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_TIMEOUTS2).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_TIMEOUTS3).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_TIMEOUTS4).trackingId("").finish());
     }
 
     public void setPLCFrequencies() throws IOException {
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES1, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES2, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES3, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES4, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES5, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES6, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES7, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES8, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES9, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES0, ""));
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES1).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES2).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES3).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES4).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES5).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES6).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES7).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES8).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES9).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_FREQUENCIES0).trackingId("").finish());
     }
 
     public void setPLCFreqSnrCredits() throws IOException {
         if (AS1440) {
-            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ0, ""));
-            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ1, ""));
-            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ2, ""));
-            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ3, ""));
-            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ4, ""));
-            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ5, ""));
-            getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_SNR_CREDIT_FREQ0, ""));
+            getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_SNR_CREDIT_FREQ0).trackingId("").finish());
+            getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_SNR_CREDIT_FREQ1).trackingId("").finish());
+            getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_SNR_CREDIT_FREQ2).trackingId("").finish());
+            getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_SNR_CREDIT_FREQ3).trackingId("").finish());
+            getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_SNR_CREDIT_FREQ4).trackingId("").finish());
+            getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_SNR_CREDIT_FREQ5).trackingId("").finish());
+            getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_SNR_CREDIT_FREQ0).trackingId("").finish());
         }
     }
 
     public void setPLCGain() throws IOException {
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_GAIN0, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_GAIN1, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_GAIN2, ""));
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_GAIN0).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_GAIN1).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_GAIN2).trackingId("").finish());
     }
 
     public void setPLCRepeater() throws IOException {
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_REPEATER_0, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_REPEATER_1, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_REPEATER_2, ""));
-        getMeterProtocol().queryMessage(new MessageEntry(SET_PLC_REPEATER_3, ""));
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_REPEATER_0).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_REPEATER_1).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_REPEATER_2).trackingId("").finish());
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(SET_PLC_REPEATER_3).trackingId("").finish());
     }
 
     public void forceSetClock() throws IOException {
-        getMeterProtocol().queryMessage(new MessageEntry(FORCE_SET_CLOCK, ""));
+        getMeterProtocol().queryMessage(MessageEntry.fromContent(FORCE_SET_CLOCK).trackingId("").finish());
     }
 
     public void readObjectList() throws IOException {
@@ -497,7 +498,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     public void firmwareUpgrade(byte[] base64Firmware) throws IOException {
         System.out.println("Firmware before upgrade: " + getMeterProtocol().getFirmwareVersion());
         String message = FIRMWARE_UPGRADE.replace("$CONTENT$", new String(base64Firmware));
-        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
+        MessageResult result = getMeterProtocol().queryMessage(MessageEntry.fromContent(message).trackingId("").finish());
         System.out.println("Firmware upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
         System.out.println("Firmware after upgrade: " + getMeterProtocol().getFirmwareVersion());
     }
@@ -523,7 +524,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     public void activityCalendarUpgrade(String xmlContent) throws IOException {
-        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(xmlContent, "trackGna"));
+        MessageResult result = getMeterProtocol().queryMessage(MessageEntry.fromContent(xmlContent).trackingId("trackGna").finish());
         System.out.println("ActivityCalender upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
     }
 
@@ -562,7 +563,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     public void writePassiveActivityCalendarTime(String gmtTime) throws IOException {
         String message = ACTIVATE_PASSIVE_CALENDAR.replace("$ACT_DATE$", gmtTime);
-        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
+        MessageResult result = getMeterProtocol().queryMessage(MessageEntry.fromContent(message).trackingId("").finish());
         System.out.println("Activate passive Calendar : " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
     }
 
@@ -574,13 +575,13 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     public void writeLoadLimitThreshold(String threshold) throws IOException {
         String message = LOADLIMIT_THRESHOLD_MSG.replace("$THRESHOLD$", threshold);
-        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
+        MessageResult result = getMeterProtocol().queryMessage(MessageEntry.fromContent(message).trackingId("").finish());
         System.out.println("Write LoadLimit threshold : " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
     }
 
     public void writeLoadLimitDuration(String duration) throws IOException {
         String message = LOADLIMIT_DURATION_MSG.replace("$DURATION$", duration);
-        MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(message, ""));
+        MessageResult result = getMeterProtocol().queryMessage(MessageEntry.fromContent(message).trackingId("").finish());
         System.out.println("Write LoadLimit duration : " + (result.isSuccess() ? "SUCCESS" : "FAILED"));
     }
 

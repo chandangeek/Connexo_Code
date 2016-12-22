@@ -1,8 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -29,39 +34,32 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmw
  */
 public class Dsmr40MessageConverter extends Dsmr23MessageConverter {
 
-    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(Dsmr23MessageConverter.registry);
+    public Dsmr40MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+    }
 
     @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
-    }
-
-    static {
+        Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(super.getRegistry());
         // Restore factory settings
-        registry.put(DeviceActionMessage.RESTORE_FACTORY_SETTINGS, new OneTagMessageEntry("Restore_Factory_Settings"));
+        registry.put(messageSpec(DeviceActionMessage.RESTORE_FACTORY_SETTINGS), new OneTagMessageEntry("Restore_Factory_Settings"));
 
         // Change administrative status
-        registry.put(ConfigurationChangeDeviceMessage.ChangeAdministrativeStatus, new MultipleAttributeMessageEntry("Change_Administrative_Status", "Status"));
+        registry.put(messageSpec(ConfigurationChangeDeviceMessage.ChangeAdministrativeStatus), new MultipleAttributeMessageEntry("Change_Administrative_Status", "Status"));
 
         // Authentication and encryption - remove the DSMR2.3 message & replace by 4 new DSMR4.0 messages
-        registry.remove(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
-        registry.put(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P0, new MultipleAttributeMessageEntry("Disable_authentication_level_P0", "AuthenticationLevel"));
-        registry.put(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P3, new MultipleAttributeMessageEntry("Disable_authentication_level_P3", "AuthenticationLevel"));
-        registry.put(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P0, new MultipleAttributeMessageEntry("Enable_authentication_level_P0", "AuthenticationLevel"));
-        registry.put(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P3, new MultipleAttributeMessageEntry("Enable_authentication_level_P3", "AuthenticationLevel"));
+        registry.remove(messageSpec(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL));
+        registry.put(messageSpec(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P0), new MultipleAttributeMessageEntry("Disable_authentication_level_P0", "AuthenticationLevel"));
+        registry.put(messageSpec(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P3), new MultipleAttributeMessageEntry("Disable_authentication_level_P3", "AuthenticationLevel"));
+        registry.put(messageSpec(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P0), new MultipleAttributeMessageEntry("Enable_authentication_level_P0", "AuthenticationLevel"));
+        registry.put(messageSpec(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P3), new MultipleAttributeMessageEntry("Enable_authentication_level_P3", "AuthenticationLevel"));
 
-        registry.put(ConfigurationChangeDeviceMessage.ENABLE_DISCOVERY_ON_POWER_UP, new SimpleTagMessageEntry(RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP));
-        registry.put(ConfigurationChangeDeviceMessage.DISABLE_DISCOVERY_ON_POWER_UP, new SimpleTagMessageEntry(RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP));
+        registry.put(messageSpec(ConfigurationChangeDeviceMessage.ENABLE_DISCOVERY_ON_POWER_UP), new SimpleTagMessageEntry(RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP));
+        registry.put(messageSpec(ConfigurationChangeDeviceMessage.DISABLE_DISCOVERY_ON_POWER_UP), new SimpleTagMessageEntry(RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP));
 
         // Firmware upgrade
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, null, firmwareUpdateImageIdentifierAttributeName));
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public Dsmr40MessageConverter() {
-        super();
+        registry.put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER), new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(firmwareUpdateUserFileAttributeName, null, firmwareUpdateImageIdentifierAttributeName));
+        return registry;
     }
 
     @Override
@@ -73,4 +71,5 @@ public class Dsmr40MessageConverter extends Dsmr23MessageConverter {
                 return super.format(propertySpec, messageAttribute);
         }
     }
+
 }

@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.messaging;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.messaging.proxy.ProxyMessageInvocationHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -97,8 +98,8 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @param clazz The message specification class.
      * @return The tags that are used by the given message spec.
      */
-    public static final Set<String> getTagsForMessageSpecification(final Class<? extends AnnotatedMessage> clazz) {
-        final Set<String> tags = new HashSet<String>();
+    public static Set<String> getTagsForMessageSpecification(final Class<? extends AnnotatedMessage> clazz) {
+        final Set<String> tags = new HashSet<>();
 
         final List<RtuMessageDescription> descriptions = getDescriptionsForMessageClass(clazz);
 
@@ -116,7 +117,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @param clazz   The class.
      * @return The matching {@link RtuMessageDescription}, <code>null</code> if not found.
      */
-    public static final RtuMessageDescription getDescriptionThatMatchesTagName(final String tagName, final Class<? extends AnnotatedMessage> clazz) {
+    public static RtuMessageDescription getDescriptionThatMatchesTagName(final String tagName, final Class<? extends AnnotatedMessage> clazz) {
         final List<RtuMessageDescription> descriptions = getDescriptionsForMessageClass(clazz);
 
         for (final RtuMessageDescription description : descriptions) {
@@ -134,17 +135,14 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @param clazz The message specification class.
      * @return All the {@link RtuMessageDescription}s attached to the given spec.
      */
-    public static final List<RtuMessageDescription> getDescriptionsForMessageClass(final Class<? extends AnnotatedMessage> clazz) {
-        final List<RtuMessageDescription> descriptions = new ArrayList<RtuMessageDescription>();
+    public static List<RtuMessageDescription> getDescriptionsForMessageClass(final Class<? extends AnnotatedMessage> clazz) {
+        final List<RtuMessageDescription> descriptions = new ArrayList<>();
 
         if (clazz.isAnnotationPresent(RtuMessageDescription.class)) {
             descriptions.add(clazz.getAnnotation(RtuMessageDescription.class));
         } else if (clazz.isAnnotationPresent(RtuMessageDescriptions.class)) {
             final RtuMessageDescriptions descriptionsAnnotation = clazz.getAnnotation(RtuMessageDescriptions.class);
-
-            for (final RtuMessageDescription description : descriptionsAnnotation.value()) {
-                descriptions.add(description);
-            }
+            Collections.addAll(descriptions, descriptionsAnnotation.value());
         }
 
         return descriptions;
@@ -165,7 +163,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @return The list of MessageAttributeSpec
      */
     public List<MessageCategorySpec> getMessageCategories() {
-        final List<MessageCategorySpec> specs = new ArrayList<MessageCategorySpec>();
+        final List<MessageCategorySpec> specs = new ArrayList<>();
         final List<String> messageCategories = getCategories();
         for (String category : messageCategories) {
             specs.add(createMessageCategorySpec(category));
@@ -174,13 +172,13 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
     }
 
     /**
-     * Create a new {@link com.energyict.protocol.messaging.MessageCategorySpec} containing all messages for a given category.
+     * Create a new {@link MessageCategorySpec} containing all messages for a given category.
      * If the category contains no messages, return an empty MessageCategorySpec
      *
      * @param category The category to use.
      * @return The new MessageCategorySpec
      */
-    private final MessageCategorySpec createMessageCategorySpec(String category) {
+    private MessageCategorySpec createMessageCategorySpec(String category) {
         final MessageCategorySpec categorySpec = new MessageCategorySpec(category);
         final List<Class<? extends AnnotatedMessage>> messagesByCategory = getMessagesWithCategory(category);
 
@@ -196,15 +194,15 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
     }
 
     /**
-     * Create a new {@link com.energyict.protocol.messaging.MessageSpec} from a given class, using the annotations on the class
+     * Create a new {@link MessageSpec} from a given class, using the annotations on the class
      * For this method, it's REQUIRED that the message class is annotated with {@link RtuMessageDescription}
      *
      * @param message The message class containing the messaging annotations
      * @return The new MessageSpec
      */
-    private final List<MessageSpec> createMessageSpecsFromMessage(Class<? extends AnnotatedMessage> message) {
+    private List<MessageSpec> createMessageSpecsFromMessage(Class<? extends AnnotatedMessage> message) {
         final List<RtuMessageDescription> descriptions = AnnotatedMessaging.getDescriptionsForMessageClass(message);
-        final List<MessageSpec> specs = new ArrayList<MessageSpec>();
+        final List<MessageSpec> specs = new ArrayList<>();
 
         for (final RtuMessageDescription msgAnnotation : descriptions) {
             if (msgAnnotation.visible()) {
@@ -230,10 +228,10 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * Creates a new message attribute spec from a given method using the {@link RtuMessageAttribute} annotation
      * If the annotation is not present, this method will return 'null';
      *
-     * @param method The method to create the new {@link com.energyict.protocol.messaging.MessageAttributeSpec} for
+     * @param method The method to create the new {@link MessageAttributeSpec} for
      * @return The new MessageAttributeSpec
      */
-    private final MessageAttributeSpec createMessageAttributeSpec(Method method) {
+    private MessageAttributeSpec createMessageAttributeSpec(Method method) {
         if (method.isAnnotationPresent(RtuMessageAttribute.class)) {
             final RtuMessageAttribute rtuMessageAttribute = method.getAnnotation(RtuMessageAttribute.class);
             return new MessageAttributeSpec(rtuMessageAttribute.tag(), rtuMessageAttribute.required());
@@ -247,8 +245,8 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @param category The message category to look
      * @return The list of message classes with the given category or an empty list if category was not found
      */
-    private final List<Class<? extends AnnotatedMessage>> getMessagesWithCategory(String category) {
-        final List<Class<? extends AnnotatedMessage>> messagesByCategory = new ArrayList<Class<? extends AnnotatedMessage>>();
+    private List<Class<? extends AnnotatedMessage>> getMessagesWithCategory(String category) {
+        final List<Class<? extends AnnotatedMessage>> messagesByCategory = new ArrayList<>();
         for (Class<? extends AnnotatedMessage> messageDescription : this.messages) {
             final List<RtuMessageDescription> descriptions = AnnotatedMessaging.getDescriptionsForMessageClass(messageDescription);
 
@@ -270,7 +268,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @return The matching unique message, or null if no message was found with this tag
      * @throws IllegalArgumentException If the tagName parameter is null
      */
-    private final Class<? extends AnnotatedMessage> getMessageByTag(final String tagName) {
+    private Class<? extends AnnotatedMessage> getMessageByTag(final String tagName) {
         if (tagName == null) {
             throw new IllegalArgumentException("Unable to find message by tag name if tagName if ['null']");
         }
@@ -294,8 +292,8 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      *
      * @return A {@link java.util.List} containing all the unique categories as {@link String}.
      */
-    private final List<String> getCategories() {
-        final List<String> categories = new ArrayList<String>();
+    private List<String> getCategories() {
+        final List<String> categories = new ArrayList<>();
         for (Class<? extends AnnotatedMessage> rtuMessageDescription : this.messages) {
             final List<RtuMessageDescription> descriptions = AnnotatedMessaging.getDescriptionsForMessageClass(rtuMessageDescription);
 
@@ -321,47 +319,47 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
     }
 
     public String writeTag(MessageTag tag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(tag.getName());
+        builder.append("<");
+        builder.append(tag.getName());
 
         // b. Attributes
-        for (Iterator it = tag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+        for (Iterator<MessageAttribute> it = tag.getAttributes().iterator(); it.hasNext(); ) {
+            MessageAttribute att = it.next();
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = tag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
+                if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("\n\n</");
-        buf.append(tag.getName());
-        buf.append(">");
+        builder.append("\n\n</");
+        builder.append(tag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public void applyMessages(List messageEntries) throws IOException {
-        List<AnnotatedMessage> annotatedMessages = new ArrayList<AnnotatedMessage>(messageEntries.size());
+        List<AnnotatedMessage> annotatedMessages = new ArrayList<>(messageEntries.size());
         for (Object msgObject : messageEntries) {
             if (msgObject instanceof MessageEntry) {
                 MessageEntry messageEntry = (MessageEntry) msgObject;
@@ -412,7 +410,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
 
     }
 
-    private final Method findMatchingHandlerMethod(final AnnotatedMessage message) throws IOException {
+    private Method findMatchingHandlerMethod(final AnnotatedMessage message) throws IOException {
         final Class<? extends AnnotatedMessage> messageClass = message.getClass();
         final List<Method> handlerMethods = getHandlerMethods(messageClass);
         if (handlerMethods.isEmpty()) {
@@ -442,8 +440,8 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
         return null;
     }
 
-    private static final List<Method> findHandlerMethodByTagName(final List<Method> methods, final String tag) {
-        final List<Method> taggedMethods = new ArrayList<Method>();
+    private static List<Method> findHandlerMethodByTagName(final List<Method> methods, final String tag) {
+        final List<Method> taggedMethods = new ArrayList<>();
         for (final Method method : methods) {
             if (method.getAnnotation(RtuMessageHandler.class).tag().equals(tag)) {
                 taggedMethods.add(method);
@@ -452,8 +450,8 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
         return taggedMethods;
     }
 
-    private final List<Method> getHandlerMethods(Class<? extends AnnotatedMessage> messageClass) {
-        final List<Method> handlerMethods = new ArrayList<Method>();
+    private List<Method> getHandlerMethods(Class<? extends AnnotatedMessage> messageClass) {
+        final List<Method> handlerMethods = new ArrayList<>();
         final Method[] methods = getClass().getMethods();
         for (final Method method : methods) {
             if (!method.isAnnotationPresent(RtuMessageHandler.class)) {
@@ -478,12 +476,6 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
         return handlerMethods;
     }
 
-    /**
-     * @param messageEntry
-     * @param <M>
-     * @return
-     * @throws java.io.IOException
-     */
     protected <M extends AnnotatedMessage> M createAnnotatedMessage(final MessageEntry messageEntry) throws IOException {
         final String content = messageEntry.getContent();
 
@@ -498,7 +490,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
             final String tagName = element.getTagName();
             final Class<? extends AnnotatedMessage> messageByTag = getMessageByTag(tagName);
 
-            final HashMap<String, String> attributes = new HashMap<String, String>();
+            final HashMap<String, String> attributes = new HashMap<>();
             final NamedNodeMap attributeNodes = element.getAttributes();
             for (int i = 0; i < attributeNodes.getLength(); i++) {
                 final Node node = attributeNodes.item(i);

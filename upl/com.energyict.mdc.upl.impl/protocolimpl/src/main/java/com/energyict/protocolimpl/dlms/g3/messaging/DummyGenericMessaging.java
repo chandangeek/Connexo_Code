@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 
 import java.util.ArrayList;

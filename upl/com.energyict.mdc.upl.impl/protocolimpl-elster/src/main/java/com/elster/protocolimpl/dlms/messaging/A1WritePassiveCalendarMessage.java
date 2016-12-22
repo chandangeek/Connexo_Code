@@ -1,5 +1,11 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.dlms.cosem.classes.class20.DayProfile;
 import com.elster.dlms.cosem.classes.class20.WeekProfile;
@@ -9,11 +15,6 @@ import com.elster.protocolimpl.dlms.messaging.utils.TariffCalendar;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -126,15 +127,16 @@ public class A1WritePassiveCalendarMessage extends AbstractDlmsMessage
         }
 
         s = match.group(4);
-        if ((s != null) && (s.length() > 0))
+        if ((s != null) && (!s.isEmpty()))
         {
             for (int i = 5; i < 7; i++)
             {
                 s = match.group(i);
                 if (s != null)
                 {
-                    if (s.startsWith(":"))
+                    if (s.startsWith(":")) {
                         s = s.substring(1);
+                    }
                     time[i - 2] = Integer.parseInt(s);
                 }
             }
@@ -151,14 +153,9 @@ public class A1WritePassiveCalendarMessage extends AbstractDlmsMessage
 
         MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
 
-        // Disable the value field in the EIServer message GUI
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-
         tagSpec.add(new MessageAttributeSpec(ATTR_ACTIVATION_DATE, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_TC_FILE, true));
-
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

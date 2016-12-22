@@ -1,12 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 
 /**
  * Creates a MessageEntry based on the "CONTACTOR_OPEN" xml tag with no additional parameters
@@ -25,6 +24,6 @@ public class DisconnectLoadMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageTag = new MessageTag("CONTACTOR_OPEN");
         messageTag.add(new MessageValue(" "));
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
+        return MessageEntry.fromContent(messagingProtocol.writeTag(messageTag)).andMessage(offlineDeviceMessage).finish();
     }
 }

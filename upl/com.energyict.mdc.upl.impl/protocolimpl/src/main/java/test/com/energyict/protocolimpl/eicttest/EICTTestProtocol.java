@@ -14,6 +14,16 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -24,22 +34,12 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.CacheObject;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -108,22 +108,15 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
 	@Override
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         // General Parameters
         MessageCategorySpec cat = new MessageCategorySpec("SAMPLE");
-        MessageSpec msgSpec = addBasicMsg("Disconnect meter", "DISCONNECT", false);
-        cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Connect meter", "CONNECT", false);
-        cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Limit current to 6A", "LIMITCURRENT6A", false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY_1, FIRMWAREPROGRAM, true);
-        cat.addMessageSpec(msgSpec);
-		msgSpec = addUpgradeMsg1(FIRMWAREPROGRAM_DISPLAY_2, FIRMWAREPROGRAM, true);
-        cat.addMessageSpec(msgSpec);
-		msgSpec = addUpgradeMsg2(FIRMWAREPROGRAM_DISPLAY_3, FIRMWAREPROGRAM, true);
-        cat.addMessageSpec(msgSpec);
+		cat.addMessageSpec(addBasicMsg("Disconnect meter", "DISCONNECT", false));
+		cat.addMessageSpec(addBasicMsg("Connect meter", "CONNECT", false));
+		cat.addMessageSpec(addBasicMsg("Limit current to 6A", "LIMITCURRENT6A", false));
+		cat.addMessageSpec(addBasicMsg(FIRMWAREPROGRAM_DISPLAY_1, FIRMWAREPROGRAM, true));
+		cat.addMessageSpec(addUpgradeMsg1(FIRMWAREPROGRAM_DISPLAY_2, FIRMWAREPROGRAM, true));
+		cat.addMessageSpec(addUpgradeMsg2(FIRMWAREPROGRAM_DISPLAY_3, FIRMWAREPROGRAM, true));
 
         theCategories.add(cat);
         return theCategories;
@@ -177,8 +170,8 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         builder.append( msgTag.getName() );
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute)it.next();
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = it.next();
             if ((att.getValue()==null) || (att.getValue().isEmpty())) {
 				continue;
 			}

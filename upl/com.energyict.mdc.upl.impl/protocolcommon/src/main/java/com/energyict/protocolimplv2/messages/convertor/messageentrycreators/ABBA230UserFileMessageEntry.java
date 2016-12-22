@@ -2,15 +2,15 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
  * Creates a MessageEntry consisting of a tag with the content of a UserFile included as value, as is used for the IEC1107 ABBA230 protocol
@@ -39,7 +39,7 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
 
         MessageTag messageTag = new MessageTag(tag);
         messageTag.add(new MessageValue(fileContent));
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
+        return MessageEntry.fromContent(messagingProtocol.writeTag(messageTag)).andMessage(offlineDeviceMessage).finish();
     }
 
     /**

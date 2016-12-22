@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class FP93BMessageConverter extends ModbusMessageConverter {
     /**
      * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
+     * and the corresponding {@link MessageEntryCreator}
      */
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(ModbusMessageConverter.registry);
 

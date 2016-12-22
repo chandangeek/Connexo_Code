@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;

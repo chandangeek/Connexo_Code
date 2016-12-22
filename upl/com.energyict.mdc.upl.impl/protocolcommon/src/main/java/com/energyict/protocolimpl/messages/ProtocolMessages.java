@@ -1,8 +1,13 @@
 package com.energyict.protocolimpl.messages;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.*;
 
 import java.util.Iterator;
 
@@ -16,46 +21,46 @@ public abstract class ProtocolMessages implements MessageProtocol {
     }
 
     public String writeTag(final MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0) {
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = it.next();
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
         if (msgTag.getSubElements().isEmpty()) {
-            buf.append("/>");
-            return buf.toString();
+            builder.append("/>");
+            return builder.toString();
         }
-        buf.append(">");
+        builder.append(">");
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(final MessageValue value) {
@@ -70,6 +75,7 @@ public abstract class ProtocolMessages implements MessageProtocol {
      * @return true if this is the message, false otherwise
      */
     protected boolean isItThisMessage(MessageEntry messageEntry, String messageTag) {
-        return messageEntry.getContent().indexOf(messageTag) >= 0;
+        return messageEntry.getContent().contains(messageTag);
     }
+
 }

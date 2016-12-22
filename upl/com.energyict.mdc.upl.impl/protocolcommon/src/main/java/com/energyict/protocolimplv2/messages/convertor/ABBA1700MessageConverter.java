@@ -1,12 +1,17 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,27 +24,18 @@ public class ABBA1700MessageConverter extends AbstractMessageConverter {
 
     private static final String DEMAND_RESET = "DemandReset";
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(DeviceActionMessage.BILLING_RESET, new OneTagMessageEntry(DEMAND_RESET));
-    }
-
-    public ABBA1700MessageConverter() {
-        super();
+    public ABBA1700MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap.of(messageSpec(DeviceActionMessage.BILLING_RESET), new OneTagMessageEntry(DEMAND_RESET));
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         return messageAttribute.toString();
     }
+
 }

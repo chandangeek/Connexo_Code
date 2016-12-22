@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -29,7 +31,6 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;

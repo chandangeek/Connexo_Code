@@ -1,9 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
@@ -66,10 +71,10 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * At a later timestamp the framework will query each {@link MessageEntry} (see {@link #queryMessage(MessageEntry)}) to actually
      * perform the message.
      *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @param messageEntries a list of {@link MessageEntry}s
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(final List messageEntries) throws IOException {
@@ -88,7 +93,7 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
     }
 
     public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> categories = new ArrayList<>();
         MessageCategorySpec catFirmware = getFirmwareCategory();
         MessageCategorySpec catP1Messages = getP1Category();
         if (supportMBus) {
@@ -143,24 +148,32 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
     }
 
     protected MessageCategorySpec getConnectivityCategory() {
-        MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(
-                RtuMessageCategoryConstants.CHANGECONNECTIVITY);
-        MessageSpec msgSpec = addChangeGPRSSetup(
-                RtuMessageKeyIdConstants.GPRSMODEMSETUP,
-                RtuMessageConstant.GPRS_MODEM_SETUP, false);
-        catGPRSModemSetup.addMessageSpec(msgSpec);
-        msgSpec = addGPRSModemCredantials(RtuMessageKeyIdConstants.GPRSCREDENTIALS,
-                RtuMessageConstant.GPRS_MODEM_CREDENTIALS, false);
-        catGPRSModemSetup.addMessageSpec(msgSpec);
-        msgSpec = addPhoneListMsg(RtuMessageKeyIdConstants.SETWHITELIST,
-                RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
-        catGPRSModemSetup.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.ACTIVATESMSWAKEUP,
-                RtuMessageConstant.WAKEUP_ACTIVATE, false);
-        catGPRSModemSetup.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.DEACTIVATESMSWAKEUP,
-                RtuMessageConstant.WAKEUP_DEACTIVATE, false);
-        catGPRSModemSetup.addMessageSpec(msgSpec);
+        MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(RtuMessageCategoryConstants.CHANGECONNECTIVITY);
+        catGPRSModemSetup.addMessageSpec(
+                addChangeGPRSSetup(
+                    RtuMessageKeyIdConstants.GPRSMODEMSETUP,
+                    RtuMessageConstant.GPRS_MODEM_SETUP,
+                        false));
+        catGPRSModemSetup.addMessageSpec(
+                addGPRSModemCredantials(
+                        RtuMessageKeyIdConstants.GPRSCREDENTIALS,
+                        RtuMessageConstant.GPRS_MODEM_CREDENTIALS,
+                        false));
+        catGPRSModemSetup.addMessageSpec(
+                addPhoneListMsg(
+                        RtuMessageKeyIdConstants.SETWHITELIST,
+                        RtuMessageConstant.WAKEUP_ADD_WHITELIST,
+                        false));
+        catGPRSModemSetup.addMessageSpec(
+                addNoValueMsg(
+                        RtuMessageKeyIdConstants.ACTIVATESMSWAKEUP,
+                        RtuMessageConstant.WAKEUP_ACTIVATE,
+                        false));
+        catGPRSModemSetup.addMessageSpec(
+                addNoValueMsg(
+                        RtuMessageKeyIdConstants.DEACTIVATESMSWAKEUP,
+                        RtuMessageConstant.WAKEUP_DEACTIVATE,
+                        false));
         return catGPRSModemSetup;
     }
 
@@ -250,15 +263,10 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
     private MessageSpec addMBusClientRemoteMessage(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);;
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
-        tagSpec.add(msgAttrSpec);
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_INSTALL_CHANNEL, true));
         tagSpec.add(msgVal);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_SHORT_ID, true);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_SHORT_ID, true));
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -267,27 +275,16 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
     private MessageSpec addChangeMBusAttributesMessage(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
-        tagSpec.add(msgAttrSpec);
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_INSTALL_CHANNEL, true));
         tagSpec.add(msgVal);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID, true);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID, true));
         tagSpec.add(msgVal);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER, true);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER, true));
         tagSpec.add(msgVal);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE, true);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE, true));
         tagSpec.add(msgVal);
-        msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.MBUS_CLIENT_VERSION, true);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_CLIENT_VERSION, true));
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;

@@ -1,10 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 
 import java.io.IOException;
@@ -90,9 +96,7 @@ public class ZigbeeGasMessaging extends GenericMessaging {
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, required));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -104,9 +108,7 @@ public class ZigbeeGasMessaging extends GenericMessaging {
             tagSpec.add(new MessageAttributeSpec(attribute, true));
         }
         tagSpec.add(new MessageAttributeSpec(lastAttribute, false));
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -119,9 +121,7 @@ public class ZigbeeGasMessaging extends GenericMessaging {
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, false));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

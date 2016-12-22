@@ -1,15 +1,42 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.RegisterMonitor;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
@@ -18,13 +45,16 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -93,9 +123,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                     return firmwareUpgrade(messageEntry);
                 } else if (messageEntry.getContent().contains("<LoadControlledConnect")) {
                     return loadControlledConnect(messageEntry);
-                } else if (messageEntry.getContent().contains("<ConfigureLoadProfile1CapturedObjects")) {
-                    return writeLoadProfileCapturedObjects(messageEntry);
-                } else if (messageEntry.getContent().contains("<ConfigureLoadProfile2CapturedObjects")) {
+                } else if (messageEntry.getContent().contains("<ConfigureLoadProfile1CapturedObjects") || messageEntry.getContent().contains("<ConfigureLoadProfile2CapturedObjects")) {
                     return writeLoadProfileCapturedObjects(messageEntry);
                 } else if (messageEntry.getContent().contains("<ConfigureBillingLoadProfileCapturedObjects")) {
                     return writeBillingLoadProfileCapturedObjects(messageEntry);
@@ -297,7 +325,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         return MessageResult.createSuccess(messageEntry);
     }
 
-    private MessageResult configurationDownload(MessageEntry messageEntry) throws IOException {
+    private MessageResult configurationDownload(MessageEntry messageEntry) {
         try {
             idis.getLogger().log(Level.INFO, "Configuration download message received.");
             String xmlData = getIncludedContent(messageEntry.getContent());
@@ -414,7 +442,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private MessageResult writeLoadProfileCapturedObjects(MessageEntry messageEntry) throws IOException {
         String[] parts = messageEntry.getContent().split("=");
         String loadProfileObisCode = parts[1].substring(1).split("\"")[0];
-        List<String> capturedObjectDefinitions = new ArrayList<String>();
+        List<String> capturedObjectDefinitions = new ArrayList<>();
         int index = 2;
         while (true) {
             try {
@@ -463,7 +491,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private MessageResult writeBillingLoadProfileCapturedObjects(MessageEntry messageEntry) throws IOException {
         String[] parts = messageEntry.getContent().split("=");
         String loadProfileObisCode = parts[1].substring(1).split("\"")[0];
-        List<String> capturedObjectDefinitions = new ArrayList<String>();
+        List<String> capturedObjectDefinitions = new ArrayList<>();
         int index = 2;
         while (true) {
             try {
@@ -627,7 +655,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     }
 
     public List getMessageCategories() {
-        List<MessageCategorySpec> theCategories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec cat1 = new MessageCategorySpec("Disconnection and reconnection");
         cat1.addMessageSpec(addBasicMsg("Remote controlled disconnection", "RemoteDisconnect", false));
         cat1.addMessageSpec(addBasicMsg("Remote controlled reconnection", "RemoteConnect", false));
@@ -688,9 +716,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, true));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -713,9 +739,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             tagSpec.add(attributeSpec);
             index++;
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -735,9 +759,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             tagSpec.add(attributeSpec);
             index++;
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -753,8 +775,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             builder.append(" ");
 
             // b. Add all attributes
-            for (Object o1 : msgTag.getAttributes()) {
-                MessageAttribute att = (MessageAttribute) o1;
+            for (MessageAttribute att : msgTag.getAttributes()) {
                 builder.append(att.getSpec().getName()).append("=\"").append(att.getValue()).append("\" ");
             }
 
@@ -782,8 +803,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             int codeId = 0;
 
             // b. Attributes
-            for (Object o1 : msgTag.getAttributes()) {
-                MessageAttribute att = (MessageAttribute) o1;
+            for (MessageAttribute att : msgTag.getAttributes()) {
                 if (RtuMessageConstant.TOU_ACTIVITY_NAME.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
                         name = att.getValue();
@@ -826,8 +846,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             builder.append(">");
 
             // b. Attributes
-            for (Object o1 : msgTag.getAttributes()) {
-                MessageAttribute att = (MessageAttribute) o1;
+            for (MessageAttribute att : msgTag.getAttributes()) {
                 if (CONFIGURATION_USER_FILE.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
                         codeId = Integer.valueOf(att.getValue());
@@ -836,7 +855,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             }
 
             if (codeId > 0) {
-                builder.append("<IncludedFile><includeFile fileId=\"" + codeId + "\"/></IncludedFile>");
+                builder.append("<IncludedFile><includeFile fileId=\"").append(codeId).append("\"/></IncludedFile>");
             }
 
             // c. Closing tag
@@ -852,9 +871,8 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             buf.append(msgTag.getName());
 
             // b. Attributes
-            for (Object o1 : msgTag.getAttributes()) {
-                MessageAttribute att = (MessageAttribute) o1;
-                if (att.getValue() == null || att.getValue().length() == 0) {
+            for (MessageAttribute att : msgTag.getAttributes()) {
+                if (att.getValue() == null || att.getValue().isEmpty()) {
                     continue;
                 }
                 buf.append(" ").append(att.getSpec().getName());
@@ -869,7 +887,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                     buf.append(writeTag((MessageTag) elt));
                 } else if (elt.isValue()) {
                     String value = writeValue((MessageValue) elt);
-                    if (value == null || value.length() == 0) {
+                    if (value == null || value.isEmpty()) {
                         return "";
                     }
                     buf.append(value);

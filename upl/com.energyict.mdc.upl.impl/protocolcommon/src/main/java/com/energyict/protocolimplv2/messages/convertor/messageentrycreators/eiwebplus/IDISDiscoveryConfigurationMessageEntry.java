@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwebplus;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
  * Copyrights EnergyICT
@@ -27,6 +27,9 @@ public class IDISDiscoveryConfigurationMessageEntry implements MessageEntryCreat
         String interval = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.interval).getValue();
         String duration = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.duration).getValue();
         String messageContent = OPEN_TAG + OPEN_SUBTAG1 + interval + CLOSE_SUBTAG1 + OPEN_SUBTAG2 + duration + CLOSE_SUBTAG2 + CLOSE_TAG;
-        return new MessageEntry(messageContent, offlineDeviceMessage.getTrackingId());
+        return MessageEntry
+                    .fromContent(messageContent)
+                    .andMessage(offlineDeviceMessage)
+                    .finish();
     }
 }

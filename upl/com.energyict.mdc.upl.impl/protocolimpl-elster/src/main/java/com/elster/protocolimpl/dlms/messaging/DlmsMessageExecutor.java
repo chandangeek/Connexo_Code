@@ -1,10 +1,11 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.elster.protocolimpl.dlms.Dlms;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
 
 import java.util.ArrayList;
 import java.util.List;

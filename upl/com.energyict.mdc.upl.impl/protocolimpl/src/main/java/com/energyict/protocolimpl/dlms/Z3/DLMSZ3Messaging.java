@@ -2,6 +2,17 @@ package com.energyict.protocolimpl.dlms.Z3;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -34,23 +45,12 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -357,36 +357,27 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
     @Override
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec catPrePaid = new MessageCategorySpec("PrePaid");
         MessageCategorySpec catConnectControl = new MessageCategorySpec("Connect/Disconnect");
         MessageCategorySpec catLoadLimit = new MessageCategorySpec("Load Limiting");
 
         // Prepaid related messages
-        MessageSpec msgSpec = addConfigurePrepaid("Configure prepaid functionality", RtuMessageConstant.PREPAID_CONFIGURED, false);
-        catPrePaid.addMessageSpec(msgSpec);
-        msgSpec = addBudgetMsg("Add prepaid credit", RtuMessageConstant.PREPAID_ADD, false);
-        catPrePaid.addMessageSpec(msgSpec);
+        catPrePaid.addMessageSpec(addConfigurePrepaid("Configure prepaid functionality", RtuMessageConstant.PREPAID_CONFIGURED, false));
+        catPrePaid.addMessageSpec(addBudgetMsg("Add prepaid credit", RtuMessageConstant.PREPAID_ADD, false));
 //        msgSpec = addNoValueMsg("Read prepaid credit", RtuMessageConstant.PREPAID_READ, false);
 //        catPrePaid.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg("Enable prepaid functionality", RtuMessageConstant.PREPAID_ENABLE, false);
-        catPrePaid.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg("Disable prepaid functionality", RtuMessageConstant.PREPAID_DISABLE, false);
-        catPrePaid.addMessageSpec(msgSpec);
+        catPrePaid.addMessageSpec(addNoValueMsg("Enable prepaid functionality", RtuMessageConstant.PREPAID_ENABLE, false));
+        catPrePaid.addMessageSpec(addNoValueMsg("Disable prepaid functionality", RtuMessageConstant.PREPAID_DISABLE, false));
 
         // Disconnect related messages
-        msgSpec = addConnectControlMsg("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
-        catConnectControl.addMessageSpec(msgSpec);
-        msgSpec = addConnectControlMsg("Connect", RtuMessageConstant.CONNECT_LOAD, false);
-        catConnectControl.addMessageSpec(msgSpec);
+        catConnectControl.addMessageSpec(addConnectControlMsg("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false));
+        catConnectControl.addMessageSpec(addConnectControlMsg("Connect", RtuMessageConstant.CONNECT_LOAD, false));
 
         // Load Limiting related messages
-        msgSpec = addNoValueMsg("Enable load limiting", RtuMessageConstant.LOAD_LIMIT_ENABLE, false);
-        catLoadLimit.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg("Disable load limiting", RtuMessageConstant.LOAD_LIMIT_DISABLE, false);
-        catLoadLimit.addMessageSpec(msgSpec);
-        msgSpec = addParametersLoadLimit("Configure load limiting", RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false);
-        catLoadLimit.addMessageSpec(msgSpec);
+        catLoadLimit.addMessageSpec(addNoValueMsg("Enable load limiting", RtuMessageConstant.LOAD_LIMIT_ENABLE, false));
+        catLoadLimit.addMessageSpec(addNoValueMsg("Disable load limiting", RtuMessageConstant.LOAD_LIMIT_DISABLE, false));
+        catLoadLimit.addMessageSpec(addParametersLoadLimit("Configure load limiting", RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false));
 
         theCategories.add(catPrePaid);
         theCategories.add(catConnectControl);
@@ -397,11 +388,8 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private MessageSpec addBudgetMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_BUDGET, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.PREPAID_BUDGET, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -416,18 +404,12 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private MessageSpec addConfigurePrepaid(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_BUDGET, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_THRESHOLD, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_READ_FREQUENCY, true);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.PREPAID_BUDGET, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.PREPAID_THRESHOLD, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.PREPAID_READ_FREQUENCY, true));
         for (int i = 1; i < 9; i++) {
-            msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_MULTIPLIER + i, false);
-            tagSpec.add(msgAttrSpec);
+            tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.PREPAID_MULTIPLIER + i, false));
         }
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -436,21 +418,13 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private MessageSpec addParametersLoadLimit(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_READ_FREQUENCY, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_THRESHOLD, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_DURATION, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_D1_INVERT, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_D2_INVERT, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_ACTIVATE_NOW, false);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_READ_FREQUENCY, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_THRESHOLD, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_DURATION, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_D1_INVERT, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_D2_INVERT, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_ACTIVATE_NOW, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -458,11 +432,8 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private MessageSpec addConnectControlMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DIGITAL_OUTPUT, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.DIGITAL_OUTPUT, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -476,8 +447,8 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = (MessageAttribute) it.next();
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
+            MessageAttribute att = it.next();
             if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }

@@ -1,5 +1,11 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.elster.dlms.cosem.classes.class29.AutoConnectModeEnum;
 import com.elster.dlms.cosem.classes.common.TimeWindow;
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
@@ -7,11 +13,6 @@ import com.elster.dlms.cosem.simpleobjectmodel.SimpleAutoConnectObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.types.basic.DlmsDateTime;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -96,7 +97,7 @@ public class WriteAutoConnectMessage extends AbstractDlmsMessage {
         System.out.println("AutoConnect start:" + start.toString());
 
         DlmsDateTime end;
-        if ((autoConnectEnd != null) && (autoConnectEnd.length() > 0)) {
+        if ((autoConnectEnd != null) && (!autoConnectEnd.isEmpty())) {
             end = dateStringToDlmsDateTime(autoConnectEnd);
         } else {
             end = DlmsDateTime.NOT_SPECIFIED_DATE_TIME;
@@ -104,7 +105,7 @@ public class WriteAutoConnectMessage extends AbstractDlmsMessage {
         autoConnect.setCallingWindow(new TimeWindow[] {new TimeWindow(start, end)});
 
         String[] destinationList;
-        if ((autoConnectDest2 != null) && (autoConnectDest2.length() > 0)) {
+        if ((autoConnectDest2 != null) && (!autoConnectDest2.isEmpty())) {
             destinationList = new String[] {autoConnectDest1, autoConnectDest2};
         } else {
             destinationList = new String[] {autoConnectDest1};
@@ -119,11 +120,11 @@ public class WriteAutoConnectMessage extends AbstractDlmsMessage {
         checkInt(autoConnectId, "AutoConnect id", 1, 2);
         checkInt(autoConnectMode, "AutoConnect mode", 1, 2);
         checkRepetitiveDate(autoConnectStart, "AutoConnect start");
-        if ((autoConnectEnd != null) && (autoConnectEnd.length() > 0)) {
+        if ((autoConnectEnd != null) && (!autoConnectEnd.isEmpty())) {
             checkRepetitiveDate(autoConnectEnd, "AutoConnect end");
         }
         checkDestination(autoConnectDest1, "AutoConnect destination 1");
-        if ((autoConnectDest2 != null) && (autoConnectDest2.length() > 0)) {
+        if ((autoConnectDest2 != null) && (!autoConnectDest2.isEmpty())) {
             checkDestination(autoConnectDest2, "AutoConnect destination 2");
         }
     }
@@ -140,18 +141,13 @@ public class WriteAutoConnectMessage extends AbstractDlmsMessage {
         MessageSpec msgSpec = new MessageSpec(MESSAGE_DESCRIPTION, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
 
-        // Disable the value field in the EIServer message GUI
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-
         tagSpec.add(new MessageAttributeSpec(ATTR_AUTOCONNECT_ID, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_AUTOCONNECT_MODE, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_AUTOCONNECT_START, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_AUTOCONNECT_END, false));
         tagSpec.add(new MessageAttributeSpec(ATTR_DESTINATION1, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_DESTINATION2, false));
-
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

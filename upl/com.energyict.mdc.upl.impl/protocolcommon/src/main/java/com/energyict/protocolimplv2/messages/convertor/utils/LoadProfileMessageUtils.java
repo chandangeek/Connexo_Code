@@ -1,8 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -10,7 +9,6 @@ import org.w3c.dom.Node;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -174,7 +172,7 @@ public class LoadProfileMessageUtils {
     }
 
     /**
-     * Privately hidden constructor, please leave me alone
+     * Hide utility class constructor.
      */
     private LoadProfileMessageUtils() {
     }

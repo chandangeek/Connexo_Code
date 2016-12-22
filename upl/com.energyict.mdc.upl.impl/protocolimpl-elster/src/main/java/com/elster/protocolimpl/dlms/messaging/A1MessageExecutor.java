@@ -1,7 +1,8 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+
 import com.elster.protocolimpl.dlms.Dlms;
-import com.energyict.protocol.messaging.MessageCategorySpec;
 
 import java.util.ArrayList;
 import java.util.List;

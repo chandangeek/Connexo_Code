@@ -1,8 +1,13 @@
 package com.energyict.protocolimpl.EMCO;
 
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 

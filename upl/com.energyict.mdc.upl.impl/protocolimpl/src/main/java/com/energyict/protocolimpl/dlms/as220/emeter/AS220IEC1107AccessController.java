@@ -1,10 +1,17 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 import java.io.IOException;
@@ -125,12 +132,10 @@ public class AS220IEC1107AccessController {
     public static MessageSpec createWriteIEC1107ClassMessageSpec(String display, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(display, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
         tagSpec.add(new MessageAttributeSpec(ATTR_IEC_CLASS_ID, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_OFFSET, false));
         tagSpec.add(new MessageAttributeSpec(ATTR_RAW_DATA, true));
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

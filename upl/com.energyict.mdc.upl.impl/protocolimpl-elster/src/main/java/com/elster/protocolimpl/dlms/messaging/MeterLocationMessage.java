@@ -1,15 +1,16 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.dlms.types.basic.CosemAttributeDescriptor;
 import com.elster.dlms.types.data.DlmsDataVisibleString;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class MeterLocationMessage extends AbstractDlmsMessage {
     /**
      * RtuMessage tags for the GPRS modem setup message
      */
-    public final static String MESSAGE_DESC = "Change meter location";
+    public static final String MESSAGE_DESC = "Change meter location";
 
     public static final String MESSAGE_TAG = "MeterLocation";
     public static final String ATTR_LOCATION = "Location";
@@ -87,9 +88,7 @@ public class MeterLocationMessage extends AbstractDlmsMessage {
         MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
 
         // Disable the value field in the EIServer message GUI
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
 
         // Add attributes Location
         tagSpec.add(new MessageAttributeSpec(ATTR_LOCATION, false));

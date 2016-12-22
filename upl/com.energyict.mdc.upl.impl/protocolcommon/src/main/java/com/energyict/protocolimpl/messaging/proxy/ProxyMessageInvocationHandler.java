@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.messaging.proxy;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.protocolimpl.messaging.AnnotatedMessaging;
 import com.energyict.protocolimpl.messaging.RtuMessageAttribute;

@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import java.util.ArrayList;

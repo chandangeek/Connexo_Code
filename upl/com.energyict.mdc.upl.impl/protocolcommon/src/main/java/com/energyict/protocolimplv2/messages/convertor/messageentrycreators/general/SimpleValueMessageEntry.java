@@ -1,12 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 
 /**
  * Creates XML: <tag>value</tag>
@@ -28,7 +27,10 @@ public class SimpleValueMessageEntry implements MessageEntryCreator {
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageTag = new MessageTag(tag);
         messageTag.add(new MessageValue(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue()));
-        return new MessageEntry(writeTag(messagingProtocol, messageTag), offlineDeviceMessage.getTrackingId());
+        return MessageEntry
+                    .fromContent(writeTag(messagingProtocol, messageTag))
+                    .andMessage(offlineDeviceMessage)
+                    .finish();
     }
 
     private String writeTag(Messaging messagingProtocol, MessageTag messageTag) {

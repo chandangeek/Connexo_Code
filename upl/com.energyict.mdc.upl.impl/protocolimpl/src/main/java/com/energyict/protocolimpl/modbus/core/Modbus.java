@@ -12,28 +12,28 @@ package com.energyict.protocolimpl.modbus.core;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.discover.Discover;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -204,7 +204,7 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
 
     private int getTokVal(String tok) {
         if (tok.contains("0x")) {
-			return Integer.parseInt(tok.substring(2),16);
+			return Integer.parseInt(tok.substring(2), 16);
 		} else {
 			return Integer.parseInt(tok);
 		}
@@ -392,7 +392,7 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
 						address = Integer.parseInt(contentEntries[0], 16);
 						values = new int[contentEntries.length-1];
 						for (int i=1;i<contentEntries.length;i++) {
-							values[i-1]=Integer.parseInt(contentEntries[i],16);
+							values[i-1]=Integer.parseInt(contentEntries[i], 16);
 						}
 					}
 
@@ -443,7 +443,7 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
 					}
 					else {
 						address = Integer.parseInt(contentEntries[0], 16);
-						value = Integer.parseInt(contentEntries[1],16);
+						value = Integer.parseInt(contentEntries[1], 16);
 					}
 
                     if (writeSingleRegister) {
@@ -466,15 +466,13 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
 
     @Override
    public List getMessageCategories() {
-       List theCategories = new ArrayList();
-       // General Parameters
-       MessageCategorySpec cat = new MessageCategorySpec("Modbus general messages");
-       MessageSpec msgSpec = addBasicMsg("Write multiple registers", "WriteMultipleRegisters", false);
-       cat.addMessageSpec(msgSpec);
-       msgSpec = addBasicMsg("Write single register", "WriteSingleRegisters", false);
-       cat.addMessageSpec(msgSpec);
-       theCategories.add(cat);
-       return doGetMessageCategories(theCategories);
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
+        // General Parameters
+        MessageCategorySpec cat = new MessageCategorySpec("Modbus general messages");
+        cat.addMessageSpec(addBasicMsg("Write multiple registers", "WriteMultipleRegisters", false));
+        cat.addMessageSpec(addBasicMsg("Write single register", "WriteSingleRegisters", false));
+        theCategories.add(cat);
+        return doGetMessageCategories(theCategories);
    }
 
    protected MessageResult doQueryMessage(MessageEntry messageEntry) throws IOException {
@@ -506,8 +504,8 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
        builder.append( msgTag.getName() );
 
        // b. Attributes
-       for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-           MessageAttribute att = (MessageAttribute)it.next();
+       for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
+           MessageAttribute att = it.next();
            if (att.getValue()==null || att.getValue().isEmpty()) {
 			continue;
 		}

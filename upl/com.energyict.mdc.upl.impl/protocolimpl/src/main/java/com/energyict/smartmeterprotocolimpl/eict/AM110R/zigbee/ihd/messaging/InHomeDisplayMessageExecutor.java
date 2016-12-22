@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd.messaging;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -16,7 +16,6 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110RRegisterFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

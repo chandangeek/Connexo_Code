@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 
 /**
  * Copyrights EnergyICT
@@ -23,6 +22,9 @@ public class XMLAttributeDeviceMessageEntry extends AbstractEIWebMessageEntry {
      */
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        return new MessageEntry(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue(), offlineDeviceMessage.getTrackingId());
+        return MessageEntry
+                .fromContent(offlineDeviceMessage.getDeviceMessageAttributes().get(0).getValue())
+                .andMessage(offlineDeviceMessage)
+                .finish();
     }
 }

@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 
 /**
  * Creates XML: <tag/>
@@ -26,6 +25,6 @@ public class OneTagMessageEntry implements MessageEntryCreator {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageTag = new MessageTag(tag);
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
+        return MessageEntry.fromContent(messagingProtocol.writeTag(messageTag)).andMessage(offlineDeviceMessage).finish();
     }
 }

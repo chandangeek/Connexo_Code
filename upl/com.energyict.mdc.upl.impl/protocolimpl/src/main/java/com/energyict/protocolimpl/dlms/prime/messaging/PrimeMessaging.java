@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dlms.DlmsSession;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.TariffControl;
 
@@ -66,14 +67,14 @@ public class PrimeMessaging {
         } else if (this.basicIntervalSetup.canHandle(messageEntry)) {
         	return this.basicIntervalSetup.execute(messageEntry);
         }
-         
+
         session.getLogger().severe("Unable to handle message [" + messageEntry.getContent() + "]!");
         return MessageResult.createFailed(messageEntry);
     }
 
     public static List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> specs = new ArrayList<MessageCategorySpec>();
-        
+
         specs.add(DisconnectControl.getCategorySpec());
         specs.add(ClockControl.getCategorySpec());
         specs.add(TariffControl.getCategorySpec());

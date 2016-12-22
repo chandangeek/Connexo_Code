@@ -1,14 +1,18 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -137,14 +141,17 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
      * This class overrides the convertCodeTableToXML method, this way we don't have to mock an entire codetable in order to get a decent XML description.
      */
     public class TestG3MeterMessageConverter extends G3MeterMessageConverter {
+        public TestG3MeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+            super(messagingProtocol, propertySpecService, nlsService, converter);
+        }
 
         @Override
-        protected String convertCodeTableToXML(Code messageAttribute) {
+        protected String convertCodeTableToXML(TariffCalender messageAttribute) {
             return xmlEncodedCodeTableWithEmptyName;
         }
 
         @Override
-        protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
+        protected String convertSpecialDaysCodeTableToXML(TariffCalender messageAttribute) {
             return xmlSpecialDays;
         }
     }

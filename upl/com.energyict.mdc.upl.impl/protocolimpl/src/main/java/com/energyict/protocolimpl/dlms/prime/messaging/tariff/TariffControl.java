@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.dlms.prime.messaging.tariff;
 
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -8,16 +11,16 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.prime.messaging.PrimeMessageExecutor;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.B04;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Contract;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 /**

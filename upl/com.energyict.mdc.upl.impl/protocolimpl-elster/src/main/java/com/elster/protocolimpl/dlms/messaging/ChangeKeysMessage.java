@@ -1,16 +1,17 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.elster.coding.CodingUtils;
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleSecuritySetupObject;
 import com.elster.protocolimpl.dlms.SecurityData;
 import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
         }
     }
 
-    private void write(String clientId, String authenticationKey, String encryptionKey, String wrapperKey) throws BusinessException, IOException {
+    private void write(String clientId, String authenticationKey, String encryptionKey, String wrapperKey) throws IOException {
 
         SimpleCosemObjectManager objectManager = getExecutor().getDlms().getObjectManager();
 
@@ -99,14 +100,14 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
     }
 
     private void checkString(String stringToCheck, String name) throws BusinessException {
-        if ((stringToCheck == null) || (stringToCheck.length() == 0)) {
+        if ((stringToCheck == null) || (stringToCheck.isEmpty())) {
             throw new BusinessException("Parameter " + name + " is 'null' or empty.");
         }
     }
 
     private void checkKey(String key, String name) throws BusinessException {
         String msg = SecurityData.checkKey(key, name);
-        if (msg.length() > 0) {
+        if (!msg.isEmpty()) {
             throw new BusinessException("Error: " + msg);
         }
     }
@@ -116,15 +117,11 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
         MessageTagSpec tagSpec = new MessageTagSpec(MESSAGE_TAG);
 
         // Disable the value field in the EIServer message GUI
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-
         tagSpec.add(new MessageAttributeSpec(ATTR_CLIENT_ID, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_AUTHENTICATION_KEY, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_ENCRYPTION_KEY, true));
         tagSpec.add(new MessageAttributeSpec(ATTR_WRAPPER_KEY, true));
-
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

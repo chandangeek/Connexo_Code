@@ -3,6 +3,17 @@ package com.energyict.protocolimpl.dlms.eictz3;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -68,7 +79,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
@@ -78,16 +88,6 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -794,7 +794,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private List<MeterEvent> getMeterEvents(final Calendar from, final Calendar to) throws IOException {
         logger.info("Fetching meter events from [" + (from != null ? from.getTime() : "Not specified") + "] to [" + (to != null ? to.getTime() : "Not specified") + "]");
 
-        final List<MeterEvent> events = new ArrayList<MeterEvent>();
+        final List<MeterEvent> events = new ArrayList<>();
 
         final DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(from, to);
         final DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(from, to);
@@ -945,7 +945,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @throws IOException If an IO error occurs while communicating with the meter.
      */
     private ScalerUnit getRegisterScalerUnit(final int channelId) throws IOException {
-        ScalerUnit unit = null;
+        ScalerUnit unit;
 
         if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSClassId.REGISTER.getClassId()) {
             unit = this.getCosemObjectFactory().getRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
@@ -1651,7 +1651,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     @Override
-    public final RegisterInfo translateRegister(final ObisCode obisCode) throws IOException {
+    public final RegisterInfo translateRegister(final ObisCode obisCode) {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
@@ -1689,11 +1689,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private MessageSpec addConnectControl(final String keyId, final String tagName, final boolean advanced) {
         final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        final MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        final MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1701,11 +1698,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private MessageSpec addConnectControlMode(final String keyId, final String tagName, final boolean advanced) {
         final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        final MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        final MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1720,13 +1714,9 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private MessageSpec addEncryptionkeys(final String keyId, final String tagName, final boolean advanced) {
         final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        final MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_OPEN_KEY, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_TRANSFER_KEY, false);
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_OPEN_KEY, false));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_TRANSFER_KEY, false));
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1738,46 +1728,46 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
     @Override
     public final String writeTag(final MessageTag msgTag) {
-        final StringBuilder buf = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
-        for (final Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            final MessageAttribute att = (MessageAttribute) it.next();
+        for (final Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
+            final MessageAttribute att = it.next();
             if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
         if (msgTag.getSubElements().isEmpty()) {
-            buf.append("/>");
-            return buf.toString();
+            builder.append("/>");
+            return builder.toString();
         }
-        buf.append(">");
+        builder.append(">");
         // c. sub elements
         for (final Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             final MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 final String value = writeValue((MessageValue) elt);
                 if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     @Override

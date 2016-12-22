@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.base;
 
-import java.util.List;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.MessageSpec;
+
+import java.util.List;
 
 /**
  * @author jme

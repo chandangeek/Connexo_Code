@@ -1,16 +1,17 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
@@ -89,7 +90,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     }
 
     public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> categories = new ArrayList<>();
         MessageCategorySpec eMeterCat = new MessageCategorySpec("[01] E-Meter ");
         MessageCategorySpec otherMeterCat = new MessageCategorySpec("[03] Other");
 
@@ -122,15 +123,10 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     private MessageSpec addTimeOfUse(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(CALENDAR_NAME, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(ACTIVATION_DATE, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(ACTIVITY_CALENDAR, false);
-        tagSpec.add(msgAttrSpec);
+        tagSpec.add(new MessageValueSpec(" "));
+        tagSpec.add(new MessageAttributeSpec(CALENDAR_NAME, false));
+        tagSpec.add(new MessageAttributeSpec(ACTIVATION_DATE, false));
+        tagSpec.add(new MessageAttributeSpec(ACTIVITY_CALENDAR, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -174,7 +170,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                 }
             } else if (isMessageTag(SET_LOADLIMIT_THRESHOLD, messageEntry)) {
                 getAs220().getLogger().info("Set LoadLimit threshold received");
-                long threshold = 0;
+                long threshold;
                 try {
                     threshold = Long.valueOf(MessagingTools.getContentOfAttribute(messageEntry, LOADLIMIT_THRESHOLD));
                     if (threshold > 0xFFFFFF) {
@@ -244,14 +240,13 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
             addOpeningTag(builder, msgTag.getName());
             long activationDate = 0;
             int codeTableId = -1;
-            for (Object maObject : msgTag.getAttributes()) {
-                MessageAttribute ma = (MessageAttribute) maObject;
+            for (MessageAttribute ma : msgTag.getAttributes()) {
                 if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR_ACTIVATION_TIME)) {
-                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                    if (ma.getValue() != null && !ma.getValue().isEmpty()) {
                         activationDate = Long.valueOf(ma.getValue());
                     }
                 } else if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR)) {
-                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                    if (ma.getValue() != null && !ma.getValue().isEmpty()) {
                         codeTableId = Integer.valueOf(ma.getValue());
                     }
                 }

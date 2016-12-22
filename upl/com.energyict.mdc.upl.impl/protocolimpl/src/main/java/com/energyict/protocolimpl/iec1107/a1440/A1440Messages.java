@@ -6,19 +6,20 @@
  */
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 
@@ -56,7 +57,7 @@ public class A1440Messages implements MessageProtocol {
     }
 
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
 
         MessageCategorySpec catContactor = new MessageCategorySpec("'Contacor' Messages");
         catContactor.addMessageSpec(addBasicMsg(CONTACTOR_CLOSE, false));
@@ -159,43 +160,43 @@ public class A1440Messages implements MessageProtocol {
     }
 
     public String writeTag(MessageTag tag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(tag.getName());
+        builder.append("<");
+        builder.append(tag.getName());
 
         // b. Attributes
-        for (Iterator it = tag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+        for (Iterator<MessageAttribute> it = tag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = it.next();
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = tag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
+                if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("\n\n</");
-        buf.append(tag.getName());
-        buf.append(">");
+        builder.append("\n\n</");
+        builder.append(tag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
 
     }
 
@@ -356,13 +357,13 @@ public class A1440Messages implements MessageProtocol {
         final byte[] WRITE1 = FlagIEC1107Connection.WRITE1;
         final int MAX_PACKETSIZE = 48;
 
-        String returnValue = "";
-        String iec1107Command = "";
+        String returnValue;
+        String iec1107Command;
 
         int first = 0;
-        int last = 0;
-        int offset = 0;
-        int length = 0;
+        int last;
+        int offset;
+        int length;
 
         if (a1440.getISecurityLevel() < 1) {
             throw new IOException("Message " + messageType.getDisplayName() + " needs at least security level 1. Current level: " + a1440.getISecurityLevel());

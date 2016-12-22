@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
+import com.energyict.mdc.upl.properties.TariffCalender;
+
 import com.energyict.cbo.ApplicationException;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -122,9 +124,8 @@ public class CodeTableXmlParsing {
         return parseActivityCalendarAndSpecialDayTable(getCode(id), activationTime, name);
     }
 
-    public static String parseActivityCalendarAndSpecialDayTable(Code codeTable, long activationTime, String name) throws ParserConfigurationException {
-
-        CodeTableParser ctp = new CodeTableParser(codeTable);
+    public static String parseActivityCalendarAndSpecialDayTable(TariffCalender calender, long activationTime, String name) throws ParserConfigurationException {
+        CodeTableParser ctp = new CodeTableParser(calender);
         try {
 
             ctp.parse();
@@ -136,16 +137,16 @@ public class CodeTableXmlParsing {
             Element root = document.createElement(rootTOUMessage);
 
             /*
-             We use the name of the codeTable as activityCalendarName
+             We use the name of the calender as activityCalendarName
              This way we can track the calendars in the devices
               */
             root.appendChild(createSingleElement(document, rootActCalendarName, name));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, codeTable.getDefinitionTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, codeTable.getDestinationTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(codeTable.getIntervalInSeconds())));
-            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(codeTable.getYearFrom())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(codeTable.getYearTo())));
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(codeTable.getSeasonSetId())));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calender.getDefinitionTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calender.getDestinationTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(calender.getIntervalInSeconds())));
+            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(calender.getYearFrom())));
+            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calender.getYearTo())));
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(calender.getSeasonSetId())));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);

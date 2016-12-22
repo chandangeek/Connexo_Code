@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging;
 
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;

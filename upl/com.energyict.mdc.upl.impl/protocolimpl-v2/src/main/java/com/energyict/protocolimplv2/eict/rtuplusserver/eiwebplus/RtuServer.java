@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.EiWebPlusDialect;
 import com.energyict.mdc.upl.DeviceProtocol;
@@ -11,6 +10,7 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -28,6 +28,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.support.SerialNumberSupport;

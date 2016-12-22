@@ -1,9 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -12,10 +17,10 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.Enab
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEndOfDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetStartOfDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
@@ -36,31 +41,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month
  */
 public class SmartZmdMessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-
-        // dst related
-        registry.put(ClockDeviceMessage.EnableOrDisableDST, new EnableOrDisableDSTMessageEntry(enableDSTAttributeName));
-        registry.put(ClockDeviceMessage.SetEndOfDST, new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
-        registry.put(ClockDeviceMessage.SetStartOfDST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
-
-        //Code table related
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-
-        // reset messages
-        registry.put(DeviceActionMessage.DEMAND_RESET, new DemandResetMessageEntry());
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public SmartZmdMessageConverter() {
-        super();
+    public SmartZmdMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
@@ -77,13 +59,25 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            Code codeTable = (Code) messageAttribute;
+            TariffCalender codeTable = (TariffCalender) messageAttribute;
             return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(codeTable); //The ID and the XML representation of the code table, separated by a |
         }
         return EMPTY_FORMAT;
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                // dst related
+                .put(messageSpec(ClockDeviceMessage.EnableOrDisableDST), new EnableOrDisableDSTMessageEntry(enableDSTAttributeName))
+                .put(messageSpec(ClockDeviceMessage.SetEndOfDST), new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour))
+                .put(messageSpec(ClockDeviceMessage.SetStartOfDST), new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour))
+
+                //Code table related
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
+
+                // reset messages
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new DemandResetMessageEntry())
+                .build();
     }
 }

@@ -1,16 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.PlcOfdmMacSetupMessages;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.SixLoWPanMessages;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.WritePlcG3TimeoutMessage;
-import com.energyict.protocolimpl.dlms.g3.messaging.messages.WritePlcPskMessage;
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;

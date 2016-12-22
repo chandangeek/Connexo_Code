@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.messages;
 
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 
 /**
- * Contains a summary of {@link com.energyict.protocol.messaging.MessageSpec} for the protocol to use in the {@link com.energyict.protocolimpl.messages.ProtocolMessageCategories}
+ * Contains a summary of {@link MessageSpec} for the protocol to use in the {@link com.energyict.protocolimpl.messages.ProtocolMessageCategories}
  */
 public class ProtocolMessageSpecifications {
 

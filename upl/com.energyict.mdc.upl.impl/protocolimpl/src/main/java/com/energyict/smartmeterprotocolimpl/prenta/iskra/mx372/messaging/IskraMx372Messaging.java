@@ -1,5 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
 import com.energyict.cbo.ApplicationException;
@@ -30,7 +36,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterData;
 import com.energyict.protocol.MeterDataMessageResult;
@@ -39,11 +44,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.WakeUpProtocolSupport;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
@@ -64,8 +64,8 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -161,9 +161,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, required));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -271,10 +269,10 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * At a later timestamp the framework will query each {@link MessageEntry} (see {@link #queryMessage(MessageEntry)}) to actually
      * perform the message.
      *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @param messageEntries a list of {@link MessageEntry}s
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(List messageEntries) throws IOException {
@@ -807,8 +805,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             LoadProfileReader lpr = constructDateTimeCorrectdLoadProfileReader(new LoadProfileReader(reader.getProfileObisCode(),
                     reader.getStartReadingTime(), reader.getEndReadingTime(), reader.getLoadProfileId(), reader.getMeterSerialNumber(), channelInfos));
 
-            List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
-            final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+            List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Collections.singletonList(lpr));
+            final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Collections.singletonList(lpr));
 
             if (profileDatas.size() != 1) {
                 return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message, but we received " + profileDatas.size());
@@ -866,14 +864,14 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
-            this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
-            final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+            this.protocol.fetchLoadProfileConfiguration(Collections.singletonList(lpr));
+            final List<ProfileData> profileData = this.protocol.getLoadProfileData(Collections.singletonList(lpr));
 
-            if (profileData.size() == 0) {
+            if (profileData.isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
             } else {
                 for (ProfileData data : profileData) {
-                    if (data.getIntervalDatas().size() == 0) {
+                    if (data.getIntervalDatas().isEmpty()) {
                         return MessageResult.createFailed(msgEntry, "LoadProfile returned no interval data.");
                     }
                 }
@@ -904,12 +902,12 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     public void checkMbusDevices() throws IOException, SQLException, BusinessException {
         String mSerial = "";
         Device rtu = getRtuFromDatabaseBySerialNumber();
-        if (!((rtu.getDownstreamDevices().size() == 0) && (getProperties().getRtuType() == null))) {
+        if (!((rtu.getDownstreamDevices().isEmpty()) && (getProperties().getRtuType() == null))) {
             for (int i = 0; i < MBUS_MAX; i++) {
                 int mbusAddress = (int) protocol.getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
                 if (mbusAddress > 0) {
                     mSerial = getMbusSerial(mbusCustomerID[i]);
-                    if (!mSerial.equals("")) {
+                    if (!"".equals(mSerial)) {
                         Unit mUnit = getMbusUnit(mbusUnit[i]);
                         int mMedium = (int) protocol.getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
                         Device mbusRtu = findOrCreateNewMbusDevice(mSerial);

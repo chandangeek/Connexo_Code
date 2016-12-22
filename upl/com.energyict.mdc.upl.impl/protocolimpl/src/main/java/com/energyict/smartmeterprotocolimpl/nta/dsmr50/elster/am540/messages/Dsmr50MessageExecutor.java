@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -14,7 +16,6 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.CodeDayType;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;

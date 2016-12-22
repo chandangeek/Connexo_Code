@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.a1;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
 /**
@@ -34,7 +34,10 @@ public class A1SpecialDaysMessageEntry implements MessageEntryCreator {
         messageTag.add(new MessageValue(" "));
         messageTag.add(new MessageAttribute(attributeTag, userFileContent));
 
-        return new MessageEntry(writeTag(messageTag), offlineDeviceMessage.getTrackingId());
+        return MessageEntry
+                    .fromContent(writeTag(messageTag))
+                    .andMessage(offlineDeviceMessage)
+                    .finish();
     }
 
     private String writeTag(MessageTag messageTag) {

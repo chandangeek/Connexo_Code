@@ -1,13 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.Register;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RegisterReading;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Group;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -32,32 +35,25 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
     private static final String KEY = "Key";
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
 
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(AS300MessageConverter.registry);
+    public AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+    }
 
     @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
-    }
-
-    static {
+        Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(super.getRegistry());
         // Alliander PET
-        registry.put(SecurityMessage.GENERATE_NEW_PUBLIC_KEY, new SimpleTagMessageEntry("GenerateNewPublicKey"));
-        registry.put(SecurityMessage.GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM, new MultipleAttributeMessageEntry("GenerateNewPublicKey", "Random 32 bytes (optional)"));
-        registry.put(SecurityMessage.SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP, new SimpleValueMessageEntry("SetPublicKeysOfAggregationGroup"));
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public AS300DPETMessageConverter() {
-        super();
+        registry.put(messageSpec(SecurityMessage.GENERATE_NEW_PUBLIC_KEY), new SimpleTagMessageEntry("GenerateNewPublicKey"));
+        registry.put(messageSpec(SecurityMessage.GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM), new MultipleAttributeMessageEntry("GenerateNewPublicKey", "Random 32 bytes (optional)"));
+        registry.put(messageSpec(SecurityMessage.SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP), new SimpleValueMessageEntry("SetPublicKeysOfAggregationGroup"));
+        return registry;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.deviceGroupAttributeName:
-                Group deviceGroup = (Group) messageAttribute;
+                DeviceGroup deviceGroup = (DeviceGroup) messageAttribute;
                 return encodeGroup(deviceGroup);    //Notice: this method requires DB access (which should be present at this moment)
             default:
                 return super.format(propertySpec, messageAttribute);
@@ -67,9 +63,9 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
     /**
      * Return an XML representation of the key pairs of all devices present in the group
      *
-     * @param group the {@link Group} containing all devices
+     * @param group the {@link DeviceGroup} containing all devices
      */
-    private String encodeGroup(Group group) {
+    private String encodeGroup(DeviceGroup group) {
         StringBuilder builder = new StringBuilder();
         int index = 1;
         try {

@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 
 import com.energyict.cpo.PropertySpec;
@@ -14,7 +15,6 @@ import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;

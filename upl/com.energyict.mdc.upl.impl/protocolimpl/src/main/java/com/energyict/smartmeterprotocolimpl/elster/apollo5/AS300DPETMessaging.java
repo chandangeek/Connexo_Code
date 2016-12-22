@@ -1,14 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 
@@ -26,15 +26,14 @@ public class AS300DPETMessaging extends AS300Messaging {
     public static final String KEY = "Key";
 
     private static final String ID_OF_THE_METER_GROUP = "ID of the meter group";
-    private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
 
     public AS300DPETMessaging(final AS300MessageExecutor messageExecutor) {
         super(messageExecutor);
     }
 
     @Override
-    public List getMessageCategories() {
-        List messageCategories = super.getMessageCategories();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> messageCategories = super.getMessageCategories();
         MessageCategorySpec cat1 = new MessageCategorySpec("Alliander PET");
         cat1.addMessageSpec(addMsgWithValues("Generate new public key", GENERATE_NEW_PUBLIC_KEY, false, false, "Random 32 bytes (optional)"));
         cat1.addMessageSpec(addMsgWithValues("Set public keys of aggregation group", SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP, false, true, ID_OF_THE_METER_GROUP));
@@ -48,9 +47,7 @@ public class AS300DPETMessaging extends AS300Messaging {
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, required));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

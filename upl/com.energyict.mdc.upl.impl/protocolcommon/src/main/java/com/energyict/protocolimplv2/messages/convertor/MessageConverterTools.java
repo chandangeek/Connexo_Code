@@ -2,15 +2,16 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.messaging.MessageValueSpec;
 
 /**
  * Provides convenient methods to help process the conversion of
  * {@link com.energyict.mdc.messages.DeviceMessage DeviceMessages}
- * to {@link com.energyict.protocol.messaging.MessageSpec MessageSpecs}
+ * to {@link MessageSpec MessageSpecs}
  * and visa versa.
  */
 public class MessageConverterTools {
@@ -71,8 +72,6 @@ public class MessageConverterTools {
     }
 
     static MessageValueSpec getEmptyMessageValueSpec(){
-        final MessageValueSpec messageValueSpec = new MessageValueSpec();
-        messageValueSpec.setValue(" ");
-        return messageValueSpec;
+        return new MessageValueSpec(" ");
     }
 }

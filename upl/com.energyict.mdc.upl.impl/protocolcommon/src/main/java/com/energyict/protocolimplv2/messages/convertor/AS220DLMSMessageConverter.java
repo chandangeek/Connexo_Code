@@ -1,12 +1,17 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
-import com.energyict.cbo.HexString;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -18,9 +23,10 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.AS22
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.ActiveChannelAttributeName;
@@ -77,37 +83,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overT
  */
 public class AS220DLMSMessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(ActivityCalendarDeviceMessage.ACTIVATE_PASSIVE_CALENDAR, new MultipleAttributeMessageEntry("ActivatePassiveCalendar", "ActivationTime"));
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND, new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("ConnectEmeter"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("DisconnectEmeter"));
-        registry.put(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_DURATION, new MultipleAttributeMessageEntry("SetLoadLimitDuration", "LoadLimitDuration"));
-        registry.put(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_THRESHOLD, new MultipleAttributeMessageEntry("SetLoadLimitThreshold", "LoadLimitThreshold"));
-        registry.put(GeneralDeviceMessage.WRITE_RAW_IEC1107_CLASS, new MultipleAttributeMessageEntry("WriteRawIEC1107Class", "IEC1107ClassId", "Offset", "RawData"));
-
-        registry.put(PLCConfigurationDeviceMessage.ForceManualRescanPLCBus, new SimpleTagMessageEntry("RescanPlcBus"));
-        registry.put(PLCConfigurationDeviceMessage.SetActivePlcChannel, new MultipleAttributeMessageEntry("SetActivePlcChannel", "ACTIVE_CHANNEL"));
-        registry.put(PLCConfigurationDeviceMessage.SetPlcChannelFrequencies, new MultipleAttributeMessageEntry("SetPlcChannelFrequencies", getChannelFrequencyTags()));
-        registry.put(PLCConfigurationDeviceMessage.SetPlcChannelFreqSnrCredits, new MultipleAttributeMessageEntry("SetPlcChannelFreqSnrCredits", getChannelFreqSnrCreditsTags()));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKGain, new MultipleAttributeMessageEntry("SetSFSKGain", "MAX_RECEIVING_GAIN", "MAX_TRANSMITTING_GAIN", "SEARCH_INITIATOR_GAIN"));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKInitiatorPhase, new MultipleAttributeMessageEntry("SetSFSKInitiatorPhase", "INITIATOR_ELECTRICAL_PHASE"));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKMacTimeouts, new MultipleAttributeMessageEntry("SetSFSKMacTimeouts", "SEARCH_INITIATOR_TIMEOUT", "SYNCHRONIZATION_CONFIRMATION_TIMEOUT", "TIME_OUT_NOT_ADDRESSED", "TIME_OUT_FRAME_NOT_OK"));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKMaxFrameLength, new MultipleAttributeMessageEntry("SetSFSKMaxFrameLength", "MAX_FRAME_LENGTH"));
-        registry.put(PLCConfigurationDeviceMessage.SetSFSKRepeater, new MultipleAttributeMessageEntry("SetSFSKRepeater", "REPEATER"));
-
-        registry.put(MBusSetupDeviceMessage.DecommissionAll, new SimpleTagMessageEntry("DecommissionAll"));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
-    }
-
     private static String[] getChannelFrequencyTags() {
         return new String[]{
                 "CHANNEL1_FS",
@@ -152,11 +127,8 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
                 "CHANNEL6_CREDITWEIGHT"};
     }
 
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public AS220DLMSMessageConverter() {
-        super();
+    public AS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
@@ -165,9 +137,9 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateTimeFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((Code) messageAttribute);
+            return convertCodeTableToXML((TariffCalender) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+            return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(normalThresholdAttributeName)
                 || propertySpec.getName().equals(OffsetAttributeName)
                 || propertySpec.getName().equals(ActiveChannelAttributeName)
@@ -210,13 +182,37 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(RawDataAttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            UserFile userFile = (UserFile) messageAttribute;
+            DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
             return new String(userFile.loadFileInByteArray());
         }
         return EMPTY_FORMAT;
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVATE_PASSIVE_CALENDAR), new MultipleAttributeMessageEntry("ActivatePassiveCalendar", "ActivationTime"))
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND), new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME), new AS220ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
+
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new SimpleTagMessageEntry("ConnectEmeter"))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new SimpleTagMessageEntry("DisconnectEmeter"))
+                .put(messageSpec(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_DURATION), new MultipleAttributeMessageEntry("SetLoadLimitDuration", "LoadLimitDuration"))
+                .put(messageSpec(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_THRESHOLD), new MultipleAttributeMessageEntry("SetLoadLimitThreshold", "LoadLimitThreshold"))
+                .put(messageSpec(GeneralDeviceMessage.WRITE_RAW_IEC1107_CLASS), new MultipleAttributeMessageEntry("WriteRawIEC1107Class", "IEC1107ClassId", "Offset", "RawData"))
+
+                .put(messageSpec(PLCConfigurationDeviceMessage.ForceManualRescanPLCBus), new SimpleTagMessageEntry("RescanPlcBus"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetActivePlcChannel), new MultipleAttributeMessageEntry("SetActivePlcChannel", "ACTIVE_CHANNEL"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetPlcChannelFrequencies), new MultipleAttributeMessageEntry("SetPlcChannelFrequencies", getChannelFrequencyTags()))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetPlcChannelFreqSnrCredits), new MultipleAttributeMessageEntry("SetPlcChannelFreqSnrCredits", getChannelFreqSnrCreditsTags()))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetSFSKGain), new MultipleAttributeMessageEntry("SetSFSKGain", "MAX_RECEIVING_GAIN", "MAX_TRANSMITTING_GAIN", "SEARCH_INITIATOR_GAIN"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetSFSKInitiatorPhase), new MultipleAttributeMessageEntry("SetSFSKInitiatorPhase", "INITIATOR_ELECTRICAL_PHASE"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetSFSKMacTimeouts), new MultipleAttributeMessageEntry("SetSFSKMacTimeouts", "SEARCH_INITIATOR_TIMEOUT", "SYNCHRONIZATION_CONFIRMATION_TIMEOUT", "TIME_OUT_NOT_ADDRESSED", "TIME_OUT_FRAME_NOT_OK"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetSFSKMaxFrameLength), new MultipleAttributeMessageEntry("SetSFSKMaxFrameLength", "MAX_FRAME_LENGTH"))
+                .put(messageSpec(PLCConfigurationDeviceMessage.SetSFSKRepeater), new MultipleAttributeMessageEntry("SetSFSKRepeater", "REPEATER"))
+
+                .put(messageSpec(MBusSetupDeviceMessage.DecommissionAll), new SimpleTagMessageEntry("DecommissionAll"))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName))
+                .build();
     }
 }

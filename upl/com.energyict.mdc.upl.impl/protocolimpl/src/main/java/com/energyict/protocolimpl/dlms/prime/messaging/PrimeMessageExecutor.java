@@ -1,12 +1,23 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 
 import java.io.IOException;
@@ -22,7 +33,7 @@ import java.util.regex.Pattern;
  * Time: 8:39 AM
  */
 public abstract class PrimeMessageExecutor {
-	
+
     private final DlmsSession session;
     private PrimeProperties properties;
 
@@ -51,7 +62,7 @@ public abstract class PrimeMessageExecutor {
 
     public abstract MessageResult execute(final MessageEntry messageEntry) throws IOException;
 
-    protected static final boolean isMessageTag(final String tag, final MessageEntry messageEntry) {
+    protected static boolean isMessageTag(final String tag, final MessageEntry messageEntry) {
         return (messageEntry.getContent().contains("<" + tag));
     }
 
@@ -68,107 +79,104 @@ public abstract class PrimeMessageExecutor {
         for (String attribute : attr) {
             tagSpec.add(new MessageAttributeSpec(attribute, true));
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+	    tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-    
+
     /**
      * Gets the value of a particular attribute from the message.
-     * 
+     *
      * @param 	attributeName		The name of the attribute.
      * @param 	messageContent		The message content.
-     * 
+     *
      * @return	The value of the attribute, <code>null</code> if no such attribute could be found.
      */
-    protected static final String getAttributeValue(final String attributeName, final String messageContent) {
+    protected static String getAttributeValue(final String attributeName, final String messageContent) {
     	final StringBuilder patternBuilder = new StringBuilder(attributeName.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"));
     	patternBuilder.append("=\"(.*?)\"");
-    	
+
     	String patternString = MessageFormat.format(patternBuilder.toString(), new Object[]{attributeName});
-    	
+
     	final Pattern pattern = Pattern.compile(patternString);
     	final Matcher matcher = pattern.matcher(messageContent);
-    	
+
     	if (matcher.find()) {
     		return matcher.group(1);
     	}
-    	
+
     	return null;
     }
-    
+
 	/**
 	 * Reads the given attribute from the message, and writes the integer value to the specified register. This assumes the register
 	 * holds long-unsigned values (Unsigned16).
-	 * 
+	 *
 	 * @param 	obisCode			The OBIS code of the register to write.
 	 * @param 	attributeName		The name of the attribute to fetch out of the message.
 	 * @param 	entry				The message itself.
-	 * @param	dataType			The data type.
 	 * @param	parameterMultiplier	The multiplier for the parameter (should the meter use another scale).
-	 * 
+	 *
 	 * @return	The {@link com.energyict.protocol.MessageResult}.
 	 *
 	 * @throws java.io.IOException            If an IO error occurs while applying the change.
 	 */
 	protected final MessageResult writeNumericParameterChange(final ObisCode obisCode, final String attributeName, final MessageEntry entry, final int parameterMultiplier, final int dataTypeWidth, final boolean unsigned) throws IOException {
 		final String attributeValue = getAttributeValue(attributeName, entry.getContent());
-		
+
 		if (this.getLogger().isLoggable(Level.INFO)) {
 			this.getLogger().info("Trying to set attribute [" + attributeName + "], OBIS code [" + obisCode + "] to value [" + attributeValue + "], multiplier [" + parameterMultiplier + "]");
 		}
-		
+
 		if (attributeValue != null) {
 			try {
 				final int numericValue = Integer.parseInt(attributeValue) * parameterMultiplier;
-				
+
 				final Register register = this.getSession().getCosemObjectFactory().getRegister(obisCode);
-				AbstractDataType dataToWrite = null;
-				
+				AbstractDataType dataToWrite;
+
 				switch (dataTypeWidth) {
 					case 8: {
 						dataToWrite = (unsigned? new Unsigned8(numericValue) : new Integer8(numericValue));
 						break;
 					}
-					
+
 					case 16: {
 						dataToWrite = (unsigned ? new Unsigned16(numericValue) : new Integer16(numericValue));
 						break;
 					}
-					
+
 					case 32: {
 						dataToWrite = (unsigned ? new Unsigned32(numericValue) : new Integer32(numericValue));
 						break;
 					}
-					
+
 					case 64: {
 						dataToWrite = (unsigned ? new Integer64(numericValue) : new Integer64(numericValue));
 						break;
 					}
-					
+
 					default: {
 						throw new IllegalArgumentException("Illegal data width : [" + dataTypeWidth + "]");
 					}
 				}
-				
+
 				register.setValueAttr(dataToWrite);
-				
+
 				if (this.getLogger().isLoggable(Level.INFO)) {
 					this.getLogger().info("Parameter change applied successfully.");
 				}
-			
+
 				return MessageResult.createSuccess(entry);
 			} catch (NumberFormatException e) {
 				this.getLogger().warning("Could not parse attribute [" + attributeName + "] in message [" + entry.getContent() + "] to a valid integer !");
-				
+
 				return MessageResult.createFailed(entry);
 			}
 		} else {
 			this.getLogger().warning("Message [" + entry.getContent() + "] did not contain attribute [" + attributeName + "]");
-			
+
 			return MessageResult.createFailed(entry);
 		}
 	}
-} 
+}

@@ -1,11 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -13,10 +18,11 @@ import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PricingInformationMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.google.common.collect.ImmutableMap;
 
 import java.nio.charset.Charset;
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,52 +30,45 @@ import java.util.Map;
  */
 public class AS300PMessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(PricingInformationMessage.SEND_NEW_TARIFF, new MultipleAttributeMessageEntry(RtuMessageConstant.TOU_SEND_NEW_TARIFF, RtuMessageConstant.TOU_TARIFF_USER_FILE));
-
-        // Pricing Information
-        registry.put(PricingInformationMessage.SEND_NEW_PRICE_MATRIX, new MultipleAttributeMessageEntry(RtuMessageConstant.SEND_NEW_PRICE_MATRIX, RtuMessageConstant.PRICE_MATRIX_USER_FILE));
-        registry.put(PricingInformationMessage.SetStandingCharge, new MultipleAttributeMessageEntry(RtuMessageConstant.SET_STANDING_CHARGE, RtuMessageConstant.STANDING_CHARGE));
-        registry.put(PricingInformationMessage.SetStandingChargeAndActivationDate, new MultipleAttributeMessageEntry(RtuMessageConstant.SET_STANDING_CHARGE, RtuMessageConstant.STANDING_CHARGE, RtuMessageConstant.ACTIVATION_DATE));
-        registry.put(PricingInformationMessage.SET_CURRENCY, new MultipleAttributeMessageEntry(RtuMessageConstant.SET_CURRENCY, RtuMessageConstant.CURRENCY));
-        registry.put(PricingInformationMessage.SET_CURRENCY_AND_ACTIVATION_DATE, new MultipleAttributeMessageEntry(RtuMessageConstant.SET_CURRENCY, RtuMessageConstant.CURRENCY, RtuMessageConstant.ACTIVATION_DATE));
-
-        // Change of Tenancy
-        registry.put(ConfigurationChangeDeviceMessage.CHANGE_OF_TENANT, new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_TENANT, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED));
-        registry.put(ConfigurationChangeDeviceMessage.CHANGE_OF_TENANT_AND_ACTIVATION_DATE, new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_TENANT, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED, RtuMessageConstant.ACTIVATION_DATE));
-        // Change of Supplier A+ and A-
-        registry.put(ConfigurationChangeDeviceMessage.CHANGE_OF_SUPPLIER_IMPORT_ENERGY, new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_SUPPLIER_IMPORT_ENERGY, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED));
-        registry.put(ConfigurationChangeDeviceMessage.CHANGE_OF_SUPPLIER_IMPORT_ENERGY_AND_ACTIVATION_DATE, new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_SUPPLIER_IMPORT_ENERGY, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED, RtuMessageConstant.ACTIVATION_DATE));
-        registry.put(ConfigurationChangeDeviceMessage.CHANGE_OF_SUPPLIER_EXPORT_ENERGY, new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_SUPPLIER_EXPORT_ENERGY, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED));
-        registry.put(ConfigurationChangeDeviceMessage.CHANGE_OF_SUPPLIER_EXPORT_ENERGY_AND_ACTIVATION_DATE, new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_SUPPLIER_EXPORT_ENERGY, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED, RtuMessageConstant.ACTIVATION_DATE));
-
-        // Connect/disconnect
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry(RtuMessageConstant.DISCONNECT_CONTROL_RECONNECT));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry(RtuMessageConstant.DISCONNECT_CONTROL_DISCONNECT));
-        registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new MultipleAttributeMessageEntry(RtuMessageConstant.SET_DISCONNECT_CONTROL_MODE, RtuMessageConstant.CONTROL_MODE));
-
-        // Firmware
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE,
-                new MultipleAttributeMessageEntry(RtuMessageConstant.FIRMWARE_UPGRADE, RtuMessageConstant.FIRMWARE_USER_FILE));
-        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE,
-                new MultipleAttributeMessageEntry(RtuMessageConstant.FIRMWARE_UPGRADE, RtuMessageConstant.FIRMWARE_USER_FILE, RtuMessageConstant.ACTIVATE_DATE));
-
-        //Security
-        registry.put(ConfigurationChangeDeviceMessage.SET_ENGINEER_PIN, new MultipleAttributeMessageEntry(RtuMessageConstant.SET_ENGINEER_PIN, RtuMessageConstant.ENGINEER_PIN, RtuMessageConstant.ENGINEER_PIN_TIMEOUT));
-        registry.put(ConfigurationChangeDeviceMessage.SET_ENGINEER_PIN_AND_ACTIVATION_DATE, new MultipleAttributeMessageEntry(RtuMessageConstant.SET_ENGINEER_PIN, RtuMessageConstant.ENGINEER_PIN, RtuMessageConstant.ENGINEER_PIN_TIMEOUT, RtuMessageConstant.ACTIVATION_DATE));
-
+    public AS300PMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
-
 
     @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                .put(messageSpec(PricingInformationMessage.SEND_NEW_TARIFF), new MultipleAttributeMessageEntry(RtuMessageConstant.TOU_SEND_NEW_TARIFF, RtuMessageConstant.TOU_TARIFF_USER_FILE))
+
+                // Pricing Information
+                .put(messageSpec(PricingInformationMessage.SEND_NEW_PRICE_MATRIX), new MultipleAttributeMessageEntry(RtuMessageConstant.SEND_NEW_PRICE_MATRIX, RtuMessageConstant.PRICE_MATRIX_USER_FILE))
+                .put(messageSpec(PricingInformationMessage.SetStandingCharge), new MultipleAttributeMessageEntry(RtuMessageConstant.SET_STANDING_CHARGE, RtuMessageConstant.STANDING_CHARGE))
+                .put(messageSpec(PricingInformationMessage.SetStandingChargeAndActivationDate), new MultipleAttributeMessageEntry(RtuMessageConstant.SET_STANDING_CHARGE, RtuMessageConstant.STANDING_CHARGE, RtuMessageConstant.ACTIVATION_DATE))
+                .put(messageSpec(PricingInformationMessage.SET_CURRENCY), new MultipleAttributeMessageEntry(RtuMessageConstant.SET_CURRENCY, RtuMessageConstant.CURRENCY))
+                .put(messageSpec(PricingInformationMessage.SET_CURRENCY_AND_ACTIVATION_DATE), new MultipleAttributeMessageEntry(RtuMessageConstant.SET_CURRENCY, RtuMessageConstant.CURRENCY, RtuMessageConstant.ACTIVATION_DATE))
+
+                // Change of Tenancy
+                .put(messageSpec(ConfigurationChangeDeviceMessage.CHANGE_OF_TENANT), new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_TENANT, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.CHANGE_OF_TENANT_AND_ACTIVATION_DATE), new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_TENANT, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED, RtuMessageConstant.ACTIVATION_DATE))
+                // Change of Supplier A+ and A-
+                .put(messageSpec(ConfigurationChangeDeviceMessage.CHANGE_OF_SUPPLIER_IMPORT_ENERGY), new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_SUPPLIER_IMPORT_ENERGY, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.CHANGE_OF_SUPPLIER_IMPORT_ENERGY_AND_ACTIVATION_DATE), new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_SUPPLIER_IMPORT_ENERGY, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED, RtuMessageConstant.ACTIVATION_DATE))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.CHANGE_OF_SUPPLIER_EXPORT_ENERGY), new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_SUPPLIER_EXPORT_ENERGY, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.CHANGE_OF_SUPPLIER_EXPORT_ENERGY_AND_ACTIVATION_DATE), new MultipleAttributeMessageEntry(RtuMessageConstant.CHANGE_OF_SUPPLIER_EXPORT_ENERGY, RtuMessageConstant.TENANT_REFERENCE, RtuMessageConstant.SUPPLIER_REFERENCE, RtuMessageConstant.SUPPLIER_ID, RtuMessageConstant.SCRIPT_EXECUTED, RtuMessageConstant.ACTIVATION_DATE))
+
+                // Connect/disconnect
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new SimpleTagMessageEntry(RtuMessageConstant.DISCONNECT_CONTROL_RECONNECT))
+                .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new SimpleTagMessageEntry(RtuMessageConstant.DISCONNECT_CONTROL_DISCONNECT))
+                .put(messageSpec(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE), new MultipleAttributeMessageEntry(RtuMessageConstant.SET_DISCONNECT_CONTROL_MODE, RtuMessageConstant.CONTROL_MODE))
+
+                // Firmware
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new MultipleAttributeMessageEntry(RtuMessageConstant.FIRMWARE_UPGRADE, RtuMessageConstant.FIRMWARE_USER_FILE))
+                .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE), new MultipleAttributeMessageEntry(RtuMessageConstant.FIRMWARE_UPGRADE, RtuMessageConstant.FIRMWARE_USER_FILE, RtuMessageConstant.ACTIVATE_DATE))
+
+                //Security
+                .put(messageSpec(ConfigurationChangeDeviceMessage.SET_ENGINEER_PIN), new MultipleAttributeMessageEntry(RtuMessageConstant.SET_ENGINEER_PIN, RtuMessageConstant.ENGINEER_PIN, RtuMessageConstant.ENGINEER_PIN_TIMEOUT))
+                .put(messageSpec(ConfigurationChangeDeviceMessage.SET_ENGINEER_PIN_AND_ACTIVATION_DATE), new MultipleAttributeMessageEntry(RtuMessageConstant.SET_ENGINEER_PIN, RtuMessageConstant.ENGINEER_PIN, RtuMessageConstant.ENGINEER_PIN_TIMEOUT, RtuMessageConstant.ACTIVATION_DATE))
+                .build();
     }
 
     @Override
@@ -81,9 +80,9 @@ public class AS300PMessageConverter extends AbstractMessageConverter {
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
             case DeviceMessageConstants.contractsXmlUserFileAttributeName:
-                return new String(((UserFile) messageAttribute).loadFileInByteArray(), Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
+                return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray(), Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
             case DeviceMessageConstants.engineerPinTimeout:
-                return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+                return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
             default:
                 return messageAttribute.toString();
         }

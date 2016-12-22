@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;

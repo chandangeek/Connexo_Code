@@ -1,48 +1,46 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dstEndAlgorithmAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dstStartAlgorithmAttributeName;
 
 /**
- * Represents a MessageConverter for the Poreg meter protocols (Poreg2 & Poreg2P)
+ * Represents a MessageConverter for the Poreg meter protocols (Poreg2 & Poreg2P).
  *
  * @author khe
  * @since 25/10/13 - 10:46
  */
 public class PoregMeterMessageConverter extends AbstractMessageConverter {
 
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        registry.put(DeviceActionMessage.DEMAND_RESET, new SimpleTagMessageEntry("DemandReset"));
-        registry.put(ClockDeviceMessage.SetStartOfDSTWithoutHour, new MultipleAttributeMessageEntry("StartOfDST", "Month", "Day of month", "Day of week"));
-        registry.put(ClockDeviceMessage.SetEndOfDSTWithoutHour, new MultipleAttributeMessageEntry("EndOfDST", "Month", "Day of month", "Day of week"));
-        registry.put(ClockDeviceMessage.SetDSTAlgorithm, new MultipleAttributeMessageEntry("Algorithms", "Start Algorithm", "End Algorithm"));
-    }
-
-    public PoregMeterMessageConverter() {
-        super();
+    public PoregMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry("DemandReset"))
+                .put(messageSpec(ClockDeviceMessage.SetStartOfDSTWithoutHour), new MultipleAttributeMessageEntry("StartOfDST", "Month", "Day of month", "Day of week"))
+                .put(messageSpec(ClockDeviceMessage.SetEndOfDSTWithoutHour), new MultipleAttributeMessageEntry("EndOfDST", "Month", "Day of month", "Day of week"))
+                .put(messageSpec(ClockDeviceMessage.SetDSTAlgorithm), new MultipleAttributeMessageEntry("Algorithms", "Start Algorithm", "End Algorithm"))
+                .build();
     }
 
     @Override
@@ -52,4 +50,5 @@ public class PoregMeterMessageConverter extends AbstractMessageConverter {
         }
         return messageAttribute.toString();
     }
+
 }

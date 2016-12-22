@@ -1,16 +1,31 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class GMeterMessaging implements MessageProtocol {
 
@@ -35,7 +50,6 @@ public class GMeterMessaging implements MessageProtocol {
     private static final String WRITE_CAPTURE_DEF_DISPLAY = "Configure capture_definition of the MBus client";
 
 	private final GasDevice gasDevice;
-    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
 
 	public GMeterMessaging(GasDevice gasDevice) {
 		this.gasDevice = gasDevice;
@@ -46,7 +60,7 @@ public class GMeterMessaging implements MessageProtocol {
 	}
 
 	public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> theCategories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec gMeterCat = new MessageCategorySpec("G-Meter");
 
         gMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_GMETER_DISPLAY, DISCONNECT_GMETER, false));
@@ -64,7 +78,7 @@ public class GMeterMessaging implements MessageProtocol {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         for (String attribute : attr) {
-            if (attribute.equals("VIB")) {
+            if ("VIB".equals(attribute)) {
                 MessageAttributeSpec attributeSpec = new MessageAttributeSpec(attribute, false);
                 attributeSpec.setValue("");
                 tagSpec.add(attributeSpec);
@@ -72,9 +86,7 @@ public class GMeterMessaging implements MessageProtocol {
                 tagSpec.add(new MessageAttributeSpec(attribute, true));
             }
         }
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" "); //Disable this field
-        tagSpec.add(msgVal);
+        tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -120,43 +132,43 @@ public class GMeterMessaging implements MessageProtocol {
 	}
 
 	public String writeTag(MessageTag tag) {
-	  	StringBuffer buf = new StringBuffer();
+	  	StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append( tag.getName() );
+        builder.append("<");
+        builder.append( tag.getName() );
 
         // b. Attributes
         for (Iterator<MessageAttribute> it = tag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = it.next();
-            if ((att.getValue()==null) || (att.getValue().length()==0)) {
+            if ((att.getValue()==null) || (att.getValue().isEmpty())) {
 				continue;
 			}
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator<MessageElement> it = tag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = it.next();
             if (elt.isTag()) {
-				buf.append( writeTag((MessageTag)elt) );
+				builder.append( writeTag((MessageTag)elt) );
 			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue)elt);
-                if ((value==null) || (value.length()==0)) {
+                if ((value==null) || (value.isEmpty())) {
 					return "";
 				}
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append( tag.getName() );
-        buf.append(">");
+        builder.append("</");
+        builder.append( tag.getName() );
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
 	}
 
 	public String writeValue(MessageValue value) {
@@ -177,10 +189,10 @@ public class GMeterMessaging implements MessageProtocol {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-    
+
     /**
      * Generate a {@link MessageSpec} for the EncryptionMessage, that can be added to the list of supported messages
-     * 
+     *
      * @param keyId    - the ID of the message
      * @param tagName  - the tag of the message
      * @param advanced - indicate whether the message is visible only if the 'advanced' checkbox is checked
@@ -189,15 +201,9 @@ public class GMeterMessaging implements MessageProtocol {
     private MessageSpec createEncryptionMessageSpec(String keyId, String tagName, boolean advanced){
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.MBUS_OPEN_KEY, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.MBUS_TRANSFER_KEY, false);
-		tagSpec.add(msgAttrSpec);
-		tagSpec.add(msgVal);
+		tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_OPEN_KEY, false));
+		tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.MBUS_TRANSFER_KEY, false));
+		tagSpec.add(new MessageValueSpec(" "));
 		msgSpec.add(tagSpec);
 		return msgSpec;
     }
@@ -211,9 +217,9 @@ public class GMeterMessaging implements MessageProtocol {
 	 * 		{ 									<br>
 	 * 		Open_Key 	:  {@link OctetString}, <br>
 	 * 		Transfer_Key:  {@link OctetString}	<br>
-	 * 	} 
+	 * 	}
      * </code> </blockquote>
-	 * 
+	 *
      * @param messageEntry - the messageContent from EIServer
 	 *
 	 * @throws IOException
@@ -225,7 +231,7 @@ public class GMeterMessaging implements MessageProtocol {
     	rawData.addDataType(OctetString.fromByteArray(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_TRANSFER_KEY))));
     	getGasDevice().getgMeter().getGasInstallController().setBothKeysAtOnce(rawData.getBEREncodedByteArray());
     }
-    
+
     private void writeCaptureDefinition(MessageEntry messageEntry) throws IOException {
         String[] parts = messageEntry.getContent().split("=");
         byte[] dib1Bytes = ProtocolTools.getBytesFromHexString(parts[1].substring(1).split("\"")[0], "$");
@@ -243,7 +249,7 @@ public class GMeterMessaging implements MessageProtocol {
 
     /**
      * Get a value from the messageContent
-     * 
+     *
      * @param elementTag - the startingTag
      * @return the value
      */
@@ -253,12 +259,7 @@ public class GMeterMessaging implements MessageProtocol {
     	return content.substring(startIndex, endIndex);
     }
 
-	/**
-	 * @param tag
-	 * @param messageEntry
-	 * @return
-	 */
 	private boolean isMessageTag(String tag, MessageEntry messageEntry) {
-		return (messageEntry.getContent().indexOf("<" + tag) >= 0);
+		return (messageEntry.getContent().contains("<" + tag));
 	}
 }

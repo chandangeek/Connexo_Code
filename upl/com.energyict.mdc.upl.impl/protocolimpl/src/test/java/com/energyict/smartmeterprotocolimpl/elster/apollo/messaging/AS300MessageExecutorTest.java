@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -21,7 +23,7 @@ public class AS300MessageExecutorTest {
 
     @Test
     public void testExecuteMessageEntry() throws Exception {
-        MessageEntry msgEntry = new MessageEntry(new String(xmlContentBytes, "US-ASCII"),"TrackingId","SerialNumber");
+        MessageEntry msgEntry = MessageEntry.fromContent(new String(xmlContentBytes, "US-ASCII")).trackingId("TrackingId").serialNumber("SerialNumber").finish();
         AS300 protocol = new AS300();
         DummyDLMSConnection connection = new DummyDLMSConnection();
         connection.setResponseByte(DLMSUtils.hexStringToByteArray(expectedResponse));

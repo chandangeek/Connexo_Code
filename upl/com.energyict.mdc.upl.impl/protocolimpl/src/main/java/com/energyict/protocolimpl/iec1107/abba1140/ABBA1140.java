@@ -1,6 +1,15 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -14,7 +23,6 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -25,14 +33,6 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -840,7 +840,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     @Override
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
 
         MessageSpec msgSpec = addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false);
@@ -880,8 +880,8 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = (MessageAttribute) it.next();
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
+            MessageAttribute att = it.next();
             if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
@@ -920,7 +920,6 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                 logger.info("Performing billing reset ...");
                 int start = messageEntry.getContent().indexOf(BILLINGRESET) + BILLINGRESET.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(BILLINGRESET) - 2;
-                String mdresetXMLData = messageEntry.getContent().substring(start, end);
                 doBillingReset();
                 logger.info("Billing reset succes!");
                 return MessageResult.createSuccess(messageEntry);

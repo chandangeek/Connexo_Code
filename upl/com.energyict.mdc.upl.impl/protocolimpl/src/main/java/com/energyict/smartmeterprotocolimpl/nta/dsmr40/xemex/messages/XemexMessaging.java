@@ -1,11 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
-import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
