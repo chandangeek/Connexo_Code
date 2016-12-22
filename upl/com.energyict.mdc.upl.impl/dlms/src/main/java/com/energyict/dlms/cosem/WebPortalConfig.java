@@ -1,11 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.WebPortalAttributes;
 import com.energyict.dlms.cosem.attributes.WebPortalPasswordAttributes;
 import com.energyict.dlms.cosem.methods.WebPortalMethods;
@@ -70,14 +66,14 @@ public class WebPortalConfig extends AbstractCosemObject {
     public void setHttpPort(String httpPort) throws IOException {
         Matcher m = PORT_PATTERN.matcher( httpPort );
         if (m.find()) {
-            write(WebPortalAttributes.HTTP_PORT, new Unsigned32(Integer.parseInt(httpPort)));
+            write(WebPortalAttributes.HTTP_PORT, new Unsigned16(Integer.parseInt(httpPort)));
         }
     }
 
     public void setHttpsPort(String httpsPort) throws IOException {
         Matcher m = PORT_PATTERN.matcher(httpsPort);
         if (m.find()) {
-            write(WebPortalAttributes.HTTPS_PORT, new Unsigned32(Integer.parseInt(httpsPort)));
+            write(WebPortalAttributes.HTTPS_PORT, new Unsigned16(Integer.parseInt(httpsPort)));
         } else {
             throw new IllegalArgumentException("HTTP Port value is invalid");
         }
