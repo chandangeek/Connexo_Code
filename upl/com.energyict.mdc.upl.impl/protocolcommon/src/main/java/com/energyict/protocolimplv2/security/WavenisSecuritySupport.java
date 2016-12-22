@@ -2,15 +2,16 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,8 +26,8 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     public static final String ENCRYPTION_KEY_PROPERTY_NAME = "WavenisEncryptionKey";
-    private final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
-    private final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";
+    private static final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
+    private static final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
@@ -42,22 +43,12 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new StandardAuthenticationAccessLevel());
+        return Collections.singletonList(new StandardAuthenticationAccessLevel());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Arrays.<EncryptionDeviceAccessLevel>asList(new StandardEncryptionAccessLevel());
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+        return Collections.singletonList(new StandardEncryptionAccessLevel());
     }
 
     @Override
@@ -87,7 +78,11 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
+        return this.convertFromTypedProperties((TypedProperties) typedProperties);
+    }
+
+    private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String authenticationDeviceAccessLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME);
         final int authenticationDeviceAccessLevel = authenticationDeviceAccessLevelProperty != null ?
                 Integer.valueOf(authenticationDeviceAccessLevelProperty) :

@@ -3,14 +3,18 @@ package test.com.energyict.protocolimplv2.sdksample;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.VoidComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -32,7 +36,6 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -369,15 +372,40 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return null;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return null;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return null;
+    }
+
+    @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Collections.singletonList(new ConnectionType() {
             @Override
-            public ComChannel connect() throws ConnectionException {
+            public ComChannel connect() {
                 return new VoidComChannel();
             }
 
             @Override
-            public void disconnect(ComChannel comChannel) throws ConnectionException {
+            public void disconnect(ComChannel comChannel) {
 
             }
 
@@ -412,7 +440,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
             }
 
             @Override
-            public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+            public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
 
             }
         });

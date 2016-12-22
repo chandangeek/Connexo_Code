@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.messaging.MessageValueSpec;
 
 /**
@@ -62,7 +62,7 @@ public class MessageConverterTools {
      * @return the requested OfflineDeviceMessageAttribute or {@link #emptyOfflineDeviceMessageAttribute}
      */
     public static OfflineDeviceMessageAttribute getDeviceMessageAttribute(OfflineDeviceMessage offlineDeviceMessage, String attributeName) {
-        for (OfflineDeviceMessageAttribute offlineDeviceMessageAttribute : offlineDeviceMessage.getDeviceMessageAttributes()) {
+        for (OfflineDeviceMessageAttribute offlineDeviceMessageAttribute : offlineDeviceMessage.toUpl().getDeviceMessageAttributes()) {
             if (offlineDeviceMessageAttribute.getName().equals(attributeName)) {
                 return offlineDeviceMessageAttribute;
             }

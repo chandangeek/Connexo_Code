@@ -198,19 +198,19 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
         }
     }
 
-    private PropertySpec<String> getEncryptionKeyTPropertySpec() {
+    private PropertySpec getEncryptionKeyTPropertySpec() {
         return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_1);
     }
 
-    private PropertySpec<String> getEncryptionKeyCPropertySpec() {
+    private PropertySpec getEncryptionKeyCPropertySpec() {
         return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_2);
     }
 
-    private PropertySpec<String> getEncryptionKeyFPropertySpec() {
+    private PropertySpec getEncryptionKeyFPropertySpec() {
         return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_3);
     }
 
-    private PropertySpec<String> encryptionkeyPropertySpec(SecurityPropertySpecName name) {
+    private PropertySpec encryptionkeyPropertySpec(SecurityPropertySpecName name) {
         return Services
                 .propertySpecService()
                 .encryptedStringSpec()
@@ -255,7 +255,7 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.<PropertySpec>singletonList(getEncryptionKeyCPropertySpec());
+            return Collections.singletonList(getEncryptionKeyCPropertySpec());
         }
     }
 
@@ -273,7 +273,7 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.<PropertySpec>singletonList(getEncryptionKeyTPropertySpec());
+            return Collections.singletonList(getEncryptionKeyTPropertySpec());
         }
     }
 
@@ -291,7 +291,7 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.<PropertySpec>singletonList(getEncryptionKeyFPropertySpec());
+            return Collections.singletonList(getEncryptionKeyFPropertySpec());
         }
     }
 }

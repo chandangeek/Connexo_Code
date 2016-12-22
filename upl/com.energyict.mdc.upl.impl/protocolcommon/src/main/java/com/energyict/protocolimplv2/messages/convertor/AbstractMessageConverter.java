@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 
 import com.energyict.mdw.core.Code;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.messaging.Messaging;

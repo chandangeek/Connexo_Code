@@ -1,12 +1,11 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.cpo.MdwToUplPropertySpecAdapter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,26 +34,11 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        if (name.equals(notSupportedLoadProfileObisCodePropertyName)) {
-            return getNotSupportedLoadProfileObisCodePropertySpec();
-        }
-        return null;
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getNotSupportedLoadProfileObisCodePropertySpec()));
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(getNotSupportedLoadProfileObisCodePropertySpec());
-        return optionalProperties;
-    }
-
-    private PropertySpec<ObisCode> getNotSupportedLoadProfileObisCodePropertySpec() {
+    private PropertySpec getNotSupportedLoadProfileObisCodePropertySpec() {
         return PropertySpecFactory.obisCodePropertySpec(notSupportedLoadProfileObisCodePropertyName);
     }
 }
