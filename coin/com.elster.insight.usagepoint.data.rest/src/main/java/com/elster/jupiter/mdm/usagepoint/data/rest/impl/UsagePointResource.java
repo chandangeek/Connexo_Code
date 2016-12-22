@@ -465,7 +465,7 @@ public class UsagePointResource {
         }
 
         return Response.status(Response.Status.CREATED)
-                .entity(usagePointInfoFactory.fullInfoFrom(usagePoint))
+                .entity(usagePointInfoFactory.from(usagePoint))
                 .build();
 
     }
@@ -825,6 +825,12 @@ public class UsagePointResource {
     private UsagePoint performUsagePointCreation(UsagePointInfo info) {
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
+        if(info.metrologyConfiguration != null) {
+            usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService
+                    .findMetrologyConfiguration(info.metrologyConfiguration.id).orElse(null);
+            usagePoint.apply(usagePointMetrologyConfiguration);
+        }
 
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
