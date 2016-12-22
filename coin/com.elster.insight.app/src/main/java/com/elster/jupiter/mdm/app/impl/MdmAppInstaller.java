@@ -76,14 +76,6 @@ public class MdmAppInstaller {
             userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdmAppService.APPLICATION_KEY, getPrivilegesDataExpert());
             userService.grantGroupWithPrivilege(MdmAppService.Roles.DATA_EXPERT.value(), MdmAppService.APPLICATION_KEY, getPrivilegesDataExpert());
             userService.grantGroupWithPrivilege(MdmAppService.Roles.DATA_OPERATOR.value(), MdmAppService.APPLICATION_KEY, getPrivilegesDataOperator());
-
-            //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-            userService.getUser(1)
-                    .ifPresent(u -> u.join(userService.getGroups()
-                            .stream()
-                            .filter(e -> e.getName().equals(MdmAppService.Roles.DATA_EXPERT.value()))
-                            .findFirst()
-                            .get()));
         }
 
         private String[] getPrivilegesDataExpert() {
