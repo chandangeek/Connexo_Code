@@ -74,7 +74,7 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
 
     String c12User;
     int c12UserId;
-    boolean validateControlToggleBit;
+    int controlToggleBitMode;
     
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
             
@@ -162,7 +162,7 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         convertRegReads = Boolean.parseBoolean(properties.getProperty("ConvertRegReadsToEngineering", "true"));
-        validateControlToggleBit = Integer.parseInt(properties.getProperty("ValidateFrameControlToggleBit", "0")) == 1;
+        controlToggleBitMode = Integer.parseInt(properties.getProperty("FrameControlToggleBitMode", "2"));
     }
     
     protected List doGetOptionalKeys() {
@@ -171,12 +171,12 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
         result.add("C12User");
         result.add("C12UserId");
         result.add("ConvertRegReadsToEngineering");
-        result.add("ValidateFrameControlToggleBit");
+        result.add("FrameControlToggleBitMode");
         return result;
     }
     
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), validateControlToggleBit);
+        c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), controlToggleBitMode);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);

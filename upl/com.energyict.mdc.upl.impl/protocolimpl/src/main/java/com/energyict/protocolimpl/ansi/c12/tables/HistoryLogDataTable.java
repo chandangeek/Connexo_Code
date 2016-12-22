@@ -10,12 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -63,8 +60,13 @@ public class HistoryLogDataTable extends AbstractTable {
         setPartialReadInfo(partialReadInfo);
     }
     
-    protected void parse(byte[] tableData) throws IOException { 
-        setHistoryLog(new HistoryLog(tableData,0, tableFactory, header));        
+    protected void parse(byte[] tableData) throws IOException {
+        if (nrOfHistoryEntriesToRequest != 0) {
+            setHistoryLog(new HistoryLog(tableData, 0, tableFactory, nrOfHistoryEntriesToRequest));
+        } else {
+            // Full read
+            setHistoryLog(new HistoryLog(tableData, 0, tableFactory, header));
+        }
     }         
 
     public HistoryLog getHistoryLog() {

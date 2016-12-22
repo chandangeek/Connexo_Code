@@ -106,7 +106,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     protected String securityMode;
     protected String calledAPTitle;
     protected String securityKey;
-    protected boolean validateControlToggleBit;
+    protected int controlToggleBitMode;
 
     /** Creates a new instance of AlphaA3 */
     public AlphaA3() {
@@ -207,7 +207,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
                 throw new InvalidPropertyException("Length of password cannot be higher than 40 binary values. Please correct first.");
             }
         }
-        this.validateControlToggleBit = Integer.parseInt(properties.getProperty("ValidateFrameControlToggleBit", "1")) == 1;
+        this.controlToggleBitMode = Integer.parseInt(properties.getProperty("FrameControlToggleBitMode", "1"));
     }
 
     protected List doGetOptionalKeys() {
@@ -220,7 +220,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
         result.add(CALLED_AP_TITLE);
         result.add(SECURITY_KEY);
         result.add(SECURITY_MODE);
-        result.add("ValidateFrameControlToggleBit");
+        result.add("FrameControlToggleBitMode");
         
         return result;
     }
@@ -259,12 +259,12 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
 
         C1222Buffer c1222Buffer = checkForC1222();
     	if (c1222Buffer != null) {
-    		c12Layer2 = new C1222Layer(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.validateControlToggleBit);
+    		c12Layer2 = new C1222Layer(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.controlToggleBitMode);
             ((C1222Layer) c12Layer2).setC1222Buffer(c1222Buffer);
             psemServiceFactory.setC1222(c1222);
             psemServiceFactory.setC1222Buffer(c1222Buffer);
     	} else{
-            c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.validateControlToggleBit);
+            c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.controlToggleBitMode);
         }
 
         c12Layer2.initStates();

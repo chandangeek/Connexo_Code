@@ -75,7 +75,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 			halfDuplexController = new RtuPlusServerHalfDuplexController(halfDuplexController);
 		}
 
-		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.validateControlToggleBit);
+		c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), this.controlToggleBitMode);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
         standardTableFactory = new StandardTableFactory(this);
@@ -95,7 +95,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
         setRetrieveExtraIntervals(Integer.parseInt(properties.getProperty("RetrieveExtraIntervals","0").trim()));
 
 		this.rs485RtuPlusServer=Integer.parseInt(properties.getProperty("RS485RtuPlusServer","0").trim());
-		this.validateControlToggleBit = Integer.parseInt(properties.getProperty("ValidateFrameControlToggleBit", "0")) == 1;
+		this.controlToggleBitMode = Integer.parseInt(properties.getProperty("FrameControlToggleBitMode", "0"));
 	}
 	
 	protected void doDisConnect() throws IOException {  
@@ -285,7 +285,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 
         result.add("HalfDuplex");
 		result.add("RS485RtuPlusServer");
-		result.add("ValidateFrameControlToggleBit");
+		result.add("FrameControlToggleBitMode");
         return result;
     }
 	
