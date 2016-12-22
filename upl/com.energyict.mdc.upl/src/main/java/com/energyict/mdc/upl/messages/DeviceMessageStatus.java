@@ -137,6 +137,11 @@ public enum DeviceMessageStatus {
     }
 
 
+    @Override
+    public String toString() {
+        return super.toString().toLowerCase();
+    }
+
     abstract Set<DeviceMessageStatus> predecessors();
 
     abstract Set<DeviceMessageStatus> successors();
