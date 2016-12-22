@@ -104,20 +104,6 @@ public class MdcAppInstaller {
             userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
             userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
             userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.APPLICATION_KEY, getPrivilegesReportViewer());
-            //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-            userService.findUser("admin")
-                    .ifPresent(u -> u.join(userService.getGroups()
-                            .stream()
-                            .filter(e -> e.getName().equals(MdcAppService.Roles.METER_EXPERT.value()))
-                            .findFirst()
-                            .get()));
-            //TODO: workaround: attached Report viewer to user admin !!! to remove this line when the user can be created/added to system
-            userService.findUser("admin")
-                    .ifPresent(u -> u.join(userService.getGroups()
-                            .stream()
-                            .filter(e -> e.getName().equals(MdcAppService.Roles.REPORT_VIEWER.value()))
-                            .findFirst()
-                            .get()));
         }
 
         private String[] getPrivilegesMeterExpert() {
