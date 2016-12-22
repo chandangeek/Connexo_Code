@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -46,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -55,6 +58,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
     public static final String LOGGER = "LOGGER";
+    public static final String PRIORITYSPEC = "PRIORITYSPEC";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -182,7 +186,16 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
-        baseIssue.setPriority(Priority.MEDIUM);
+        //TODO - update code
+        Optional<PropertySpec> prioritySpec = template.getPropertySpecs().stream()
+                .filter(property -> property.getName().equals(PRIORITYSPEC))
+                .findAny();
+        if (prioritySpec.isPresent() && prioritySpec.get().getPossibleValues().getAllValues().size() == 2) {
+            baseIssue.setPriority(Priority.get(Integer.parseInt(String.valueOf(prioritySpec.get().getPossibleValues().getAllValues().get(0))),
+                    Integer.parseInt(String.valueOf(prioritySpec.get().getPossibleValues().getAllValues().get(1)))));
+        } else {
+            baseIssue.setPriority(Priority.get(25, 5));
+        }
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));
