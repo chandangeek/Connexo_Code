@@ -104,8 +104,6 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private void createDefaultRoles() {
         Group group = userService.createGroup(BPM_DESIGNER_ROLE, BPM_DESIGNER_ROLE_DESCRIPTION);
         userService.grantGroupWithPrivilege(group.getName(), BpmService.COMPONENTNAME, new String[]{"privilege.design.bpm"});
-        //TODO: workaround: attached Bpm designer to user admin !!! to remove this line when the user can be created/added to system
-        userService.getUser(1).ifPresent(u -> u.join(group));
     }
 
 }
