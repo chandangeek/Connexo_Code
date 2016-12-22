@@ -1,13 +1,22 @@
 Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterActivationsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.meter-activations-grid',
+    requires: [
+        'Uni.grid.plugin.EditableCells',
+        'Uni.grid.plugin.ShowConditionalToolTip'
+    ],
     store: Ext.create('Ext.data.Store', {
         fields: ['meterRole', 'meter', 'activationDate']
     }),
-    plugins: {
-        ptype: 'cellediting',
-        clicksToEdit: 1
-    },
+    disableSelection: true,
+    plugins: [
+        {
+            ptype: 'editableCells'
+        },
+        {
+            ptype: 'showConditionalToolTip'
+        }
+    ],
 
     initComponent: function () {
         var me = this;
@@ -17,18 +26,18 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                 header: Uni.I18n.translate('general.meterRole', 'IMT', 'Meter role'),
                 dataIndex: 'meterRole',
                 flex: 1,
-                renderer: function (value) {
+                renderer: function (value, metaData) {
+                    metaData.tdCls = Ext.baseCSSPrefix + 'td-content-middle';
                     return value ? value.name : '-';
                 }
             },
             {
                 header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
                 dataIndex: 'meter',
+                disableTooltip: true,
                 flex: 1,
                 editor: {
                     xtype: 'combobox',
-                    labelWidth: 120,
-                    width: 360,
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',
@@ -41,33 +50,32 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                     minChars: 1,
                     loadStore: false,
                     forceSelection: false,
+                    width: 210,
                     listeners: me.meterComboLiseners
                 }
             },
             {
                 header: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
                 dataIndex: 'activationDate',
-                flex: 1,
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
-                },
+                disableTooltip: true,
+                width: 310,
                 editor: {
                     xtype: 'date-time',
                     itemId: 'installation-time-date',
-                    required: true,
                     layout: 'hbox',
+                    width: 280,
                     dateConfig: {
-                        width: 128
+                        width: 110
                     },
                     dateTimeSeparatorConfig: {
                         html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase(),
                         style: 'color: #686868'
                     },
                     hoursConfig: {
-                        width: 80
+                        width: 60
                     },
                     minutesConfig: {
-                        width: 80
+                        width: 60
                     }
                 }
             }
