@@ -77,12 +77,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
 
     clearInvalid: Ext.emptyFn,
 
-    onMeterActivationEdit: function (editor, e) {
+    onMeterActivationEdit: function () {
         var me = this,
             storeData = me.down('#meter-activations-grid').getStore().getRange(),
             allMetersSpecified = true;
-
-        e.record.commit();
 
         for (var i = 0; i < storeData.length; i++) {
             if (Ext.isEmpty(storeData[i].get('meter'))) {
