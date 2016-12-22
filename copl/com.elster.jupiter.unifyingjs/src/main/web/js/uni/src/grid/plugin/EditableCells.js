@@ -78,11 +78,15 @@ Ext.define('Uni.grid.plugin.EditableCells', {
     onCellChange: function (field, newValue) {
         var me = this,
             record = field.cell.record,
-            store = me.getCmp().getStore();
+            grid = me.getCmp(),
+            store = grid.getStore();
 
         store.suspendEvent('update');
         record.set(field.cell.dataIndex, newValue);
         record.commit();
         store.resumeEvent('update');
+        grid.fireEvent('edit', {
+            record: record
+        });
     }
 });
