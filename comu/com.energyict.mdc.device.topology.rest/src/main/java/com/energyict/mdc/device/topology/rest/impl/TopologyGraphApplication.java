@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.topology.rest.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphFactory;
@@ -14,12 +17,14 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Provider;
 import javax.ws.rs.core.Application;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.device.topology.rest", service = {Application.class}, immediate = true, property = {"alias=/"+TopologyGraphApplication.COMPONENT_NAME, "app="+TopologyGraphApplication.APP_KEY, "name=" + TopologyGraphApplication.COMPONENT_NAME})
-public class TopologyGraphApplication extends Application  {
+@Component(name = "com.energyict.mdc.device.topology.graph", service = {Application.class}, immediate = true, property = {"alias=/dtg", "app="+TopologyGraphApplication.APP_KEY, "name=" + TopologyGraphApplication.COMPONENT_NAME})
+public class TopologyGraphApplication extends Application implements MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DTG";
@@ -27,6 +32,7 @@ public class TopologyGraphApplication extends Application  {
     private volatile Provider<GraphFactory> graphFactory;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
+    private volatile ExceptionFactory exceptionFactory;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -47,7 +53,7 @@ public class TopologyGraphApplication extends Application  {
     }
 
     @Reference
-    public void setDeviceService(DeviceService deviceServicee) {
+    public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
@@ -62,17 +68,16 @@ public class TopologyGraphApplication extends Application  {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
-/*  MessageSeedProvider
     @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<MessageSeed> getSeeds() {
+    public List<MessageSeed> getSeeds(){
         return Arrays.asList(MessageSeeds.values());
     }
-*/
+
 
     class HK2Binder extends AbstractBinder {
 
@@ -81,6 +86,8 @@ public class TopologyGraphApplication extends Application  {
             bind(topologyService).to(TopologyService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
+            bind(deviceService).to(DeviceService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 }
