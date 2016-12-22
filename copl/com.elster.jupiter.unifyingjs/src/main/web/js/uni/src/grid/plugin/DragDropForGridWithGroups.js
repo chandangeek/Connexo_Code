@@ -5,14 +5,14 @@ Ext.define('Uni.grid.plugin.DragDropForGridWithGroups', {
         'Uni.grid.plugin.DropZoneForGridWithGroups'
     ],
 
-    groupByHiddenField: null,
+    groupedByHiddenField: null,
 
     onViewRender: function (view) {
         var me = this;
         me.callParent(arguments);
 
         me.dropZone = Ext.create('Uni.grid.plugin.DropZoneForGridWithGroups', {
-            groupByHiddenField: me.groupByHiddenField,
+            groupedByHiddenField: me.groupedByHiddenField,
             view: view,
             ddGroup: me.dropGroup || me.ddGroup
         });
