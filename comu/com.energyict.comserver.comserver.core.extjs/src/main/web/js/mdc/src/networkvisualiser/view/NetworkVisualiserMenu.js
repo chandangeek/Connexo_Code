@@ -23,13 +23,13 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                     }
                 }
             },
-            {
-                xtype: 'button',
-                text: 'clear',
-                handler: function(){
-                    Ext.ComponentQuery.query('visualiserpanel')[0].clearLayers();
-                }
-            }
+            //{
+            //    xtype: 'button',
+            //    text: 'clear',
+            //    handler: function(){
+            //        Ext.ComponentQuery.query('visualiserpanel')[0].clearLayers();
+            //    }
+            //}
         ])
     },
 
