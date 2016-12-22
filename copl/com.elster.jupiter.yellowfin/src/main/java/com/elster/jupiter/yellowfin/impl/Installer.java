@@ -55,8 +55,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private void createDefaultRoles() {
         Group group = userService.createGroup(REPORT_DESIGNER_ROLE, REPORT_DESIGNER_ROLE_DESCRIPTION);
         userService.grantGroupWithPrivilege(group.getName(), "YFN", new String[]{"privilege.design.reports"});
-        //TODO: workaround: attached Report designer to user admin !!! to remove this line when the user can be created/added to system
-        userService.getUser(1).ifPresent(u -> u.join(group));
     }
 
 }
