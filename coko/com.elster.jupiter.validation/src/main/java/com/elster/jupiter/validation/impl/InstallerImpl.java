@@ -115,7 +115,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
             queue.activate();
             queue.subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);
         } else {
-            boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
+            boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName.getKey()));
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
                 destinationSpecOptional.get().subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);

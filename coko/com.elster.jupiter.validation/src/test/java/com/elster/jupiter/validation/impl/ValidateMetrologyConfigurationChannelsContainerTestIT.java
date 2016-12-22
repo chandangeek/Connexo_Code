@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationResult;
@@ -192,6 +193,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
     @Transactional
     public void testCanValidateEffectiveMetrologyConfigurationOnUsagePoint() {
         createValidationConfiguration();
+        setupDefaultUsagePointLifeCycle();
         MetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.get(MetrologyConfigurationService.class);
         UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
         metrologyConfiguration.addMeterRole(meterRole);
@@ -220,5 +222,10 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
                 .collect();
         assertThat(readingQualityRecords).hasSize(2);
         assertThat(readingQualityRecords.get(0).isSuspect()).isTrue();
+    }
+
+    private static void setupDefaultUsagePointLifeCycle() {
+        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = inMemoryBootstrapModule.get(UsagePointLifeCycleConfigurationService.class);
+        usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
 }
