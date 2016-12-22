@@ -94,7 +94,7 @@ public class ExtendedSearchDomain implements SearchDomain {
                 .stream()
                 .map(mapper::apply)
                 .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
-                .collect(Collectors.toMap(propertyValue -> propertyValue.getProperty().getName(), Function.identity()));
+                .collect(Collectors.toMap(propertyValue -> propertyValue.getProperty().getName(), Function.identity(), (a, b) -> a));
         // 4) refresh all properties with their constrictions
         for (SearchablePropertyValue propertyValue : valuesMap.values()) {
             SearchableProperty property = propertyValue.getProperty();
