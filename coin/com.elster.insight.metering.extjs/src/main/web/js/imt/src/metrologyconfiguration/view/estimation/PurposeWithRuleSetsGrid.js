@@ -83,7 +83,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.PurposeWithRuleSetsGrid',
             me.viewConfig = {
                 plugins: {
                     ptype: 'gridviewwithgroupsdragdrop',
-                    groupByHiddenField: 'hiddenGroupId',
+                    groupedByHiddenField: 'hiddenGroupId',
                     dragText: '&nbsp;'
                 },
                 listeners: {
