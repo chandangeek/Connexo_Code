@@ -1,10 +1,13 @@
 Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMetersInfo', {
-    extend: 'Ext.form.Panel',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.metrology-configuration-with-meters-info',
     requires: [
-        'Imt.usagepointmanagement.view.forms.fields.MeterActivationsField',
+        'Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterActivationsField',
         'Imt.metrologyconfiguration.view.PurposesField'
     ],
+    title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
+    ui: 'medium',
+    style: 'padding-left: 0;padding-right: 0;',
 
     initComponent: function () {
         var me = this;
@@ -13,7 +16,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             {
                 xtype: 'meter-activations-field',
                 itemId: 'meter-activations-field',
-                hidden: true
+                listeners: {
+                    meterActivationsChange: function (allMetersSpecified) {
+                        me.fireEvent('meterActivationsChange', allMetersSpecified);
+                    }
+                }
             },
             {
                 xtype: 'purposes-field',

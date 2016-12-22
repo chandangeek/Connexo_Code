@@ -20,6 +20,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                 style: 'margin: -3px 0 13px 0; font-style: italic'
             },
             {
+                xtype: 'uni-form-info-message',
+                itemId: 'not-all-meters-specified-message',
+                text: Uni.I18n.translate('metrologyConfigurationWithMetersInfoForm.info', 'IMT', "Not all the meters are specified. The purposes of the usage point will stay in 'Incomplete' state."),
+                hidden: true
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'metrology-configuration-container',
                 labelWidth: 260,
@@ -74,7 +80,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             ]);
             me.add({
                 xtype: 'metrology-configuration-with-meters-info',
-                itemId: 'metrology-configuration-with-meters-info'
+                itemId: 'metrology-configuration-with-meters-info',
+                hidden: true,
+                listeners: {
+                    meterActivationsChange: Ext.bind(me.onMeterActivationsChange, me)
+                }
             });
         } else {
             metrologyConfigurationContainer.add({
@@ -89,22 +99,33 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
         Ext.resumeLayouts(true);
     },
 
+    onMeterActivationsChange: function (allMetersSpecified) {
+        var me = this,
+            notAllMetersSpecifiedMessage = me.down('#not-all-meters-specified-message');
+
+        notAllMetersSpecifiedMessage.setVisible(!allMetersSpecified);
+    },
+
     onMetrologyConfigurationChange: function (combo, newValue) {
         var me = this,
             metrologyConfigurationInfo = me.down('#metrology-configuration-with-meters-info'),
             meterActivationsField = me.down('#meter-activations-field'),
+            notAllMetersSpecifiedMessage = me.down('#not-all-meters-specified-message'),
             purposesField = me.down('#purposes-field');
 
         Ext.suspendLayouts();
+        notAllMetersSpecifiedMessage.hide();
         me.down('#reset-metrology-configuration').setDisabled(!newValue);
         if (!Ext.isEmpty(newValue)) {
-            meterActivationsField.show();
-            purposesField.show();
+            metrologyConfigurationInfo.show();
             metrologyConfigurationInfo.setLoading();
             Ext.ModelManager.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue.id, {
                 success: function (record) {
+                    var meterRoles = record.get('meterRoles');
+
                     Ext.suspendLayouts();
-                    meterActivationsField.setMeterRoles(record.get('meterRoles'), me.usagePoint.get('installationTime'));
+                    notAllMetersSpecifiedMessage.setVisible(!Ext.isEmpty(meterRoles));
+                    meterActivationsField.setMeterRoles(meterRoles, me.usagePoint.get('installationTime'));
                     purposesField.setStore(record.metrologyContracts());
                     Ext.resumeLayouts(true);
                 },
@@ -113,8 +134,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                 }
             });
         } else {
-            meterActivationsField.hide();
-            purposesField.hide();
+            metrologyConfigurationInfo.hide();
         }
         Ext.resumeLayouts(true);
     },
