@@ -8,6 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
         'Uni.form.field.Location',
         'Imt.usagepointmanagement.view.forms.fields.UsagePointTypeDisplayField'
     ],
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -68,6 +69,32 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 name: 'typeOfUsagePoint',
                 itemId: 'fld-up-typeOfUsagePoint',
                 fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point')
+            },
+            {
+                itemId: 'fld-up-life-cycle',
+                name: 'lifeCycle',
+                fieldLabel: Uni.I18n.translate('general.usagePointLifeCycle', 'IMT', 'Usage point life cycle'),
+                renderer: function (value) {
+                    if (value) {
+                        if (Imt.privileges.UsagePointLifeCycle.canView()) {
+                            var url = me.router.getRoute('administration/usagepointlifecycles/usagepointlifecycle').buildUrl({usagePointLifeCycleId: value.id});
+                            return '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
+                        } else {
+                            return Ext.String.htmlEncode(value.name);
+                        }
+                    } else {
+                        return '-';
+                    }
+                }
+            },
+            {
+                itemId: 'fld-up-state',
+                name: 'state',
+                fieldLabel: Uni.I18n.translate('general.state', 'IMT', 'State'),
+                renderer: function (value) {
+                    return value ? Ext.String.htmlEncode(value.name) + ' (<a href="' + me.router.getRoute('usagepoints/view/history').buildUrl() + '">' +
+                    Uni.I18n.translate('general.viewHistory', 'IMT', 'View history') + '</a>)' : '-';
+                }
             },
             {
                 xtype: 'displayfieldwithicon',
@@ -146,6 +173,34 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 name: 'typeOfUsagePoint',
                 itemId: 'fld-up-typeOfUsagePoint',
                 fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point')
+            },
+            {
+                xtype: 'displayfield',
+                itemId: 'fld-up-life-cycle',
+                name: 'lifeCycle',
+                fieldLabel: Uni.I18n.translate('general.usagePointLifeCycle', 'IMT', 'Usage point life cycle'),
+                renderer: function (value) {
+                    if (value) {
+                        if (Imt.privileges.UsagePointLifeCycle.canView()) {
+                            var url = me.router.getRoute('administration/usagepointlifecycles/usagepointlifecycle').buildUrl({usagePointLifeCycleId: value.id});
+                            return '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
+                        } else {
+                            return Ext.String.htmlEncode(value.name);
+                        }
+                    } else {
+                        return '-';
+                    }
+                }
+            },
+            {
+                xtype: 'displayfield',
+                itemId: 'fld-up-state',
+                name: 'state',
+                fieldLabel: Uni.I18n.translate('general.state', 'IMT', 'State'),
+                renderer: function (value) {
+                    return value ? Ext.String.htmlEncode(value.name) + ' (<a href="' + me.router.getRoute('administration/usagepointlifecycles').buildUrl() + '">' +
+                    Uni.I18n.translate('general.viewHistory', 'IMT', 'View history') + '</a>)' : '-';
+                }
             },
             {
                 xtype: 'displayfieldwithicon',
