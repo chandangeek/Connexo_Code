@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -91,16 +92,14 @@ public class EstimationHelper {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 
-        List<IntervalReadingRecord> channelData = new ArrayList<>();
-        channelData.addAll(ranges.stream()
-                .flatMap(r -> channel.getIntervalReadings(Ranges.openClosed(r.lowerEndpoint(), r.upperEndpoint()))
-                        .stream())
-                .collect(Collectors.toList()));
+        List<IntervalReadingRecord> channelData = ranges.stream()
+                .flatMap(r -> channel.getIntervalReadings(Ranges.openClosed(r.lowerEndpoint(), r.upperEndpoint())).stream())
+                .collect(Collectors.toList());
 
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    channelDataInfos.addAll(fillChannelDataInfoList(estimatable, channelData));
+                    getChannelDataInfo(estimatable, channelData).ifPresent(channelDataInfos::add);
                 }
             }
             for (EstimationBlock block : result.remainingToBeEstimated()) {
@@ -116,15 +115,9 @@ public class EstimationHelper {
     }
 
 
-    private List<OutputChannelDataInfo> fillChannelDataInfoList(Estimatable estimatable, List<IntervalReadingRecord> channelData) {
-        List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
-        for (IntervalReadingRecord reading : channelData) {
-            if (reading.getTimeStamp().equals(estimatable.getTimestamp())) {
-                channelDataInfos.add(getChannelDataInfo(reading, estimatable));
-                break;
-            }
-        }
-        return channelDataInfos;
+    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData) {
+        return channelData.stream().filter(readingRecord -> readingRecord.getTimeStamp().equals(estimatable.getTimestamp()))
+                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable)).findFirst();
     }
 
     private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable) {

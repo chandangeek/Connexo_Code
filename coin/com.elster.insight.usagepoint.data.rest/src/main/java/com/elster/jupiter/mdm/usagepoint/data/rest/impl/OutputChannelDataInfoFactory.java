@@ -24,7 +24,7 @@ public class OutputChannelDataInfoFactory {
 
     public OutputChannelDataInfo createChannelDataInfo(ReadingWithValidationStatus<IntervalReadingRecord> readingWithValidationStatus) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
-        outputChannelDataInfo.readingTime = readingWithValidationStatus.getTimeStamp();
+        outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getTimeStamp();
         outputChannelDataInfo.interval = readingWithValidationStatus.getTimePeriod()
                 .map(IntervalInfo::from)
                 .orElse(null);
@@ -71,7 +71,7 @@ public class OutputChannelDataInfoFactory {
 
     public OutputChannelDataInfo createEstimatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal estimatedValue) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
-        outputChannelDataInfo.readingTime = readingRecord.getTimeStamp();
+        outputChannelDataInfo.reportedDateTime = readingRecord.getTimeStamp();
         outputChannelDataInfo.interval = readingRecord.getTimePeriod()
                 .map(IntervalInfo::from)
                 .orElse(null);

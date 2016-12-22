@@ -17,8 +17,6 @@ public class BillingOutputRegisterDataInfo extends NumericalOutputRegisterDataIn
     @JsonProperty("interval")
     public IntervalInfo interval;
 
-    public Boolean isConfirmed;
-
     @Override
     public BaseReading createNew(ReadingType readingType) {
         ReadingImpl reading = ReadingImpl.of(readingType.getMRID(), this.value, this.timeStamp);

@@ -244,7 +244,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         assertThat(jsonModel.<Long>get("$.channelData[0].interval.start")).isEqualTo(interval_3.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[0].interval.end")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.channelData[0].readingTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[0].reportedDateTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<String>get("$.channelData[0].value")).isEqualTo("10");
         assertThat(jsonModel.<Boolean>get("$.channelData[0].dataValidated")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.channelData[0].validationResult")).isEqualTo("validationStatus.suspect");
@@ -254,7 +254,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         assertThat(jsonModel.<Long>get("$.channelData[1].interval.start")).isEqualTo(interval_2.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[1].interval.end")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.channelData[1].readingTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[1].reportedDateTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Boolean>get("$.channelData[1].dataValidated")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.channelData[1].validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<String>get("$.channelData[1].action")).isEqualTo("FAIL");
@@ -263,7 +263,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         assertThat(jsonModel.<Long>get("$.channelData[2].interval.start")).isEqualTo(interval_1.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[2].interval.end")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.channelData[2].readingTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[2].reportedDateTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<String>get("$.channelData[2].value")).isEqualTo("1");
         assertThat(jsonModel.<Boolean>get("$.channelData[2].dataValidated")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.channelData[2].validationResult")).isEqualTo("validationStatus.suspect");
@@ -348,7 +348,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
-        assertThat(jsonModel.<Number>get("$[0].readingTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Number>get("$[0].reportedDateTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$[0].value")).isEqualTo("327");
     }
 
@@ -370,7 +370,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         OutputChannelDataInfo info = new OutputChannelDataInfo();
         info.value = BigDecimal.valueOf(101L);
-        info.readingTime = interval_3.upperEndpoint();
+        info.reportedDateTime = interval_3.upperEndpoint();
         info.interval = IntervalInfo.from(interval_3);
 
         // Business method
@@ -400,7 +400,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         OutputChannelDataInfo info = new OutputChannelDataInfo();
         info.isConfirmed = true;
-        info.readingTime = interval_3.upperEndpoint();
+        info.reportedDateTime = interval_3.upperEndpoint();
         info.interval = IntervalInfo.from(interval_3);
 
         // Business method
@@ -430,8 +430,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         OutputChannelDataInfo info = new OutputChannelDataInfo();
         info.value = null;
-        info.readingTime = interval_3.upperEndpoint();
-        info.interval = IntervalInfo.from(interval_3);
+        info.reportedDateTime = interval_1.upperEndpoint();
+        info.interval = IntervalInfo.from(interval_1);
 
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
@@ -439,9 +439,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        List<BaseReadingRecord> record = Collections.singletonList(channel.getReading(interval_3.upperEndpoint()).get());
+        List<BaseReadingRecord> record = Collections.singletonList(channel.getReading(interval_1.upperEndpoint()).get());
         verify(channel).removeReadings(eq(QualityCodeSystem.MDM),eq(record));
-        verify(validationService).updateLastChecked(eq(channel), any(Instant.class));
+        verify(validationService).updateLastChecked(eq(channel), eq(interval_1.upperEndpoint().minusSeconds(1L)));
     }
 
     @Test

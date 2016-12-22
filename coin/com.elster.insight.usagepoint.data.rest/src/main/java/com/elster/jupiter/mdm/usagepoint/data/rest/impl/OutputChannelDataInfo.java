@@ -26,7 +26,7 @@ public class OutputChannelDataInfo {
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal calculatedValue;
 
-    public Instant readingTime;
+    public Instant reportedDateTime;
 
     public Boolean dataValidated;
 

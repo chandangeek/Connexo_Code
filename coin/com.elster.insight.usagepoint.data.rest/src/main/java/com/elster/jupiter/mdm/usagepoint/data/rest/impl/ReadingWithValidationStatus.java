@@ -53,16 +53,16 @@ public class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return validationStatus;
     }
 
-    public void setReadingRecord(T intervalReadingRecord) {
-        this.readingRecord = Optional.ofNullable(intervalReadingRecord);
+    public void setReadingRecord(T readingRecord) {
+        this.readingRecord = Optional.ofNullable(readingRecord);
     }
 
-    public void setPersistedReadingRecord(T intervalReadingRecord) {
-        this.persistedReadingRecord = Optional.ofNullable(intervalReadingRecord);
+    public void setPersistedReadingRecord(T readingRecord) {
+        this.persistedReadingRecord = Optional.ofNullable(readingRecord);
     }
 
-    public void setCalculatedReadingRecord(T intervalReadingRecord) {
-        this.calculatedReadingRecord = Optional.ofNullable(intervalReadingRecord);
+    public void setCalculatedReadingRecord(T readingRecord) {
+        this.calculatedReadingRecord = Optional.ofNullable(readingRecord);
     }
 
     public static Builder builder(Channel channel, boolean validationIsActive, Instant lastChecked) {
@@ -134,10 +134,9 @@ public class ReadingWithValidationStatus<T extends BaseReadingRecord> {
     }
 
     public Optional<Pair<ReadingModificationFlag, ReadingQualityRecord>> getReadingModificationFlag() {
-        return Optional.ofNullable(readingRecord.map(record -> ReadingModificationFlag.getModificationFlag(record, channel
+        return Optional.ofNullable(readingRecord.map(record -> ReadingModificationFlag.getModificationFlagWithQualityRecord(record, channel
                 .findReadingQualities()
                 .atTimestamp(record.getTimeStamp())
-                .sorted()
                 .collect(), calculatedReadingRecord)).orElse(null));
     }
 

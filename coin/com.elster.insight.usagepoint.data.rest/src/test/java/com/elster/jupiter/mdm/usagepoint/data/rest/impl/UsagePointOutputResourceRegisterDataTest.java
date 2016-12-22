@@ -333,7 +333,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM),anyListOf(IntervalReadingImpl.class));
+        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM),anyListOf(BaseReading.class));
     }
 
     @Test
@@ -366,7 +366,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<BaseReadingRecord> record = Collections.singletonList(channel.getReading(readingTimeStamp3).get());
         verify(channel).removeReadings(eq(QualityCodeSystem.MDM),eq(record));
-        verify(validationService).updateLastChecked(eq(channel), any(Instant.class));
+        verify(validationService).updateLastChecked(eq(channel), eq(readingTimeStamp3.minusSeconds(1L)));
     }
 
     private void mockReadingsWithValidationResult(Channel channel) {
