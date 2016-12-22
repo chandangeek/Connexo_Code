@@ -249,6 +249,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>dualcontrol</artifactId>
+        </dependency>
 
         <!-- TESTS -->
         <dependency>
