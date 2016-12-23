@@ -2,12 +2,9 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
-
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +31,5 @@ public class UpgraderV10_2 implements Upgrader {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
             }
         });
-    }
-
-    private void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 }
