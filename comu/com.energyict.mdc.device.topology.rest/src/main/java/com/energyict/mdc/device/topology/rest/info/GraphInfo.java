@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.topology.rest.info;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.util.ArrayList;
@@ -11,7 +12,8 @@ import java.util.List;
  * Date: 20/12/2016
  * Time: 17:02
  */
-@JsonRootName(value="graph")
+@JsonRootName(value="graph" )
+@JsonPropertyOrder({ "nodes", "links" })
 public class GraphInfo {
 
     private NodeInfo rootNode;
@@ -28,7 +30,7 @@ public class GraphInfo {
     private List<NodeInfo> addNodeInfos(List<NodeInfo> nodeInfos, NodeInfo nodeInfo){
         nodeInfos.add(nodeInfo);
         if (!nodeInfo.isLeaf()) {
-            nodeInfos.add(nodeInfo);
+            nodeInfo.getChildren().forEach(child -> addNodeInfos(nodeInfos, child ));
         }
         return nodeInfos;
     }
@@ -39,7 +41,7 @@ public class GraphInfo {
     }
 
     private List<LinkInfo> addLinkInfos(List<LinkInfo> linkInfos, NodeInfo nodeInfo){
-        if (nodeInfo.isLeaf()){
+        if (!nodeInfo.isRoot() && nodeInfo.isLeaf()){
            linkInfos.add(nodeInfo.asLinkInfo());
         }
         nodeInfo.getChildren().forEach(child -> addLinkInfos(linkInfos, child ));

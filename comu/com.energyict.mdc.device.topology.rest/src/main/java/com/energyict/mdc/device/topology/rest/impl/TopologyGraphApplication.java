@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component(name = "com.energyict.mdc.device.topology.graph", service = {Application.class}, immediate = true, property = {"alias=/dtg", "app="+TopologyGraphApplication.APP_KEY, "name=" + TopologyGraphApplication.COMPONENT_NAME})
 public class TopologyGraphApplication extends Application implements MessageSeedProvider {
@@ -29,7 +30,6 @@ public class TopologyGraphApplication extends Application implements MessageSeed
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DTG";
 
-    private volatile Provider<GraphFactory> graphFactory;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
     private volatile ExceptionFactory exceptionFactory;

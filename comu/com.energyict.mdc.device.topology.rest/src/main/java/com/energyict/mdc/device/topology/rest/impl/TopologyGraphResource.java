@@ -6,6 +6,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.impl.DefaultConnectionTaskCreateEventHandler;
 import com.energyict.mdc.device.topology.rest.GraphFactory;
 
 import javax.inject.Inject;
@@ -28,17 +29,14 @@ public class TopologyGraphResource {
 
     private final DeviceService deviceService;
     private final TopologyService topologyService;
-    private final Provider<GraphFactory> graphFactoryProvider;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public TopologyGraphResource(DeviceService deviceService,
                                  TopologyService topologyService,
-                                 Provider<GraphFactory> graphFactoryProvider,
                                  ExceptionFactory exceptionFactory) {
         this.deviceService = deviceService;
         this.topologyService = topologyService;
-        this.graphFactoryProvider = graphFactoryProvider;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -48,7 +46,7 @@ public class TopologyGraphResource {
    // @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getTopologyGraphById(@PathParam("id") Long id, @BeanParam JsonQueryParameters queryParams) {
         Device device = deviceService.findDeviceById(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, id));
-        return Response.ok(graphFactoryProvider.get().from(device)).build();
+        return Response.ok(new DefaultGraphFactory(this.topologyService).from(device)).build();
     }
 
 }

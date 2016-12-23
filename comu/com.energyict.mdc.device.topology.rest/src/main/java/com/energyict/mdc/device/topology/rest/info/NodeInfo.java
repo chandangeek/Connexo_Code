@@ -2,6 +2,7 @@ package com.energyict.mdc.device.topology.rest.info;
 
 import com.energyict.mdc.device.data.Device;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 import java.util.ArrayList;
@@ -32,10 +33,15 @@ public class NodeInfo {
         this.deviceType = device.getDeviceType().getName();
     }
 
+    @JsonIgnore
+    public boolean isRoot(){
+        return this.parent == null;
+    }
+    @JsonIgnore
     public boolean isLeaf(){
         return children.isEmpty();
     }
-
+    @JsonIgnore
     public List<NodeInfo> getChildren(){
         return Collections.unmodifiableList(children);
     }
@@ -47,7 +53,10 @@ public class NodeInfo {
     }
 
     public LinkInfo asLinkInfo(){
-        return new LinkInfo(parent.getId(), this.getId(), 0);
+        if (!isRoot()) {
+            return new LinkInfo(parent.getId(), this.getId(), 0);
+        }
+        return null;
     }
 
     public NodeInfo getRoot() {
