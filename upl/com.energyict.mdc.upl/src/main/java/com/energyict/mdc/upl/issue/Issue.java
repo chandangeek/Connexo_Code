@@ -1,4 +1,4 @@
-package com.energyict.mdc.upl.tasks;
+package com.energyict.mdc.upl.issue;
 
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 

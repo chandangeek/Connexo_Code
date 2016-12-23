@@ -2,7 +2,7 @@ package com.energyict.mdc.upl.tasks.support;
 
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 /**
  * Defines proper functionality to handle the Topology of a Device.

@@ -3,7 +3,7 @@ package com.energyict.mdc.upl.tasks.support;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.List;
 

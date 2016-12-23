@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -21,6 +23,8 @@ public class Services {
     private static AtomicReference<NlsService> NLS_SERVICE = new AtomicReference<>();
     private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
+    private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
+    private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
@@ -31,6 +35,10 @@ public class Services {
             return securityService();
         } else if (Converter.class.equals(serviceType)) {
             return converter();
+        } else if (CollectedDataFactory.class.equals(serviceType)) {
+            return collectedDataFactory();
+        } else if (IssueFactory.class.equals(serviceType)) {
+            return issueFactory();
         } else {
             throw new UnknownServiceType(serviceType);
         }
@@ -66,6 +74,22 @@ public class Services {
 
     public static void converter(Converter converter) {
         CONVERTER.set(converter);
+    }
+
+    public static CollectedDataFactory collectedDataFactory() {
+        return COLLECTED_DATA_FACTORY.get();
+    }
+
+    public static void collectedDataFactory(CollectedDataFactory collectedDataFactory) {
+        COLLECTED_DATA_FACTORY.set(collectedDataFactory);
+    }
+
+    public static IssueFactory issueFactory() {
+        return ISSUE_FACTORY.get();
+    }
+
+    public static void issueFactory(IssueFactory issueFactory) {
+        ISSUE_FACTORY.set(issueFactory);
     }
 
     /**
