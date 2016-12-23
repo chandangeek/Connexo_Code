@@ -116,12 +116,7 @@ public final class MeterActivationImpl implements IMeterActivation {
                     " or you specified a meter role, but forgot about meter.");
         }
         initInternal(meter, meterRole, usagePoint, range);
-        if (meter != null) {
-            meter.getHeadEndInterface()
-                    .map(headEndInterface -> headEndInterface.getCapabilities(meter))
-                    .map(EndDeviceCapabilities::getConfiguredReadingTypes)
-                    .ifPresent(this::createChannels);
-        }
+
         return this;
     }
 
@@ -130,7 +125,25 @@ public final class MeterActivationImpl implements IMeterActivation {
         this.meterRole.set(meterRole);
         this.usagePoint.set(usagePoint);
         this.interval = Interval.of(range);
-        this.channelsContainer.set(this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class).init(this));
+        return this;
+    }
+
+    private MeterActivationImpl initChannelContainer() {
+        MeterActivationChannelsContainerImpl channelsContainer = this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class)
+                .init(this);
+        dataModel.persist(channelsContainer);
+        this.channelsContainer.set(channelsContainer);
+        return this;
+    }
+
+    private MeterActivationImpl initChannelContainerWithChannels() {
+        initChannelContainer();
+        if (meter.isPresent()) {
+            meter.get().getHeadEndInterface()
+                    .map(headEndInterface -> headEndInterface.getCapabilities(meter.get()))
+                    .map(EndDeviceCapabilities::getConfiguredReadingTypes)
+                    .ifPresent(this::createChannels);
+        }
         return this;
     }
 
@@ -229,10 +242,21 @@ public final class MeterActivationImpl implements IMeterActivation {
     public void save() {
         if (id == 0) {
             this.dataModel.persist(this);
+            initChannelContainerWithChannels();
         } else {
             this.dataModel.update(this);
         }
     }
+
+    private void saveInternal() {
+        if (id == 0) {
+            this.dataModel.persist(this);
+            initChannelContainer();
+        } else {
+            this.dataModel.update(this);
+        }
+    }
+
 
     private DataMapper<MeterActivation> getDataMapper() {
         return dataModel.mapper(MeterActivation.class);
@@ -497,7 +521,7 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .initInternal(this.meter.orElse(null), this.meterRole.orElse(null), this.usagePoint.orElse(null), newRange);
         getMultipliers().entrySet().stream()
                 .forEach(entry -> newActivation.multipliers.add(MultiplierValueImpl.from(dataModel, newActivation, entry.getKey(), entry.getValue())));
-         newActivation.save();
+        newActivation.saveInternal();
         // create the same channels for the new activation
         getChannelsContainer().getChannels().forEach(channel -> {
             ReadingType mainReadingType = channel.getBulkQuantityReadingType().isPresent()

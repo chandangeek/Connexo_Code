@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -50,6 +51,8 @@ public class MetrologyPurposeSearchablePropertyTest {
     private MetrologyPurpose metrologyPurpose;
     @Mock
     private ServerMetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    private ServerMeteringService meteringService;
     @Mock
     private Clock clock;
 
@@ -188,6 +191,6 @@ public class MetrologyPurposeSearchablePropertyTest {
     }
 
     private MetrologyPurposeSearchableProperty getTestInstance() {
-        return new MetrologyPurposeSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService, this.clock);
+        return new MetrologyPurposeSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService, this.meteringService, this.clock);
     }
 }
