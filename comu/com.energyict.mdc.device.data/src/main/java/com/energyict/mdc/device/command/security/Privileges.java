@@ -11,7 +11,8 @@ public enum Privileges implements TranslationKey {
 
     //Privileges
     ADMINISTRATE_LIMITATION_RULES(Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE, "Administrate"),
-    VIEW_COMMAND_LIMITATION_RULE(Constants.VIEW_COMMAND_LIMITATION_RULE, "View"),
+    VIEW_COMMAND_LIMITATION_RULES(Constants.VIEW_COMMAND_LIMITATION_RULE, "View"),
+    APPROVE_COMMAND_LIMITATION_RULES(Constants.APPROVE_COMMAND_LIMITATION_RULE, "Approve/reject command limitation rules")
     ;
 
     private final String key;
@@ -44,6 +45,7 @@ public enum Privileges implements TranslationKey {
     public interface Constants {
         String ADMINISTRATE_COMMAND_LIMITATION_RULE = "privilege.administrate.commandLimitationRule";
         String VIEW_COMMAND_LIMITATION_RULE = "privilege.view.commandLimitationRule";
+        String APPROVE_COMMAND_LIMITATION_RULE = "privilege.approve.commandLimitationRule";
 
     }
 }
