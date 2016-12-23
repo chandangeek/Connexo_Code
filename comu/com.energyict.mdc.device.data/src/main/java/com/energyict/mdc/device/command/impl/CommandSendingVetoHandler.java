@@ -23,6 +23,10 @@ public class CommandSendingVetoHandler implements TopicHandler {
     private Thesaurus thesaurus;
     private volatile CommandRuleService commandRuleService;
 
+    public CommandSendingVetoHandler() {
+
+    }
+
     @Inject
     public CommandSendingVetoHandler(CommandRuleService commandRuleService, Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
