@@ -390,10 +390,10 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    private <T> PropertySpec referenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, Class<T> apiClass) {
+    private PropertySpec referenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String apiClassName) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .referenceSpec(apiClass.getName())
+                .referenceSpec(apiClassName)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
@@ -401,7 +401,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
     }
 
     protected PropertySpec numberLookupSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, NumberLookup.class);
+        return this.referenceSpec(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, NumberLookup.class.getName());
     }
 
     protected PropertySpec readingTypeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
