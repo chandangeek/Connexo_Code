@@ -52,7 +52,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                     minChars: 1,
                     loadStore: false,
                     forceSelection: false,
-                    width: 210,
+                    cls: 'stretchy-combo',
                     listeners: me.meterComboLiseners
                 }
             },
@@ -65,7 +65,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                     xtype: 'date-time',
                     itemId: 'installation-time-date',
                     layout: 'hbox',
-                    width: 280,
+                    width: '100%',
                     dateConfig: {
                         width: 110
                     },
