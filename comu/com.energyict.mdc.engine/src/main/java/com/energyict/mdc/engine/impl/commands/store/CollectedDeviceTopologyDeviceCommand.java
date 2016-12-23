@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.orm.MacException;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -74,23 +76,28 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        Optional<OfflineDevice> device = comServerDAO.findOfflineDevice(deviceTopology.getDeviceIdentifier(), new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
-        if (device.isPresent()) {
-            this.topologyChanged = false;
-            try {
-                handlePhysicalTopologyUpdate(comServerDAO, device.get());
-                signalTopologyChangedEvent(comServerDAO);
-                updateLogging();
-                handleAdditionalInformation(comServerDAO);
-            } catch (CanNotFindForIdentifier e) {
+        try {
+            Optional<OfflineDevice> device = comServerDAO.findOfflineDevice(deviceTopology.getDeviceIdentifier(), new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
+            if (device.isPresent()) {
+                this.topologyChanged = false;
+                try {
+                    handlePhysicalTopologyUpdate(comServerDAO, device.get());
+                    signalTopologyChangedEvent(comServerDAO);
+                    updateLogging();
+                    handleAdditionalInformation(comServerDAO);
+                } catch (CanNotFindForIdentifier e) {
+                    this.addIssue(
+                            CompletionCode.ConfigurationWarning,
+                            getIssueService().newProblem(deviceTopology, e.getMessageSeed(), e.getMessageArguments()));
+                }
+            } else {
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed(), e.getMessageArguments()));
+                        getIssueService().newProblem(deviceTopology, MessageSeeds.COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE, deviceTopology.getDeviceIdentifier()));
             }
-        } else {
-            this.addIssue(
-                    CompletionCode.ConfigurationWarning,
-                    getIssueService().newProblem(deviceTopology, MessageSeeds.COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE, deviceTopology.getDeviceIdentifier()));
+        } catch (MacException e) {
+            this.addIssue(CompletionCode.UnexpectedError,
+                    getIssueService().newProblem(deviceTopology, MessageSeeds.MAC_CHECK_FAILURE));
         }
     }
 
@@ -238,6 +245,9 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
                         getIssueService().newProblem(deviceTopology, e.getMessageSeed(), slaveId));
+            } catch (MacException e) {
+                this.addIssue(CompletionCode.UnexpectedError,
+                        getIssueService().newProblem(deviceTopology, MessageSeeds.MAC_CHECK_FAILURE));
             }
             if (slave.isPresent()) {
                 actualSlavesByDeviceId.put(slave.get().getSerialNumber(), slaveId);

@@ -1130,6 +1130,11 @@ public class ComServerDAOImpl implements ComServerDAO {
             return serviceProvider.firmwareService();
         }
 
+        @Override
+        public EventService eventService() {
+            return serviceProvider.eventService();
+        }
+
     }
 
 }

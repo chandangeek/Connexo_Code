@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -626,6 +627,11 @@ public class InboundCommunicationHandler {
         @Override
         public FirmwareService firmwareService() {
             return serviceProvider.firmwareService();
+        }
+
+        @Override
+        public EventService eventService() {
+            return serviceProvider.eventService();
         }
 
     }

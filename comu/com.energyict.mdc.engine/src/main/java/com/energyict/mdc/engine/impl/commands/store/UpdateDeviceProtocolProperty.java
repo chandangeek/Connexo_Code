@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -60,6 +61,9 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl<UpdateDevice
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
                     this.getIssueService().newWarning(deviceIdentifier, e.getMessageSeed(), deviceIdentifier));
+        } catch (MacException e) {
+            this.addIssue(CompletionCode.UnexpectedError,
+                    getIssueService().newProblem(deviceIdentifier, MessageSeeds.MAC_CHECK_FAILURE));
         }
     }
 

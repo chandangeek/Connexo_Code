@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -8,6 +10,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -41,7 +44,7 @@ import java.util.stream.Collectors;
 /**
  * An offline implementation version of an {@link com.energyict.mdc.protocol.api.device.BaseDevice}
  * mainly containing information which is relevant to use at offline-time.
- * <p/>
+ * <p>
  *
  * @author gna
  * @since 12/04/12 - 13:58
@@ -142,6 +145,9 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
         FirmwareService firmwareService();
 
+        EventService eventService();
+
+
     }
 
     public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
@@ -182,6 +188,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setAllRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
         if (context.needsPendingMessages()) {
+            serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
             PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
             List<DeviceMessage<Device>> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
             List<DeviceMessage<Device>> reallyPending = new ArrayList<>();
@@ -204,17 +211,32 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setAllPendingMessages(createOfflineMessageList(reallyPending));
             setAllPendingInvalidMessages(createOfflineMessageList(invalidSinceCreation));
         }
-        if (context.needsSentMessages()) {
+
+
+        if (context.needsSentMessages())
+
+        {
             setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
         }
-        if(context.needsFirmwareVersions()){
+
+        if (context.needsFirmwareVersions())
+
+        {
             this.firmwareManagementAllowed = serviceProvider.firmwareService().findFirmwareManagementOptions(device.getDeviceType()).isPresent();
         }
-        if(context.needsTouCalendar()){
+
+        if (context.needsTouCalendar())
+
+        {
             this.touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
         }
+
         setDeviceCache(serviceProvider);
-        this.setCalendars();
+
+        this.
+
+                setCalendars();
+
     }
 
     private List<Device> getPhysicalConnectedDevices(Device device) {
