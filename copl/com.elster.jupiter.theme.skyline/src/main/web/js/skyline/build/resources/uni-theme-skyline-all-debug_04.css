@@ -1,3 +1,13 @@
+/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-br {
+  background-position: right -50px;
+}
+
+/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-ml {
+  background-position: 0 right;
+}
+
 /* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-form-error-framed-collapsed-right-mr {
   background-position: right right;
@@ -2882,6 +2892,16 @@ div.x-form-spinner-down {
 .combo-limit-notification {
   color: #828282;
   font-size: 11px;
+}
+
+/* line 6, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo {
+  width: 100%;
+}
+
+/* line 8, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo .x-form-trigger-wrap {
+  width: 100% !important;
 }
 
 /* line 7, ../../sass/src/form/field/Base.scss */
@@ -10218,6 +10238,16 @@ div.x-form-spinner-down {
   font-size: 11px;
 }
 
+/* line 6, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo {
+  width: 100%;
+}
+
+/* line 8, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo .x-form-trigger-wrap {
+  width: 100% !important;
+}
+
 /* line 1, ../../sass/src/picker/Date.scss */
 .x-datepicker {
   border-color: #70bb51;
@@ -10411,11 +10441,6 @@ a.x-datepicker-date:hover {
   -ms-border-radius: 10px 10px 0 0;
   -o-border-radius: 10px 10px 0 0;
   border-radius: 10px 10px 0 0;
-}
-
-/* line 11, ../../sass/src/grid/header/Container.scss */
-.x-td-content-middle {
-  vertical-align: middle;
 }
 
 /* line 1, ../../sass/src/menu/NavigationMenu.scss */

@@ -1,3 +1,11 @@
+.x-panel-header-form-error-framed-collapsed-right-br {
+    background-position: right -50px
+}
+
+.x-panel-header-form-error-framed-collapsed-right-ml {
+    background-position: 0 right
+}
+
 .x-panel-header-form-error-framed-collapsed-right-mr {
     background-position: right right
 }
@@ -2287,6 +2295,14 @@ div.x-form-spinner-down {
 .combo-limit-notification {
     color: #828282;
     font-size: 11px
+}
+
+.stretchy-combo {
+    width: 100%
+}
+
+.stretchy-combo .x-form-trigger-wrap {
+    width: 100% !important
 }
 
 .x-form-field {
@@ -7983,6 +7999,14 @@ div.x-form-spinner-down {
     font-size: 11px
 }
 
+.stretchy-combo {
+    width: 100%
+}
+
+.stretchy-combo .x-form-trigger-wrap {
+    width: 100% !important
+}
+
 .x-datepicker {
     border-color: #70bb51;
     border-radius: 10px 10px 10px 10px
@@ -8159,10 +8183,6 @@ a.x-datepicker-date:hover {
     -ms-border-radius: 10px 10px 0 0;
     -o-border-radius: 10px 10px 0 0;
     border-radius: 10px 10px 0 0
-}
-
-.x-td-content-middle {
-    vertical-align: middle
 }
 
 .x-navigation-menu {

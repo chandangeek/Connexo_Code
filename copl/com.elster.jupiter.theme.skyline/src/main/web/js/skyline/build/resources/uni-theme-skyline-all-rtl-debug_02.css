@@ -9066,6 +9066,11 @@ h6 {
   cursor: pointer;
 }
 
+/* line 39, ../../sass/src/grid/DefaultColumn.scss */
+.x-td-content-middle {
+  vertical-align: middle;
+}
+
 /* line 1, ../../sass/src/grid/ImageColumn.scss */
 .uni-icon-drop-no {
   background-image: url("images/grid/drop-no.png") !important;
@@ -17394,11 +17399,4 @@ a:hover, a.x-btn:hover {
 .x-btn-action-medium-icon .x-btn-inner,
 .x-btn-action-medium-noicon .x-btn-inner {
   line-height: 24px;
-}
-
-/* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-medium-icon .x-btn-arrow-right .x-btn-inner,
-.x-btn-action-medium-noicon .x-btn-arrow-right .x-btn-inner,
-.x-btn-action-medium-icon-text-left .x-btn-arrow-right .x-btn-inner {
-  padding-right: 0;
 }

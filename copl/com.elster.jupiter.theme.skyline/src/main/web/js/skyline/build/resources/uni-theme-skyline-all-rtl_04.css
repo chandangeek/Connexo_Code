@@ -5863,6 +5863,14 @@ div.x-form-spinner-down {
     font-size: 11px
 }
 
+.stretchy-combo {
+    width: 100%
+}
+
+.stretchy-combo .x-form-trigger-wrap {
+    width: 100% !important
+}
+
 .x-form-field {
     border-radius: 3px;
     height: 28px;
@@ -11772,6 +11780,14 @@ div.x-form-spinner-down {
     font-size: 11px
 }
 
+.stretchy-combo {
+    width: 100%
+}
+
+.stretchy-combo .x-form-trigger-wrap {
+    width: 100% !important
+}
+
 .x-datepicker {
     border-color: #70bb51;
     border-radius: 10px 10px 10px 10px
@@ -11948,10 +11964,6 @@ a.x-datepicker-date:hover {
     -ms-border-radius: 10px 10px 0 0;
     -o-border-radius: 10px 10px 0 0;
     border-radius: 10px 10px 0 0
-}
-
-.x-td-content-middle {
-    vertical-align: middle
 }
 
 .x-navigation-menu {
@@ -14374,16 +14386,4 @@ a.x-datepicker-date:hover {
 
 .x-tab-small-top-frameInfo {
     font-family: th-3-3-0-0-0-0-0-0-8-12-7-12
-}
-
-.x-tab-small-top-tl {
-    background-position: 0 -6px
-}
-
-.x-tab-small-top-tr {
-    background-position: right -9px
-}
-
-.x-tab-small-top-bl {
-    background-position: 0 -12px
 }

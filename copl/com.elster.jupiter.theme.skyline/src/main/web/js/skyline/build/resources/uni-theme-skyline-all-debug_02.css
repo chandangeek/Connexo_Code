@@ -7192,6 +7192,11 @@ h6 {
   cursor: pointer;
 }
 
+/* line 39, ../../sass/src/grid/DefaultColumn.scss */
+.x-td-content-middle {
+  vertical-align: middle;
+}
+
 /* line 1, ../../sass/src/grid/ImageColumn.scss */
 .uni-icon-drop-no {
   background-image: url("images/grid/drop-no.png") !important;

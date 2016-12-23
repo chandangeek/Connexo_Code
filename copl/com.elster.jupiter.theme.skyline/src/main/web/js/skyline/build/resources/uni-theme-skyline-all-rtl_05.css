@@ -1,3 +1,15 @@
+.x-tab-small-top-tl {
+    background-position: 0 -6px
+}
+
+.x-tab-small-top-tr {
+    background-position: right -9px
+}
+
+.x-tab-small-top-bl {
+    background-position: 0 -12px
+}
+
 .x-tab-small-top-br {
     background-position: right -15px
 }
