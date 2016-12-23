@@ -110,12 +110,4 @@ public class UpgraderV10_3 implements Upgrader {
         valueBean.values = values;
         return new SearchablePropertyValue(null, valueBean);
     }
-
-    private void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
 }
