@@ -4,16 +4,13 @@ import com.elster.jupiter.metering.impl.ReadingTypeGeneratorForDataLogger;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -46,14 +43,4 @@ public class UpgraderV10_2_1 implements Upgrader {
         dataModelUpgrader.upgrade(this.dataModel, VERSION);
         this.meteringService.createAllReadingTypes(new ReadingTypeGeneratorForDataLogger().generateReadingTypes());
     }
-
-    private void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            Logger.getLogger(UpgraderV10_2_1.class.getSimpleName()).severe("Error in statement: " + sql);
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
 }
-
