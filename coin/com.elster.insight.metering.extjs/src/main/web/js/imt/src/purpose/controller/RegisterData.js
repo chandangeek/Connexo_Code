@@ -270,7 +270,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
 
     removeRegisterDataRecord: function (btn, text, cfg) {
         var me = cfg.config.me,
-            msg = cfg.removeAction ?
+            msg = cfg.config.removeAction ?
                 Uni.I18n.translate('usagepoint.registerData.removed', 'IMT', 'Register data sucessfully removed') :
                 Uni.I18n.translate('usagepoint.registerData.reset', 'IMT', 'Register data sucessfully reset to aggregated'),
             record = cfg.config.readingToDelete,
