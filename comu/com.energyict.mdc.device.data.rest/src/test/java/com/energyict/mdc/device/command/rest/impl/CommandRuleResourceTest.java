@@ -60,7 +60,6 @@ public class CommandRuleResourceTest extends FelixRestApplicationJerseyTest {
         application.setNlsService(nlsService);
         application.setJsonService(jsonService);
         application.setLicense(license);
-        application.setExceptionFactory(exceptionFactory);
         return application;
     }
 

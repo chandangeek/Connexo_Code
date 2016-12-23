@@ -41,7 +41,6 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
     private volatile CommandRuleService commandRuleService;
 
     private volatile License license;
-    private volatile ExceptionFactory exceptionFactory;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -84,11 +83,6 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
         this.license = license;
     }
 
-    @Reference
-    public void setExceptionFactory(ExceptionFactory exceptionFactory) {
-        this.exceptionFactory = exceptionFactory;
-    }
-
     public String getComponentName() {
         return COMPONENT_NAME;
     }
@@ -120,8 +114,8 @@ public class CommandApplication extends javax.ws.rs.core.Application implements 
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(commandRuleService).to(CommandRuleService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(CommandRuleInfoFactory.class).to(CommandRuleInfoFactory.class);
-            bind(exceptionFactory).to(ExceptionFactory.class);
         }
     }
 }
