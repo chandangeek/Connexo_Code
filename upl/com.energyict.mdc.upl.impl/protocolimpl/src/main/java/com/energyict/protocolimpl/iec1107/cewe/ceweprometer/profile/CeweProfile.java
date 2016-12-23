@@ -115,11 +115,11 @@ public class CeweProfile {
                 ei |= IntervalStateBits.OTHER;
                 break;
             // voltage lost/missing
-            case 0x20:
+            case 0x40:
                 ei |= IntervalStateBits.OTHER;
                 break;
             // corrupted
-            case 0x40:
+            case 0x80:
                 ei |= IntervalStateBits.CORRUPTED;
                 break;
         }
