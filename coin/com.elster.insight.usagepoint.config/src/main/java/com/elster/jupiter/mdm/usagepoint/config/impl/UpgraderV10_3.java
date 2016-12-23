@@ -35,7 +35,6 @@ import java.util.List;
 
 class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
-    private static final String DELTA_A_PLUS_WH = "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private final DataModel dataModel;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringService meteringService;
@@ -53,7 +52,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-
+        new MetrologyConfigurationsInstaller(metrologyConfigurationService, meteringService).createMetrologyConfigurations();
         upgradeMetrologyConfiguration();
         userService.addModulePrivileges(this);
     }
@@ -72,10 +71,10 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                 .findFirst());
 
         if (contract.isPresent() && meterRole.isPresent() && readingTypeTemplate.isPresent()) {
-            ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(DELTA_A_PLUS_WH))
+            ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.DELTA_A_PLUS_WH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(DELTA_A_PLUS_WH, "A+"));
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.DELTA_A_PLUS_WH, "A+"));
             ReadingTypeRequirement requirementAplusRegister = ((UsagePointMetrologyConfiguration) metrologyConfiguration
                     .get()).newReadingTypeRequirement(DefaultReadingTypeTemplate.DELTA_A_PLUS.getNameTranslation()
                     .getDefaultFormat(), meterRole.get())
