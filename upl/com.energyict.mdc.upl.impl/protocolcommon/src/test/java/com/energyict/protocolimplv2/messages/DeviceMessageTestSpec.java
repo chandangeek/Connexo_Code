@@ -98,7 +98,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
-                id, new TranslationKeyImpl(this.getNameResourceKey(), TRANSLATION),
+                0, new TranslationKeyImpl(this.getNameResourceKey(), TRANSLATION),
                 DeviceMessageTestCategories.CONNECTIVITY_SETUP,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);

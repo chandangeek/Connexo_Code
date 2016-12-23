@@ -1,18 +1,15 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -23,21 +20,17 @@ import static org.mockito.Mockito.when;
 public class PrintAllMessagesTest {
 
     @Mock
-    DataVaultProvider dataVaultProvider;
+    private PropertySpecService propertySpecService;
     @Mock
-    DataVault dataVault;
-
-    @Before
-    public void setup(){
-        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-        DataVaultProvider.instance.set(dataVaultProvider);
-    }
+    private NlsService nlsService;
+    @Mock
+    private Converter converter;
 
     @Test
     public void printAllMessagesTest() {
-        for (DeviceMessageCategories deviceMessageCategories : DeviceMessageCategories.values()) {
-            System.out.println("Category : " + deviceMessageCategories);
-            for (DeviceMessageSpec deviceMessageSpec : deviceMessageCategories.getMessageSpecifications()) {
+        for (DeviceMessageCategories deviceMessageCategory : DeviceMessageCategories.values()) {
+            System.out.println("Category : " + deviceMessageCategory);
+            for (DeviceMessageSpec deviceMessageSpec : deviceMessageCategory.get(this.propertySpecService, this.nlsService, this.converter).getMessageSpecifications()) {
                 System.out.println("\t - DeviceMessage: " + deviceMessageSpec.getName());
                 for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
                     System.out.println("\t\t - Attribute: " + propertySpec.getName());
