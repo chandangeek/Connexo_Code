@@ -11,6 +11,8 @@ import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.elster.jupiter.dualcontrol.PendingUpdate;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.MacException;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 
 import com.google.inject.Inject;
 
@@ -23,7 +25,7 @@ import java.util.List;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_NAME + "}")
 @HasValidLimits(groups = {Save.Create.class, Save.Update.class})
 @HasUniqueCommands(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMMAND + "}")
-public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
+public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate, PersistenceAware {
 
     enum Fields {
 
@@ -32,6 +34,7 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
         DAYLIMIT("dayLimit"),
         WEEKLIMIT("weekLimit"),
         MONTHLIMIT("monthLimit"),
+        NUMBEROFCOMMANDS("nrOfCommands"),
         COMMANDS("commands"),
         ISACTIVATION("isActivation"),
         ISDEACTIVATION("isDeactivation"),
@@ -46,8 +49,8 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
         String fieldName() {
             return javaFieldName;
         }
-    }
 
+    }
     private final DataModel dataModel;
 
     private long id;
@@ -55,28 +58,29 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
     @Size(max = 80, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String name;
+
     @Min(0)
     private long dayLimit;
     @Min(0)
     private long weekLimit;
     @Min(0)
     private long monthLimit;
+    private long nrOfCommands;
     private boolean active = false;
     private boolean isActivation = false;
     private boolean isDeactivation = false;
     private boolean isRemoval = false;
     private List<CommandInRule> commands = new ArrayList<>();
     private CommandRule commandRule;
-
     @SuppressWarnings("unused")
     private String userName;
+
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-
     @Inject
     public CommandRulePendingUpdateImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -162,6 +166,7 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
     }
 
     public void save() {
+        nrOfCommands = commands.size();
         Save.CREATE.save(dataModel, this);
     }
 
@@ -182,5 +187,12 @@ public class CommandRulePendingUpdateImpl implements CommandRulePendingUpdate {
 
     public CommandRule getCommandRule() {
         return commandRule;
+    }
+
+    @Override
+    public void postLoad() {
+        if(nrOfCommands != commands.size()) {
+            throw new MacException();
+        }
     }
 }

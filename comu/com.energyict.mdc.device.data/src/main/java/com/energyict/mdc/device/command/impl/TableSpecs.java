@@ -40,6 +40,7 @@ public enum TableSpecs {
             table.column("ISACTIVATION").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISACTIVATION.fieldName()).add();
             table.column("ISDEACTIVATION").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISDEACTIVATION.fieldName()).add();
             table.column("ISREMOVAL").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRulePendingUpdateImpl.Fields.ISREMOVAL.fieldName()).add();
+            table.column("NUMBEROFCOMMANDS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRulePendingUpdateImpl.Fields.NUMBEROFCOMMANDS.fieldName()).add();
             table.addMessageAuthenticationCodeColumn(encrypter);
 
             table.primaryKey("PK_CLR_CMDRULETPU").on(idColumn).add();
@@ -61,6 +62,7 @@ public enum TableSpecs {
             table.column("WEEKLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleImpl.Fields.WEEKLIMIT.fieldName()).add();
             table.column("MONTHLIMIT").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleImpl.Fields.MONTHLIMIT.fieldName()).add();
             table.column("ACTIVE").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(CommandRuleImpl.Fields.ACTIVE.fieldName()).add();
+            table.column("NUMBEROFCOMMANDS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(CommandRuleImpl.Fields.NUMBEROFCOMMANDS.fieldName()).add();
             Column commandRuleTemplate = table.column("COMMANDRULETEMPLATEID").number().add();
             Column monitor = table.column("MONITOR").number().add();
             table.addMessageAuthenticationCodeColumn(encrypter);

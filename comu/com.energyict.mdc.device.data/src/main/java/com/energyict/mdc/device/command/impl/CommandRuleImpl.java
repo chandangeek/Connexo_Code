@@ -6,7 +6,9 @@ import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.dualcontrol.UnderDualControl;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_NAME + "}")
 @HasValidLimits(groups = {Save.Create.class, Save.Update.class})
 @HasUniqueCommands(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMMAND + "}")
-public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRulePendingUpdate> {
+public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRulePendingUpdate>, PersistenceAware {
 
     public enum Fields {
 
@@ -43,6 +45,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         DAYLIMIT("dayLimit"),
         WEEKLIMIT("weekLimit"),
         MONTHLIMIT("monthLimit"),
+        NUMBEROFCOMMANDS("numberOfCommands"),
         COMMANDS("commands"),
         COMMANDRULETEMPLATE("commandRulePendingUpdate"),
         MONITOR("monitor"),
@@ -75,6 +78,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     private long weekLimit;
     @Min(0)
     private long monthLimit;
+    private long numberOfCommands;
     private boolean active = false;
     private boolean isRemoved = false;
     private Reference<Monitor> monitor = Reference.empty();
@@ -238,6 +242,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     }
 
     public void save() {
+        this.numberOfCommands = commands.size();
         if (this.getId() > 0) {
             doUpdate();
         } else {
@@ -347,6 +352,14 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
             dataModel.remove(entity);
         }
     }
+
+    @Override
+    public void postLoad() {
+        if(numberOfCommands != commands.size()) {
+            throw new MacException();
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {

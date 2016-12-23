@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -258,7 +259,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     private boolean limitsExceededForCommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
-        checkCommandRuleStats();
+        checkCommandRuleStatsAndThrowException();
         List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
         return !commandRulesByDeviceMessageId.isEmpty() && commandRulesByDeviceMessageId.stream()
                 .filter(commandRule -> this.wouldCommandExceedLimits(commandRule, deviceMessage.getReleaseDate(), oldReleaseDate))
@@ -266,13 +267,23 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                 .isPresent();
     }
 
-    private void checkCommandRuleStats() {
+    private void checkCommandRuleStatsAndThrowException() {
+        if(areCountersInValid()) {
+            throw new InvalidCommandRuleStatsException(thesaurus, MessageSeeds.INVALID_STATS);
+        }
+    }
+
+    void checkCommandRuleStats() {
+        if(areCountersInValid()) {
+            throw new MacException();
+        }
+    }
+
+    private boolean areCountersInValid() {
         CommandRuleStats commandRuleStats = getCommandRuleStats();
         int numberOfCommandRules = findAllCommandRules().size();
         int numberOfCounters = dataModel.mapper(CommandRuleCounter.class).find().size();
-        if(commandRuleStats.getNrOfCounters() != numberOfCounters || commandRuleStats.getNrOfMessageRules() != numberOfCommandRules) {
-            throw new InvalidCommandRuleStatsException(thesaurus, MessageSeeds.INVALID_STATS);
-        }
+       return commandRuleStats.getNrOfCounters() != numberOfCounters || commandRuleStats.getNrOfMessageRules() != numberOfCommandRules;
     }
 
     private List<CommandRule> getActiveCommandRulesByDeviceMessageId(DeviceMessageId deviceMessageId) {
@@ -333,7 +344,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public void commandDeleted(DeviceMessage deviceMessage) {
-        checkCommandRuleStats();
+        checkCommandRuleStatsAndThrowException();
         decreaseExistingCounters(deviceMessage, deviceMessage.getReleaseDate());
     }
 
