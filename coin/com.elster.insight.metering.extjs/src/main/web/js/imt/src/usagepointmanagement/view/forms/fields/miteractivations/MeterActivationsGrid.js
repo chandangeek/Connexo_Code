@@ -63,6 +63,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                 editor: {
                     xtype: 'date-time',
                     itemId: 'installation-time-date',
+                    valueInMilliseconds: true,
                     layout: 'hbox',
                     width: '100%',
                     dateConfig: {
