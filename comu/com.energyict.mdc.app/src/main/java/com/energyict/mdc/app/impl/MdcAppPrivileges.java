@@ -78,6 +78,7 @@ class MdcAppPrivileges {
                 //CommandRules
                 com.energyict.mdc.device.command.security.Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,
                 com.energyict.mdc.device.command.security.Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE,
+                com.energyict.mdc.device.command.security.Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE,
 
                 //mdc.device.config
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
