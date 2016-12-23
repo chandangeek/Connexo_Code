@@ -2,12 +2,12 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.visualiserpanel',
     itemId: 'VisualiserPanel',
-    resuires: [
-        'Uni.graphvisualiser.VisualiserMenu'
+    requires: [
+        'Uni.graphvisualiser.VisualiserMenu',
+        'Uni.graphvisualiser.VisualiserPropertyViewer'
     ],
     layout: 'fit',
     padding: 10,
-   // frame: true,
     device: null,
     router: null,
     graphLayout: 'standard',
@@ -15,74 +15,48 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         type: 'LinkChart',
         items: []
     },
+    activeLayers: [],
 
     colors: [
-        "#BEE64B",
-        "#33CC99",
-        "#00CCCC",
-        "#2887C8",
-        "#C3CDE6",
-        "#7070CC",
-        "#C9A0DC",
-        "#733380",
-        "#2D383A",
-        "#C5E17A",
-        "#5E8C31",
-        "#7BA05B",
-        "#7BA05B",
-        "#63B76C",
-        "#4D8C57",
-        "#3AA655",
-        "#6CA67C",
-        "#5FA777",
-        "#93DFB8"
+            "#BEE64B",
+            "#33CC99",
+            "#00CCCC",
+            "#2887C8",
+            "#C3CDE6",
+            "#7070CC",
+            "#C9A0DC",
+            "#733380",
+            "#2D383A",
+            "#C5E17A",
+            "#5E8C31",
+            "#7BA05B",
+            "#7BA05B",
+            "#63B76C",
+            "#4D8C57",
+            "#3AA655",
+            "#6CA67C",
+            "#5FA777",
+            "#93DFB8"
     ],
 
-    colors2: [
-        '#45CCFF',
-        '#49E83E',
-        '#FFD432',
-        '#E84B30',
-        '#B243FF',
-        "#BEE64B",
-        "#33CC99",
-        "#00CCCC",
-        "#2887C8",
-        "#C3CDE6",
-        "#7070CC",
-        "#C9A0DC"
-    ],
+    html: "<div id='graph-drawing-area' style='top: 0; bottom: 0; left: 0; right: 0; position: absolute;'></div>",
 
-    html: "<div id='test-keylines' style='top: 0; bottom: 0; left: 0; right: 0; position: absolute;'></div>",
-
-
-    //tiles: {
-    //    id: 'tiles',
-    //    name: 'Connexo tiles',
-    //    url: 'http://neitvs021.eict.local/osm_tiles/{z}/{x}/{y}.png',
-    //    attribution: 'Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
-    //    //subdomains: 'abcd',
-    //    minZoom: 0,
-    //    maxZoom: 20,
-    //    ext: 'png',
-    //    //src: 'images/hubway/stamen-toner-lite.png',
-    //    opacity: 0.5
-    //},
     listeners: {
         boxready: function (panel) {
             this.initCanvas(panel);
-            this.sideMenu = Ext.create('Uni.graphvisualiser.VisualiserMenu');
-            this.sideMenu.show().alignTo(Ext.get('test-keylines'), 'tl-tl');
+            //this.sideMenu = Ext.create('Uni.graphvisualiser.VisualiserMenu');
+            this.sideMenu = Ext.create(this.menu, {visualiser: this});
+            this.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
             this.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer');
-            this.propertyViewer.show().alignTo(Ext.get('test-keylines'), 'tr-tr');
+            this.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr');
             //this.propertyViewer.displayProperties();
         }
 
         ,
         resize: function(panel,w,h){
-            KeyLines.setSize('test-keylines',w-10,h);
-            this.sideMenu.alignTo(Ext.get('test-keylines'), 'tl-tl');
-            this.propertyViewer.alignTo(Ext.get('test-keylines'), 'tr-tr');
+            KeyLines.setSize('graph-drawing-area',w-10,h);
+            this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
+            this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr');
             if(this.chart){
                 this.doLayout();
             }
@@ -117,144 +91,43 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     initCanvas: function (me) {
         var me = this;
 
-        //for (var i = 0; i < me.data.nodes.length; i++) {
-        //    var node = me.data.nodes[i];
-        //    me.chartData.items.push({
-        //        id: node.id,
-        //        type: 'node',
-        //        t: node.deviceType,
-        //        c: "rgb(0, 153, 51)",
-        //        e: 0.5,
-        //        pos: {
-        //            lat: 50.82979 + (Math.random() * 0.1 - 0.05),
-        //            lng: 3.30008 + (Math.random() * 0.1 - 0.05)
-        //        }
-        //    });
-        //
-        //}
-        //for (var j = 0; j < me.data.links.length; j++) {
-        //    var link = me.data.links[j];
-        //    me.chartData.items.push({
-        //        id: link.source + link.target,
-        //        type: 'link',
-        //        id1: link.source,
-        //        id2: link.target,
-        //        w: 1
-        //    });
-        //
-        //}
         KeyLines.paths({assets: 'resources/js/keylines/assets/'});
-        KeyLines.create({id: 'test-keylines', options:{navigation: {p: 'se'},iconFontFamily: 'Icomoon'}},function(err, chart) {
+        KeyLines.create({id: 'graph-drawing-area', options:{navigation: {p: 'se'},iconFontFamily: 'Icomoon'}},function(err, chart) {
             me.chart = chart;
             me.chart.bind('click',me.upStreamFromNode,me);
             me.chart.bind('dblclick',me.combine,me);
             me.chart.bind('contextmenu',me.contextMenu,me);
             me.chart.load({
-                type: 'LinkChart',
-               // items: [{id:'id1', type: 'node', x:150, y: 150, t:'Hello World!'}]
+                type: 'LinkChart'
             });
             me.loadData();
         });
-        //KeyLines.create(me.body.id, function (err, chart) {
-        //    me.chart = chart;
-        //    me.chart.bind('dblclick', function (id) {
-        //        //function areNeighboursOf(item){
-        //        //    return neighbours[item.id];
-        //        //}
-        //        //var neighbours = {};
-        //        //if(id === null) {
-        //        //    // clicked on background - restore all the elements in the foreground
-        //        //    me.chart.foreground(function(){ return true; }, {type: 'all'});
-        //
-        //        //
-        //        if (me.chart.map().isShown()) {
-        //            me.chart.map().hide(function () {
-        //                var items = [];
-        //                me.chart.each({type: 'node'}, function (node) {
-        //                    var item = {id: node.id};
-        //                    item.e = 0.5;
-        //                    items.push(item);
-        //                });
-        //                me.chart.animateProperties(items, {time: 100});
-        //            });
-        //        } else {
-        //            me.chart.map().show(function () {
-        //                var items = [];
-        //                me.chart.each({type: 'node'}, function (node) {
-        //                    var item = {id: node.id};
-        //                    item.e = 0.1;
-        //                    items.push(item);
-        //                });
-        //                me.chart.animateProperties(items, {time: 100});
-        //            });
-        //        }
-        //
-        //
-        //        //} else {
-        //        //    var item = me.chart.getItem(id);
-        //        //    if (item && item.type === 'node') {
-        //        //        var result = me.chart.graph().neighbours(id);
-        //        //        $.each(result.nodes, function (i, id){
-        //        //            neighbours[id] = true;
-        //        //        });
-        //        //        $.each(result.links, function (i, id){
-        //        //            neighbours[id] = true;
-        //        //        });
-        //        //        neighbours[id] = true;
-        //        //        me.chart.foreground(areNeighboursOf, {type: 'all'});
-        //        //    }
-        //        //}
-        //    });
-        //    me.chart.bind('viewchange', function(){
-        //        var me = this;
-        //        var zoomTemp = 0;
-        //        console.log(me.viewOptions().zoom);
-        //        var items = [];
-        //        if(me.viewOptions().zoom !== zoomTemp && this.map().isShown()){
-        //            zoomTemp = me.viewOptions().zoom;
-        //            this.each({type: 'node'}, function (node) {
-        //                var item = { id: node.id };
-        //                var size = (me.viewOptions().zoom - 1)*2;
-        //                if(size < 0.2)size=0.2;
-        //                if(size > 1)size=1;
-        //                item.e = size;
-        //                //   item.e = Math.random();
-        //                items.push(item);
-        //            });
-        //            this.animateProperties(items, { time: 100 });
-        //        }
-        //    },me.chart);
-        //    // me.chart.load(me.chartData, chart.layout);
-        //    me.chart.load(me.chartData, function () {
-        //        me.chart.layout();
-        //        me.chart.map().options({tiles: me.tiles});
-        //        // me.chart.map().show();
-        //        // me.chart.layout();
-        //    });
-        //
-        //});
     },
 
     contextMenu: function(id,x,y){
-        console.log(id + '-' + x + '-' + y);
-        //Ext.get('body').on('contextmenu',function(e){
-        //    e.preventDefault();
-        //    return false;
-        //});
         if(id) {
+            var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
+            var items = [
+                {
+                    text: 'Upstream', handler: function () {
+                    visualiser.upStreamFromNode(id);
+                }
+                },
+                {
+                    text: 'Downstream', handler: function () {
+                    visualiser.downStreamFromNode(id);
+                }
+                }
+            ];
+            if(this.contextMenuItems){
+                Ext.each(this.contextMenuItems, function(item){
+                    item.graphId = id;
+                    item.visualiser = visualiser;
+                });
+                items = items.concat(this.contextMenuItems);
+            }
             var menu_grid = new Ext.menu.Menu({
-                items: [
-                    {
-                        text: 'Upstream', handler: function () {
-                        Ext.ComponentQuery.query('visualiserpanel')[0].upStreamFromNode(id);
-                    }
-                    },
-                    {
-                        text: 'Downstream', handler: function () {
-                        Ext.ComponentQuery.query('visualiserpanel')[0].downStreamFromNode(id);
-                    }
-                    }
-                ],
+                items: items,
                 listeners: {
                     render: function (menu) {
                         menu.getEl().on('contextmenu', Ext.emptyFn, null, {preventDefault: true});
@@ -272,7 +145,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     upStreamFromNode: function(id){
         var me = this;
-        console.log(arguments);
         var neighbours = {};
         function areNeighboursOf(item){
             return neighbours[item.id];
@@ -298,21 +170,35 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         var me = this;
         if(me.chart.combo().isCombo(id)){
             me.chart.combo().uncombine(id,null,function(){
+                me.setDefaultStyle();
+                Ext.each(me.activeLayers,function(layer){
+                    layer.call(me);
+                });
                 me.doLayout();
             });
         } else {
             var result = me.getDownStreamNodesLinks(id);
             result.nodes.push(id);
-            me.chart.combo().combine({ids: result.nodes},null,function(){
+            me.chart.combo().combine({
+                ids: result.nodes,
+                label: 'Combined',
+                glyph: null,
+                style: {
+                    c: null,
+                    fi: {
+                        c: '#8e8e8e',
+                        t:  KeyLines.getFontIcon('icon-plus')
+                    }
+                }
+
+            },null,function(){
                 me.doLayout();
             });
         }
-        //me.doLayout();
     },
 
     downStreamFromNode: function(id){
         var me = this;
-        console.log(arguments);
         var neighbours = {};
         function areNeighboursOf(item){
             return neighbours[item.id];
@@ -322,7 +208,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         } else {
             var item = me.chart.getItem(id);
             if (item && item.type === 'node') {
-               // var result = me.chart.graph().neighbours(id,{direction: 'from'});
                 var result = me.getDownStreamNodesLinks(id);
                 Ext.each(result.nodes, function (id){
                     neighbours[id] = true;
@@ -350,14 +235,21 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         var nodes = this.store.data.items[0].nodes();
         var links = this.store.data.items[0].links();
         var me = this;
+        var nodeStoreForComboBox = new Ext.data.SimpleStore({
+            fields: ['id', 'name']
+        });
         me.top = ["1"];
         nodes.each(function(node){
+            nodeStoreForComboBox.add({
+                id: node.get('id'),
+                name: node.get('name')
+            });
             me.chartData.items.push({
                         id: node.get('id'),
                         type: 'node',
                        // t: node.deviceType,
-                        b: "rgb(0, 102, 153)",
-                        c: "rgb(255,255,255)",
+                        b: "#BEE64B",
+                        c: "#BEE64B",
                         t: node.get('name'),
                         e: 1,
                         fb: true,
@@ -369,12 +261,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                         pos: {
                             lat: 50.82979 + (Math.random() * 0.1 - 0.05),
                             lng: 3.30008 + (Math.random() * 0.1 - 0.05)
-                        },
-                        //bu: {
-                        //    c: 'rgb(255, 0, 0)',         //the bubble fill colour
-                        //    p: 'ne',                     //bubble in NE position. use 'se', 'sw', 'nw' for the other positions
-                        //    t: 'Bubble'                  //the bubble text
-                        //}
+                        }
                     });
         });
         links.each(function(link){
@@ -392,28 +279,36 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         });
         me.chart.load(me.chartData, function () {
                     me.chart.layout();
-                    //me.chart.map().options({tiles: me.tiles});
-                    // me.chart.map().show();
-                    // me.chart.layout();
                 });
-       // debugger;
+        me.sideMenu.down('combobox').bindStore(nodeStoreForComboBox);
+     //   debugger;
     },
 
-    clearFilters: function(){
+    clearLayers: function(){
+        var me = this;
+        var items = [];
+        me.activeLayers = [];
+        me.setDefaultStyle();
+    },
+
+    setDefaultStyle: function(){
         var me = this;
         var items = [];
         me.chart.each({type: 'node'},function(node){
-            items.push({
-                id: node.id,
-                b: "rgb(0, 102, 153)",
-                c: "rgb(255,255,255)",
-                e: 1,
-                fi: null,
-                g: null,
-                ha0: null
-
-            });
+            if(!me.chart.combo().isCombo(node.id)) {
+                items.push({
+                    id: node.id,
+                    b: "rgb(0, 102, 153)",
+                    c: "rgb(255,255,255)",
+                    e: 1,
+                    fi: null,
+                    //g: null,
+                    ha0: null,
+                    g: me.chart.combo().isCombo(node.id) ? comboGlyph : null
+                });
+            }
         });
+
         me.chart.each({type: 'link'},function(link){
             items.push({
                 id: link.id,
@@ -426,79 +321,52 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         me.chart.setProperties(items, false);
     },
 
-    showLinkQuality: function(){
-        var me = this;
-        var items = [];
-        var colors = ['#FF0000','#CC3300','#996600','#669900','#33CC00'];
-        me.chart.each({type: 'link'},function(link){
-       //     debugger;
-            items.push({
-                id: link.id,
-                w: link.d.linkQuality*2,
-                c: colors[link.d.linkQuality-1],
-                t: link.d.linkQuality
-            });
-        });
-        me.chart.animateProperties(items, { time: 200 });
-    },
-
-    showDeviceType: function(){
-        var me = this;
-        var items = [];
-        var icon;
+    forEachNode: function(fNode){
+        var me=this,items = [];
         me.chart.each({type: 'node'},function(node){
-            if(node.d.type === 'device'){
-                icon = KeyLines.getFontIcon('icon-calculator')
-            } else {
-                icon = KeyLines.getFontIcon('icon-station2')
-            }
-            items.push({
-                id: node.id,
-                b: null,
-                fi: {
-                    c: '#8e8e8e',
-                    t: icon
-                }
-            });
-        });
-        me.chart.setProperties(items, false);
-        //me.chart.animateProperties(items, { time: 200 });
-    },
-
-    showAlarms: function(){
-        var me = this;
-        var items = [];
-        var icon;
-        me.chart.each({type: 'node'},function(node) {
-            if (node.d.alarms) {
-                items.push({
-                    id: node.id,
-                    g: [
-                        {
-                            c: 'rgb(255, 0, 0)',
-                            p: 'ne',
-                            t: node.d.alarms
-                        }
-                    ],
-                    ha0: {
-                        c: 'rgb(255, 0, 0)',         //the halo fill colour
-                        r: 50,                      //the halo radius
-                        w: 3                        //the halo width
-                    }
-                });
+            if(!me.chart.combo().isCombo(node.id)){
+                var result = fNode(node);
+                if(result)items.push(result);
             }
         });
         me.chart.setProperties(items, false);
     },
 
-    showHopLevel: function(){
-        var me = this;
-        var distances = me.chart.graph().distances(this.top);
-        var labels = Object.keys(distances).map(function(key) {
-            return {id: key, c: me.colors[distances[key]]};
+    forEachLink: function(fLink){
+        var me=this,items = [];
+        me.chart.each({type: 'link'},function(link){
+            if(!me.chart.combo().isCombo(link.id)){
+                var result = fLink(link);
+                if(result)items.push(result)
+            }
         });
-        me.chart.setProperties(labels);
+        me.chart.setProperties(items, false);
+    },
 
+    forEachNodeAndLink: function(fNode,fLink){
+        var me=this,items = [];
+        me.chart.each({type: 'node'},function(node){
+            if(!me.chart.combo().isCombo(node.id)){
+                var result = fNode(node);
+                if(result)items.push(result);
+            }
+        });
+        me.chart.each({type: 'link'},function(link){
+            var result = fLink(link);
+            if(result)items.push(result)
+        });
+        me.chart.setProperties(items, false);
+    },
+
+    addLayer: function(layerFunction){
+        this.activeLayers.push(layerFunction);
+    },
+
+    showLayers:function(){
+        var me = this;
+        Ext.each(me.activeLayers,function(filter){
+            filter.call(me);
+        });
     },
 
     doLayout: function(name){

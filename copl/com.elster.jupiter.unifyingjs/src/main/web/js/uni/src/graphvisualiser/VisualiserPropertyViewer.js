@@ -1,13 +1,17 @@
 Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
     extend: 'Ext.form.Panel',
-    width: 300,
-    height: 400,
+    minWidth: 300,
+ //   height: 400,
+ //   maxWidth: 500,
     itemId: 'property-viewer',
     floating: true,
     collapsed: true,
     collapsible: true,
+  //  collapseMode: 'header',
+  //  collapseDirection: 'right',
     title: 'Property viewer',
     ui: 'small',
+    layout: 'vbox',
     style: {
         'background-color': 'white'
     },
@@ -25,6 +29,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
                 }
             }
         }
+        this.doLayout();
         this.expand();
     }
 });
