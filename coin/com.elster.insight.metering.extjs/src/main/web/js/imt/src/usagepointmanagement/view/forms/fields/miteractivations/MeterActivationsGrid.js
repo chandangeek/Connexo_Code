@@ -3,6 +3,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
     alias: 'widget.meter-activations-grid',
     requires: [
         'Uni.form.field.ComboReturnedRecordData',
+        'Uni.form.field.DateTime',
         'Uni.grid.plugin.EditableCells',
         'Uni.grid.plugin.ShowConditionalToolTip'
     ],
