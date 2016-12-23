@@ -4,10 +4,9 @@ import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityCapabil
 import com.energyict.mdc.protocol.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.security.SecuritySuite;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.energyict.cpo.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,16 +59,15 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
      */
     @Override
     public List<RequestSecurityLevel> getRequestSecurityLevels() {
-        ArrayList<RequestSecurityLevel> requestSecurityLevels = new ArrayList<>();
-        requestSecurityLevels.add(new NoSecurityForRequests());
-        requestSecurityLevels.add(new RequestsAuthenticated());
-        requestSecurityLevels.add(new RequestsEncrypted());
-        requestSecurityLevels.add(new RequestsEncryptedAndAuthenticated());
-        requestSecurityLevels.add(new RequestsSigned());
-        requestSecurityLevels.add(new RequestsAuthenticatedAndSigned());
-        requestSecurityLevels.add(new RequestsEncryptedAndSigned());
-        requestSecurityLevels.add(new RequestsEncryptedAndAuthenticatedAndSigned());
-        return requestSecurityLevels;
+        return Arrays.asList(
+                    new NoSecurityForRequests(),
+                    new RequestsAuthenticated(),
+                    new RequestsEncrypted(),
+                    new RequestsEncryptedAndAuthenticated(),
+                    new RequestsSigned(),
+                    new RequestsAuthenticatedAndSigned(),
+                    new RequestsEncryptedAndSigned(),
+                    new RequestsEncryptedAndAuthenticatedAndSigned());
     }
 
     /**
@@ -77,16 +75,15 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
      */
     @Override
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
-        ArrayList<ResponseSecurityLevel> responseSecurityLevels = new ArrayList<>();
-        responseSecurityLevels.add(new NoSecurityForResponses());
-        responseSecurityLevels.add(new ResponsesAuthenticated());
-        responseSecurityLevels.add(new ResponsesEncrypted());
-        responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticated());
-        responseSecurityLevels.add(new ResponsesSigned());
-        responseSecurityLevels.add(new ResponsesAuthenticatedAndSigned());
-        responseSecurityLevels.add(new ResponsesEncryptedAndSigned());
-        responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticatedAndSigned());
-        return responseSecurityLevels;
+        return Arrays.asList(
+                    new NoSecurityForResponses(),
+                    new ResponsesAuthenticated(),
+                    new ResponsesEncrypted(),
+                    new ResponsesEncryptedAndAuthenticated(),
+                    new ResponsesSigned(),
+                    new ResponsesAuthenticatedAndSigned(),
+                    new ResponsesEncryptedAndSigned(),
+                    new ResponsesEncryptedAndAuthenticatedAndSigned());
     }
 
     /**
@@ -98,27 +95,16 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         return new DlmsSecuritySupport().getEncryptionAccessLevels();
     }
 
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
     protected PropertySpec getClientMacAddressPropertySpec() {
         return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec();
     }
 
     @Override
     public List<SecuritySuite> getSecuritySuites() {
-        ArrayList<SecuritySuite> securitySuites = new ArrayList<>();
-        securitySuites.add(new SecuritySuite0());
-        securitySuites.add(new SecuritySuite1());
-        securitySuites.add(new SecuritySuite2());
-        return securitySuites;
+        return Arrays.asList(
+                new SecuritySuite0(),
+                new SecuritySuite1(),
+                new SecuritySuite2());
     }
 
     private enum SecuritySuitLevelIds {
