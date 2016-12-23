@@ -1,11 +1,11 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,28 +33,18 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
         return "SDK dialect (default)";
     }
 
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.singletonList(this.getDoSomeThingPropertySpec());
+    }
+
     private PropertySpec getDoSomeThingPropertySpec() {
-        return PropertySpecFactory.booleanPropertySpec(doSomeThingPropertyName);
+        return Services
+                .propertySpecService()
+                .booleanSpec()
+                .named(doSomeThingPropertyName, doSomeThingPropertyName)
+                .describedAs("Description for " + doSomeThingPropertyName)
+                .finish();
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        if(name.equals(doSomeThingPropertyName)){
-            return getDoSomeThingPropertySpec();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(getDoSomeThingPropertySpec());
-        return optionalProperties;
-    }
 }
