@@ -1,7 +1,7 @@
 package com.energyict.mdc.upl.meterdata;
 
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.List;
 
