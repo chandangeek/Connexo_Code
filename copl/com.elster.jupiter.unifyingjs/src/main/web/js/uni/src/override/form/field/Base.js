@@ -14,10 +14,6 @@ Ext.define('Uni.override.form.field.Base', {
         }
 
         return labelCls;
-    },
-
-    initComponent: function() {
-        this.callParent(arguments);
     }
 });
 
