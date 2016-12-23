@@ -166,7 +166,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                 return Ext.merge(meterActivation.meterRole, _.pick(meterActivation, 'meter', 'installationTime'));
             });
             meterActivations = _.map(meterActivations, function (meterActivation) {
-                return Ext.marge(_.pick(meterActivation, 'meterRole'), {
+                return Ext.merge(_.pick(meterActivation, 'meterRole'), {
                     meter: {
                         name: meterActivation.meter
                     }
