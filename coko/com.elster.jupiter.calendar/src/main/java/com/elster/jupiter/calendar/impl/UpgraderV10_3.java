@@ -31,8 +31,8 @@ class UpgraderV10_3 implements Upgrader {
                 Connection connection = dataModel.getConnection(true);
                 Statement statement = connection.createStatement();
         ) {
-           introduceEventSetWithExistingCalendarsSQL()
-                   .forEach(perform(this::execute).on(statement));
+            introduceEventSetWithExistingCalendarsSQL()
+                    .forEach(perform(this::execute).on(statement));
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -42,14 +42,6 @@ class UpgraderV10_3 implements Upgrader {
         createNewCategories();
     }
 
-    void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
     private void createNewCategories() {
         for (OutOfTheBoxCategory outOfTheBoxCategory : new OutOfTheBoxCategory[] {OutOfTheBoxCategory.WORKFORCE, OutOfTheBoxCategory.COMMANDS}) {
             CategoryImpl category = this.dataModel.getInstance(CategoryImpl.class);
@@ -57,7 +49,6 @@ class UpgraderV10_3 implements Upgrader {
             category.save();
         }
     }
-
 
     private List<String> introduceEventSetWithExistingCalendarsSQL() {
         return Arrays.asList(
