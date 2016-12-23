@@ -25,6 +25,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540PLCRegisterMapper;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -169,4 +170,23 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
         }
         return plcRegisterMapper;
     }
+
+
+
+    protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+        Dsmr50Properties dsmr50Properties = (Dsmr50Properties) protocol.getDlmsSessionProperties();
+        if (captureTime!=null && dsmr50Properties.useBeaconMirrorDeviceDialect()) {
+            // for composed registers:
+            // - readTime is the value stored in attribute#5=captureTime = the metrological date
+            // - eventTime is the communication time -> not used in metrology
+            return new RegisterValue(offlineRegister, new Quantity(attributeValue.toBigDecimal(), unit),
+                    new Date(), // eventTime = read-out time
+                    null,       // fromTime
+                    null,       // toTime
+                    captureTime); // readTime
+        }
+
+        return super.getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit);
+    }
+
 }

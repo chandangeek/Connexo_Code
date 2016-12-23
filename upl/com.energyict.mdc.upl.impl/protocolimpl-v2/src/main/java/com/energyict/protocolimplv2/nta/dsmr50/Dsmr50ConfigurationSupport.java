@@ -37,6 +37,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = true;
     public static final String POLLING_DELAY = "PollingDelay";
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
+    public static final String REQUEST_FRAMECOUNTER = "RequestFrameCounter";
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
@@ -67,8 +68,13 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.lastSeenDatePropertySpec(),
                 this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
                 this.ignoreDstStatusCode(),
-                this.pollingDelayPropertySpec()
+                this.pollingDelayPropertySpec(),
+                this.requestFrameCounter()
         );
+    }
+
+    private PropertySpec requestFrameCounter() {
+        return PropertySpecFactory.booleanPropertySpec(REQUEST_FRAMECOUNTER);
     }
 
     private PropertySpec pollingDelayPropertySpec() {

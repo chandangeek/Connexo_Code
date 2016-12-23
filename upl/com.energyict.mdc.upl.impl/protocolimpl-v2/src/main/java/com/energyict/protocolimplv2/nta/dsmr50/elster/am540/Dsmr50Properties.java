@@ -40,6 +40,10 @@ public class Dsmr50Properties extends DlmsProperties {
         return getProperties().getTypedProperty(READCACHE_PROPERTY, false);
     }
 
+    public boolean requestFrameCounter(){
+        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.REQUEST_FRAMECOUNTER, false);
+    }
+
     public boolean isCumulativeCaptureTimeChannel() {
         return getProperties().getTypedProperty(CumulativeCaptureTimeChannel, false);
     }

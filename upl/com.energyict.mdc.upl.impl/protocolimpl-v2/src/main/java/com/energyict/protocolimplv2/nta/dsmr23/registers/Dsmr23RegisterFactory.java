@@ -110,9 +110,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             String text = abstractDataType.getOctetString().stringValue();
                             rv = new RegisterValue(register, null, eventTime, null, null, new Date(), 0, text );
                         } else {
-                            BigDecimal amount = abstractDataType.toBigDecimal();
-                            Quantity quantity = new Quantity(amount, su.getEisUnit());
-                            rv = new RegisterValue(register, quantity, eventTime);
+                            rv = getRegisterValueForComposedRegister(register, eventTime, abstractDataType, su.getEisUnit() );
+
                         }
                     } else {
                         this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
@@ -142,6 +141,20 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             }
         }
         return collectedRegisters;
+    }
+
+    /**
+     * Will create a register value for a composed register which provides the capture time
+     * By default will set readTime = collection time eventTime=captureTime
+     *
+     * This is overridden in AM540 to handle mirror devices!
+     *
+     */
+    protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+        return  new RegisterValue(offlineRegister,
+                new Quantity(attributeValue.toBigDecimal(), unit),
+                captureTime // eventTime
+        );
     }
 
     /**

@@ -9,6 +9,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -29,8 +30,10 @@ import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.*;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
@@ -46,6 +49,7 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messag
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers.Dsmr50RegisterFactory;
+import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
 import java.io.IOException;
@@ -69,6 +73,7 @@ import java.util.List;
  */
 public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol, SerialNumberSupport {
 
+    private static final int IDIS2_CLIENT_PUBLIC = 16;
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
     private AM540Messaging am540Messaging;
     private long initialFrameCounter = -1;
@@ -83,16 +88,69 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("AM540 protocol init");
+        getLogger().info("AM540 DSMR protocol init (V2)");
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
+
+        handleFC(comChannel);
 
         HHUSignOnV2 hhuSignOn = null;
         if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
+    }
+
+    protected void handleFC(ComChannel comChannel) {
+        if (getDlmsSessionProperties().usesPublicClient()) {
+            return;
+        }
+
+        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect() && (!getDlmsSessionProperties().requestFrameCounter())){
+            return;
+        }
+
+        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC));
+        Dsmr50Properties publicClientProperties = new Dsmr50Properties();
+        publicClientProperties.addProperties(clone);
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
+
+        long frameCounter;
+        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        getLogger().info("Connecting to public client:"+IDIS2_CLIENT_PUBLIC);
+        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect()) {
+            connectWithRetries(publicDlmsSession);
+        }
+        try {
+            ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
+            getLogger().info("Public client connected, reading framecounter "+frameCounterObisCode.toString() +", corresponding to client "+getDlmsSessionProperties().getClientMacAddress());
+            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
+            getLogger().info("Frame counter received: "+frameCounter);
+        } catch (DataAccessResultException | ProtocolException e) {
+            final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+        }
+        getLogger().info("Disconnecting public client");
+        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect()) {
+            publicDlmsSession.disconnect();
+        }
+
+        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+    }
+
+    protected ObisCode getFrameCounterForClient(int clientId) {
+
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            if (clientId != IDIS2_CLIENT_PUBLIC) { // for public client fall back to standard IDIS
+                return new ObisCode(0, 0, 43, 1, clientId, 255);
+            }
+        }
+
+        return ObisCode.fromString("0.0.43.1.0.255");
     }
 
     private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
@@ -108,7 +166,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
      */
     @Override
     public void logOn() {
-        connectWithRetries();
+        connectWithRetries(getDlmsSession());
         checkCacheObjects();
     }
 
@@ -180,16 +238,18 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     /**
      * Add extra retries to the association request.
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
+     * @param dlmsSession
      */
-    private void connectWithRetries() {
+    private void connectWithRetries(DlmsSession dlmsSession) {
         int tries = 0;
         while (true) {
-            ProtocolRuntimeException exception;
+           ProtocolRuntimeException exception;
             try {
-                getDlmsSession().getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
-                if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
-                    getDlmsSession().getDlmsV2Connection().connectMAC();
-                    getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
+                getLogger().info("Connecting with client "+dlmsSession.getProperties().getClientMacAddress()+" to "+dlmsSession.getProperties().getServerUpperMacAddress());
+                dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
+                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    dlmsSession.getDlmsV2Connection().connectMAC();
+                    dlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
                 }
                 return;
             } catch (ProtocolRuntimeException e) {
@@ -202,7 +262,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
                 }
                 exception = e;
             } finally {
-                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
+                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
@@ -212,11 +272,11 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
-                    getDlmsSession().getAso().releaseAssociation();
+                    dlmsSession.getAso().releaseAssociation();
                 } catch (ProtocolRuntimeException e) {
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
-                getDlmsSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+                dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
             }
         }
     }
