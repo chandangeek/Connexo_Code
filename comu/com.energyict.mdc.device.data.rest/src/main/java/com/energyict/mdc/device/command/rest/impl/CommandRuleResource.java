@@ -136,7 +136,7 @@ public class CommandRuleResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
+    @RolesAllowed(Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE)
     public Response acceptChanges(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
         CommandRule commandRule = findAndLockCommandRule(id, commandRuleInfo);
         commandRule.approve();
@@ -148,7 +148,7 @@ public class CommandRuleResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE)
+    @RolesAllowed(Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE)
     public Response rejectChanges(@PathParam("id") long id, CommandRuleInfo commandRuleInfo) {
         CommandRule commandRule = findAndLockCommandRule(id, commandRuleInfo);
         commandRule.reject();
