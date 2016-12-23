@@ -2,6 +2,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
     extend: 'Ext.grid.Panel',
     alias: 'widget.meter-activations-grid',
     requires: [
+        'Uni.form.field.ComboReturnedRecordData',
         'Uni.grid.plugin.EditableCells',
         'Uni.grid.plugin.ShowConditionalToolTip'
     ],
@@ -37,7 +38,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                 disableTooltip: true,
                 flex: 1,
                 editor: {
-                    xtype: 'combobox',
+                    xtype: 'combo-returned-record-data',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',
@@ -104,17 +105,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
             picker.on('beforehide', function () {
                 picker.un('refresh', fn);
             }, combo, {single: true});
-        },
-        change: function (combo, newValue) {
-            var index = combo.getStore().findExact('name', newValue);
-            if (index >= 0) {
-                combo.meterData = combo.getStore().getAt(index).getData();
-            } else {
-                combo.meterData = null
-            }
-        },
-        blur: function (combo) {
-            Ext.isEmpty(combo.meterData) && combo.setValue('');
         }
     }
 });
