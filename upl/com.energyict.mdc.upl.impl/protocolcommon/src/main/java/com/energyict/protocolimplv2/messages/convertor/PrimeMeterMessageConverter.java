@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -30,6 +31,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import java.util.Map;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress1AttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activationDatedAttributeName;
@@ -44,8 +46,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmw
  */
 public class PrimeMeterMessageConverter extends AbstractMessageConverter {
 
-    public PrimeMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public PrimeMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
@@ -81,15 +86,15 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(contractsXmlUserFileAttributeName)) {
-            return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray());   //String = XML content in the userfile
+            return this.extractor.contents((DeviceMessageFile) messageAttribute);   //String = XML content in the userfile
         } else if (propertySpec.getName().equals(activationDatedAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
-        } else if (propertySpec.getName().equals(MulticastAddress2AttributeName)
+        } else if (propertySpec.getName().equals(MulticastAddress1AttributeName)
                 || propertySpec.getName().equals(MulticastAddress2AttributeName)
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray());
+            return this.extractor.contents((DeviceMessageFile) messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newReadingClientPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newFirmwareClientPasswordAttributeName)) {

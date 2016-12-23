@@ -142,7 +142,7 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
      */
     public class TestG3MeterMessageConverter extends G3MeterMessageConverter {
         public TestG3MeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-            super(messagingProtocol, propertySpecService, nlsService, converter);
+            super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
         }
 
         @Override

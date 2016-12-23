@@ -36,7 +36,7 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
 
     public AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override

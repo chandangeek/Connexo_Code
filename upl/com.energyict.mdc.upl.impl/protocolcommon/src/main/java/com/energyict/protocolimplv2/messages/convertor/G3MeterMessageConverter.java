@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -67,8 +68,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.speci
  */
 public class G3MeterMessageConverter extends AbstractMessageConverter {
 
-    public G3MeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public G3MeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
@@ -93,11 +97,10 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((TariffCalender) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
-            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+            return this.extractor.contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
                 || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
-            return ((Boolean) messageAttribute).toString();
+            return messageAttribute.toString();
         } else if (propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newWrappedAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newEncryptionKeyAttributeName) ||

@@ -28,7 +28,7 @@ import java.util.Map;
 public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
 
     public CryptoDsmr23MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override

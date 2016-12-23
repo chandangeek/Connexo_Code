@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -49,15 +50,18 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
 
     private static final String ActivationDate = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
 
-    public ZigbeeGasMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public ZigbeeGasMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.PricingInformationUserFileAttributeName:
-                return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray(), Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
+                return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
             case DeviceMessageConstants.DisplayMessageActivationDate:
             case DeviceMessageConstants.ConfigurationChangeActivationDate:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
@@ -65,12 +69,12 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                return Integer.toString(((DeviceMessageFile) messageAttribute).getId());
+                return this.extractor.id((DeviceMessageFile) messageAttribute);
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:
-                TariffCalender codeTable = (TariffCalender) messageAttribute;
-                return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
+                TariffCalender calender = (TariffCalender) messageAttribute;
+                return this.extractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
             default:
                 return messageAttribute.toString();
         }

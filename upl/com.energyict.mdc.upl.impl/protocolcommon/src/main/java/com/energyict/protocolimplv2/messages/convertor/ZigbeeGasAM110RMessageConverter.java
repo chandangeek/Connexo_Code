@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -26,8 +27,11 @@ import java.util.Map;
  */
 public class ZigbeeGasAM110RMessageConverter extends AbstractMessageConverter {
 
-    public ZigbeeGasAM110RMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public ZigbeeGasAM110RMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
@@ -39,7 +43,7 @@ public class ZigbeeGasAM110RMessageConverter extends AbstractMessageConverter {
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
             case DeviceMessageConstants.contractsXmlUserFileAttributeName:
-                return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray(), Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
+                return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We assume the UserFile contains regular ASCII
             default:
                 return messageAttribute.toString();
         }

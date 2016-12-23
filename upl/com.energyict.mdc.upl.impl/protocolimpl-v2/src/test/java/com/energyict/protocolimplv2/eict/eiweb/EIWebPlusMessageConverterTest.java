@@ -176,7 +176,7 @@ public class EIWebPlusMessageConverterTest {
      */
     private class ExtendedEIWebPlusMessageConverter extends EIWebPlusMessageConverter {
         private ExtendedEIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-            super(messagingProtocol, propertySpecService, nlsService, converter);
+            super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
         }
 
         @Override

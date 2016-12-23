@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -41,8 +42,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month
  */
 public class SmartZmdMessageConverter extends AbstractMessageConverter {
 
-    public SmartZmdMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public SmartZmdMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
@@ -59,8 +63,8 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            TariffCalender codeTable = (TariffCalender) messageAttribute;
-            return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(codeTable); //The ID and the XML representation of the code table, separated by a |
+            TariffCalender calender = (TariffCalender) messageAttribute;
+            return this.extractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender); //The ID and the XML representation of the code table, separated by a |
         }
         return EMPTY_FORMAT;
     }

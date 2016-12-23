@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -31,19 +32,23 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 import com.google.common.collect.ImmutableMap;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- * List of all supported messages for the RTU+Server using the EIWeb+ servlet
+ * List of all supported messages for the RTU+Server using the EIWeb+ servlet.
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/03/13
  * Time: 16:26
  */
 public class EIWebPlusMessageConverter extends AbstractMessageConverter {
 
-    public EIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public EIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
@@ -53,11 +58,7 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.PricingInformationUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.nodeListUserFile)) {
-            try {
-                return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray(), "US-ASCII");
-            } catch (UnsupportedEncodingException e) {
-                return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray());
-            }
+            return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("US-ASCII"));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         }

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -103,8 +104,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConverter {
 
-    public SDKSmartMeterProtocolMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public SDKSmartMeterProtocolMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
@@ -126,9 +130,9 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return String.valueOf(((DeviceMessageFile) messageAttribute).getId());
+            return this.extractor.id((DeviceMessageFile) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return String.valueOf(((TariffCalender) messageAttribute).getId());
+            return this.extractor.id((TariffCalender) messageAttribute);
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
@@ -139,7 +143,7 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
                 propertySpec.getName().equals(passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
-            return String.valueOf(((NumberLookup) messageAttribute).getId());
+            return this.extractor.id((NumberLookup) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
             return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));

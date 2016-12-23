@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -31,8 +32,11 @@ import java.util.Map;
  */
 public class AM110RMessageConverter extends AbstractMessageConverter {
 
-    public AM110RMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public AM110RMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
@@ -96,9 +100,9 @@ public class AM110RMessageConverter extends AbstractMessageConverter {
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
-                return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray(), Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
+                return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));
             case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
-                return Integer.toString(((DeviceMessageFile) messageAttribute).getId());
+                return this.extractor.id((DeviceMessageFile) messageAttribute);
             default:
                 return messageAttribute.toString();
         }

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -39,14 +40,17 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
     private static final String UPGRADE_METER_FIRMWARE = "UpgradeMeterFirmware";
     private static final String UPGRADE_METER_SCHEME = "UpgradeMeterScheme";
 
-    public ABBA230MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public ABBA230MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            return new String(((DeviceMessageFile) messageAttribute).loadFileInByteArray(), Charset.forName(CHARSET)); // Content should be a valid XML
+            return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
         } else {
             return messageAttribute.toString();
         }

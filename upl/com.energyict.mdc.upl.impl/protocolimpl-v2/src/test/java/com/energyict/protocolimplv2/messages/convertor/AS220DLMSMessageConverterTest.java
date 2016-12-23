@@ -110,7 +110,7 @@ public class AS220DLMSMessageConverterTest extends AbstractMessageConverterTest 
      */
     public class TestAS220DLMSMessageConverter extends AS220DLMSMessageConverter {
         public TestAS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-            super(messagingProtocol, propertySpecService, nlsService, converter);
+            super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
         }
     }
 }
