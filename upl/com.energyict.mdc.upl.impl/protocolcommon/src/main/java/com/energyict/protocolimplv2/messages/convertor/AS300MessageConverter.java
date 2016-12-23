@@ -113,7 +113,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
      * Return an XML representation of the code table.
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      */
-    protected String encode(Code messageAttribute) {
+    protected String encode(TariffCalender messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
