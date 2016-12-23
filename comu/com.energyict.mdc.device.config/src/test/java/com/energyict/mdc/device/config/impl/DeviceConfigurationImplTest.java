@@ -711,11 +711,9 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Test
     @Transactional
     public void currentUserHasCorrectLevelTest() {
-        User mockedUser = mock(User.class);
+        User mockedUser = inMemoryPersistence.getMockedUser();
         when(mockedUser.hasPrivilege(anyString(), Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
-
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserHasCorrectLevelTest").add();
-
         assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isTrue();
     }
 
