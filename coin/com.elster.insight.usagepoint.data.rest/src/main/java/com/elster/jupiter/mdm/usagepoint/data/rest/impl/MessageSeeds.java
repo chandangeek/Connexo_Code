@@ -39,14 +39,17 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_SEARCH_DOMAIN_NOT_REGISTERED(38, "UsagePointSearchDomainNotRegistered", "Usage point search domain is not registered"),
     AT_LEAST_ONE_SEARCH_CRITERION(39, "AtLeastOneCriterion" , "At least one search criterion has to be provided"),
     SEARCHABLE_PROPERTY_INVALID_VALUE(40, "SearchablePropertyInvalidValue", "Invalid value"),
-    NO_SUCH_CALENDAR(41, "NoSuchCalendar", "No such calendar."),
-    NO_APPSERVER(42, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
-    NO_SUCH_MESSAGE_QUEUE(43, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    NO_SUCH_METROLOGY_PURPOSE(41, Keys.NO_SUCH_METROLOGY_PURPOSE, "No such metrology purpose with ID {0}"),
+    CANNOT_ACTIVATE_METROLOGY_PURPOSE(42, Keys.CANNOT_ACTIVATE_METROLOGY_PURPOSE, "Can''t activate metrology purpose with ID {0}"),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS(43, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don''t provide reading types specified in the metrology contract."),
     INVALID_ESTIMATOR_PROPERTY_VALUE(44, "invalidEstimatorPropertyValue", "Invalid property value"),
     ESTIMATOR_REQUIRED(45, "EstimatorRequired", "Please select an estimator"),
     ESTIMATOR_NOT_FOUND(46, "EstimatorNotValid", "Provided estimator is not valid"),
     BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}"),
-    INTERVAL_END_BEFORE_START(48, "intervalEndBeforeStart", "End time before start time"),
+    NO_SUCH_CALENDAR(48, "NoSuchCalendar", "No such calendar."),
+    NO_APPSERVER(49, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
+    NO_SUCH_MESSAGE_QUEUE(50, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    INTERVAL_END_BEFORE_START(51, "intervalEndBeforeStart", "End time before start time"),
     ;
 
     private final int number;
@@ -104,6 +107,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PROCESS_STATUS_COMPLETED = "ProcessStatusCompleted";
         public static final String PROCESS_STATUS_ABORDED = "ProcessStatusAborted";
         public static final String PROCESS_STATUS_SUSPENDED = "ProcessStatusSuspended";
+        public static final String NO_SUCH_METROLOGY_PURPOSE = "NoSuchMetrologyPurpose";
+        public static final String CANNOT_ACTIVATE_METROLOGY_PURPOSE = "CannotActivateMetrologyPurpose";
+        public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS = "UnsatisfiedReadingTypeRequirements";
     }
 
 }

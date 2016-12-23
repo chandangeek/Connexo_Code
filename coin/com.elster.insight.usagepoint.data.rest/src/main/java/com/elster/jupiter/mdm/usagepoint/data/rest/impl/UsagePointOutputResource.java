@@ -112,7 +112,7 @@ public class UsagePointOutputResource {
         List<PurposeInfo> purposeInfoList;
         if (effectiveMetrologyConfiguration.isPresent()) {
             purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
-                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract))
+                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract, withValidationTasks))
                     .sorted(Comparator.comparing(info -> info.name))
                     .collect(Collectors.toList());
         } else {
@@ -587,5 +587,45 @@ public class UsagePointOutputResource {
                             purposeInfo.validationInfo.lastChecked));
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{contractId}/activate")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response activateMetrologyContract(@PathParam("name") String name, @PathParam("contractId") long contractId, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+
+        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts()
+                .stream()
+                .filter(mc -> !effectiveMC.getChannelsContainer(mc, clock.instant()).isPresent())
+                .filter(mc -> !mc.getDeliverables().isEmpty())
+                .filter(mc -> mc.getId() == contractId)
+                .filter(mc -> !mc.isMandatory())
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.CANNOT_ACTIVATE_METROLOGY_PURPOSE));
+
+        resourceHelper.checkMeterRequirements(usagePoint, metrologyContract);
+
+        effectiveMC.activateOptionalMetrologyContract(metrologyContract, clock.instant());
+        return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
+    }
+
+
+    @PUT
+    @Path("/{contractId}/deactivate")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response deactivateMetrologyContract(@PathParam("name") String name, @PathParam("contractId") long contractId, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
+        if (effectiveMC.getChannelsContainer(metrologyContract, clock.instant()).isPresent()) {
+            effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, clock.instant());
+        }
+        return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
 }
