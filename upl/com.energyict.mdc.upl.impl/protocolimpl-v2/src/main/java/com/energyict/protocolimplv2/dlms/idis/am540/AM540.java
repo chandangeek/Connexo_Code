@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
-import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
@@ -17,6 +16,7 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.io.ConnectionType;
+import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
@@ -29,20 +29,9 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.tasks.Issue;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.FrameCounterProvider;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -52,7 +41,6 @@ import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
@@ -65,6 +53,7 @@ import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.util.IssueFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -99,6 +88,13 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     private AM540Cache am540Cache;
     private HHUSignOnV2 hhuSignOn;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -562,7 +558,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
         // save the last see date when the meter is read-out successfully
         deviceTopology.addAdditionalCollectedDeviceInfo(
-                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                         deviceIdentifier,
                         G3Properties.PROP_LASTSEENDATE,
                         BigDecimal.valueOf(now.getTime())
@@ -574,7 +570,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+        CollectedFirmwareVersion result = this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
 
         ObisCode firmwareVersionObisCode = ObisCode.fromString("1.1.0.2.0.255");
         try {
@@ -583,7 +579,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
             result.setActiveMeterFirmwareVersion(fwVersion);
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = MdcManager.getIssueFactory().createProblem(firmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                Issue problem = this.issueFactory.createProblem(firmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }   //Else a communication exception is thrown
         }

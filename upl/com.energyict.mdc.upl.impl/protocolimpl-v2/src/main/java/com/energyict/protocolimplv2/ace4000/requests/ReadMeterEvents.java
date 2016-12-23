@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.ace4000.requests;
 
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;

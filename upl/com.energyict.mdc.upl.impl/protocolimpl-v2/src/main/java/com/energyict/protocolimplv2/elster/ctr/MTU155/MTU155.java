@@ -7,6 +7,7 @@ import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ServerProximusSmsComChannel;
 import com.energyict.mdc.io.ConnectionType;
+import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.CTRDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocol;
@@ -42,12 +43,12 @@ import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.properties.TypedProperties;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
+import com.energyict.util.IssueFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,6 +95,13 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     private GprsObisCodeMapper obisCodeMapper;
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public MTU155(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -267,8 +275,8 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(getOfflineDevice(), "devicetopologynotsupported"));
+        final CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier());
+        deviceTopology.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(getOfflineDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
 
@@ -347,7 +355,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
         CollectedLogBook collectedLogBook;
 
         for (LogBookReader logBook : logBooks) {
-            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 try {
                     Date lastLogBookReading = logBook.getLastLogBook();
@@ -357,12 +365,12 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
                     collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
                 } catch (CTRException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
                 }
 
                 collectedLogBooks.add(collectedLogBook);
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
                 collectedLogBooks.add(collectedLogBook);
             }
         }
@@ -417,19 +425,19 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        CollectedFirmwareVersion firmwareVersionsCollectedData = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(getDeviceIdentifier());
+        CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(getDeviceIdentifier());
         firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getRequestFactory().getIdentificationStructure().getVf().getValue(0).getStringValue());
         return firmwareVersionsCollectedData;
     }
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(getDeviceIdentifier());
+        return this.collectedDataFactory.createBreakerStatusCollectedData(getDeviceIdentifier());
     }
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        CollectedCalendar collectedCalendar = MdcManager.getCollectedDataFactory().createCalendarCollectedData(getDeviceIdentifier());
+        CollectedCalendar collectedCalendar = this.collectedDataFactory.createCalendarCollectedData(getDeviceIdentifier());
         this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[0].getIntValue())
                 .ifPresent(collectedCalendar::setActiveCalendar);
         this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[2].getIntValue())

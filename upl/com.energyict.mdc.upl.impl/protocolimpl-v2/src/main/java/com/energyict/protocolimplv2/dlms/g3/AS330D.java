@@ -9,17 +9,14 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
@@ -38,7 +35,6 @@ import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3DeviceInfo;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.cache.G3Cache;
@@ -80,6 +76,10 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ProfileDataFactory profileDataFactory;
+
+    public AS330D(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(collectedDataFactory, issueFactory);
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -188,7 +188,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     /**
@@ -321,12 +321,12 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     @Override

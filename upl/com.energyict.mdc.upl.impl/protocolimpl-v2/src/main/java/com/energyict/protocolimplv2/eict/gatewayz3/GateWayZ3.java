@@ -5,14 +5,10 @@ import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
@@ -31,6 +27,10 @@ import java.util.List;
  */
 @Deprecated //The Cynet RF functionality is no longer supported in EIServer 9.x. This class is placeholder so the old devices can be migrated.
 public class GateWayZ3 extends AbstractDlmsProtocol {
+
+    public GateWayZ3(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(collectedDataFactory, issueFactory);
+    }
 
     @Override
     public DlmsSessionProperties getDlmsSessionProperties() {
