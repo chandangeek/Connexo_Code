@@ -42,6 +42,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserIT extends EqualsContractTest {
@@ -119,7 +120,11 @@ public class UserIT extends EqualsContractTest {
     }
 
     private Publisher getPublisher() {
-        return injector.getInstance(Publisher.class);
+        if(injector != null) {
+            return injector.getInstance(Publisher.class);
+        } else {
+            return mock(Publisher.class);
+        }
     }
 
     @Override
