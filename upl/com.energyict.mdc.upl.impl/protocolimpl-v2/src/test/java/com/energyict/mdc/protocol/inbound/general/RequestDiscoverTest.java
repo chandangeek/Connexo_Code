@@ -1,19 +1,15 @@
 package com.energyict.mdc.protocol.inbound.general;
 
-import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
@@ -21,7 +17,6 @@ import com.energyict.cbo.Unit;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.LogBookSpec;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.util.IssueFactory;
 import com.energyict.util.IssueFactoryProvider;
 
 import java.io.IOException;
@@ -75,10 +70,10 @@ public class RequestDiscoverTest {
 
     @Before
     public void initialize() {
-        when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(collectedDataFactory);
+        when(Services.collectedDataFactory()).thenReturn(collectedDataFactory);
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
 
-        when(issueFactoryProvider.getIssueFactory()).thenReturn(issueFactory);
+        when(Services.issueFactory()).thenReturn(issueFactory);
         when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
         IssueFactoryProvider.instance.set(issueFactoryProvider);
     }

@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.edp;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 /**
  * Copyrights EnergyICT
  * Date: 17/02/14
@@ -8,8 +12,8 @@ package com.energyict.protocolimplv2.edp;
  */
 public class JanzB280 extends CX20009 {
 
-    public JanzB280() {
-        super(propertySpecService);
+    public JanzB280(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
@@ -14,6 +16,10 @@ import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.profiledata.Mx382Profi
  * Created by cisac on 1/14/2016.
  */
 public class Mx382 extends AM130{
+
+    public Mx382(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(collectedDataFactory, issueFactory);
+    }
 
     @Override
     public String getProtocolDescription() {

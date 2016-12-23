@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.nta.elster;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.io.ConnectionType;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 
 import com.energyict.dlms.DLMSCache;
@@ -20,6 +22,10 @@ import java.util.logging.Level;
 public class AM100 extends WebRTUKP {
 
     private AM100DlmsProperties dlmsProperties;
+
+    public AM100(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(collectedDataFactory, issueFactory);
+    }
 
     @Override
     protected void checkCacheObjects() {

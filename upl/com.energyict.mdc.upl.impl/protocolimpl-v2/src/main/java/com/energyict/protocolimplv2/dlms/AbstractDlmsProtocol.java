@@ -7,15 +7,11 @@ import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.tasks.support.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -25,11 +21,10 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
@@ -62,6 +57,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     protected DeviceProtocolSecurityCapabilities dlmsSecuritySupport;
     private ComposedMeterInfo meterInfo;
     private DlmsSession dlmsSession;
+    protected final CollectedDataFactory collectedDataFactory;
+    protected final IssueFactory issueFactory;
+
     /**
      * Indicating if the meter has a breaker.
      * This implies whether or not we can control the breaker and read the control logbook.
@@ -69,6 +67,11 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      */
     private boolean hasBreaker = true;
     private Logger logger;
+
+    public AbstractDlmsProtocol(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     /**
      * Connect to the device, check the cached object lost and discover its MBus slaves.
@@ -372,14 +375,14 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      */
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        CollectedCalendar result = MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        CollectedCalendar result = this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
         try {
             ActivityCalendar activityCalendar = getDlmsSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
             result.setActiveCalendar(activityCalendar.readCalendarNameActive().stringValue());
             result.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = MdcManager.getIssueFactory().createProblem(
+                Issue problem = this.issueFactory.createProblem(
                         DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE,
                         "issue.protocol.readingOfCalendarFailed",
                         e.toString());
@@ -394,7 +397,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      */
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        CollectedFirmwareVersion firmwareVersionsCollectedData = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+        CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
         firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getMeterInfo().getFirmwareVersion());
         return firmwareVersionsCollectedData;
     }
@@ -404,6 +407,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      */
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 }

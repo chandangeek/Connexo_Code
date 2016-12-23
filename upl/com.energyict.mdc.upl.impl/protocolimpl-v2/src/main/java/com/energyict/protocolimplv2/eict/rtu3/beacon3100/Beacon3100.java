@@ -17,14 +17,10 @@ import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -48,7 +44,6 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
@@ -78,7 +73,8 @@ import java.util.logging.Level;
  */
 public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
-    public Beacon3100(PropertySpecService propertySpecService) {
+    public Beacon3100(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(collectedDataFactory, issueFactory);
         this.propertySpecService = propertySpecService;
     }
 
@@ -406,7 +402,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         final Array nodeList;
@@ -450,7 +446,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
                     if (persistedGatewayLogicalDeviceId == null || !gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
-                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
                                         AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
                                         gatewayLogicalDeviceId
@@ -459,7 +455,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     }
                     if (persistedMirrorLogicalDeviceId == null || !mirrorLogicalDeviceId.equals(persistedMirrorLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
-                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
                                         AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
                                         mirrorLogicalDeviceId
@@ -468,7 +464,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     }
                     if (persistedLastSeenDate == null || !lastSeenDate.equals(persistedLastSeenDate)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
-                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
                                         G3Properties.PROP_LASTSEENDATE,
                                         lastSeenDate
