@@ -161,11 +161,22 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
 
         if (metrologyConfiguration) {
             metrologyConfiguration.purposes = purposesField.getValue();
-            metrologyConfiguration.meterRoles = meterActivationsField.getValue();
+            meterActivations = meterActivationsField.getValue();
+            metrologyConfiguration.meterRoles = _.map(meterActivations, function (meterActivation) {
+                return Ext.merge(meterActivation.meterRole, _.pick(meterActivation, 'meter', 'installationTime'));
+            });
+            meterActivations = _.map(meterActivations, function (meterActivation) {
+                return Ext.marge(_.pick(meterActivation, 'meterRole'), {
+                    meter: {
+                        name: meterActivation.meter
+                    }
+                });
+            });
         }
 
         return {
-            metrologyConfiguration: metrologyConfiguration
+            metrologyConfiguration: metrologyConfiguration,
+            meterActivations: meterActivations
         }
     }
 });
