@@ -45,7 +45,6 @@ public abstract class AbstractEIWebMessageEntry implements MessageEntryCreator {
         return MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.id);
     }
 
-
     /**
      * Creates the message parent tag based on the name of the given deviceMessage spec enum.
      */
