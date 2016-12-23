@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.mdw.core.DataVaultProvider;
@@ -26,6 +27,8 @@ public class DeviceMessageCategoriesTest extends TestCase {
     private PropertySpecService propertySpecService;
     @Mock
     private NlsService nlsService;
+    @Mock
+    private Converter converter;
 
     @Test
     public void testMessageUniqueIds() {
@@ -35,7 +38,7 @@ public class DeviceMessageCategoriesTest extends TestCase {
         List<Long> messageIds;
         for (DeviceMessageCategories categories : DeviceMessageCategories.values()) {
             messageIds = new ArrayList<>();
-            for (DeviceMessageSpec deviceMessageSpec : categories.get(propertySpecService, nlsService, converter).getMessageSpecifications()) {
+            for (DeviceMessageSpec deviceMessageSpec : categories.get(this.propertySpecService, this.nlsService, this.converter).getMessageSpecifications()) {
                 boolean condition = messageIds.contains(deviceMessageSpec.getId());
                 if (condition) {
                     Logger logger = Logger.getLogger(DeviceMessageCategoriesTest.class.getSimpleName());
