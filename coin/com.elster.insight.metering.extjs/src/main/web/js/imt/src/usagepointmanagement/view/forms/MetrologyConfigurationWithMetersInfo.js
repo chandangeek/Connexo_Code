@@ -16,7 +16,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             {
                 xtype: 'meter-activations-field',
                 itemId: 'meter-activations-field',
-                name: 'meterActivations',
                 listeners: {
                     meterActivationsChange: function (allMetersSpecified) {
                         me.fireEvent('meterActivationsChange', allMetersSpecified);
@@ -25,8 +24,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             },
             {
                 xtype: 'purposes-field',
-                itemId: 'purposes-field',
-                name: 'metrologyConfiguration'
+                itemId: 'purposes-field'
             }
         ];
 
