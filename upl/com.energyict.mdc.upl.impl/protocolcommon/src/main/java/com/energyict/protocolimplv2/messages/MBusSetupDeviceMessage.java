@@ -248,7 +248,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.MBUS_SETUP,
                 this.getPropertySpecs(propertySpecService, converter),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

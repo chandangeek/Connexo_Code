@@ -259,7 +259,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.ACTIVITY_CALENDAR,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

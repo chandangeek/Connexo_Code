@@ -164,7 +164,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.EIWEB_PARAMETERS,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

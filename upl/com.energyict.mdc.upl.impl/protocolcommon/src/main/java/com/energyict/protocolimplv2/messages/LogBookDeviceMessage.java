@@ -188,7 +188,7 @@ public enum LogBookDeviceMessage implements DeviceMessageSpecSupplier {
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.LOG_BOOKS,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

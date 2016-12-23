@@ -109,7 +109,7 @@ public enum WavenisDeviceMessage implements DeviceMessageSpecSupplier {
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.WAVENIS_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

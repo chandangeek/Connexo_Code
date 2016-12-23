@@ -130,7 +130,7 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.CHANNEL_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

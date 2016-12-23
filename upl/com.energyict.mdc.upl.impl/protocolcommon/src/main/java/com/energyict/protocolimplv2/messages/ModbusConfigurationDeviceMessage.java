@@ -128,7 +128,7 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.MODBUS_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

@@ -101,7 +101,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
                 id, new TranslationKeyImpl(this.getNameResourceKey(), TRANSLATION),
                 DeviceMessageTestCategories.CONNECTIVITY_SETUP,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

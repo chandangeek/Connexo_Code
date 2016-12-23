@@ -58,7 +58,7 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecSupplier
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.deviceMessageConstantDefaultTranslation),
                 DeviceMessageCategories.MODEM_CONFIGURATION,
                 Collections.singletonList(this.getPropertySpec(propertySpecService)),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

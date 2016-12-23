@@ -245,7 +245,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.PEAK_SHAVER_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

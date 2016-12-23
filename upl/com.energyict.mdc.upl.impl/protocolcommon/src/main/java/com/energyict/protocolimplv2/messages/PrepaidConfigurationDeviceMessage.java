@@ -67,7 +67,7 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecSuppli
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.PREPAID_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

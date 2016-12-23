@@ -59,7 +59,7 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.DLMS_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

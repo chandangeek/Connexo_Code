@@ -93,7 +93,7 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.UPLINK_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
 }

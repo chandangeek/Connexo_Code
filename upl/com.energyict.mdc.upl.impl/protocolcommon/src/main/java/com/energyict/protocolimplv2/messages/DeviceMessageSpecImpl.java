@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -26,14 +27,16 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
 
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
+    private final Converter converter;
 
-    public DeviceMessageSpecImpl(long id, TranslationKey translationKey, DeviceMessageCategorySupplier categoryFactory, List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, NlsService nlsService) {
+    public DeviceMessageSpecImpl(long id, TranslationKey translationKey, DeviceMessageCategorySupplier categoryFactory, List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.id = id;
         this.translationKey = translationKey;
         this.categoryFactory = categoryFactory;
         this.propertySpecs = propertySpecs;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
@@ -56,7 +59,7 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return categoryFactory.get(this.propertySpecService, this.nlsService, converter);
+        return categoryFactory.get(this.propertySpecService, this.nlsService, this.converter);
     }
 
     @Override

@@ -1011,7 +1011,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.CONFIGURATION_CHANGE,
                 this.getPropertySpecs(propertySpecService),
-                propertySpecService, nlsService);
+                propertySpecService, nlsService, converter);
     }
 
     public enum PushType {
