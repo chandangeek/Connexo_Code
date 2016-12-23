@@ -69,12 +69,20 @@ Ext.define('Imt.controller.History', {
                         return this;
                     },
                     items: {
-                        //edit: {
-                        //    title: Uni.I18n.translate('general.label.usagepoint.edit', 'IMT', 'Edit'),
-                        //    route: 'edit',
-                        //    controller: 'Imt.usagepointmanagement.controller.Edit',
-                        //    action: 'editUsagePoint'
-                        //},
+                        transitions: {
+                            title: Uni.I18n.translate('general.transition', 'IMT', 'Transition'),
+                            route: 'transitions/{transitionId}',
+                            controller: 'Imt.usagepointmanagement.controller.UsagePointTransitionExecute',
+                            action: 'showExecuteTransition',
+                            callback: function (route) {
+                                this.getApplication().on('loadUsagePointTransition', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
+                        },
                         attributes: {
                             title: Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
                             route: 'attributes',
@@ -427,6 +435,147 @@ Ext.define('Imt.controller.History', {
                     controller: 'Imt.servicecategories.controller.ServiceCategories',
                     action: 'showOverview',
                     privileges: Imt.privileges.ServiceCategory.view
+                },
+                usagepointlifecycles: {
+                    title: Uni.I18n.translate('general.usagePointLifeCycles', 'IMT', 'Usage point life cycles'),
+                    route: 'usagepointlifecycles',
+                    controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                    privileges: Imt.privileges.UsagePointLifeCycle.view,
+                    action: 'showUsagePointLifeCycles',
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addUsagePointLifeCycle', 'IMT', 'Add usage point life cycle'),
+                            route: 'add',
+                            controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                            privileges: Imt.privileges.UsagePointLifeCycle.configure,
+                            action: 'showAddUsagePointLifeCycle'
+                        },
+                        clone: {
+                            title: Uni.I18n.translate('general.cloneUsagePointLifeCycle', 'IMT', 'Clone usage point life cycle'),
+                            route: '{usagePointLifeCycleId}/clone',
+                            controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                            privileges: Imt.privileges.UsagePointLifeCycle.configure,
+                            action: 'showCloneUsagePointLifeCycle',
+                            callback: function (route) {
+                                this.getApplication().on('usagepointlifecyclecloneload', function (recordName) {
+                                    route.setTitle(Uni.I18n.translate('usagePointLifeCycles.clone.title', 'IMT', "Clone '{0}'", recordName, false));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+                        },
+                        usagepointlifecycle: {
+                            route: '{usagePointLifeCycleId}',
+                            controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                            privileges: Imt.privileges.UsagePointLifeCycle.view,
+                            action: 'showUsagePointLifeCycleOverview',
+                            callback: function (route) {
+                                this.getApplication().on('usagepointlifecycleload', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                    route: 'edit',
+                                    controller: 'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
+                                    privileges: Imt.privileges.UsagePointLifeCycle.configure,
+                                    action: 'showEditUsagePointLifeCycle',
+                                    callback: function (route) {
+                                        this.getApplication().on('usagePointLifeCycleEdit', function (record) {
+                                            route.setTitle(Uni.I18n.translate('usagePointLifeCycles.edit.title', 'IMT', "Edit '{0}'", record.get('name'), false));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
+                                states: {
+                                    title: Uni.I18n.translate('general.states', 'IMT', 'States'),
+                                    route: 'states',
+                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                    action: 'showUsagePointLifeCycleStates',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('usagePointLifeCycleStates.add', 'IMT', 'Add state'),
+                                            route: 'add',
+                                            controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                            action: 'showUsagePointLifeCycleStateEdit',
+                                            items: {
+                                                addEntryProcesses: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
+                                                    route: 'entryprocesses',
+                                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                                    action: 'showAvailableEntryTransitionProcesses'
+                                                },
+                                                addExitProcesses: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
+                                                    route: 'exitprocesses',
+                                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                                    action: 'showAvailableExitTransitionProcesses'
+                                                }
+                                            }
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('usagePointLifeCycleStates.edit', 'IMT', 'Edit state'),
+                                            route: '{id}/edit',
+                                            controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                            action: 'showUsagePointLifeCycleStateEdit',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadlifecyclestate', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('name')], false));
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            },
+                                            items: {
+                                                addEntryProcesses: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
+                                                    route: 'entryprocesses',
+                                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                                    action: 'showAvailableEntryTransitionProcesses'
+                                                },
+                                                addExitProcesses: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
+                                                    route: 'exitprocesses',
+                                                    controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
+                                                    action: 'showAvailableExitTransitionProcesses'
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                transitions: {
+                                    title: Uni.I18n.translate('general.transitions', 'IMT', 'Transitions'),
+                                    route: 'transitions',
+                                    controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
+                                    action: 'showUsagePointLifeCycleTransitions',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('general.addTransition', 'IMT', 'Add transition'),
+                                            route: 'add',
+                                            controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
+                                            action: 'showAddUsagePointLifeCycleTransition'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                            route: '{transitionId}/edit',
+                                            controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
+                                            action: 'showAddUsagePointLifeCycleTransition',
+                                            callback: function (route) {
+                                                this.getApplication().on('usagePointLifeCycleTransitionEdit', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -444,6 +593,13 @@ Ext.define('Imt.controller.History', {
                     action: 'showBulkAction'
                 }
             }
+        },
+        dashboard: {
+            title: Uni.I18n.translate('general.label.dashboard', 'IMT', 'Dashboard'),
+            route: 'dashboard',
+            controller: 'Imt.dashboard.controller.OperatorDashboard',
+            action: 'showOverview'
         }
+
     }
 });
