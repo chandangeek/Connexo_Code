@@ -1,26 +1,19 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link SimplePasswordSecuritySupport} component
@@ -29,19 +22,7 @@ import static org.mockito.Mockito.when;
  * Date: 11/01/13
  * Time: 14:56
  */
-@RunWith(MockitoJUnitRunner.class)
 public class SimplePasswordSecuritySupportTest {
-
-    @Mock
-    private DataVaultProvider dataVaultProvider;
-    @Mock
-    private DataVault dataVault;
-
-    @Before
-    public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
-        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-    }
 
     @Test
     public void getSecurityPropertiesTest() {

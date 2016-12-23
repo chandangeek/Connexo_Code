@@ -171,7 +171,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
             this.clientId = clientId;
         }
 
-        private int getAccessLevel() {
+        int getAccessLevel() {
             return this.accessLevel;
         }
 

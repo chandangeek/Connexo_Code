@@ -48,6 +48,9 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
             this.accessLevel = accessLevel;
         }
 
+        int getAccessLevel() {
+            return accessLevel;
+        }
     }
 
     @Override

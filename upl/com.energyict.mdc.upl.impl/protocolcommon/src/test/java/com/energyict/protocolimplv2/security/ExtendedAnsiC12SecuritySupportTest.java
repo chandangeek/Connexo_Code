@@ -1,24 +1,17 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ExtendedAnsiC12SecuritySupport} component
@@ -27,19 +20,7 @@ import static org.mockito.Mockito.when;
  * Date: 31/01/13
  * Time: 13:34
  */
-@RunWith(MockitoJUnitRunner.class)
 public class ExtendedAnsiC12SecuritySupportTest {
-
-    @Mock
-    private DataVaultProvider dataVaultProvider;
-    @Mock
-    private DataVault dataVault;
-
-    @Before
-    public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
-        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-    }
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -187,7 +168,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
                 };
 
         // business method
-        TypedProperties legacyProperties = ansiC12SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+        TypedProperties legacyProperties = TypedProperties.copyOf(ansiC12SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet));
 
         // asserts
         assertNotNull(legacyProperties);

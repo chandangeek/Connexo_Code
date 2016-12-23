@@ -1,24 +1,17 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link AnsiC12SecuritySupport} component
@@ -27,19 +20,7 @@ import static org.mockito.Mockito.when;
  * Date: 21/01/13
  * Time: 14:27
  */
-@RunWith(MockitoJUnitRunner.class)
 public class AnsiC12SecuritySupportTest {
-
-    @Mock
-    private DataVaultProvider dataVaultProvider;
-    @Mock
-    private DataVault dataVault;
-
-    @Before
-    public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
-        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-    }
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -121,7 +102,7 @@ public class AnsiC12SecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest() {
         AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
-        final TypedProperties securityProperties = new TypedProperties();
+        final TypedProperties securityProperties = TypedProperties.empty();
         String ansiC12UserIdValue = "MyAnsiC12UserId";
         securityProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), ansiC12UserIdValue);
         String ansiC12UserValue = "MyAnsiC12User";
@@ -147,7 +128,7 @@ public class AnsiC12SecuritySupportTest {
                 };
 
         // business method
-        TypedProperties legacyProperties = ansiC12SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+        com.energyict.mdc.upl.properties.TypedProperties legacyProperties = ansiC12SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
 
         // asserts
         assertNotNull(legacyProperties);
@@ -160,7 +141,7 @@ public class AnsiC12SecuritySupportTest {
     @Test
     public void testConvertToSecurityPropertySet() throws Exception {
         AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "6");
         securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), "1pwd2");
 
@@ -172,7 +153,7 @@ public class AnsiC12SecuritySupportTest {
     @Test
     public void testConvertToSecurityPropertySetMissingSecurityLevel() throws Exception {
         AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = ansiC12SecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);

@@ -1,28 +1,21 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DlmsSecuritySupport} component
@@ -31,19 +24,7 @@ import static org.mockito.Mockito.when;
  * Date: 11/01/13
  * Time: 10:40
  */
-@RunWith(MockitoJUnitRunner.class)
 public class DlmsSecuritySupportTest {
-
-    @Mock
-    private DataVaultProvider dataVaultProvider;
-    @Mock
-    private DataVault dataVault;
-
-    @Before
-    public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
-        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-    }
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -268,7 +249,7 @@ public class DlmsSecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest() {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
-        final TypedProperties securityProperties = new TypedProperties();
+        final TypedProperties securityProperties = TypedProperties.empty();
         String encryptionKeyValue = "MyEncryptionKey";
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKeyValue);
         String authenticationKeyValue = "MyAuthenticationKey";
@@ -310,7 +291,7 @@ public class DlmsSecuritySupportTest {
     @Test
     public void testConvertTypedPropertiesToSecuritySet() throws Exception {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "12:21");
 
         DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
@@ -332,7 +313,7 @@ public class DlmsSecuritySupportTest {
     @Test
     public void testConvertTypedPropertiesToSecuritySetWithoutEncryptionLevelDefaultsTo0() throws Exception {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "13");
 
         DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
@@ -378,7 +359,7 @@ public class DlmsSecuritySupportTest {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        Password password = new Password(passwordValue);
+        Password password = new SimplePassword(passwordValue);
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), password);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {

@@ -1,26 +1,19 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link WavenisSecuritySupport} component
@@ -29,19 +22,7 @@ import static org.mockito.Mockito.when;
  * Date: 11/01/13
  * Time: 16:25
  */
-@RunWith(MockitoJUnitRunner.class)
 public class WavenisSecuritySupportTest {
-
-    @Mock
-    private DataVaultProvider dataVaultProvider;
-    @Mock
-    private DataVault dataVault;
-
-    @Before
-    public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
-        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-    }
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -129,7 +110,7 @@ public class WavenisSecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest() {
         WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
-        final TypedProperties securityProperties = new TypedProperties();
+        final TypedProperties securityProperties = TypedProperties.empty();
 
         String passwordValue = "MyPassword";
         String encryptionKey = "MyEncryptionKey";
@@ -155,7 +136,7 @@ public class WavenisSecuritySupportTest {
                 };
 
         // business method
-        TypedProperties legacyProperties = wavenisSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+        TypedProperties legacyProperties = TypedProperties.copyOf(wavenisSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet));
 
         // asserts
         assertNotNull(legacyProperties);
@@ -167,7 +148,7 @@ public class WavenisSecuritySupportTest {
     @Test
     public void testConvertToSecurityPropertySet() throws Exception {
         WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "1");
         securityProperties.setProperty("WavenisEncryptionKey", "2");
 
@@ -179,7 +160,7 @@ public class WavenisSecuritySupportTest {
     @Test
     public void testConvertToSecurityPropertySetMissingSecurityLevel() throws Exception {
         WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("WavenisEncryptionKey", "2");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = wavenisSecuritySupport.convertFromTypedProperties(securityProperties);
@@ -190,7 +171,7 @@ public class WavenisSecuritySupportTest {
     @Test
     public void testConvertToSecurityPropertySetMissingEncryptionKey() throws Exception {
         WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "1");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = wavenisSecuritySupport.convertFromTypedProperties(securityProperties);

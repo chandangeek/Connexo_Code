@@ -1,46 +1,28 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
  * Date: 19/06/13
  * Time: 10:05
  */
-@RunWith(MockitoJUnitRunner.class)
 public class DlmsSecuritySupportPerClientTest {
-    @Mock
-    private DataVaultProvider dataVaultProvider;
-    @Mock
-    private DataVault dataVault;
-
-    @Before
-    public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
-        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-    }
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -1090,7 +1072,7 @@ public class DlmsSecuritySupportPerClientTest {
         DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient();
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        Password password = new Password(passwordValue);
+        Password password = new SimplePassword(passwordValue);
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_DATA.toString(), password);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
@@ -1111,7 +1093,7 @@ public class DlmsSecuritySupportPerClientTest {
                 };
 
         // business method
-        TypedProperties legacyProperties = dlmsSecuritySupportPerClient.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+        TypedProperties legacyProperties = TypedProperties.copyOf(dlmsSecuritySupportPerClient.convertToTypedProperties(deviceProtocolSecurityPropertySet));
 
         assertThat(legacyProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString())).isEqualTo(passwordValue);
     }
@@ -1187,7 +1169,7 @@ public class DlmsSecuritySupportPerClientTest {
                 };
 
         // business method
-        TypedProperties legacyProperties = dlmsSecuritySupportPerClient.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+        TypedProperties legacyProperties = TypedProperties.copyOf(dlmsSecuritySupportPerClient.convertToTypedProperties(deviceProtocolSecurityPropertySet));
 
         // asserts
         assertNotNull(legacyProperties);

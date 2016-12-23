@@ -267,6 +267,9 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             this.accessLevel = accessLevel;
         }
 
+        int getAccessLevel() {
+            return accessLevel;
+        }
     }
 
     /**
@@ -284,6 +287,9 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             this.accessLevel = accessLevel;
         }
 
+        int getAccessLevel() {
+            return accessLevel;
+        }
     }
 
     /**

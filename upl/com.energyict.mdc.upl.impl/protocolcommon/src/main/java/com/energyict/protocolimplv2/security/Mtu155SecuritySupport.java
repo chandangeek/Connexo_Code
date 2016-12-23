@@ -45,7 +45,7 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
             this.accessLevel = accessLevel;
         }
 
-        private int getAccessLevel() {
+        int getAccessLevel() {
             return this.accessLevel;
         }
     }
