@@ -53,12 +53,21 @@ public enum DeviceSecurityProperty {
     CLIENT_MAC_ADDRESS {
         @Override
         public PropertySpec getPropertySpec() {
+            return this.getPropertySpec(BigDecimal.ONE);
+        }
+
+        @Override
+        public PropertySpec getPropertySpec(Object defaultValue) {
+            return this.getPropertySpec((BigDecimal) defaultValue);
+        }
+
+        private PropertySpec getPropertySpec(BigDecimal defaultValue) {
             return Services
                     .propertySpecService()
-                    .boundedBigDecimalSpec(BigDecimal.valueOf(1), BigDecimal.valueOf(0x7F))
+                    .boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(0x7F))
                     .named(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
                     .describedAs("Description for " + SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-                    .setDefaultValue(BigDecimal.valueOf(1))
+                    .setDefaultValue(defaultValue)
                     .addValues(getPossibleClientMacAddressValues(1, 0x7F))
                     .finish();
         }
@@ -207,5 +216,9 @@ public enum DeviceSecurityProperty {
     }
 
     public abstract PropertySpec getPropertySpec();
+
+    public PropertySpec getPropertySpec(Object defaultValue) {
+        return this.getPropertySpec();
+    }
 
 }
