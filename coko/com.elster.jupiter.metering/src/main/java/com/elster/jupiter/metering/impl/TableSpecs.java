@@ -1657,7 +1657,11 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar2(80 char)");
             Column meterActivationColumn = table.column("METER_ACTIVATION").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .upTo(version(10, 3))
+                    .add();
 
             table.addAuditColumns();
 
@@ -1668,15 +1672,33 @@ public enum TableSpecs {
                     .references(MeterActivation.class)
                     .map("meterActivation")
                     .reverseMap("channelsContainer")
-                    .composition()
                     .add();
-            table.unique("MTR_CH_CONTAINER_EF_CONTR_UK").on(effectiveMetrologyContractColumn).add();
+            table.unique("MTR_CH_CONTAINER_EF_CONTR_UK")
+                    .on(effectiveMetrologyContractColumn)
+                    .upTo(version(10, 3))
+                    .add();
             table.foreignKey("MTR_CH_CONTAINER_2_EF_CONTR")
+                    .upTo(version(10, 3))
                     .on(effectiveMetrologyContractColumn)
                     .references(EffectiveMetrologyContractOnUsagePoint.class)
                     .map(MetrologyContractChannelsContainerImpl.Fields.EFFECTIVE_CONTRACT.fieldName())
                     .reverseMap(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER.fieldName())
                     .composition()
+                    .add();
+        }
+    },
+    ADD_MTR_EFFECTIVE_CONTRACT_CHANNEL_CONTAINER {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<?> table = dataModel.getTable(MTR_EFFECTIVE_CONTRACT.name());
+            Column channelContainerColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER
+                    .name()).number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
+            table.foreignKey("MTR_EF_CONTR_2_CH_CONTAINER")
+                    .since(version(10, 3))
+                    .on(channelContainerColumn)
+                    .references(MTR_CHANNEL_CONTAINER.name())
+                    .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER.fieldName())
+                    .reverseMap(MetrologyContractChannelsContainerImpl.Fields.EFFECTIVE_CONTRACT.fieldName())
                     .add();
         }
     },

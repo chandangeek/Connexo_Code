@@ -109,12 +109,40 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .findAny();
     }
 
+    @Override
+    public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract, Instant when) {
+        return effectiveContracts.stream()
+                .filter(effectiveContract -> effectiveContract.getMetrologyContract()
+                        .equals(metrologyContract) && effectiveContract.isEffectiveAt(when))
+                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                .findAny();
+    }
+
     public void createEffectiveMetrologyContracts() {
         getMetrologyConfiguration().getContracts()
                 .stream()
                 .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                .filter(MetrologyContract::isMandatory)
                 .forEach(metrologyContract -> this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
                         .init(this, metrologyContract)));
+    }
+
+    @Override
+    public void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when) {
+        this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
+                .init(this, metrologyContract, Range.atLeast(when)));
+    }
+
+    @Override
+    public void deactivateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when) {
+        this.effectiveContracts
+                .stream()
+                .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getMetrologyContract().isMandatory())
+                .filter(effectiveMetrologyContract -> effectiveMetrologyContract.getMetrologyContract()
+                        .equals(metrologyContract))
+                .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getRange().hasUpperBound())
+                .findFirst()
+                .ifPresent(effectiveMetrologyContract -> effectiveMetrologyContract.close(when));
     }
 
     @Override

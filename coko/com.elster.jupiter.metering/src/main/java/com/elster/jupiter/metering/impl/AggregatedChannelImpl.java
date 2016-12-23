@@ -13,10 +13,11 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -41,7 +42,9 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     private ChannelContract persistedChannel;
     private ReadingTypeDeliverable deliverable;
-    private EffectiveMetrologyContractOnUsagePoint effectiveMetrologyContract;
+    private UsagePoint usagePoint;
+    private MetrologyContract metrologyContract;
+    private ChannelsContainer channelsContainer;
 
     @Inject
     public AggregatedChannelImpl(DataAggregationService dataAggregationService) {
@@ -50,10 +53,14 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     public AggregatedChannelImpl init(ChannelContract channel,
                                       ReadingTypeDeliverable deliverable,
-                                      EffectiveMetrologyContractOnUsagePoint effectiveMetrologyContract) {
+                                      UsagePoint usagePoint,
+                                      MetrologyContract metrologyContract,
+                                      ChannelsContainer channelsContainer) {
         this.persistedChannel = channel;
         this.deliverable = deliverable;
-        this.effectiveMetrologyContract = effectiveMetrologyContract;
+        this.usagePoint = usagePoint;
+        this.metrologyContract = metrologyContract;
+        this.channelsContainer = channelsContainer;
         return this;
     }
 
@@ -149,8 +156,8 @@ public class AggregatedChannelImpl implements ChannelContract {
     private <T extends BaseReadingRecord> List<T> getReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
         // TODO  merge records with edited/estimated/deleted records which are stored in persistedChannel
         return this.dataAggregationService.calculate(
-                this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
-                this.effectiveMetrologyContract.getMetrologyContract(),
+                usagePoint,
+                metrologyContract,
                 interval)
                     .getCalculatedDataFor(this.deliverable)
                         .stream()
@@ -229,8 +236,8 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public Instant getFirstDateTime() {
         Instant persistedChannelFirstDateTime = this.persistedChannel.getFirstDateTime();
-        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
-                this.effectiveMetrologyContract.getMetrologyContract(), this.effectiveMetrologyContract.getRange());
+        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.usagePoint,
+                this.metrologyContract, this.channelsContainer.getRange());
         if (!calculatedMetrologyContractData.isEmpty()) {
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
@@ -244,8 +251,8 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public Instant getLastDateTime() {
         Instant persistedChannelLastDateTime = this.persistedChannel.getLastDateTime();
-        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
-                this.effectiveMetrologyContract.getMetrologyContract(), this.effectiveMetrologyContract.getRange());
+        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.usagePoint,
+                this.metrologyContract, this.channelsContainer.getRange());
         if (!calculatedMetrologyContractData.isEmpty()) {
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
