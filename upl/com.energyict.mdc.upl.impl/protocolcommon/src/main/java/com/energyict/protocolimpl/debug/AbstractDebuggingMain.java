@@ -9,6 +9,7 @@ import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -75,7 +76,7 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
     }
 
     public void initAndConnectMeterProtocol() throws LinkException, IOException, ParseException {
-        getMeterProtocol().setProperties(getProperties());
+        getMeterProtocol().setProperties(TypedProperties.copyOf(getProperties()));
         getMeterProtocol().init(getDialer().getInputStream(), getDialer().getOutputStream(), getTimeZone(), getLogger());
         if (getDialer() instanceof Optical) {
             if (getMeterProtocol() instanceof HHUEnabler) {
