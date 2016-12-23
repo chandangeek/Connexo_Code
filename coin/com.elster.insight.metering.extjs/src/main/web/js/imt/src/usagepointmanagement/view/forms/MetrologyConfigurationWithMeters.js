@@ -161,12 +161,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
 
         if (metrologyConfiguration) {
             metrologyConfiguration.purposes = purposesField.getValue();
-            meterActivations = meterActivationsField.getValue();
+            metrologyConfiguration.meterRoles = meterActivationsField.getValue();
         }
 
         return {
-            metrologyConfiguration: metrologyConfiguration,
-            meterActivations: meterActivations
+            metrologyConfiguration: metrologyConfiguration
         }
     }
 });

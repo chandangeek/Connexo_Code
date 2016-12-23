@@ -2,13 +2,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
     extend: 'Ext.grid.Panel',
     alias: 'widget.meter-activations-grid',
     requires: [
-        'Uni.form.field.ComboReturnedRecordData',
         'Uni.form.field.DateTime',
         'Uni.grid.plugin.EditableCells',
         'Uni.grid.plugin.ShowConditionalToolTip'
     ],
     store: Ext.create('Ext.data.Store', {
-        fields: ['meterRole', 'meter', 'activationDate']
+        fields: ['meterRole', 'meter', 'activationTime']
     }),
     disableSelection: true,
     plugins: [
@@ -39,7 +38,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                 disableTooltip: true,
                 flex: 1,
                 editor: {
-                    xtype: 'combo-returned-record-data',
+                    xtype: 'combo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',
@@ -58,7 +57,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
             },
             {
                 header: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
-                dataIndex: 'activationDate',
+                dataIndex: 'activationTime',
                 disableTooltip: true,
                 width: 310,
                 editor: {

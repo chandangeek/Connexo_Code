@@ -61,13 +61,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
             var result = record.getData();
 
             if (!Ext.isEmpty(result.meter)) {
-                //result.activationDate = Ext.isDate(result.activationDate) ? result.activationDate.getTime() : null;
-                //result.meter = _.pick(result.meter, 'name');
-
-                value.push(Ext.merge(result.meterRole, {
-                    activationTime: Ext.isDate(result.activationDate) ? result.activationDate.getTime() : null,
-                    meter: result.meter.name
-                }));
+                value.push(Ext.merge(result.meterRole, _.pick(result, 'meter', 'activationTime')));
             }
         });
 
