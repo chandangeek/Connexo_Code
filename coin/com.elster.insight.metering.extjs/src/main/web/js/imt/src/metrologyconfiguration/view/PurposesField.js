@@ -94,6 +94,12 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
                     }
                     Ext.resumeLayouts(true);
                 }
+            },
+            bbar: {
+                xtype: 'component',
+                itemId: 'purposes-field-errors',
+                cls: 'x-form-invalid-under',
+                hidden: true
             }
         };
 
@@ -147,7 +153,23 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
 
     setValue: Ext.emptyFn,
 
-    markInvalid: Ext.emptyFn,
+    markInvalid: function (errors) {
+        var me = this,
+            errorsField = me.down('#purposes-field-errors');
 
-    clearInvalid: Ext.emptyFn
+        Ext.suspendLayouts();
+        errorsField.show();
+        errorsField.update(errors.split('<br>'));
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function (errors) {
+        var me = this,
+            errorsField = me.down('#purposes-field-errors');
+
+        Ext.suspendLayouts();
+        errorsField.hide();
+        errorsField.update();
+        Ext.resumeLayouts(true);
+    }
 });

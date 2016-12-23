@@ -110,18 +110,23 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         if (warning) {
             warning.setVisible(!isValid);
         }
-        if (step.xtype === 'cps-info-form') {
-            if (!isValid) {
-                step.markInvalid(errors);
-            } else {
-                step.clearInvalid();
-            }
-        } else {
-            if (!isValid) {
-                step.getForm().markInvalid(errors);
-            } else {
-                step.getForm().clearInvalid();
-            }
+        switch (step.stepName) {
+            case 'casInfo':
+                if (!isValid) {
+                    step.markInvalid(errors);
+                } else {
+                    step.clearInvalid();
+                }
+                break;
+            case 'generalInfo':
+            case 'techInfo':
+            case 'metrologyConfigurationWithMetersInfo':
+                if (!isValid) {
+                    step.getForm().markInvalid(errors);
+                } else {
+                    step.getForm().clearInvalid();
+                }
+                break;
         }
         Ext.resumeLayouts(true);
     }

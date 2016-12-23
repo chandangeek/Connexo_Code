@@ -2,6 +2,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     extend: 'Ext.form.Panel',
     alias: 'widget.metrology-configuration-with-meters-info-form',
     requires: [
+        'Uni.util.FormErrorMessage',
         'Uni.form.field.ComboReturnedRecordData',
         'Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMetersInfo',
         'Imt.metrologyconfiguration.model.MetrologyConfiguration'
@@ -18,6 +19,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                 itemId: 'link-metrology-configuration-with-meters-step-description',
                 html: Uni.I18n.translate('usagepoint.wizard.linkMetrologyConfigurationWithMetersStep.description', 'IMT', 'Link a metrology configuration, and link meters to meter roles of the selected metrology configuration.'),
                 style: 'margin: -3px 0 13px 0; font-style: italic'
+            },
+            {
+                itemId: 'metrology-configuration-with-meters-info-warning',
+                xtype: 'uni-form-error-message',
+                hidden: true
             },
             {
                 xtype: 'uni-form-info-message',

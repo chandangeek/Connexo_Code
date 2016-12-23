@@ -19,6 +19,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
             itemId: 'meter-activations-grid',
             listeners: {
                 edit: Ext.bind(me.onMeterActivationEdit, me)
+            },
+            bbar: {
+                xtype: 'component',
+                itemId: 'meter-activations-field-errors',
+                cls: 'x-form-invalid-under',
+                hidden: true
             }
         };
 
@@ -73,9 +79,25 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
 
     setValue: Ext.emptyFn,
 
-    markInvalid: Ext.emptyFn,
+    markInvalid: function (errors) {
+        var me = this,
+            errorsField = me.down('#meter-activations-field-errors');
 
-    clearInvalid: Ext.emptyFn,
+        Ext.suspendLayouts();
+        errorsField.show();
+        errorsField.update(errors.split('<br>'));
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function (errors) {
+        var me = this,
+            errorsField = me.down('#meter-activations-field-errors');
+
+        Ext.suspendLayouts();
+        errorsField.hide();
+        errorsField.update();
+        Ext.resumeLayouts(true);
+    },
 
     onMeterActivationEdit: function () {
         var me = this,
