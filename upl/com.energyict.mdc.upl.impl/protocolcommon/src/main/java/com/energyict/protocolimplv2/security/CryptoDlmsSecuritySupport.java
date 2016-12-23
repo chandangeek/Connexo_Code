@@ -2,13 +2,13 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -76,23 +76,13 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+    public com.energyict.mdc.upl.properties.TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());    //Adds ClientMacAddress and SecurityLevel, their names have not changed
 
             // HlsSecret: override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
             if (Password.class.isAssignableFrom(property.getClass())) {
                 typedProperties.setProperty(HLS_SECRET_LEGACY_PROPERTY_NAME, ((Password) property).getValue());
             } else {
@@ -114,7 +104,11 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties oldTypedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
+        return this.convertFromTypedProperties(TypedProperties.copyOf(typedProperties));
+    }
+
+    private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties oldTypedProperties) {
         checkForCorrectClientMacAddressPropertySpecType(oldTypedProperties);
         final TypedProperties result = TypedProperties.empty();
         result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, 0, getAuthenticationAccessLevels()));

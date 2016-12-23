@@ -2,14 +2,14 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +30,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
     @Override
     public List<String> getLegacySecurityProperties() {
-        return Arrays.asList(SECURITY_LEVEL_PROPERTY_NAME);
+        return Collections.singletonList(SECURITY_LEVEL_PROPERTY_NAME);
     }
 
     /**
@@ -44,19 +44,15 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
         private final int accessLevel;
 
-        private AccessLevelIds(int accessLevel) {
+        AccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
-        }
-
-        protected int getAccessLevel() {
-            return this.accessLevel;
         }
 
     }
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
     }
 
     @Override
@@ -79,22 +75,12 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+    public com.energyict.mdc.upl.properties.TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
             if (Password.class.isAssignableFrom(property.getClass())) {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
             } else {
@@ -106,7 +92,11 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
+        return this.convertFromTypedProperties(TypedProperties.copyOf(typedProperties));
+    }
+
+    private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String securityLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME, DEFAULT_SECURITY_LEVEL_VALUE);
         final int authenticationLevel = Integer.valueOf(securityLevelProperty);
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
@@ -168,7 +158,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }
 
@@ -189,7 +179,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }
 
@@ -210,7 +200,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }
 }

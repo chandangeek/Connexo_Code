@@ -83,7 +83,7 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         return this.convertFromTypedProperties(TypedProperties.copyOf(typedProperties));
     }
 
-    private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    protected DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String authenticationDeviceAccessLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
         final int authenticationDeviceAccessLevel;
         if (authenticationDeviceAccessLevelProperty != null) {
@@ -194,13 +194,6 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
                     DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
             );
-        }
-    }
-
-    private static class EmptyPassword implements Password {
-        @Override
-        public String getValue() {
-            return "";
         }
     }
 

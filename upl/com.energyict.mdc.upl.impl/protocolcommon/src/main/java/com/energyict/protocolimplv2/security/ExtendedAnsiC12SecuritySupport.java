@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,8 +57,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     }
 
     @Override
-    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        TypedProperties typedProperties = super.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+    public com.energyict.mdc.upl.properties.TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        TypedProperties typedProperties = (TypedProperties) super.convertToTypedProperties(deviceProtocolSecurityPropertySet);
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setProperty(SECURITY_MODE_LEGACY_PROPERTY, String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
         }
@@ -66,13 +66,16 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    protected DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = super.convertFromTypedProperties(typedProperties);
         String encryptionDeviceAccessLevelProperty = typedProperties.getStringProperty("SecurityMode");
-        final int encryptionDeviceAccessLevel = encryptionDeviceAccessLevelProperty != null ?
-                Integer.valueOf(encryptionDeviceAccessLevelProperty) :
-                new NoMessageEncryption().getId();
-        final TypedProperties securityRelatedTypedProperties = deviceProtocolSecurityPropertySet.getSecurityProperties();
+        final int encryptionDeviceAccessLevel;
+        if (encryptionDeviceAccessLevelProperty != null) {
+            encryptionDeviceAccessLevel = Integer.valueOf(encryptionDeviceAccessLevelProperty);
+        } else {
+            encryptionDeviceAccessLevel = new NoMessageEncryption().getId();
+        }
+        final TypedProperties securityRelatedTypedProperties = TypedProperties.copyOf(deviceProtocolSecurityPropertySet.getSecurityProperties());
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
 
         return new DeviceProtocolSecurityPropertySet() {
@@ -91,7 +94,6 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
                 return securityRelatedTypedProperties;
             }
         };
-
     }
 
     /**
