@@ -111,14 +111,6 @@ public class UpgraderV10_2 implements Upgrader {
         return result.toString();
     }
 
-    private void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
     private void upgradeSubscriberSpecs() {
         try (Connection connection = this.dataModel.getConnection(true)) {
             this.upgradeSubscriberSpecs(connection);
