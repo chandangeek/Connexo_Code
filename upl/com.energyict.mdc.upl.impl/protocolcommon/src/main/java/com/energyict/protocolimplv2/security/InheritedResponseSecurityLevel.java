@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
-
-import com.energyict.cpo.PropertySpec;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,4 +32,5 @@ public class InheritedResponseSecurityLevel implements ResponseSecurityLevel {
     public List<PropertySpec> getSecurityProperties() {
         return Collections.emptyList();
     }
+
 }
