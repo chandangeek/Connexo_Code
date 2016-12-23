@@ -1,16 +1,17 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,37 +37,22 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.PASSWORD_AND_USER.toString();
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new StandardAuthenticationAccessLevel());
+        return Collections.singletonList(new StandardAuthenticationAccessLevel());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Arrays.<EncryptionDeviceAccessLevel>asList(new StandardEncryptionAccessLevel());
+        return Collections.singletonList(new StandardEncryptionAccessLevel());
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+    public com.energyict.mdc.upl.properties.TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
             if (Password.class.isAssignableFrom(property.getClass())) {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
             } else {
@@ -77,7 +63,11 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
+        return this.convertFromTypedProperties(TypedProperties.copyOf(typedProperties));
+    }
+
+    private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         overrideDeviceAccessIdentifierPropertyIfAbsent(typedProperties);
 
@@ -157,4 +147,12 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
                     DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }
+
+    private static class EmptyPassword implements Password {
+        @Override
+        public String getValue() {
+            return "";
+        }
+    }
+
 }
