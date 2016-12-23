@@ -1,5 +1,6 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -21,6 +22,7 @@ public class Services {
     private static AtomicReference<NlsService> NLS_SERVICE = new AtomicReference<>();
     private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
+    private static AtomicReference<Extractor> EXTRACTOR = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
@@ -31,6 +33,8 @@ public class Services {
             return securityService();
         } else if (Converter.class.equals(serviceType)) {
             return converter();
+        } else if (Extractor.class.equals(serviceType)) {
+            return extractor();
         } else {
             throw new UnknownServiceType(serviceType);
         }
@@ -66,6 +70,14 @@ public class Services {
 
     public static void converter(Converter converter) {
         CONVERTER.set(converter);
+    }
+
+    public static Extractor extractor() {
+        return EXTRACTOR.get();
+    }
+
+    public static void extractor(Extractor extractor) {
+        EXTRACTOR.set(extractor);
     }
 
     /**
