@@ -109,7 +109,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
         return PropertySpecFactory.stringPropertySpec(G3Properties.PSK);
     }
 
-    private PropertySpec nodeAddressPropertySpec() {
+    protected PropertySpec nodeAddressPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.NODEID);
     }
 
@@ -117,11 +117,11 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
         return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
     }
 
-    private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
+    protected PropertySpec mirrorLogicalDeviceIdPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
     }
 
-    private PropertySpec actualLogicalDeviceIdPropertySpec() {
+    protected PropertySpec actualLogicalDeviceIdPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
     }
 

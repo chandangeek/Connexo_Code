@@ -199,6 +199,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         return Arrays.asList((ConnectionType) new SioOpticalConnectionType(), new RxTxOpticalConnectionType());
     }
 
+    @Override
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
         return new AM540ConfigurationSupport();
     }
@@ -208,6 +209,11 @@ public class AM540 extends AM130 implements SerialNumberSupport {
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
     protected void handleFC(ComChannel comChannel) {
+        if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < 5 ){
+            getLogger().info("Skipping FC handling due to lower security level.");
+            return; // no need to handle any FC
+        }
+
         if (!getDlmsSessionProperties().usesPublicClient()) {
             final int clientId = getDlmsSessionProperties().getClientMacAddress();
             validateFCProperties(clientId);

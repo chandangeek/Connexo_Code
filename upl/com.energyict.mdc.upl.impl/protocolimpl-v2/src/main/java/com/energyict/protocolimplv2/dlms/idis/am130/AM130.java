@@ -64,6 +64,7 @@ public class AM130 extends AM500 {
         return "$Date: Fri Sep 2 11:39:06 2016 +0300 $";
     }
 
+    @Override
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
         return new AM130ConfigurationSupport();
     }

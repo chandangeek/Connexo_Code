@@ -82,7 +82,7 @@ public class AM540Properties extends IDISProperties {
         }
     }
 
-    private int getMirrorLogicalDeviceId() {
+    protected int getMirrorLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
             throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
@@ -90,7 +90,7 @@ public class AM540Properties extends IDISProperties {
         return logicalDeviceId;
     }
 
-    private int getGatewayLogicalDeviceId() {
+    protected int getGatewayLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
             throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
