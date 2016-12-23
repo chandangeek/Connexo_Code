@@ -1,6 +1,9 @@
 Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.purposes-grid',
+    requires: [
+        'Imt.usagepointmanagement.view.metrologyconfiguration.PurposeActionMenu'
+    ],
     store: null,
     initComponent: function () {
         var me = this;
@@ -8,7 +11,15 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid', 
             {
                 text: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
                 dataIndex: 'name',
-                flex: 4
+                flex: 4,
+                renderer: function (value, metaData, record) {
+                    var description = record.get('description');
+
+                    return value + (description
+                            ? '<span class="icon-info" style="color: #A9A9A9; margin-left: 10px; font-size: 16px; vertical-align: middle;" data-qtip="'
+                        + description + '"></span>'
+                            : '');
+                }
             },
             {
                 text: Uni.I18n.translate('general.required', 'IMT', 'Required'),
@@ -36,6 +47,18 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid', 
                             + '"></i>';
 
                     return value ? icon : '-';
+                }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                privileges: Imt.privileges.UsagePoint.admin,
+                itemId: 'usage-point-purpose-action-column',
+                menu: {
+                    xtype: 'purpose-action-menu',
+                    itemId: 'usage-point-purpose-action-menu'
+                },
+                showCondition: function (record) {
+                    return !record.get('required');
                 }
             }
         ];

@@ -191,7 +191,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
                 store.add(purpose.estimationRuleSets().getRange());
                 store.fireEvent('load');
             },
-            callback: function(){
+            callback: function () {
                 me.getAddEstimationRuleSetsView().setLoading(false);
             }
         });
@@ -216,7 +216,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
         });
     },
 
-    showEstRulesTab: function(panel) {
+    showEstRulesTab: function (panel) {
         var me = this,
             purposesWithLinkedRuleSetsStore = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets'),
             rulesStore = me.getStore('Imt.store.EstimationRules'),
