@@ -2,8 +2,12 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WriteModbusCoilMessage;
 
@@ -14,22 +18,9 @@ import java.util.Map;
  * Created by cisac on 11/12/2015.
  */
 public class FP93BMessageConverter extends ModbusMessageConverter {
-    /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(ModbusMessageConverter.registry);
 
-    static {
-        registry.put(ModbusConfigurationDeviceMessage.WriteMultipleCoils, new WriteModbusCoilMessage());
-        registry.put(ModbusConfigurationDeviceMessage.WriteSingleCoil, new WriteModbusCoilMessage());
-    }
-
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public FP93BMessageConverter() {
-        super();
+    public FP93BMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override
@@ -38,6 +29,9 @@ public class FP93BMessageConverter extends ModbusMessageConverter {
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+        Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(super.getRegistry());
+        registry.put(messageSpec(ModbusConfigurationDeviceMessage.WriteMultipleCoils), new WriteModbusCoilMessage());
+        registry.put(messageSpec(ModbusConfigurationDeviceMessage.WriteSingleCoil), new WriteModbusCoilMessage());
         return registry;
     }
 }
