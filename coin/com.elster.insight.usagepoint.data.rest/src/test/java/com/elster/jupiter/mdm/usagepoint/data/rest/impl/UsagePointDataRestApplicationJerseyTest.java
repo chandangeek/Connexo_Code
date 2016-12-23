@@ -225,6 +225,13 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(metrologyConfiguration.getMeterRoles()).thenReturn(Collections.singletonList(meterRole));
 
         MetrologyContract contract = mockMetrologyContract(100L, DefaultMetrologyPurpose.BILLING, metrologyConfiguration);
+        MetrologyContract contractOptional = mockMetrologyContract(101L, DefaultMetrologyPurpose.INFORMATION, metrologyConfiguration);
+
+        when(contractOptional.isMandatory()).thenReturn(false);
+        MetrologyPurpose purpose = mockMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+        when(contractOptional.getMetrologyPurpose()).thenReturn(purpose);
+
+        when(metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(contract, contractOptional));
 
         ReadingType regularReadingType = this.mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(regularReadingType.isRegular()).thenReturn(true);
@@ -235,6 +242,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         ReadingTypeDeliverable registerTypeDeliverable = mockReadingTypeDeliverable(2L, "2 irregular RT", metrologyConfiguration, irregularReadingType);
 
         when(contract.getDeliverables()).thenReturn(Arrays.asList(channelDeliverable, registerTypeDeliverable));
+        when(contractOptional.getDeliverables()).thenReturn(Arrays.asList(channelDeliverable, registerTypeDeliverable));
+
         return metrologyConfiguration;
     }
 
@@ -255,7 +264,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(contract.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         MetrologyContract.Status status = mockMetrologyContractStatus();
         when(contract.getStatus(any())).thenReturn(status);
-        when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(contract));
         return contract;
     }
 

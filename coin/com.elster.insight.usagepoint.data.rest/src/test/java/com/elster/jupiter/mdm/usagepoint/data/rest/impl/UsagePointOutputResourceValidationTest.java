@@ -115,6 +115,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
+        when(effectiveMetrologyConfiguration.getChannelsContainer(eq(metrologyContract), any(Instant.class))).thenReturn(Optional
+                .of(channelsContainer));
         setMetrologyContractStub();
         setUsagePointGroupStub();
         setChannelStub();

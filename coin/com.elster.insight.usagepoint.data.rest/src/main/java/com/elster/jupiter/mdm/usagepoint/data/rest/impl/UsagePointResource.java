@@ -375,6 +375,19 @@ public class UsagePointResource {
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
         usagePoint.update();
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+
+        if (info.purposes != null) {
+            effectiveMC.getMetrologyConfiguration().getContracts()
+                    .stream()
+                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                    .filter(metrologyContract -> info.purposes.stream()
+                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                    .filter(metrologyContract -> !metrologyContract.isMandatory())
+                    .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, effectiveMC.getStart()));
+        }
+
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
@@ -720,8 +733,8 @@ public class UsagePointResource {
 
     private Stream<TranslationKey> defaultRelativePeriodDefinitionTranslationKeys() {
         return Stream.concat(
-                    Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()),
-                    Stream.of(GasDayOptions.RelativePeriodTranslationKey.values()));
+                Stream.of(DefaultRelativePeriodDefinition.RelativePeriodTranslationKey.values()),
+                Stream.of(GasDayOptions.RelativePeriodTranslationKey.values()));
     }
 
     private List<? extends RelativePeriod> getRelativePeriodsDefaultOnTop(TemporalAmount intervalLength) {
@@ -784,7 +797,7 @@ public class UsagePointResource {
                 .getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(MetrologyContract::isMandatory) //Temporary. Should be replaced by active/inactive check
+                .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
                 .map(readingTypeDeliverableFactory::asInfo)
