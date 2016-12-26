@@ -2,6 +2,7 @@ package com.energyict.mdc.upl;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -25,6 +26,7 @@ public class Services {
     private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
     private static AtomicReference<Extractor> EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<TariffCalendarFinder> TARIFF_CALENDAR_FINDER = new AtomicReference<>();
     private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
 
@@ -39,6 +41,8 @@ public class Services {
             return converter();
         } else if (Extractor.class.equals(serviceType)) {
             return extractor();
+        } else if (TariffCalendarFinder.class.equals(serviceType)) {
+            return tariffCalendarFinder();
         } else if (CollectedDataFactory.class.equals(serviceType)) {
             return collectedDataFactory();
         } else if (IssueFactory.class.equals(serviceType)) {
@@ -86,6 +90,14 @@ public class Services {
 
     public static void extractor(Extractor extractor) {
         EXTRACTOR.set(extractor);
+    }
+
+    public static TariffCalendarFinder tariffCalendarFinder() {
+        return TARIFF_CALENDAR_FINDER.get();
+    }
+
+    public static void tariffCalendarFinder(TariffCalendarFinder finder) {
+        TARIFF_CALENDAR_FINDER.set(finder);
     }
 
     public static CollectedDataFactory collectedDataFactory() {

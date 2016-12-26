@@ -1,7 +1,5 @@
 package com.energyict.protocol;
 
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.obis.ObisCode;
 
 import java.util.Date;
@@ -48,21 +46,7 @@ public class LoadProfileReader {
      */
     private final List<ChannelInfo> channelInfos;
 
-    private final DeviceIdentifier deviceIdentifier;
-
-    private final LoadProfileIdentifier loadProfileIdentifier;
-
-
-    /**
-     * Default constructor
-     *
-     * @param profileObisCode   the <CODE>ObisCode</CODE> from the <CODE>LoadProfile</CODE>
-     * @param startReadingTime  the readTime to start reading the <CODE>LoadProfile</CODE>
-     * @param endReadingTime    the endTime of the last <CODE>LoadProfile</CODE> interval
-     * @param meterSerialNumber the serialNumber of the meter for which this <CODE>ObisCode</CODE> and <CODE>LoadProfile</CODE> is mapped
-     * @param channelInfos      the <CODE>List</CODE> of <CODE>ChannelInfo</CODE> representing the channels to read from the profile in the meter
-     */
-    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, int loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos, DeviceIdentifier deviceIdentifier, LoadProfileIdentifier loadProfileIdentifier) {
+    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, int loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos) {
         this.profileObisCode = profileObisCode;
         if (endReadingTime == null) {
             this.endReadingTime = new Date();
@@ -77,16 +61,6 @@ public class LoadProfileReader {
         this.loadProfileId = loadProfileId;
         this.meterSerialNumber = meterSerialNumber;
         this.channelInfos = channelInfos;
-        this.deviceIdentifier = deviceIdentifier;
-        this.loadProfileIdentifier = loadProfileIdentifier;
-    }
-
-    public DeviceIdentifier getDeviceIdentifier() {
-        return deviceIdentifier;
-    }
-
-    public LoadProfileIdentifier getLoadProfileIdentifier() {
-        return loadProfileIdentifier;
     }
 
     /**
@@ -166,12 +140,10 @@ public class LoadProfileReader {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ObisCode : ");
-        builder.append(getProfileObisCode());
-        builder.append(" for meter : ");
-        builder.append(getMeterSerialNumber());
-        return builder.toString();
+        return "ObisCode : " +
+                getProfileObisCode() +
+                " for meter : " +
+                getMeterSerialNumber();
     }
 
     @Override

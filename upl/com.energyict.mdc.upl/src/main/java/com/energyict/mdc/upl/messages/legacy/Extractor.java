@@ -1,12 +1,16 @@
 package com.energyict.mdc.upl.messages.legacy;
 
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.TariffCalender;
 
+import com.energyict.obis.ObisCode;
+
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Extracts information from message related objects
@@ -16,6 +20,32 @@ import java.util.List;
  * @since 2016-12-23 (13:30)
  */
 public interface Extractor {
+
+    /**
+     * Extracts the serial number from the {@link Device}.
+     *
+     * @param device The Device
+     * @return The serial number
+     */
+    String serialNumber(Device device);
+
+    /**
+     * Extracts the {@link com.energyict.mdc.upl.meterdata.Register} with the specified {@link ObisCode}
+     * from the {@link Device}.
+     *
+     * @param device The Device
+     * @param obisCode The ObisCode
+     * @return The Register or an empty Optional if the Device does not contain a register for the ObisCode
+     */
+    Optional<com.energyict.mdc.upl.meterdata.Register> register(Device device, ObisCode obisCode);
+
+    /**
+     * Extracts the last reading from the {@link com.energyict.mdc.upl.meterdata.Register}.
+     *
+     * @param register The Register
+     * @return The last registered reading or an empty Optional not readings have been registered yet
+     */
+    Optional<RegisterReading> lastReading(com.energyict.mdc.upl.meterdata.Register register);
 
     /**
      * Extracts the unique identifier of a {@link DeviceMessageFile}
@@ -114,6 +144,10 @@ public interface Extractor {
     interface Register {
         String deviceSerialNumber();
         String obisCode();
+    }
+
+    interface RegisterReading {
+        String text();
     }
 
 }
