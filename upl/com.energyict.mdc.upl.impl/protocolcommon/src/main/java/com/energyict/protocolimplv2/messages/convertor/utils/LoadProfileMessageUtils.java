@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 
 import org.w3c.dom.Document;
@@ -9,6 +10,7 @@ import org.w3c.dom.Node;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -51,7 +53,7 @@ public class LoadProfileMessageUtils {
             document.appendChild(root);
             return XmlUtils.getXmlWithoutDocType(document);
         } catch (Exception e) {
-            throw new ApplicationException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -109,7 +111,7 @@ public class LoadProfileMessageUtils {
             document.appendChild(root);
             return XmlUtils.getXmlWithoutDocType(document);
         } catch (Exception e) {
-            throw new ApplicationException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -121,7 +123,7 @@ public class LoadProfileMessageUtils {
      * @param loadProfile the LoadProfile to format
      * @return the formatted loadProfile
      */
-    public static String formatLoadProfile(final LoadProfile loadProfile) {
+    public static String formatLoadProfile(final LoadProfile loadProfile, final Extractor extractor) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
@@ -129,43 +131,43 @@ public class LoadProfileMessageUtils {
             Document document = builder.newDocument();
             Element root = document.createElement(ROOT_TAG);
 
-            root.setAttribute(ProfileObisCodeTag, loadProfile.getLoadProfileSpec().getDeviceObisCode().toString());
-            root.setAttribute(MeterSerialNumberTag, loadProfile.getRtu().getSerialNumber());
-            root.setAttribute(LoadProfileIdTag, String.valueOf(loadProfile.getId()));
+            root.setAttribute(ProfileObisCodeTag, extractor.specDeviceObisCode(loadProfile));
+            root.setAttribute(MeterSerialNumberTag, extractor.deviceSerialNumber(loadProfile));
+            root.setAttribute(LoadProfileIdTag, extractor.id(loadProfile));
 
             // append the channels
-            root.appendChild(convertToChannelsElement(loadProfile.getAllChannels(), document));
+            root.appendChild(convertToChannelsElement(extractor.channels(loadProfile), document));
 
             // append the registers
-            root.appendChild(convertToRegisterElements(loadProfile.getAllChannels(), document));
+            root.appendChild(convertToRegisterElements(extractor.registers(loadProfile), document));
 
             document.appendChild(root);
             return XmlUtils.documentToString(document);
         } catch (ParserConfigurationException e) {
-            throw new ApplicationException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
-    private static Node convertToRegisterElements(List<Channel> allChannels, Document document) {
+    private static Node convertToRegisterElements(List<Extractor.Register> allRegisters, Document document) {
         Element registers = document.createElement(RtuRegistersTag);
-        for (Channel channel : allChannels) {
+        for (Extractor.Register register : allRegisters) {
             Element registerElement = document.createElement(RegisterTag);
-            registerElement.setAttribute(RegisterObiscodeTag, channel.getDeviceRegisterMapping().getObisCode().toString());
-            registerElement.setAttribute(RtuRegisterSerialNumber, channel.getDevice().getSerialNumber());
+            registerElement.setAttribute(RegisterObiscodeTag, register.obisCode().toString());
+            registerElement.setAttribute(RtuRegisterSerialNumber, register.deviceSerialNumber());
             registers.appendChild(registerElement);
         }
         return registers;
     }
 
-    private static Node convertToChannelsElement(List<Channel> allChannels, Document document) {
+    private static Node convertToChannelsElement(List<Extractor.Channel> allChannels, Document document) {
         Element channels = document.createElement(ChannelInfosTag);
         int counter = 0;
-        for (Channel channel : allChannels) {
+        for (Extractor.Channel channel : allChannels) {
             Element channelElement = document.createElement(ChannelTag);
             channelElement.setAttribute(ChannelIdTag, String.valueOf(counter++));
-            channelElement.setAttribute(ChannelNametag, channel.getDeviceRegisterMapping().getObisCode().toString());
-            channelElement.setAttribute(ChannelUnitTag, channel.getDeviceRegisterMapping().getUnit().toString());
-            channelElement.setAttribute(ChannelMeterIdentifier, channel.getDevice().getSerialNumber());
+            channelElement.setAttribute(ChannelNametag, channel.obisCode());
+            channelElement.setAttribute(ChannelUnitTag, channel.unit());
+            channelElement.setAttribute(ChannelMeterIdentifier, channel.deviceSerialNumber());
             channels.appendChild(channelElement);
         }
         return channels;
