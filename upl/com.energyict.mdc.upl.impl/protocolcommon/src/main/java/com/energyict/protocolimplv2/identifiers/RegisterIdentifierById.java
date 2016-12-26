@@ -2,11 +2,7 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RegisterFactory;
-import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -23,8 +19,6 @@ public class RegisterIdentifierById implements RegisterIdentifier {
     private final int id;
     private final ObisCode registerObisCode;
 
-    private Register register;
-
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
@@ -38,18 +32,6 @@ public class RegisterIdentifierById implements RegisterIdentifier {
         this.registerObisCode = registerObisCode;
     }
 
-    @Override
-    public Register findRegister() {
-        if (this.register == null) {
-            Register register = getRegisterFactory().find(id);
-            if (register == null) {
-                throw NotFoundException.notFound(Register.class, this.toString());
-            }
-            this.register = register;
-        }
-        return this.register;
-    }
-
     @XmlAttribute
     public int getId() {
         return id;
@@ -60,11 +42,7 @@ public class RegisterIdentifierById implements RegisterIdentifier {
         return registerObisCode;
     }
 
-    /**
-     * Check if the given {@link Object} is equal to this {@link RegisterIdentifierById}. <BR>
-     * WARNING: if comparing with an {@link RegisterIdentifier} of another type (not of type {@link RegisterIdentifierById}),
-     * this check will always return false, regardless of the fact they can both point to the same {@link Register}!
-     */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -84,10 +62,6 @@ public class RegisterIdentifierById implements RegisterIdentifier {
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    private RegisterFactory getRegisterFactory() {
-        return RegisterFactoryProvider.instance.get().getRegisterFactory();
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {

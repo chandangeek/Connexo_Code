@@ -14,6 +14,8 @@ import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceFactory;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import org.fest.assertions.core.Condition;
@@ -23,9 +25,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.BeforeClass;
@@ -231,7 +234,7 @@ public class PacketBuilderTest {
         packetBuilder.parse("221", "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "0");
 
         // Business method
-        ArrayList<CollectedData> collectedData = new ArrayList<CollectedData>();
+        List<CollectedData> collectedData = new ArrayList<>();
         packetBuilder.addCollectedData(collectedData);
 
         // Assert that we have exactly one DeviceIpAddress
@@ -414,19 +417,21 @@ public class PacketBuilderTest {
     }
 
     private void writeEncryptedData(String values, LittleEndianOutputStream os) throws IOException {
+        DeviceFactory deviceFactory = mock(DeviceFactory.class);
+        DeviceFactoryProvider.instance.set(() -> deviceFactory);
         Device device = mock(Device.class);
 
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, "mac-address");
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(deviceFactory.find(deviceIdentifier)).thenReturn(device);
 
         InboundComPort comPort = mock(InboundComPort.class);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         when(inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, comPort)).thenReturn(connectionTypeProperties);
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
         when(encryptionPassword.getValue()).thenReturn(new Password("zorro"));
-        when(inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort)).thenReturn(Arrays.asList(encryptionPassword));
+        when(inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort)).thenReturn(Collections.singletonList(encryptionPassword));
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDAO, comPort);
         Encryptor encryptor = new Encryptor(cryptographer.buildMD5Seed(deviceIdentifier, "2114"));
         for (byte rawByte : values.getBytes()) {

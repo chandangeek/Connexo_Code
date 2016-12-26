@@ -3,10 +3,7 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -41,24 +38,6 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
         this.deviceIdentifier = deviceIdentifier;
         this.channelIndex = channelIndex;
         this.registerObisCode = registerObisCode;
-    }
-
-    @Override
-    public Register findRegister () {
-        Device device = this.deviceIdentifier.findDevice();
-        if (this.channelIndex <= device.getChannels().size()) {
-            Register primeRegister = device.getChannel(this.channelIndex).getPrimeRegister();
-            if (primeRegister == null) {
-                throw NotFoundException.notFound(Register.class, this.toString());
-            }
-            else {
-                return primeRegister;
-            }
-        }
-        else {
-            // Not enough channels
-            throw NotFoundException.notFound(Register.class, this.toString());
-        }
     }
 
     @XmlAttribute

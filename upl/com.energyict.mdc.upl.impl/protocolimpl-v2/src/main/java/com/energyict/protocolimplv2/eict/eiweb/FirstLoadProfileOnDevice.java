@@ -3,19 +3,14 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.LoadProfile;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link LoadProfileIdentifier}
- * that returns the first {@link LoadProfile} that is found
- * on a {@link Device}.
+ * that returns the first LoadProfile that is found on a Device.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-07-02 (11:52)
@@ -44,17 +39,6 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     @XmlAttribute
     public ObisCode getProfileObisCode() {
         return profileObisCode;
-    }
-
-    @Override
-    public LoadProfile getLoadProfile() {
-        Device device = this.deviceIdentifier.findDevice();
-        List<LoadProfile> loadProfiles = device.getLoadProfiles();
-        if (loadProfiles.isEmpty()) {
-            throw NotFoundException.notFound(LoadProfile.class, this.toString());
-        } else {
-            return loadProfiles.get(0);
-        }
     }
 
     @XmlAttribute

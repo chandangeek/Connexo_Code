@@ -2,18 +2,14 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
-import com.energyict.mdw.core.LogBook;
-import com.energyict.mdw.core.LogBookFactory;
-import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
- * that uses an {@link com.energyict.mdw.core.LogBook}'s database ID to uniquely identify it.
+ * that uses an LogBook's database ID to uniquely identify it.
  *
  * Copyrights EnergyICT
  * Date: 13/05/13
@@ -39,21 +35,6 @@ public class LogBookIdentifierById implements LogBookIdentifier {
         this.logBookObisCode = logBookDeviceObisCode;
     }
 
-    @Override
-    public LogBook getLogBook() {
-        LogBook logBook = getLogBookFactory().find(this.logBookId);
-        if (logBook == null) {
-            throw NotFoundException.notFound(LogBook.class, this.toString());
-        } else {
-            return logBook;
-        }
-    }
-
-    /**
-     * Getter for the Id of the {@link LogBook}
-     *
-     * @return the Id
-     */
     @XmlAttribute
     public int getLogBookId() {
         return logBookId;
@@ -69,11 +50,7 @@ public class LogBookIdentifierById implements LogBookIdentifier {
         return new Introspector();
     }
 
-    /**
-     * Check if the given {@link Object} is equal to this {@link LogBookIdentifierById}. <BR>
-     * WARNING: if comparing with an {@link LogBookIdentifier} of another type (not of type {@link LogBookIdentifierById}),
-     * this check will always return false, regardless of the fact they can both point to the same {@link LogBook}!
-     */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -93,10 +70,6 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     @Override
     public String toString() {
         return String.valueOf(this.logBookId);
-    }
-
-    private LogBookFactory getLogBookFactory() {
-        return LogBookFactoryProvider.instance.get().getLogBookFactory();
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {

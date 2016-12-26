@@ -3,11 +3,7 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
-import com.energyict.mdw.core.LogBook;
-import com.energyict.mdw.core.LogBookFactory;
-import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -36,16 +32,6 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
         super();
         this.deviceIdentifier = deviceIdentifier;
         this.logBookObisCode = logBookObisCode;
-    }
-
-    @Override
-    public LogBook getLogBook() {
-        LogBook logBook = getLogBookFactory().findByDeviceAndDeviceObisCode(deviceIdentifier.findDevice(), logBookObisCode);
-        if (logBook == null) {
-            throw NotFoundException.notFound(LogBook.class, this.toString());
-        } else {
-            return logBook;
-        }
     }
 
     @XmlAttribute
@@ -89,10 +75,6 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
     @Override
     public String toString() {
         return "Identifier for logbook with obiscode '" + logBookObisCode.toString() + "' on " + deviceIdentifier.toString();
-    }
-
-    private LogBookFactory getLogBookFactory() {
-        return LogBookFactoryProvider.instance.get().getLogBookFactory();
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {

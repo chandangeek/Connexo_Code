@@ -2,11 +2,7 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.LoadProfileFactory;
-import com.energyict.mdw.core.LoadProfileFactoryProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -44,16 +40,6 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
         return profileObisCode;
     }
 
-    @Override
-    public LoadProfile getLoadProfile() {
-        LoadProfile loadProfile = getLoadProfileFactory().find(this.loadProfileId);
-        if (loadProfile == null) {
-            throw NotFoundException.notFound(LoadProfile.class, this.toString());
-        } else {
-            return loadProfile;
-        }
-    }
-
     @XmlAttribute
     public int getLoadProfileId() {
         return loadProfileId;
@@ -67,10 +53,6 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     @Override
     public String toString() {
         return "id = " + this.loadProfileId;
-    }
-
-    private LoadProfileFactory getLoadProfileFactory() {
-        return LoadProfileFactoryProvider.instance.get().getLoadProfileFactory();
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {

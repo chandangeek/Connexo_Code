@@ -1,28 +1,17 @@
 package com.energyict.protocolimplv2.identifiers;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/06/13
- * Time: 9:31
- * Author: khe
- */
-
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses an {@link com.energyict.mdw.core.Device}'s database identifier.
+ * that uses the Device's database identifier.
+ * Copyrights EnergyICT
  *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2012-10-16 (15:10)
+ * @author Kristof Hennebel (khe)
+ * @since 2013-06-07 (09:31)
  */
 @XmlRootElement
 public class DeviceIdentifierById implements DeviceIdentifier {
@@ -51,17 +40,6 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     }
 
     @Override
-    public Device findDevice () {
-        Device device = getDeviceFactory().find(this.id);
-        if (device == null) {
-            throw NotFoundException.notFound(Device.class, this.toString());
-        }
-        else {
-            return device;
-        }
-    }
-
-    @Override
     public String toString () {
         return "id " + this.id;
     }
@@ -72,10 +50,7 @@ public class DeviceIdentifierById implements DeviceIdentifier {
             return false;
         }
         DeviceIdentifierById identifier = (DeviceIdentifierById) obj;
-        if (identifier.getId() != this.getId()) {
-            return false;
-        }
-        return true;
+        return identifier.getId() == this.getId();
     }
 
     @XmlAttribute
@@ -86,10 +61,6 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    private DeviceFactory getDeviceFactory() {
-        return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {

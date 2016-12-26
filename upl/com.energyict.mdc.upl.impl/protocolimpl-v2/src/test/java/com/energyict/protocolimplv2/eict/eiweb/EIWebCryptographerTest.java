@@ -11,10 +11,13 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceFactory;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Test;
 
@@ -74,9 +77,11 @@ public class EIWebCryptographerTest {
 
     @Test
     public void testBuildMD5SeedExistingDevice () {
+        DeviceFactory deviceFactory = mock(DeviceFactory.class);
+        DeviceFactoryProvider.instance.set(() -> deviceFactory);
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(deviceFactory.find(deviceIdentifier)).thenReturn(device);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
         TypedProperties connectionTypeProperties = TypedProperties.empty();
@@ -84,7 +89,7 @@ public class EIWebCryptographerTest {
         when(inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, comPort)).thenReturn(connectionTypeProperties);
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
         when(encryptionPassword.getValue()).thenReturn(new Password("EIWebCryptographerTest"));
-        when(inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort)).thenReturn(Arrays.asList(encryptionPassword));
+        when(inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort)).thenReturn(Collections.singletonList(encryptionPassword));
 
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDAO, comPort);
 
@@ -97,9 +102,10 @@ public class EIWebCryptographerTest {
 
     @Test
     public void testWasUsed () {
+        DeviceFactory deviceFactory = mock(DeviceFactory.class);
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(deviceFactory.find(deviceIdentifier)).thenReturn(device);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
         TypedProperties connectionTypeProperties = TypedProperties.empty();

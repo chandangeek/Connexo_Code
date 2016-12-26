@@ -1,24 +1,16 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RegisterFactory;
-import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 
 /**
- * Implementation of a {@link RegisterIdentifier} that uniquely identifies an {@link com.energyict.mdw.amr.Register} based on the ObisCode
- * of the {@link com.energyict.mdw.amr.RegisterMapping RegisterMapping} or the
- * {@link com.energyict.mdw.amr.RegisterSpec#getDeviceObisCode() RegisterSpec.getDeviceObisCode}
- * <p/>
+ * Implementation of a {@link RegisterIdentifier} that uniquely identifies an Register based on the ObisCode
+ * of the RegisterMapping or the device obiscode of the RegisterSpec.
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/05/13
@@ -29,8 +21,6 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
 
     private final ObisCode registerObisCode;
     private final DeviceIdentifier deviceIdentifier;
-
-    private Register register;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -43,21 +33,6 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, DeviceIdentifier deviceIdentifier) {
         this.registerObisCode = registerObisCode;
         this.deviceIdentifier = deviceIdentifier;
-    }
-
-    @Override
-    public Register findRegister() {
-        if (this.register == null) {
-            final List<Register> registers = getRegisterFactory().findByDevice(deviceIdentifier.findDevice());
-            for (Register register : registers) {
-                if (register.getDeviceObisCode().equals(registerObisCode)) {
-                    this.register = register;
-                    return this.register;
-                }
-            }
-            throw NotFoundException.notFound(Register.class, this.toString());
-        }
-        return register;
     }
 
     @Override
@@ -93,10 +68,6 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         return new Introspector();
     }
 
-    private RegisterFactory getRegisterFactory() {
-        return RegisterFactoryProvider.instance.get().getRegisterFactory();
-    }
-
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
@@ -120,11 +91,6 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     }
 
     private static class NullDeviceIdentifier implements DeviceIdentifier {
-        @Override
-        public Device findDevice() {
-            throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because there is not identifier");
-        }
-
         @Override
         public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
             return new NullIntrospector();

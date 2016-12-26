@@ -1,18 +1,12 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.protocol.exceptions.identifier.DuplicateException;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
@@ -38,20 +32,6 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
     public DeviceMessageIdentifierByDeviceAndProtocolInfoParts(DeviceIdentifier deviceIdentifier, String... messageProtocolInfoParts) {
         this.deviceIdentifier = deviceIdentifier;
         this.messageProtocolInfoParts = messageProtocolInfoParts;
-    }
-
-    @Override
-    public DeviceMessage getDeviceMessage() {
-        List<DeviceMessage> deviceMessages = MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageFactory().findByDeviceAndProtocolInfoParts(deviceIdentifier.findDevice(), messageProtocolInfoParts);
-        if (deviceMessages.isEmpty()) {
-            throw NotFoundException.notFound(DeviceMessage.class, this.toString());
-        } else {
-            if (deviceMessages.size() > 1) {
-                throw DuplicateException.duplicateFoundFor(DeviceMessage.class, this.toString());
-            } else {
-                return deviceMessages.get(0);
-            }
-        }
     }
 
     @Override
@@ -95,11 +75,6 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
     }
 
     private static class NullDeviceIdentifier implements DeviceIdentifier {
-        @Override
-        public Device findDevice() {
-            throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because there is not identifier");
-        }
-
         @Override
         public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
             return new NullIntrospector();

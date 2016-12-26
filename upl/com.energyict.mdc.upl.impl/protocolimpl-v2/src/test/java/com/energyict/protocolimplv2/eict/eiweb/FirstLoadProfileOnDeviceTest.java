@@ -5,12 +5,19 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceFactory;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
 
 import java.util.Arrays;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -24,12 +31,26 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-07-02 (11:55)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class FirstLoadProfileOnDeviceTest {
+
+    @Mock
+    private DeviceFactory deviceFactory;
+
+    @Before
+    public void setDeviceFactory() {
+        DeviceFactoryProvider.instance.set(() -> deviceFactory);
+    }
+
+    @After
+    public void clearDeviceFactory() {
+        DeviceFactoryProvider.instance.set(() -> null);
+    }
 
     @Test(expected = NotFoundException.class)
     public void testDeviceDoesNotExist () {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        doThrow(NotFoundException.class).when(deviceIdentifier).findDevice();
+        doThrow(NotFoundException.class).when(this.deviceFactory).find(deviceIdentifier);
         LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method
@@ -42,7 +63,7 @@ public class FirstLoadProfileOnDeviceTest {
     public void testWithDeviceWithoutLoadProfiles () {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceFactory.find(deviceIdentifier)).thenReturn(device);
         LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method
@@ -71,7 +92,7 @@ public class FirstLoadProfileOnDeviceTest {
         Device device = mock(Device.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceFactory.find(deviceIdentifier)).thenReturn(device);
         LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method
@@ -88,7 +109,7 @@ public class FirstLoadProfileOnDeviceTest {
         Device device = mock(Device.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile, anotherLoadProfile));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceFactory.find(deviceIdentifier)).thenReturn(device);
         LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method

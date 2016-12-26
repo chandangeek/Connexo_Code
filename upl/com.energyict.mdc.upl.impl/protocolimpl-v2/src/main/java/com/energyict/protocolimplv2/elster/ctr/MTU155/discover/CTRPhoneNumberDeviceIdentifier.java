@@ -1,40 +1,26 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
-import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-
-import com.energyict.cpo.OfflineDeviceContext;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.mdw.core.DeviceOfflineFlags;
-import com.energyict.protocol.exceptions.identifier.DuplicateException;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface,
  * specific for the SMS part of the CTR protocol base (MTU155 and EK155 device types). <br></br>
  * SMSes for these protocols are uniquely identified by the devices phone number.
  *
- * @author: sva
- * @since: 26/10/12 (11:26)
+ * @author sva
+ * @since 26/10/12 (11:26)
  */
 @XmlRootElement
-public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
+public class CTRPhoneNumberDeviceIdentifier implements FindMultipleDevices {
 
     public static final String PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
 
     private final String phoneNumber;
-    private Device device;
-    private List<Device> allDevices;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -46,30 +32,6 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     public CTRPhoneNumberDeviceIdentifier(String phoneNumber) {
         super();
         this.phoneNumber = phoneNumber;
-    }
-
-    @Override
-    public Device findDevice() {
-        if(this.device == null){
-            fetchAllDevices();
-            if (this.allDevices.isEmpty()) {
-                throw NotFoundException.notFound(Device.class, this.toString());
-            } else {
-                if (this.allDevices.size() > 1) {
-                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
-                } else {
-                    this.device = this.allDevices.get(0);
-                }
-            }
-        }
-        return this.device;
-    }
-
-    private void fetchAllDevices() {
-        this.allDevices = getDeviceFactory().findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, phoneNumber);
-        if (this.allDevices.isEmpty()) {   // Do try with a different phone number format
-            this.allDevices = getDeviceFactory().findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, alterPhoneNumberFormat(phoneNumber));
-        }
     }
 
     /**
@@ -102,23 +64,6 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
         return new Introspector();
     }
 
-    @Override
-    public List<OfflineDevice> getAllDevices() {
-        if(this.allDevices == null){
-            fetchAllDevices();
-        }
-        List<OfflineDevice> allOfflineDevices = new ArrayList<>();
-        OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
-        for (Device deviceToGoOffline : this.allDevices) {
-            allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
-        }
-        return allOfflineDevices;
-    }
-
-    private DeviceFactory getDeviceFactory() {
-        return DeviceFactoryProvider.instance.get().getDeviceFactory();
-    }
-
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
@@ -129,6 +74,10 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
         public Object getValue(String role) {
             if ("phoneNumber".equals(role)) {
                 return phoneNumber;
+            } else if ("propertyName".equals(role)) {
+                return PHONE_NUMBER_PROPERTY_NAME;
+            } else if ("connectionTypeClass".equals(role)) {
+                return InboundProximusSmsConnectionType.class;
             } else {
                 throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }
