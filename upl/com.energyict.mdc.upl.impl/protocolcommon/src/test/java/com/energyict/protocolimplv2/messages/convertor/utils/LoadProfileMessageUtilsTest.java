@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+
 import com.energyict.cbo.Unit;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.Channel;
@@ -7,9 +9,10 @@ import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileSpec;
 import com.energyict.obis.ObisCode;
-import org.junit.Test;
 
 import java.util.Arrays;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,8 +41,15 @@ public class LoadProfileMessageUtilsTest {
         LoadProfile loadProfile = createMockedLoadProfile();
         when(loadProfile.getRtu()).thenReturn(device);
         when(loadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        Extractor extractor = mock(Extractor.class);
+        String expectedObisCode = "1.0.99.1.0.255";
+        String expectedDeviceSerialNumber = "SomeSerialNumber";
+        String expectedLoadProfileId = "0";
+        when(extractor.specDeviceObisCode(loadProfile)).thenReturn(expectedObisCode);
+        when(extractor.deviceSerialNumber(loadProfile)).thenReturn(expectedDeviceSerialNumber);
+        when(extractor.id(loadProfile)).thenReturn(expectedLoadProfileId);
 
-        final String format = LoadProfileMessageUtils.formatLoadProfile(loadProfile);
+        final String format = LoadProfileMessageUtils.formatLoadProfile(loadProfile, extractor);
 
         assertThat(format).isNotNull();
         assertThat(format).isEqualTo(expectedXml);
