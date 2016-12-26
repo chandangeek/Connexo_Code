@@ -112,6 +112,7 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         }
         switch (step.stepName) {
             case 'casInfo':
+            case 'metrologyConfigurationWithMetersInfo':
                 if (!isValid) {
                     step.markInvalid(errors);
                 } else {
@@ -120,7 +121,6 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                 break;
             case 'generalInfo':
             case 'techInfo':
-            case 'metrologyConfigurationWithMetersInfo':
                 if (!isValid) {
                     step.getForm().markInvalid(errors);
                 } else {

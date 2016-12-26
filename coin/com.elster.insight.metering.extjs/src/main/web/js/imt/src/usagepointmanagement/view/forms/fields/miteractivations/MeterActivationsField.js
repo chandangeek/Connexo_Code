@@ -83,7 +83,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
 
         Ext.suspendLayouts();
         errorsField.show();
-        errorsField.update(errors.split('<br>'));
+        errorsField.update(errors.join('<br>'));
         Ext.resumeLayouts(true);
     },
 

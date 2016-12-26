@@ -159,7 +159,7 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
 
         Ext.suspendLayouts();
         errorsField.show();
-        errorsField.update(errors.split('<br>'));
+        errorsField.update(errors.join('<br>'));
         Ext.resumeLayouts(true);
     },
 

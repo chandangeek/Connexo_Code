@@ -178,5 +178,33 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             metrologyConfiguration: metrologyConfiguration,
             meterActivations: meterActivations
         }
+    },
+
+    markInvalid: function (errors) {
+        var me = this,
+            map = {};
+
+        Ext.Array.each(errors, function (error) {
+            if (Ext.String.startsWith(error.id, 'meter.role.')) {
+                error.id = 'metrologyConfiguration.meterRoles';
+            }
+
+            if (!map[error.id]) {
+                map[error.id] = {
+                    id: error.id,
+                    msg: [error.msg]
+                };
+            } else {
+                map[error.id].msg.push(error.msg);
+            }
+        });
+
+        me.getForm().markInvalid(_.values(map));
+    },
+
+    clearInvalid: function () {
+        var me = this;
+
+        me.getForm().clearInvalid();
     }
 });
