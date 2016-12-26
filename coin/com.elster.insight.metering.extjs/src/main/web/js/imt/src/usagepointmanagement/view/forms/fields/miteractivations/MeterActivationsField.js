@@ -96,17 +96,24 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
         Ext.resumeLayouts(true);
     },
 
-    onMeterActivationEdit: function () {
+    onMeterActivationEdit: function (event) {
         var me = this,
             storeData = me.down('#meter-activations-grid').getStore().getRange(),
             allMetersSpecified = true;
 
-        for (var i = 0; i < storeData.length; i++) {
-            if (Ext.isEmpty(storeData[i].get('meter'))) {
+        if (event.field.fieldType === 'meteCombo') {
+            if (event.field.findRecordByValue(event.field.value)) {
+                for (var i = 0; i < storeData.length; i++) {
+                    if (Ext.isEmpty(storeData[i].get('meter'))) {
+                        allMetersSpecified = false;
+                        break;
+                    }
+                }
+            } else {
                 allMetersSpecified = false;
             }
-        }
 
-        me.fireEvent('meterActivationsChange', allMetersSpecified);
+            me.fireEvent('meterActivationsChange', allMetersSpecified);
+        }
     }
 });

@@ -39,6 +39,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                 flex: 1,
                 editor: {
                     xtype: 'combo',
+                    fieldType: 'meteCombo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',
@@ -50,7 +51,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                     queryCaching: false,
                     minChars: 1,
                     loadStore: false,
-                    forceSelection: false,
+                    forceSelection: true,
                     cls: 'stretchy-combo',
                     listeners: me.meterComboLiseners
                 }
@@ -106,6 +107,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
             picker.on('beforehide', function () {
                 picker.un('refresh', fn);
             }, combo, {single: true});
+        },
+
+        change: function (field, newValue) {
+            if (Ext.isEmpty(newValue)) {
+                field.reset();
+            }
         }
     }
 });
