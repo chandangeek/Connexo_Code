@@ -39,7 +39,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                 flex: 1,
                 editor: {
                     xtype: 'combo',
-                    fieldType: 'meteCombo',
+                    fieldType: 'meterCombo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
                     store: 'Imt.usagepointsetup.store.Devices',

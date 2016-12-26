@@ -102,7 +102,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
             storeData = me.down('#meter-activations-grid').getStore().getRange(),
             allMetersSpecified = true;
 
-        if (event.field.fieldType === 'meteCombo') {
+        if (event.field.fieldType === 'meterCombo') {
             if (event.field.findRecordByValue(event.field.value)) {
                 for (var i = 0; i < storeData.length; i++) {
                     if (Ext.isEmpty(storeData[i].get('meter'))) {
