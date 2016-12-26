@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -39,7 +40,6 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -74,6 +74,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
     private static final String DEFAULT_OPTIONAL_PROPERTY_NAME = "defaultOptionalProperty";
 
+    private final CollectedDataFactory collectedDataFactory;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
@@ -106,8 +107,9 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      */
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
-    public SDKDeviceProtocol(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public SDKDeviceProtocol(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super();
+        this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
@@ -207,7 +209,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             this.logger.log(Level.INFO, "Fetching loadProfile configuration for loadProfile with ObisCode " + loadProfileReader.getProfileObisCode());
-            CollectedLoadProfileConfiguration loadProfileConfiguration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration loadProfileConfiguration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
@@ -256,14 +258,12 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        //TODO
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        //TODO
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     @Override
@@ -325,7 +325,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(this.offlineDevice.getId()));
+        final CollectedTopology collectedTopology = this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(this.offlineDevice.getId()));
         if (!"".equals(getSlaveOneSerialNumber())) {
             collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }

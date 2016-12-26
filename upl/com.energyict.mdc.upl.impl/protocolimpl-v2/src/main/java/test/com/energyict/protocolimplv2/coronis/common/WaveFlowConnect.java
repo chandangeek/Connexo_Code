@@ -1,8 +1,8 @@
 package test.com.energyict.protocolimplv2.coronis.common;
 
 import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 

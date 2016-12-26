@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.topology;
 
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -8,7 +9,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -34,9 +34,11 @@ public class IDISMeterTopology extends AbstractMeterTopology {
     private static final int MAX_MBUS_CHANNELS = 4;
     private final AbstractDlmsProtocol protocol;
     List<DeviceMapping> deviceMapping = null;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public IDISMeterTopology(AbstractDlmsProtocol protocol) {
+    public IDISMeterTopology(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     protected int getMaxMBusChannels() {
@@ -87,7 +89,7 @@ public class IDISMeterTopology extends AbstractMeterTopology {
      * @return the next available physicalAddress or -1 if none is available.
      */
     public int searchNextFreePhysicalAddress(){
-        List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
+        List<Integer> availablePhysicalAddresses = new ArrayList<>(Arrays.asList(1, 2, 3, 4));
         for (DeviceMapping dm : this.deviceMapping) {
             availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list
         }
@@ -127,7 +129,7 @@ public class IDISMeterTopology extends AbstractMeterTopology {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
         for (DeviceMapping mapping : getDeviceMapping()) {
             deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mapping.getSerialNumber()));
         }

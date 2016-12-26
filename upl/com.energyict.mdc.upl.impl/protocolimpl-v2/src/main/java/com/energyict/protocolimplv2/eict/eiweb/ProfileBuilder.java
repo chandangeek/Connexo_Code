@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
@@ -15,7 +16,6 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -72,15 +72,17 @@ public class ProfileBuilder {
     private PacketBuilder packetBuilder;
     private ProfileData profileData = null;
     private List<BigDecimal> meterReadings;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public ProfileBuilder(PacketBuilder packetBuilder) throws IOException {
-        this(packetBuilder, Logger.getAnonymousLogger());
+    public ProfileBuilder(PacketBuilder packetBuilder, CollectedDataFactory collectedDataFactory) throws IOException {
+        this(packetBuilder, Logger.getAnonymousLogger(), collectedDataFactory);
     }
 
-    public ProfileBuilder(PacketBuilder packetBuilder, Logger logger) throws IOException {
+    public ProfileBuilder(PacketBuilder packetBuilder, Logger logger, CollectedDataFactory collectedDataFactory) throws IOException {
         super();
         this.logger = logger;
         this.packetBuilder = packetBuilder;
+        this.collectedDataFactory = collectedDataFactory;
         this.buildData();
     }
 
@@ -300,7 +302,7 @@ public class ProfileBuilder {
     }
 
     public void addCollectedData(List<CollectedData> collectedData) {
-        CollectedLoadProfile loadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier(), DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
+        CollectedLoadProfile loadProfile = this.collectedDataFactory.createCollectedLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier(), DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
         loadProfile.setCollectedIntervalData(this.profileData.getIntervalDatas(), this.profileData.getChannelInfos());
         loadProfile.setDoStoreOlderValues(this.profileData.shouldStoreOlderValues());
         loadProfile.setAllowIncompleteLoadProfileData(true);

@@ -10,29 +10,27 @@
 
 package com.energyict.protocolimpl.itron.sentinel;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import com.energyict.protocolimpl.itron.sentinel.logicalid.*;
-import com.energyict.protocolimpl.itron.sentinel.tables.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.itron.sentinel.tables.AbstractLoadProfileDataSetTable;
-import com.energyict.protocolimpl.meteridentification.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
+import com.energyict.protocolimpl.ansi.c12.tables.HistoryEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.HistoryLog;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalFormat;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
+import com.energyict.protocolimpl.itron.sentinel.logicalid.LoadProfilePreliminaryDataRead;
+import com.energyict.protocolimpl.itron.sentinel.logicalid.LogicalID;
+import com.energyict.protocolimpl.itron.sentinel.tables.LoadProfileData;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -58,7 +56,7 @@ public class SentinelLoadProfile {
 
     public ProfileData getProfileData(Date lastReading, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = new ProfileData();
-        
+
         /*
          * GET PROFILEDATA ONLY FOR SET 0! The Ansi C12 standard has 4 sets of load profile. KV meters only use set 0, table 64!
          */
@@ -86,7 +84,7 @@ public class SentinelLoadProfile {
 //            catch(ResponseIOException e) {
 //                if (e.getReason()==AbstractResponse.IAR) // table does not exist!
 //                   sentinel.getLogger().warning("No Logging available. Respective tables do not exist in the meter.");
-//                else 
+//                else
 //                   throw e;
 //            }
         }
@@ -496,5 +494,5 @@ public class SentinelLoadProfile {
             }
             else break;
         } // while(true)
-    } // private void waitUntilTimeValid()    
+    } // private void waitUntilTimeValid()
 }

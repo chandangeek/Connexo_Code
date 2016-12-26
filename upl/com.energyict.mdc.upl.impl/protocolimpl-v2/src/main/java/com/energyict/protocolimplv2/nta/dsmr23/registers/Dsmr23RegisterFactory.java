@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.nta.dsmr23.registers;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
 import com.energyict.cbo.BaseUnit;
@@ -36,7 +38,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -87,9 +88,17 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     protected final AbstractDlmsProtocol protocol;
     protected Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<>();
     private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<>();
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public Dsmr23RegisterFactory(final AbstractDlmsProtocol protocol) {
+    public Dsmr23RegisterFactory(final AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
+
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
     }
 
     /**
@@ -102,7 +111,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      */
     public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {
         List<OfflineRegister> validRegisters = filterOutAllInvalidRegisters(allRegisters);
-        List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
+        List<CollectedRegister> collectedRegisters = new ArrayList<>();
         ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(validRegisters, protocol.getDlmsSessionProperties().isBulkRequest());
         for (OfflineRegister register : allRegisters) {
             if (!validRegisters.contains(register)) {
@@ -139,7 +148,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (rv != null) {
-                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
@@ -198,7 +207,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     protected ComposedCosemObject constructComposedObjectFromRegisterList(List<OfflineRegister> registers, boolean supportsBulkRequest) {
 
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (OfflineRegister register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 
@@ -407,7 +416,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         long mask = 134217728;
         for (int i = 0; i < 4; i++) {
             if ((value & mask) == mask) {
-                strBuilder.append("Decryption error on Mbus " + (i + 1) + "\r\n");
+                strBuilder.append("Decryption error on Mbus ").append(i + 1).append("\r\n");
             }
             mask = mask << 1;
         }
@@ -427,14 +436,14 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     protected CollectedRegister createUnsupportedRegister(OfflineRegister register) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
-        collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
+        collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         return collectedRegister;
     }
 
     protected CollectedRegister createIncompatibleRegister(OfflineRegister register, String errorMessage) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
-        collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
+        collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage));
         return collectedRegister;
     }
 }

@@ -26,7 +26,7 @@ public class WriteConverterMasterDataMessage extends AbstractMTU155Message {
     private static final int SERIAL_MAX_LENGTH = 16;
 
     public WriteConverterMasterDataMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

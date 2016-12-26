@@ -10,6 +10,6 @@ import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataR
 public class AM540MbusProfileDataReader extends IDISProfileDataReader {
 
     public AM540MbusProfileDataReader(AbstractDlmsProtocol protocol) {
-        super(protocol);
+        super(protocol, collectedDataFactory, issueFactory);
     }
 }

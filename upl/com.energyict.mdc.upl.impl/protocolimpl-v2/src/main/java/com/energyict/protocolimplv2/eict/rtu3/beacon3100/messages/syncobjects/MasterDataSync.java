@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -13,7 +14,6 @@ import com.energyict.dlms.cosem.DeviceTypeManager;
 import com.energyict.dlms.cosem.ScheduleManager;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -37,11 +37,13 @@ import java.util.StringTokenizer;
 public class MasterDataSync {
 
     private final Beacon3100Messaging beacon3100Messaging;
+    private final IssueFactory issueFactory;
 
     protected StringBuilder info = new StringBuilder();
 
-    public MasterDataSync(Beacon3100Messaging beacon3100Messaging) {
+    public MasterDataSync(Beacon3100Messaging beacon3100Messaging, IssueFactory issueFactory) {
         this.beacon3100Messaging = beacon3100Messaging;
+        this.issueFactory = issueFactory;
     }
 
     /**
@@ -94,7 +96,7 @@ public class MasterDataSync {
         for (int index = 0; index < allMasterData.getWarningKeys().size(); index++) {
             String warningKey = allMasterData.getWarningKeys().get(index);
             String warningArgument = allMasterData.getWarningArguments().get(index);
-            issues.add(MdcManager.getIssueFactory().createWarning(pendingMessage, warningKey, warningArgument));
+            issues.add(this.issueFactory.createWarning(pendingMessage, warningKey, warningArgument));
         }
         if (!issues.isEmpty()) {
             collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, issues);
@@ -199,7 +201,7 @@ public class MasterDataSync {
         }
         token = tokenizer.nextToken();
         int secondNr = Integer.parseInt(token);
-        if(secondNr < 4){
+        if (secondNr < 4) {
             return false;
         }
         return true;
@@ -222,7 +224,7 @@ public class MasterDataSync {
                 scheduleManager.addSchedule(beacon3100Schedule.toStructure());
                 info.append("- Schedule ADDED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
             } catch (IOException ex) {
-                info.append("- Could not add schedule [" + beacon3100Schedule.getId() + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not add schedule [").append(beacon3100Schedule.getId()).append("]: ").append(ex.getMessage()).append("\n");
 
             }
         }
@@ -237,7 +239,7 @@ public class MasterDataSync {
                 scheduleManager.updateSchedule(beacon3100Schedule.toStructure());
                 info.append("- Schedule UPDATED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
             } catch (IOException ex) {
-                info.append("- Could not update schedule [" + beacon3100Schedule.getId() + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not update schedule [").append(beacon3100Schedule.getId()).append("]: ").append(ex.getMessage()).append("\n");
             }
         }
     }
@@ -251,7 +253,7 @@ public class MasterDataSync {
                 scheduleManager.removeSchedule(beacon3100ScheduleId);
                 info.append("- Schedule DELETED: [").append(beacon3100ScheduleId).append("]\n");
             } catch (IOException ex) {
-                info.append("- Could not delete schedule [" + beacon3100ScheduleId + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not delete schedule [").append(beacon3100ScheduleId).append("]: ").append(ex.getMessage()).append("\n");
             }
         }
     }
@@ -266,7 +268,7 @@ public class MasterDataSync {
                 clientTypeManager.addClientType(beacon3100ClientType.toStructure());
                 info.append("- ClientType ADDED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
             } catch (IOException ex) {
-                info.append("- Could not add ClientType [" + beacon3100ClientType.getId() + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not add ClientType [").append(beacon3100ClientType.getId()).append("]: ").append(ex.getMessage()).append("\n");
             }
         }
     }
@@ -281,7 +283,7 @@ public class MasterDataSync {
                 clientTypeManager.updateClientType(beacon3100ClientType.toStructure());
                 info.append("- ClientType UPDATED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
             } catch (IOException ex) {
-                info.append("- Could not update ClientType [" + beacon3100ClientType.getId() + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not update ClientType [").append(beacon3100ClientType.getId()).append("]: ").append(ex.getMessage()).append("\n");
             }
         }
     }
@@ -296,7 +298,7 @@ public class MasterDataSync {
                 clientTypeManager.removeClientType(beacon3100ClientTypeId);
                 info.append("- ClientType DELETED: [").append(beacon3100ClientTypeId).append("]\n");
             } catch (IOException ex) {
-                info.append("- Could not delete client type [" + beacon3100ClientTypeId + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not delete client type [").append(beacon3100ClientTypeId).append("]: ").append(ex.getMessage()).append("\n");
             }
         }
     }
@@ -310,7 +312,7 @@ public class MasterDataSync {
                 deviceTypeManager.addDeviceType(beacon3100DeviceType.toStructure());
                 info.append("- DeviceType ADDED: [").append(beacon3100DeviceType.getId()).append("]: ").append(beacon3100DeviceType.getName()).append("\n");
             } catch (IOException ex) {
-                info.append("- Could not add DeviceType [" + beacon3100DeviceType.getId() + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not add DeviceType [").append(beacon3100DeviceType.getId()).append("]: ").append(ex.getMessage()).append("\n");
             }
         }
     }
@@ -324,7 +326,7 @@ public class MasterDataSync {
                 deviceTypeManager.updateDeviceType(beacon3100DeviceType.toStructure());
                 info.append("- DeviceType UPDATED: [").append(beacon3100DeviceType.getId()).append("]: ").append(beacon3100DeviceType.getName()).append("\n");
             } catch (IOException ex) {
-                info.append("- Could not update DeviceType [" + beacon3100DeviceType.getId() + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not update DeviceType [").append(beacon3100DeviceType.getId()).append("]: ").append(ex.getMessage()).append("\n");
             }
         }
     }
@@ -339,7 +341,7 @@ public class MasterDataSync {
                 deviceTypeManager.removeDeviceType(beacon3100DeviceTypeId);
                 info.append("- DeviceType DELETED: [").append(beacon3100DeviceTypeId).append("]\n");
             } catch (IOException ex) {
-                info.append("- Could not delete DeviceType [" + beacon3100DeviceTypeId + "]: " + ex.getMessage() + "\n");
+                info.append("- Could not delete DeviceType [").append(beacon3100DeviceTypeId).append("]: ").append(ex.getMessage()).append("\n");
             }
         }
     }

@@ -15,7 +15,13 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -28,7 +34,6 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
 import com.energyict.protocolimplv2.edp.messages.EDPMessageExecutor;
@@ -170,7 +175,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, collectedDataFactory, issueFactory);
         }
         return loadProfileBuilder;
     }
@@ -220,12 +225,12 @@ public class CX20009 extends AbstractDlmsProtocol {
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     private LogbookReader getLogbookReader() {
         if (logbookReader == null) {
-            logbookReader = new LogbookReader(this);
+            logbookReader = new LogbookReader(this, collectedDataFactory, issueFactory);
         }
         return logbookReader;
     }
@@ -239,7 +244,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     public RegisterReader getRegisterReader() {
         if (registerReader == null) {
-            registerReader = new RegisterReader(this);
+            registerReader = new RegisterReader(this, collectedDataFactory, issueFactory);
         }
         return registerReader;
     }

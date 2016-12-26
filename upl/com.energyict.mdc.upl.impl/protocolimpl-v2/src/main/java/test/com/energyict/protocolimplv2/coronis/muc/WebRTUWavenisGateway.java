@@ -5,18 +5,28 @@ import com.energyict.mdc.channels.ip.socket.WavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -26,7 +36,6 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.common.AbstractGateway;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
@@ -58,6 +67,19 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     private DeviceIdentifier deviceIdentifier;
     private Messaging messaging;
     private DeviceProtocolCache deviceCache;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+
+    public WebRTUWavenisGateway(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -167,7 +189,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
 
     private Messaging getMessaging() {
         if (messaging == null) {
-            messaging = new Messaging(this);
+            messaging = new Messaging(this, collectedDataFactory, issueFactory, this.propertySpecService, this.nlsService, this.converter);
         }
         return messaging;
     }
@@ -187,15 +209,15 @@ public class WebRTUWavenisGateway extends AbstractGateway {
 
     private RegisterReader getRegisterReader() {
         if (registerReader == null) {
-            registerReader = new RegisterReader(wavenisStack);
+            registerReader = new RegisterReader(wavenisStack, collectedDataFactory, issueFactory);
         }
         return registerReader;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning("Cannot read out the slave devices from the MUC Wavecell"));
+        CollectedTopology collectedTopology = this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier());
+        collectedTopology.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning("Cannot read out the slave devices from the MUC Wavecell"));
         return collectedTopology;
     }
 
@@ -233,4 +255,28 @@ public class WebRTUWavenisGateway extends AbstractGateway {
         return getSecuritySupport().getSecurityPropertySpec(name);
     }
 
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return null;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return null;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return null;
+    }
 }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.events;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
@@ -16,7 +18,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,16 +35,20 @@ import java.util.TimeZone;
 public class G3GatewayEvents {
 
     private final DlmsSession dlmsSession;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public G3GatewayEvents(DlmsSession dlmsSession) {
+    public G3GatewayEvents(DlmsSession dlmsSession, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.dlmsSession = dlmsSession;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     @SuppressWarnings("unchecked")
     public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBook : logBooks) {
-            CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
 
             try {
                 Array eventArray = this.readLogbookBuffer(logBook);
@@ -60,12 +65,12 @@ public class G3GatewayEvents {
                 collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
             } catch (IOException e) {
                 if (DLMSIOExceptionHandler.isAuthorizationProblem(e)) {
-                    collectedLogBook.setFailureInformation(ResultType.ConfigurationError, MdcManager.getIssueFactory().createWarning(logBook, "logBookXissue", logBook.getLogBookObisCode(), e.getMessage()));
+                    collectedLogBook.setFailureInformation(ResultType.ConfigurationError, this.issueFactory.createWarning(logBook, "logBookXissue", logBook.getLogBookObisCode(), e.getMessage()));
                 } else if (DLMSIOExceptionHandler.isUnexpectedResponse(e, dlmsSession.getProperties().getRetries() + 1)) {
-                    collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                    collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
                 }
             } catch (IndexOutOfBoundsException e) {
-                collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(logBook, "logBookXissue", logBook.getLogBookObisCode().toString(), e.toString()));
+                collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(logBook, "logBookXissue", logBook.getLogBookObisCode().toString(), e.toString()));
             }
 
             result.add(collectedLogBook);
@@ -78,7 +83,7 @@ public class G3GatewayEvents {
      *
      * @return An {@link Array} of {@link Structure}s.
      */
-    private final Array readLogbookBuffer(final LogBookReader reader) throws IOException {
+    private Array readLogbookBuffer(final LogBookReader reader) throws IOException {
         final Calendar from = Calendar.getInstance(this.dlmsSession.getTimeZone());
         final Calendar to = Calendar.getInstance(this.dlmsSession.getTimeZone());
 
@@ -102,7 +107,7 @@ public class G3GatewayEvents {
         throw new DataAccessResultException(DataAccessResult.OBJECT_UNAVAILABLE.getId());
     }
 
-    private final BasicEvent getBasicEvent(AbstractDataType abstractEventData) throws IOException {
+    private BasicEvent getBasicEvent(AbstractDataType abstractEventData) throws IOException {
         if (abstractEventData.isStructure()) {
             Structure structure = abstractEventData.getStructure();
             return structure != null ? new BasicEvent(structure, dlmsSession.getTimeZone()) : null;
@@ -121,7 +126,7 @@ public class G3GatewayEvents {
 
         private final TimeZone timeZone;
 
-        public BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
+        private BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
             super(eventStructure.getBEREncodedByteArray(), 0, 0);
             this.timeZone = timeZone;
         }
@@ -130,21 +135,21 @@ public class G3GatewayEvents {
             return new MeterEvent(getEventTime(), getEisCode(), getProtocolCode(), getDescription());
         }
 
-        private final Date getEventTime() throws IOException {
+        private Date getEventTime() throws IOException {
             OctetString eventDateString = getDataType(DATE_TIME_INDEX).getOctetString();
             AXDRDateTime timeStamp = new AXDRDateTime(eventDateString.getBEREncodedByteArray(), 0, timeZone);
             return timeStamp.getValue().getTime();
         }
 
-        private final int getEisCode() {
+        private int getEisCode() {
             return getDataType(EIS_CODE_INDEX).intValue();
         }
 
-        private final int getProtocolCode() {
+        private int getProtocolCode() {
             return getDataType(PROTOCOL_CODE_INDEX).intValue();
         }
 
-        private final String getDescription() {
+        private String getDescription() {
             return getDataType(DESCRIPTION_INDEX).getOctetString().stringValue();
         }
     }

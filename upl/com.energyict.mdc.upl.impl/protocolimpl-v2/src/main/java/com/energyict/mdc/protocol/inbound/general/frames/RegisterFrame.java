@@ -1,13 +1,13 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
-import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.RegisterInfo;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
@@ -23,6 +23,7 @@ import java.util.List;
  */
 public class RegisterFrame extends AbstractInboundFrame {
 
+    private final CollectedDataFactory collectedDataFactory;
     private CollectedRegisterList collectedRegisterList;
 
     @Override
@@ -30,8 +31,9 @@ public class RegisterFrame extends AbstractInboundFrame {
         return FrameType.REGISTER;
     }
 
-    public RegisterFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+    public RegisterFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory) {
         super(frame, callHomeIdPlaceHolder);
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -70,15 +72,15 @@ public class RegisterFrame extends AbstractInboundFrame {
         Date readTime = getInboundParameters().getReadTime();
         readTime = readTime == null ? new Date() : readTime;
         if (register.getObisCode().getF() != 255) {
-            deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.collectedDataFactory.createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(readTime, null, readTime);
         } else if (register.getEventTime() != null) {
-            deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(readTime, null, readTime, register.getEventTime());
         } else {
-            deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setReadTime(readTime);
         }
@@ -88,7 +90,7 @@ public class RegisterFrame extends AbstractInboundFrame {
 
     private CollectedRegisterList getCollectedRegisterList() {
         if (this.collectedRegisterList == null) {
-            this.collectedRegisterList = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifierByDialHomeIdPlaceHolder());
+            this.collectedRegisterList = this.collectedDataFactory.createCollectedRegisterList(getDeviceIdentifierByDialHomeIdPlaceHolder());
             getCollectedDatas().add(this.collectedRegisterList);
         }
         return this.collectedRegisterList;

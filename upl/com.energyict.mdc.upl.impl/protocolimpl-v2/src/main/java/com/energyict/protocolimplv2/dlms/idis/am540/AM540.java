@@ -1,15 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.FrameCounterProvider;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
@@ -23,15 +13,25 @@ import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -530,7 +530,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     @Override
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
-            meterTopology = new IDISMeterTopology(this);
+            meterTopology = new IDISMeterTopology(this, collectedDataFactory);
             meterTopology.searchForSlaveDevices();
         }
         return meterTopology;

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -9,7 +11,6 @@ import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.DeviceStatus;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.Diagnostics;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.EquipmentClassInfo;
@@ -60,6 +61,13 @@ public abstract class ObisCodeMapper {
     protected RequestFactory requestFactory;
     protected boolean isEK155Protocol;
     protected List<CTRRegisterMapping> registerMapping = new ArrayList<>();
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    protected ObisCodeMapper(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     /**
      * Maps the obiscodes to a CTR Object's ID
@@ -337,7 +345,7 @@ public abstract class ObisCodeMapper {
     }
 
     protected CollectedRegister createDeviceRegister(ObisCode obisCode) {
-        return MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier()));
+        return this.collectedDataFactory.createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier()));
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue) {
@@ -349,21 +357,16 @@ public abstract class ObisCodeMapper {
 
     protected CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode);
-        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(obisCode, "registerXnotsupported", obisCode));
+        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(obisCode, "registerXnotsupported", obisCode));
         return failedRegister;
     }
 
     protected CollectedRegister createIncompatibleCollectedRegister(ObisCode obisCode, String message) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode);
-        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(obisCode, "registerXincompatible", obisCode, message));
+        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(obisCode, "registerXincompatible", obisCode, message));
         return failedRegister;
     }
 
-    /**
-     * Lazy getter for the logger
-     *
-     * @return: the logger
-     */
     public Logger getLogger() {
         if (logger == null) {
             if (requestFactory == null) {
@@ -416,47 +419,4 @@ public abstract class ObisCodeMapper {
         this.deviceIdentifier = deviceIdentifier;
     }
 
-    public enum BillingPeriodClosureReason {
-        DOES_NOT_EXIST,
-        SWITCH_OF_VENDOR,
-        CHANGE_OF_CONTRACT,
-        CHANGE_OF_CONSUMER,
-        SWITCH_OF_DISTRIBUTOR,
-        END_OF_BILLING_PERIOD,
-        START_OF_NEW_TARIFF_SCHEME,
-        GENERIC,
-        UNKNOWN;
-
-        public static BillingPeriodClosureReason valueFromOrdinal(int ordinal) {
-            for (BillingPeriodClosureReason indicator : values()) {
-                if (indicator.ordinal() == ordinal) {
-                    return indicator;
-                }
-            }
-            return UNKNOWN;
-        }
-
-        public String getReason() {
-            switch (this) {
-                case DOES_NOT_EXIST:
-                    return "Does not exist";
-                case SWITCH_OF_VENDOR:
-                    return "For switching of vendor";
-                case CHANGE_OF_CONTRACT:
-                    return "For change of contract";
-                case CHANGE_OF_CONSUMER:
-                    return "For change of end consumer (transfer)";
-                case SWITCH_OF_DISTRIBUTOR:
-                    return "For switching of distributor";
-                case END_OF_BILLING_PERIOD:
-                    return "For the end of the billing period";
-                case START_OF_NEW_TARIFF_SCHEME:
-                    return "For the start of a new tariff scheme";
-                case GENERIC:
-                    return "Generic";
-                default:
-                    return "Unknown";
-            }
-        }
-    }
 }

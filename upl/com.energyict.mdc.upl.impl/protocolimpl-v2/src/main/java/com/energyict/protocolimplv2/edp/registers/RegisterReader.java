@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.edp.registers;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -20,7 +22,6 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
@@ -38,9 +39,13 @@ import java.util.List;
 public class RegisterReader implements DeviceRegisterSupport {
 
     private final CX20009 protocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public RegisterReader(CX20009 protocol) {
+    public RegisterReader(CX20009 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
@@ -137,24 +142,24 @@ public class RegisterReader implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments[0]));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }
         return collectedRegister;
     }
 
     private CollectedRegister createCollectedRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(quantity, text);
         deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;
     }
 
     private CollectedRegister createMaxDemandRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(quantity, text);
         deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;

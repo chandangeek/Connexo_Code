@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.registers;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
 import com.energyict.cbo.BaseUnit;
@@ -36,7 +38,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedActivityCalendar;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedClock;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedData;
@@ -75,9 +76,13 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     private static final String ACTIVE_FIRMWARE_SIGNATURE_2 = "1.2.0.2.8.255";
 
     private final AM130 am130;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public AM130RegisterFactory(AM130 am130) {
+    public AM130RegisterFactory(AM130 am130, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.am130 = am130;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> offlineRegisters) {
@@ -257,7 +262,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                         DateTime dlmsDateTime = captureTimeOctetString.getOctetString().getDateTime(configuredTimeZone);
                         int configuredTimeZoneOffset = configuredTimeZone.getRawOffset()/(-1*60*1000);
                         if (dlmsDateTime.getDeviation() != configuredTimeZoneOffset){
-                            timeZoneIssue = MdcManager.getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
+                            timeZoneIssue = this.issueFactory.createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
                                     "Capture time zone offset ["+dlmsDateTime.getDeviation()+"] differs from the configured time zone ["+configuredTimeZone.getDisplayName()+"] = ["+configuredTimeZoneOffset+"]");
                         }
                         captureTime = dlmsDateTime.getValue().getTime();
@@ -436,21 +441,21 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     }
 
     protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
         } else {
             if (errorMessage.length == 0) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
             } else {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupportedBecause", register.getObisCode(), errorMessage[0]));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupportedBecause", register.getObisCode(), errorMessage[0]));
             }
         }
         return collectedRegister;
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;

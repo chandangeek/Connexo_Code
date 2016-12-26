@@ -27,7 +27,7 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
     private static final int MAX_CALIBER = 999999;
 
     public WriteMeterMasterDataMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

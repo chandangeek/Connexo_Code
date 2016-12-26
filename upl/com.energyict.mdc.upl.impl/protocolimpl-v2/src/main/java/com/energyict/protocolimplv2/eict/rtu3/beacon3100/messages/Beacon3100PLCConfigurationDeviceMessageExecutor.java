@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -11,7 +12,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
@@ -32,9 +32,11 @@ import java.util.List;
 public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigurationDeviceMessageExecutor {
 
     private static final String SEPARATOR = ";";
+    private final CollectedDataFactory collectedDataFactory;
 
-    public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice) {
-        super(session, offlineDevice);
+    public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory) {
+        super(session, offlineDevice, collectedDataFactory, issueFactory);
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -89,7 +91,7 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
 
                         final DialHomeIdDeviceIdentifier deviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
                         final RegisterDataIdentifierByObisCodeAndDevice registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(G3NetworkManagement.getDefaultObisCode(), deviceIdentifier);
-                        final CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
+                        final CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
                         collectedRegister.setCollectedData(fullPath);
                         collectedRegister.setReadTime(new Date());
                         collectedRegisters.add(collectedRegister);

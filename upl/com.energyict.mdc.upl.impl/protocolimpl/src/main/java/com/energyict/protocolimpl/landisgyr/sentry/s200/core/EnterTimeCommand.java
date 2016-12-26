@@ -10,40 +10,37 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.cbo.*;
-import java.io.*;
-
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Calendar;
 
 /**
  *
  * @author Koen
  */
 public class EnterTimeCommand extends AbstractCommand {
-    
+
     /** Creates a new instance of ForceStatusCommand */
     public EnterTimeCommand(CommandFactory cm) {
         super(cm);
     }
-    
+
     // =0x"+Integer.toHexString(
     public static void main(String[] args) {
         System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateCommand(null)));
-    }          
-    
-    protected void parse(byte[] data) throws IOException {
-        
-        
     }
-    
+
+    protected void parse(byte[] data) throws IOException {
+
+
+    }
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('E');
     }
-    
+
     protected byte[] prepareData() throws IOException {
         Calendar cal = ProtocolUtils.getCalendar(getCommandFactory().getS200().getTimeZone());
         cal.add(Calendar.MINUTE,1);
@@ -70,12 +67,12 @@ public class EnterTimeCommand extends AbstractCommand {
                 throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
             catch(IOException e) {
-                throw new IOException("DukePower, buildFrameWriteClock, IOException, "+e.getMessage());   
+                throw new IOException("DukePower, buildFrameWriteClock, IOException, "+e.getMessage());
             }
-             
-        } // while(true)        
-        
-        
+
+        } // while(true)
+
+
         byte[] data = new byte[6];
         data[0] = ProtocolUtils.hex2BCD(cal.get(Calendar.MONTH)+1);
         data[1] = ProtocolUtils.hex2BCD(cal.get(Calendar.DAY_OF_MONTH));
@@ -85,5 +82,5 @@ public class EnterTimeCommand extends AbstractCommand {
         data[5] = ProtocolUtils.hex2BCD(cal.get(Calendar.YEAR)%100);
         return data;
     }
-    
+
 }

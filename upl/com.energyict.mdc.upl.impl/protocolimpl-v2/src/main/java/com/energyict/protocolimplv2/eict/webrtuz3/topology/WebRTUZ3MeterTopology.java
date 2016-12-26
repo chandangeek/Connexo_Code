@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.topology;
 
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 
 import com.energyict.dlms.DLMSAttribute;
@@ -12,7 +13,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -49,24 +49,26 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
     /**
      * A map of physicalAddresses and DLMSAttributes for the mbusSerialNumbers
      */
-    private Map<Integer, DLMSAttribute> mbusSerialAttributes = new HashMap<Integer, DLMSAttribute>();
+    private Map<Integer, DLMSAttribute> mbusSerialAttributes = new HashMap<>();
 
     /**
      * A map of physicalAddresses and DLMSAttributes for the emeterSerialNumbers
      */
-    private Map<Integer, DLMSAttribute> emeterSerialAttributes = new HashMap<Integer, DLMSAttribute>();
+    private Map<Integer, DLMSAttribute> emeterSerialAttributes = new HashMap<>();
 
     /**
      * A list of EMeter <CODE>DeviceMappings</CODE>
      */
-    private List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
+    private List<DeviceMapping> eMeterMap = new ArrayList<>();
     /**
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
-    private List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
+    private List<DeviceMapping> mbusMap = new ArrayList<>();
+    private final CollectedDataFactory collectedDataFactory;
 
-    public WebRTUZ3MeterTopology(AbstractDlmsProtocol meterProtocol) {
+    public WebRTUZ3MeterTopology(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     public List<DeviceMapping> geteMeterMap() {
@@ -121,7 +123,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
                 if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
                     OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.mbusSerialAttributes.get(i)).getOctetString();
                     mbusSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
+                    if ((mbusSerial != null) && (!"".equalsIgnoreCase(mbusSerial))) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
                     }
                 }
@@ -146,7 +148,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
                 if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
                     OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.emeterSerialAttributes.get(i)).getOctetString();
                     eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-                    if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
+                    if ((eMeterSerial != null) && (!"".equalsIgnoreCase(eMeterSerial))) {
                         eMeterMap.add(new DeviceMapping(eMeterSerial, i));
                     }
                 }
@@ -216,7 +218,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(meterProtocol.getOfflineDevice().getId()));
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(meterProtocol.getOfflineDevice().getId()));
 
         for (DeviceMapping mapping : eMeterMap) {
             deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mapping.getSerialNumber()));
@@ -234,7 +236,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
      * @return the next available physicalAddress or -1 if none is available.
      */
     public int searchNextFreePhysicalAddress() {
-        List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
+        List<Integer> availablePhysicalAddresses = new ArrayList<>(Arrays.asList(1, 2, 3, 4));
         for (DeviceMapping dm : this.mbusMap) {
             availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list
         }

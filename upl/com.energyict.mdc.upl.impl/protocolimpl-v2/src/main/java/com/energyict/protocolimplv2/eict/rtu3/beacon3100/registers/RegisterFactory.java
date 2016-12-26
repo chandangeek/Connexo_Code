@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -30,7 +32,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastUpgradeState;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
@@ -60,31 +61,13 @@ public class RegisterFactory {
     public static final ObisCode CONNECT_CONTROL_STATE = ObisCode.fromString("0.0.96.3.129.255");
     public static final ObisCode CONNECT_CONTROL_BREAKER_STATE = ObisCode.fromString("0.0.96.3.130.255");
 
-    public static final ObisCode USB_SETUP_OBISCODE = ObisCode.fromString("0.0.128.0.28.255");
-    public static final ObisCode USB_STATE = ObisCode.fromString("0.2.128.0.28.255");
-    public static final ObisCode USB_ACTIVITY = ObisCode.fromString("0.3.128.0.28.255");
-    public static final ObisCode LAST_ACTIVITY_TIMESTAMP = ObisCode.fromString("0.4.128.0.28.255");
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public static final boolean DISABLED = false;
-    public static final boolean ENABLED = true;
-    public static final boolean IDLE = false;
-    public static final boolean ACTIVE = true;
-
-    public static final ObisCode GPRS_MODEM_SETUP = ObisCode.fromString("0.0.25.4.0.255");
-
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L1 = ObisCode.fromString("1.0.32.7.0.255");
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L2 = ObisCode.fromString("1.0.52.7.0.255");
-    public static final ObisCode INSTANTANEOUS_VOLTAGE_L3 = ObisCode.fromString("1.0.72.7.0.255");
-    public static final ObisCode INSTANTANEOUS_FREQUENCY = ObisCode.fromString("1.0.34.7.0.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L1 = ObisCode.fromString("1.0.81.7.0.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L2 = ObisCode.fromString("1.0.81.7.1.255");
-    public static final ObisCode INSTANTANEOUS_PHASE_ANGLE_L3 = ObisCode.fromString("1.0.81.7.2.255");
-
-    public static final ObisCode RESERVE_ENERGY = ObisCode.fromString("0.0.96.6.1.255");
-    public static final ObisCode TEMPERATURE = ObisCode.fromString("0.0.96.9.0.255");
-
-    public RegisterFactory(DlmsSession dlmsSession) {
+    public RegisterFactory(DlmsSession dlmsSession, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.dlmsSession = dlmsSession;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     public DlmsSession getDlmsSession() {
@@ -197,7 +180,7 @@ public class RegisterFactory {
                 }
 
                 try {
-                    RegisterValue registerValue = null;
+                    RegisterValue registerValue;
 
                     if (g3Mapping != null) {
                         registerValue = g3Mapping.parse(composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute()));
@@ -289,18 +272,18 @@ public class RegisterFactory {
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }
         return collectedRegister;
     }

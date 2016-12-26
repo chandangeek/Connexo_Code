@@ -42,7 +42,7 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
 
     public AM540RegisterFactory(AM540 am540) {
-        super(am540);
+        super(am540, collectedDataFactory, issueFactory);
     }
 
     @Override

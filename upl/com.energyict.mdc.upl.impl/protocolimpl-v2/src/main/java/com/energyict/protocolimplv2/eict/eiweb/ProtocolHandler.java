@@ -1,14 +1,18 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
+import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.LittleEndianInputStream;
@@ -22,7 +26,6 @@ import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
@@ -43,21 +46,29 @@ import java.util.logging.Logger;
 public class ProtocolHandler {
 
     private ContentType contentType;
-    private ResponseWriter responseWriter;
-    private InboundDAO inboundDAO;
-    private Cryptographer cryptographer;
+    private final ResponseWriter responseWriter;
+    private final InboundDAO inboundDAO;
+    private final Cryptographer cryptographer;
     private PacketBuilder packetBuilder;
     private ProfileBuilder profileBuilder;
     private List<CollectedRegister> registerData = new ArrayList<>();
     private CollectedConfigurationInformation configurationInformation;
     private CollectedLogBook deviceLogBook;
     private LegacyMessageConverter messageConverter = null;
+    private final CollectedDataFactory collectedDataFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDAO inboundDAO, Cryptographer cryptographer) {
+    public ProtocolHandler(ResponseWriter responseWriter, InboundDAO inboundDAO, Cryptographer cryptographer, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super();
         this.responseWriter = responseWriter;
         this.inboundDAO = inboundDAO;
         this.cryptographer = cryptographer;
+        this.collectedDataFactory = collectedDataFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     private void setContentType(HttpServletRequest request) {
@@ -111,7 +122,7 @@ public class ProtocolHandler {
             ChannelInfo channelInfo = profileBuilder.getProfileData().getChannel(i);
             PrimeRegisterForChannelIdentifier registerIdentifier = new PrimeRegisterForChannelIdentifier(this.getDeviceIdentifier(), channelInfo.getChannelId(), null);
 
-            CollectedRegister reading = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
+            CollectedRegister reading = this.collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
             reading.setReadTime(now);
             reading.setCollectedData(new Quantity(value, Unit.get(BaseUnit.COUNT)), "???");
             this.registerData.add(reading);
@@ -119,19 +130,19 @@ public class ProtocolHandler {
     }
 
     private void processConfigurationInformation(ProfileBuilder profileBuilder) {
-        this.configurationInformation = MdcManager.getCollectedDataFactory().createCollectedConfigurationInformation(this.getDeviceIdentifier(), "xml", profileBuilder.getConfigFile());
+        this.configurationInformation = this.collectedDataFactory.createCollectedConfigurationInformation(this.getDeviceIdentifier(), "xml", profileBuilder.getConfigFile());
     }
 
     public void handle(HttpServletRequest request, Logger logger) {
         try {
             setContentType(request);
-            this.packetBuilder = new PacketBuilder(this.cryptographer, logger);
+            this.packetBuilder = new PacketBuilder(this.cryptographer, logger, collectedDataFactory);
             this.contentType.dispatch(request, this);
             if (this.packetBuilder.isConfigFileMode()) {
-                this.profileBuilder = new ProfileBuilder(this.packetBuilder);
+                this.profileBuilder = new ProfileBuilder(this.packetBuilder, collectedDataFactory);
                 this.processConfigurationInformation(this.profileBuilder);
             } else if ((this.packetBuilder.getVersion() & 0x0080) == 0) {            // bit 8 indicates that the message is an alert
-                this.profileBuilder = new ProfileBuilder(this.packetBuilder);
+                this.profileBuilder = new ProfileBuilder(this.packetBuilder, collectedDataFactory);
                 this.processMeterReadings(this.profileBuilder);
                 this.profileBuilder.removeFutureData(logger, this.sevenDaysFromNow());
             } else {
@@ -201,7 +212,7 @@ public class ProtocolHandler {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebMessageConverter();
+            messageConverter = new EIWebMessageConverter(this.propertySpecService, this.nlsService, this.converter);
         }
         return messageConverter;
     }
@@ -251,7 +262,7 @@ public class ProtocolHandler {
 
     private CollectedLogBook getDeviceLogBook() {
         if (this.deviceLogBook == null) {
-            this.deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            this.deviceLogBook = this.collectedDataFactory.createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         }
         return this.deviceLogBook;
     }

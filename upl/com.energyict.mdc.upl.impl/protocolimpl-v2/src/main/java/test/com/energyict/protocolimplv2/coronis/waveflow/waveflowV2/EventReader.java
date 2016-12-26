@@ -1,12 +1,12 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimplv2.MdcManager;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.ApplicationStatusParser;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.EventStatusAndDescription;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.BackflowDetectionFlags;
@@ -17,7 +17,7 @@ import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.Back
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.LeakageEvent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -29,17 +29,19 @@ import java.util.List;
  */
 public class EventReader implements DeviceLogBookSupport {
 
-    private WaveFlowV2 waveFlowV2;
+    private final WaveFlowV2 waveFlowV2;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public EventReader(WaveFlowV2 waveFlowV2) {
+    public EventReader(WaveFlowV2 waveFlowV2, CollectedDataFactory collectedDataFactory) {
         this.waveFlowV2 = waveFlowV2;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         LogBookReader logBookReader = logBooks.get(0);
         Date lastLogBook = logBookReader.getLastLogBook();
-        CollectedLogBook result = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+        CollectedLogBook result = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
 
         List<MeterEvent> meterEvents = buildMeterEvents(false);
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
@@ -50,12 +52,12 @@ public class EventReader implements DeviceLogBookSupport {
             }
         }
         result.setCollectedMeterEvents(meterProtocolEvents);
-        return Arrays.asList(result);
+        return Collections.singletonList(result);
     }
 
     public List<MeterEvent> buildMeterEvents(boolean bubbleUpOrigin) {
 
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         EventStatusAndDescription translator = new EventStatusAndDescription(waveFlowV2);
 
         boolean usesInitialRFCommand = waveFlowV2.getWaveFlowProperties().usesInitialRFCommand();

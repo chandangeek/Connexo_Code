@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
@@ -46,7 +48,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -115,13 +116,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private Dsmr23MbusMessageExecutor mbusMessageExecutor;
 
-    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         List<OfflineDeviceMessage> masterMessages = getMessagesOfMaster(pendingMessages);
         List<OfflineDeviceMessage> mbusMessages = getMbusMessages(pendingMessages);
@@ -718,7 +719,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     protected AbstractMessageExecutor getMbusMessageExecutor() {
         if (this.mbusMessageExecutor == null) {
-            this.mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol());
+            this.mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory());
         }
         return this.mbusMessageExecutor;
     }

@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.dlms.idis.am500.registers;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -34,7 +36,6 @@ import com.energyict.protocolimpl.dlms.idis.registers.SFSKMacCountersMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.SFSKPhyMacSetupMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.SFSKReportingSystemListMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.SFSKSyncTimeoutsMapper;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
@@ -60,9 +61,13 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
     private static final String ALARM_REGISTER = "0.0.97.98.0.255";
     private final AM500 AM500;
     private final DLMSAttributeMapper[] attributeMappers;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public IDISRegisterFactory(AM500 AM500) {
+    public IDISRegisterFactory(AM500 AM500, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.AM500 = AM500;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
         this.attributeMappers = new DLMSAttributeMapper[]{
                 new SFSKPhyMacSetupMapper(SFSK_PHY_MAC_SETUP, AM500.getDlmsSession().getCosemObjectFactory()),
                 new SFSKActiveInitiatorMapper(SFSK_ACTIVE_INITIATOR, AM500.getDlmsSession().getCosemObjectFactory()),
@@ -188,17 +193,17 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }
         return collectedRegister;
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;

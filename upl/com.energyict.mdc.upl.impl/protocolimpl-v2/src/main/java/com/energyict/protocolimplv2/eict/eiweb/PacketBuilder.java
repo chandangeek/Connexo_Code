@@ -4,13 +4,13 @@ import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
@@ -83,15 +83,17 @@ public class PacketBuilder {
     private DeviceIdentifier deviceIdentifier;
     private List<CollectedData> collectedData = new ArrayList<>();
     private Logger logger;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public PacketBuilder(Cryptographer cryptographer) {
-        this(cryptographer, Logger.getAnonymousLogger());
+    public PacketBuilder(Cryptographer cryptographer, CollectedDataFactory collectedDataFactory) {
+        this(cryptographer, Logger.getAnonymousLogger(), collectedDataFactory);
     }
 
-    public PacketBuilder(Cryptographer cryptographer, Logger logger) {
+    public PacketBuilder(Cryptographer cryptographer, Logger logger, CollectedDataFactory collectedDataFactory) {
         super();
         this.cryptographer = cryptographer;
         this.logger = logger;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     public String getSeq() {
@@ -202,7 +204,7 @@ public class PacketBuilder {
         this.parseNumberOfChannelsFromMask();
         contentLength = EIWEB_BULK_HEADER_LENGTH + nrOfChannels * 2 + 4 + 1;
         if (this.ipAddress != null) {
-            this.collectedData.add(MdcManager.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
+            this.collectedData.add(this.collectedDataFactory.createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
         }
         this.createData(utc, code, statebits, this.parseValues(this.getDecryptedData(value)));
     }
@@ -381,7 +383,7 @@ public class PacketBuilder {
         this.parseNumberOfChannelsFromMask();
         contentLength = in.readLEInt();
 
-        this.collectedData.add(MdcManager.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
+        this.collectedData.add(this.collectedDataFactory.createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
 
         // retrieve data
         data = this.getDecryptedData(in);
@@ -436,26 +438,21 @@ public class PacketBuilder {
     }
 
     private int getSeqTimeHour() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(this.getSeq().charAt(1));
-        buffer.append(this.getSeq().charAt(3));
-        return Integer.parseInt(buffer.toString());
+        String buffer = String.valueOf(this.getSeq().charAt(1)) + this.getSeq().charAt(3);
+        return Integer.parseInt(buffer);
     }
 
     private int getSeqTimeMinute() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(this.getSeq().charAt(0));
-        buffer.append(this.getSeq().charAt(2));
-        return Integer.parseInt(buffer.toString());
+        String buffer = String.valueOf(this.getSeq().charAt(0)) + this.getSeq().charAt(2);
+        return Integer.parseInt(buffer);
     }
 
     private MD5Seed buildMD5Seed() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(getSeq().charAt(1));
-        buffer.append(getSeq().charAt(3));
-        buffer.append(getSeq().charAt(0));
-        buffer.append(getSeq().charAt(2));
-        return this.cryptographer.buildMD5Seed(this.deviceIdentifier, buffer.toString());
+        String buffer = String.valueOf(getSeq().charAt(1)) +
+                getSeq().charAt(3) +
+                getSeq().charAt(0) +
+                getSeq().charAt(2);
+        return this.cryptographer.buildMD5Seed(this.deviceIdentifier, buffer);
     }
 
     public int getVersion() {

@@ -137,7 +137,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice());
+            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), collectedDataFactory, issueFactory);
         }
         return plcConfigurationDeviceMessageExecutor;
     }

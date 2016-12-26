@@ -1,18 +1,17 @@
 /**
  * MK10InputStreamParser.java
- * 
+ *
  * Created on 13-jan-2009, 10:02:05 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.edmi.mk10.parsers;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.CRCGenerator;
-import com.energyict.protocolimplv2.MdcManager;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * @author jme
@@ -20,7 +19,7 @@ import com.energyict.protocolimplv2.MdcManager;
  * JME|14102009|Quick fix for ImServ. They have a meter with a different discovery packet.
  * 				Normal size = 24 bytes. Their size = 98 bytes. Needs to be investigated further!
  * 				The new packet contains more data about the meter (version, ...)
- * 
+ *
  */
 public class MK10InputStreamParser {
 

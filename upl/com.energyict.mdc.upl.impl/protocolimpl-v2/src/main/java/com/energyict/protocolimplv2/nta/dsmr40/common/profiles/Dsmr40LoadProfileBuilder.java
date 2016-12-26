@@ -33,7 +33,7 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
      * @param meterProtocol the {@link #meterProtocol}
      */
     public Dsmr40LoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
-        super(meterProtocol);
+        super(meterProtocol, collectedDataFactory, issueFactory);
     }
 
     public void setCumulativeCaptureTimeChannel(boolean cumulativeCaptureTimeChannel) {

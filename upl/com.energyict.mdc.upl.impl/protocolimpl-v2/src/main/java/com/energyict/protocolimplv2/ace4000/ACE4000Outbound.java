@@ -6,14 +6,19 @@ import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -29,7 +34,6 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
 import com.energyict.cpo.PropertySpec;
@@ -38,7 +42,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.properties.Temporals;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.messages.ACE4000Messaging;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.ace4000.requests.ReadFirmwareVersion;
@@ -72,6 +75,13 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private Long cachedMeterTimeDifference = null;
     private DeviceProtocolSecurityPropertySet securityProperties;
     private ACE4000Messaging messageProtocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public ACE4000Outbound(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -112,7 +122,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             if (isMaster(loadProfileReader.getMeterSerialNumber())) {     //Master device
                 ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
-                CollectedLoadProfileConfiguration config = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, getConfiguredSerialNumber());
+                CollectedLoadProfileConfiguration config = this.collectedDataFactory.createCollectedLoadProfileConfiguration(profileObisCode, getConfiguredSerialNumber());
                 if (!profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
                     config.setSupportedByMeter(false);
                 } else {
@@ -122,7 +132,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                         long profileInterval = Temporals.toMilliSeconds(offlineLoadProfile.interval());
                         Date toDate = new Date();
                         Date fromDate = new Date(toDate.getTime() - (2 * profileInterval)); // get the last interval from date
-                        ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, fromDate, toDate);
+                        ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, fromDate, toDate, issueFactory);
                         List<CollectedLoadProfile> collectedLoadProfiles = readLoadProfileRequest.request(loadProfileReader);
                         if (collectedLoadProfiles != null && !collectedLoadProfiles.isEmpty()) {
                             config.setChannelInfos(collectedLoadProfiles.get(0).getChannelInfo());
@@ -135,7 +145,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 result.add(config);
             } else {
                 //Slave doesn't support
-                CollectedLoadProfileConfiguration slaveConfig = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getConfiguredSerialNumber());
+                CollectedLoadProfileConfiguration slaveConfig = this.collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getConfiguredSerialNumber());
                 slaveConfig.setSupportedByMeter(false);
                 result.add(slaveConfig);
             }
@@ -157,11 +167,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         List<CollectedLoadProfile> result = new ArrayList<CollectedLoadProfile>();
         for (LoadProfileReader loadProfileReader : loadProfiles) {
             if (isMaster(loadProfileReader.getMeterSerialNumber())) {   //Master device
-                ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this);
+                ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, issueFactory);
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {    //Slave device
                 CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
-                Issue warning = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode(), "MBus slave device doesn't support load profiles");
+                Issue warning = this.issueFactory.createWarning(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode(), "MBus slave device doesn't support load profiles");
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, warning);
                 result.add(collectedLoadProfile);
             }
@@ -273,12 +283,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
         //Read MBus slave registers
         if (requestMBusRegisters) {
-            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this);
+            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, collectedDataFactory, issueFactory);
             result.addAll(readMBusRegistersRequest.request(registers));
         }
 
         //Read master registers
-        ReadRegisters readRegistersRequest = new ReadRegisters(this);
+        ReadRegisters readRegistersRequest = new ReadRegisters(this, collectedDataFactory, issueFactory);
         result.addAll(readRegistersRequest.request(registers));
         return result;
     }
@@ -287,12 +297,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     public CollectedTopology getDeviceTopology() {
         if (!objectFactory.getAllSlaveSerialNumbers().isEmpty()) {
             //Requesting MBus registers to have an idea which MBus devices are connected :)
-            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this);
+            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, collectedDataFactory, issueFactory);
             readMBusRegistersRequest.request(new ArrayList<OfflineRegister>());
         }
 
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
-        final CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(deviceIdentifier);
+        final CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(deviceIdentifier);
         for (String slaveSerialNumber : objectFactory.getAllSlaveSerialNumbers()) {
             deviceTopology.addSlaveDevice(new DialHomeIdDeviceIdentifier(slaveSerialNumber));
         }
@@ -301,7 +311,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this);
+            objectFactory = new ObjectFactory(this, collectedDataFactory);
             objectFactory.setInbound(false);
         }
         return objectFactory;
@@ -339,12 +349,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         LogBookReader logBookReader = logBooks.get(0);
         if (isMaster(logBookReader.getMeterSerialNumber())) {
-            ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(this);
+            ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(this, issueFactory);
             return readMeterEventsRequest.request(logBookReader);
         } else {
             List<CollectedLogBook> result = new ArrayList<>();
-            CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), "MBus slave device doesn't support events"));
+            CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), "MBus slave device doesn't support events"));
             result.add(deviceLogBook);
             return result;
         }
@@ -395,23 +405,33 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     public ACE4000Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new ACE4000Messaging(this);
+            this.messageProtocol = new ACE4000Messaging(this, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter);
         }
         return messageProtocol;
     }
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        return new ReadFirmwareVersion(this).request(getDeviceIdentifier());
+        return new ReadFirmwareVersion(this, issueFactory).request(getDeviceIdentifier());
     }
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        return MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

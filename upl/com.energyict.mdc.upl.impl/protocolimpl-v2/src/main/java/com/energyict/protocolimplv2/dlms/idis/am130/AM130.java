@@ -209,7 +209,7 @@ public class AM130 extends AM500 {
 
     protected AM130RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new AM130RegisterFactory(this);
+            this.registerFactory = new AM130RegisterFactory(this, collectedDataFactory, issueFactory);
         }
         return registerFactory;
     }

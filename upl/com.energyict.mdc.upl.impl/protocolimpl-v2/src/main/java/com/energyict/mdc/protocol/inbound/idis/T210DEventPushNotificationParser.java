@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.inbound.idis;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -42,7 +43,6 @@ import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocolimpl.dlms.idis.events.PowerFailureEventLog;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130CommunicationLog;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130FraudDetectionLog;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130MBusControlLog1;
@@ -107,8 +107,8 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private byte[] storedBlockDataFromPreviousResponse;
     private List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
 
-    public T210DEventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
-        super(comChannel, context);
+    public T210DEventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, CollectedDataFactory collectedDataFactory) {
+        super(comChannel, context, collectedDataFactory);
     }
 
     public void parseInboundFrame() {
@@ -248,7 +248,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             dataContainer.parseObjectList(structure.getNextDataType().getBEREncodedByteArray(), Logger.getLogger(this.getClass().getName()));
             List<MeterProtocolEvent> meterProtocolEventList = parseEvents(dataContainer, obisCode);
             if(meterProtocolEventList.size() > 0){
-                CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, obisCode));
+                CollectedLogBook collectedLogBook = this.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, obisCode));
                 collectedLogBook.addCollectedMeterEvents(meterProtocolEventList);
                 getCollectedLogBooks().add(collectedLogBook);
             }
@@ -385,7 +385,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             throw DataParseException.ioException(new ProtocolException("The third element of the Data-notification body should be the of type Array"));
         }
 
-        CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, deviceIdentifier));
+        CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, deviceIdentifier));
         List<ChannelInfo> channelInfos = getDeviceChannelInfo(loadProfileObisCode, offlineLoadProfile);
         List<IntervalData> collectedIntervalData;
         if(offlineLoadProfile != null){
@@ -477,7 +477,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
         int id = 0;
         for(OfflineLoadProfileChannel offlineLoadProfileChannel: offlineChannels){
-            ChannelInfo channelInfo = new ChannelInfo(id, offlineLoadProfileChannel.getObisCode().getValue(), offlineLoadProfileChannel.getUnit(), deviceIdentifier.getIdentifier());
+            ChannelInfo channelInfo = new ChannelInfo(id, offlineLoadProfileChannel.getObisCode().getValue(), offlineLoadProfileChannel.getUnit(), getDeviceId());
             channelInfos.add(channelInfo);
             if (isCumulative(offlineLoadProfileChannel.getObisCode())) {
                 channelInfo.setCumulative();
@@ -496,8 +496,8 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         int scale = 1;
         List<ChannelInfo> channelInfos = new ArrayList<>();
 
-        ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), deviceIdentifier.getIdentifier());
-        ChannelInfo ci2 = new ChannelInfo(1, "1.0.2.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), deviceIdentifier.getIdentifier());
+        ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), getDeviceId());
+        ChannelInfo ci2 = new ChannelInfo(1, "1.0.2.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), getDeviceId());
         ci1.setCumulative();
         ci2.setCumulative();
         channelInfos.add(ci1);
@@ -506,14 +506,18 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         return channelInfos;
     }
 
+    private String getDeviceId() {
+        return (String) deviceIdentifier.forIntrospection().getValue("databaseValue");
+    }
+
     private List<ChannelInfo> getDeviceChannelInfoLP2() { //This is hardcoded list as we do not receive the captured objects in the notification
         int scale = 1;
         List<ChannelInfo> channelInfos = new ArrayList<>();
 
-        ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale), deviceIdentifier.getIdentifier());
-        ChannelInfo ci2 = new ChannelInfo(1, "1.0.2.8.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scale), deviceIdentifier.getIdentifier());
-        ChannelInfo ci3 = new ChannelInfo(2, "1.0.3.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), deviceIdentifier.getIdentifier());
-        ChannelInfo ci4 = new ChannelInfo(3, "1.0.4.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), deviceIdentifier.getIdentifier());
+        ChannelInfo ci1 = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale), getDeviceId());
+        ChannelInfo ci2 = new ChannelInfo(1, "1.0.2.8.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scale), getDeviceId());
+        ChannelInfo ci3 = new ChannelInfo(2, "1.0.3.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), getDeviceId());
+        ChannelInfo ci4 = new ChannelInfo(3, "1.0.4.8.0.255", Unit.get(BaseUnit.UNITLESS, scale), getDeviceId());
         ci1.setCumulative();
         ci2.setCumulative();
         ci3.setCumulative();
@@ -646,7 +650,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     public CollectedLogBook getCollectedLogBook() {
         if(this.collectedLogBook == null) {
-            this.collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
+            this.collectedLogBook = this.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         }
         return this.collectedLogBook;
     }
@@ -667,7 +671,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private void createCollectedDeviceIpAddres(String deviceIpAddress) {
-        this.collectedDeviceIpAddress = MdcManager.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, deviceIpAddress, IP_ADDRESS_PROPERTY_NAME);
+        this.collectedDeviceIpAddress = this.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, deviceIpAddress, IP_ADDRESS_PROPERTY_NAME);
     }
 
     public byte[] doHandleGeneralBlockTransfer(byte[] rawResponse) throws IOException {

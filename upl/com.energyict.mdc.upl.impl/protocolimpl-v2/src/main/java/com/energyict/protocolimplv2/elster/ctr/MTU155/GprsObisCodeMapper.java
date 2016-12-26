@@ -23,6 +23,7 @@ import java.util.logging.Level;
 public class GprsObisCodeMapper extends ObisCodeMapper {
 
     public GprsObisCodeMapper(MTU155 protocol) {
+        super(collectedDataFactory, issueFactory);
         this.deviceIdentifier = protocol.getDeviceIdentifier();
         this.requestFactory = protocol.getRequestFactory();
         this.isEK155Protocol = false;

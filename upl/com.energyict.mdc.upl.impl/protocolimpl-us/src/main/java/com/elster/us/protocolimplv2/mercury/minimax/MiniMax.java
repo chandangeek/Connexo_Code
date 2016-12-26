@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -54,7 +55,6 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
@@ -123,6 +123,11 @@ public class MiniMax implements DeviceProtocol {
     private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport();
 
     private Logger logger = Logger.getLogger(this.getClass().getName());
+    private final CollectedDataFactory collectedDataFactory;
+
+    public MiniMax(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
 
     public Logger getLogger() {
         return logger;
@@ -783,7 +788,7 @@ public class MiniMax implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         // Only master
-        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     @Override

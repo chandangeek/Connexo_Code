@@ -19,7 +19,7 @@ public class TemporaryBreakSealMessage extends AbstractMTU155Message {
     private static final int MAX_BREAK_TIME = 255;
 
     public TemporaryBreakSealMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
         sealConfig = new SealConfig(messaging.getProtocol().getRequestFactory());
     }
 

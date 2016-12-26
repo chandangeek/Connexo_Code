@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
@@ -59,8 +61,8 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     protected static final ObisCode ALARM_DESCRIPTOR_OBISCODE_2 = ObisCode.fromString("0.0.97.98.21.255");
     private static final int MAX_MBUS_SLAVES = 6;
 
-    public AM130MessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public AM130MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     protected int getMaxMBusSlaves() {

@@ -34,12 +34,12 @@ public class ObjectFactoryTest {
 
     @Test
     public void testProfileData() {
-        ACE4000Outbound ace4000 = new ACE4000Outbound();
+        ACE4000Outbound ace4000 = new ACE4000Outbound(collectedDataFactory, issueFactory);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getSerialNumber()).thenReturn(SERIAL_NUMBER);
         when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
         ace4000.init(offlineDevice, new DummyComChannel());
-        ObjectFactory objectFactory = new ObjectFactory(ace4000);
+        ObjectFactory objectFactory = new ObjectFactory(ace4000, collectedDataFactory);
 
         objectFactory.parseXML(LOAD_PROFILE_DATA);
 

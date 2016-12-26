@@ -4,9 +4,11 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Implementation of dsfg protocol. <br>

@@ -1,15 +1,19 @@
 package com.energyict.protocolimplv2.ace4000.messages;
 
-import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.Code;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.properties.UplToMdwPropertySpecAdapter;
 import com.energyict.protocolimplv2.ace4000.ACE4000MessageExecutor;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.common.objectserialization.codetable.CodeTableBase64Builder;
@@ -21,7 +25,7 @@ import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -32,52 +36,56 @@ public class ACE4000Messaging implements DeviceMessageSupport {
 
     protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     protected final SimpleDateFormat europeanDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private List<DeviceMessageSpec> supportedMessages;
     private ACE4000MessageExecutor messageExecutor;
-    private ACE4000Outbound protocol;
+    private final ACE4000Outbound protocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public ACE4000Messaging(ACE4000Outbound protocol) {
+    public ACE4000Messaging(ACE4000Outbound protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     public ACE4000MessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            this.messageExecutor = new ACE4000MessageExecutor(protocol);
+            this.messageExecutor = new ACE4000MessageExecutor(this.protocol, this.collectedDataFactory, this.issueFactory);
         }
         return messageExecutor;
     }
 
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if (supportedMessages == null) {
-            supportedMessages = new ArrayList<>();
+        return Arrays.asList(
             //Load Profile messages
-            supportedMessages.add(LoadProfileMessage.READ_PROFILE_DATA);
+            LoadProfileMessage.READ_PROFILE_DATA.get(this.propertySpecService, this.nlsService, this.converter),
 
             //Events message
-            supportedMessages.add(LogBookDeviceMessage.ReadLogBook);
+            LogBookDeviceMessage.ReadLogBook.get(this.propertySpecService, this.nlsService, this.converter),
 
             //Configuration messages
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SendShortDisplayMessage);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SendLongDisplayMessage);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ResetDisplayMessage);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureLCDDisplay);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureLoadProfileDataRecording);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureSpecialDataMode);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureMaxDemandSettings);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureConsumptionLimitationsSettings);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureEmergencyConsumptionLimitation);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureTariffSettings);
+            ConfigurationChangeDeviceMessage.SendShortDisplayMessage.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.SendLongDisplayMessage.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.ResetDisplayMessage.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.ConfigureLCDDisplay.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.ConfigureLoadProfileDataRecording.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.ConfigureSpecialDataMode.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.ConfigureMaxDemandSettings.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.ConfigureConsumptionLimitationsSettings.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.ConfigureEmergencyConsumptionLimitation.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.ConfigureTariffSettings.get(this.propertySpecService, this.nlsService, this.converter),
 
             //General messages
-            supportedMessages.add(FirmwareDeviceMessage.FirmwareUpgradeWithUrlJarJadFileSize);
-            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-        }
-
-
-        return supportedMessages;
+            FirmwareDeviceMessage.FirmwareUpgradeWithUrlJarJadFileSize.get(this.propertySpecService, this.nlsService, this.converter),
+            ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter),
+            ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter),
+            ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter),
+            ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
@@ -87,11 +95,15 @@ public class ACE4000Messaging implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return this.format(UplToMdwPropertySpecAdapter.adapt(propertySpec), messageAttribute);
+    }
+
+    private String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.SPECIAL_DATE_MODE_DURATION_DATE)) {
             return dateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.ACTIVATION_DATE) ||
@@ -109,7 +121,8 @@ public class ACE4000Messaging implements DeviceMessageSupport {
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
+
 }

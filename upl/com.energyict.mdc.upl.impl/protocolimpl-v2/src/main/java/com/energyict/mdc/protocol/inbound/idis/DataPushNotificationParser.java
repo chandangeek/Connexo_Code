@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
@@ -9,8 +8,10 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
@@ -38,7 +39,6 @@ import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130Properties;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
@@ -64,7 +64,10 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
  */
 public class DataPushNotificationParser {
 
-    CollectedRegisterList collectedRegisters;
+    private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
+    private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
+
+    private CollectedRegisterList collectedRegisters;
     private ComChannel comChannel;
     public InboundDAO inboundDAO;
     public InboundComPort inboundComPort;
@@ -72,13 +75,12 @@ public class DataPushNotificationParser {
     protected DeviceIdentifier deviceIdentifier;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     protected CollectedLogBook collectedLogBook;
-    InboundDiscoveryContext context;
+    private final InboundDiscoveryContext context;
+    private final CollectedDataFactory collectedDataFactory;
 
-    private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
-    private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
-
-    public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
+    public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, CollectedDataFactory collectedDataFactory) {
         this.comChannel = comChannel;
+        this.collectedDataFactory = collectedDataFactory;
         this.inboundDAO = context.getInboundDAO();
         this.inboundComPort = context.getComPort();
         this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
@@ -87,6 +89,10 @@ public class DataPushNotificationParser {
 
     protected InboundDiscoveryContext getContext(){
         return context;
+    }
+
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
     }
 
     protected void log(String message){
@@ -309,7 +315,7 @@ public class DataPushNotificationParser {
     }
 
     protected void addCollectedRegister(ObisCode obisCode, long value, ScalerUnit scalerUnit, Date eventTime, String text) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(
+        CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(
                 new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier())
         );
 
@@ -347,7 +353,7 @@ public class DataPushNotificationParser {
 
     public CollectedRegisterList getCollectedRegisters() {
         if (this.collectedRegisters == null) {
-            this.collectedRegisters = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
+            this.collectedRegisters = this.collectedDataFactory.createCollectedRegisterList(getDeviceIdentifier());
         }
         return this.collectedRegisters;
     }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
@@ -9,7 +11,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Function;
 import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
@@ -26,20 +27,24 @@ import java.util.List;
  */
 public class LogBookFactory implements DeviceLogBookSupport {
 
-    public final static ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.0.255");
-    public final static ObisCode POWER_FAIL_LOG_OBIS = ObisCode.fromString("1.0.99.97.0.255");
+    public static final ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.0.255");
+    public static final ObisCode POWER_FAIL_LOG_OBIS = ObisCode.fromString("1.0.99.97.0.255");
 
     private final AbstractAbntProtocol meterProtocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public LogBookFactory(AbstractAbntProtocol meterProtocol) {
+    public LogBookFactory(AbstractAbntProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.meterProtocol = meterProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> collectedLogBooks = new ArrayList<>(logBooks.size());
         for (LogBookReader logBook : logBooks) {
-            CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(HISTORY_LOG_OBIS)) {
                 readHistoryLog(logBook, deviceLogBook);
             } else if (logBook.getLogBookObisCode().equals(POWER_FAIL_LOG_OBIS)) {
@@ -118,11 +123,11 @@ public class LogBookFactory implements DeviceLogBookSupport {
     }
 
     private void logBookNotSupported(CollectedLogBook deviceLogBook, ObisCode logBookObisCode) {
-        deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
+        deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
     }
 
     private void logBookParsingException(CollectedLogBook deviceLogBook) {
-        deviceLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(deviceLogBook, "CouldNotParseLogBookData"));
+        deviceLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(deviceLogBook, "CouldNotParseLogBookData"));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.dlms.g3.profile;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -12,7 +14,6 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
 import com.energyict.protocolimpl.dlms.g3.profile.G3Profile;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.cache.G3Cache;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
@@ -36,10 +37,14 @@ public class ProfileDataFactory {
     private final List<ObisCode> supportLoadProfiles;
     private final DlmsSession dlmsSession;
     private final G3Cache g3Cache;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public ProfileDataFactory(DlmsSession dlmsSession, G3Cache g3Cache) {
+    public ProfileDataFactory(DlmsSession dlmsSession, G3Cache g3Cache, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.dlmsSession = dlmsSession;
         this.g3Cache = g3Cache;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
         supportLoadProfiles = new ArrayList<>();
         supportLoadProfiles.add(IMPORT_ACTIVE_POWER_PROFILE);
         supportLoadProfiles.add(EXPORT_ACTIVE_POWER_PROFILE);
@@ -50,7 +55,7 @@ public class ProfileDataFactory {
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         List<CollectedLoadProfileConfiguration> result = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
-            CollectedLoadProfileConfiguration collectedLoadProfileConfiguration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration collectedLoadProfileConfiguration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
             boolean supported = isSupported(loadProfileReader);
             collectedLoadProfileConfiguration.setSupportedByMeter(supported);
             if (supported) {
@@ -74,19 +79,19 @@ public class ProfileDataFactory {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> result = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfiles) {
-            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
             if (isSupported(loadProfileReader)) {
                 try {
                     ProfileData profileData = getG3Profile(loadProfileReader).getProfileData(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime());
                     collectedLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, dlmsSession.getProperties().getRetries() + 1)) {
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode().toString(), e.getMessage());
+                        Issue problem = this.issueFactory.createProblem(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode().toString(), e.getMessage());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXnotsupported", loadProfileReader.getProfileObisCode().toString());
+                Issue problem = this.issueFactory.createWarning(loadProfileReader, "loadProfileXnotsupported", loadProfileReader.getProfileObisCode().toString());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             result.add(collectedLoadProfile);

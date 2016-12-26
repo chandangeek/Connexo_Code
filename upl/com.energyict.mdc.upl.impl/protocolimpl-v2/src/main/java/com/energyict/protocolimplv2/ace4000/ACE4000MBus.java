@@ -24,6 +24,10 @@ import java.util.List;
  */
 public class ACE4000MBus extends ACE4000Outbound {
 
+    public ACE4000MBus() {
+        super(collectedDataFactory, issueFactory);
+    }
+
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         List<DeviceProtocolCapabilities> capabilities = new ArrayList<DeviceProtocolCapabilities>();
         capabilities.add(DeviceProtocolCapabilities.PROTOCOL_SLAVE);

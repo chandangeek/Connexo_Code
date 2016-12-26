@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms.g3.events;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
@@ -19,7 +21,6 @@ import com.energyict.protocolimpl.dlms.g3.events.G3BasicEventLog;
 import com.energyict.protocolimpl.dlms.g3.events.G3LqiEventLog;
 import com.energyict.protocolimpl.dlms.g3.events.MainEventMapper;
 import com.energyict.protocolimpl.dlms.g3.events.VoltageCutEventMapper;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,9 +46,13 @@ public class LogBookFactory {
 
     private final DlmsSession dlmsSession;
     private final List<EventLog> supportedEventLogs;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public LogBookFactory(DlmsSession dlmsSession) {
+    public LogBookFactory(DlmsSession dlmsSession, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.dlmsSession = dlmsSession;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
 
         supportedEventLogs = Arrays.asList(
                 new G3BasicEventLog(dlmsSession.getCosemObjectFactory(), MAIN_LOG, new MainEventMapper(), dlmsSession.getLogger(), dlmsSession.getTimeZone()),
@@ -65,7 +70,7 @@ public class LogBookFactory {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBookReader : logBookReaders) {
-            CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
             EventLog eventLog = findEventLog(logBookReader);
             if (eventLog != null) {
                 try {
@@ -73,16 +78,16 @@ public class LogBookFactory {
                     List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(events);
                     collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
                 } catch (NotInObjectListException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                     } else if (DLMSIOExceptionHandler.isUnexpectedResponse(e, dlmsSession.getProperties().getRetries()+1)) {
-                        collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                        collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

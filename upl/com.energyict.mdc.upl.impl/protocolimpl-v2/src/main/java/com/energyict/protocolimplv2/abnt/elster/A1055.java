@@ -7,14 +7,19 @@ import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -23,23 +28,25 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.upl.issue.Issue;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
 import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
@@ -58,6 +65,7 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +77,12 @@ import java.util.TimeZone;
  */
 public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+
     private OfflineDevice offlineDevice;
     private RequestFactory requestFactory;
     private RegisterFactory registerFactory;
@@ -76,6 +90,14 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
     private LoadProfileBuilder loadProfileBuilder;
     private MessageFactory messageFactory;
     private DeviceProtocolSecurityCapabilities securitySupport;
+
+    public A1055(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -103,7 +125,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override
@@ -265,7 +287,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     public AbntProperties getProperties() {
@@ -298,28 +320,28 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, collectedDataFactory, issueFactory);
         }
         return this.loadProfileBuilder;
     }
 
     public RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new RegisterFactory(this);
+            this.registerFactory = new RegisterFactory(this, collectedDataFactory, issueFactory);
         }
         return this.registerFactory;
     }
 
     public LogBookFactory getLogBookFactory() {
         if (this.logBookFactory == null) {
-            this.logBookFactory = new LogBookFactory(this);
+            this.logBookFactory = new LogBookFactory(this, collectedDataFactory, issueFactory);
         }
         return this.logBookFactory;
     }
 
     public MessageFactory getMessageFactory() {
         if (this.messageFactory == null) {
-            this.messageFactory = new MessageFactory(this);
+            this.messageFactory = new MessageFactory(this, collectedDataFactory, issueFactory, this.propertySpecService, this.nlsService, this.converter);
         }
         return this.messageFactory;
     }
@@ -333,24 +355,34 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        return MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        Issue warning = MdcManager.getIssueFactory().createWarning(
+        Issue warning = this.issueFactory.createWarning(
                 this.offlineDevice,
                 "issue.protocol.readingOfCalendarNotSupported",
                 DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
 
-        CollectedCalendar calendarCollectedData = MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        CollectedCalendar calendarCollectedData = this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
         calendarCollectedData.setFailureInformation(ResultType.NotSupported, warning);
 
         return calendarCollectedData;
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

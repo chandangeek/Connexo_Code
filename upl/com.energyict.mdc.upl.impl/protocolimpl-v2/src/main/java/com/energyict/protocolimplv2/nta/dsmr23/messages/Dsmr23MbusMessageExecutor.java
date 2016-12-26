@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
@@ -26,7 +28,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -56,14 +57,13 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
     public static final OctetString MBUS_CLIENT_VALUE_INFORMATION_BLOCK_USE_CORRECTED = OctetString.fromByteArray(new byte[]{0x13});
     public static final OctetString MBUS_CLIENT_VALUE_INFORMATION_BLOCK_USE_UNCORRECTED = OctetString.fromByteArray(new byte[]{(byte) 0x93, (byte) 0x3A});
 
-    public Dsmr23MbusMessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
-
+    public Dsmr23MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic

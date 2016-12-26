@@ -1,5 +1,17 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,28 +21,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.DialerException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
-import com.energyict.protocolimpl.kenda.medo.MedoReadDialReadings;
-import com.energyict.protocolimplv2.MdcManager;
-
 public class MeteorCommunicationsFactory{
 	/**
  	 * ---------------------------------------------------------------------------------<p>
 	 * Meteor CommunicationsFactory<p>
 	 * <p>
 	 * Starts with the attributes and constructors.  After the constructors all methods dealing with
-	 * serialization can be found: building the headers, generating and checking the checksum, packing 
+	 * serialization can be found: building the headers, generating and checking the checksum, packing
 	 * and unpacking the data blocks.  After the processing methods general purpose communication
 	 * methods and dedicated methods (trim RTC and data download).  Under the communication methods the
 	 * backbone of these methods can be found to send and receive data.  They throw timeout exceptions
@@ -44,30 +41,30 @@ public class MeteorCommunicationsFactory{
 	 *  Version: 1.0 <p>
 	 *  First edit date: 1/07/2008 PST<p>
 	 *  Last edit date: 13/08/2008  PST<p>
-	 *  Comments: Beta ready for testing<p> 
+	 *  Comments: Beta ready for testing<p>
 	 *  Released for testing: 13/08/2008<p>
 	 *  <p>
 	 *  Revisions<p>
-	 *  ----------------<p> 
+	 *  ----------------<p>
 	 *  Author: <p>
 	 *  Version:<p>
 	 *  First edit date: <p>
 	 *  Last edit date: <p>
 	 *  Comments:<p>
 	 *  released for testing:<p>
-	 *  
+	 *
 	 *  changes:
 	 *  JME	|05022009|	Fixed timing issues that prevented some meters to readout the load profile data.
- 	 *						-> Fixed by changing the receive interframe timeout to 3 times the timeout. 
+ 	 *						-> Fixed by changing the receive interframe timeout to 3 times the timeout.
  	 *						-> Lowered the interframe retries to prevent huge call times when meter hangs.
-	 *  
+	 *
 	 * ---------------------------------------------------------------------------------<p>
-	 */	
+	 */
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
-	
+
 	private static final int RECEIVE_RETRIES	=	3;
-	
+
 	private byte   ident;					// see ident format listed below
 	private final byte[] sourceCode;		// Defines central equipment of origin
 	private final byte   sourceCodeExt;		// Defines peripheral equipment of origin
@@ -75,7 +72,7 @@ public class MeteorCommunicationsFactory{
 	private final byte   destinationCodeExt;// Defines peripheral equipment of final destination
 	private byte   unit;					// DIP routing ???
 	private byte   port;					// DIP routing ???
-	
+
 	private static final byte   fullPersTableRead          	=0x01;	  // ram initialised, table defines modes
 	private static final byte   fullPersTableWrite         	=0x11;    // ... page 6/16 Meteor communications protocol
 	private static final byte   extendedPersTableRead      	=0x02;
@@ -106,7 +103,7 @@ public class MeteorCommunicationsFactory{
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	private TimeZone timezone;
-	
+
 	public MeteorCommunicationsFactory(InputStream inputStream, OutputStream outputStream){// blank constructor for testing purposes only
 		byte[] blank={0,0};
 		ident=0;				// see ident format listed below
@@ -120,11 +117,11 @@ public class MeteorCommunicationsFactory{
 		this.outputStream=outputStream;
 	}
 	public MeteorCommunicationsFactory(  // real constructor, sets header correct.
-			byte[] sourceCode, 
-			byte sourceCodeExt, 
-			byte[] destinationCode, 
+			byte[] sourceCode,
+			byte sourceCodeExt,
+			byte[] destinationCode,
 			byte destinationCodeExt,
-			InputStream inputStream, 
+			InputStream inputStream,
 			OutputStream outputStream){
 		ident=0;
 		this.sourceCode=sourceCode;
@@ -136,15 +133,15 @@ public class MeteorCommunicationsFactory{
 		this.inputStream=inputStream;
 		this.outputStream=outputStream;
 	}
-	
+
 	/*
 	 * START
-	 * 1)GENERAL 
+	 * 1)GENERAL
 	 * work classes, build the framework to transmit the 245 data segments (header, checksum,...)
 	 */
 	public byte buildIdent(boolean ack, boolean first, boolean last, byte command){
 		// Ack bit, first block bit, last block bit, R/W, 4 bit operation select (last five bits are set by command)
-		if(ack)   {command=(byte) (command | 0x80);}else{command=(byte) (command & 0x7F);} // set or reset ack		
+		if(ack)   {command=(byte) (command | 0x80);}else{command=(byte) (command & 0x7F);} // set or reset ack
 		if(first) {command=(byte) (command | 0x40);}else{command=(byte) (command & 0xBF);} // set or reset F
 		if(last)  {command=(byte) (command | 0x20);}else{command=(byte) (command & 0xDF);} // set or reset L
 		return command;
@@ -165,7 +162,7 @@ public class MeteorCommunicationsFactory{
 		header[9]=port;
 		return header;
 	}
-	
+
 	// checksum calculation, last step of serialization
 	public byte[] addCheckSum(byte[] total){
 		int checkSum=0;
@@ -180,12 +177,12 @@ public class MeteorCommunicationsFactory{
 		}
 		return totalcheck;
 	}
-	
+
 	// verify checksum, to be used by unit tests and data reception
 	private boolean verifyCheckSum(byte[] dataToBeVerified){
 		int checkSum=0;
 		byte checkSumFinal;
-		
+
 		for (int i=0; i<(dataToBeVerified.length-1); i++){
 			checkSum=checkSum+(int) dataToBeVerified[i];
 		}
@@ -194,13 +191,13 @@ public class MeteorCommunicationsFactory{
 			return true; // checksum is ok
 		}else return false; // checksum is not ok => reject
 	}
-	
+
 	// blocks received are to be merged in one byte array block
 	public byte[] blockMerging(byte[][] block){
 		int totalLength=0;
 		byte [] b;
 		byte[] header;
-		
+
 		for (int i=0; i<block.length; i++){
 			totalLength+=(block[i].length-11); // minus the header and checksum
 		}
@@ -224,7 +221,7 @@ public class MeteorCommunicationsFactory{
 		b=addCheckSum(b);
 		return b;
 	}
-	
+
 	// press block array in the right frame sizes (10+245+1)=(header+data+checksum)
 	// the block array should contain a header, because the header contains the ident
 	public byte[][] blockProcessing(byte[] block){
@@ -237,7 +234,7 @@ public class MeteorCommunicationsFactory{
 		byte[] blockSection;      // frame and header
 		byte[] finalBlockSection; // header frame checksum
 		int mod;
-		
+
 		// calculate number of blocks
 		numOfBlocks=(int) Math.ceil(((double) (block.length-10))/245); // minus 10 to remove the checksum and the header
 		// generate blockProck 2D matrix
@@ -249,7 +246,7 @@ public class MeteorCommunicationsFactory{
 			// start building ident bits
 			ident=block[0];
 			if((ident & 0x80) == 0x80){
-				ack=true; 
+				ack=true;
 			}
 			// adapt first ident using BuildIdent
 			ident=buildIdent(ack, true, false, (byte) (ident & 0x1F)); // global ident adapted
@@ -257,12 +254,12 @@ public class MeteorCommunicationsFactory{
 			blockSection = new byte[255];
 			for(int i=0; i<255;i++){
 				if(i<10)  {blockSection[i]=header[i];}     // add header
-				if(i>=10) {blockSection[i]=block[i];}	   // add data			
+				if(i>=10) {blockSection[i]=block[i];}	   // add data
 			}
 			finalBlockSection=addCheckSum(blockSection);   // checksum added to block
 			blockProc[0]=finalBlockSection;				   // add frame segment to matrix
 			// first block serialized
-			
+
 			//adapt ident for center frames
 			if(numOfBlocks>2){
 				ident=buildIdent(ack, false, false, (byte) (ident & 0x1F)); // change ident (introduce F and L bits)
@@ -271,7 +268,7 @@ public class MeteorCommunicationsFactory{
 				for (int i=1; i<(numOfBlocks-1); i++){
 					for(int ii=0; ii<255;ii++){
 						if(i<10)  {blockSection[i]=header[i];}     // add header
-						if(i>=10) {blockSection[i]=block[i];}	   // add data			
+						if(i>=10) {blockSection[i]=block[i];}	   // add data
 					}
 					finalBlockSection=addCheckSum(blockSection); // checksum added to block
 					blockProc[i]=finalBlockSection;
@@ -284,21 +281,21 @@ public class MeteorCommunicationsFactory{
 			blockSection = new byte[mod+10]; // data + header
 			for(int i=0; i<mod;i++){
 				if(i<10)  {blockSection[i]=header[i];}     // add header
-				if(i>=10) {blockSection[i]=block[i];}	   // add data			
+				if(i>=10) {blockSection[i]=block[i];}	   // add data
 			}
 			finalBlockSection=addCheckSum(blockSection); // checksum added to block
 			blockProc[numOfBlocks-1]=finalBlockSection; // final block added to array
 		}
-		return blockProc; 
+		return blockProc;
 	}
 	/*
-	 * END 
+	 * END
 	 * 1)GENERAL chapter, pg 4 to 6, description of how the communication frames
 	 *  should look like
 	*/
-	
+
 	/*
-	 * START data transmission 
+	 * START data transmission
 	 */
 	public Parsers transmitData(byte command, Parsers p) throws IOException{
 		byte[] bs=new byte[0];
@@ -311,7 +308,7 @@ public class MeteorCommunicationsFactory{
 			pog--;
 			try{
 				if(p==null){ // request of data from the meter (11 byte command)
-					bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
+					bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
 				}else{ // writing data to the meter
 					bs=p.parseToByteArray();
 				}
@@ -322,9 +319,9 @@ public class MeteorCommunicationsFactory{
 				br=receiveData((byte) (bs[0]& 0x1F));
 				// send ack
 				if((br[br.length-1][0]&0x20)==0x20){
-					ack=true;			
+					ack=true;
 				}
-				if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+				if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
 					throw new ProtocolConnectionException("Interframe timeout error");
 				}
 				pr2=buildCommand(blockMerging(br),pr);
@@ -404,10 +401,10 @@ public class MeteorCommunicationsFactory{
 			try{
 			sendData(bs);
 			// receive ack
-			br=receiveData((byte) (bs[0]& 0x1F));	// timeout?	
+			br=receiveData((byte) (bs[0]& 0x1F));	// timeout?
 			//System.out.println(br.length+" "+br[0].length);
 			if((br[br.length-1][0]&0x20)==0x20){
-				ack=true;			
+				ack=true;
 			}
 			// deal with the data, cut header and checksum
 			for(int ii=0; ii<br.length; ii++){
@@ -424,7 +421,7 @@ public class MeteorCommunicationsFactory{
 							System.out.println("error detected " +poscount);
 							throw(new IOException("error detected in data transmission: retry"));
 						}
-						poscount++;						
+						poscount++;
 					}
 				}
 				// parse the data
@@ -441,7 +438,7 @@ public class MeteorCommunicationsFactory{
 				sendData(bs);
 			}
 			}catch(Exception e){
-				ack=false;		
+				ack=false;
 				if(e instanceof ProtocolConnectionException){
 					throw new IOException ("NO CARRIER received");
 				}
@@ -458,15 +455,15 @@ public class MeteorCommunicationsFactory{
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
-	
+
 	public int[] retrieveLastProfileData(int intervaltime) throws IOException{
 		MeteorReadDialReadings mrdr;
 		mrdr=(MeteorReadDialReadings) transmitData(readdialReadingCurrent, null);
 		return mrdr.getCnt();
 	}
-	
-	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
-		ProfileData pd = new ProfileData();		
+
+	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{
+		ProfileData pd = new ProfileData();
 		IntervalData id = new IntervalData();		// current interval data
 		MeterEvent meterEvent;
 		ArrayList  meterEventList = new ArrayList();
@@ -474,11 +471,11 @@ public class MeteorCommunicationsFactory{
 		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false, lastdata=false, ack=false;
 		long millis=0;
 		int ids=0, pog=this.retries;
-		
+
 		// set timezone and calendar object
-		Calendar cal1 = Calendar.getInstance(timezone); 
+		Calendar cal1 = Calendar.getInstance(timezone);
 		cal1.setTime(start);
-		
+
 		while(!ack && pog>0){
 			pog--;
 			try{
@@ -500,20 +497,20 @@ public class MeteorCommunicationsFactory{
 					lastdata=true;
 				}
 			}
-		
+
 			// reset cal1 object
 			cal1 = Calendar.getInstance(timezone); // for security reasons , should be not needed
 			cal1.setTime(start);
 			ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
 			// if(cal1...
-        
+
 			// get meter data
 			short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
 			System.out.println(s.length+" s2 "+s[0].length);
 			// build channel map in profile data
 			for(int i=0; i<s[0].length;i++ ){
-				if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){	
-					pd.addChannel(new ChannelInfo(ids, "Meteor channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));			
+				if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){
+					pd.addChannel(new ChannelInfo(ids, "Meteor channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));
 					ids++; // will run parallel with i but is needed in case of a channelmap
 				}
 			}
@@ -559,9 +556,9 @@ public class MeteorCommunicationsFactory{
 								meterEventList.add(meterEvent);
 								prevIntervalPowdownflag=true;
 							}else{
-								id.addEiStatus(IntervalStateBits.MISSING);							
+								id.addEiStatus(IntervalStateBits.MISSING);
 							}
-						}					
+						}
 					}else{
 						// boundary condition
 						if(prevIntervalPowdownflag && !flag){ // previous interval was power down and no negative value has been detected (boundary condition)
@@ -573,7 +570,7 @@ public class MeteorCommunicationsFactory{
 						}
 					}
 					// add value to profile data
-					if(channelMap.isProtocolChannelEnabled(ii) && meterChannelMap.isProtocolChannelEnabled(ii)){	
+					if(channelMap.isProtocolChannelEnabled(ii) && meterChannelMap.isProtocolChannelEnabled(ii)){
 						id.addValue(new Integer(s[i][ii])); // add data to the interval
 					}
 				}
@@ -607,7 +604,7 @@ public class MeteorCommunicationsFactory{
 	 */
 
 	/*
-	 * Input readers 
+	 * Input readers
 	 */
 	private byte[][] receiveData(byte ident) throws IOException {
 		int i=0,counter,length;
@@ -636,7 +633,7 @@ public class MeteorCommunicationsFactory{
 				}
 				counter++;
 			}
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 			if((s.charAt(0) & 0x0020)==0x20){ // check ident on last block to transmit
@@ -649,7 +646,7 @@ public class MeteorCommunicationsFactory{
 		for(int ii=0; ii<recdat.size(); ii++){
 			String str= (String) recdat.get(ii);
 			data[i++]=Parsers.parseCArraytoBArray(str.toCharArray());
-		}		
+		}
 		return data;
 	}
 
@@ -672,7 +669,7 @@ public class MeteorCommunicationsFactory{
 	/*
 	 * END Data transmission
 	 */
-		
+
 	/*
 	 * The following method buildCommand takes in a byte array and if needed a parser object
 	 * when the parser object is a null, the byte array is considered a command to write to the meter
@@ -712,7 +709,7 @@ public class MeteorCommunicationsFactory{
 					case readRTC:
 						//System.out.println("Get RTC register");
 						MeteorCLK c=new MeteorCLK();
-						p = c;						
+						p = c;
 						break;
 					case setRTC:
 						//System.out.println("Set RTC register");
@@ -773,11 +770,11 @@ public class MeteorCommunicationsFactory{
 					mfpt.setTimezone(timezone);
 					mfpt.processFullPersonalityTable(rawdata);
 					p=mfpt;
-				}else if(p instanceof MeteorExtendedPersonalityTable){	
+				}else if(p instanceof MeteorExtendedPersonalityTable){
 					p=new MeteorExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MeteorCLK){
 					MeteorCLK c=new MeteorCLK(rawdata,timezone);
-					p = c;						
+					p = c;
 				}else if(p instanceof MeteorFirmwareVersion){
 					p=new MeteorFirmwareVersion(rawdata);
 				}else if(p instanceof MeteorStatus){
@@ -795,9 +792,9 @@ public class MeteorCommunicationsFactory{
 			}
 		}else{
 			return null;
-		}	
+		}
 	}
-	
+
 	public byte getIdent() {
 		return ident;
 	}
@@ -820,13 +817,13 @@ public class MeteorCommunicationsFactory{
 		channelMultipliers=new int[numChan];
 		for(int i=0; i<numChan; i++){
 			channelMultipliers[i]=(int) Math.pow(10,(long) (-1*dialexp[i])); //(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];  // CHANGE HERE FOR MULTIPLIERS
-		}		
+		}
 	}
-	
+
 	public void setChannelMap(ProtocolChannelMap channelMap) {
 		this.channelMap=channelMap;
 	}
-	
+
 	public void setTimeZone(TimeZone timezone) {
 		this.timezone=timezone;
 	}
@@ -843,5 +840,5 @@ public class MeteorCommunicationsFactory{
 		this.meterChannelMap = meterChannelMap;
 	}
 
-	
+
 }

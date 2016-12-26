@@ -24,7 +24,7 @@ public class A100C extends AbstractMbusDevice {
     private EMeterMessaging EMeterMessaging;
 
     public A100C() {
-        super(new GarnetConcentrator());
+        super(new GarnetConcentrator(collectedDataFactory, issueFactory));
     }
 
     public A100C(GarnetConcentrator meterProtocol, String serialNumber) {

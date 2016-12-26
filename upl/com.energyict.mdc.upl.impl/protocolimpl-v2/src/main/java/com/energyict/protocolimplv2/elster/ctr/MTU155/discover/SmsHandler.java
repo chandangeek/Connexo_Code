@@ -1,22 +1,21 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.mdc.meterdata.CollectedMessageAcknowledgement;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.LoadProfileBuilder;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.SmsObisCodeMapper;
@@ -50,6 +49,8 @@ import java.util.TimeZone;
  */
 public class SmsHandler {
 
+    private static final ObisCode GENERIC_LOGBOOK_TYPE_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
+
     private final String SMS_IDENTIFICATION_NUMBER = "SMS identification number";
 
     /**
@@ -71,8 +72,10 @@ public class SmsHandler {
      * The list in which all parsed {@link CollectedData} will be stored
      */
     private List<CollectedData> collectedDataList;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public SmsHandler(DeviceIdentifier deviceIdentifier, TypedProperties typedProperties) {
+    public SmsHandler(DeviceIdentifier deviceIdentifier, TypedProperties typedProperties, CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
         this.collectedDataList = new ArrayList<>();
         this.deviceIdentifier = deviceIdentifier;
         this.allProperties = typedProperties;
@@ -123,8 +126,8 @@ public class SmsHandler {
         CTRMeterEvent ctrMeterEvent = new CTRMeterEvent(getTimeZone());
         List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
                 ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short())));
-        CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(
-                new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+        CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(
+                new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), GENERIC_LOGBOOK_TYPE_OBISCODE));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
         this.collectedDataList.add(collectedLogBook);
     }
@@ -142,7 +145,7 @@ public class SmsHandler {
     }
 
     private CollectedData convertToCollectedData(Trace_CQueryResponseStructure data, ProfileData profileData) throws CTRException {
-        CollectedLoadProfile collectedProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(getProfileObisCode(data), getDeviceIdentifier()));
+        CollectedLoadProfile collectedProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(getProfileObisCode(data), getDeviceIdentifier()));
         collectedProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
         collectedProfile.setDoStoreOlderValues(true);
         return collectedProfile;
@@ -217,7 +220,7 @@ public class SmsHandler {
         }
 
         MessageIdentifier messageIdentifier = new DeviceMessageIdentifierByDeviceAndProtocolInfoParts(getDeviceIdentifier(), SMS_IDENTIFICATION_NUMBER, Integer.toString(wdb));
-        CollectedMessageAcknowledgement messageAcknowledgement = MdcManager.getCollectedDataFactory().createDeviceProtocolMessageAcknowledgementFromSms(messageIdentifier);
+        CollectedMessageAcknowledgement messageAcknowledgement = this.collectedDataFactory.createDeviceProtocolMessageAcknowledgementFromSms(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Message confirmed as successful by SMS.");
 
@@ -259,7 +262,7 @@ public class SmsHandler {
         }
 
         MessageIdentifier messageIdentifier = new DeviceMessageIdentifierByDeviceAndProtocolInfoParts(getDeviceIdentifier(), SMS_IDENTIFICATION_NUMBER, Integer.toString(wdb));
-        CollectedMessageAcknowledgement messageAcknowledgement = MdcManager.getCollectedDataFactory().createDeviceProtocolMessageAcknowledgement(messageIdentifier);
+        CollectedMessageAcknowledgement messageAcknowledgement = this.collectedDataFactory.createDeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.FAILED);
         messageAcknowledgement.setProtocolInfo("Message confirmed as failed by SMS - failure reason: " + data.getReason().getDescription());
 
@@ -286,8 +289,7 @@ public class SmsHandler {
     }
 
     private String getDeviceSerialNumber() {
-        String serial = (String) getAllProperties().getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
-        return serial;
+        return (String) getAllProperties().getProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), "");
     }
 
     public String getCallHomeID() throws CTRException {

@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.edp.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -24,7 +26,6 @@ import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -69,13 +70,13 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     public static final ObisCode RELAY_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
     public static final String SEPARATOR = ";";
 
-    public EDPMessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public EDPMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -280,19 +281,19 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getDisconnector(obisCode).remoteDisconnect();
     }
 
-    private void setThresholdOverConsumption(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
+    private void setThresholdOverConsumption(OfflineDeviceMessage pendingMessage) throws IOException {
         int threshold = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         ObisCode obisCode = ObisCode.fromString("0.1.94.35.44.255");
         getCosemObjectFactory().getRegister(obisCode).setValueAttr(new Unsigned32(threshold));
     }
 
-    private void setMinimumThreshold(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
+    private void setMinimumThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
         int threshold = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         ObisCode obisCode = ObisCode.fromString("0.1.94.35.45.255");
         getCosemObjectFactory().getRegister(obisCode).setValueAttr(new Unsigned32(threshold));
     }
 
-    private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
+    private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
         String userFileContents = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         BASE64Decoder decoder = new BASE64Decoder();
         byte[] binaryImage = decoder.decodeBuffer(userFileContents);
@@ -363,7 +364,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getData(obisCode).setValueAttr(array);
     }
 
-    private void setMaximumThreshold(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
+    private void setMaximumThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
         int threshold = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getValue());
         ObisCode obisCode = ObisCode.fromString("0.1.94.35.46.255");
         getCosemObjectFactory().getRegister(obisCode).setValueAttr(new Unsigned32(threshold));
@@ -415,7 +416,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     /**
      * String format should be hh:mm:ss
      */
-    private OctetString parseTimeFromString(String dateString) throws ParseException, IOException {
+    private OctetString parseTimeFromString(String dateString) throws IOException {
         AXDRTime axdrTime = new AXDRTime();
         axdrTime.setTime(dateString);
         return axdrTime.getOctetString();

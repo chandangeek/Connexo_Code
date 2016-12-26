@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
 import com.energyict.mdc.tasks.NextExecutionSpecs;
+
+import com.energyict.cbo.TimeDuration;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.util.Calendar;
 import java.util.TimeZone;

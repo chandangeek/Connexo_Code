@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -33,7 +34,6 @@ import com.elster.us.protocolimplv2.sel.frame.data.TimeReadResponseData;
 import com.elster.us.protocolimplv2.sel.profiles.LoadProfileBuilder;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
@@ -62,6 +62,11 @@ public class SEL implements DeviceProtocol {
     private SerialPortComChannel comChannel;
     private Logger logger = Logger.getLogger(this.getClass().getName());
     private LoadProfileBuilder loadProfileBuilder;
+    private final CollectedDataFactory collectedDataFactory;
+
+    public SEL(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
 
     public SELConnection getConnection() {
         return connection;
@@ -222,7 +227,7 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     @Override

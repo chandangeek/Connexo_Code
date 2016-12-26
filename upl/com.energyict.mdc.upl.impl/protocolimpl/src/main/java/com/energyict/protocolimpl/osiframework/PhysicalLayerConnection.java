@@ -6,23 +6,25 @@
 
 package com.energyict.protocolimpl.osiframework;
 
-import com.energyict.dialer.connection.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
-
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
 import serialio.xmodemapi.XGet;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  *
  * @author  Koen
  */
 public class PhysicalLayerConnection {
-    
+
     private final byte DEBUG=0;
 
     protected final byte UNKNOWN_ERROR=-1;
@@ -33,8 +35,8 @@ public class PhysicalLayerConnection {
     protected final byte FRAME_ERROR=-6;
     protected final byte PROTOCOL_ERROR=-7;
     protected final byte NAK_RECEIVED=-8;
-    
-    
+
+
     // First 32 control characters of the ASCII SET
     String[] controlCharacters={"NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS" ,"HT","LF" ,"VT" ,"FF","CR","SO","SI",
                                 "DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"};
@@ -70,18 +72,18 @@ public class PhysicalLayerConnection {
     static public final byte GS=0x1D;
     static public final byte RS=0x1E;
     static public final byte US=0x1F;
-    
-    
+
+
     private OutputStream outputStream;
     private InputStream inputStream;
     long lForceDelay;
     int iEchoCancelling;
-    
+
     ByteArrayOutputStream echoByteArrayOutputStream = new ByteArrayOutputStream();
     ByteArrayInputStream echoByteArrayInputStream;
     HalfDuplexController halfDuplexController=null;
     StateMachineCallBack stateMachineCallBack;
-    
+
 
     /** Creates a new instance of Connection.
      * @param inputstream
@@ -96,7 +98,7 @@ public class PhysicalLayerConnection {
                          int iEchoCancelling,
                          HalfDuplexController halfDuplexController,
                          StateMachineCallBack stateMachineCallBack) throws ConnectionException {
-        
+
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.lForceDelay = lForceDelay;
@@ -105,10 +107,10 @@ public class PhysicalLayerConnection {
         this.stateMachineCallBack = stateMachineCallBack;
     }
 
-    
+
 
     public void sendOutTerminalMode(byte[] txbuffer, boolean waitForEcho) throws NestedIOException,ConnectionException {
-        
+
         if (waitForEcho) {
             for (int i=0;i<txbuffer.length;i++) {
                doSendOut(txbuffer[i]);
@@ -122,7 +124,7 @@ public class PhysicalLayerConnection {
             }
         }
     }
-    
+
     private void waitForEcho(int echo) throws NestedIOException,ConnectionException {
         long echoTimeout = System.currentTimeMillis() + 5000;
         int kar=0;
@@ -136,9 +138,9 @@ public class PhysicalLayerConnection {
             if (((long) (System.currentTimeMillis() - echoTimeout)) > 0) {
                 throw new ConnectionException("Connection, waitForEcho(), timeout waiting for character echo!",TIMEOUT_ERROR);
             }
-        } // while(true)        
+        } // while(true)
     }
-    
+
     public void waitForEmptyBuffer(long delay) throws NestedIOException,ConnectionException {
         long emptyBufferTimeout = System.currentTimeMillis() + delay;
         int kar=0;
@@ -149,17 +151,17 @@ public class PhysicalLayerConnection {
             if (((long) (System.currentTimeMillis() - emptyBufferTimeout)) > 0) {
                 break;
             }
-        } // while(true)        
+        } // while(true)
     }
-    
+
     public byte[] getXmodemProtocolData() throws IOException {
         XGet xget = new XGet(outputStream,inputStream);
-//System.out.println("KV_DEBUG> changed xmodem settings... XMODEM should timeout after 10 seconds???? followingg the doc???") ;       
+//System.out.println("KV_DEBUG> changed xmodem settings... XMODEM should timeout after 10 seconds???? followingg the doc???") ;
         return xget.getBinaryData(10); //3);
         //return xget.get('b', true,true,false, 10, 10); //(10 sec timeout and 10 retries)
         //return xget.get('b',true,true,false,0, 10);
     }
-    
+
     /* Send 1 byte
      * @param byte to send
      */
@@ -168,21 +170,21 @@ public class PhysicalLayerConnection {
         txbuffer[0]=txbyte;
         doSendOut(txbuffer,0,1);
     }
-    
+
     /* Send byte array
      * @param byte array to send
      */
     public void sendOut(byte[] txbuffer) throws ConnectionException {
         doSendOut(txbuffer,0,txbuffer.length);
     }
-    
+
     /* Send byte array
      * @param byte array to send
      */
     protected void sendOut(byte[] txbuffer, int offset, int length) throws ConnectionException {
         doSendOut(txbuffer,offset,length);
     }
-    
+
     private void doSendOut(byte txbuffer)  throws ConnectionException {
         try {
             if (iEchoCancelling!=0) echoByteArrayOutputStream.write(txbuffer);
@@ -196,7 +198,7 @@ public class PhysicalLayerConnection {
             throw new ConnectionException("Connection, doSendOut() error "+e.getMessage());
         }
     } // private void doSendOut(byte txbuffer)
-    
+
     private void doSendOut(byte[] txbuffer, int offset, int length)  throws ConnectionException {
         try {
             if (iEchoCancelling!=0) echoByteArrayOutputStream.write(txbuffer);
@@ -210,13 +212,13 @@ public class PhysicalLayerConnection {
             throw new ConnectionException("Connection, doSendOut() error "+e.getMessage());
         }
     } // private void doSendOut(byte[] txbuffer)
-    
+
     private void delayAndCallBack() throws IOException {
         int count=0;
         while(true) {
             int retval = stateMachineCallBack.receiving();
             try {
-               Thread.sleep(10); 
+               Thread.sleep(10);
             }
             catch(InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -225,15 +227,15 @@ public class PhysicalLayerConnection {
             if (count++ >= 9) break;
         }
     }
-    
-    /* 
+
+    /*
      * Get next charakter from stream if exist.
      * @return next karakter or -1 if none
      */
     protected int readIn() throws NestedIOException, ConnectionException {
         try {
             int iNewKar;
-            
+
             if (inputStream.available() != 0) {
                 iNewKar = inputStream.read();
                 if (iNewKar != echoByteArrayInputStream.read()) {
@@ -250,7 +252,7 @@ public class PhysicalLayerConnection {
         }
         return(-1);
     } // private int readIn() throws ConnectionException
-    
+
     protected byte[] readInArray() throws NestedIOException, ConnectionException {
         try {
             byte[] data;
@@ -260,7 +262,7 @@ public class PhysicalLayerConnection {
                 inputStream.read(data,0,len);
                 for (int i=0;i<len;i++) {
                    if (data[i] != (byte)echoByteArrayInputStream.read()) {
-                      return ProtocolUtils.getSubArray(data,i);                    
+                      return ProtocolUtils.getSubArray(data,i);
                    }
                 }
             } // if (inputStream.available() != 0)
@@ -274,11 +276,11 @@ public class PhysicalLayerConnection {
         }
         return(null);
     } // private int readInArray() throws ConnectionException
-    
+
     protected void delay(long lDelay) throws NestedIOException {
         try {
             Thread.sleep(lDelay);
-        } 
+        }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
             throw ConnectionCommunicationException.communicationInterruptedException(e);
@@ -297,14 +299,14 @@ public class PhysicalLayerConnection {
     protected void copyEchoBuffer() {
         echoByteArrayInputStream = new ByteArrayInputStream(echoByteArrayOutputStream.toByteArray());
     }
-    
-    
+
+
     protected void delayAndFlush(long delay)  throws ConnectionException,NestedIOException {
         delay(delay);
         flushInputStream();
     }
     /*
-     * Flush all waiting characters ikn the inputstream. 
+     * Flush all waiting characters ikn the inputstream.
      */
     protected void flushInputStream()  throws ConnectionException {
         try {
@@ -315,7 +317,7 @@ public class PhysicalLayerConnection {
             throw new ConnectionException("Connection, flushInputStream() error "+e.getMessage());
         }
     } // private void flushInputStream()  throws ConnectionException
-    
+
     /**
      * Method to send an array of bytes via outputstream. It flushes the echo output buffer before send.
      * @param byteBuffer Byte array to send.
@@ -324,7 +326,7 @@ public class PhysicalLayerConnection {
         flushEchoBuffer();
         sendOut(txbuffer);
     } // public void sendRawData(byte[] byteBuffer)
-    
+
     protected void sendRawDataNoDelayTerminalMode(byte[] txbuffer, boolean waitForEcho) throws NestedIOException, ConnectionException {
         flushEchoBuffer();
         sendOutTerminalMode(txbuffer,waitForEcho);
@@ -339,7 +341,7 @@ public class PhysicalLayerConnection {
         flushEchoBuffer();
         sendOut(txbuffer);
     } // public void sendRawData(byte[] byteBuffer)
-    
+
     /**
      * Method to send a byte via outputstream. It flushes the echo output buffer before send.
      * @param byte to send.
@@ -349,8 +351,8 @@ public class PhysicalLayerConnection {
         flushEchoBuffer();
         sendOut(txbuffer);
     } // public void sendRawData(byte[] byteBuffer)
-    
-    /*  
+
+    /*
      *  Calculate modulo 256 checksum.
      *  @param data byte array to calculate checksum on
      *  @param length nr of bytes of data to calculate checksum
@@ -359,7 +361,7 @@ public class PhysicalLayerConnection {
     protected byte calcChecksum(byte[] data,int length, int offset) throws ConnectionException {
         return (doCalcChecksum(data,length,offset));
     }
-    /*  
+    /*
      *  Calculate modulo 256 checksum.
      *  @param data byte array to calculate checksum on
      *  @param length nr of bytes of data to calculate checksum
@@ -367,7 +369,7 @@ public class PhysicalLayerConnection {
     protected byte calcChecksum(byte[] data,int length) throws ConnectionException {
         return (doCalcChecksum(data,length,0));
     }
-    /*  
+    /*
      *  Calculate modulo 256 checksum.
      *  @param data byte array to calculate checksum on
      */
@@ -383,7 +385,7 @@ public class PhysicalLayerConnection {
         }
         return (byte)checksum;
     }
-    
+
     /**
      * Getter for property halfDuplexController.
      * @return Value of property halfDuplexController.
@@ -391,7 +393,7 @@ public class PhysicalLayerConnection {
     public com.energyict.dialer.core.HalfDuplexController getHalfDuplexController() {
         return halfDuplexController;
     }
-    
+
     /**
      * Setter for property halfDuplexController.
      * @param halfDuplexController New value of property halfDuplexController.
@@ -399,7 +401,7 @@ public class PhysicalLayerConnection {
     public void setHalfDuplexController(com.energyict.dialer.core.HalfDuplexController halfDuplexController) {
         this.halfDuplexController = halfDuplexController;
     }
-    
+
  // private byte doCalcChecksum(byte[] data,int length)
-    
+
 } // abstract public class Connection

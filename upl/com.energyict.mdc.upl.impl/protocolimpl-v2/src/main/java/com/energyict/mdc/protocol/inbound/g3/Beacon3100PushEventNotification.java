@@ -36,7 +36,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     @Override
     protected EventPushNotificationParser getEventPushNotificationParser() {
         if (parser == null) {
-            parser = new EventPushNotificationParser(comChannel, getContext(), OBIS_STANDARD_EVENT_LOG);
+            parser = new EventPushNotificationParser(comChannel, getContext(), OBIS_STANDARD_EVENT_LOG, collectedDataFactory);
         }
         return parser;
     }

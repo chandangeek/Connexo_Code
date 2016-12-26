@@ -1,17 +1,16 @@
 package com.energyict.protocolimplv2.dlms;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.protocol.tasks.support.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -21,7 +20,14 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.upl.issue.Issue;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
@@ -161,7 +167,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
 
     public AbstractMeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
-            this.meterTopology = new MeterTopology(this);
+            this.meterTopology = new MeterTopology(this, collectedDataFactory);
             meterTopology.searchForSlaveDevices();
         }
         return meterTopology;

@@ -1,16 +1,17 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,9 +24,13 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
 
     private boolean mustReceiveMBusBilling = false;
     private boolean mustReceiveMBusCurrent = false;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public ReadMBusRegisters(ACE4000Outbound ace4000) {
+    public ReadMBusRegisters(ACE4000Outbound ace4000, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(ace4000);
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
         multiFramedAnswer = true;
     }
 
@@ -105,12 +110,12 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
             }
             if (!receivedRegister) {
                 if (isSupported(rtuRegister)) {
-                    CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
-                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(rtuRegister.getObisCode(), "registerXissue", rtuRegister.getObisCode(), msg));
+                    CollectedRegister defaultDeviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
+                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(rtuRegister.getObisCode(), "registerXissue", rtuRegister.getObisCode(), msg));
                     result.add(defaultDeviceRegister);
                 } else {
-                    CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
-                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(rtuRegister.getObisCode(), "registerXnotsupported", rtuRegister.getObisCode()));
+                    CollectedRegister defaultDeviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
+                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(rtuRegister.getObisCode(), "registerXnotsupported", rtuRegister.getObisCode()));
                     result.add(defaultDeviceRegister);
                 }
             }
@@ -122,7 +127,7 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
      * Indicate if the requested register is supported by the device or not
      */
     private boolean isSupported(OfflineRegister offlineRegister) {
-        List<OfflineRegister> offlineRegisters = Arrays.asList(offlineRegister);
+        List<OfflineRegister> offlineRegisters = Collections.singletonList(offlineRegister);
         return shouldRequestBillingRegisters(offlineRegisters) || shouldRequestCurrentRegisters(offlineRegisters);
     }
 }

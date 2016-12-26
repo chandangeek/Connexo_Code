@@ -114,6 +114,10 @@ public class MasterDataSerializer {
 
     }
 
+    public static String serializeMasterData(long deviceId) {
+        return serializeMasterData((int) deviceId);
+    }
+
     /**
      * Return the serialized description of all master data (scheduling info, obiscodes, etc) for the configs of all slave meters that are linked to a given device
      */
@@ -182,10 +186,15 @@ public class MasterDataSerializer {
 
     private static boolean isMeterDataTask(ComTaskEnablement comTaskEnablement, List<Beacon3100Schedulable> schedulables) {
         for (Beacon3100Schedulable schedulable : schedulables) {
-            if (schedulable.getComTaskEnablement().getId() == comTaskEnablement.getId())
+            if (schedulable.getComTaskEnablement().getId() == comTaskEnablement.getId()) {
                 return true;
+            }
         }
         return false;
+    }
+
+    public static String serializeMeterDetails(long deviceId) {
+        return serializeMeterDetails((int) deviceId);
     }
 
     /**

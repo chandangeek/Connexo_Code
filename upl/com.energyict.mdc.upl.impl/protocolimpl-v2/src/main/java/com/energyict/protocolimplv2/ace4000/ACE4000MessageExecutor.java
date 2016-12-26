@@ -1,13 +1,15 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
 import com.energyict.cbo.ApplicationException;
@@ -15,7 +17,6 @@ import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.requests.ConfigureConsumptionLimitationsSettings;
 import com.energyict.protocolimplv2.ace4000.requests.ConfigureLCDDisplay;
 import com.energyict.protocolimplv2.ace4000.requests.ConfigureSpecialDataMode;
@@ -48,13 +49,17 @@ import java.util.logging.Logger;
 public class ACE4000MessageExecutor {
 
     private ACE4000Outbound ace4000;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public ACE4000MessageExecutor(ACE4000Outbound ace4000) {
+    public ACE4000MessageExecutor(ACE4000Outbound ace4000, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.ace4000 = ace4000;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -168,7 +173,7 @@ public class ACE4000MessageExecutor {
         //Make a new loadProfileReader with the proper from and to date
         LoadProfileReader loadProfileReader = new LoadProfileReader(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE, fromDate, toDate, 0, ace4000.getConfiguredSerialNumber(), new ArrayList<ChannelInfo>());
 
-        ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(ace4000);
+        ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(ace4000, issueFactory);
         CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, readLoadProfileRequest.request(loadProfileReader).get(0));
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
@@ -177,14 +182,14 @@ public class ACE4000MessageExecutor {
     }
 
     private CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        CollectedMessage collectedMessageWithLoadProfileData = MdcManager.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
+        CollectedMessage collectedMessageWithLoadProfileData = this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
         collectedMessageWithLoadProfileData.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return collectedMessageWithLoadProfileData;
     }
 
     private CollectedMessage readEvents(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
         try {
-            ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000);
+            ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000, issueFactory);
             LogBookIdentifierByObisCodeAndDevice logBookIdentifier = new LogBookIdentifierByObisCodeAndDevice(ace4000.getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE);
             LogBookReader logBookReader = new LogBookReader(LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, new Date(), logBookIdentifier, pendingMessage.getDeviceSerialNumber());
             List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(logBookReader);
@@ -200,22 +205,25 @@ public class ACE4000MessageExecutor {
     }
 
     private CollectedMessage createCollectedMessageWithLogbookData(OfflineDeviceMessage message, CollectedLogBook collectedLogBook) {
-        CollectedMessage collectedMessageWithLogbookData = MdcManager.getCollectedDataFactory().createCollectedMessageWithLogbookData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLogBook);
+        CollectedMessage collectedMessageWithLogbookData = this.collectedDataFactory.createCollectedMessageWithLogbookData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLogBook);
         collectedMessageWithLogbookData.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return collectedMessageWithLogbookData;
     }
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage pendingMessage) {
-        CollectedMessage collectedMessage = MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId()));
+        CollectedMessage collectedMessage = this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId()));
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return collectedMessage;
     }
 
     public Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
-                pendingMessage.getDeviceMessageId(),
-                pendingMessage.getSpecification().getCategory().getName(),
-                pendingMessage.getSpecification().getName());
+        return this.issueFactory
+                .createWarning(
+                        pendingMessage,
+                        "DeviceMessage.notSupported",
+                        pendingMessage.getDeviceMessageId(),
+                        pendingMessage.getSpecification().getCategory().getName(),
+                        pendingMessage.getSpecification().getName());
     }
 
     public Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Throwable e) {
@@ -223,11 +231,14 @@ public class ACE4000MessageExecutor {
     }
 
     public Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
-                pendingMessage.getDeviceMessageId(),
-                pendingMessage.getSpecification().getCategory().getName(),
-                pendingMessage.getSpecification().getName(),
-                message);
+        return this.issueFactory
+                .createWarning(
+                        pendingMessage,
+                        "DeviceMessage.failed",
+                        pendingMessage.getDeviceMessageId(),
+                        pendingMessage.getSpecification().getCategory().getName(),
+                        pendingMessage.getSpecification().getName(),
+                        message);
     }
 
     private Logger getLogger() {

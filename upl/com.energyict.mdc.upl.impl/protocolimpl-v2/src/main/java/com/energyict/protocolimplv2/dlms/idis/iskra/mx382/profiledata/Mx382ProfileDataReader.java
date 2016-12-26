@@ -19,7 +19,7 @@ public class Mx382ProfileDataReader extends IDISProfileDataReader {
     private final int PROFILE_STATUS_POWER_FAILURE = 0x80;
 
     public Mx382ProfileDataReader(AbstractDlmsProtocol protocol, long limitMaxNrOfDays) {
-        super(protocol, limitMaxNrOfDays);
+        super(protocol, limitMaxNrOfDays, collectedDataFactory, issueFactory);
         supportedLoadProfiles.add(QUARTER_HOURLY_MAXDEMAND_LOAD_PROFILE);
         supportedLoadProfiles.add(DAILY_MAXDEMAND_LOAD_PROFILE);
     }

@@ -18,7 +18,7 @@ import java.io.IOException;
 public class Mx382RegisterFactory extends AM130RegisterFactory{
 
     public Mx382RegisterFactory(Mx382 mx382) {
-        super(mx382);
+        super(mx382, collectedDataFactory, issueFactory);
     }
 
     protected CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {

@@ -32,6 +32,10 @@ public class RegisterIdentifierById implements RegisterIdentifier {
         this.registerObisCode = registerObisCode;
     }
 
+    public RegisterIdentifierById(long id, ObisCode registerObisCode) {
+        this((int) id, registerObisCode);
+    }
+
     @XmlAttribute
     public int getId() {
         return id;

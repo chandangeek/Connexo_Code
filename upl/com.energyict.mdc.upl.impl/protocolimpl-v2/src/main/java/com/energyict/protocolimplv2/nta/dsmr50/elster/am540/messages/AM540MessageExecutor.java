@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -9,7 +11,6 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
@@ -32,13 +33,13 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
     private AbstractMessageExecutor mbusMessageExecutor;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
-    public AM540MessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public AM540MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         List<OfflineDeviceMessage> dsmr40Messages = new ArrayList<>();
         List<OfflineDeviceMessage> mbusMessages = new ArrayList<>();
@@ -106,7 +107,7 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice());
+            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return plcConfigurationDeviceMessageExecutor;
     }
@@ -120,7 +121,7 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
 
     public AbstractMessageExecutor getMbusMessageExecutor() {
         if (mbusMessageExecutor == null) {
-            mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol());
+            mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory());
         }
         return mbusMessageExecutor;
     }

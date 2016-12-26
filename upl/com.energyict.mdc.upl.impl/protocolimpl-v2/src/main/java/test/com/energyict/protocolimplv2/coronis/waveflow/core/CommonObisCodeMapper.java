@@ -1,5 +1,7 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -8,7 +10,6 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.OperatingMode;
@@ -92,20 +93,26 @@ public class CommonObisCodeMapper {
     private static final ObisCode OBISCODE_EnableWakeUpPeriodsByDayOfWeek = ObisCode.fromString("0.0.96.0.110.255");
     private static final ObisCode OBISCODE_ALARM_CONFIG_BYTE = ObisCode.fromString("0.0.96.0.111.255");
 
-    private WaveFlow waveFlow;
+    private final WaveFlow waveFlow;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
     /**
      * Creates a new instance of ObisCodeMapper
      *
      * @param waveFlow the protocol containing all settings
+     * @param collectedDataFactory
+     * @param issueFactory
      */
-    public CommonObisCodeMapper(final WaveFlow waveFlow) {
+    public CommonObisCodeMapper(final WaveFlow waveFlow, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.waveFlow = waveFlow;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     public CollectedRegister getRegisterValue(OfflineRegister register) {
         ObisCode obisCode = register.getObisCode();
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
 
         OperatingMode operatingMode = waveFlow.getParameterFactory().readOperatingMode();
         if (obisCode.equals(OBISCODE_REMAINING_BATTERY)) {
@@ -122,7 +129,7 @@ public class CommonObisCodeMapper {
             collectedRegister.setCollectedData(new Quantity(BigDecimal.valueOf(hour), Unit.get(BaseUnit.HOUR)));
         } else if (obisCode.equals(OBISCODE_DATALOGGING_STARTMINUTE)) {
             if (waveFlow.isV1()) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(this, "The WaveFlow V1 module doesn't support the data logging start minute parameter"));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(this, "The WaveFlow V1 module doesn't support the data logging start minute parameter"));
             } else {
                 int minute = waveFlow.getParameterFactory().readStartMinuteOfMeasurement();
                 collectedRegister.setCollectedData(new Quantity(BigDecimal.valueOf(minute), Unit.get(BaseUnit.MINUTE)));
@@ -292,7 +299,7 @@ public class CommonObisCodeMapper {
             PulseWeight pulseWeight = waveFlow.getPulseWeight(inputChannel - 1, true);
             collectedRegister.setCollectedData(new Quantity(new BigDecimal(pulseWeight.getWeight()), pulseWeight.getUnit()));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(this, "Register with obiscode {0} is not supported by the protocol", obisCode.toString()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(this, "Register with obiscode {0} is not supported by the protocol", obisCode.toString()));
         }
         return collectedRegister;
     }

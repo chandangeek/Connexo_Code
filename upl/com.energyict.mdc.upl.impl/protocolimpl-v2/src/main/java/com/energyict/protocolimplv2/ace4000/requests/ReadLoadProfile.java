@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 
@@ -22,13 +22,15 @@ public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<Col
 
     private final Date from;
     private final Date to;
+    private final IssueFactory issueFactory;
 
-    public ReadLoadProfile(ACE4000Outbound ace4000) {
-        this(ace4000, null, null);
+    public ReadLoadProfile(ACE4000Outbound ace4000, IssueFactory issueFactory) {
+        this(ace4000, null, null, issueFactory);
     }
 
-    public ReadLoadProfile(ACE4000Outbound ace4000, Date from, Date to) {
+    public ReadLoadProfile(ACE4000Outbound ace4000, Date from, Date to, IssueFactory issueFactory) {
         super(ace4000);
+        this.issueFactory = issueFactory;
         multiFramedAnswer = true;
         this.from = from;
         this.to = to;
@@ -50,7 +52,7 @@ public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<Col
             setResult(getAce4000().getObjectFactory().createCollectedLoadProfiles(getInput().getProfileObisCode()));
         } else if (isFailedRequest(RequestType.LoadProfile)) {
             List<CollectedLoadProfile> collectedLoadProfiles = getAce4000().getObjectFactory().createCollectedLoadProfiles(getInput().getProfileObisCode());
-            Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(getInput(), "loadProfileXIssue", getInput().getProfileObisCode().toString(), "Requested LP data, meter returned NACK. " + getReasonDescription());
+            Issue problem = this.issueFactory.createProblem(getInput(), "loadProfileXIssue", getInput().getProfileObisCode().toString(), "Requested LP data, meter returned NACK. " + getReasonDescription());
             collectedLoadProfiles.get(0).setFailureInformation(ResultType.InCompatible, problem);
             setResult(collectedLoadProfiles);
         }

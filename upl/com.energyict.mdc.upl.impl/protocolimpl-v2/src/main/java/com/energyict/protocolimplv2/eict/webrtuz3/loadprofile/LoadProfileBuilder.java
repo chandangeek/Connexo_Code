@@ -29,7 +29,7 @@ public class LoadProfileBuilder extends com.energyict.protocolimplv2.nta.dsmr23.
      * @param meterProtocol the {@link #meterProtocol}
      */
     public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
-        super(meterProtocol);
+        super(meterProtocol, collectedDataFactory, issueFactory);
     }
 
 

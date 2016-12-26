@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr40.registers;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
@@ -51,8 +53,8 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
     public static final ObisCode AdministrativeStatusObisCode = ObisCode.fromString("0.1.94.31.0.255");
     private static final int BULK_RESQUEST_LIMIT = 5;  //The number of attributes in a bulk request should be smaller than 16. Note that 2 or 3 attributes are read out for every register!
 
-    public Dsmr40RegisterFactory(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public Dsmr40RegisterFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {

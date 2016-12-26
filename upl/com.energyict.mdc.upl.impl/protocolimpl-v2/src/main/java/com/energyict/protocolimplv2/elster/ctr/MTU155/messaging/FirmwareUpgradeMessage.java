@@ -50,7 +50,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
     private SealConfig sealConfig;
 
     public FirmwareUpgradeMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
         sealConfig = new SealConfig(getFactory());
     }
 

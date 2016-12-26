@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles;
 
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -13,7 +13,6 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
@@ -58,18 +57,17 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
      *
      * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
      * @return a list of <CODE>ProfileData</CODE> objects containing interval records
-     * @throws java.io.IOException if a communication or parsing error occurred
      */
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<CollectedLoadProfile>();
+        List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
 
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
-            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
+            CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
 
             if (this.getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 this.getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
@@ -92,12 +90,12 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession().getProperties().getRetries() + 1)) {
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                        Issue problem = this.getIssueFactory().createProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue problem = this.getIssueFactory().createWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);

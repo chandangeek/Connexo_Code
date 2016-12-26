@@ -21,7 +21,7 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
     private static final int MAX_ACTIVE_TIME = 255;
 
     public ActivateTemporaryKeyMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

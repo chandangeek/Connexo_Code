@@ -16,7 +16,7 @@ public class AM130MeterTopology extends IDISMeterTopology {
     private static final int MAX_MBUS_CHANNELS = 6;
 
     public AM130MeterTopology(AbstractDlmsProtocol protocol) {
-        super(protocol);
+        super(protocol, collectedDataFactory);
     }
 
     @Override

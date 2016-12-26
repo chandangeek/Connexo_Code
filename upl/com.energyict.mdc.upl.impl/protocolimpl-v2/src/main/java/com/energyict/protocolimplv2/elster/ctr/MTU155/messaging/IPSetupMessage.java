@@ -31,7 +31,7 @@ public class IPSetupMessage extends AbstractMTU155Message {
     private byte[] tcpPortBytes = new byte[2];
 
     public IPSetupMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

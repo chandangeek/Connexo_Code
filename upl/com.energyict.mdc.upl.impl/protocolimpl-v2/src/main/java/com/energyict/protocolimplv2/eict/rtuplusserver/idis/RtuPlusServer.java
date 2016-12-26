@@ -1,22 +1,21 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.SAPAssignmentItem;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -32,10 +31,14 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.support.SerialNumberSupport;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages.IDISGatewayMessages;
@@ -70,6 +73,11 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     private IDISGatewayProperties dlmsSessionProperties;
     private IDISGatewayConfigurationSupport configurationSupport;
     private IDISConfigurationSupport meterConfigurationSupport;
+    private final CollectedDataFactory collectedDataFactory;
+
+    public RtuPlusServer(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -193,7 +201,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         try {
@@ -206,14 +214,14 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                 DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName().trim().toUpperCase());
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
                                 getMeterConfigurationSupport().callingAPTitlePropertySpec().getName(),
                                 getDlmsSessionProperties().getDeviceId()    // The DeviceID of the gateway
                         )
                 );
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
                                 DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS,
                                 sapAssignmentItem.getSap()
@@ -251,12 +259,12 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType());
+        return Collections.singletonList(new OutboundTcpIpConnectionType());
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
+        return Collections.singletonList(new TcpDeviceProtocolDialect());
     }
 
     @Override
@@ -301,21 +309,21 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     public IDISGatewayRegisters getIDISGatewayRegisters() {
         if (this.idisGatewayRegisters == null) {
-            this.idisGatewayRegisters = new IDISGatewayRegisters(getDlmsSession());
+            this.idisGatewayRegisters = new IDISGatewayRegisters(getDlmsSession(), collectedDataFactory, issueFactory);
         }
         return this.idisGatewayRegisters;
     }
 
     public IDISGatewayEvents getIDISGatewayEvents() {
         if (this.idisGatewayEvents == null) {
-            this.idisGatewayEvents = new IDISGatewayEvents(getDlmsSession());
+            this.idisGatewayEvents = new IDISGatewayEvents(getDlmsSession(), collectedDataFactory, issueFactory);
         }
         return this.idisGatewayEvents;
     }
 
     public IDISGatewayMessages getIDISGatewayMessages() {
         if (this.idisGatewayMessages == null) {
-            this.idisGatewayMessages = new IDISGatewayMessages(getDlmsSession());
+            this.idisGatewayMessages = new IDISGatewayMessages(getDlmsSession(), collectedDataFactory, issueFactory, propertySpecService, nlsService, converter);
         }
         return this.idisGatewayMessages;
     }
@@ -361,7 +369,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        return MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
@@ -371,11 +379,22 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        return MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
 }

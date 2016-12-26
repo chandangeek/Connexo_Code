@@ -1,6 +1,10 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.Lookup;
@@ -9,7 +13,6 @@ import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 
 import javax.xml.parsers.ParserConfigurationException;

@@ -22,7 +22,7 @@ public class TariffDisablePassiveMessage extends AbstractMTU155Message {
     private static final String OBJECT_ID_FUTURE = "17.0.1";
 
     public TariffDisablePassiveMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
 import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRCipheringException;
@@ -11,8 +11,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionExc
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.Frame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.logging.Logger;
 
 /**
@@ -27,7 +25,7 @@ public class SecureGprsConnection extends GprsConnection {
     private boolean debug;
 
     /**
-     * 
+     *
      * @param comChannel
      * @param properties
      * @param logger
@@ -81,7 +79,7 @@ public class SecureGprsConnection extends GprsConnection {
     }
 
     /**
-     * 
+     *
      * @return
      */
     private Logger getLogger() {

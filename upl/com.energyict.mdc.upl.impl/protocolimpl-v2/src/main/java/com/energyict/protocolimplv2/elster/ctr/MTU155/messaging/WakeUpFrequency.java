@@ -22,7 +22,7 @@ public class WakeUpFrequency extends AbstractMTU155Message {
     public static final String OBJECT_ID = "E.7.0";
 
     public WakeUpFrequency(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

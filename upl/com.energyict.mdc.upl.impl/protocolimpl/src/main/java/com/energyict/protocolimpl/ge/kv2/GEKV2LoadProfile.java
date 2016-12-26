@@ -10,51 +10,52 @@
 
 package com.energyict.protocolimpl.ge.kv2;
 
-import com.energyict.protocol.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocol.HalfDuplexEnabler;  
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocolimpl.ge.kv2.tables.*;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.meteridentification.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
+import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
+import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalFormat;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
+import com.energyict.protocolimpl.ge.kv2.tables.EventLogMfgCodeFactory;
+import com.energyict.protocolimpl.ge.kv2.tables.SourceInfo;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class GEKV2LoadProfile {
-    
+
     private static final int DEBUG=0;
-    
+
     GEKV2 gekv2;
-    
+
     /** Creates a new instance of KVLoadProfile */
     public GEKV2LoadProfile(GEKV2 gekv2) {
        this.gekv2=gekv2;
     }
-    
-    
+
+
     public ProfileData getProfileData(Date lastReading, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = new ProfileData();
-        
+
         /*
          * GET PROFILEDATA ONLY FOR SET 0! The Ansi C12 standard has 4 sets of load profile. KV meters only use set 0, table 64!
-         */ 
-        
+         */
+
         // wait to request profile data until 10 seconds before or after crossboundary to avoid unsynchronized table read!
         // lpstatustable could be read with other actual values than lpdatasettable
         waitUntilTimeValid();
@@ -69,20 +70,20 @@ public class GEKV2LoadProfile {
             catch(ResponseIOException e) {
                 if (e.getReason()==AbstractResponse.IAR) // table does not exist!
                    gekv2.getLogger().warning("No Logging available. Respective tables do not exist in the meter.");
-                else 
+                else
                    throw e;
             }
         }
-        
+
         if (DEBUG>=2) System.out.println(profileData);
         profileData.sort();
         return profileData;
     }
-    
+
     private void buildEventLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
-       // oredr = 0 oldest -> newest 
-       List meterEvents = new ArrayList(); 
-       EventLog header = gekv2.getStandardTableFactory().getEventLogDataTableHeader().getEventLog(); 
+       // oredr = 0 oldest -> newest
+       List meterEvents = new ArrayList();
+       EventLog header = gekv2.getStandardTableFactory().getEventLogDataTableHeader().getEventLog();
        int order = header.getEventFlags().getOrder();
        int event2Read = order==0?header.getLastEntryElement():0;
        int nrOfValidEntries = header.getNrOfValidentries();
@@ -101,7 +102,7 @@ public class GEKV2LoadProfile {
                meterEvents.add(createMeterEvent(eventEntry));
            }
            if (order == 0) {
-               if (event2Read-- == 0) 
+               if (event2Read-- == 0)
                    event2Read = nrOfValidEntries-1;
            }
            else {
@@ -111,7 +112,7 @@ public class GEKV2LoadProfile {
        }
        profileData.setMeterEvents(meterEvents);
     }
-    
+
     private MeterEvent createMeterEvent(EventEntry eventEntry) {
         EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
         int eiCode = eventFact.getEICode(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag());
@@ -120,7 +121,7 @@ public class GEKV2LoadProfile {
         int protocolCode = eventEntry.getEventCode().getProcedureNr() | (eventEntry.getEventCode().isStdVsMfgFlag()?0x8000:0);
         return new MeterEvent(eventEntry.getEventTime(),eiCode,protocolCode,text);
     }
-    
+
     private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException {
         // get blocks until last interval enddate < lastreading
         // parse blocks to load profile data
@@ -133,14 +134,14 @@ public class GEKV2LoadProfile {
         int maxNrOfBlocks=gekv2.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().getNrOfBlocksSet()[0];
 
         boolean currentDayBlock=true;
-        
+
         if (DEBUG>=1) System.out.println(gekv2.getStandardTableFactory().getLoadProfileStatusTable().getLoadProfileSet1Status());
-            
+
         // calc blocksize
         int intervalsPerBlock = gekv2.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().getNrOfBlockIntervalsSet()[0];
         int profileInterval = gekv2.getProfileInterval();
         Date newTo = new Date(to.getTime()+(long)(profileInterval*intervalsPerBlock*1000));
-        
+
         // read the block headers
         while(true) {
             lpbd = gekv2.getStandardTableFactory().getLoadProfileDataSetTableBlockHeader(0,block2read).getLoadProfileDataSet().getLoadProfileDataSets()[0];
@@ -148,8 +149,8 @@ public class GEKV2LoadProfile {
             if (DEBUG>=1) System.out.println("KV_DEBUG> skip "+lpbd);
             if (block2read-- <= 0)
                 block2read = maxNrOfBlocks-1;
-            currentDayBlock=false; // no currentday block anymore! 
-        } 
+            currentDayBlock=false; // no currentday block anymore!
+        }
         lpbd = null;
         // read the blocks
         while(true) {
@@ -160,14 +161,14 @@ public class GEKV2LoadProfile {
             loadProfileBlockDatas.add(lpbd);
             if (block2read-- <= 0)
                 block2read = maxNrOfBlocks-1;
-        } 
-        
-                
+        }
+
+
         List intervalDatas = new ArrayList();
         Iterator it = loadProfileBlockDatas.iterator();
         while(it.hasNext()) {
             lpbd = (LoadProfileBlockData)it.next();
-            
+
 
 //System.out.println("KV_DEBUG> "+lpbd);
             Calendar cal = Calendar.getInstance(gekv2.getTimeZone());
@@ -175,7 +176,7 @@ public class GEKV2LoadProfile {
             IntervalSet[] intervalSets = lpbd.getLoadProfileInterval();
             int nrOfIntervals = currentDayBlock?gekv2.getStandardTableFactory().getLoadProfileStatusTable().getLoadProfileSet1Status().getNrOfValidIntervals():intervalSets.length;
             for (int i=(nrOfIntervals-1);i>=0;i--) {
-                
+
 
                 IntervalSet intervalSet = intervalSets[i];
                 IntervalFormat[] values = intervalSet.getIntervalData();
@@ -183,24 +184,24 @@ public class GEKV2LoadProfile {
                 for (int channel=0;channel<gekv2.getNumberOfChannels();channel++) {
                     int protocolStatus = intervalSet.getChannelStatus(channel);
                     int eiStatus = intervalSet.getchannel2EIStatus(channel);
-                    
-                    
+
+
                     BigDecimal bd = (BigDecimal)values[channel].getValue(); // raw value
 //                    if (gekv2.getProtocolChannelMap() != null) {
 //                        // conversion to engineering units
-//                        
+//
 //                        // KV_TO_DO
 //                        // Depending on the UON for the profile data quantity, the engineering value calculation differs!
 //                        // See KV2(c) document with all explanation about that. For the moment we only use
 //                        // KVAh load profile calculation!
-//                        
+//
 //                        if (gekv2.getProtocolChannelMap().isProtocolChannel(channel)) {
 //                            if (gekv2.getProtocolChannelMap().getProtocolChannel(channel).getValue()==1) { // engineering values
-//                                
-//                                
+//
+//
 //                                SourceInfo si = new SourceInfo(gekv2);
 //                                bd = si.basic2engineering(bd,channel);
-//                                
+//
 ////                                bd = bd.multiply(BigDecimal.valueOf((long)gekv2.getManufacturerTableFactory().getScaleFactorTable().getEnergyScaleFactorVA()));
 ////                                if (gekv2.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().isScalarDivisorFlagSet1()) {
 ////                                    bd = bd.multiply(BigDecimal.valueOf((long)gekv2.getStandardTableFactory().getLoadProfileControlTable().getDivisorSet1()[channel]));
@@ -212,12 +213,12 @@ public class GEKV2LoadProfile {
 //                            }
 //                        }
 //                    }
-//System.out.println("KV_DEBUG> interval "+i+", endtime "+cal.getTime()+", value channel "+channel+" = "+bd);                                                
-                    
+//System.out.println("KV_DEBUG> interval "+i+", endtime "+cal.getTime()+", value channel "+channel+" = "+bd);
+
                     intervalData.addValue(bd, protocolStatus, eiStatus);
                 } // for (int channel=0;channel<gekv2.getNumberOfChannels();channel++)
                 intervalDatas.add(intervalData);
-                
+
                 cal.add(Calendar.SECOND,(-1)*gekv2.getProfileInterval());
 
             } // for (int i=0;i<intervalSets.length;i++)
@@ -225,7 +226,7 @@ public class GEKV2LoadProfile {
             currentDayBlock=false;
         } // while(it.hasNext())
     }
-    
+
     private void buildChannelInfo(ProfileData profileData) throws IOException {
         // build channelunits
         SourceInfo si = new SourceInfo(gekv2);
@@ -244,13 +245,13 @@ public class GEKV2LoadProfile {
             SourceInfo sourceUnits = new SourceInfo(gekv2);
             Unit unit = sourceUnits.getChannelUnit(sourceIndex);
             com.energyict.protocol.ChannelInfo channelInfo = new com.energyict.protocol.ChannelInfo(channel, "GEKV_channel_"+channel, unit);
-            
+
             channelInfo.setMultiplier(si.getMultiplier(channel));
-            
+
             profileData.addChannel(channelInfo);
         }
     }
-    
+
     private void waitUntilTimeValid() throws IOException {
         Date date=null;
         long offset2IntervalBoundary=0;
@@ -271,6 +272,6 @@ public class GEKV2LoadProfile {
             else break;
         } // while(true)
     } // private void waitUntilTimeValid()
-    
-    
+
+
 }

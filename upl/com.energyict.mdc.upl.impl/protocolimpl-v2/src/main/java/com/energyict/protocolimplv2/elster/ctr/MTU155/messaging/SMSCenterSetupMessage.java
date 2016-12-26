@@ -31,7 +31,7 @@ public class SMSCenterSetupMessage extends AbstractMTU155Message {
     protected CTRObjectID smsc_Object_ID = new CTRObjectID("E.3.1");
 
     public SMSCenterSetupMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

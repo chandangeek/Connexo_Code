@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -33,7 +34,6 @@ import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterEventParser;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
@@ -90,18 +90,21 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private int sourceSAP = 0;
     private int destinationSAP = 0;
     private int notificationType = 0;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
-        super(comChannel, context);
+    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, CollectedDataFactory collectedDataFactory) {
+        super(comChannel, context, collectedDataFactory);
         this.comChannel = comChannel;
+        this.collectedDataFactory = collectedDataFactory;
         this.inboundDAO = context.getInboundDAO();
         this.inboundComPort = context.getComPort();
         this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
     }
 
-    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, ObisCode logbookObisCode) {
-        super(comChannel, context);
+    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, ObisCode logbookObisCode, CollectedDataFactory collectedDataFactory) {
+        super(comChannel, context, collectedDataFactory);
         this.comChannel = comChannel;
+        this.collectedDataFactory = collectedDataFactory;
         this.inboundDAO = context.getInboundDAO();
         this.inboundComPort = context.getComPort();
         this.logbookObisCode = logbookObisCode;
@@ -547,7 +550,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
+        collectedLogBook = this.collectedDataFactory.createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
@@ -776,7 +779,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private void createCollectedLogBook(Date dateTime, int eiCode, int protocolCode, String description) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
+        collectedLogBook = this.collectedDataFactory.createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
@@ -785,7 +788,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         for (MeterEvent meterEvent : meterEvents) {
             meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
         }
-        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
+        collectedLogBook = this.collectedDataFactory.createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 

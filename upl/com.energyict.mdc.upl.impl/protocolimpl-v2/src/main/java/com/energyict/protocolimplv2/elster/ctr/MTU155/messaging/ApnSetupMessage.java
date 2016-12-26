@@ -31,7 +31,7 @@ public class ApnSetupMessage extends AbstractMTU155Message {
 
 
     public ApnSetupMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

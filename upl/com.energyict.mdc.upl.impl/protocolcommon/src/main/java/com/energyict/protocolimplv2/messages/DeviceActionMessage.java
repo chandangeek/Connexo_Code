@@ -348,6 +348,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+
     protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, boolean defaultValue) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
@@ -408,6 +409,11 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
     }
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    @Override
+    public long id() {
+        return this.id;
+    }
 
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {

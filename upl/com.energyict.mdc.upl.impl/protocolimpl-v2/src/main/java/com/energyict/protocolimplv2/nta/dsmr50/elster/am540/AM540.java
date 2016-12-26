@@ -16,7 +16,12 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -282,7 +287,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     private Dsmr50LogBookFactory getDsmr50LogBookFactory() {
         if (dsmr50LogBookFactory == null) {
-            dsmr50LogBookFactory = new Dsmr50LogBookFactory(this);
+            dsmr50LogBookFactory = new Dsmr50LogBookFactory(this, collectedDataFactory, issueFactory);
         }
         return dsmr50LogBookFactory;
     }
@@ -376,7 +381,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     @Override
     public IDISMeterTopology getMeterTopology() {
         if (meterTopology == null) {
-            meterTopology = new IDISMeterTopology(this);
+            meterTopology = new IDISMeterTopology(this, collectedDataFactory);
             meterTopology.searchForSlaveDevices();
         }
         return meterTopology;

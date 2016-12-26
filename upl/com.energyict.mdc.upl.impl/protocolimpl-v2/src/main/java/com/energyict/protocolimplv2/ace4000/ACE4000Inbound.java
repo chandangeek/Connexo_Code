@@ -103,7 +103,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this);
+            objectFactory = new ObjectFactory(this, collectedDataFactory);
             objectFactory.setInbound(true);  //Important to store the parsed data in the list of collecteddatas
         }
         return objectFactory;

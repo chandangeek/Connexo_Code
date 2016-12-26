@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -38,7 +40,6 @@ import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -57,8 +58,8 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -103,13 +104,13 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
     private IDISMBusMessageExecutor idisMBusMessageExecutor = null;
 
-    public IDISMessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public IDISMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
 
@@ -117,7 +118,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
             CollectedMessage collectedMessage;
             if (mBusChannelId > 0) {
-                collectedMessage = getIdisMBusMessageExecutor().executePendingMessages(Arrays.asList(pendingMessage)).getCollectedMessages().get(0);
+                collectedMessage = getIdisMBusMessageExecutor().executePendingMessages(Collections.singletonList(pendingMessage)).getCollectedMessages().get(0);
             } else {
                 collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -193,7 +194,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
     private IDISMBusMessageExecutor getIdisMBusMessageExecutor() {
         if (idisMBusMessageExecutor == null) {
-            idisMBusMessageExecutor = new IDISMBusMessageExecutor(getProtocol());
+            idisMBusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory());
         }
         return idisMBusMessageExecutor;
     }

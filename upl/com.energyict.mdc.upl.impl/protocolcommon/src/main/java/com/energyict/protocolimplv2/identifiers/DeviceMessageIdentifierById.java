@@ -27,6 +27,10 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
         this.messageId = messageId;
     }
 
+    public DeviceMessageIdentifierById(long messageId) {
+        this((int) messageId);
+    }
+
     @Override
     public String toString() {
         return "messageId = " + messageId;

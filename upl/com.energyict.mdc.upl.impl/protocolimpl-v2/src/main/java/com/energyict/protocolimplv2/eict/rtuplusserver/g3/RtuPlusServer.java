@@ -1,29 +1,25 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.SAPAssignmentItem;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -42,7 +38,16 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.upl.issue.Issue;
+
+import com.energyict.cbo.ObservationTimestampProperties;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -50,7 +55,6 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3Topology;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
@@ -94,6 +98,13 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     private G3GatewayEvents g3GatewayEvents;
     private DLMSCache dlmsCache = null;
     private Logger logger;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public RtuPlusServer(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -213,14 +224,14 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     private G3GatewayRegisters getG3GatewayRegisters() {
         if (g3GatewayRegisters == null) {
-            g3GatewayRegisters = new G3GatewayRegisters(getDlmsSession());
+            g3GatewayRegisters = new G3GatewayRegisters(getDlmsSession(), collectedDataFactory, issueFactory);
         }
         return g3GatewayRegisters;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         final Array nodeList;
@@ -246,14 +257,14 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
                     CollectedTopology.ObservationTimestampProperty lastSeenDateInfo = ObservationTimestampProperties.from(g3Node.getLastSeenDate(), G3Properties.PROP_LASTSEENDATE);
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
                     deviceTopology.addAdditionalCollectedDeviceInfo(
-                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                            this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                     slaveDeviceIdentifier,
                                     com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(),
                                     sapAssignmentItem.getSap()
                             )
                     );
                     deviceTopology.addAdditionalCollectedDeviceInfo(
-                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                            this.collectedDataFactory.createCollectedDeviceProtocolProperty(
                                     slaveDeviceIdentifier,
                                     G3Properties.PROP_LASTSEENDATE,
                                     BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
@@ -264,34 +275,6 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
             }
         }
         return deviceTopology;
-    }
-
-    /**
-     * This node is only considered an actual slave device if:
-     * - the configuredLastSeenDate in EIServer is still empty
-     * - the read out last seen date is empty (==> always update EIServer, by design)
-     * - the read out last seen date is the same, or newer, compared to the configuredLastSeenDate in EIServer
-     * <p>
-     * If true, the gateway link in EIServer will be created and the properties will be set.
-     * If false, the gateway link (if it exists at all) will be removed.
-     */
-    private boolean hasNewerLastSeenDate(G3Topology.G3Node g3Node, long configuredLastSeenDate) {
-        return (configuredLastSeenDate == 0) || (g3Node.getLastSeenDate() == null) || (g3Node.getLastSeenDate().getTime() >= configuredLastSeenDate);
-    }
-
-    /**
-     * Return property "LastSeenDate" on slave device with callHomeId == macAddress
-     * Return 0 if not found.
-     */
-    private long getConfiguredLastSeenDate(String macAddress) {
-        for (OfflineDevice slaveDevice : offlineDevice.getAllSlaveDevices()) {
-            String configuredCallHomeId = slaveDevice.getAllProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
-            configuredCallHomeId = configuredCallHomeId == null ? "" : configuredCallHomeId;
-            if (macAddress.equals(configuredCallHomeId)) {
-                return slaveDevice.getAllProperties().getTypedProperty(G3Properties.PROP_LASTSEENDATE, BigDecimal.ZERO).longValue();
-            }
-        }
-        return 0L;
     }
 
     private G3Topology.G3Node findG3Node(final String macAddress, final List<G3Topology.G3Node> g3Nodes) {
@@ -319,14 +302,14 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     private G3GatewayEvents getG3GatewayEvents() {
         if (g3GatewayEvents == null) {
-            g3GatewayEvents = new G3GatewayEvents(getDlmsSession());
+            g3GatewayEvents = new G3GatewayEvents(getDlmsSession(), collectedDataFactory, issueFactory);
         }
         return g3GatewayEvents;
     }
 
     protected RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
-            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), offlineDevice);
+            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), offlineDevice, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter);
         }
         return rtuPlusServerMessages;
     }
@@ -358,7 +341,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
+        return Collections.singletonList(new TcpDeviceProtocolDialect());
     }
 
     protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
@@ -502,13 +485,13 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
-        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(deviceIdentifier);
+        CollectedFirmwareVersion result = this.collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier);
 
         try {
             result.setActiveMeterFirmwareVersion(getG3GatewayRegisters().getFirmwareVersionString(G3GatewayRegisters.FW_APPLICATION));
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue issue = MdcManager.getIssueFactory().createWarning(deviceIdentifier, "Could not read the active meter firmware version: " + e.getMessage());
+                Issue issue = this.issueFactory.createWarning(deviceIdentifier, "Could not read the active meter firmware version: " + e.getMessage());
                 result.setFailureInformation(ResultType.DataIncomplete, issue);
             } //Else throws communication exception
         }
@@ -517,7 +500,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
             result.setActiveCommunicationFirmwareVersion(getG3GatewayRegisters().getFirmwareVersionString(G3GatewayRegisters.FW_UPPER_MAC));
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue issue = MdcManager.getIssueFactory().createWarning(deviceIdentifier, "Could not read the active upper mac communication firmware version: " + e.getMessage());
+                Issue issue = this.issueFactory.createWarning(deviceIdentifier, "Could not read the active upper mac communication firmware version: " + e.getMessage());
                 result.setFailureInformation(ResultType.DataIncomplete, issue);
             } //Else throws communication exception
         }
@@ -532,11 +515,21 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        return MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.topology;
 
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 
 import com.energyict.dlms.DLMSAttribute;
@@ -13,7 +14,6 @@ import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -40,7 +40,7 @@ public class MeterTopology extends AbstractMeterTopology {
 
     private static final int ObisCodeBFieldIndex = 1;
     public static final int MaxMbusDevices = 4;
-    private static String ignoreZombieMbusDevice = "@@@0000000000000";
+    private static final String ignoreZombieMbusDevice = "@@@0000000000000";
 
     private final AbstractDlmsProtocol protocol;
 
@@ -52,15 +52,17 @@ public class MeterTopology extends AbstractMeterTopology {
     /**
      * A List of localComposedCosemObjects containing the attributes to construct the serialNumber of the devices
      */
-    private List<ComposedMbusSerialNumber> cMbusSerialNumbers = new ArrayList<ComposedMbusSerialNumber>();
+    private List<ComposedMbusSerialNumber> cMbusSerialNumbers = new ArrayList<>();
 
     /**
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
     private List<DeviceMapping> mbusMap = new ArrayList<>();
+    private final CollectedDataFactory collectedDataFactory;
 
-    public MeterTopology(final AbstractDlmsProtocol protocol) {
+    public MeterTopology(final AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -76,7 +78,7 @@ public class MeterTopology extends AbstractMeterTopology {
      * @return the constructed composedObject for requesting MbusSerialNumber-data
      */
     protected ComposedCosemObject constructDiscoveryComposedCosemObject() {
-        List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+        List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectListIgnoreBChannel(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
@@ -128,7 +130,7 @@ public class MeterTopology extends AbstractMeterTopology {
                         Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
                         Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
                         mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
-                        if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
+                        if ((mbusSerial != null) && (!"".equalsIgnoreCase(mbusSerial)) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                             mbusMap.add(new DeviceMapping(mbusSerial, i));
                         }
                     } catch (IOException e) {
@@ -230,7 +232,7 @@ public class MeterTopology extends AbstractMeterTopology {
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
         for (DeviceMapping mapping : getMbusMeterMap()) {
             deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mapping.getSerialNumber()));
         }
@@ -248,7 +250,7 @@ public class MeterTopology extends AbstractMeterTopology {
      * @return the next available physicalAddress or -1 if none is available.
      */
     public int searchNextFreePhysicalAddress(){
-        List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
+        List<Integer> availablePhysicalAddresses = new ArrayList<>(Arrays.asList(1, 2, 3, 4));
         for (DeviceMapping dm : this.mbusMap) {
             availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list
         }

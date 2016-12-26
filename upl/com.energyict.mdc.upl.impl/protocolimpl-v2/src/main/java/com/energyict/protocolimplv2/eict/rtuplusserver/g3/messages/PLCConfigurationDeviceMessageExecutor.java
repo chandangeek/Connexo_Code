@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -17,7 +19,6 @@ import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
@@ -49,10 +50,14 @@ public class PLCConfigurationDeviceMessageExecutor {
 
     protected final DlmsSession session;
     private final OfflineDevice offlineDevice;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice) {
+    public PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.session = session;
         this.offlineDevice = offlineDevice;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     /**
@@ -86,7 +91,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetDeviceType)) {
             setDeviceType(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters)) {
-            resetPlcOfdmMacCounters(pendingMessage);
+            resetPlcOfdmMacCounters();
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetPanId)) {
             setPanId(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetToneMaskAttributeName)) {
@@ -266,7 +271,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         cof.getSixLowPanAdaptationLayerSetup().writeDeviceType(getSingleIntegerAttribute(pendingMessage));
     }
 
-    private void resetPlcOfdmMacCounters(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void resetPlcOfdmMacCounters() throws IOException {
         this.session.getCosemObjectFactory().getPLCOFDMType2PHYAndMACCounters().reset();
     }
 
@@ -368,7 +373,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         int numberPingFailed = 0;
         int numberPathFailed = 0;
         int success = 0;
-        Map<String, String> allPaths = new HashMap<String, String>();   //Remember the full path for every meter
+        Map<String, String> allPaths = new HashMap<>();   //Remember the full path for every meter
 
         for (String macAddress : macAddresses) {
             session.getDLMSConnection().setTimeout(fullRoundTripTimeout);     //The ping request can take a long time, increase the timeout of the DLMS connection
@@ -419,9 +424,9 @@ public class PLCConfigurationDeviceMessageExecutor {
         return new PathRequestFeedback(allInfo, collectedRegisters);
     }
 
-    private List<CollectedRegister> convertPathInfoToRegisters(Map<String, String> allPaths) throws IOException {
+    private List<CollectedRegister> convertPathInfoToRegisters(Map<String, String> allPaths) {
         List<CollectedRegister> result = new ArrayList<>();
-        List<String> allDescriptions = new ArrayList<String>();
+        List<String> allDescriptions = new ArrayList<>();
         StringBuilder currentBuilder = createNewBuilder();    //Start with this builder
 
         for (String macAddress : allPaths.keySet()) {
@@ -439,7 +444,7 @@ public class PLCConfigurationDeviceMessageExecutor {
             ObisCode topologyObisCode = ProtocolTools.setObisCodeField(G3NetworkManagement.getDefaultObisCode(), 1, (byte) (index + 1));
             DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
             RegisterDataIdentifierByObisCodeAndDevice registerDataIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(topologyObisCode, deviceIdentifier);
-            CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(registerDataIdentifier);
+            CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(registerDataIdentifier);
             collectedRegister.setCollectedData(allDescriptions.get(index));
             collectedRegister.setReadTime(new Date());
             result.add(collectedRegister);
@@ -456,7 +461,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     private void logFailedPingRequest(StringBuilder pingFailed, String macAddress) {
-        if (pingFailed.toString().length() == 0) {
+        if (pingFailed.toString().isEmpty()) {
             pingFailed.append("Ping failed for: ");
             pingFailed.append(macAddress);
         } else {
@@ -466,7 +471,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     private void logSuccessfulPingRequest(StringBuilder pingSuccess, String macAddress, int pingTime) {
-        if (pingSuccess.toString().length() == 0) {
+        if (pingSuccess.toString().isEmpty()) {
             pingSuccess.append("Ping successful for: ");
             pingSuccess.append(macAddress);
             if (pingTime > 1) {
@@ -482,7 +487,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     private void logFailedPathRequest(StringBuilder pathFailed, String macAddress) {
-        if (pathFailed.toString().length() == 0) {
+        if (pathFailed.toString().isEmpty()) {
             pathFailed.append("Path request failed for: ");
             pathFailed.append(macAddress);
         } else {
@@ -574,11 +579,11 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> registers) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), registers);
+        return this.collectedDataFactory.createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), registers);
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -586,7 +591,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueFactory.createWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -594,7 +599,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) throws IOException {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueFactory.createWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

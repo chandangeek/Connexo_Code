@@ -855,6 +855,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     protected PropertySpec dateSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -1003,6 +1004,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
 
     private String getNameResourceKey() {
         return ConfigurationChangeDeviceMessage.class.getSimpleName() + "." + this.toString();
+    }
+
+    @Override
+    public long id() {
+        return this.id;
     }
 
     @Override

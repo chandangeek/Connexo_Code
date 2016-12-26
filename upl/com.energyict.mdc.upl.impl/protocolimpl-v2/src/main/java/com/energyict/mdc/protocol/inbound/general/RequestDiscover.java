@@ -2,8 +2,8 @@ package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
+
 import com.energyict.protocol.exceptions.InboundFrameException;
-import com.energyict.protocolimplv2.MdcManager;
 
 /**
  * In the case of RequestDiscover, a meter starts an inbound session and pushes its serial number and meter data.

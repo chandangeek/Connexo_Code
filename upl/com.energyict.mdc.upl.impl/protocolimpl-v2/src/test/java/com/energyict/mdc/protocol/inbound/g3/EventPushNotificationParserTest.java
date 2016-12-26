@@ -443,7 +443,7 @@ public class EventPushNotificationParserTest extends TestCase {
         comChannelProperties.setProperty(ComChannelType.TYPE, ComChannelType.SocketComChannel.getType());
         comChannel.addProperties(comChannelProperties);
         comChannel.startReading();
-        return spy(new EventPushNotificationParser(comChannel, context));
+        return spy(new EventPushNotificationParser(comChannel, context, collectedDataFactory));
     }
 
     public class MockedInputStream extends InputStream {

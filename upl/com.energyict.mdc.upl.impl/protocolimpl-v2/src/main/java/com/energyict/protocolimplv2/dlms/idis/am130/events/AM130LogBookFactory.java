@@ -28,7 +28,7 @@ public class AM130LogBookFactory extends IDISLogBookFactory {
     private static ObisCode COMMUNICATION_LOG = ObisCode.fromString("0.0.99.98.5.255");
 
     public AM130LogBookFactory(AM130 protocol) {
-        super(protocol);
+        super(protocol, collectedDataFactory, issueFactory);
         supportedLogBooks.add(COMMUNICATION_LOG);
     }
 

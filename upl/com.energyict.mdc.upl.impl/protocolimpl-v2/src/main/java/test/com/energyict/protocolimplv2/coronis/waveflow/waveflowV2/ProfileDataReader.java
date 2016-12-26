@@ -1,5 +1,6 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
@@ -14,7 +15,6 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.AbstractRadioCommand;
@@ -24,8 +24,8 @@ import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.Exte
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -41,9 +41,11 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
     private WaveFlow waveFlowV2;
     private int inputsUsed = 0;
     private int interval = 0;
+    private final CollectedDataFactory collectedDataFactory;
 
-    public ProfileDataReader(WaveFlow waveFlowV2) {
+    public ProfileDataReader(WaveFlow waveFlowV2, CollectedDataFactory collectedDataFactory) {
         this.waveFlowV2 = waveFlowV2;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -55,7 +57,7 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
         CollectedLoadProfileConfiguration loadProfileConfiguration;
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
-            loadProfileConfiguration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber());
+            loadProfileConfiguration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber());
             if (!profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
                 loadProfileConfiguration.setSupportedByMeter(false);
             }
@@ -71,10 +73,10 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
         Date to = loadProfileReader.getEndReadingTime();
         ProfileData profileData = getProfileData(from, to);
 
-        CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
+        CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
         collectedLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
 
-        return Arrays.asList(collectedLoadProfile);
+        return Collections.singletonList(collectedLoadProfile);
     }
 
     private Date getTimeStampOfNewestRecordMonthly(Date toDate, Date lastLoggedValue) {

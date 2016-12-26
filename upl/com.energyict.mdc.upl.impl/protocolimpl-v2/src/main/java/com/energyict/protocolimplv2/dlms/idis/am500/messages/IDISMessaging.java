@@ -63,7 +63,7 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
 
     protected IDISMessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            this.messageExecutor = new IDISMessageExecutor(getProtocol());
+            this.messageExecutor = new IDISMessageExecutor(getProtocol(), collectedDataFactory);
         }
         return messageExecutor;
     }

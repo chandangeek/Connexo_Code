@@ -59,7 +59,7 @@ public class SmsHandlerTest {
     @Test(expected = CTRException.class)
     public void testHandlingOfUnsupportedSMS() throws Exception {
         SMSFrame smsFrame = new SMSFrame().parse(ProtocolTools.getBytesFromHexString("000000FF5600123456789000000F00000002002000060A0A150E0A000101400F00000001000000010A0A150E0A0001013A0F00000001000000010A0A150E0A000101460F00000001000000010A0A0A0E0A000101350F00000001000000010A0A080E0A000101350F00000001000000010A0A070E0A00010135FF0000000100000001", ""), 0);
-        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties());
+        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties(), collectedDataFactory);
 
         // Business methods
         try {
@@ -73,7 +73,7 @@ public class SmsHandlerTest {
     @Test(expected = CTRException.class)
     public void testMismatchInCallHomeId() throws Exception {
         SMSFrame smsFrame = new SMSFrame().parse(ProtocolTools.getBytesFromHexString("0000003B5600123456789000000F00000002002000060A0A150E0A000101400F00000001000000010A0A150E0A0001013A0F00000001000000010A0A150E0A000101460F00000001000000010A0A0A0E0A000101350F00000001000000010A0A080E0A000101350F00000001000000010A0A070E0A00010135FF0000000100000001", ""), 0);
-        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties());
+        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties(), collectedDataFactory);
 
         // Business methods
         try {
@@ -87,7 +87,7 @@ public class SmsHandlerTest {
     @Test
     public void testProcessDECTableData() throws Exception {
         SMSFrame smsFrame = new SMSFrame().parse(ProtocolTools.getBytesFromHexString("0000003B3300665544332211000A0A0A0D260001000000010101010101010102010201020102010203040000010203040000010203040000010203040102030400000102000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", ""), 0);
-        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties());
+        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties(), collectedDataFactory);
 
         // Business methods
         handler.parseSMSFrame(smsFrame);
@@ -116,7 +116,7 @@ public class SmsHandlerTest {
     @Test
     public void testProcessDECFTableData() throws Exception {
         SMSFrame smsFrame = new SMSFrame().parse(ProtocolTools.getBytesFromHexString("0000003B34006655443322110005050505050101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010000000000000000000000000000000000000000000000000000000000", ""), 0);
-        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties());
+        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties(), collectedDataFactory);
 
         // Business methods
         handler.parseSMSFrame(smsFrame);
@@ -148,7 +148,7 @@ public class SmsHandlerTest {
     @Test
     public void testProcessEventData() throws Exception {
         SMSFrame smsFrame = new SMSFrame().parse(ProtocolTools.getBytesFromHexString("0000003B5600665544332211000F00000002002000060A0A150E0A000101400F00000001000000010A0A150E0A0001013A0F00000001000000010A0A150E0A000101460F00000001000000010A0A0A0E0A000101350F00000001000000010A0A080E0A000101350F00000001000000010A0A070E0A00010135FF0000000100000001", ""), 0);
-        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties());
+        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties(), collectedDataFactory);
 
         // Business methods
         handler.parseSMSFrame(smsFrame);
@@ -171,7 +171,7 @@ public class SmsHandlerTest {
     @Test   // Profile data Hourly - Qm [1.0.2]
     public void testProcessHourlyMeasuredFlowProfileData() throws Exception {
         SMSFrame smsFrame = new SMSFrame().parse(ProtocolTools.getBytesFromHexString("000000215300665544332211000D0703083606401002360101020D07015000000000D0000000D0000000D000000090000000900000009000000050000000500000005000000050000000500000005000000050000000500000005000000050000000500000005000000090000000D0000000900000005000000050000000500000001000000054E7F9A8367D", ""), 0);
-        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties());
+        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties(), collectedDataFactory);
 
         // Business methods
         handler.parseSMSFrame(smsFrame);
@@ -224,7 +224,7 @@ public class SmsHandlerTest {
     @Test   // Profile data Hourly - P [4.0.2]
     public void testProcessHourlyPressureProfileData() throws Exception {
         SMSFrame smsFrame = new SMSFrame().parse(ProtocolTools.getBytesFromHexString("000000215300665544332211000D0703083506401002360104020D070150000000001300000013000000130000001300000013000000130000001300000013000000130000001300000013000000130000001300000013000000130000001300000013000000130000001300000013000000130000001300000013000000130000001000000000D4F658FAB6", ""), 0);
-        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties());
+        SmsHandler handler = new SmsHandler(deviceIdentifier, getAllRelevantProperties(), collectedDataFactory);
 
         // Business methods
         handler.parseSMSFrame(smsFrame);

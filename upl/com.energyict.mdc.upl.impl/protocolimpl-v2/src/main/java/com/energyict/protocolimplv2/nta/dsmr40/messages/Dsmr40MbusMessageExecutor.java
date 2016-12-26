@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -14,8 +16,8 @@ import java.io.IOException;
  */
 public class Dsmr40MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
 
-    public Dsmr40MbusMessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public Dsmr40MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     /**

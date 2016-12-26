@@ -10,7 +10,6 @@ import com.energyict.protocolimpl.mbus.core.DataRecord;
 import com.energyict.protocolimpl.mbus.core.ObisCodeCreator;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

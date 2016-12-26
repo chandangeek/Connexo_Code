@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -7,12 +9,11 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.issue.Issue;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.InboundFrameException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
@@ -47,7 +48,7 @@ import java.util.logging.Level;
  */
 public class ObjectFactory {
 
-    private ACE4000 ace4000;
+    private final ACE4000 ace4000;
     private Acknowledge acknowledge = null;
     private boolean sendAck = false;      //Indicates whether or not the parsed message must be ACK'ed.
     private int requestAttemptNumber = 0;
@@ -92,9 +93,11 @@ public class ObjectFactory {
     private List<String> allSlaveSerialNumbers;
     private Map<Tracker, RequestState> requestStates = new HashMap<>();
     private Map<Tracker, String> reasonDescriptions = new HashMap<>();
+    private final CollectedDataFactory collectedDataFactory;
 
-    public ObjectFactory(ACE4000 ace4000) {
+    public ObjectFactory(ACE4000 ace4000, CollectedDataFactory collectedDataFactory) {
         this.ace4000 = ace4000;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -955,14 +958,14 @@ public class ObjectFactory {
     }
 
     private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier deviceIdentifier) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), deviceIdentifier));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), deviceIdentifier));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
     }
 
     private CollectedRegister createBillingRegister(RegisterValue registerValue) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), getAce4000().getDeviceIdentifier()));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createBillingCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), getAce4000().getDeviceIdentifier()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;
@@ -970,7 +973,7 @@ public class ObjectFactory {
 
     public List<CollectedLoadProfile> createCollectedLoadProfiles(ObisCode obisCode) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>();
-        CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(obisCode, getAce4000().getDeviceIdentifier()));
+        CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(obisCode, getAce4000().getDeviceIdentifier()));
         collectedLoadProfile.setCollectedIntervalData(getLoadProfile().getProfileData().getIntervalDatas(), getLoadProfile().getProfileData().getChannelInfos());
         collectedLoadProfiles.add(collectedLoadProfile);
         return collectedLoadProfiles;
@@ -1058,7 +1061,7 @@ public class ObjectFactory {
     }
 
     public CollectedLogBook getDeviceLogBook(LogBookIdentifier identifier) {
-        CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(identifier);
+        CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(identifier);
         deviceLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents()));
         return deviceLogBook;
     }
@@ -1080,14 +1083,14 @@ public class ObjectFactory {
     }
 
     public CollectedFirmwareVersion createCollectedFirmwareVersions() {
-        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
+        CollectedFirmwareVersion result = this.collectedDataFactory.createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
         result.setActiveMeterFirmwareVersion(getFirmwareVersion().getMetrologyFirmwareVersion());
         result.setActiveCommunicationFirmwareVersion(getFirmwareVersion().getAuxiliaryFirmwareVersion());
         return result;
     }
 
     public CollectedFirmwareVersion createFailedFirmwareVersions(Issue issue) {
-        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
+        CollectedFirmwareVersion result = this.collectedDataFactory.createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
         result.setFailureInformation(ResultType.DataIncomplete, issue);
         return result;
     }

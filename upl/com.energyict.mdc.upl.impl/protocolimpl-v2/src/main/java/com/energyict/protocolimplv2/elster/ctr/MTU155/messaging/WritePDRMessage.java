@@ -25,7 +25,7 @@ import java.util.Date;
 public class WritePDRMessage extends AbstractMTU155Message {
 
     public WritePDRMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

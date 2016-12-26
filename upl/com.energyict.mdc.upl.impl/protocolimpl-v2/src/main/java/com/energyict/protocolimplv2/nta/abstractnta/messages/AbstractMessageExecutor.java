@@ -1,14 +1,16 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -42,7 +44,6 @@ import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.DataParseException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
@@ -74,9 +75,21 @@ public abstract class AbstractMessageExecutor {
     private static final byte[] DEFAULT_MONITORED_ATTRIBUTE = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
     private AbstractDlmsProtocol protocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public AbstractMessageExecutor(AbstractDlmsProtocol protocol) {
+    public AbstractMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
+
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
     }
 
     public abstract CollectedMessageList executePendingMessages(final List<OfflineDeviceMessage> pendingMessages);
@@ -85,7 +98,7 @@ public abstract class AbstractMessageExecutor {
      * Nothing to do here. Sub classes can override.
      */
     public CollectedMessageList updateSentMessages(final List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     protected CosemObjectFactory getCosemObjectFactory() {
@@ -132,7 +145,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueFactory.createWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -143,7 +156,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueFactory.createWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -151,19 +164,19 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     protected CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
+        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> collectedRegisters) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedRegisters);
+        return this.collectedDataFactory.createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedRegisters);
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineDeviceMessage pendingMessage) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), new DeviceIdentifierById(pendingMessage.getDeviceId())));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), new DeviceIdentifierById(pendingMessage.getDeviceId())));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;

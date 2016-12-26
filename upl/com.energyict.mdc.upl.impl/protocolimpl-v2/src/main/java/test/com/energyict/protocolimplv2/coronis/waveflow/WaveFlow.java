@@ -9,9 +9,11 @@ import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -40,7 +42,6 @@ import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.TypedProperties;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -79,6 +80,13 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     private test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.RadioCommandFactory radioCommandFactory;
     private WaveFlowConnect waveFlowConnect;
     private CommonObisCodeMapper commonObisCodeMapper;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    protected WaveFlow(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     /**
      * If the ComChannel is of type WavenisGatewayComChannel, this means the RF module is being read out over a transparent gateway (MUC Wavecell).
@@ -350,8 +358,8 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(offlineDevice, "devicetopologynotsupported"));
+        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(getDeviceIdentifier());
+        deviceTopology.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(offlineDevice, "devicetopologynotsupported"));
         return deviceTopology;
     }
 
@@ -384,7 +392,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
 
     public CommonObisCodeMapper getCommonObisCodeMapper() {
         if (commonObisCodeMapper == null) {
-            commonObisCodeMapper = new CommonObisCodeMapper(this);
+            commonObisCodeMapper = new CommonObisCodeMapper(this, collectedDataFactory, issueFactory);
         }
         return commonObisCodeMapper;
     }

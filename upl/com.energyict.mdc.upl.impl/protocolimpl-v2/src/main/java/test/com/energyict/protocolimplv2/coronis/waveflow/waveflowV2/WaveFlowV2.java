@@ -19,6 +19,7 @@ public class WaveFlowV2 extends WaveFlow {
     private EventReader eventReader;
 
     public WaveFlowV2() {
+        super(collectedDataFactory, issueFactory);
         isV1 = false;
         isV210 = false;
     }
@@ -36,7 +37,7 @@ public class WaveFlowV2 extends WaveFlow {
     @Override
     protected ObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            obisCodeMapper = new ObisCodeMapper(this);
+            obisCodeMapper = new ObisCodeMapper(this, collectedDataFactory, issueFactory);
         }
         return obisCodeMapper;
     }
@@ -51,7 +52,7 @@ public class WaveFlowV2 extends WaveFlow {
     @Override
     protected DeviceLoadProfileSupport getProfileDataReader() {
         if (profileDataReader == null) {
-            profileDataReader = new ProfileDataReader(this);
+            profileDataReader = new ProfileDataReader(this, collectedDataFactory);
         }
         return profileDataReader;
     }
@@ -59,7 +60,7 @@ public class WaveFlowV2 extends WaveFlow {
     @Override
     protected DeviceLogBookSupport getEventReader() {
         if (eventReader == null) {
-            eventReader = new EventReader(this);
+            eventReader = new EventReader(this, collectedDataFactory);
         }
         return eventReader;
     }

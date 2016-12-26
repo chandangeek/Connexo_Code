@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
@@ -21,7 +23,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540PLCRegisterMapper;
@@ -49,8 +50,8 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
 
     private AM540PLCRegisterMapper plcRegisterMapper;
 
-    public Dsmr50RegisterFactory(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public Dsmr50RegisterFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {
@@ -70,7 +71,7 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
             } else if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
                 try {
                     RegisterValue registerValue = getPLCRegisterMapper().readRegister(obisCode);
-                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = this.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                     deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
                     collectedRegisters.add(deviceRegister);
@@ -81,7 +82,7 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
                 // Else try to read out specific DSMR5.0 registers
             } else if (obisCode.equals(ClockObisCode)) {
                 Date time = getProtocol().getTime();
-                CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+                CollectedRegister deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
                 deviceRegister.setCollectedData(new Quantity(BigDecimal.valueOf(time.getTime()), Unit.get(BaseUnit.SECOND, -3)), time.toString());
                 deviceRegister.setCollectedTimeStamps(new Date(), null, new Date());
                 collectedRegisters.add(deviceRegister);
@@ -90,7 +91,7 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
                     SingleActionSchedule singleActionSchedule = getProtocol().getDlmsSession().getCosemObjectFactory().getSingleActionSchedule(EndOfBillingPeriod1SchedulerObisCode);
                     Array executionTime = singleActionSchedule.getExecutionTime();
 
-                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(parseExecutionTimeArrayToHumanReadableText(executionTime));
                     deviceRegister.setCollectedTimeStamps(new Date(), null, new Date());
                     collectedRegisters.add(deviceRegister);
@@ -101,7 +102,7 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
                 try {
                     DLMSStoredValues dlmsStoredValues = new DLMSStoredValues(protocol.getDlmsSession(), BillingProfileObisCode);
                     Date billingPointTimeDate = dlmsStoredValues.getBillingPointTimeDate(0);
-                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(new Quantity(BigDecimal.valueOf(billingPointTimeDate.getTime()), Unit.get(BaseUnit.SECOND, -3)), billingPointTimeDate.toString());
                     deviceRegister.setCollectedTimeStamps(new Date(), null, new Date());
                     collectedRegisters.add(deviceRegister);
@@ -145,8 +146,8 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
             try {
                 String executionTimeText = AXDRDate.toReadableDescription((OctetString) ((Structure) executionTime.getDataType(0)).getDataType(1));
                 AXDRTime time = new AXDRTime((OctetString) ((Structure) executionTime.getDataType(0)).getDataType(0));
-                executionTimeText = executionTimeText.concat(" ");
-                executionTimeText = executionTimeText.concat(time.getTime());
+                executionTimeText = executionTimeText + " ";
+                executionTimeText = executionTimeText + time.getTime();
                 return executionTimeText;
             } catch (IndexOutOfBoundsException | ClassCastException e) {
                 throw new IOException("Failed to parse the execution time array");

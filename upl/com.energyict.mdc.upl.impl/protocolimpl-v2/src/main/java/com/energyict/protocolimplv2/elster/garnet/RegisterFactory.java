@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -9,7 +11,6 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.common.ReadingResponse;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
@@ -71,9 +72,13 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private final GarnetConcentrator meterProtocol;
     private String firmwareVersion = null;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public RegisterFactory(GarnetConcentrator meterProtocol) {
+    public RegisterFactory(GarnetConcentrator meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.meterProtocol = meterProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     @Override
@@ -316,26 +321,26 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createDeviceRegister(OfflineRegister register, Date eventTime) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
+        CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
         deviceRegister.setCollectedTimeStamps(new Date(), null, eventTime != null ? eventTime : new Date(), eventTime); // If eventTime != null, then it contains the billing timestamp
         return deviceRegister;
     }
 
     private CollectedRegister createNotSupportedCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register, "registerXnotsupported", register.getObisCode()));
+        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register, "registerXnotsupported", register.getObisCode()));
         return failedRegister;
     }
 
     private CollectedRegister createTopologyMisMatchCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueFactory().createWarning(register, "topologyMismatch"));
+        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueFactory.createWarning(register, "topologyMismatch"));
         return failedRegister;
     }
 
     private CollectedRegister createCouldNotParseCollectedRegister(OfflineRegister register, String errorMessage) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(register, "CouldNotParseRegisterData", errorMessage));
+        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(register, "CouldNotParseRegisterData", errorMessage));
         return failedRegister;
     }
 

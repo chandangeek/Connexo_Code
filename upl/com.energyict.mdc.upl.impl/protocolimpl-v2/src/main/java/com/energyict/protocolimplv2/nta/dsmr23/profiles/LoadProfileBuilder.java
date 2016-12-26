@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
 import com.energyict.cbo.Unit;
@@ -30,7 +32,6 @@ import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
@@ -81,28 +82,28 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * Keep track of a list of channelMask per LoadProfileReader
      */
-    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
+    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<>();
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link ComposedProfileConfig}
      */
-    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
+    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<>();
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a list of {@link com.energyict.protocol.Register} which
      * will represent the 'data' channels of the Profile
      */
-    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
+    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<>();
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
     /**
      * Keep track of a list of statusMask per LoadProfileReader
      */
-    private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<LoadProfileReader, Integer>();
+    private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<>();
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
-    private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<CapturedRegisterObject, DLMSAttribute>();
+    private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<>();
 
     /**
      * The list of LoadProfileReaders which are expected to be fetched
@@ -113,14 +114,21 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * The list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
      */
     private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    /**
-     * Default constructor
-     *
-     * @param meterProtocol the {@link #meterProtocol}
-     */
-    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
+    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.meterProtocol = meterProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
+
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
     }
 
     /**
@@ -144,7 +152,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, meterProtocol.getDlmsSessionProperties().isBulkRequest());
 
         for (LoadProfileReader lpr : allLoadProfileReaders) {
-            CollectedLoadProfileConfiguration lpc = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration lpc = this.collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
                 lpc.setSupportedByMeter(false);
                 continue;
@@ -185,7 +193,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * @return the validated list containing all valid loadProfileReaders
      */
     private List<LoadProfileReader> filterOutAllInvalidLoadProfiles(List<LoadProfileReader> loadProfileReaders) {
-        List<LoadProfileReader> validLoadProfileReaders = new ArrayList<LoadProfileReader>();
+        List<LoadProfileReader> validLoadProfileReaders = new ArrayList<>();
 
         for (LoadProfileReader loadProfileReader : loadProfileReaders) {
             if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
@@ -206,7 +214,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      */
     protected ComposedCosemObject constructLoadProfileConfigComposedCosemObject(List<LoadProfileReader> loadProfileReaders, boolean supportsBulkRequest) {
         if (loadProfileReaders != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (LoadProfileReader lpReader : loadProfileReaders) {
                 ObisCode obisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpReader.getProfileObisCode(), lpReader.getMeterSerialNumber());
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
@@ -234,7 +242,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * @throws java.io.IOException if an error occurred during dataFetching or -Parsing
      */
     private List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
-        List<CapturedRegisterObject> channelRegisters = new ArrayList<CapturedRegisterObject>();
+        List<CapturedRegisterObject> channelRegisters = new ArrayList<>();
         if (this.expectedLoadProfileReaders != null) {
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
                 ComposedProfileConfig cpc = this.lpConfigMap.get(lpr);
@@ -252,7 +260,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
 
                     // Convert each captured object to a register (DLMSAttribute + device serial number)
-                    List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
+                    List<CapturedRegisterObject> coRegisters = new ArrayList<>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
 //                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
@@ -284,7 +292,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      */
     private ComposedCosemObject constructCapturedObjectRegisterUnitComposedCosemObject(List<CapturedRegisterObject> registers, boolean supportsBulkRequest) {
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (CapturedRegisterObject register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 
@@ -322,9 +330,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
     protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
@@ -360,7 +368,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         int channelMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!registerUnit.getSerialNumber().equals("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 channelMask |= (int) Math.pow(2, counter);
             }
             counter++;
@@ -442,14 +450,14 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<CollectedLoadProfile>();
+        List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
 
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
-            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
 
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 this.meterProtocol.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
@@ -471,12 +479,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                        Issue problem = this.issueFactory.createProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue problem = this.issueFactory.createWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);

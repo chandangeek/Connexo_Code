@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.issue.Issue;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 
@@ -14,8 +15,11 @@ import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
  */
 public class ReadFirmwareVersion extends AbstractRequest<DeviceIdentifier, CollectedFirmwareVersion> {
 
-    public ReadFirmwareVersion(ACE4000Outbound ace4000) {
+    private final IssueFactory issueFactory;
+
+    public ReadFirmwareVersion(ACE4000Outbound ace4000, IssueFactory issueFactory) {
         super(ace4000);
+        this.issueFactory = issueFactory;
     }
 
     @Override
@@ -33,7 +37,7 @@ public class ReadFirmwareVersion extends AbstractRequest<DeviceIdentifier, Colle
         if (isSuccessfulRequest(RequestType.FirmwareVersion)) {
             setResult(getAce4000().getObjectFactory().createCollectedFirmwareVersions());
         } else if (isFailedRequest(RequestType.FirmwareVersion)) {
-            Issue issue = MdcManager.getIssueFactory().createProblem(getInput(), "issue.protocol.readingOfFirmwareFailed", getReasonDescription());
+            Issue issue = this.issueFactory.createProblem(getInput(), "issue.protocol.readingOfFirmwareFailed", getReasonDescription());
             setResult(getAce4000().getObjectFactory().createFailedFirmwareVersions(issue));
         }
     }

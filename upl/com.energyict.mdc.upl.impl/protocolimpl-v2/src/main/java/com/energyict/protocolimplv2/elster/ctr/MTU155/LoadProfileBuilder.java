@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -12,7 +14,6 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.ProfileChannel;
@@ -29,8 +30,8 @@ import java.util.logging.Level;
 
 
 /**
- * @author: sva
- * @since: 22/10/12 (13:02)
+ * @author sva
+ * @since 22/10/12 (13:02)
  */
 public class LoadProfileBuilder {
 
@@ -38,8 +39,6 @@ public class LoadProfileBuilder {
     public static final ObisCode VOLUME_MEASUREMENT_PROFILE = ObisCode.fromString("0.0.99.2.0.255");
     public static final ObisCode TOTALIZERS_PROFILE = ObisCode.fromString("0.0.99.3.0.255");
 
-    public static final String[] FLOW_MEASUREMENT_OBJECT_IDS = new String[]{"1.0.0", "1.2.0", "4.0.0", "7.0.0"};
-    public static final String[] VOLUME_MEASUREMENT_OBJECT_IDS = new String[]{"1.1.0", "1.3.0", "1.F.0"};
     public static final String[] TOTALIZERS_OBJECT_IDS = new String[]{"2.0.0", "2.1.0", "2.3.0", "1.2.3"};
     /**
      * The {@link StartOfGasDayParser} to use
@@ -58,9 +57,13 @@ public class LoadProfileBuilder {
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public LoadProfileBuilder(MTU155 meterProtocol) {
+    public LoadProfileBuilder(MTU155 meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.meterProtocol = meterProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     /**
@@ -68,7 +71,6 @@ public class LoadProfileBuilder {
      *
      * @param loadProfileReaders a list of definitions of expected loadProfiles to read
      * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
-     * @throws java.io.IOException when error occurred during dataFetching or -Parsing
      */
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
         expectedLoadProfileReaders = loadProfileReaders;
@@ -76,7 +78,7 @@ public class LoadProfileBuilder {
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            CollectedLoadProfileConfiguration lpc = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getOfflineDevice().getSerialNumber());
+            CollectedLoadProfileConfiguration lpc = this.collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getOfflineDevice().getSerialNumber());
 
             try {
                 List<ChannelInfo> channelInfos = constructChannelInfos(lpr);
@@ -173,7 +175,7 @@ public class LoadProfileBuilder {
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
-                CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
+                CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
                 List<IntervalData> collectedIntervalData = new ArrayList<>();
 
                 for (ChannelInfo channel : channelInfos) {
@@ -186,7 +188,7 @@ public class LoadProfileBuilder {
                         channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                         collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                     } catch (IOException e) {   // A non-blocking issue occurred during readout of this loadProfile, but it is still possible to read out the other loadProfiles.
-                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
+                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
                         collectedIntervalData.clear();
                         break;
                     }
@@ -195,8 +197,8 @@ public class LoadProfileBuilder {
                 collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
-                CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
-                Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
+                Issue problem = this.issueFactory.createWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);
             }
@@ -212,13 +214,13 @@ public class LoadProfileBuilder {
      * @return the merged set of IntervalData
      */
     private List<IntervalData> mergeChannelIntervalData(List<IntervalData> collectedIntervalData, List<IntervalData> channelIntervalData) throws IOException {
-        if (collectedIntervalData.size() == 0) {
+        if (collectedIntervalData.isEmpty()) {
             return channelIntervalData;
         } else if (collectedIntervalData.size() == channelIntervalData.size()) {
             for (int i = 0; i < collectedIntervalData.size(); i++) {
                 IntervalData collectedData = collectedIntervalData.get(i);
                 IntervalData channelData = channelIntervalData.get(i);
-                IntervalValue channelValue = (IntervalValue) channelData.getIntervalValues().get(0);
+                IntervalValue channelValue = channelData.getIntervalValues().get(0);
                 collectedData.addValue(channelValue.getNumber(), channelValue.getProtocolStatus(), channelValue.getEiStatus());
             }
             return collectedIntervalData;

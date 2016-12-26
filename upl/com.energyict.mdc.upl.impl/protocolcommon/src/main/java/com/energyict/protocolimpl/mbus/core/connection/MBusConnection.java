@@ -16,32 +16,35 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.mbus.core.ApplicationData;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Connection;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Frame;
-import com.energyict.protocolimplv2.MdcManager;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.TimeZone;
 
 /**
  *
  * @author kvds
  */
-public class MBusConnection extends IEC870Connection implements ProtocolConnection { 
-    
+public class MBusConnection extends IEC870Connection implements ProtocolConnection {
+
     private static final int DEBUG=0;
     private static final long TIMEOUT=60000;
-    
+
     int maxRetries;
     boolean loggedOn=false;
-    
+
     int address;
     long forcedDelay;
-    
+
     /** Creates a new instance of MBusConnection */
-    public MBusConnection(InputStream inputStream, 
+    public MBusConnection(InputStream inputStream,
             OutputStream outputStream,
             int timeout,
             int maxRetries,
@@ -53,7 +56,7 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
         this.maxRetries=maxRetries;
         this.forcedDelay=forcedDelay;
     } // ModbusConnection(...)
-    
+
     public int getReasonTIMEOUT_ERROR() {
     	return TIMEOUT_ERROR;
     }
@@ -62,13 +65,13 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
      * Implementation of the abstract Connection class
      ******************************************************************************************/
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
-        
+
     }
     public HHUSignOn getHhuSignOn() {
         return null;
     }
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
-        
+
     }
     public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
         return null;
@@ -80,19 +83,19 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
     public void flushInputStream() throws ConnectionException {
     	super.flushInputStream();
     }
-    
+
     public void setTimeout(int timeout) {
         super.setTimeout(timeout);
     }
-    
+
     public void setRetries(int retries) {
         super.setRetries(retries);
     }
-    
+
     public int getMaxRetries() {
         return maxRetries;
     }
-    
+
     public IEC870Frame selectSecondaryAddress(long identification, int manufacturer, int version, int medium,boolean discoverResponse) throws IOException {
         delay(forcedDelay);
         byte[] data = new byte[8];
@@ -110,31 +113,31 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
 		}
 		return o;
     }
-    
+
     public IEC870Frame sendApplicationReset(int resetSubcode) throws IOException {
         delay(forcedDelay);
         return sendFrame(IEC870Frame.FRAME_VARIABLE_LENGTH, IEC870Frame.CONTROL_SEND_CONFIRM_USER_DATA, getRTUAddress(), new ApplicationData(0x50,new byte[]{(byte)resetSubcode}), false);
-    }    
-    
+    }
+
     public void sendSND_NKE() throws IOException {
     	sendSND_NKE(getRTUAddress());
     }
     public void sendSND_NKE(int address) throws IOException {
         delay(forcedDelay);
         sendFrame(IEC870Frame.FRAME_FIXED_LENGTH, IEC870Frame.CONTROL_SEND_CONFIRM_RESET_REMOTE_LINK, address, 2, null, false);
-    }    
-    
+    }
+
     public IEC870Frame sendREQ_UD2() throws IOException {
     	return sendREQ_UD2(false);
     }
     public IEC870Frame sendREQ_UD2(boolean discoverResponse) throws IOException {
         delay(forcedDelay);
         return sendFrame(IEC870Frame.FRAME_FIXED_LENGTH, IEC870Frame.CONTROL_REQUEST_RESPOND_CLASS2, getRTUAddress(), 2, null, true,discoverResponse);
-    }    
-    
+    }
+
     public IEC870Frame sendREQ_UD1() throws IOException {
         delay(forcedDelay);
         return sendFrame(IEC870Frame.FRAME_FIXED_LENGTH, IEC870Frame.CONTROL_REQUEST_RESPOND_CLASS1, getRTUAddress(), 2, null, true);
-    }    
-    
+    }
+
 }

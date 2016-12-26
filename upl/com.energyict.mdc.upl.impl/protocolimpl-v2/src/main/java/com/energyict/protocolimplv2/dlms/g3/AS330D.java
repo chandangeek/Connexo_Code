@@ -12,7 +12,13 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -304,7 +310,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     private ProfileDataFactory getProfileDataFactory() {
         if (profileDataFactory == null) {
-            profileDataFactory = new ProfileDataFactory(getDlmsSession(), getDeviceCache());
+            profileDataFactory = new ProfileDataFactory(getDlmsSession(), getDeviceCache(), collectedDataFactory, issueFactory);
         }
         return profileDataFactory;
     }
@@ -351,14 +357,14 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     private LogBookFactory getLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new LogBookFactory(getDlmsSession());
+            logBookFactory = new LogBookFactory(getDlmsSession(), collectedDataFactory, issueFactory);
         }
         return logBookFactory;
     }
 
     private RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new RegisterFactory(getDlmsSession());
+            registerFactory = new RegisterFactory(getDlmsSession(), collectedDataFactory, issueFactory);
         }
         return registerFactory;
     }

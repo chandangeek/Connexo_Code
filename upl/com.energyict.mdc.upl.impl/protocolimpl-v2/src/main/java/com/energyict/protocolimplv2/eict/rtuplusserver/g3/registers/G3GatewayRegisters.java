@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -18,7 +20,6 @@ import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2MACSetup
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2PHYAndMACCountersMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.SixLowPanAdaptationLayerSetupMapping;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.AdditionalInfoCustomRegisterMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.CustomRegisterMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.FirewallSetupCustomRegisterMapping;
@@ -53,9 +54,13 @@ public class G3GatewayRegisters {
      * Keeps track of the different FirmwareVersions so we don't fetch them multiple times ...
      */
     private Map<ObisCode, String> firmwareVersions = new HashMap<>(3);
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public G3GatewayRegisters(DlmsSession dlmsSession) {
+    public G3GatewayRegisters(DlmsSession dlmsSession, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.session = dlmsSession;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
 
         this.customRegisterMappings = new CustomRegisterMapping[]{
                 new FirewallSetupCustomRegisterMapping(session.getCosemObjectFactory()),
@@ -141,7 +146,7 @@ public class G3GatewayRegisters {
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister register) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
         collectedRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         collectedRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return collectedRegister;
@@ -152,11 +157,11 @@ public class G3GatewayRegisters {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments[0]));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }
         return collectedRegister;
     }

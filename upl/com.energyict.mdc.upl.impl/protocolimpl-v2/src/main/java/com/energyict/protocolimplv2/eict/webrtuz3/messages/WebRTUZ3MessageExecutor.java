@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -28,7 +30,6 @@ import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.webrtuz3.messages.emeter.WebRTUZ3EMeterMessageExecutor;
 import com.energyict.protocolimplv2.eict.webrtuz3.messages.mbus.WebRTUZ3MBusMessageExecutor;
@@ -77,13 +78,13 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     private WebRTUZ3EMeterMessageExecutor eMeterMessageExecutor;
     private WebRTUZ3MBusMessageExecutor mBusMessageExecutor;
 
-    public WebRTUZ3MessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public WebRTUZ3MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         List<OfflineDeviceMessage> mbusMessages = new ArrayList<>();
         List<OfflineDeviceMessage> emeterMessages = new ArrayList<>();
@@ -128,14 +129,14 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
 
     private WebRTUZ3MBusMessageExecutor getMBusMessageExecutor() {
         if (mBusMessageExecutor == null) {
-            mBusMessageExecutor = new WebRTUZ3MBusMessageExecutor(getProtocol());
+            mBusMessageExecutor = new WebRTUZ3MBusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return mBusMessageExecutor;
     }
 
     private WebRTUZ3EMeterMessageExecutor getEMeterMessageExecutor() {
         if (eMeterMessageExecutor == null) {
-            eMeterMessageExecutor = new WebRTUZ3EMeterMessageExecutor(getProtocol());
+            eMeterMessageExecutor = new WebRTUZ3EMeterMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return eMeterMessageExecutor;
     }
@@ -433,15 +434,15 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
         sasDisconnect.writeExecutionTime(executionTimeArray);
     }
 
-    private ObisCode getDisconnectControlScheduleObis(int outputId) throws IOException {
+    private ObisCode getDisconnectControlScheduleObis(int outputId) {
         return ObisCode.fromString("0.0.15.0." + outputId + ".255");
     }
 
-    private ObisCode getDisconnectorScriptTableObis(int outputId) throws IOException {
+    private ObisCode getDisconnectorScriptTableObis(int outputId) {
         return ObisCode.fromString("0.0.10.0." + (105 + outputId) + ".255");
     }
 
-    private ObisCode getDisconnectorObisCode(int outputId) throws IOException {
+    private ObisCode getDisconnectorObisCode(int outputId) {
         return ObisCode.fromString("0.0.96.3." + (9 + outputId) + ".255");
     }
 }

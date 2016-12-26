@@ -6,14 +6,16 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import java.io.*;
-import java.util.*; 
 import com.energyict.cbo.NestedIOException;
-
-import com.energyict.protocol.*;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @version  1.0
@@ -28,37 +30,37 @@ import com.energyict.protocolimplv2.MdcManager;
  *      KV 08032005 remove forceDelay(...) anf add delay(...) method
  */
 public class SiemensSCTM {
-    
-    
-    
+
+
+
     private static final byte DEBUG=0;
-    
+
     ByteArrayOutputStream echoByteArrayOutputStream = new ByteArrayOutputStream();
     ByteArrayInputStream echoByteArrayInputStream;
-    
+
     private static final byte UNKNOWN_ERROR=-1;
     private static final byte TIMEOUT_ERROR=-2;
     private static final byte MAX_RETRIES=-3;
-    
+
     private int iMaxRetries;
-    
+
     // General attributes
-    private OutputStream outputStream;  
+    private OutputStream outputStream;
     private InputStream inputStream;
     private int iProtocolTimeout;
     private String strPass=null;
     private String nodeId=null;
     private int iEchoCancelling;
     private HalfDuplexController halfDuplexController=null;
-    
+
     private int DBN;
-    
+
     private static final byte SOH=0x01;
     private static final byte STX=0x02;
     private static final byte ETX=0x03;
     private static final byte ACK=0x06;
     private static final byte NAK=0x15;
-    
+
     // SCTM frame offsets
     protected int SCTM_HEADER_HCC;
     protected int SCTM_HEADER_STATUS;
@@ -70,23 +72,23 @@ public class SiemensSCTM {
     protected int SCTM_HEADER_AKN;
     protected int SCTM_HEADER_ID;
     protected int SCTM_HEADER_ID_SIZE;
-    
+
     // SCTM frame sizes
     protected int SCTM_HEADER_SIZE;
-    
+
     // SCTM header frame status byte
     protected final byte CENTRAL_STATION_TELEGRAMM=1;
     protected final byte REMOTE_STATION_TELEGRAMM=0;
     protected final byte CONTINUE_BIT=2;
-    
+
     // specific IEC1107
     private boolean boolSCTMConnected;
-    
+
     byte[] iec1107Dump;
-    
+
     // Raw frames
     private static final int MAX_BUFFER_SIZE=256;
-    
+
     SiemensSCTMFrameDecoder lastSCTMFrame=null;
 
     public static final byte[] TABENQ1={'E','1'};
@@ -97,16 +99,16 @@ public class SiemensSCTM {
     public static final byte[] SETTIME={'T','1'};
     public static final byte[] SSYNC={'T','2'};
     public static final byte[] MSYNC={'T','4'};
-    
+
     public static final byte[] PASSWORD={'P','1'};
-    
+
     public static final byte[] DATETIME={'0','1'};
 
     //public static final byte[] CLEARINGDATA={'1','1'}; //  KV changed to use multiple buffers...
     public static final byte[] PERIODICBUFFERS={'0','1'};
     public static final byte[] SPONTANEOUSBUFFERS={'5','1'};
     //public static final byte[] LOADPROFILEBUFFERSTRUCTURE={'2','1'};
-    
+
     public static void main(String[] args) {
     	try {
     		byte[] data = new byte[]{1,1,30,30,35,34,36,30,38,38,30,31,39,(byte)3F,2,20,20,20,20,20,20,20,20,20,20,20,20,20,20,33,30,3,0};
@@ -115,15 +117,15 @@ public class SiemensSCTM {
     								  (byte)0x31,(byte)0x30,(byte)0x39,(byte)0x20,(byte)0x37,(byte)0x31,(byte)0x35,(byte)0x34,(byte)0x36,
     								  (byte)0x31,(byte)0x31,(byte)0x03,(byte)0x13};
 			SiemensSCTM sSctm = new SiemensSCTM(null, null,20,5,"","",1,1);
-			
+
 			System.out.println(sSctm.isChecksumDump(data));
 			System.out.println(sSctm.isChecksumDump(data2));
 		} catch (SiemensSCTMException e) {
 			e.printStackTrace();
 		}
-    	
+
     }
-    
+
     private int forcedDelay;
     /**
      * Class constructor.
@@ -131,7 +133,7 @@ public class SiemensSCTM {
      * @param outputStream OutputStream for the active connection, e.g. established with ATDialer.
      * @param iTimeout Time in ms. for a request to wait for a response before returning an timeout error.
      * @exception SiemensSCTMException
-     */ 
+     */
     public SiemensSCTM(InputStream inputStream,
                        OutputStream outputStream,
                        int iTimeout,
@@ -140,8 +142,8 @@ public class SiemensSCTM {
                        String nodeId,
                        int iEchoCancelling, int forcedDelay) throws SiemensSCTMException {
         this(inputStream, outputStream, iTimeout, iMaxRetries, strPass, nodeId, iEchoCancelling, null, forcedDelay);
-    } // public SiemensSCTM(...) 
-    
+    } // public SiemensSCTM(...)
+
     public SiemensSCTM(InputStream inputStream,
                        OutputStream outputStream,
                        int iTimeout,
@@ -166,7 +168,7 @@ public class SiemensSCTM {
         this.halfDuplexController=halfDuplexController;
         this.forcedDelay = forcedDelay;
     }
-    
+
     private void setOffsetandLengths(String str) {
          // SCTM frame offsets
          SCTM_HEADER_HCC=7+str.length();
@@ -182,24 +184,24 @@ public class SiemensSCTM {
          // SCTM frame sizes
          SCTM_HEADER_SIZE=9+str.length();
     }
-    
+
     public byte[] getDumpData() throws IOException {
         return iec1107Dump;
     }
-    
+
     private void incDBN() {
         DBN++;
         if (DBN == 10) DBN=0;
     }
-    
+
     private byte getDBN() {
         return (byte)DBN;
     }
-    
+
     private byte getAKN() {
         return (byte)lastSCTMFrame.getDBN();
     }
-    
+
     private void initProtocolCounters() {
         DBN=0;
     }
@@ -212,7 +214,7 @@ public class SiemensSCTM {
             boolSCTMConnected=false;
         } // if (boolSCTMConnected==true)
     } // public void disconnectMAC() throws SiemensSCTMException
-    
+
     /**
      * Method that requests a MAC connection for the HDLC layer. this request negotiates some parameters
      * for the buffersizes and windowsizes.
@@ -223,9 +225,9 @@ public class SiemensSCTM {
             initProtocolCounters();
             boolSCTMConnected=true;
         } // if (boolSCTMConnected==false)
-        
+
     } // public void connectMAC()
-    
+
     public void flag(String strIdent) throws NestedIOException,SiemensSCTMException {
         try {
             signOn(strIdent);
@@ -234,7 +236,7 @@ public class SiemensSCTM {
             throw new SiemensSCTMException("flag() error "+e.getMessage());
         }
     }
-    
+
     public byte[] sendRequest(byte[] command, byte[] data) throws SiemensSCTMException {
         int iRetries=0;
         incDBN();
@@ -261,7 +263,7 @@ public class SiemensSCTM {
             try {
                 byte[] data = receiveResponse().getData();
                 if (data!=null) baos.write(data);
-                if (isFollow()) { 
+                if (isFollow()) {
                     sendFollowFrame();
                     iRetries=0;
                     follow=true;
@@ -270,24 +272,24 @@ public class SiemensSCTM {
                     if (baos.toByteArray().length == 0)
                         return null;
                     else
-                        return baos.toByteArray();  
+                        return baos.toByteArray();
                 }
             }
             catch (SiemensSCTMException e) {
                 if (follow) {
                     if (e.getReason() == MAX_RETRIES) throw e;
-                    if (iRetries++ >=iMaxRetries) throw new SiemensSCTMException("SiemensSCTM, doReceive, error iMaxRetries, "+e.getMessage(),MAX_RETRIES);    
+                    if (iRetries++ >=iMaxRetries) throw new SiemensSCTMException("SiemensSCTM, doReceive, error iMaxRetries, "+e.getMessage(),MAX_RETRIES);
                     sendFollowFrame();
                 }
                 else throw e;
             }
         }
     }
-    
+
     private boolean isFollow() {
       return ((lastSCTMFrame.getStatus() & CONTINUE_BIT) != 0);
     }
-    
+
     public void sendInit() throws SiemensSCTMException {
         int iRetries=0;
         while(true) {
@@ -304,21 +306,21 @@ public class SiemensSCTM {
                 if (iRetries++ >=iMaxRetries) throw new SiemensSCTMException("SiemensSCTM, sendInit, error iMaxRetries, "+e.getMessage(),MAX_RETRIES);
             }
         }
-        
+
     }
-    
+
 //    private void sendOut(byte txbyte) throws SiemensSCTMException {
 //        byte[] txbuffer = new byte[1];
 //        txbuffer[0]=txbyte;
 //        doSendOut(txbuffer);
 //    }
-    
+
     private void sendOut(byte[] txbuffer) throws SiemensSCTMException {
         doSendOut(txbuffer);
     }
-    
+
     private void doSendOut(byte[] txbuffer)  throws SiemensSCTMException {
-        
+
         try {
             if (iEchoCancelling!=0) echoByteArrayOutputStream.write(txbuffer);
             if (halfDuplexController != null)
@@ -339,13 +341,13 @@ public class SiemensSCTM {
     private byte[] buildInitFrame() {
         return(calcChecksum(buildHeader((byte)0,(byte)((byte)'?' - 0x30),0)));
     }
-    
+
     private byte[] buildACKrame() {
         return(calcChecksum(buildHeader(getDBN(),getAKN(),0)));
     }
-    
-    
-    
+
+
+
     private byte[] buildCommandFrame(byte[] command, byte[] data) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         int length=command.length+3;
@@ -357,7 +359,7 @@ public class SiemensSCTM {
         byteArrayOutputStream.write(0);
         return calcChecksum(byteArrayOutputStream.toByteArray());
     }
-    
+
     private byte[] buildHeader(byte DBN, byte AKN, int length) {
         byte[] header = new byte[SCTM_HEADER_SIZE];
         int i;
@@ -373,13 +375,13 @@ public class SiemensSCTM {
         header[SCTM_HEADER_LENGTH] = String.valueOf(length/100).getBytes()[0];
         header[SCTM_HEADER_LENGTH+1] = String.valueOf((length/10)%10).getBytes()[0];
         header[SCTM_HEADER_LENGTH+2] = String.valueOf(length%10).getBytes()[0];
-        
+
         header[SCTM_HEADER_HCC] = 0; // HCC
         if (length == 0) header[SCTM_HEADER_LENGTH+SCTM_HEADER_LENGTH_SIZE+1] = ETX;
         else header[SCTM_HEADER_LENGTH+SCTM_HEADER_LENGTH_SIZE+1] = STX;
         return header;
     }
-    
+
     /**
      * Method to send an array of bytes via outputstream.
      * @param byteBuffer Byte array to send.
@@ -388,9 +390,9 @@ public class SiemensSCTM {
         delay(forcedDelay);
         flushEchoBuffer();
         sendOut(txbuffer);
-        
+
     } // private void sendRawData(byte[] byteBuffer)
-    
+
     private void sendINITCOM() throws SiemensSCTMException {
         byte[] frame = buildInitFrame();
         sendRawData(frame);
@@ -399,7 +401,7 @@ public class SiemensSCTM {
         byte[] frame = buildACKrame();
         sendRawData(frame);
     }
-    
+
     private void sendCommand(byte[] command, byte[] data) throws SiemensSCTMException {
         try {
             byte[] frame = buildCommandFrame(command, data);
@@ -409,7 +411,7 @@ public class SiemensSCTM {
             throw new SiemensSCTMException("SiemensSCTM, sendCommand, IOException, "+e.getMessage());
         }
     }
-    
+
     private SiemensSCTMFrameDecoder receiveResponse()  throws SiemensSCTMException {
         try {
             byte[] frame = receiveFrame();
@@ -422,14 +424,14 @@ public class SiemensSCTM {
             throw new SiemensSCTMException("SiemensSCTM, receiveResponse, IOException, "+e.getMessage());
         }
     }
-    
-    
+
+
     private byte[] calcChecksum(byte[] data) {
         calcHCC(data);
         calcBCC(data);
         return data;
     }
-    
+
     private boolean isChecksum(byte[] data) {
         if ((calcHCC(data) == 0) &&
         (calcBCC(data) == 0))
@@ -437,14 +439,14 @@ public class SiemensSCTM {
         else
             return false;
     }
-    
+
     private boolean isChecksumDump(byte[] data) {
         int sum=0;
         for (int i = 1;i<data.length; i++) sum ^= data[i];
         return (sum==0);
-        
+
     }
-    
+
     private byte calcHCC(byte[] data) {
         int sum=0;
         if (SCTM_DATABLOCK_OFFSET <= data.length) {
@@ -457,7 +459,7 @@ public class SiemensSCTM {
         }
         else return 0;
     }
-    
+
     private byte calcBCC(byte[] data) {
         int sum=0;
         if (SCTM_DATABLOCK_OFFSET < data.length) {
@@ -467,7 +469,7 @@ public class SiemensSCTM {
         }
         else return 0;
     }
-    
+
     private void flushInputStream()  throws SiemensSCTMException {
         try {
             while(inputStream.available() != 0) inputStream.read(); // flush inputbuffer
@@ -477,22 +479,22 @@ public class SiemensSCTM {
             throw new SiemensSCTMException("flushInputStream() error "+e.getMessage());
         }
     } // private void flushInputStream()  throws SiemensSCTMException
-    
+
     private byte[] receiveFrame() throws NestedIOException,SiemensSCTMException {
         return receiveFrame(false);
     }
-    
+
     private byte[] receiveDump() throws NestedIOException,SiemensSCTMException {
         return receiveFrame(true);
     }
-    
+
     private static final byte STATE_WAIT_FOR_SOH=0;
     private static final byte STATE_WAIT_FOR_STX=1;
     private static final byte STATE_WAIT_FOR_LENGTH=2;
     private static final byte STATE_WAIT_FOR_DATA=3;
     private static final byte STATE_WAIT_FOR_ETX=4;
     private static final byte STATE_WAIT_FOR_CHECKSUM=5;
-    
+
     private byte[] receiveFrame(boolean dump) throws NestedIOException,SiemensSCTMException {
         long lMSTimeout,lMSTimeoutInterFrame;
         int iNewKar;
@@ -501,23 +503,23 @@ public class SiemensSCTM {
         byte[] receiveBuffer;
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte calculatedChecksum;
-        
+
         if (dump) iState=STATE_WAIT_FOR_STX;
         else iState=STATE_WAIT_FOR_SOH;
-        
+
         lMSTimeout = System.currentTimeMillis() + 600000;
         lMSTimeoutInterFrame = System.currentTimeMillis() + iProtocolTimeout;
-        
+
         if (DEBUG == 1) System.out.println("receiveData(...):");
-        
+
         copyEchoBuffer();
-        
+
         while(true) {
             if ((iNewKar = readIn()) != -1) {
                 if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
-                
+
                 switch(iState) {
-                    
+
                     case STATE_WAIT_FOR_SOH: {
                         if ((byte)iNewKar == SOH) {
                             iState = STATE_WAIT_FOR_ETX;
@@ -525,7 +527,7 @@ public class SiemensSCTM {
                             byteArrayOutputStream.write(iNewKar);
                         }
                     } break; // STATE_WAIT_FOR_SOH
-                    
+
                     case STATE_WAIT_FOR_STX: {
                         if ((byte)iNewKar == STX) {
                             iState = STATE_WAIT_FOR_ETX;
@@ -533,11 +535,11 @@ public class SiemensSCTM {
                             byteArrayOutputStream.write(iNewKar);
                         }
                     } break; // STATE_WAIT_FOR_STX
-                    
+
                     case STATE_WAIT_FOR_ETX: {
                         lMSTimeoutInterFrame = System.currentTimeMillis() + iProtocolTimeout;
                         byteArrayOutputStream.write(iNewKar);
-                        
+
                         if ((byte)iNewKar == ETX) {
                             iState = STATE_WAIT_FOR_CHECKSUM;
                             if (!dump) {
@@ -550,10 +552,10 @@ public class SiemensSCTM {
                                 }
                             }
                         }
-                        
-                        
+
+
                     } break; // STATE_WAIT_FOR_ETX
-                    
+
                     case STATE_WAIT_FOR_CHECKSUM: {
                         byteArrayOutputStream.write(iNewKar);
                         byte[] data=byteArrayOutputStream.toByteArray();
@@ -566,47 +568,47 @@ public class SiemensSCTM {
                                 throw new SiemensSCTMException("receiveData() bad CRC error");
                         }
                         return(data);
-                        
+
                     } //break; // STATE_WAIT_FOR_CRC
-                    
+
                 } // switch(iState)
-                
+
             } // if ((iNewKar = readIn()) != -1)
-            
+
             if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
                 throw new SiemensSCTMException("receiveData() response timeout error",TIMEOUT_ERROR);
             }
             if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
                 throw new SiemensSCTMException("receiveData() interframe timeout error",TIMEOUT_ERROR);
             }
-            
-            
+
+
         } // while(true)
-        
+
     } // private byte[] receiveData(String str,boolean dump) throws SiemensSCTMException
-    
+
     private static final int WAIT_FOR_IDENT=0;
     private static final int WAIT_FOR_COMPLETION=1;
-    
+
     private void receiveIdent(String str) throws NestedIOException,SiemensSCTMException {
         long lMSTimeout;
         int iNewKar;
         String strIdent= "";
         byte[] convert=new byte[1];
         int state=WAIT_FOR_IDENT;
-        
+
         lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
-        
+
         copyEchoBuffer();
         String convertstr;
-        
+
         while(true) {
-            
+
             if ((iNewKar = readIn()) != -1) {
                 convert[0] = (byte)iNewKar;
                 if (state==WAIT_FOR_IDENT) {
                     strIdent += new String(convert);
-                    
+
                     if ((str != null) && ("".compareTo(str) != 0)) {
                         if (strIdent.compareTo(str) == 0) state=WAIT_FOR_COMPLETION;
                     }
@@ -618,20 +620,20 @@ public class SiemensSCTM {
                     if (convert[0] == 0x0A) return;
                 }
             } // if ((iNewKar = readIn()) != -1)
-            
+
             if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
                 throw new SiemensSCTMException("receiveIdent() timeout error",TIMEOUT_ERROR);
             }
-            
+
         } // while(true)
-        
+
     } // private void receiveIdent(String str) throws SiemensSCTMException
-    
-    
+
+
     private int readIn() throws NestedIOException, SiemensSCTMException {
         try {
             int iNewKar;
-            
+
             if (inputStream.available() != 0) {
                 iNewKar = inputStream.read();
                 if (iNewKar != echoByteArrayInputStream.read()) return iNewKar;
@@ -639,7 +641,7 @@ public class SiemensSCTM {
             else {
                 Thread.sleep(100);
             }
-            
+
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -649,32 +651,32 @@ public class SiemensSCTM {
             e.printStackTrace();
             throw new SiemensSCTMException("readIn() error "+e.getMessage());
         }
-        
+
         return(-1);
-        
+
     } // private int readIn() throws SiemensSCTMException
-    
-    
+
+
     private void delay(long lDelay) {
         try {
-            Thread.sleep(lDelay);             
+            Thread.sleep(lDelay);
         }
         catch(InterruptedException e) {
             Thread.currentThread().interrupt();
             throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
-    
+
     private void flushEchoBuffer() {
         echoByteArrayOutputStream.reset();
     }
     private void copyEchoBuffer() {
         echoByteArrayInputStream = new ByteArrayInputStream(echoByteArrayOutputStream.toByteArray());
     }
-    
+
     private void signOn(String strIdent) throws NestedIOException,SiemensSCTMException {
         int i,t,iRetries=0;
-        
+
         while(true) {
             try {
                 String str="/?"+nodeId+"!\r\n";
@@ -689,7 +691,7 @@ public class SiemensSCTM {
             }
         }
     } // private signOn() throws SiemensSCTMException
-    
-    
+
+
 } // public class SiemensSCTM
 

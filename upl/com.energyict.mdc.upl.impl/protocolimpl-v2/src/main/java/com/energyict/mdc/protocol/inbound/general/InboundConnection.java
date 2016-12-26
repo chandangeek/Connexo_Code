@@ -7,9 +7,9 @@ import com.energyict.mdc.protocol.inbound.general.frames.EventFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.EventPOFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RegisterFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RequestFrame;
+
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.InboundFrameException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 
 import java.util.ArrayList;
@@ -146,16 +146,16 @@ public class InboundConnection {
             return new RequestFrame(frame, callHomeIdPlaceHolder);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, callHomeIdPlaceHolder);
+            return new EventFrame(frame, callHomeIdPlaceHolder, collectedDataFactory);
         }
         if (frame.contains(EVENTPO_TAG)) {
-            return new EventPOFrame(frame, callHomeIdPlaceHolder);
+            return new EventPOFrame(frame, callHomeIdPlaceHolder, collectedDataFactory);
         }
         if (frame.contains(DEPLOY_TAG)) {
-            return new DeployFrame(frame, callHomeIdPlaceHolder);
+            return new DeployFrame(frame, callHomeIdPlaceHolder, collectedDataFactory, issueFactory);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame, callHomeIdPlaceHolder);
+            return new RegisterFrame(frame, callHomeIdPlaceHolder, collectedDataFactory);
         }
         throw InboundFrameException.unexpectedFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }

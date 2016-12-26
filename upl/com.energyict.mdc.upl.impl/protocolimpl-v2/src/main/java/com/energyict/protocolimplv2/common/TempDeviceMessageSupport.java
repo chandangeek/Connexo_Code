@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.common;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +22,12 @@ import java.util.List;
  */
 public class TempDeviceMessageSupport implements DeviceMessageSupport {
 
+    private final CollectedDataFactory collectedDataFactory;
+
+    public TempDeviceMessageSupport(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
+
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Collections.emptyList();
@@ -29,12 +35,12 @@ public class TempDeviceMessageSupport implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.collectedDataFactory.createEmptyCollectedMessageList();
     }
 
     @Override

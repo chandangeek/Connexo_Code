@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocol.meteridentification.IdentificationFactory;
-import com.energyict.protocolimplv2.MdcManager;
 
 /**
  * In the case of IDiscover, a meter opens an inbound connection to the comserver but it doesn't send any frames.

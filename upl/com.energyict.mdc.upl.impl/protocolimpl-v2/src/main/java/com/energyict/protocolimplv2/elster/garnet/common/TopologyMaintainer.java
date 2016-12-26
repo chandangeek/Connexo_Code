@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
 
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.RequestFactory;
@@ -29,15 +30,19 @@ public class TopologyMaintainer implements DeviceTopologySupport {
     private static final String INVALID_METER_SERIAL = "vazio";
 
     private final GarnetConcentrator deviceProtocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public TopologyMaintainer(GarnetConcentrator deviceProtocol) {
+    public TopologyMaintainer(GarnetConcentrator deviceProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.deviceProtocol = deviceProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
         DeviceIdentifier deviceIdentifierOfMaster = new DeviceIdentifierById(getMasterDevice().getId());
-        CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(deviceIdentifierOfMaster);
+        CollectedTopology collectedTopology = this.collectedDataFactory.createCollectedTopology(deviceIdentifierOfMaster);
         try {
             List<DeviceIdentifier> slaveMeters = readListOfSlaveDevices();
             for (DeviceIdentifier slave : slaveMeters) {
@@ -45,14 +50,14 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(getMasterDevice(), "commandNotSupported"));
+                collectedTopology.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(getMasterDevice(), "commandNotSupported"));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueFactory().createWarning(getMasterDevice(), "topologyMismatch"));
+                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueFactory.createWarning(getMasterDevice(), "topologyMismatch"));
             } else {
-                collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
+                collectedTopology.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
             }
         } catch (GarnetException e) {
-            collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
+            collectedTopology.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
         }
         return collectedTopology;
     }

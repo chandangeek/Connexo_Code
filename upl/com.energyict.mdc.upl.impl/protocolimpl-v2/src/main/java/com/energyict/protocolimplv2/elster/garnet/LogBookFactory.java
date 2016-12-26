@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
@@ -9,7 +11,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
 import com.energyict.protocolimplv2.elster.garnet.structure.LogBookEventResponseStructure;
@@ -28,9 +29,13 @@ public class LogBookFactory implements DeviceLogBookSupport {
     public static final ObisCode LOGBOOK_TYPE_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
 
     private final GarnetConcentrator deviceProtocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public LogBookFactory(GarnetConcentrator deviceProtocol) {
+    public LogBookFactory(GarnetConcentrator deviceProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.deviceProtocol = deviceProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     @Override
@@ -70,14 +75,14 @@ public class LogBookFactory implements DeviceLogBookSupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader.getLogBookObisCode(), "logBookXnotsupported", logBookReader.getLogBookObisCode()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader.getLogBookObisCode(), "logBookXnotsupported", logBookReader.getLogBookObisCode()));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedLogBook.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueFactory().createWarning(logBookReader.getMeterSerialNumber(), "topologyMismatch", logBookReader.getMeterSerialNumber()));
+                collectedLogBook.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueFactory.createWarning(logBookReader.getMeterSerialNumber(), "topologyMismatch", logBookReader.getMeterSerialNumber()));
             } else {
-                collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
+                collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
             }
         } catch (GarnetException e) {
-            collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
+            collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
         }
 
         collectedLogBook.setCollectedMeterEvents(meterEvents);
@@ -131,12 +136,12 @@ public class LogBookFactory implements DeviceLogBookSupport {
     }
 
     private CollectedLogBook createDeviceLogBook(LogBookReader logBookReader) {
-        return MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+        return this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
     }
 
     private CollectedLogBook createNotSupportedCollectedLogBook(LogBookReader logBookReader) {
         CollectedLogBook failedLogBook = createDeviceLogBook(logBookReader);
-        failedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode()));
+        failedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode()));
         return failedLogBook;
     }
 

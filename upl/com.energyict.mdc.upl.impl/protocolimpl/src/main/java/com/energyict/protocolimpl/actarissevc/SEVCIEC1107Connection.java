@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.actarissevc;
 
-import java.io.*;
-import java.util.*;
 import com.energyict.cbo.NestedIOException;
-
-import com.energyict.protocol.*;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @version  1.0
@@ -20,31 +21,31 @@ import com.energyict.protocolimplv2.MdcManager;
  *      KV 02022004 changed for HHU
  */
 public class SEVCIEC1107Connection {
-    
+
     private static final byte DEBUG=0;
-    
+
     private int iMaxRetries;
-    
+
     // General attributes
     private OutputStream outputStream;
     private InputStream inputStream;
-    
-    
+
+
     private static final byte SOH=0x01;
     private static final byte STX=0x02;
     private static final byte ETX=0x03;
     private static final byte EOT=0x04;
     private static final byte ACK=0x06;
     private static final byte NAK=0x15;
-    
+
     // specific IEC1107
     private boolean boolIEC1107Connected;
-    
+
     private static final int LENGTH_OFFSET=1;
     // Raw frames
     private static final int MAX_BUFFER_SIZE=256;
     int forcedDelay;
-    
+
     /**
      * Class constructor.
      * @param inputStream InputStream for the active connection, e.g. established with ATDialer.
@@ -58,12 +59,12 @@ public class SEVCIEC1107Connection {
         boolIEC1107Connected=false;
         this.iMaxRetries = iMaxRetries;
         this.forcedDelay=forcedDelay;
-        
+
     } // public IEC1107Connection(...)
-    
-    
-   
-    
+
+
+
+
     /**
      * Method that requests a MAC disconnect for the IEC1107 layer.
      * @exception HDLCConnectionException
@@ -74,7 +75,7 @@ public class SEVCIEC1107Connection {
             boolIEC1107Connected=false;
         } // if (boolIEC1107Connected==true)
     } // public void disconnectMAC() throws SEVCIEC1107ConnectionException
-    
+
 
     /**
      * Method that requests a MAC disconnect for the IEC1107 layer.
@@ -91,9 +92,9 @@ public class SEVCIEC1107Connection {
             throw new SEVCIEC1107ConnectionException("sendbreak() error, "+e.getMessage());
         }
     } // public void disconnectMAC() throws SEVCIEC1107ConnectionException
-    
-    
-    
+
+
+
     /**
      * Method that requests a MAC connection for the HDLC layer. this request negotiates some parameters
      * for the buffersizes and windowsizes.
@@ -102,7 +103,7 @@ public class SEVCIEC1107Connection {
     public void connectMAC(String strIdent, String strPass, String meterID) throws NestedIOException,SEVCIEC1107ConnectionException { // KV 13082003
         if (boolIEC1107Connected==false) {
             try {
-                
+
                 // KV 02022004
                 if (hhuSignOn == null) {
                     wakeUp();
@@ -111,23 +112,23 @@ public class SEVCIEC1107Connection {
                 else {
                     hhuSignOn(strIdent,strPass,meterID);
                 }
-                
+
                 boolIEC1107Connected=true;
             }
             catch (IOException e) {
-                throw new NestedIOException(e);   
+                throw new NestedIOException(e);
             }
             catch(SEVCIEC1107ConnectionException e) {
                 throw new SEVCIEC1107ConnectionException("doConnectMAC() error "+e.getMessage());
             }
         } // if (boolIEC1107Connected==false)
-        
+
     } // public void connectMAC() throws HDLCConnectionException
-    
+
     private void doConnectMAC(String strIdent, String strPass) throws SEVCIEC1107ConnectionException {
-        
+
     } // private void doConnectMAC(String strIdent, String strPass) throws SEVCIEC1107ConnectionException
-    
+
     public void wakeUp()  throws NestedIOException,SEVCIEC1107ConnectionException {
         for (int i =0;i<3;i++) {
             try {
@@ -147,13 +148,13 @@ public class SEVCIEC1107Connection {
                 flushInputStream();
                 delay(5000);
             }
-            
+
         } // for (int i =0;i<3;i++)
-        
+
         throw new SEVCIEC1107ConnectionException("wakeUp() max retry error ");
-        
+
     } // public void wakeUp()  throws SEVCIEC1107ConnectionException
-    
+
     private void sendACKExt(char Z) throws SEVCIEC1107ConnectionException {
         byte[] ack={(byte)0x06,(byte)0x30,(byte)Z,(byte)0x37,(byte)0x0D,(byte)0x0A}; // KV 13082003
         sendRawData(ack);
@@ -162,12 +163,12 @@ public class SEVCIEC1107Connection {
         byte[] ack={(byte)0x06};
         sendRawData(ack);
     }
-    
+
     private void hhuSignOn(String strIdentConfig, String strPass, String meterID) throws NestedIOException,IOException,SEVCIEC1107ConnectionException { // KV 13082003
         int iRetries=0;
         while(true) {
             try {
-                hhuSignOn.signOn(strIdentConfig,meterID,true,2); // 1200 = 2                
+                hhuSignOn.signOn(strIdentConfig,meterID,true,2); // 1200 = 2
                 authenticate(strPass);
                 return;
             }
@@ -179,12 +180,12 @@ public class SEVCIEC1107Connection {
                 }
                 else throw new SEVCIEC1107ConnectionException("signOn() error "+e.getMessage());
             }
-            
+
         } // while(true)
-        
+
     } // private signOn() throws SEVCIEC1107ConnectionException
-    
-    
+
+
     private void signOn(String strIdentConfig, String strPass, String meterID) throws NestedIOException,SEVCIEC1107ConnectionException { // KV 13082003
         int iRetries=0;
         while(true) {
@@ -204,11 +205,11 @@ public class SEVCIEC1107Connection {
                 }
                 else throw new SEVCIEC1107ConnectionException("signOn() error "+e.getMessage());
             }
-            
+
         } // while(true)
-        
+
     } // private signOn() throws SEVCIEC1107ConnectionException
-    
+
     private void authenticate(String strPass) throws NestedIOException,SEVCIEC1107ConnectionException {
         receivePassword(strPass);
         byte[] txbuffer = new byte[strPass.getBytes().length+2];
@@ -220,19 +221,19 @@ public class SEVCIEC1107Connection {
         receiveACK();
         return;
     } // private void authenticate(String strPass)
-    
-    
+
+
     public void sendReadFrame(byte bIdentifier) throws SEVCIEC1107ConnectionException {
         int iLength;
         byte[] data=new byte[5];
         byte[] crc;
-        
+
         // KV 27022006
         if (forcedDelay>0) {
            delay(forcedDelay);
            flushInputStream();
         }
-        
+
         try {
             data[0] = SOH;
             data[1] = bIdentifier;
@@ -241,7 +242,7 @@ public class SEVCIEC1107Connection {
             data[data.length-1] = (byte)(crc[0]);
             data[data.length-2] = (byte)(crc[1]);
             outputStream.write(data,0,data.length);
-            
+
             if (DEBUG==1) {
                 int i;
                 for (i=0;i<data.length;i++)
@@ -252,28 +253,28 @@ public class SEVCIEC1107Connection {
         catch (IOException e) {
             throw new SEVCIEC1107ConnectionException("sendReadFrame() error "+e.getMessage());
         }
-        
+
     } // private void sendReadFrame(byte bIdentifier) throws SEVCIEC1107ConnectionException
-    
-    
+
+
     public void sendWriteFrame(byte bIdentifier,byte[] data) throws SEVCIEC1107ConnectionException {
         int iLength;
         int iRetries=0;
         byte[] txbuffer;
-        
+
         // KV 27022006
         if (forcedDelay>0) {
            delay(forcedDelay);
            flushInputStream();
         }
-        
+
         if (data != null)
             txbuffer=new byte[5+data.length+1];
         else
             txbuffer=new byte[5];
-        
+
         byte[] crc;
-        
+
         while(true) {
             try {
                 txbuffer[0] = SOH;
@@ -295,16 +296,16 @@ public class SEVCIEC1107Connection {
                     txbuffer[txbuffer.length-2] = (byte)(crc[1]);
                     outputStream.write(txbuffer,0,txbuffer.length);
                 }
-                
+
                 receiveACK();
-                
+
                 if (DEBUG==1) {
                     int i;
                     for (i=0;i<txbuffer.length;i++)
                         ProtocolUtils.outputHex( ((int)txbuffer[i])  &0x000000FF);
                     System.out.println();
                 }
-                
+
                 return;
             }
             catch (SEVCIEC1107ConnectionException e) {
@@ -316,11 +317,11 @@ public class SEVCIEC1107Connection {
             catch (IOException e) {
                 throw new SEVCIEC1107ConnectionException("sendWriteFrame() error "+e.getMessage());
             }
-            
+
         } // while(true)
-        
+
     } // public void sendWriteFrame(byte bIdentifier,byte[] data) throws SEVCIEC1107ConnectionException
-    
+
     private byte[] calcCRC(byte[] data,int iLength) {
         return (doCalcCRC(data,iLength));
     }
@@ -338,7 +339,7 @@ public class SEVCIEC1107Connection {
             b=CRC & 0x000000FF;
             CRC = (a | b) & 0xFFFF;
             Counter=0;
-            
+
             do {
                 if ((CRC & 0x8000) != 0) {
                     CRC *= 2;
@@ -350,13 +351,13 @@ public class SEVCIEC1107Connection {
                 Counter++;
             } while(Counter < 8);
         }
-        
+
         crc[1] = (byte)(CRC);
         crc[0] = (byte)(CRC>>8);
         return crc;
-        
+
     } // private byte[] doCalcCRC(byte[] data,int iLength)
-    
+
     /**
      * Method to send an array of bytes via outputstream.
      * @param byteBuffer Byte array to send.
@@ -368,16 +369,16 @@ public class SEVCIEC1107Connection {
                delay(forcedDelay);
                flushInputStream();
             }
-            
+
             outputStream.write(byteBuffer);
         }
         catch (IOException e) {
             e.printStackTrace();
             throw new SEVCIEC1107ConnectionException("sendRawData() error "+e.getMessage());
         }
-        
+
     } // public void sendRawData(byte[] byteBuffer)
-    
+
     public void flushInputStream()  throws SEVCIEC1107ConnectionException {
         try {
             while(inputStream.available() != 0) inputStream.read(); // flush inputbuffer
@@ -387,8 +388,8 @@ public class SEVCIEC1107Connection {
             throw new SEVCIEC1107ConnectionException("flushInputStream() error "+e.getMessage());
         }
     } // private void flushInputStream()  throws SEVCIEC1107ConnectionException
-    
-    
+
+
     public byte[] receiveSegmentedData(int size) throws NestedIOException,SEVCIEC1107ConnectionException {
         int count=0;
         ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
@@ -406,16 +407,16 @@ public class SEVCIEC1107Connection {
             if (count>=size) break;
             //sendACK();
         }
-        
+
         return (bytestream.toByteArray());
     }
-    
+
     private static final byte STATE_WAIT_FOR_SOH=0;
     private static final byte STATE_WAIT_FOR_LENGTH=1;
     private static final byte STATE_WAIT_FOR_DATA=2;
     private static final byte STATE_WAIT_FOR_ETX=3;
     private static final byte STATE_WAIT_FOR_CRC=4;
-    
+
     public byte[] receiveData() throws NestedIOException,SEVCIEC1107ConnectionException {
         long lMSTimeout;
         int iNewKar;
@@ -423,19 +424,19 @@ public class SEVCIEC1107Connection {
         int iLength=0,iCount=0;
         byte[] receiveBuffer=null;
         byte[] calculatedCRC;
-        
+
         iState=STATE_WAIT_FOR_SOH;
         lMSTimeout = System.currentTimeMillis() + 5000;
         try {
             while(true) {
                 if (inputStream.available() != 0) {
                     iNewKar = inputStream.read();
-                    
+
                     switch(iState) {
                         case STATE_WAIT_FOR_SOH: {
                             if ((byte)iNewKar == SOH) iState = STATE_WAIT_FOR_LENGTH;
                         } break; // STATE_WAIT_FOR_SOH
-                        
+
                         case STATE_WAIT_FOR_LENGTH: {
                             iLength = (int)iNewKar&0xff;
                             receiveBuffer= new byte[iLength+5];
@@ -443,26 +444,26 @@ public class SEVCIEC1107Connection {
                             receiveBuffer[1]=(byte)iLength;
                             iCount = 0;
                             iState = STATE_WAIT_FOR_DATA;
-                            
+
                         } break; // STATE_WAIT_FOR_LENGTH
-                        
+
                         case STATE_WAIT_FOR_DATA: {
                             receiveBuffer[iCount+2] = (byte)iNewKar;
                             if (iCount++ >= (iLength-1)) iState = STATE_WAIT_FOR_ETX;
-                            
+
                         } break; // STATE_WAIT_FOR_DATA
-                        
+
                         case STATE_WAIT_FOR_ETX: {
-                            if ((byte)iNewKar == ETX) { 
+                            if ((byte)iNewKar == ETX) {
                                 iState = STATE_WAIT_FOR_LENGTH;
                                 receiveBuffer[iCount+2] = (byte)iNewKar;
                                 if (iCount++ >= ((iLength-1)+1)) iState = STATE_WAIT_FOR_CRC;
-                                
+
                             }
                             else throw new SEVCIEC1107ConnectionException("receiveData() should receive ETX!");
-                            
+
                         } break; // STATE_WAIT_FOR_ETX
-                        
+
                         case STATE_WAIT_FOR_CRC: {
                             receiveBuffer[iCount+2] = (byte)iNewKar;
                             if (iCount++ >= ((iLength-1)+3)) {
@@ -478,24 +479,24 @@ public class SEVCIEC1107Connection {
                                 else
                                     throw new SEVCIEC1107ConnectionException("receiveData() bad CRC error");
                             }
-                            
+
                         } break; // STATE_WAIT_FOR_CRC
-                        
+
                     } // switch(iState)
-                    
+
                 } // if (inputStream.available() != 0)
                 else {
                     Thread.sleep(100);
                 }
-                
+
                 if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
                     SEVCIEC1107ConnectionException e = new SEVCIEC1107ConnectionException("receiveData() timeout error");
                     e.setReasonTimeout();
                     throw e;
                 }
-                
+
             } // while(true)
-            
+
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -505,14 +506,14 @@ public class SEVCIEC1107Connection {
             e.printStackTrace();
             throw new SEVCIEC1107ConnectionException("receiveData() error "+e.getMessage());
         }
-        
+
     } // public byte[] receiveData(String str) throws SEVCIEC1107ConnectionException
-    
-    
+
+
     private static final int WAIT_FOR_IDENT=0;
     private static final int WAIT_FOR_COMPLETION=1;
-    
-    
+
+
     public String receiveIdent(String str) throws NestedIOException,SEVCIEC1107ConnectionException {
         long lMSTimeout;
         int iNewKar;
@@ -524,17 +525,17 @@ public class SEVCIEC1107Connection {
             while(true) {
                 if (inputStream.available() != 0) {
                     iNewKar = inputStream.read();
-                    
+
                     if ((byte)iNewKar==NAK) sendBreak();
-                    
+
                     convert[0] = (byte)iNewKar;
                     convertstr = new String(convert);
                     if ((byte)iNewKar >= 0x20)  // no control characters...
                         strIdent += convertstr;
-                    
+
                     if (convertstr.compareTo("\\") == 0)
                         strIdent += convertstr;
-                    
+
                     if ((byte)iNewKar == 0x0A) {
                         if ((str != null) && ("".compareTo(str) != 0)) {
                             if (strIdent.compareTo(str) == 0) {
@@ -544,18 +545,18 @@ public class SEVCIEC1107Connection {
                         }
                         return strIdent; // KV 16122003
                     }
-                    
+
                 } // if (inputStream.available() != 0)
                 else {
                     Thread.sleep(100);
                 }
-                
+
                 if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
                     throw SEVCIEC1107ConnectionException.getSEVCIEC1107ConnectionExceptionTimeout("receiveIdent() timeout error");
                 }
-                
+
             } // while(true)
-            
+
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -565,11 +566,11 @@ public class SEVCIEC1107Connection {
             e.printStackTrace();
             throw new SEVCIEC1107ConnectionException("receiveIdent() error "+e.getMessage());
         }
-        
+
     } // public void receiveIdent(String str) throws SEVCIEC1107ConnectionException
-    
-    
-    
+
+
+
     public void receiveACK() throws NestedIOException,SEVCIEC1107ConnectionException {
         long lMSTimeout;
         int iNewKar;
@@ -583,15 +584,15 @@ public class SEVCIEC1107Connection {
                 else {
                     Thread.sleep(100);
                 }
-                
+
                 if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
                     SEVCIEC1107ConnectionException e = new SEVCIEC1107ConnectionException("receiveACK() timeout error");
                     e.setReasonTimeout();
                     throw e;
                 }
-                
+
             } // while(true)
-            
+
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -601,9 +602,9 @@ public class SEVCIEC1107Connection {
             e.printStackTrace();
             throw new SEVCIEC1107ConnectionException("receiveACK() error "+e.getMessage());
         }
-        
+
     } // public void receiveACK() throws SEVCIEC1107ConnectionException
-    
+
     public void receivePassword(String str) throws NestedIOException,SEVCIEC1107ConnectionException {
         long lMSTimeout;
         int iNewKar,iState,iCount;
@@ -611,7 +612,7 @@ public class SEVCIEC1107Connection {
         byte[] convert=new byte[1];
         byte[] receivedCRC=new byte[2];
         byte[] calculatedCRC;
-        
+
         iState = 0;
         iCount=1;
         lMSTimeout = System.currentTimeMillis() + 5000;
@@ -630,7 +631,7 @@ public class SEVCIEC1107Connection {
                             strIdent += new String("");
                             strIdent += new String("");
                             calculatedCRC = calcCRC(strIdent.getBytes(),strIdent.getBytes().length+2);
-                            
+
                             if ((calculatedCRC[0] == receivedCRC[0]) &&
                             (calculatedCRC[1] == receivedCRC[1]))
                                 return;
@@ -642,13 +643,13 @@ public class SEVCIEC1107Connection {
                 else {
                     Thread.sleep(100);
                 }
-                
+
                 if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
                     throw SEVCIEC1107ConnectionException.getSEVCIEC1107ConnectionExceptionTimeout("receivePassword() timeout error");
                 }
-                
+
             } // while(true)
-            
+
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -658,38 +659,38 @@ public class SEVCIEC1107Connection {
             e.printStackTrace();
             throw new SEVCIEC1107ConnectionException("receivePassword() error "+e.getMessage());
         }
-        
+
     } // public void receivePassword(String str) throws SEVCIEC1107ConnectionException
-    
+
     public void receiveWakeup() throws NestedIOException,SEVCIEC1107ConnectionException {
         long lMSTimeout;
         int iNewKar;
         short sRXCount=0;
-        
+
         lMSTimeout = System.currentTimeMillis() + 5000; // KV 12022004
         sRXCount=0;
         try {
             while(true) {
                 if (inputStream.available() != 0) {
                     iNewKar = inputStream.read();
-                    
+
                     if ((byte)iNewKar == 0) {
                         sRXCount++;
                         if (sRXCount == 3) return;
                     }
                     else throw new SEVCIEC1107ConnectionException("receiveWakeup() wrong kar error");
-                    
+
                 } // if (inputStream.available() != 0)
                 else {
                     Thread.sleep(100);
                 }
-                
+
                 if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
                     throw SEVCIEC1107ConnectionException.getSEVCIEC1107ConnectionExceptionTimeout("receiveWakeup() timeout error");
                 }
-                
+
             } // while(true)
-            
+
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
@@ -700,7 +701,7 @@ public class SEVCIEC1107Connection {
             throw new SEVCIEC1107ConnectionException("receiveWakeup() error "+e.getMessage());
         }
     } // public void receiveWakeup() throws SEVCIEC1107ConnectionException
-    
+
     private void sendWakeUpData() throws NestedIOException,SEVCIEC1107ConnectionException {
         //        byte[] data = {(byte)0};//,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0};
         byte[] data = {(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0};
@@ -713,16 +714,16 @@ public class SEVCIEC1107Connection {
         catch (IOException e) {
             throw new NestedIOException(e,"sendWakeUpData() error "+e.getMessage());
         }
-        
+
     } // public void sendWakeUpData() throws SEVCIEC1107ConnectionException
-    
+
     public void delay(long lDelay) {
         long lMSTimeout;
         lMSTimeout = System.currentTimeMillis() + lDelay;
         while(true)
             if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) return;
     }
-    
+
     // KV 02022004
     HHUSignOn hhuSignOn=null;
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
@@ -731,5 +732,5 @@ public class SEVCIEC1107Connection {
     public HHUSignOn getHhuSignOn() {
         return hhuSignOn;
     }
-    
+
 } // public class IEC1107Connection {

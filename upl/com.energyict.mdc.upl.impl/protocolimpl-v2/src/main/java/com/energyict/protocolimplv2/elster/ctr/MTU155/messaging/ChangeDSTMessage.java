@@ -22,7 +22,7 @@ public class ChangeDSTMessage extends AbstractMTU155Message {
     private static final String OBJECT_ID = "8.2.0";
 
     public ChangeDSTMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

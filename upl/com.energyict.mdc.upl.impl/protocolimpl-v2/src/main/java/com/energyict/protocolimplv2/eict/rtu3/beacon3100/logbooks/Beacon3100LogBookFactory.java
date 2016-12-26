@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
-import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
@@ -14,17 +15,16 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 /**
  * Copyrights EnergyICT
  */
-
 public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
 
     public static final ObisCode MAIN_LOGBOOK           = ObisCode.fromString("0.0.99.98.1.255");
@@ -34,12 +34,15 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
     public static final ObisCode VOLTAGE_LOGBOOK        = ObisCode.fromString("0.0.99.98.5.255");
     public static final ObisCode PROTOCOL_LOGBOOK       = ObisCode.fromString("0.128.99.98.0.255");
 
-    private AbstractDlmsProtocol protocol;
-    private List<ObisCode> supportedLogBooks;
+    private final AbstractDlmsProtocol protocol;
+    private final List<ObisCode> supportedLogBooks;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-
-    public Beacon3100LogBookFactory(AbstractDlmsProtocol protocol) {
+    public Beacon3100LogBookFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
         supportedLogBooks = new ArrayList<>();
         supportedLogBooks.add(MAIN_LOGBOOK);
         supportedLogBooks.add(SECURITY_LOGBOOK);
@@ -53,13 +56,13 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBookReader : logBookReaders) {
-            CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
             if (isSupported(logBookReader)) {
                 ProfileGeneric profileGeneric = null;
                 try {
                     profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
                 } catch (NotInObjectListException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
 
                 if (profileGeneric != null) {
@@ -72,12 +75,12 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
                         collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
                     } catch (IOException e) {
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
-                            collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                            collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                         }
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }
@@ -85,7 +88,7 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
 
     }
 
-    private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException,IOException {
+    private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws IOException {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(MAIN_LOGBOOK)) {
             meterEvents = new Beacon3100StandardEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();

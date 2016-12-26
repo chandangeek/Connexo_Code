@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.events;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
@@ -14,7 +16,6 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,18 +30,21 @@ import java.util.TimeZone;
  */
 public class IDISGatewayEvents {
 
-    public static final String NAME = "Standard event log";
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.99.98.0.255");
     private final DlmsSession dlmsSession;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public IDISGatewayEvents(DlmsSession dlmsSession) {
+    public IDISGatewayEvents(DlmsSession dlmsSession, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.dlmsSession = dlmsSession;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBook : logBooks) {
-            CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(OBIS_CODE)) {
                 try {
                     Array eventArray = getMainLogBookBuffer(logBook);
@@ -54,11 +58,11 @@ public class IDISGatewayEvents {
                     collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, dlmsSession.getProperties().getRetries() + 1)) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }
@@ -93,7 +97,7 @@ public class IDISGatewayEvents {
 
         private final TimeZone timeZone;
 
-        public BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
+        private BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
             super(eventStructure.getBEREncodedByteArray(), 0, 0);
             this.timeZone = timeZone;
         }

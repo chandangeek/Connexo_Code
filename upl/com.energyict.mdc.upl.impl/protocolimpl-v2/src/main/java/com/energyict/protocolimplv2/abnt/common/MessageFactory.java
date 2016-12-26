@@ -1,23 +1,27 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
 import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.properties.UplToMdwPropertySpecAdapter;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
@@ -40,7 +44,7 @@ import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -62,35 +66,42 @@ public class MessageFactory implements DeviceMessageSupport {
 
 
     private static final int NUMBER_OF_MILLIS_PER_MIN = 60 * 1000;
-    private static final List<DeviceMessageSpec> supportedMessages;
     private static SimpleDateFormat dateFormatter = new SimpleDateFormat("ddMMyy");
 
     static {
-        supportedMessages = new ArrayList<>();
-        supportedMessages.add(DeviceActionMessage.DEMAND_RESET);
-        supportedMessages.add(DeviceActionMessage.DemandResetWithForceClock);
-        supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureAutomaticDemandReset);
-        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
-        supportedMessages.add(ClockDeviceMessage.EnableOrDisableDST);
-        supportedMessages.add(ClockDeviceMessage.ConfigureDSTWithoutHour);
-
         dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     private final AbstractAbntProtocol meterProtocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final Converter converter;
+    private final NlsService nlsService;
+    private final PropertySpecService propertySpecService;
 
-    public MessageFactory(AbstractAbntProtocol meterProtocol) {
+    public MessageFactory(AbstractAbntProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.meterProtocol = meterProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.converter = converter;
+        this.nlsService = nlsService;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return supportedMessages;
+        return Arrays.asList(
+                    DeviceActionMessage.DEMAND_RESET.get(this.propertySpecService, this.nlsService, this.converter),
+                    DeviceActionMessage.DemandResetWithForceClock.get(this.propertySpecService, this.nlsService, this.converter),
+                    ConfigurationChangeDeviceMessage.ConfigureAutomaticDemandReset.get(this.propertySpecService, this.nlsService, this.converter),
+                    ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.get(this.propertySpecService, this.nlsService, this.converter),
+                    ClockDeviceMessage.EnableOrDisableDST.get(this.propertySpecService, this.nlsService, this.converter),
+                    ClockDeviceMessage.ConfigureDSTWithoutHour.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList collectedMessages = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList collectedMessages = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -215,12 +226,12 @@ public class MessageFactory implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     private void messageNotSupported(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
         collectedMessage.setFailureInformation(ResultType.NotSupported,
-                MdcManager.getIssueFactory().createWarning(
+                this.issueFactory.createWarning(
                         pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
@@ -231,7 +242,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     protected void messageFailed(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String errorMessage) {
         collectedMessage.setFailureInformation(ResultType.InCompatible,
-                MdcManager.getIssueFactory().createWarning(
+                this.issueFactory.createWarning(
                         pendingMessage, "DeviceMessage.failed",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
@@ -243,7 +254,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     /**
@@ -265,7 +276,11 @@ public class MessageFactory implements DeviceMessageSupport {
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return this.format(UplToMdwPropertySpecAdapter.adapt(propertySpec), messageAttribute);
+    }
+
+    private String format(PropertySpec propertySpec, Object messageAttribute) {
         if (messageAttribute instanceof Date) {
             Date date = (Date) messageAttribute;    //Date, expressed in EIMaster system timezone, which can be different than ComServer timezone
             Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -275,19 +290,19 @@ public class MessageFactory implements DeviceMessageSupport {
             } else {
                 return dateFormatter.format(gmtCal.getTime());
             }
-        } else if (messageAttribute instanceof Code) {
-            return convertCodeTableToXML((Code) messageAttribute);
+        } else if (messageAttribute instanceof TariffCalender) {
+            return convertCodeTableToXML((TariffCalender) messageAttribute);
         } else {
             return messageAttribute.toString();
         }
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
-    private String convertCodeTableToXML(Code messageAttribute) {
+    private String convertCodeTableToXML(TariffCalender messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {

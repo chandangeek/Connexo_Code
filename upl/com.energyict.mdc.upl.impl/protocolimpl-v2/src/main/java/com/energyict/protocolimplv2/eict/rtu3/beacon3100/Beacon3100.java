@@ -4,7 +4,6 @@ import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityCapabilities;
@@ -14,21 +13,30 @@ import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.security.SecuritySuite;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
 import com.energyict.cbo.ObservationTimestampPropertyImpl;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -73,9 +81,15 @@ import java.util.logging.Level;
  */
 public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
-    public Beacon3100(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+
+    public Beacon3100(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(collectedDataFactory, issueFactory);
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     /**
@@ -122,7 +136,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 		 *
 		 * @return	The OBIS of the FC.
 		 */
-		private final ObisCode getFrameCounterOBIS() {
+		private ObisCode getFrameCounterOBIS() {
 			return frameCounterOBIS;
 		}
 
@@ -133,7 +147,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 		 *
 		 * @return	The matching client, <code>null</code> if not known.
 		 */
-		private static final ClientConfiguration getByID(final int clientId) {
+		private static ClientConfiguration getByID(final int clientId) {
 			for (final ClientConfiguration client : ClientConfiguration.values()) {
 				if (client.clientId == clientId) {
 					return client;
@@ -151,7 +165,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
     private static final String UTF_8 = "UTF-8";
     private static final int MAC_ADDRESS_LENGTH = 8;    //In bytes
-    private final PropertySpecService propertySpecService;
 
     private Beacon3100Messaging beacon3100Messaging;
     private RegisterFactory registerFactory;
@@ -341,7 +354,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     private Beacon3100LogBookFactory getBeacon3100LogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new Beacon3100LogBookFactory(this);
+            logBookFactory = new Beacon3100LogBookFactory(this, collectedDataFactory, issueFactory);
         }
         return logBookFactory;
     }
@@ -353,7 +366,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     private Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new Beacon3100Messaging(this);
+            beacon3100Messaging = new Beacon3100Messaging(this, this.collectedDataFactory, this.propertySpecService, this.nlsService, this.converter);
         }
         return beacon3100Messaging;
     }
@@ -369,12 +382,12 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         return getBeacon3100Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return getBeacon3100Messaging().prepareMessageContext(offlineDevice, deviceMessage);
     }
 
@@ -395,7 +408,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     private RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new RegisterFactory(getDlmsSession());
+            registerFactory = new RegisterFactory(getDlmsSession(), collectedDataFactory, issueFactory);
         }
         return registerFactory;
     }
@@ -577,5 +590,15 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     @Override
     public DeviceProtocolSecurityCapabilities getPreviousSecuritySupport() {
         return new DsmrSecuritySupport();
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
     }
 }

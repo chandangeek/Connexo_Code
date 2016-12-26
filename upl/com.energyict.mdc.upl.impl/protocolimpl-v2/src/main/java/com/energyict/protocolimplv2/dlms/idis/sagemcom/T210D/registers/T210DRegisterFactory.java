@@ -16,7 +16,7 @@ public class T210DRegisterFactory extends AM130RegisterFactory{
     private static final String ALARM_REGISTER3 = "0.0.97.98.2.255";
 
     public T210DRegisterFactory(AM130 am130) {
-        super(am130);
+        super(am130, collectedDataFactory, issueFactory);
     }
 
     @Override

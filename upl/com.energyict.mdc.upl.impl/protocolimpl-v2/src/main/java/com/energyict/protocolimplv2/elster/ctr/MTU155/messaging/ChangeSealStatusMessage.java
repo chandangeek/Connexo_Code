@@ -18,7 +18,7 @@ public class ChangeSealStatusMessage extends AbstractMTU155Message {
     private final SealConfig sealConfig;
 
     public ChangeSealStatusMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
         sealConfig = new SealConfig(messaging.getProtocol().getRequestFactory());
     }
 

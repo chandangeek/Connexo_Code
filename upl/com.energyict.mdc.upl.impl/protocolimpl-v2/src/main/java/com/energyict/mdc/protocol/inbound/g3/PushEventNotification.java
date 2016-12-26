@@ -146,7 +146,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     protected EventPushNotificationParser getEventPushNotificationParser() {
         if (parser == null) {
-            parser = new EventPushNotificationParser(comChannel, getContext());
+            parser = new EventPushNotificationParser(comChannel, getContext(), collectedDataFactory);
         }
         return parser;
     }

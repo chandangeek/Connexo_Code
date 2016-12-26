@@ -18,6 +18,7 @@ import java.util.logging.Level;
 public class SmsObisCodeMapper extends ObisCodeMapper {
 
     public SmsObisCodeMapper(DeviceIdentifier deviceIdentifier) {
+        super(collectedDataFactory, issueFactory);
         super.setDeviceIdentifier(deviceIdentifier);
         super.initRegisterMapping();
     }

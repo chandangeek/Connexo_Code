@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast;
 
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 
 import com.energyict.mdw.core.Device;
@@ -37,7 +36,7 @@ public class MulticastSerializer {
      * Fetch the relevant information (keys etc) from the given list of AM540 slave devices.
      * Return it in a serialized form (so it can also be used on the remote comserver).
      */
-    public static String serialize(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public static String serialize(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         Object value = deviceMessage.getAttributes().get(0).getValue();
         if (!(value instanceof String)) {
             throw DeviceConfigurationException.invalidPropertyFormat("Device IDs", value.toString(), "Should be a comma separated list of integers");

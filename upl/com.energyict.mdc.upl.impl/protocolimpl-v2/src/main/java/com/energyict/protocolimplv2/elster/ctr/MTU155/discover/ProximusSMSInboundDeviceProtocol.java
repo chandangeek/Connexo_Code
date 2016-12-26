@@ -90,7 +90,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport().convertToTypedProperties(protocolSecurityProperties));
             SMSFrame smsFrame = ((CTRCryptographer) getContext().getCryptographer()).decryptSMS(mtu155Properties, sms.getMessage());
 
-            SmsHandler smsHandler = new SmsHandler(getDeviceIdentifier(), allRelevantProperties);
+            SmsHandler smsHandler = new SmsHandler(getDeviceIdentifier(), allRelevantProperties, collectedDataFactory);
             smsHandler.parseSMSFrame(smsFrame);
             addCollectedData(smsHandler.getCollectedDataList());
 

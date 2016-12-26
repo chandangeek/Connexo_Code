@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.registers;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -23,7 +25,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
@@ -58,9 +59,13 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
 
     private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<>();
     private Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<>();
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public WebRTUZ3RegisterFactory(WebRTUZ3 meterProtocol) {
+    public WebRTUZ3RegisterFactory(WebRTUZ3 meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.meterProtocol = meterProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     /**
@@ -101,7 +106,7 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (registerValue != null) {
-                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                     deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
                     collectedRegisters.add(deviceRegister);
@@ -128,11 +133,11 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
     }
 
     protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments[0]));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }
         return collectedRegister;
     }
@@ -174,7 +179,7 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
     protected ComposedCosemObject constructComposedObjectFromRegisterList(List<OfflineRegister> registers, boolean supportsBulkRequest) {
 
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (OfflineRegister register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 

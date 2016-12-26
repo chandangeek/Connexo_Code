@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
@@ -7,7 +8,6 @@ import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
@@ -28,14 +28,16 @@ public class EventPOFrame extends AbstractInboundFrame {
 
     private static final int UNKNOWN = 0;
     private static final String EVENT_TAG = "event";
+    private final CollectedDataFactory collectedDataFactory;
 
     @Override
     protected FrameType getType() {
         return FrameType.EVENTP0;
     }
 
-    public EventPOFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder) {
+    public EventPOFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory) {
         super(frame, callHomeIdPlaceHolder);
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
@@ -61,7 +63,7 @@ public class EventPOFrame extends AbstractInboundFrame {
             }
         }
         if (!meterEvents.isEmpty()) {
-            CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
+            CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBookIdentifier);
             deviceLogBook.setCollectedMeterEvents(meterEvents);
             getCollectedDatas().add(deviceLogBook);
         }

@@ -5,15 +5,19 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -30,13 +34,13 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
@@ -62,6 +66,13 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ConcentratorMessaging messaging;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public GarnetConcentrator(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -132,12 +143,12 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
 
-            CollectedLoadProfileConfiguration configuration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(
+            CollectedLoadProfileConfiguration configuration = this.collectedDataFactory.createCollectedLoadProfileConfiguration(
                     loadProfileReader.getProfileObisCode(),
                     loadProfileReader.getMeterSerialNumber()
             );
             configuration.setSupportedByMeter(false);
-            configuration.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
+            configuration.setFailureInformation(ResultType.NotSupported, this.issueFactory.createProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
         }
         return collectedLoadProfileConfigurations;
@@ -276,21 +287,21 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     public RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            this.registerFactory = new RegisterFactory(this);
+            this.registerFactory = new RegisterFactory(this, collectedDataFactory, issueFactory);
         }
         return registerFactory;
     }
 
     public LogBookFactory getLogBookFactory() {
         if (this.logBookFactory == null) {
-            this.logBookFactory = new LogBookFactory(this);
+            this.logBookFactory = new LogBookFactory(this, collectedDataFactory, issueFactory);
         }
         return logBookFactory;
     }
 
     public ConcentratorMessaging getMessaging() {
         if (this.messaging == null) {
-            this.messaging = new ConcentratorMessaging(this);
+            this.messaging = new ConcentratorMessaging(this, collectedDataFactory, issueFactory);
         }
         return messaging;
     }
@@ -304,7 +315,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     public TopologyMaintainer getTopologyMaintainer() {
         if (topologyMaintainer == null) {
-            this.topologyMaintainer = new TopologyMaintainer(this);
+            this.topologyMaintainer = new TopologyMaintainer(this, collectedDataFactory, issueFactory);
         }
         return topologyMaintainer;
     }
@@ -320,13 +331,13 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
-        CollectedFirmwareVersion result = MdcManager.getCollectedDataFactory().createFirmwareVersionsCollectedData(deviceIdentifier);
+        CollectedFirmwareVersion result = this.collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier);
         try {
             result.setActiveMeterFirmwareVersion(getRegisterFactory().readFirmwareVersion());
         } catch (GarnetException e) {
             result.setFailureInformation(
                     ResultType.InCompatible,
-                    MdcManager.getIssueFactory().createProblem(
+                    this.issueFactory.createProblem(
                             deviceIdentifier,
                             "issue.protocol.readingOfFirmwareFailed",
                             e.toString()));
@@ -336,11 +347,21 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return MdcManager.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        return MdcManager.getCollectedDataFactory().createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        return this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

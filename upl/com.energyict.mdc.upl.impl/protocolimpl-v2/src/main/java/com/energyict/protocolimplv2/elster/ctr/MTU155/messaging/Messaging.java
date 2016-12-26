@@ -1,20 +1,23 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalender;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
@@ -28,7 +31,7 @@ import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -41,54 +44,63 @@ import java.util.List;
 public class Messaging implements DeviceMessageSupport {
 
     private final MTU155 protocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+    private final Extractor extractor;
 
-    public Messaging(MTU155 protocol) {
+    public Messaging(MTU155 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.extractor = extractor;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        List<DeviceMessageSpec> result = new ArrayList<>();
-
+        return Arrays.asList(
         // Change connectivity setup
-        result.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
-        result.add(NetworkConnectivityMessage.CHANGE_SMS_CENTER_NUMBER);
-        result.add(NetworkConnectivityMessage.CHANGE_DEVICE_PHONENUMBER);
-        result.add(NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT);
-        result.add(NetworkConnectivityMessage.CHANGE_WAKEUP_FREQUENCY);
+        NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
+        NetworkConnectivityMessage.CHANGE_SMS_CENTER_NUMBER.get(this.propertySpecService, this.nlsService, this.converter),
+        NetworkConnectivityMessage.CHANGE_DEVICE_PHONENUMBER.get(this.propertySpecService, this.nlsService, this.converter),
+        NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT.get(this.propertySpecService, this.nlsService, this.converter),
+        NetworkConnectivityMessage.CHANGE_WAKEUP_FREQUENCY.get(this.propertySpecService, this.nlsService, this.converter),
 
         // Device Configuration
-        result.add(ConfigurationChangeDeviceMessage.ConfigureConverterMasterData);
-        result.add(ConfigurationChangeDeviceMessage.ConfigureGasMeterMasterData);
-        result.add(ConfigurationChangeDeviceMessage.ConfigureGasParameters);
-        result.add(ClockDeviceMessage.EnableOrDisableDST);
-        result.add(ConfigurationChangeDeviceMessage.WriteNewPDRNumber);
+        ConfigurationChangeDeviceMessage.ConfigureConverterMasterData.get(this.propertySpecService, this.nlsService, this.converter),
+        ConfigurationChangeDeviceMessage.ConfigureGasMeterMasterData.get(this.propertySpecService, this.nlsService, this.converter),
+        ConfigurationChangeDeviceMessage.ConfigureGasParameters.get(this.propertySpecService, this.nlsService, this.converter),
+        ClockDeviceMessage.EnableOrDisableDST.get(this.propertySpecService, this.nlsService, this.converter),
+        ConfigurationChangeDeviceMessage.WriteNewPDRNumber.get(this.propertySpecService, this.nlsService, this.converter),
 
         // Key management
-        result.add(SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY);
-        result.add(SecurityMessage.CHANGE_EXECUTION_KEY);
-        result.add(SecurityMessage.CHANGE_TEMPORARY_KEY);
+        SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+        SecurityMessage.CHANGE_EXECUTION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+        SecurityMessage.CHANGE_TEMPORARY_KEY.get(this.propertySpecService, this.nlsService, this.converter),
 
         // Seals management
-        result.add(SecurityMessage.BREAK_OR_RESTORE_SEALS);
-        result.add(SecurityMessage.TEMPORARY_BREAK_SEALS);
+        SecurityMessage.BREAK_OR_RESTORE_SEALS.get(this.propertySpecService, this.nlsService, this.converter),
+        SecurityMessage.TEMPORARY_BREAK_SEALS.get(this.propertySpecService, this.nlsService, this.converter),
 
         // Tariff management
-        result.add(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF);
-        result.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE);
+        ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF.get(this.propertySpecService, this.nlsService, this.converter),
+        ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.get(this.propertySpecService, this.nlsService, this.converter),
 
         // LoadProfile group
-        result.add(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST);
+        LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.get(this.propertySpecService, this.nlsService, this.converter),
 
         // Firmware upgrade
-        result.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE);
-
-        return result;
+        FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             boolean messageFound = false;
@@ -102,7 +114,7 @@ public class Messaging implements DeviceMessageSupport {
             }
             if (!messageFound) {
                 collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
+                collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
                         pendingMessage.getSpecification().getName()));
@@ -114,16 +126,16 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here...
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here...
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
             case DeviceMessageConstants.fromDateAttributeName:
@@ -135,19 +147,19 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.passwordAttributeName:
                 return ((Password) messageAttribute).getValue();
             case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
-                return CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute);
+                return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalender) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                UserFile userFile = (UserFile) messageAttribute;
-                return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+                DeviceMessageFile messageFile = (DeviceMessageFile) messageAttribute;
+                return this.extractor.contents(messageFile);
             default:
                 return messageAttribute.toString();
         }
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 

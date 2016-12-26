@@ -31,7 +31,7 @@ public class DevicePhoneNumberSetupMessage extends AbstractMTU155Message {
     private static final String ALLOWED_CHARS = "1234567890+";
 
     public DevicePhoneNumberSetupMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

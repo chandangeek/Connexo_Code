@@ -1,18 +1,21 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages;
 
-import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cbo.TimeOfDay;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
@@ -30,7 +33,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.IDISGatewayRegisters;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -44,7 +46,7 @@ import com.energyict.protocolimplv2.messages.OutputConfigurationMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -57,61 +59,66 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
     private static final ObisCode DEFAULT_DISCONNECTOR_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
     private final DlmsSession session;
-    private List<DeviceMessageSpec> supportedMessages;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public IDISGatewayMessages(DlmsSession session) {
+    public IDISGatewayMessages(DlmsSession session, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.session = session;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if (supportedMessages == null) {
-            supportedMessages = new ArrayList<>();
-
+        return Arrays.asList(
             // Logger settings
-            supportedMessages.add(LoggingConfigurationDeviceMessage.SetServerLogLevel);
-            supportedMessages.add(LoggingConfigurationDeviceMessage.SetWebPortalLogLevel);
+            LoggingConfigurationDeviceMessage.SetServerLogLevel.get(this.propertySpecService, this.nlsService, this.converter),
+            LoggingConfigurationDeviceMessage.SetWebPortalLogLevel.get(this.propertySpecService, this.nlsService, this.converter),
 
             // Gateway setup
-            supportedMessages.add(NetworkConnectivityMessage.SetOperatingWindowStartTime);
-            supportedMessages.add(NetworkConnectivityMessage.SetOperatingWindowEndTime);
-            supportedMessages.add(NetworkConnectivityMessage.ClearWhiteList);
-            supportedMessages.add(NetworkConnectivityMessage.EnableWhiteList);
-            supportedMessages.add(NetworkConnectivityMessage.DisableWhiteList);
-            supportedMessages.add(NetworkConnectivityMessage.EnableOperatingWindow);
-            supportedMessages.add(NetworkConnectivityMessage.DisableOperatingWindow);
+            NetworkConnectivityMessage.SetOperatingWindowStartTime.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.SetOperatingWindowEndTime.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.ClearWhiteList.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.EnableWhiteList.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.DisableWhiteList.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.EnableOperatingWindow.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.DisableOperatingWindow.get(this.propertySpecService, this.nlsService, this.converter),
 
             // Network management
-            supportedMessages.add(NetworkConnectivityMessage.SetNetworkManagementParameters);
-            supportedMessages.add(NetworkConnectivityMessage.RunMeterDiscovery);
-            supportedMessages.add(NetworkConnectivityMessage.RunAlarmMeterDiscovery);
-            supportedMessages.add(NetworkConnectivityMessage.RunRepeaterCall);
+            NetworkConnectivityMessage.SetNetworkManagementParameters.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.RunMeterDiscovery.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.RunAlarmMeterDiscovery.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.RunRepeaterCall.get(this.propertySpecService, this.nlsService, this.converter),
 
             // Masterboard setup
-            supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureMasterBoardParameters);
+            ConfigurationChangeDeviceMessage.ConfigureMasterBoardParameters.get(this.propertySpecService, this.nlsService, this.converter),
 
             // Firewall configuration
-            supportedMessages.add(FirewallConfigurationMessage.ActivateFirewall);
-            supportedMessages.add(FirewallConfigurationMessage.DeactivateFirewall);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWGPRS);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWLAN);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWWAN);
-            supportedMessages.add(FirewallConfigurationMessage.SetFWDefaultState);
+            FirewallConfigurationMessage.ActivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.DeactivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.ConfigureFWGPRS.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.ConfigureFWLAN.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.ConfigureFWWAN.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.SetFWDefaultState.get(this.propertySpecService, this.nlsService, this.converter),
 
             // Digital IO's
-            supportedMessages.add(OutputConfigurationMessage.WriteOutputState);
+            OutputConfigurationMessage.WriteOutputState.get(this.propertySpecService, this.nlsService, this.converter),
 
             // RTU+Server maintenance
-            supportedMessages.add(ClockDeviceMessage.SyncTime);
-            supportedMessages.add(DeviceActionMessage.REBOOT_DEVICE);
-            supportedMessages.add(DeviceActionMessage.RebootApplication);
-        }
-        return supportedMessages;
+            ClockDeviceMessage.SyncTime.get(this.propertySpecService, this.nlsService, this.converter),
+            DeviceActionMessage.REBOOT_DEVICE.get(this.propertySpecService, this.nlsService, this.converter),
+            DeviceActionMessage.RebootApplication.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -125,7 +132,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetOperatingWindowEndTime)) {
                     setOperatingWindowEndTime(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ClearWhiteList)) {
-                    clearWhitelist(pendingMessage);
+                    clearWhitelist();
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableWhiteList)) {
                     enableDisableWhitelist(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.DisableWhiteList)) {
@@ -137,11 +144,11 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetNetworkManagementParameters)) {
                     setNetworkMgmtParameters(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.RunMeterDiscovery)) {
-                    runMeterDiscovery(pendingMessage);
+                    runMeterDiscovery();
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.RunAlarmMeterDiscovery)) {
-                    runAlarmMeterDiscovery(pendingMessage);
+                    runAlarmMeterDiscovery();
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.RunRepeaterCall)) {
-                    runRepeaterCall(pendingMessage);
+                    runRepeaterCall();
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureMasterBoardParameters)) {
                     configureMasterboardParameters(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ActivateFirewall)) {
@@ -159,13 +166,13 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
                 } else if (pendingMessage.getSpecification().equals(OutputConfigurationMessage.WriteOutputState)) {
                     changeOutputState(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SyncTime)) {
-                    forceClock(pendingMessage);
+                    forceClock();
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.REBOOT_DEVICE)) {
-                    rebootDevice(pendingMessage);
+                    rebootDevice();
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.HardResetDevice)) {
-                    hardResetDevice(pendingMessage);
+                    hardResetDevice();
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.RebootApplication)) {
-                    restartApplication(pendingMessage);
+                    restartApplication();
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, messageUnsupported(pendingMessage));
@@ -218,7 +225,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         gatewaySetup.writeOperatingWindowStartTime(axdrTime.getOctetString());
     }
 
-    private void clearWhitelist(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void clearWhitelist() throws IOException {
         final GatewaySetup gatewaySetup = this.session.getCosemObjectFactory().getGatewaySetup();
         gatewaySetup.clearWhitelist();
     }
@@ -241,9 +248,8 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         }
     }
 
-
     ///// Network management ////
-    private void runMeterDiscovery(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void runMeterDiscovery() throws IOException {
         try {
             this.session.getCosemObjectFactory().getNetworkManagement().runMeterDiscovery();
         } catch (DataAccessResultException e) {
@@ -256,11 +262,11 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         }
     }
 
-    private void runAlarmMeterDiscovery(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void runAlarmMeterDiscovery() throws IOException {
         this.session.getCosemObjectFactory().getNetworkManagement().runAlarmMeterDiscovery();
     }
 
-    private void runRepeaterCall(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void runRepeaterCall() throws IOException {
         this.session.getCosemObjectFactory().getNetworkManagement().runRepeaterCall();
     }
 
@@ -300,9 +306,6 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         );
     }
 
-
-    //// Firewall configuration ////
-
     private void activateOrDeactivateFirewall(OfflineDeviceMessage pendingMessage) throws IOException {
         if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ActivateFirewall)) {
             this.session.getCosemObjectFactory().getFirewallSetup().activate();
@@ -330,9 +333,6 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         }
     }
 
-
-    //// Digital IO's ////
-
     private void changeOutputState(OfflineDeviceMessage pendingMessage) throws IOException {
         int outputId = getIntegerMessageAttributeValue(pendingMessage, DeviceMessageConstants.outputId);
         boolean newState = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newState).getValue());
@@ -346,25 +346,22 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         }
     }
 
-
-    //// RTU+Server maintenance ////
-
-    private void forceClock(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void forceClock() throws IOException {
         Calendar cal = Calendar.getInstance(session.getTimeZone());
         Date currentTime = new Date();
         cal.setTime(currentTime);
         session.getCosemObjectFactory().getClock(IDISGatewayRegisters.CLOCK_OBIS_CODE).setAXDRDateTimeAttr(new AXDRDateTime(cal));
     }
 
-    private void rebootDevice(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void rebootDevice() throws IOException {
         this.session.getCosemObjectFactory().getLifeCycleManagement().rebootDevice();
     }
 
-    private void hardResetDevice(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void hardResetDevice() throws IOException {
         this.session.getCosemObjectFactory().getLifeCycleManagement().hardReset();
     }
 
-    private void restartApplication(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void restartApplication() throws IOException {
         this.session.getCosemObjectFactory().getLifeCycleManagement().restartApplication();
     }
 
@@ -392,7 +389,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -400,15 +397,15 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueFactory.createWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
                 message);
     }
 
-    private Issue messageUnsupported(OfflineDeviceMessage pendingMessage) throws IOException {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
+    private Issue messageUnsupported(OfflineDeviceMessage pendingMessage) {
+        return this.issueFactory.createWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -416,11 +413,11 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.startTime) || propertySpec.getName().equals(DeviceMessageConstants.endTime)) {
             TimeOfDay timeOfDay = (TimeOfDay) messageAttribute;
             return String.valueOf(timeOfDay.getHoursPart() + ":" + timeOfDay.getMinutesPart() + ":" + timeOfDay.getSeconds());
@@ -430,7 +427,8 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
+
 }

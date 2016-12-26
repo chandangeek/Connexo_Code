@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.profiledata;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
@@ -37,7 +39,6 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
@@ -67,18 +68,22 @@ public class IDISProfileDataReader {
     private static final ObisCode OBISCODE_NR_OF_POWER_FAILURES = ObisCode.fromString("0.0.96.7.9.255");
     private static final int DO_NOT_LIMIT_MAX_NR_OF_DAYS = 0;
     protected final AbstractDlmsProtocol protocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
     protected final List<ObisCode> supportedLoadProfiles;
     private final long limitMaxNrOfDays;
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
     private Map<ObisCode, Integer> intervalMap;
 
-    public IDISProfileDataReader(AbstractDlmsProtocol protocol) {
-        this(protocol, DO_NOT_LIMIT_MAX_NR_OF_DAYS);
+    public IDISProfileDataReader(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this(protocol, DO_NOT_LIMIT_MAX_NR_OF_DAYS, collectedDataFactory, issueFactory);
     }
 
-    public IDISProfileDataReader(AbstractDlmsProtocol protocol, long limitMaxNrOfDays) {
+    public IDISProfileDataReader(AbstractDlmsProtocol protocol, long limitMaxNrOfDays, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
         this.limitMaxNrOfDays = limitMaxNrOfDays;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
 
         supportedLoadProfiles = new ArrayList<>();
         supportedLoadProfiles.add(QUARTER_HOURLY_LOAD_PROFILE_OBISCODE);
@@ -90,7 +95,7 @@ public class IDISProfileDataReader {
         List<CollectedLoadProfile> result = new ArrayList<>();
 
         for (LoadProfileReader loadProfileReader : loadProfileReaders) {
-            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
 
             List<ChannelInfo> channelInfos = getChannelInfosMap().get(loadProfileReader);
             ObisCode correctedLoadProfileObisCode = getCorrectedLoadProfileObisCode(loadProfileReader);
@@ -119,7 +124,7 @@ public class IDISProfileDataReader {
                             cal.add(Calendar.SECOND, getIntervalMap().get(correctedLoadProfileObisCode));
                             timeStamp = cal.getTime();
                         } else {
-                            Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, "Invalid interval data, timestamp should be of type OctetString or NullData");
+                            Issue problem = this.issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, "Invalid interval data, timestamp should be of type OctetString or NullData");
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             break;  //Stop parsing, move on
                         }
@@ -143,12 +148,12 @@ public class IDISProfileDataReader {
                     collectedLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, e.getMessage());
+                        Issue problem = this.issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, e.getMessage());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXnotsupported", correctedLoadProfileObisCode);
+                Issue problem = this.issueFactory.createWarning(loadProfileReader, "loadProfileXnotsupported", correctedLoadProfileObisCode);
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
 
@@ -202,7 +207,7 @@ public class IDISProfileDataReader {
         List<CollectedLoadProfileConfiguration> result = new ArrayList<>();
 
         for (LoadProfileReader lpr : loadProfileReaders) {
-            CollectedLoadProfileConfiguration lpc = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration lpc = this.collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             if (isSupported(lpr)) {
                 List<ChannelInfo> channelInfos;
                 ObisCode correctedLoadProfileObisCode = getCorrectedLoadProfileObisCode(lpr);
@@ -275,7 +280,7 @@ public class IDISProfileDataReader {
         for (ObisCode channelObisCode : channelObisCodes) {
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), channelObisCode);
             if (uo != null) {
-                DLMSAttribute unitAttribute = null;
+                DLMSAttribute unitAttribute;
                 if (uo.getDLMSClassId() == DLMSClassId.REGISTER) {
                     unitAttribute = new DLMSAttribute(channelObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID());
                 } else if (uo.getDLMSClassId() == DLMSClassId.EXTENDED_REGISTER) {

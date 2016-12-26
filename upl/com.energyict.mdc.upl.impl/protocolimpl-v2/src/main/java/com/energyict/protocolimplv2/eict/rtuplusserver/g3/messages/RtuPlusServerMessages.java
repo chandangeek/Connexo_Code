@@ -2,18 +2,23 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -45,7 +50,6 @@ import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
@@ -69,7 +73,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -90,110 +94,115 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
     protected final DlmsSession session;
     private final OfflineDevice offlineDevice;
-    private List<DeviceMessageSpec> supportedMessages;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
+    private final CollectedDataFactory collectedDataFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+    private final IssueFactory issueFactory;
 
-    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice) {
+    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.session = session;
         this.offlineDevice = offlineDevice;
+        this.collectedDataFactory = collectedDataFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.issueFactory = issueFactory;
     }
 
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if (supportedMessages == null) {
-            supportedMessages = new ArrayList<>();
+        return Arrays.asList(
+            PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetSecurityLevel.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetRoutingConfiguration.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMaxJoinWaitTime.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetPathDiscoveryTime.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMetricType.get(this.propertySpecService, this.nlsService, this.converter),
+            //PLCConfigurationDeviceMessage.SetCoordShortAddress.get(this.propertySpecService, this.nlsService, this.converter),
+            //PLCConfigurationDeviceMessage.SetDisableDefaultRouting.get(this.propertySpecService, this.nlsService, this.converter),
+            //PLCConfigurationDeviceMessage.SetDeviceType.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
-            //supportedMessages.add(PLCConfigurationDeviceMessage.SetCoordShortAddress);
-            //supportedMessages.add(PLCConfigurationDeviceMessage.SetDisableDefaultRouting);
-            //supportedMessages.add(PLCConfigurationDeviceMessage.SetDeviceType);
+            //PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters.get(this.propertySpecService, this.nlsService, this.converter),
 
-            //supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters);
+            PLCConfigurationDeviceMessage.SetPanId.get(this.propertySpecService, this.nlsService, this.converter),
+            //PLCConfigurationDeviceMessage.SetToneMaskAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetTMRTTL.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMaxFrameRetries.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetHighPriorityWindowSize.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetCSMAFairnessLimit.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMacA.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMacK.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMinimumCWAttempts.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMaxBe.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMaxCSMABackOff.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMinBe.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.PathRequest.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetPanId);
-            //supportedMessages.add(PLCConfigurationDeviceMessage.SetToneMaskAttributeName);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMacA);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMacK);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxBe);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
-            supportedMessages.add(PLCConfigurationDeviceMessage.PathRequest);
+            DeviceActionMessage.REBOOT_DEVICE.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(DeviceActionMessage.REBOOT_DEVICE);
+            SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
+            SecurityMessage.ACTIVATE_DLMS_ENCRYPTION.get(this.propertySpecService, this.nlsService, this.converter),
+            SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
+            SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
+            SecurityMessage.CHANGE_HLS_SECRET_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
-            supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
-            supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
-            supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
-            supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
+            GeneralDeviceMessage.WRITE_FULL_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
+            OutputConfigurationMessage.WriteOutputState.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION);
-            supportedMessages.add(OutputConfigurationMessage.WriteOutputState);
+            UplinkConfigurationDeviceMessage.EnableUplinkPing.get(this.propertySpecService, this.nlsService, this.converter),
+            UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress.get(this.propertySpecService, this.nlsService, this.converter),
+            UplinkConfigurationDeviceMessage.WriteUplinkPingInterval.get(this.propertySpecService, this.nlsService, this.converter),
+            UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout.get(this.propertySpecService, this.nlsService, this.converter),
+            PPPConfigurationDeviceMessage.SetPPPIdleTime.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.PreferGPRSUpstreamCommunication.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.EnableModemWatchdog.get(this.propertySpecService, this.nlsService, this.converter),
+            NetworkConnectivityMessage.SetModemWatchdogParameters.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.EnableSSL.get(this.propertySpecService, this.nlsService, this.converter),
+            AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION.get(this.propertySpecService, this.nlsService, this.converter),
+            AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(UplinkConfigurationDeviceMessage.EnableUplinkPing);
-            supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress);
-            supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingInterval);
-            supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout);
-            supportedMessages.add(PPPConfigurationDeviceMessage.SetPPPIdleTime);
-            supportedMessages.add(NetworkConnectivityMessage.PreferGPRSUpstreamCommunication);
-            supportedMessages.add(NetworkConnectivityMessage.EnableModemWatchdog);
-            supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
-            supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
-            supportedMessages.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
+            //G3 interface essages
+            PLCConfigurationDeviceMessage.SetAutomaticRouteManagement.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.EnableSNR.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetSNRPacketInterval.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetSNRQuietTime.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetSNRPayload.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.EnableKeepAlive.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetKeepAliveBucketSize.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMinInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetKeepAliveRetries.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.SetKeepAliveTimeout.get(this.propertySpecService, this.nlsService, this.converter),
+            PLCConfigurationDeviceMessage.EnableG3PLCInterface.get(this.propertySpecService, this.nlsService, this.converter),
 
-            //G3 interface messages
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
-            supportedMessages.add(PLCConfigurationDeviceMessage.EnableSNR);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetSNRPacketInterval);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetSNRQuietTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetSNRPayload);
-            supportedMessages.add(PLCConfigurationDeviceMessage.EnableKeepAlive);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMinInactiveMeterTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
-            supportedMessages.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
+            ClockDeviceMessage.SyncTime.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.SetDeviceName.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.SetNTPAddress.get(this.propertySpecService, this.nlsService, this.converter),
+            ConfigurationChangeDeviceMessage.SyncNTPServer.get(this.propertySpecService, this.nlsService, this.converter),
+            DeviceActionMessage.RebootApplication.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(ClockDeviceMessage.SyncTime);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
-            supportedMessages.add(DeviceActionMessage.RebootApplication);
+            FirewallConfigurationMessage.ActivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.DeactivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.ConfigureFWGPRS.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.ConfigureFWLAN.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.ConfigureFWWAN.get(this.propertySpecService, this.nlsService, this.converter),
+            FirewallConfigurationMessage.SetFWDefaultState.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(FirewallConfigurationMessage.ActivateFirewall);
-            supportedMessages.add(FirewallConfigurationMessage.DeactivateFirewall);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWGPRS);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWLAN);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWWAN);
-            supportedMessages.add(FirewallConfigurationMessage.SetFWDefaultState);
+            SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1.get(this.propertySpecService, this.nlsService, this.converter),
+            SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2.get(this.propertySpecService, this.nlsService, this.converter),
 
-            supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
-            supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
-
-            supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
-        }
-        return supportedMessages;
+            FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -292,7 +301,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(session, offlineDevice);
+            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(session, offlineDevice, this.collectedDataFactory, this.issueFactory);
         }
         return plcConfigurationDeviceMessageExecutor;
     }
@@ -606,11 +615,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> registers) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), registers);
+        return this.collectedDataFactory.createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), registers);
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -618,7 +627,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueFactory.createWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -626,7 +635,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) throws IOException {
-        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueFactory.createWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -634,7 +643,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

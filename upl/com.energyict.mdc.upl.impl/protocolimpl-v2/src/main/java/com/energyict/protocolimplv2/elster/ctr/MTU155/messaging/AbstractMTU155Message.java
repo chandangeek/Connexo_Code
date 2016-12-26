@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.SmsRequestFactory;
@@ -53,8 +54,12 @@ public abstract class AbstractMTU155Message {
     private final MTU155 protocol;
     private final RequestFactory factory;
     private final Logger logger;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public AbstractMTU155Message(Messaging messaging) {
+    public AbstractMTU155Message(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
         this.protocol = messaging.getProtocol();
         this.factory = messaging.getProtocol().getRequestFactory();
         this.logger = messaging.getProtocol().getLogger();
@@ -63,11 +68,11 @@ public abstract class AbstractMTU155Message {
     public abstract boolean canExecuteThisMessage(OfflineDeviceMessage message);
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     public CollectedMessage createCollectedMessageWithCollectedLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
+        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
     }
 
     public CollectedMessage executeMessage(OfflineDeviceMessage message) {
@@ -84,7 +89,7 @@ public abstract class AbstractMTU155Message {
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.Other,
-                    MdcManager.getIssueFactory().createWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
+                    this.issueFactory.createWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
                             message.getDeviceMessageId(),
                             message.getSpecification().getCategory().getName(),
                             message.getSpecification().getName(),
@@ -121,17 +126,17 @@ public abstract class AbstractMTU155Message {
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
         if (this.factory instanceof SmsRequestFactory) {
-            StringBuffer msg = new StringBuffer();
-            msg.append("SMS identification numbers: ");
+            StringBuilder builder = new StringBuilder();
+            builder.append("SMS identification numbers: ");
             Iterator<WriteDataBlock> it = writeDataBlockList.iterator();
             while (it.hasNext()) {
                 WriteDataBlock next = it.next();
-                msg.append(next.getWdb());
+                builder.append(next.getWdb());
                 if (it.hasNext()) {
-                    msg.append(", ");
+                    builder.append(", ");
                 }
             }
-            collectedMessage.setDeviceProtocolInformation(msg.toString());
+            collectedMessage.setDeviceProtocolInformation(builder.toString());
         }
     }
 

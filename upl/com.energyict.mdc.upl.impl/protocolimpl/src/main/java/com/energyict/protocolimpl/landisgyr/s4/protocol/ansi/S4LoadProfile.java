@@ -10,52 +10,55 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.*;
+import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
+import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
+import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
+import com.energyict.protocolimpl.ansi.c12.tables.HistoryEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.HistoryLog;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalFormat;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.EventLogMfgCodeFactory;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.UnitOfMeasure;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.UnitOfMeasureFactory;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocol.HalfDuplexEnabler;  
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.meteridentification.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimplv2.MdcManager;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class S4LoadProfile {
-    
+
     private static final int DEBUG=0;
-    
+
     S4 s4;
-    
+
     /** Creates a new instance of S4LoadProfile */
     public S4LoadProfile(S4 s4) {
        this.s4=s4;
     }
-    
-    
+
+
     public ProfileData getProfileData(Date lastReading, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = new ProfileData();
-        
+
         /*
          * GET PROFILEDATA ONLY FOR SET 0! The Ansi C12 standard has 4 sets of load profile. KV meters only use set 0, table 64!
-         */ 
-        
+         */
+
         // wait to request profile data until 10 seconds before or after crossboundary to avoid unsynchronized table read!
         // lpstatustable could be read with other actual values than lpdatasettable
         waitUntilTimeValid();
@@ -71,34 +74,34 @@ public class S4LoadProfile {
             catch(ResponseIOException e) {
                 if (e.getReason()==AbstractResponse.IAR) // table does not exist!
                    s4.getLogger().warning("No Logging available. Respective tables do not exist in the meter.");
-                else 
+                else
                    throw e;
             }
         }
-        
+
         if (DEBUG>=3) System.out.println(profileData);
         profileData.sort();
         return profileData;
     }
-    
+
     private void buildHistoryLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
-       // oredr = 0 oldest -> newest 
-        
+       // oredr = 0 oldest -> newest
+
        if (DEBUG>=1) System.out.println("KV_DEBUG> "+s4.getStandardTableFactory().getHistoryLogControlTable());
        if (DEBUG>=1) System.out.println("KV_DEBUG> "+s4.getStandardTableFactory().getActualLogTable());
-        
-       List meterHistorys = new ArrayList(); 
+
+       List meterHistorys = new ArrayList();
        int validHistoryCount=0;
        boolean futurelogcheck=true;
        boolean leaveLoop=false;
-       
+
        while(!leaveLoop) {
-           
+
            HistoryLog historyLog = s4.getStandardTableFactory().getHistoryLogDataTable().getHistoryLog();
            int nrOfValidEntries = historyLog.getNrOfValidentries();
-                   
+
            if (futurelogcheck) {
-               
+
                HistoryEntry[] historyEntries = historyLog.getEntries();
                for (int i=0;i<historyEntries.length;i++) {
                    if ((validHistoryCount++ >=(nrOfValidEntries-1)) || (historyEntries[i].getHistoryTime().before(to))) {
@@ -108,8 +111,8 @@ public class S4LoadProfile {
                    if (DEBUG>=1) System.out.println("KV_DEBUG>(1) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
                }
            }
-           
-           
+
+
            if (!futurelogcheck) {
                HistoryEntry[] historyEntries = historyLog.getEntries();
                for (int i=0;i<historyEntries.length;i++) {
@@ -118,39 +121,39 @@ public class S4LoadProfile {
                        leaveLoop=true;
                        break;
                    }
-                   
+
                    meterHistorys.add(createMeterEvent(historyEntries[i]));
                    if (DEBUG>=1) System.out.println("KV_DEBUG>(3) historys "+historyEntries[i].getHistoryTime()+" is before "+lastReading+" ?");
                }
-               
+
                //break; // KV_DEBUG
-               
+
            }
-           
+
        } // while(true)
-       
+
        profileData.setMeterEvents(meterHistorys);
-       
+
     } // private void buildHistoryLog(ProfileData profileData, Date lastReading, Date to) throws IOException
-    
+
     private void buildEventLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
-       // oredr = 0 oldest -> newest 
-        
+       // oredr = 0 oldest -> newest
+
        if (DEBUG>=1) System.out.println("KV_DEBUG> "+s4.getStandardTableFactory().getEventLogControlTable());
        if (DEBUG>=1) System.out.println("KV_DEBUG> "+s4.getStandardTableFactory().getActualLogTable());
-        
-       List meterEvents = new ArrayList(); 
+
+       List meterEvents = new ArrayList();
        int validEventCount=0;
        boolean futurelogcheck=true;
        boolean leaveLoop=false;
-       
+
        while(!leaveLoop) {
-           
+
            EventLog eventLog = s4.getStandardTableFactory().getEventLogDataTable().getEventLog();
            int nrOfValidEntries = eventLog.getNrOfValidentries();
-                   
+
            if (futurelogcheck) {
-               
+
                EventEntry[] eventEntries = eventLog.getEntries();
                for (int i=0;i<eventEntries.length;i++) {
                    if ((validEventCount++ >=(nrOfValidEntries-1)) || (eventEntries[i].getEventTime().before(to))) {
@@ -160,8 +163,8 @@ public class S4LoadProfile {
                    if (DEBUG>=1) System.out.println("KV_DEBUG>(1) historys "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
                }
            } // if (futurelogcheck)
-           
-           
+
+
            if (!futurelogcheck) {
                EventEntry[] eventEntries = eventLog.getEntries();
                for (int i=0;i<eventEntries.length;i++) {
@@ -170,20 +173,20 @@ public class S4LoadProfile {
 //                       leaveLoop=true;
 //                       break;
 //                   }
-                   
+
                    meterEvents.add(createMeterEvent(eventEntries[i]));
                    if (DEBUG>=1) System.out.println("KV_DEBUG>(3) historys "+eventEntries[i].getEventTime()+" is before "+lastReading+" ?");
                }
-               
+
                break; // KV_DEBUG
-               
+
            } // if (!futurelogcheck)
-           
+
        } // while(true)
-       
+
        profileData.setMeterEvents(meterEvents);
     }
-    
+
     private MeterEvent createMeterEvent(HistoryEntry historyEntry) {
         EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
         int eiCode = eventFact.getEICode(historyEntry.getHistoryCode().getProcedureNr(),historyEntry.getHistoryCode().isStdVsMfgFlag());
@@ -192,8 +195,8 @@ public class S4LoadProfile {
         int protocolCode = historyEntry.getHistoryCode().getProcedureNr() | (historyEntry.getHistoryCode().isStdVsMfgFlag()?0x8000:0);
         return new MeterEvent(historyEntry.getHistoryTime(),eiCode,protocolCode,text);
     }
-    
-    
+
+
     private MeterEvent createMeterEvent(EventEntry eventEntry) {
         EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
         int eiCode = eventFact.getEICode(eventEntry.getEventCode().getProcedureNr(),eventEntry.getEventCode().isStdVsMfgFlag());
@@ -203,7 +206,7 @@ public class S4LoadProfile {
         return new MeterEvent(eventEntry.getEventTime(),eiCode,protocolCode,text);
     }
 
-    
+
     private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException {
         // get blocks until last interval enddate < lastreading
         // parse blocks to load profile data
@@ -219,10 +222,10 @@ public class S4LoadProfile {
         int intervalOrder = s4.getStandardTableFactory().getLoadProfileStatusTable().getLoadProfileSet1Status().getIntervalOrder();
         boolean currentDayBlock=true;
         int profileInterval = s4.getProfileInterval();
-        
+
         if (DEBUG>=3) System.out.println("KV_DEBUG> "+s4.getStandardTableFactory().getLoadProfileStatusTable());
         if (DEBUG>=3) System.out.println("KV_DEBUG> "+s4.getStandardTableFactory().getActualLoadProfileTable());
-        
+
         // read the block headers
         lpbd = null;
         // **********************************************************************************************************************************
@@ -230,37 +233,37 @@ public class S4LoadProfile {
         while(true) {
             s4.getManufacturerProcedureFactory().setLoadProfileReadControl(block2read==0?0:1,block2read, 1);
             lpbd = s4.getStandardTableFactory().getLoadProfileDataSetTableNormalRead(0).getLoadProfileDataSet().getLoadProfileDataSets()[0];
-            
+
         if (DEBUG>=3) System.out.println("KV_DEBUG> lastReading="+lastReading+", block2read "+block2read+", 2 lpbd.getBlockEndTime()="+lpbd.getBlockEndTime());
-            
+
             if ((validBlockCount++ >=(nrOfValidBlocks-1)) || (lpbd.getBlockEndTime().before(lastReading))) break;
             loadProfileBlockDatas.add(lpbd);
             if (block2read++ >= (maxNrOfBlocks-1))
                 block2read = 0;
-        } // while(true) 
-        
-                
+        } // while(true)
+
+
         List intervalDatas = new ArrayList();
         Iterator it = loadProfileBlockDatas.iterator();
         while(it.hasNext()) {
             lpbd = (LoadProfileBlockData)it.next();
-            
+
             Calendar cal = Calendar.getInstance(s4.getTimeZone());
             cal.setTime(lpbd.getBlockEndTime());
-            
-            if (DEBUG>=3) System.out.println("KV_DEBUG> cal="+cal.getTime()); 
-            
+
+            if (DEBUG>=3) System.out.println("KV_DEBUG> cal="+cal.getTime());
+
             IntervalSet[] intervalSets = lpbd.getLoadProfileInterval();
             int nrOfIntervals = currentDayBlock?nrOfValidIntervals:intervalSets.length;
             int startInterval = currentDayBlock?nrOfIntervalsPerBlock-nrOfValidIntervals:0;
-            if (DEBUG>=3) System.out.println("KV_DEBUG> nrOfIntervals="+nrOfIntervals+", startInterval="+startInterval+", nrOfIntervalsPerBlock="+nrOfIntervalsPerBlock+", nrOfValidIntervals="+nrOfValidIntervals); 
-            
+            if (DEBUG>=3) System.out.println("KV_DEBUG> nrOfIntervals="+nrOfIntervals+", startInterval="+startInterval+", nrOfIntervalsPerBlock="+nrOfIntervalsPerBlock+", nrOfValidIntervals="+nrOfValidIntervals);
+
             for (int i=startInterval;i<nrOfIntervalsPerBlock;i++) {
-            
-                
-            
+
+
+
                 //if (!ParseUtils.isOnIntervalBoundary(cal,s4.getProfileInterval())) {
-            
+
                 if (i==(nrOfIntervals-1)) {
                      ParseUtils.roundDown2nearestInterval(cal,s4.getProfileInterval());
                      continue;
@@ -273,23 +276,23 @@ public class S4LoadProfile {
                 for (int channel=0;channel<s4.getNumberOfChannels();channel++) {
                     int protocolStatus = intervalSet.getChannelStatus(channel);
                     int eiStatus = intervalSet.getchannel2EIStatus(channel);
-                    
-                    
+
+
                     BigDecimal bd = (BigDecimal)values[channel].getValue(); // raw value
                     intervalData.addValue(bd, protocolStatus, eiStatus);
                 } // for (int channel=0;channel<s4.getNumberOfChannels();channel++)
                 intervalDatas.add(intervalData);
 
-if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());                 
+if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());
                 cal.add(Calendar.SECOND,(-1)*s4.getProfileInterval());
 
-                
+
             } // for (int i=0;i<intervalSets.length;i++)
             profileData.setIntervalDatas(intervalDatas);
             currentDayBlock=false;
         } // while(it.hasNext())
     }
-    
+
     private void buildChannelInfo(ProfileData profileData) throws IOException {
         // build channelunits
         for (int channel=0;channel<s4.getNumberOfChannels();channel++) {
@@ -298,9 +301,9 @@ if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());
             com.energyict.protocol.ChannelInfo channelInfo = new com.energyict.protocol.ChannelInfo(channel, "S4_channel_"+channel, uom.getUnit());
             if (uom.isPOWERMultiplier())
                 channelInfo.setMultiplier(s4.getManufacturerTableFactory().getMeterFactors().getEnergyMultiplier());
-            else if (uom.isVOLTMultiplier()) 
+            else if (uom.isVOLTMultiplier())
                 channelInfo.setMultiplier(s4.getManufacturerTableFactory().getMeterStatus().getVoltageMultiplier());
-            else if (uom.isCURRENTMultiplier()) 
+            else if (uom.isCURRENTMultiplier())
                 channelInfo.setMultiplier(s4.getManufacturerTableFactory().getServiceTypeTable().getCurrentMultiplier());
             profileData.addChannel(channelInfo);
         }
@@ -325,5 +328,5 @@ if (DEBUG>=3) System.out.println("KV_DEBUG> cal interval="+cal.getTime());
             }
             else break;
         } // while(true)
-    } // private void waitUntilTimeValid()    
+    } // private void waitUntilTimeValid()
 }

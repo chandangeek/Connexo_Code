@@ -13,7 +13,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
 
     public AbstractChangeKeyMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     protected abstract void writeKey(String formattedKey) throws CTRException;

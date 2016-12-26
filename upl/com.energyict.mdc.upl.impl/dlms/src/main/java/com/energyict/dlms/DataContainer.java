@@ -10,7 +10,6 @@ import com.energyict.cbo.Utils;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.DataParseException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -395,10 +394,10 @@ public class DataContainer implements Serializable {
 						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-						
-						
+
+
 					} break; // TYPEDESC_ARRAY
-					
+
 					case STRUCTURE:
 					{
 						i++;
@@ -409,22 +408,22 @@ public class DataContainer implements Serializable {
 						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-						
+
 					} break; // TYPEDESC_STRUCTURE
-					
+
 					case NULL:
 					{
 						i++;
 						addInteger(0);
 					} break;
-					
+
 					case LONG:
 					case LONG_UNSIGNED:
 					{
 						i++;
 						addInteger(ProtocolUtils.getShort(responseData,i));
 						i+=2;
-						
+
 					} break;
 
 					case VISIBLE_STRING:
@@ -441,7 +440,7 @@ public class DataContainer implements Serializable {
 						addOctetString(array);
 						i += t;
 					} break;
-					
+
 					case DOUBLE_LONG:
 					case DOUBLE_LONG_UNSIGNED:
 					{
@@ -449,7 +448,7 @@ public class DataContainer implements Serializable {
 						addInteger(ProtocolUtils.getInt(responseData,i));
 						i+=4;
 					} break;
-					
+
 					case INTEGER: {
 						i++;
 						addInteger(responseData[i]);    //Signed
@@ -466,8 +465,8 @@ public class DataContainer implements Serializable {
 						addInteger(responseData[i]&0xFF);
 						i++;
 					} break;
-					
-					
+
+
 					case LONG64:
                     case LONG64_UNSIGNED:
 					{
@@ -475,47 +474,47 @@ public class DataContainer implements Serializable {
 						addLong(ProtocolUtils.getLong(responseData,i));
 						i+=8;
 					} break;
-					
+
 					case BIT_STRING:
 					{
 						int t,s;
 						i++;
 						t = (int)DLMSUtils.getAXDRLength(responseData,i);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-						
+
 						// calc nr of bytes
 						if ((t%8) == 0) {
 							t = (t/8);
 						} else {
 							t = ((t/8)+1);
 						}
-						
+
 						int iValue=0;
 						for (s=0;s<t;s++) {
 							iValue += ((responseData[i+s]&0xff)<<(s*8));
 						}
 						addInteger(iValue);
-						
+
 						i+=t;
-						
+
 					} break; // TYPEDESC_BITSTRING
-					
+
 					case FLOATING_POINT:
 					{
 						i++;
 						addInteger(0); // TODO
 						i+=4;
-						
+
 					} break; // TYPEDESC_FLOATING_POINT
-					
+
 					case TIME:
 					{
 						i++;
 						addInteger(0); // TODO
 						i+=4; // ??? generalizedTime
-						
+
 					} break; // TYPEDESC_TIME
-					
+
 					case COMPACT_ARRAY:
 					{
 						i++;
@@ -541,7 +540,7 @@ public class DataContainer implements Serializable {
 						i++;
 					} break;
 					}
-					
+
 					while(true)
 					{
 						if (--LevelNROfElements[iLevel] <0)
@@ -564,11 +563,11 @@ public class DataContainer implements Serializable {
 					}
 					return;
 				}
-				
+
 				if (i>=responseData.length) {
 					return;
 				}
-				
+
 			} // while(true)
 		} else {
 			return;

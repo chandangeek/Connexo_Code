@@ -2,7 +2,6 @@ package test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter;
 
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 
 /**

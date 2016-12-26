@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.abnt.common.field.parser;
 
 import com.energyict.protocol.exceptions.CodingException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
 

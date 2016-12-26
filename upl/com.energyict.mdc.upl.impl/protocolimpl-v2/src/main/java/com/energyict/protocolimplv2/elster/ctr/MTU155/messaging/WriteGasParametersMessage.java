@@ -34,7 +34,7 @@ public class WriteGasParametersMessage extends AbstractMTU155Message {
     protected static final String MAX_VALUE = "167.77215";
 
     public WriteGasParametersMessage(Messaging messaging) {
-        super(messaging);
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override

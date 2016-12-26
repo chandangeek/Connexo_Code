@@ -12,13 +12,13 @@ import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -129,7 +129,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, collectedDataFactory, issueFactory);
         }
         return loadProfileBuilder;
     }
@@ -141,7 +141,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private Dsmr23LogBookFactory getDeviceLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new Dsmr23LogBookFactory(this);
+            logBookFactory = new Dsmr23LogBookFactory(this, collectedDataFactory, issueFactory);
         }
         return logBookFactory;
     }
@@ -241,7 +241,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private Dsmr23RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr23RegisterFactory(this);
+            this.registerFactory = new Dsmr23RegisterFactory(this, collectedDataFactory, issueFactory);
         }
         return registerFactory;
     }

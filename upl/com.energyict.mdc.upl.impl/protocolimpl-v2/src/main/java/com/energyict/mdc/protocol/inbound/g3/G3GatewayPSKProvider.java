@@ -206,7 +206,7 @@ public class G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol() {
-        return new RtuPlusServer();
+        return new RtuPlusServer(collectedDataFactory, issueFactory);
     }
 
     /**

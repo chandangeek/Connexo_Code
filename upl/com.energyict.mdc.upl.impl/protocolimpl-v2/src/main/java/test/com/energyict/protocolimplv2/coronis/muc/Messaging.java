@@ -1,28 +1,31 @@
 package test.com.energyict.protocolimplv2.coronis.muc;
 
-import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.ExchangeMode;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.time.temporal.TemporalAmount;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,23 +37,32 @@ import java.util.List;
 public class Messaging implements DeviceMessageSupport {
 
     private final WebRTUWavenisGateway protocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public Messaging(WebRTUWavenisGateway protocol) {
+    public Messaging(WebRTUWavenisGateway protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.protocol = protocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        List<DeviceMessageSpec> result = new ArrayList<>();
-        result.add(ConfigurationChangeDeviceMessage.WriteExchangeStatus);
-        result.add(ConfigurationChangeDeviceMessage.WriteRadioAcknowledge);
-        result.add(ConfigurationChangeDeviceMessage.WriteRadioUserTimeout);
-        return result;
+        return Arrays.asList(
+                    ConfigurationChangeDeviceMessage.WriteExchangeStatus.get(this.propertySpecService, this.nlsService, this.converter),
+                    ConfigurationChangeDeviceMessage.WriteRadioAcknowledge.get(this.propertySpecService, this.nlsService, this.converter),
+                    ConfigurationChangeDeviceMessage.WriteRadioUserTimeout.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
 
         try {
             for (OfflineDeviceMessage pendingMessage : pendingMessages) {
@@ -63,7 +75,7 @@ public class Messaging implements DeviceMessageSupport {
                     collectedMessage = writeRadioUserTimeout(pendingMessage);
                 } else {
                     collectedMessage = createCollectedMessage(pendingMessage);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported"));
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(pendingMessage, "DeviceMessage.notSupported"));
                 }
                 result.addCollectedMessage(collectedMessage);
             }
@@ -81,7 +93,7 @@ public class Messaging implements DeviceMessageSupport {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "WriteWavecardParameters.writeExchangeStatusFailed", e.getMessage()));
+            collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(pendingMessage, "WriteWavecardParameters.writeExchangeStatusFailed", e.getMessage()));
         }
         return collectedMessage;
     }
@@ -94,7 +106,7 @@ public class Messaging implements DeviceMessageSupport {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "WriteWavecardParameters.writeRadioAcknowledgeFailed", e.getMessage()));
+            collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(pendingMessage, "WriteWavecardParameters.writeRadioAcknowledgeFailed", e.getMessage()));
         }
         return collectedMessage;
     }
@@ -107,46 +119,47 @@ public class Messaging implements DeviceMessageSupport {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "WriteWavecardParameters.writeRadioUserTimeoutFailed", e.getMessage()));
+            collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(pendingMessage, "WriteWavecardParameters.writeRadioUserTimeoutFailed", e.getMessage()));
         }
         return collectedMessage;
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage pendingMessage) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId()));
+        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(pendingMessage.getDeviceMessageId()));
     }
 
     private boolean isWriteExchangeStatus(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteExchangeStatus.getPrimaryKey().getValue());
+        return pendingMessage.getSpecification().getId() == ConfigurationChangeDeviceMessage.WriteExchangeStatus.id();
     }
 
     private boolean isWriteRadioAcknowledge(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteRadioAcknowledge.getPrimaryKey().getValue());
+        return pendingMessage.getSpecification().getId() == ConfigurationChangeDeviceMessage.WriteRadioAcknowledge.id();
     }
 
     private boolean isWriteRadioUserTimeout(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteRadioUserTimeout.getPrimaryKey().getValue());
+        return pendingMessage.getSpecification().getId() == ConfigurationChangeDeviceMessage.WriteRadioUserTimeout.id();
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here...
+        return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here...
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.WriteExchangeStatus)) {
             return String.valueOf(((BigDecimal) messageAttribute).intValue());
         } else if (propertySpec.getName().equals(DeviceMessageConstants.WriteRadioAcknowledge)) {
-            return String.valueOf(((Boolean) messageAttribute));
+            return String.valueOf(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.WriteRadioUserTimeout)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+            return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         }
         return "";
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
+
 }

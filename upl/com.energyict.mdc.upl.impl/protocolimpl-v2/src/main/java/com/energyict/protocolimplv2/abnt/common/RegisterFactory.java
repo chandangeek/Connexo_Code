@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -11,7 +13,6 @@ import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
 import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
@@ -62,6 +63,8 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private static final ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.128.255");
     private static final ObisCode POWER_FAILURE_LOG_OBIS = ObisCode.fromString("1.0.99.97.128.255");
     private final AbstractAbntProtocol meterProtocol;
+    private final CollectedDataFactory collectedDataFactory;
+    private final com.energyict.mdc.upl.issue.IssueFactory issueFactory;
     private Map<Integer, ReadParametersResponse> actualParametersMap;
     private Map<Integer, ReadParametersResponse> previousParametersMap;
     private Map<Integer, RegisterReadResponse> actualRegistersMap;
@@ -71,15 +74,17 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private ReadInstallationCodeResponse installationCodeResponse;
     private InstrumentationPageResponse instrumentationPage;
 
-    public RegisterFactory(AbstractAbntProtocol meterProtocol) {
+    public RegisterFactory(AbstractAbntProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.meterProtocol = meterProtocol;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
     }
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         List<CollectedRegister> collectedRegisters = new ArrayList<>(registers.size());
         for (OfflineRegister register : registers) {
-            CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+            CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
             readRegister(register, collectedRegister);
             collectedRegisters.add(collectedRegister);
         }
@@ -107,7 +112,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 registerNotSupported(register, collectedRegister);
             }
         } catch (ParsingException e) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(collectedRegister, "CouldNotParseRegisterData", e.getMessage()));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(collectedRegister, "CouldNotParseRegisterData", e.getMessage()));
         }
     }
 
@@ -340,7 +345,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void registerNotSupported(OfflineRegister register, CollectedRegister collectedRegister) {
-        collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register, "registerXnotsupported", register.getObisCode()));
+        collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register, "registerXnotsupported", register.getObisCode()));
     }
 
     private boolean registerNotYetCollected(CollectedRegister collectedRegister) {

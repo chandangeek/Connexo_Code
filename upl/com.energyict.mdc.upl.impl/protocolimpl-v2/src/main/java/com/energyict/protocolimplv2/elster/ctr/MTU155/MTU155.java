@@ -35,6 +35,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -261,14 +262,14 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, collectedDataFactory, issueFactory);
         }
         return loadProfileBuilder;
     }
 
     public Messaging getMessaging() {
         if (messaging == null) {
-            this.messaging = new Messaging(this);
+            this.messaging = new Messaging(this, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, extractor);
         }
         return messaging;
     }
