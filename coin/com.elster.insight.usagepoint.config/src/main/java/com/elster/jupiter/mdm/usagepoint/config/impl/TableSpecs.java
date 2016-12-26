@@ -68,6 +68,12 @@ public enum TableSpecs {
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
+            table.column("POSITION")
+                    .type("number")
+                    .notNull()
+                    .map(MetrologyContractEstimationRuleSetUsageImpl.Fields.POSITION.fieldName())
+                    .conversion(NUMBER2LONG)
+                    .add();
             table.setJournalTableName("UPC_MC_ESTRULESETUSAGEJRNL");
             table.addAuditColumns();
 
