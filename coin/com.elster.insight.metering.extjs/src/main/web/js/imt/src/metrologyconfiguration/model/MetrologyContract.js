@@ -3,7 +3,13 @@ Ext.define('Imt.metrologyconfiguration.model.MetrologyContract', {
     requires: [
         'Imt.metrologyconfiguration.model.ReadingTypeDeliverable'
     ],
-    fields: ['id', 'name','mandatory'],
+    fields: ['id', 'name', 'mandatory', 'description',
+        {
+            name: 'active',
+            persist: false,
+            mapping: 'mandatory'
+        }
+    ],
 
     associations: [
         {

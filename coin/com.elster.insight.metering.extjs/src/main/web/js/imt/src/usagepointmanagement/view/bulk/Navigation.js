@@ -17,9 +17,10 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Navigation', {
         },
         {
             itemId: 'actionDetails',
-            text:  Uni.I18n.translate('searchItems.bulk.actionDetails', 'IMT', 'Action details')
+            text: Uni.I18n.translate('searchItems.bulk.actionDetails', 'IMT', 'Action details')
         },
-        {   itemId: 'Confirmation',
+        {
+            itemId: 'Confirmation',
             text: Uni.I18n.translate('searchItems.bulk.confirmation', 'IMT', 'Confirmation')
         },
         {

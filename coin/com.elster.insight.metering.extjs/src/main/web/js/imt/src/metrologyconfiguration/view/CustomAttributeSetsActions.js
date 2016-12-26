@@ -1,7 +1,7 @@
 Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsActions', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.custom-attribute-sets-actions',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'remove',
