@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -51,8 +52,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.white
  */
 public class IskraMx372MessageConverter extends AbstractMessageConverter {
 
-    public IskraMx372MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final Extractor extractor;
+
+    public IskraMx372MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = extractor;
     }
 
     @Override
@@ -100,7 +104,7 @@ public class IskraMx372MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.loadLimitStartDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

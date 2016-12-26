@@ -416,11 +416,6 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     @Override
-    public long id() {
-        return this.id;
-    }
-
-    @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -27,7 +28,7 @@ import java.util.Map;
  */
 public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
 
-    public CryptoDsmr23MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public CryptoDsmr23MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 

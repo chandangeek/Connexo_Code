@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -25,8 +26,8 @@ import java.util.Map;
  */
 public class CryptoKaifaDsmr40MessageConverter extends KaifaDsmr40MessageConverter {
 
-    public CryptoKaifaDsmr40MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public CryptoKaifaDsmr40MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
