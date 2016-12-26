@@ -48,6 +48,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                 }
             );
 
+        for (var i = 0; i < 100; i++) {
+            data.push({
+                meterRole: {name: 'QWQ'},
+                activationTime: new Date().getTime()
+            });
+        }
+
         store.loadData(data);
         store.fireEvent('load', data);
     },
