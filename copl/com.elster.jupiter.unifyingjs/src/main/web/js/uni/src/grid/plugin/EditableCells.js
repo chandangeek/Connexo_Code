@@ -37,37 +37,35 @@ Ext.define('Uni.grid.plugin.EditableCells', {
         if (grid.rendered && !gridView.isHidden()) {
             Ext.suspendLayouts();
             Ext.Array.each(grid.columns, function (column) {
-                if (!column.isHidden() && column.getEl()) {
-                    if (column.editor) {
-                        Ext.each(gridView.getEl().query(gridView.getCellSelector(column)), function (el, index) {
-                            var cell = Ext.get(el),
-                                inner = cell.down('.' + Ext.baseCSSPrefix + 'grid-cell-inner'),
-                                field,
-                                record;
+                if (!column.isHidden() && column.getEl() && column.editor) {
+                    Ext.each(gridView.getEl().query(gridView.getCellSelector(column)), function (el, index) {
+                        var cell = Ext.get(el),
+                            inner = cell.down('.' + Ext.baseCSSPrefix + 'grid-cell-inner'),
+                            field,
+                            record;
 
-                            if (inner) {
-                                inner.setHTML('');
-                                record = gridView.getRecord(cell.up('.' + Ext.baseCSSPrefix + 'grid-data-row')),
-                                    field = Ext.widget(Ext.apply(column.editor,
-                                        {
-                                            renderTo: inner,
-                                            constrain: true,
-                                            value: record ? record.get(column.dataIndex) : null,
-                                            cell: {
-                                                record: record,
-                                                dataIndex: column.dataIndex
-                                            }
+                        if (inner) {
+                            inner.setHTML('');
+                            record = gridView.getRecord(cell.up('.' + Ext.baseCSSPrefix + 'grid-data-row')),
+                                field = Ext.widget(Ext.apply(column.editor,
+                                    {
+                                        renderTo: inner,
+                                        constrain: true,
+                                        value: record ? record.get(column.dataIndex) : null,
+                                        cell: {
+                                            record: record,
+                                            dataIndex: column.dataIndex
                                         }
-                                    ));
+                                    }
+                                ));
 
-                                me.fieldsListeners.push(field.on({
-                                    change: me.onCellChange,
-                                    scope: me,
-                                    destroyable: true
-                                }));
-                            }
-                        });
-                    }
+                            me.fieldsListeners.push(field.on({
+                                change: me.onCellChange,
+                                scope: me,
+                                destroyable: true
+                            }));
+                        }
+                    });
                 }
             });
 
