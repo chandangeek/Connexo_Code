@@ -84,6 +84,8 @@ Ext.define('Uni.grid.plugin.EditableCells', {
         record.commit();
         store.resumeEvent('update');
         grid.fireEvent('edit', {
+            field: field,
+            value: newValue,
             record: record
         });
     }
