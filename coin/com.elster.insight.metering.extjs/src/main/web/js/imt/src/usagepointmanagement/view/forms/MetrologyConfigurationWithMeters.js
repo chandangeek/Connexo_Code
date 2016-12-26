@@ -181,8 +181,19 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     },
 
     markInvalid: function (errors) {
-        var me = this,
-            map = {};
+        var me = this;
+
+        me.getForm().markInvalid(me.mapErrors(errors));
+    },
+
+    clearInvalid: function () {
+        var me = this;
+
+        me.getForm().clearInvalid();
+    },
+
+    mapErrors: function (errors) {
+        var map = {};
 
         Ext.Array.each(errors, function (error) {
             if (Ext.String.startsWith(error.id, 'meter.role.')) {
@@ -203,12 +214,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             }
         });
 
-        me.getForm().markInvalid(_.values(map));
-    },
-
-    clearInvalid: function () {
-        var me = this;
-
-        me.getForm().clearInvalid();
+        return _.values(map);
     }
 });
