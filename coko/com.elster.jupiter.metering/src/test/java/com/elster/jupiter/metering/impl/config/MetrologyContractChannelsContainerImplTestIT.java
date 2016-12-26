@@ -195,6 +195,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
         doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
         when(baseReading.getTimeStamp()).thenReturn(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
+        when(baseReading.getValue()).thenReturn(BigDecimal.valueOf(123L));
         when(dataAggregationService.calculate(usagePoint, metrologyContract, effectiveMetrologyConfiguration.getRange())).thenReturn(calculatedMetrologyContractData);
 
         Channel channel = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get().getChannel(readingType).get();
@@ -209,15 +210,16 @@ public class MetrologyContractChannelsContainerImplTestIT {
         List<IntervalReadingRecord> calculatedIntervalReadings = aggregatedChannel.getCalculatedIntervalReadings(effectiveMetrologyConfiguration.getRange());
         assertThat(calculatedIntervalReadings).hasSize(1);
         assertThat(calculatedIntervalReadings.get(0).getValue()).isEqualTo(readings.get(0).getValue());
+        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(123L));
 
         //add or edit reading
-        BaseReading editedReading = IntervalReadingImpl.of(calculatedIntervalReadings.get(0).getTimeStamp(), BigDecimal.TEN, Collections.emptyList());
+        BaseReading editedReading = IntervalReadingImpl.of(calculatedIntervalReadings.get(0).getTimeStamp(), BigDecimal.valueOf(345L), Collections.emptyList());
         channel.editReadings(QualityCodeSystem.OTHER, Collections.singletonList(editedReading));
         List<IntervalReadingRecord> persistedReadings = aggregatedChannel.getPersistedIntervalReadings(Range.all());
         assertThat(persistedReadings).hasSize(1);
         readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
         assertThat(readings).hasSize(1);
-        assertThat(persistedReadings.get(0).getValue()).isEqualTo(BigDecimal.TEN);
+        assertThat(persistedReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(345L));
 
         //remove reading
         channel.removeReadings(QualityCodeSystem.OTHER, Collections.singletonList(persistedReadings.get(0)));
@@ -225,6 +227,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         assertThat(persistedReadings).hasSize(0);
         readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
         assertThat(readings).hasSize(1);
+        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(123L));
     }
 
     @Test
@@ -267,12 +270,12 @@ public class MetrologyContractChannelsContainerImplTestIT {
         assertThat(channel).isInstanceOf(AggregatedChannel.class);
 
         AggregatedChannel aggregatedChannel = (AggregatedChannel) channel;
-        List<IntervalReadingRecord> calculatedIntervalReadings = aggregatedChannel.getCalculatedIntervalReadings(effectiveMetrologyConfiguration.getRange());
-        assertThat(calculatedIntervalReadings).hasSize(1);
-        assertThat(calculatedIntervalReadings.get(0).getValue()).isEqualTo(readings.get(0).getValue());
+        List<ReadingRecord> calculatedReadings = aggregatedChannel.getCalculatedRegisterReadings(effectiveMetrologyConfiguration.getRange());
+        assertThat(calculatedReadings).hasSize(1);
+        assertThat(calculatedReadings.get(0).getValue()).isEqualTo(readings.get(0).getValue());
 
         //add or edit reading
-        BaseReading editedReading = ReadingImpl.of(readingType2.getMRID(), BigDecimal.TEN, calculatedIntervalReadings.get(0).getTimeStamp());
+        BaseReading editedReading = ReadingImpl.of(readingType2.getMRID(), BigDecimal.TEN, calculatedReadings.get(0).getTimeStamp());
         channel.editReadings(QualityCodeSystem.OTHER, Collections.singletonList(editedReading));
         List<ReadingRecord> persistedReadings = aggregatedChannel.getPersistedRegisterReadings(Range.all());
         assertThat(persistedReadings).hasSize(1);
