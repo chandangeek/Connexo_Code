@@ -17,20 +17,4 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
  * Time: 8:59
  */
 public interface MessageIdentifier extends Identifier {
-
-    /**
-     * Returns the {@link DeviceMessage} uniquely identified by this identifier.
-     * Note that this may throw a runtime exception when the Message could
-     * either not be found or multiple messages were found in which case
-     * this identifier was not as unique as you thought it was.
-     *
-     * @return the referenced DeviceMessage
-     */
-    DeviceMessage getDeviceMessage();
-
-    /**
-     * @return the DeviceIdentifier for this MessageIdentifier
-     */
-    DeviceIdentifier getDeviceIdentifier();
-
 }

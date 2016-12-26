@@ -1,7 +1,5 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
-import com.energyict.mdc.upl.meterdata.Register;
-
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -24,24 +22,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 public interface RegisterIdentifier extends Identifier {
 
     /**
-     * Finds the {@link Register} that is uniquely identified by this RegisterIdentifier.
-     * Note that this may throw a runtime exception when the Register could
-     * either not be found or multiple registers were found in which case
-     * this identifier was not as unique as you thought it was.
-     *
-     * @return The Register
-     */
-    Register findRegister();
-
-    /**
-     * Getter for the ObisCode of the register
+     * Gets the ObisCode of the register that is uniquely identified by this RegisterIdentifier.
      */
     @XmlAttribute
     ObisCode getRegisterObisCode();
-
-    /**
-     * @return the DeviceIdentifier for this RegisterIdentifier
-     */
-    DeviceIdentifier getDeviceIdentifier();
 
 }

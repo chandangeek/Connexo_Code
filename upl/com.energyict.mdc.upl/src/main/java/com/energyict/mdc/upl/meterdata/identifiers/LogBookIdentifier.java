@@ -25,26 +25,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 public interface LogBookIdentifier extends Identifier {
 
     /**
-     * Returns the LogBook that is uniquely identified by this identifier.
-     * Note that this may throw a runtime exception when the LogBook could
-     * either not be found or multiple log books were found in which case
-     * this identifier was not as unique as you thought it was.
-     *
-     * @return the referenced LogBook
-     */
-    LogBook getLogBook();
-
-    /**
      * Returns the ObisCode of the LogBook referenced by this identifier.
      *
      * @return The ObisCode
      */
     @XmlAttribute
     ObisCode getLogBookObisCode();
-
-    /**
-     * @return the DeviceIdentifier for this LogBookIdentifier
-     */
-    DeviceIdentifier getDeviceIdentifier();
 
 }

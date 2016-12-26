@@ -1,7 +1,5 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
-import com.energyict.mdc.upl.meterdata.LoadProfile;
-
 import com.energyict.obis.ObisCode;
 
 /**
@@ -24,21 +22,6 @@ import com.energyict.obis.ObisCode;
  */
 public interface LoadProfileIdentifier extends Identifier {
 
-    /**
-     * Returns the LoadProfile that is uniquely identified by this identifier.
-     * Note that this may throw a runtime exception when the LoadProfile could
-     * either not be found or multiple load profiles were found in which case
-     * this identifier was not as unique as you thought it was.
-     *
-     * @return the LoadProfile
-     */
-    LoadProfile getLoadProfile();
-
     ObisCode getProfileObisCode();
-
-    /**
-     * @return the DeviceIdentifier for this LoadProfileIdentifier
-     */
-    DeviceIdentifier getDeviceIdentifier();
 
 }
