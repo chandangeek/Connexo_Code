@@ -189,6 +189,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                 error.id = 'metrologyConfiguration.meterRoles';
             }
 
+            if (Ext.String.startsWith(error.id, 'metrologyConfiguration.purpose.')) {
+                error.id = 'metrologyConfiguration.purposes';
+            }
+
             if (!map[error.id]) {
                 map[error.id] = {
                     id: error.id,
