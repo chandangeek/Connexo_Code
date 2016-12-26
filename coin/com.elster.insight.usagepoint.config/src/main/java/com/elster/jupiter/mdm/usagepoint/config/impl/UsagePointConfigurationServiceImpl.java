@@ -32,6 +32,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -303,12 +304,15 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .isEmpty();
     }
 
-    @Override
-    public void addEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
-        this.dataModel
-                .getInstance(MetrologyContractEstimationRuleSetUsageImpl.class)
-                .initAndSave(metrologyContract, estimationRuleSet);
-        metrologyContract.update();
+    private long getLastRuleSetPosition(MetrologyContract metrologyContract) {
+        return this.dataModel
+                .query(MetrologyContractEstimationRuleSetUsage.class)
+                .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                        .isEqualTo(metrologyContract))
+                .stream()
+                .mapToLong(MetrologyContractEstimationRuleSetUsage::getPosition)
+                .max()
+                .orElse(0L);
     }
 
     @Override
@@ -318,9 +322,17 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
                         .isEqualTo(metrologyContract))
                 .stream()
+                .sorted(Comparator.comparing(MetrologyContractEstimationRuleSetUsage::getPosition))
                 .map(MetrologyContractEstimationRuleSetUsage::getEstimationRuleSet)
-                .sorted(Comparator.comparing(rs -> rs.getName().toLowerCase()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
+        this.dataModel
+                .getInstance(MetrologyContractEstimationRuleSetUsageImpl.class)
+                .initAndSave(metrologyContract, estimationRuleSet, getLastRuleSetPosition(metrologyContract) + 1);
+        metrologyContract.update();
     }
 
     @Override
@@ -333,6 +345,29 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                     dataModel.remove(metrologyContractEstimationRuleSetUsage);
                     metrologyContract.update();
                 });
+    }
+
+    @Override
+    public void reorderEstimationRuleSets(MetrologyContract metrologyContract, List<EstimationRuleSet> newRuleSetOrder) {
+        List<MetrologyContractEstimationRuleSetUsage> currentOrder = this.dataModel
+                .query(MetrologyContractEstimationRuleSetUsage.class)
+                .select(where(MetrologyContractEstimationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                        .isEqualTo(metrologyContract))
+                .stream()
+                .sorted(Comparator.comparing(MetrologyContractEstimationRuleSetUsage::getPosition))
+                .collect(Collectors.toList());
+        KPermutation kPermutation = KPermutation.of(currentOrder.stream()
+                .map(MetrologyContractEstimationRuleSetUsage::getEstimationRuleSet)
+                .collect(Collectors.toList()), newRuleSetOrder);
+        if (kPermutation.isPermutation(currentOrder)) {
+            List<MetrologyContractEstimationRuleSetUsage> newOrder = kPermutation.perform(currentOrder);
+            for (int i = 0; i < newOrder.size(); i++) {
+                newOrder.get(i).setPosition(i);
+            }
+            newOrder.stream()
+                    .map(MetrologyContractEstimationRuleSetUsage::getEstimationRuleSet)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
