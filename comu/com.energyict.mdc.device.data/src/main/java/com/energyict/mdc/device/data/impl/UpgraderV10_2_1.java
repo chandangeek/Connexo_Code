@@ -2,11 +2,9 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +34,5 @@ class UpgraderV10_2_1 implements Upgrader {
         });
 
         dataModelUpgrader.upgrade(dataModel, version(10, 2, 1));
-    }
-
-    private void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 }
