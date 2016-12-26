@@ -604,6 +604,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -681,6 +682,11 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     private String getNameResourceKey() {
         return PLCConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
+    }
+
+    @Override
+    public long id() {
+        return this.id;
     }
 
     @Override

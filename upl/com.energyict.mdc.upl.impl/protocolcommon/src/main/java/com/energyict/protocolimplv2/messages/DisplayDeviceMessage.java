@@ -74,6 +74,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -108,6 +109,11 @@ public enum DisplayDeviceMessage implements DeviceMessageSpecSupplier {
 
     private String getNameResourceKey() {
         return DisplayDeviceMessage.class.getSimpleName() + "." + this.toString();
+    }
+
+    @Override
+    public long id() {
+        return this.id;
     }
 
     @Override

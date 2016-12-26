@@ -61,7 +61,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     public AS220() {
     	messagingList = new ArrayList<>();
-    	messagingList.add(new AS220Messaging(this));
+    	messagingList.add(new AS220Messaging(this, calendarFinder));
     	messagingList.add(new PLCMessaging(this));
     }
 

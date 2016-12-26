@@ -35,6 +35,11 @@ public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         this.deviceMessageConstantDefaultTranslation = deviceMessageConstantDefaultTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private String getNameResourceKey() {
         return ModemConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

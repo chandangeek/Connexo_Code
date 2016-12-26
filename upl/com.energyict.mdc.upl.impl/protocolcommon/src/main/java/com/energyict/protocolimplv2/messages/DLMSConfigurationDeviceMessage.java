@@ -35,6 +35,11 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
         this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private String getNameResourceKey() {
         return DLMSConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

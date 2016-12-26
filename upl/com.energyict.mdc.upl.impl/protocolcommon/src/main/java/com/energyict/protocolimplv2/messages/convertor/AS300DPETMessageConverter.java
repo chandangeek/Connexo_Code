@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.meterdata.Device;
@@ -20,8 +21,8 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a MessageConverter for the legacy IC AS300 protocol.
@@ -35,7 +36,7 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
     private static final String KEY = "Key";
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
 
-    public AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
@@ -69,24 +70,24 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         StringBuilder builder = new StringBuilder();
         int index = 1;
         try {
-            for (Object member : group.getMembers()) {
+            for (Object member : group.members()) {
                 Device device = (Device) member;
-                Register register = device.getRegister(PUBLIC_KEYS_OBISCODE);
-                if (register != null) {
-                    List<RegisterReading> lastXReadings = register.getLastXReadings(1);
-                    if (lastXReadings.size() > 0) {
-                        String keyPair = lastXReadings.get(0).getText();
-                        builder.append("<" + KEY + String.valueOf(index) + ">");
+                Optional<Register> register = this.getExtractor().register(device, PUBLIC_KEYS_OBISCODE);
+                if (register.isPresent()) {
+                    Optional<Extractor.RegisterReading> lastReading = this.getExtractor().lastReading(register.get());
+                    if (lastReading.isPresent()) {
+                        String keyPair = lastReading.get().text();
+                        builder.append("<" + KEY).append(String.valueOf(index)).append(">");
                         builder.append(keyPair);
-                        builder.append("</" + KEY + String.valueOf(index) + ">");
+                        builder.append("</" + KEY).append(String.valueOf(index)).append(">");
                         index++;
                     } else {
-                        ApplicationException e = new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!");
-                        throw DataParseException.generalParseException(e);
+                        String serialNumber = this.getExtractor().serialNumber(device);
+                        throw DataParseException.generalParseException(new IllegalArgumentException("Device with serial number " + serialNumber + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!"));
                     }
                 } else {
-                    ApplicationException e = new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!");
-                    throw DataParseException.generalParseException(e);
+                    String serialNumber = this.getExtractor().serialNumber(device);
+                    throw DataParseException.generalParseException(new IllegalArgumentException("Rtu with serial number " + serialNumber + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!"));
                 }
             }
         } catch (ClassCastException e) {
@@ -94,4 +95,5 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         }
         return builder.toString();
     }
+
 }

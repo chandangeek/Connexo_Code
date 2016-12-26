@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -68,9 +69,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     //private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
 
     private final AS220 as220;
+    private final TariffCalendarFinder calendarFinder;
 
-    public AS220Messaging(AS220 as220) {
+    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder) {
         this.as220 = as220;
+        this.calendarFinder = calendarFinder;
         addSupportedMessageTag(CONNECT_EMETER);
         addSupportedMessageTag(DISCONNECT_EMETER);
         addSupportedMessageTag(ARM_EMETER);
@@ -239,7 +242,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
             StringBuilder builder = new StringBuilder();
             addOpeningTag(builder, msgTag.getName());
             long activationDate = 0;
-            int codeTableId = -1;
+            String codeTableId = "";
             for (MessageAttribute ma : msgTag.getAttributes()) {
                 if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR_ACTIVATION_TIME)) {
                     if (ma.getValue() != null && !ma.getValue().isEmpty()) {
@@ -247,13 +250,13 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                     }
                 } else if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR)) {
                     if (ma.getValue() != null && !ma.getValue().isEmpty()) {
-                        codeTableId = Integer.valueOf(ma.getValue());
+                        codeTableId = ma.getValue();
                     }
                 }
             }
 
             try {
-                String xmlContent = CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate);
+                String xmlContent = new CodeTableXml(this.calendarFinder).parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate);
                 builder.append(xmlContent);
             } catch (ParserConfigurationException e) {
                 return null;

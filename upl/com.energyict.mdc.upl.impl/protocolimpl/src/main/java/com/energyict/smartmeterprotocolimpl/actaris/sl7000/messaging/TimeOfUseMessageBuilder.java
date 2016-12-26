@@ -7,6 +7,8 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
  * Time: 11:59
  */
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -24,13 +26,17 @@ public class TimeOfUseMessageBuilder extends com.energyict.messaging.TimeOfUseMe
 
       public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
+    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder) {
+        super(calendarFinder);
+    }
+
     /**
      * We override this because we can't convert the CodeTable content in a proper manner ...
      */
     @Override
     protected String getMessageContent() throws BusinessException {
-        if ((getCodeId() == 0) && (getUserFileId() == 0)) {
-            throw new BusinessException("Code or userFile needed");
+        if ((getCodeId().isEmpty()) && (getUserFileId() == 0)) {
+            throw new IllegalArgumentException("Code or userFile needed");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -42,14 +48,12 @@ public class TimeOfUseMessageBuilder extends com.energyict.messaging.TimeOfUseMe
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (getCodeId() > 0l) {
+        if (!getCodeId().isEmpty()) {
             try {
-                String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
+                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder()).parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
                 addChildTag(builder, getTagCode(), getCodeId());
                 addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
-            } catch (ParserConfigurationException e) {
-                throw new BusinessException(e.getMessage());
-            } catch (IOException e) {
+            } catch (ParserConfigurationException | IOException e) {
                 throw new BusinessException(e.getMessage());
             }
         }

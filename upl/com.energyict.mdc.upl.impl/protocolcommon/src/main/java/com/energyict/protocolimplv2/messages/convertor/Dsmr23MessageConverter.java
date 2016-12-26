@@ -151,7 +151,7 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
             return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
             return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

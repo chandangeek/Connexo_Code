@@ -50,8 +50,14 @@ public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
         this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
+
     private String getNameResourceKey() {
         return MailConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
+    }
+
+    @Override
+    public long id() {
+        return this.id;
     }
 
     @Override

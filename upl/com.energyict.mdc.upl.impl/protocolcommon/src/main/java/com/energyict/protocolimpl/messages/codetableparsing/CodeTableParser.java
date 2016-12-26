@@ -49,10 +49,6 @@ public class CodeTableParser {
      */
     private List<SpecialDayDefinition> specialDays = new ArrayList<SpecialDayDefinition>();
 
-
-    /**
-     * Default constructor
-     */
     public CodeTableParser(TariffCalender calender) {
         this.calender = calender;
     }

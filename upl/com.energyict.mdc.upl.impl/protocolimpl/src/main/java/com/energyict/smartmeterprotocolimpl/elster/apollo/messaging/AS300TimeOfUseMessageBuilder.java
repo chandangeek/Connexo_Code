@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -16,13 +18,17 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
+    public AS300TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder) {
+        super(calendarFinder);
+    }
+
     /**
      * We override this because we can't convert the CodeTable content in a proper manner ...
      */
     @Override
     protected String getMessageContent() throws BusinessException {
-        if ((getCodeId() == 0) && (getUserFileId() == 0)) {
-            throw new BusinessException("Code or userFile needed");
+        if ((getCodeId().isEmpty()) && (getUserFileId() == 0)) {
+            throw new IllegalArgumentException("Code or userFile needed");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -34,14 +40,12 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (getCodeId() > 0l) {
+        if (!getCodeId().isEmpty()) {
             try {
-                String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCodeId(), Calendar.getInstance().getTime().before(getActivationDate())?getActivationDate().getTime():1, getName());
+                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder()).parseActivityCalendarAndSpecialDayTable(getCodeId(), Calendar.getInstance().getTime().before(getActivationDate())?getActivationDate().getTime():1, getName());
                 addChildTag(builder, getTagCode(), getCodeId());
                 addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
-            } catch (ParserConfigurationException e) {
-                throw new BusinessException(e.getMessage());
-            } catch (IOException e) {
+            } catch (ParserConfigurationException | IOException e) {
                 throw new BusinessException(e.getMessage());
             }
         }

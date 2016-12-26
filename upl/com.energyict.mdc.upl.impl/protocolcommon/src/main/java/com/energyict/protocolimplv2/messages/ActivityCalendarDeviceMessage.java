@@ -179,6 +179,11 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     private PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

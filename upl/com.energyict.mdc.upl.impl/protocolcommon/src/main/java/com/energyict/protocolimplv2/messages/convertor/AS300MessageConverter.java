@@ -56,6 +56,10 @@ public class AS300MessageConverter extends AbstractMessageConverter {
         this.extractor = extractor;
     }
 
+    protected Extractor getExtractor() {
+        return extractor;
+    }
+
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {

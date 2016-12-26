@@ -94,7 +94,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
 
     protected IDISMessageHandler getMessageHandler() {
         if (messageHandler == null) {
-            messageHandler = new IDISMessageHandler(this);
+            messageHandler = new IDISMessageHandler(this, calendarFinder);
         }
         return messageHandler;
     }

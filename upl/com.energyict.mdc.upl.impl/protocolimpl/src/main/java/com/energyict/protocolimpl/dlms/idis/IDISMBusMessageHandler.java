@@ -44,7 +44,7 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
     protected static final ObisCode DISCONNECTOR_CONTROL_MBUS_OBISCODE = ObisCode.fromString("0.0.24.4.0.255");
 
     public IDISMBusMessageHandler(IDISMBus idis) {
-        super(idis);
+        super(idis, calendarFinder);
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {

@@ -37,6 +37,11 @@ public enum OpusConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
         this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private String getNameResourceKey() {
         return OpusConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

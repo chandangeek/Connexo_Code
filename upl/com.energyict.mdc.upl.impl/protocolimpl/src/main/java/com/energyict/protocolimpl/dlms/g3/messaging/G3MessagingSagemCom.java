@@ -12,7 +12,7 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 public class G3MessagingSagemCom extends G3Messaging {
 
     public G3MessagingSagemCom(final DlmsSession session, G3Properties properties) {
-        super(session, properties);
+        super(session, properties, calendarFinder);
     }
 
     @Override

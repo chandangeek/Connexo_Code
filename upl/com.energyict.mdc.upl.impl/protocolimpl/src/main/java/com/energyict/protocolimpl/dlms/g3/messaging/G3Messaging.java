@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.dlms.DlmsSession;
@@ -161,15 +162,17 @@ public class G3Messaging extends AnnotatedMessaging {
 
     protected DlmsSession session;
     private G3Properties properties;
+    private final TariffCalendarFinder calendarFinder;
 
-    public G3Messaging(final DlmsSession session, G3Properties properties) {
-        this(session, MESSAGES);
+    public G3Messaging(final DlmsSession session, G3Properties properties, TariffCalendarFinder calendarFinder) {
+        this(session, calendarFinder, MESSAGES);
         this.properties = properties;
     }
 
-    public G3Messaging(final DlmsSession session, final Class<? extends AnnotatedMessage>... messages) {
+    public G3Messaging(final DlmsSession session, TariffCalendarFinder calendarFinder, final Class<? extends AnnotatedMessage>... messages) {
         super(session != null ? session.getLogger() : null, messages);
         this.session = session;
+        this.calendarFinder = calendarFinder;
     }
 
     @Override
@@ -196,7 +199,7 @@ public class G3Messaging extends AnnotatedMessaging {
 
             String name = "";
             String activationDate = "1";
-            int codeId = 0;
+            String codeId = "";
 
             // b. Attributes
             for (MessageAttribute att : msgTag.getAttributes()) {
@@ -210,22 +213,20 @@ public class G3Messaging extends AnnotatedMessaging {
                     }
                 } else if (RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
-                        codeId = Integer.valueOf(att.getValue());
+                        codeId = att.getValue();
                     }
                 }
             }
 
             Date actDate = new Date(Long.valueOf(activationDate));
-            if (codeId > 0) {
+            if (!codeId.isEmpty()) {
                 try {
                     if (msgTag.getName().contains(RtuMessageConstant.TOU_ACTIVITY_CAL) && Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().after(actDate)) {
                         throw new ApplicationException("Invalid activation date, should be in the future");
                     }
-                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(codeId, actDate.getTime(), name);
+                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder).parseActivityCalendarAndSpecialDayTable(codeId, actDate.getTime(), name);
                     addChildTag(builder, IDISMessageHandler.RAW_CONTENT, ProtocolTools.compress(xmlContent));
-                } catch (ParserConfigurationException e) {
-                    getLogger().severe(e.getMessage());
-                } catch (IOException e) {
+                } catch (ParserConfigurationException | IOException e) {
                     getLogger().severe(e.getMessage());
                 }
             }

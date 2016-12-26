@@ -112,6 +112,11 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     protected PropertySpec deviceMessageFileSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

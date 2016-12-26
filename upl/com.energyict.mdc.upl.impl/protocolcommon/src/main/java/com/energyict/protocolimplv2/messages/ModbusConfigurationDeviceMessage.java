@@ -84,6 +84,11 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         this.propertyNameDefaultTranslation = propertyNameDefaultTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private String getNameResourceKey() {
         return ModbusConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

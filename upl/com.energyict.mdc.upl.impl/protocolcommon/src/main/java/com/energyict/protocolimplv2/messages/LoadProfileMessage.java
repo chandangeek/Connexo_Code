@@ -132,6 +132,11 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... exhaustiveValues) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service

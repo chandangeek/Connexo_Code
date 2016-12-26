@@ -66,6 +66,11 @@ public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpecSuppli
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private String getNameResourceKey() {
         return LoggingConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

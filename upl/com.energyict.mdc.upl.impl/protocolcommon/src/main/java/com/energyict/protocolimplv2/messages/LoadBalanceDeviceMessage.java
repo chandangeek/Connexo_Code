@@ -318,6 +318,11 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     protected PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

@@ -475,6 +475,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     protected PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -721,6 +722,11 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         public boolean getStatus() {
             return status;
         }
+    }
+
+    @Override
+    public long id() {
+        return this.id;
     }
 
     @Override

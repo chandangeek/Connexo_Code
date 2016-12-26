@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -82,9 +83,11 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private static final String CONFIGURATION_DOWNLOAD = "Configuration download";
     private static final String CONFIGURATION_USER_FILE = "Configuration user file";
     protected IDIS idis;
+    private final TariffCalendarFinder calendarFinder;
 
-    public IDISMessageHandler(IDIS idis) {
+    public IDISMessageHandler(IDIS idis, TariffCalendarFinder calendarFinder) {
         this.idis = idis;
+        this.calendarFinder = calendarFinder;
     }
 
     public void applyMessages(List messageEntries) throws IOException {
@@ -800,7 +803,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
             String name = "";
             String activationDate = "1";
-            int codeId = 0;
+            String codeId = "";
 
             // b. Attributes
             for (MessageAttribute att : msgTag.getAttributes()) {
@@ -814,15 +817,15 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                     }
                 } else if (RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
-                        codeId = Integer.valueOf(att.getValue());
+                        codeId = att.getValue();
                     }
                 }
             }
 
             Date actDate = new Date(Long.valueOf(activationDate));
-            if (codeId > 0) {
+            if (!codeId.isEmpty()) {
                 try {
-                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
+                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder).parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
                     addChildTag(builder, RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException e) {
                     idis.getLogger().severe(e.getMessage());

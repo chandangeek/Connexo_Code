@@ -39,6 +39,11 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private String getNameResourceKey() {
         return PowerConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

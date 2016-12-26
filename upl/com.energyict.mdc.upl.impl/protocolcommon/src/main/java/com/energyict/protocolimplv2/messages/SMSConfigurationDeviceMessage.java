@@ -39,6 +39,11 @@ public enum SMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private String getNameResourceKey() {
         return SMSConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

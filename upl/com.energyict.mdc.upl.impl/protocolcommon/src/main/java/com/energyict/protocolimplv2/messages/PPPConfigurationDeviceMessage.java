@@ -76,6 +76,11 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
         this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private String getNameResourceKey() {
         return PPPConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

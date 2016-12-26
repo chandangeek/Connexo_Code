@@ -97,7 +97,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     private int eventIdIndex;
 
     public DLMSZMD() {
-        this.messageProtocol = new ZmdMessages(this);
+        this.messageProtocol = new ZmdMessages(this, calendarFinder);
     }
 
     @Override

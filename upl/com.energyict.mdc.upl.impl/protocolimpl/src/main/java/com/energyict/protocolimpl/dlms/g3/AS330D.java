@@ -138,7 +138,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     }
 
     protected void initMessaging() {
-        setMessaging(new G3Messaging(getSession(), getProperties()));
+        setMessaging(new G3Messaging(getSession(), getProperties(), calendarFinder));
     }
 
     @Override
@@ -197,7 +197,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
 
     public G3Messaging getMessaging() {
         if (this.messaging == null) {
-            this.messaging = new G3Messaging(getSession(), getProperties());
+            this.messaging = new G3Messaging(getSession(), getProperties(), calendarFinder);
         }
         return messaging;
     }

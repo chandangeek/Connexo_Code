@@ -75,6 +75,11 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecSuppli
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     private PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

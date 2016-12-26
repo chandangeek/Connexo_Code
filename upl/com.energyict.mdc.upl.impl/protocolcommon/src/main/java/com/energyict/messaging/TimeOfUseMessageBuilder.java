@@ -1,5 +1,7 @@
 package com.energyict.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.HtmlEnabledBusinessException;
 import com.energyict.mdw.core.Code;
@@ -9,7 +11,6 @@ import com.energyict.mdw.core.UserFile;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -48,9 +49,10 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     private static final String TAG_CODE = "CodeId";
     private static final String TAG_USERFILE = "UserFileId";
 
+    private final TariffCalendarFinder calendarFinder;
     private String name;
     private Date activationDate;
-    private int codeId = 0;
+    private String codeId = "";
     private int userFileId = 0;
     private SimpleDateFormat formatter;
 
@@ -76,7 +78,12 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     private boolean encodeB64;
 
-    public TimeOfUseMessageBuilder() {
+    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder) {
+        this.calendarFinder = calendarFinder;
+    }
+
+    protected  TariffCalendarFinder getCalendarFinder() {
+        return calendarFinder;
     }
 
     /**
@@ -124,9 +131,9 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     public void setCode(Code code) {
         if (code != null) {
-            this.codeId = code.getId();
+            this.codeId = Integer.toString(code.getId());
         } else {
-            this.codeId = 0;
+            this.codeId = "";
         }
     }
 
@@ -136,7 +143,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      * @param codeId The id of the codetable to be set
      */
     public void setCodeId(int codeId) {
-        this.codeId = codeId;
+        this.codeId = Integer.toString(codeId);
     }
 
     /**
@@ -146,7 +153,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     public Code getCode() {
         if (code == null) {
-            code = MeteringWarehouse.getCurrent().getCodeFactory().find(codeId);
+            code = MeteringWarehouse.getCurrent().getCodeFactory().find(Integer.parseInt(codeId));
         }
         return code;
     }
@@ -192,7 +199,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
     @Override
     protected String getMessageContent() throws BusinessException {
-        if ((codeId == 0) && (userFileId == 0)) {
+        if ((codeId.isEmpty()) && (userFileId == 0)) {
             throw new HtmlEnabledBusinessException() {
                 public String getHtmlMessage() {
                     return "<html>Code or user file needed</html>";
@@ -209,7 +216,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
             addAttribute(builder, ATTRIBUTE_ACTIVATIONDATE, activationDate.getTime() / 1000);
         }
         builder.append(">");
-        if (codeId > 0) {
+        if (!codeId.isEmpty()) {
             addChildTag(builder, TAG_CODE, codeId);
         }
         if (userFileId > 0) {
@@ -248,7 +255,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
         if (activationDate != null) {
             builder.append("ActivationDate='").append(formatter.format(activationDate)).append("', ");
         }
-        if (codeId > 0) {
+        if (!codeId.isEmpty()) {
             builder.append("Code='").append(getCode().getName()).append("', ");
         }
         if (userFileId > 0) {
@@ -261,12 +268,6 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     @Override
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {
         return new TimeOfUseMessageHandler((TimeOfUseMessageBuilder) builder, getMessageNodeTag());
-    }
-
-    public static MessageBuilder fromXml(String xmlString) throws SAXException, IOException {
-        MessageBuilder builder = new TimeOfUseMessageBuilder();
-        builder.initFromXml(xmlString);
-        return builder;
     }
 
     private static class TimeOfUseMessageHandler extends AbstractMessageBuilder.AdvancedMessageHandler {
@@ -330,7 +331,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
     }
 
-    public int getCodeId() {
+    public String getCodeId() {
         return codeId;
     }
 

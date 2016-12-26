@@ -70,6 +70,11 @@ public enum WavenisDeviceMessage implements DeviceMessageSpecSupplier {
         this.deviceMessageConstantDefaultTranslation = deviceMessageConstantDefaultTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service

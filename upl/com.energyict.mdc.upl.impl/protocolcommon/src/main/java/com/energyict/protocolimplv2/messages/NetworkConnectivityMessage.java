@@ -457,6 +457,11 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     private static BigDecimal[] getPossibleValues(int lowerLimit, int upperLimit) {
         return IntStream
                 .range(lowerLimit, upperLimit)

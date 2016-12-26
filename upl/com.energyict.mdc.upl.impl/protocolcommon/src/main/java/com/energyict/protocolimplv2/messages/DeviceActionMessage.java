@@ -349,6 +349,11 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
     }
 
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, boolean defaultValue) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service

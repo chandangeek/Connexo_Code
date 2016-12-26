@@ -213,6 +213,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
@@ -237,6 +238,11 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
 
     private String getNameResourceKey() {
         return PeakShaverConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
+    }
+
+    @Override
+    public long id() {
+        return this.id;
     }
 
     @Override

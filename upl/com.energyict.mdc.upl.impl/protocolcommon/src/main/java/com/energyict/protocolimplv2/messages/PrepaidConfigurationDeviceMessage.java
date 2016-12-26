@@ -55,6 +55,11 @@ public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecSuppli
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     private String getNameResourceKey() {

@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms.siemenszmd;
 
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocol.MessageResult;
@@ -13,7 +14,7 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,9 +25,11 @@ import java.util.List;
 public class ZmdMessages extends ProtocolMessages {
 
     private final DLMSZMD protocol;
+    private final TariffCalendarFinder calendarFinder;
 
-    public ZmdMessages(final DLMSZMD protocol) {
+    public ZmdMessages(final DLMSZMD protocol, TariffCalendarFinder calendarFinder) {
         this.protocol = protocol;
+        this.calendarFinder = calendarFinder;
     }
 
     /**
@@ -65,26 +68,23 @@ public class ZmdMessages extends ProtocolMessages {
                 infoLog("Unknown message received.");
                 return MessageResult.createUnknown(messageEntry);
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             infoLog("Message failed : " + e.getMessage());
-        }    catch (SAXException e) {
-            String msg = "Cannot process ActivityCalendar upgrade message due to an XML parsing error [" + e.getMessage() + "]";
-             infoLog("Message failed - Unable to parse the ActivityCalendar upgrade message:" + e.getMessage());
+        } catch (SAXException e) {
+            infoLog("Message failed - Unable to parse the ActivityCalendar upgrade message:" + e.getMessage());
         }
         return MessageResult.createFailed(messageEntry);
     }
 
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
-        categories.add(ProtocolMessageCategories.getDemandResetCategory());
-        return categories;
+    public List<MessageCategorySpec> getMessageCategories() {
+        return Collections.singletonList(ProtocolMessageCategories.getDemandResetCategory());
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder();
-        ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController((DLMSZMD) this.protocol);
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder);
+        ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
-        if (builder.getCodeId() > 0) { // codeTable implementation
+        if (!builder.getCodeId().isEmpty()) { // codeTable implementation
             infoLog("Parsing the content of the CodeTable.");
             activityCalendarController.parseContent(messageEntry.getContent());
             infoLog("Setting the new Passive Calendar Name.");

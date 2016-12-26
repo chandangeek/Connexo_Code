@@ -173,6 +173,11 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+    @Override
+    public long id() {
+        return this.id;
+    }
+
     protected HexString getCaptureDefinitionDefaultValue(Converter converter) {
         return converter.hexFromString("FFFFFFFFFFFFFFFFFFFFFF");
     }

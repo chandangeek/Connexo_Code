@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalender;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.MeteringWarehouse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -22,9 +22,10 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
- * Parser object to convert the structure of a CodeTable to an XML format
+ * Parser object to convert the structure of a CodeTable to an XML format.
  * <p/>
  * Copyrights EnergyICT
  */
@@ -90,20 +91,10 @@ public class CodeTableXmlParsing {
     public static final String specialDayEntryDayId = "SpecialDayEntryDayId";
 
     protected static final Log logger = LogFactory.getLog(CodeTableXmlParsing.class);
+    private final TariffCalendarFinder finder;
 
-    /**
-     * Constructor with codeTable id
-     */
-    public CodeTableXmlParsing() {
-    }
-
-    /**
-     * Getter for the current {@link com.energyict.mdw.core.MeteringWarehouse}
-     *
-     * @return the current {@link com.energyict.mdw.core.MeteringWarehouse}
-     */
-    private static MeteringWarehouse mw() {
-        return MeteringWarehouse.getCurrent();
+    public CodeTableXmlParsing(TariffCalendarFinder finder) {
+        this.finder = finder;
     }
 
     /**
@@ -120,8 +111,8 @@ public class CodeTableXmlParsing {
      * @return the complete xml for the RTUMessage
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
-    public static String parseActivityCalendarAndSpecialDayTable(int id, long activationTime, String name) throws ParserConfigurationException {
-        return parseActivityCalendarAndSpecialDayTable(getCode(id), activationTime, name);
+    public String parseActivityCalendarAndSpecialDayTable(String id, long activationTime, String name) throws ParserConfigurationException {
+        return parseActivityCalendarAndSpecialDayTable(getCalendar(id).orElseThrow(() -> new IllegalArgumentException("Tariff calendar with id " + id + " not found!")), activationTime, name);
     }
 
     public static String parseActivityCalendarAndSpecialDayTable(TariffCalender calender, long activationTime, String name) throws ParserConfigurationException {
@@ -436,14 +427,8 @@ public class CodeTableXmlParsing {
         return sDays;
     }
 
-    /**
-     * Getter for the {@link com.energyict.mdw.core.Code}
-     *
-     * @param id the ID of the CodeTable
-     * @return the desired CodeTable
-     */
-    protected static Code getCode(int id) {
-        return mw().getCodeFactory().find(id);
+    protected Optional<TariffCalender> getCalendar(String id) {
+        return this.finder.from(id);
     }
 
     /**

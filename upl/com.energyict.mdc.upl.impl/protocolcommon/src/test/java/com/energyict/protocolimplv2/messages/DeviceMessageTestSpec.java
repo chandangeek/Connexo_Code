@@ -51,6 +51,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
+
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, TRANSLATION);
         return service
@@ -93,6 +94,11 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
 
     private String getNameResourceKey() {
         return DeviceMessageTestSpec.class.getSimpleName() + "." + this.toString();
+    }
+
+    @Override
+    public long id() {
+        return 0;
     }
 
     @Override

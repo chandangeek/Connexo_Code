@@ -7,18 +7,26 @@ package com.energyict.protocolimpl.messages.codetableparsing;
  * Time: 10:30
  */
 
-import com.energyict.mdw.core.Code;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalender;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * Parser object to convert the structure of a CodeTable to an XML format
+ * Parser object to convert the structure of a CodeTable to an XML format.
  * <p/>
  * Copyrights EnergyICT
  */
 public class CodeTableXml extends CodeTableXmlParsing {
+
+    public CodeTableXml(TariffCalendarFinder finder) {
+        super(finder);
+    }
 
     /**
      * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
@@ -33,10 +41,10 @@ public class CodeTableXml extends CodeTableXmlParsing {
      * @return the complete xml for the RTUMessage
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
-    public static String parseActivityCalendarAndSpecialDayTable(int id, long activationTime) throws ParserConfigurationException {
-        Code codeTable = getCode(id);
+    public String parseActivityCalendarAndSpecialDayTable(String id, long activationTime) throws ParserConfigurationException {
+        TariffCalender calendar = getCalendar(id).orElseThrow(() -> new IllegalArgumentException("Tariff calendar with id " + id + " not found!"));
 
-        CodeTableParser ctp = new CodeTableParser(codeTable);
+        CodeTableParser ctp = new CodeTableParser(calendar);
         try {
             ctp.parse();
 
@@ -47,16 +55,16 @@ public class CodeTableXml extends CodeTableXmlParsing {
             Element root = document.createElement(rootTOUMessage);
 
             /*
-             We use the name of the codeTable as activityCalendarName
+             We use the name of the calendar as activityCalendarName
              This way we can track the calendars in the devices
               */
-            root.appendChild(createSingleElement(document, rootActCalendarName, codeTable.getName()));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, codeTable.getDefinitionTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, codeTable.getDestinationTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(codeTable.getIntervalInSeconds())));
-            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(codeTable.getYearFrom())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(codeTable.getYearTo())));
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(codeTable.getSeasonSetId())));
+            root.appendChild(createSingleElement(document, rootActCalendarName, calendar.getName()));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calendar.getDefinitionTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calendar.getDestinationTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(calendar.getIntervalInSeconds())));
+            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(calendar.getYearFrom())));
+            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calendar.getYearTo())));
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(calendar.getSeasonSetId())));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);

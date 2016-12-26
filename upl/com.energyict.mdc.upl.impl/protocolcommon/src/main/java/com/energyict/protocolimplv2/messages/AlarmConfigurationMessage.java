@@ -228,6 +228,7 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
+
     protected PropertySpec alarmRegisterAttribute(PropertySpecService service) {
         return this.bigDecimalSpec(
                 service,
@@ -296,6 +297,11 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecSupplier {
     }
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    @Override
+    public long id() {
+        return this.id;
+    }
 
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {

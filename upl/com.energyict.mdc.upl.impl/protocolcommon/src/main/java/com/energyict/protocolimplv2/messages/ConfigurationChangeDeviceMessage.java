@@ -855,7 +855,6 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         this.defaultNameTranslation = defaultNameTranslation;
     }
 
-
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     protected PropertySpec dateSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
