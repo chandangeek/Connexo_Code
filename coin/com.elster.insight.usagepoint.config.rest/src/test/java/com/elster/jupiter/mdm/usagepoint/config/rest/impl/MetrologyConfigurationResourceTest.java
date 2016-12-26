@@ -42,6 +42,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +70,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     @Mock
     private ValidationRuleSet vrs, vrs2, vrs3;
     @Mock
-    private EstimationRuleSet ers;
+    private EstimationRuleSet ers, ers2, ers3;
     @Mock
     private ServiceCategory serviceCategory;
     @Mock
@@ -93,6 +94,12 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(ers.getName()).thenReturn("EstimationRuleSet");
         when(ers.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(ers.getId()).thenReturn(51L);
+        when(ers2.getName()).thenReturn("EstimationRuleSet2");
+        when(ers2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(ers2.getId()).thenReturn(52L);
+        when(ers3.getName()).thenReturn("EstimationRuleSet3");
+        when(ers3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(ers3.getId()).thenReturn(53L);
         metrologyContract = config1.getContracts().stream().findFirst().get();
         metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
         metrologyContractInfo.validationRuleSets = Collections.singletonList(new ValidationRuleSetInfo(vrs3));
@@ -114,10 +121,12 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         doReturn(Optional.of(vrs3)).when(validationService).getValidationRuleSet(anyLong());
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(vrs, vrs2));
         when(usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, vrs2, Collections.singletonList(vrs))).thenReturn(true);
-        doReturn(Optional.of(ers)).when(estimationService).getEstimationRuleSet(anyLong());
-        doReturn(Arrays.asList(ers)).when(estimationService).getEstimationRuleSets();
-        when(usagePointConfigurationService.getEstimationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(ers));
-        when(usagePointConfigurationService.isLinkableEstimationRuleSet(metrologyContract, ers, Collections.singletonList(ers))).thenReturn(true);
+        doReturn(Optional.of(ers)).when(estimationService).getEstimationRuleSet(51L);
+        doReturn(Optional.of(ers2)).when(estimationService).getEstimationRuleSet(52L);
+        doReturn(Optional.of(ers3)).when(estimationService).getEstimationRuleSet(53L);
+        doReturn(Arrays.asList(ers, ers2, ers3)).when(estimationService).getEstimationRuleSets();
+        when(usagePointConfigurationService.getEstimationRuleSets(metrologyContract)).thenReturn(Arrays.asList(ers2, ers3));
+        when(usagePointConfigurationService.isLinkableEstimationRuleSet(metrologyContract, ers, Arrays.asList(ers2, ers3))).thenReturn(true);
     }
 
     private ValidationRuleSetVersion mockValidationRuleSetVersion(ValidationRuleSet validationRuleSet) {
@@ -287,8 +296,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         String json = target("/metrologyconfigurations/1/contracts").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("$.contracts[0].estimationRuleSets[0].id")).isEqualTo(51);
-        assertThat(jsonModel.<String>get("$.contracts[0].estimationRuleSets[0].name")).isEqualTo("EstimationRuleSet");
+        assertThat(jsonModel.<Integer>get("$.contracts[0].estimationRuleSets[0].id")).isEqualTo(52);
+        assertThat(jsonModel.<String>get("$.contracts[0].estimationRuleSets[0].name")).isEqualTo("EstimationRuleSet2");
     }
 
     @Test
@@ -337,6 +346,19 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
         Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testReorderEstimationRuleSetFromMetrologyContract() {
+        MetrologyContractInfos infos = new MetrologyContractInfos();
+        metrologyContractInfo.validationRuleSets = Collections.emptyList();
+        metrologyContractInfo.estimationRuleSets = Arrays.asList(new EstimationRuleSetInfo(ers),new EstimationRuleSetInfo(ers2),new EstimationRuleSetInfo(ers3));
+        infos.total = 1;
+        infos.contracts = new ArrayList<>(Collections.singletonList(metrologyContractInfo));
+        Entity<MetrologyContractInfos> json = Entity.json(infos);
+        Response response = target("/metrologyconfigurations/1/contracts").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePointConfigurationService).reorderEstimationRuleSets(metrologyContract, Arrays.asList(ers,ers2,ers3));
     }
 
     @Test
