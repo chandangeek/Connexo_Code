@@ -17,6 +17,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
         me.grid = {
             xtype: 'meter-activations-grid',
             itemId: 'meter-activations-grid',
+            maxHeight: 500,
             listeners: {
                 edit: Ext.bind(me.onMeterActivationEdit, me)
             },
@@ -47,13 +48,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterAct
                     }
                 }
             );
-
-        for (var i = 0; i < 100; i++) {
-            data.push({
-                meterRole: {name: 'QWQ'},
-                activationTime: new Date().getTime()
-            });
-        }
 
         store.loadData(data);
         store.fireEvent('load', data);
