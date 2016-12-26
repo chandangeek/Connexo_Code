@@ -440,8 +440,6 @@ public class UsagePointResource {
                 }
                 info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
                         .validate(), clock).validate();
-            } else if (step.equals("metrologyConfigurationWithMetersInfo")) {
-                activateMeters(info);
             } else if (customPropertySetId > 0) {
                 RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                         .stream()
@@ -461,6 +459,7 @@ public class UsagePointResource {
         UsagePoint usagePoint;
         try (TransactionContext transaction = transactionService.getContext()) {
             usagePoint = performUsagePointCreation(info);
+            resourceHelper.activateMeters(info, usagePoint);
             transaction.commit();
         }
 
@@ -826,7 +825,7 @@ public class UsagePointResource {
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
-        if(info.metrologyConfiguration != null) {
+        if (info.metrologyConfiguration != null) {
             usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService
                     .findMetrologyConfiguration(info.metrologyConfiguration.id).orElse(null);
             usagePoint.apply(usagePointMetrologyConfiguration);
@@ -840,14 +839,5 @@ public class UsagePointResource {
         }
 
         return usagePoint;
-    }
-
-    private void activateMeters(UsagePointInfo info) {
-        try (TransactionContext transaction = transactionService.getContext()) {
-            UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
-            info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
-
-            resourceHelper.activateMeters(info, usagePoint);
-        }
     }
 }
