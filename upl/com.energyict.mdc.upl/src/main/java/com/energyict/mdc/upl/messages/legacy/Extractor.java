@@ -1,10 +1,12 @@
 package com.energyict.mdc.upl.messages.legacy;
 
+import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.TariffCalender;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * Extracts information from message related objects
@@ -61,5 +63,57 @@ public interface Extractor {
      * @return The String representation of the NumberLookup's identifier
      */
     String id(NumberLookup numberLookup);
+
+    /**
+     * Extracts the unique identifier of a {@link LoadProfile}
+     * and returns it as a String for easy formatting in XML based content.
+     *
+     * @param loadProfile The LoadProfile
+     * @return The String representation of the LoadProfile's identifier
+     */
+    String id(LoadProfile loadProfile);
+
+    /**
+     * Extracts the deviceObisCode from the {@link LoadProfile}'s specification.
+     *
+     * @param loadProfile The LoadProfile
+     * @return The string representation of the spec's deviceObisCode
+     */
+    String specDeviceObisCode(LoadProfile loadProfile);
+
+    /**
+     * Extracts the device's serial number from the {@link LoadProfile}.
+     *
+     * @param loadProfile The LoadProfile
+     * @return The device's serial number
+     */
+    String deviceSerialNumber(LoadProfile loadProfile);
+
+    /**
+     * Extracts the {@link LoadProfile}'s channels.
+     *
+     * @param loadProfile The LoadProfile
+     * @return The {@link Channel}s
+     */
+    List<Channel> channels(LoadProfile loadProfile);
+
+    /**
+     * Extracts the {@link LoadProfile}'s registers.
+     *
+     * @param loadProfile The LoadProfile
+     * @return The {@link Register}s
+     */
+    List<Register> registers(LoadProfile loadProfile);
+
+    interface Channel {
+        String deviceSerialNumber();
+        String obisCode();
+        String unit();
+    }
+
+    interface Register {
+        String deviceSerialNumber();
+        String obisCode();
+    }
 
 }
