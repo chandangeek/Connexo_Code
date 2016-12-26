@@ -1,8 +1,13 @@
 package com.energyict.mdc.upl.meterdata;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
-import com.energyict.mdc.upl.properties.CertificateAlias;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.security.CertificateAlias;
+
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
