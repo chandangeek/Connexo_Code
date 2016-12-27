@@ -2,7 +2,6 @@ package com.energyict.mdc.channels;
 
 import com.energyict.mdc.protocol.ComChannel;
 
-import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
@@ -15,8 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Provides an implementation of the {@link ComChannel} interface
  * that uses synchroneous communication, i.e. data is always written first
  * and then data can be read. Reading and writing at the same time is not permitted.
- * The latter will throw a {@link com.energyict.comserver.exceptions.CodingException}
- * with the referece {@link com.energyict.comserver.exceptions.CommonExceptionReferences#ASYNCHRONEOUS_COMMUNICATION_IS_NOT_SUPPORTED}.
+ * The latter will throw an {@link UnsupportedOperationException}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-15 (10:11)
@@ -55,7 +53,7 @@ public class SynchroneousComChannel extends AbstractComChannel {
 
     private void checkNotWriting() {
         if (!this.reading.get()) {
-            throw CodingException.asynchroneousCommunicationIsNotSupported();
+            throw new UnsupportedOperationException("asynchroneous communication is not supported on SynchroneousComChannel");
         }
     }
 
@@ -77,42 +75,22 @@ public class SynchroneousComChannel extends AbstractComChannel {
 
     @Override
     public int doRead() {
-        return this.executeReadOperation(new ReadOperation() {
-            @Override
-            public int doRead() throws IOException {
-                return in.read();
-            }
-        });
+        return this.executeReadOperation(() -> in.read());
     }
 
     @Override
     public int doRead(final byte[] buffer) {
-        return this.executeReadOperation(new ReadOperation() {
-            @Override
-            public int doRead() throws IOException {
-                return in.read(buffer);
-            }
-        });
+        return this.executeReadOperation(() -> in.read(buffer));
     }
 
     @Override
     public int doRead(final byte[] buffer, final int offset, final int length) {
-        return this.executeReadOperation(new ReadOperation() {
-            @Override
-            public int doRead() throws IOException {
-                return in.read(buffer, offset, length);
-            }
-        });
+        return this.executeReadOperation(() -> in.read(buffer, offset, length));
     }
 
     @Override
     protected int doAvailable() {
-        return this.executeReadOperation(new ReadOperation() {
-            @Override
-            public int doRead() throws IOException {
-                return in.available();
-            }
-        });
+        return this.executeReadOperation(() -> in.available());
     }
 
     @Override
@@ -122,7 +100,7 @@ public class SynchroneousComChannel extends AbstractComChannel {
 
     private void checkNotReading() {
         if (this.reading.get()) {
-            throw CodingException.asynchroneousCommunicationIsNotSupported();
+            throw new UnsupportedOperationException("asynchroneous communication is not supported on SynchroneousComChannel");
         }
     }
 
@@ -143,23 +121,13 @@ public class SynchroneousComChannel extends AbstractComChannel {
 
     @Override
     public int doWrite(final int b) {
-        this.executeWriteOperation(new WriteOperation() {
-            @Override
-            public void doWrite() throws IOException {
-                out.write(b);
-            }
-        });
+        this.executeWriteOperation(() -> out.write(b));
         return 1;
     }
 
     @Override
     public int doWrite(final byte[] bytes) {
-        this.executeWriteOperation(new WriteOperation() {
-            @Override
-            public void doWrite() throws IOException {
-                out.write(bytes);
-            }
-        });
+        this.executeWriteOperation(() -> out.write(bytes));
         return bytes.length;
     }
 
@@ -179,11 +147,11 @@ public class SynchroneousComChannel extends AbstractComChannel {
     }
 
     private interface ReadOperation {
-        public int doRead() throws IOException;
+        int doRead() throws IOException;
     }
 
     private interface WriteOperation {
-        public void doWrite() throws IOException;
+        void doWrite() throws IOException;
     }
 
 }
