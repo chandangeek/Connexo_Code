@@ -7,10 +7,14 @@ import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.TariffCalender;
 
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.Range;
 
 import java.nio.charset.Charset;
+import java.time.LocalTime;
+import java.time.Year;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * Extracts information from message related objects
@@ -85,6 +89,22 @@ public interface Extractor {
      */
     String id(TariffCalender calender);
 
+    String name (TariffCalender calender);
+
+    String seasonSetId(TariffCalender calender);
+
+    TimeZone definitionTimeZone(TariffCalender calender);
+
+    TimeZone destinationTimeZone(TariffCalender calender);
+
+    int intervalInSeconds(TariffCalender calender);
+
+    Range<Year> range(TariffCalender calender);
+
+    List<CalendarDayType> dayTypes(TariffCalender calender);
+
+    List<CalendarRule> rules(TariffCalender calender);
+
     /**
      * Extracts the unique identifier of a {@link NumberLookup}
      * and returns it as a String for easy formatting in XML based content.
@@ -148,6 +168,25 @@ public interface Extractor {
 
     interface RegisterReading {
         String text();
+    }
+
+    interface CalendarDayType {
+        String id();
+        List<CalendarDayTypeSlice> slices();
+    }
+
+    interface CalendarDayTypeSlice {
+        String tariffCode();
+        LocalTime start();
+    }
+
+    interface CalendarRule {
+        String dayTypeId();
+        Optional<String> seasonId();
+        int year();
+        int month();
+        int day();
+        int dayOfWeek();
     }
 
 }
