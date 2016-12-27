@@ -234,7 +234,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             step2 = {
                 xtype: category.form,
                 title: Uni.I18n.translate('usagepoint.wizard.step2title', 'IMT', 'Step 2: Technical information'),
-                itemId: 'add-usage-point-step2',
+                itemId: 'add-usage-point-step-tech-info',
                 navigationIndex: 2,
                 stepName: 'techInfo',
                 ui: 'large',
@@ -278,14 +278,14 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
     addCustomPropertySetsSteps: function (serviceCategory, stepsToAdd, navigationItemsToAdd) {
         var stepNumber = stepsToAdd.length + 1;
 
-        serviceCategory.customPropertySets().each(function (record) {
+        serviceCategory.customPropertySets().each(function (record, index) {
             stepNumber++;
             stepsToAdd.push({
                 xtype: 'cps-info-form',
+                itemId: 'step-cas' + index,
                 title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, record.get('name')]),
                 navigationIndex: stepNumber,
                 stepName: 'casInfo',
-                itemId: 'add-usage-point-step' + stepNumber,
                 ui: 'large',
                 isWizardStep: true,
                 predefinedRecord: record
@@ -303,10 +303,10 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         stepNumber++;
         stepsToAdd.push({
             xtype: 'metrology-configuration-with-meters-info-form',
+            itemId: 'step-metrology-configuration-with-meters',
             title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, title]),
             navigationIndex: stepNumber,
             stepName: 'metrologyConfigurationWithMetersInfo',
-            itemId: 'add-usage-point-step' + stepNumber,
             ui: 'large',
             isWizardStep: true
         });
