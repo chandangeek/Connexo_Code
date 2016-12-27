@@ -5,7 +5,6 @@ import com.energyict.cbo.Sms;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
@@ -90,15 +89,15 @@ public class SmsWakeup {
      * Verify if all needed properties for the wakeup are present
      */
     private void checkAllRequiredPropertiesArePresent() throws BusinessException {
-        if (smsProperties.getSmsConnectionUrl().equals("")) {
+        if ("".equals(smsProperties.getSmsConnectionUrl())) {
             throw new BusinessException("For SMS wakeup property SmsConnectionURL is required. Please correct first.");
-        } else if (smsProperties.getSmsSource().equals("")) {
+        } else if ("".equals(smsProperties.getSmsSource())) {
             throw new BusinessException("For SMS wakeup property SmsSource is required. Please correct first.");
-        } else if (smsProperties.getSmsAuthentication().equals("")) {
+        } else if ("".equals(smsProperties.getSmsAuthentication())) {
             throw new BusinessException("For SMS wakeup property SmsAuthentication is required. Please correct first.");
-        } else if (smsProperties.getSmsServiceCode().equals("")) {
+        } else if ("".equals(smsProperties.getSmsServiceCode())) {
             throw new BusinessException("For SMS wakeup property SmsServiceCode is required. Please correct first.");
-        } else if (smsProperties.getSmsPhoneNumber().equals("")) {
+        } else if ("".equals(smsProperties.getSmsPhoneNumber())) {
             throw new BusinessException("For SMS wakeup property SmsPhoneNumber is required. Please correct first.");
         }
     }
@@ -164,7 +163,7 @@ public class SmsWakeup {
      * @param sleepTime
      * @throws java.io.IOException when we get interrupted while sleeping
      */
-    private void sleep(long sleepTime) throws IOException {
+    private void sleep(long sleepTime) {
         ProtocolTools.delay(sleepTime);
     }
 
@@ -173,12 +172,9 @@ public class SmsWakeup {
     }
 
     private void log(int level, String msg) {
-        if (level <= this.DEBUG_LEVEL) {
+        if (level <= DEBUG_LEVEL) {
             this.logger.info(msg);
         }
     }
 
-    private MeteringWarehouse mw() {
-        return MeteringWarehouse.getCurrent();
-    }
 }

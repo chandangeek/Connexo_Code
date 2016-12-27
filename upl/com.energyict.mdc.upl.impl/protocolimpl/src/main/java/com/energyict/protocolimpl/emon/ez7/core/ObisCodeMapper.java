@@ -26,16 +26,14 @@ import java.util.Date;
  */
 public class ObisCodeMapper {
 
-
-
-    EZ7CommandFactory ez7CommandFactory;
+    private final EZ7CommandFactory ez7CommandFactory;
 
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(EZ7CommandFactory ez7CommandFactory) {
         this.ez7CommandFactory=ez7CommandFactory;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
@@ -56,9 +54,9 @@ public class ObisCodeMapper {
         if (ObisUtils.isManufacturerSpecific(obisCode)) {
             if (read) {
                 GenericValue genv = ez7CommandFactory.getGenericValue(obisCode.getB());
-                if (genv==null)
-                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! No command for B field "+obisCode.getB());
-                else {
+                if (genv==null) {
+                    throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported! No command for B field " + obisCode.getB());
+                } else {
                     int value = genv.getValue(obisCode.getF(), obisCode.getE());
                     if (value != -1) {
                         registerValue = new RegisterValue(obisCode,
@@ -70,15 +68,19 @@ public class ObisCodeMapper {
                                                           0, // registerid
                                                           "0x"+Integer.toHexString(value)); // text
                     }
-                    else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                    else {
+                        throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+                    }
                 }
             }
-            else return new RegisterInfo("manufacturer specific ObisCode");
+            else {
+                return new RegisterInfo("manufacturer specific ObisCode");
+            }
         } // if (ObisUtils.isManufacturerSpecific(obisCode))
         // obis F code
-        else if (obisCode.getF() != 255)
-            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! No billing points supported!");
-        // *********************************************************************************
+        else if (obisCode.getF() != 255) {
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported! No billing points supported!");
+        }// *********************************************************************************
         // Electricity related ObisRegisters
         else if ((obisCode.getA() == 1) && (obisCode.getB() >= 1) && (obisCode.getB() <= 8)) {
             if ((obisCode.getC() == 1) && (obisCode.getE() >= 1) && (obisCode.getE() <= 8)) { // active import
@@ -88,12 +90,11 @@ public class ObisCodeMapper {
                     if (read) {
                        Quantity q = ez7CommandFactory.getAllEnergy().getQuantity(obisCode.getB()-1, obisCode.getE()-1);
                        Quantity quantity = new Quantity(q.getAmount().multiply(ez7CommandFactory.ez7.getAdjustRegisterMultiplier()),q.getUnit());
-                       if (quantity != null) {
-                            registerValue = new RegisterValue(obisCode,quantity);
-                       }
-                       else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                        registerValue = new RegisterValue(obisCode,quantity);
                     }
-                    else return new RegisterInfo(obisCode.getDescription());
+                    else {
+                        return new RegisterInfo(obisCode.toString());
+                    }
                 }
                 // kW maximum demand
                 else if (obisCode.getD() == 6) {
@@ -104,21 +105,24 @@ public class ObisCodeMapper {
                        if (date != null) {
                             registerValue = new RegisterValue(obisCode,quantity,date);
                        }
-                       else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                       else {
+                           throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+                       }
                     }
-                    else return new RegisterInfo(obisCode.getDescription());
+                    else {
+                        return new RegisterInfo(obisCode.toString());
+                    }
                 }
                 // kW sliding demand
                 else if (obisCode.getD() == 5) {
                     if (read) {
                        Quantity q = ez7CommandFactory.getSlidingKWDemands().getQuantity(obisCode.getB()-1, obisCode.getE()-1);
                        Quantity quantity = new Quantity(q.getAmount().multiply(ez7CommandFactory.ez7.getAdjustRegisterMultiplier()),q.getUnit());
-                       if (quantity != null) {
-                            registerValue = new RegisterValue(obisCode,quantity);
-                       }
-                       else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                        registerValue = new RegisterValue(obisCode,quantity);
                     }
-                    else return new RegisterInfo(obisCode.getDescription()+"(last-"+(obisCode.getE()-1)+" 5 minute sliding demand interval)");
+                    else {
+                        return new RegisterInfo(obisCode.toString() + "(last-" + (obisCode.getE() - 1) + " 5 minute sliding demand interval)");
+                    }
                 }
             }
         }
@@ -148,26 +152,33 @@ public class ObisCodeMapper {
                        quantity = ez7CommandFactory.getPowerQuality().getFrequency((obisCode.getC()-14)/20);
                     }
                     else if (obisCode.getC() == 81) {
-                        if (obisCode.getE() == 40)
+                        if (obisCode.getE() == 40) {
                             quantity = ez7CommandFactory.getPowerQuality().getPhaseAngle(0);
-                        if (obisCode.getE() == 51)
+                        }
+                        if (obisCode.getE() == 51) {
                             quantity = ez7CommandFactory.getPowerQuality().getPhaseAngle(1);
-                        if (obisCode.getE() == 62)
+                        }
+                        if (obisCode.getE() == 62) {
                             quantity = ez7CommandFactory.getPowerQuality().getPhaseAngle(2);
+                        }
                     }
 
-                    if (quantity != null)
-                        registerValue = new RegisterValue(obisCode,quantity);
-                    else
-                        throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                    if (quantity != null) {
+                        registerValue = new RegisterValue(obisCode, quantity);
+                    } else {
+                        throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+                    }
                 }
-                else return new RegisterInfo(obisCode.getDescription());
+                else {
+                    return new RegisterInfo(obisCode.toString());
+                }
             }
         }
 
-        if ((read) && (registerValue != null))
+        if ((read) && (registerValue != null)) {
             return registerValue;
-        else
-            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        } else {
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+        }
     }
 }

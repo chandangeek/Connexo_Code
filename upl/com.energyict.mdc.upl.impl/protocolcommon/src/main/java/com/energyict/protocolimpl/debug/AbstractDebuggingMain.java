@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.MeterProtocol;
+
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.Optical;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.properties.TypedProperties;

@@ -10,6 +10,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -94,11 +95,6 @@ public class UNIFLO1200Main {
 		return properties;
 	}
 
-	/**
-	 * @param args
-	 * @throws IOException
-	 * @throws LinkException
-	 */
 	public static void main(String[] args) throws IOException, LinkException {
 
 		getATDialer().init(COMPORT, "ATM0");
@@ -113,7 +109,7 @@ public class UNIFLO1200Main {
 
 
 		try {
-			getUniflo1200().setProperties(getProperties());
+			getUniflo1200().setProperties(TypedProperties.copyOf(getProperties()));
 			getUniflo1200().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getUniflo1200().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
 			getUniflo1200().connect();
