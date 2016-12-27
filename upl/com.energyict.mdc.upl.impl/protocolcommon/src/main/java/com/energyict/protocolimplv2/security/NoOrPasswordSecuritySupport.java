@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,6 +7,7 @@ import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import com.energyict.protocolimpl.properties.TypedProperties;
 

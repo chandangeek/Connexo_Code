@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.Password;
@@ -9,6 +7,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import com.energyict.protocolimpl.properties.TypedProperties;
 
@@ -66,11 +66,6 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
                 KEY_C_LEGACY_PROPERTY,
                 KEY_F_LEGACY_PROPERTY,
                 SECURITY_LEVEL_PROPERTY_NAME);
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.MTU155_SECURITY.toString();
     }
 
     @Override

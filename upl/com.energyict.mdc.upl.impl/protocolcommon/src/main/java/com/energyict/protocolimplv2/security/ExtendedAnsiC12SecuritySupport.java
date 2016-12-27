@@ -44,12 +44,6 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.EXTENDED_ANSI_C12_SECURITY.toString();
-    }
-
-
-    @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Arrays.asList(new NoMessageEncryption(),
                 new ClearTextAuthenticationMessageEncryption(),

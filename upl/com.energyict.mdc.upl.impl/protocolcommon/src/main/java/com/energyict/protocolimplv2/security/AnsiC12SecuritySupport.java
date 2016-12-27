@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import com.energyict.protocolimpl.properties.TypedProperties;
 
@@ -40,11 +40,6 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
     @Override
     public List<String> getLegacySecurityProperties() {
         return Collections.singletonList(SECURITY_LEVEL_PROPERTY_NAME);
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.ANSI_C12_SECURITY.toString();
     }
 
     @Override
