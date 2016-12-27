@@ -1,13 +1,14 @@
 package com.energyict.mdc.channels.inbound;
 
+import com.energyict.mdc.channels.TranslationKeys;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Specific ConnectionType used for the EIWeb plus Protocol
+ * Specific ConnectionType used for the EIWeb plus Protocol.
  * <p>
  * Copyrights EnergyICT
  * Date: 13/12/12
@@ -30,8 +31,18 @@ public class EIWebPlusConnectionType implements ConnectionType {
 
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
 
+    private final PropertySpecService propertySpecService;
+
+    public EIWebPlusConnectionType(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     private PropertySpec ipAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(IP_ADDRESS_PROPERTY_NAME);
+        return this.propertySpecService
+                    .stringSpec()
+                    .named(TranslationKeys.EIWEB_PLUS)
+                    .describedAs(TranslationKeys.EIWEB_PLUS_DESCRIPTION)
+                    .finish();
     }
 
     protected TypedProperties getAllProperties() {

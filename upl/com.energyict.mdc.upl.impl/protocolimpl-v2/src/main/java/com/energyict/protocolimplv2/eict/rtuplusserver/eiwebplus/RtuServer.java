@@ -105,7 +105,7 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new EIWebPlusConnectionType());
+        return Arrays.<ConnectionType>asList(new EIWebPlusConnectionType(propertySpecService));
     }
 
     @Override
