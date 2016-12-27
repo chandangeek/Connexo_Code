@@ -5,8 +5,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
         'Imt.usagepointmanagement.view.StepDescription',
         'Uni.util.FormErrorMessage',
         'Uni.form.field.ComboReturnedRecordData',
-        'Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMetersInfo',
-        'Imt.metrologyconfiguration.model.MetrologyConfiguration'
+        'Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMetersInfo'
     ],
 
     usagePoint: null,
@@ -16,7 +15,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
 
         me.items = [
             {
-                xtype: 'component',
+                xtype: 'step-description',
                 itemId: 'step-description',
                 html: Uni.I18n.translate('usagepoint.wizard.linkMetrologyConfigurationWithMetersStep.description', 'IMT', 'Link a metrology configuration, and link meters to meter roles of the selected metrology configuration.')
             },
@@ -68,10 +67,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
                     queryMode: 'local',
                     forceSelection: true,
                     emptyText: Uni.I18n.translate('metrologyConfiguration.wizard.emptyText', 'IMT', 'Select metrology configuration...'),
-                    width: 320,
-                    listeners: {
-                        change: Ext.bind(me.onMetrologyConfigurationChange, me)
-                    }
+                    width: 320
                 },
                 {
                     xtype: 'button',
@@ -110,39 +106,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             notAllMetersSpecifiedMessage = me.down('#not-all-meters-specified-message');
 
         notAllMetersSpecifiedMessage.setVisible(!allMetersSpecified);
-    },
-
-    onMetrologyConfigurationChange: function (combo, newValue) {
-        var me = this,
-            metrologyConfigurationInfo = me.down('#metrology-configuration-with-meters-info'),
-            meterActivationsField = me.down('#meter-activations-field'),
-            notAllMetersSpecifiedMessage = me.down('#not-all-meters-specified-message'),
-            purposesField = me.down('#purposes-field');
-
-        Ext.suspendLayouts();
-        notAllMetersSpecifiedMessage.hide();
-        me.down('#reset-metrology-configuration').setDisabled(!newValue);
-        if (!Ext.isEmpty(newValue)) {
-            metrologyConfigurationInfo.show();
-            metrologyConfigurationInfo.setLoading();
-            Ext.ModelManager.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue.id, {
-                success: function (record) {
-                    var meterRoles = record.get('meterRoles');
-
-                    Ext.suspendLayouts();
-                    notAllMetersSpecifiedMessage.setVisible(!Ext.isEmpty(meterRoles));
-                    meterActivationsField.setMeterRoles(meterRoles, me.usagePoint.get('installationTime'));
-                    purposesField.setStore(record.metrologyContracts());
-                    Ext.resumeLayouts(true);
-                },
-                callback: function () {
-                    metrologyConfigurationInfo.setLoading(false);
-                }
-            });
-        } else {
-            metrologyConfigurationInfo.hide();
-        }
-        Ext.resumeLayouts(true);
     },
 
     resetMetrologyConfiguration: function () {

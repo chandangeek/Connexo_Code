@@ -21,7 +21,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         'Imt.usagepointmanagement.model.technicalinfo.Electricity',
         'Imt.usagepointmanagement.model.technicalinfo.Gas',
         'Imt.usagepointmanagement.model.technicalinfo.Water',
-        'Imt.usagepointmanagement.model.technicalinfo.Thermal'
+        'Imt.usagepointmanagement.model.technicalinfo.Thermal',
+        'Imt.metrologyconfiguration.model.MetrologyConfigurationWithCAS'
     ],
 
     stores: [
@@ -82,6 +83,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             },
             '#add-usage-point general-info-form #up-service-category-combo': {
                 change: me.onServiceCategoryChange
+            },
+            '#add-usage-point metrology-configuration-with-meters-info-form #metrology-configuration-combo': {
+                change: me.onMetrologyConfigurationChange
             },
             '#add-usage-point add-usage-point-wizard button[action=add]': {
                 click: me.saveUsagePoint
@@ -249,6 +253,73 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         }
     },
 
+    onMetrologyConfigurationChange: function (combo, newValue) {
+        var me = this,
+            wizard = me.getWizard(),
+            step = wizard.down('metrology-configuration-with-meters-info-form'),
+            metrologyConfigurationInfo = step.down('#metrology-configuration-with-meters-info'),
+            meterActivationsField = step.down('#meter-activations-field'),
+            notAllMetersSpecifiedMessage = step.down('#not-all-meters-specified-message'),
+            purposesField = step.down('#purposes-field');
+
+        Ext.suspendLayouts();
+        notAllMetersSpecifiedMessage.hide();
+        step.down('#reset-metrology-configuration').setDisabled(!newValue);
+        if (!Ext.isEmpty(newValue)) {
+            metrologyConfigurationInfo.show();
+            metrologyConfigurationInfo.setLoading();
+            me.getModel('Imt.metrologyconfiguration.model.MetrologyConfigurationWithCAS').load(newValue.id, {
+                success: function (record) {
+                    var meterRoles = record.get('meterRoles');
+
+                    Ext.suspendLayouts();
+                    me.updateMetrologyConfigurationCustomAttributeSetsSteps(record);
+                    notAllMetersSpecifiedMessage.setVisible(!Ext.isEmpty(meterRoles));
+                    meterActivationsField.setMeterRoles(meterRoles, wizard.getRecord().get('installationTime'));
+                    purposesField.setStore(record.metrologyContracts());
+                    Ext.resumeLayouts(true);
+                },
+                callback: function () {
+                    metrologyConfigurationInfo.setLoading(false);
+                }
+            });
+        } else {
+            metrologyConfigurationInfo.hide();
+            me.updateMetrologyConfigurationCustomAttributeSetsSteps();
+        }
+        Ext.resumeLayouts(true);
+    },
+
+    updateMetrologyConfigurationCustomAttributeSetsSteps: function (metrologyConfiguration) {
+        var me = this,
+            wizard = me.getWizard(),
+            navigation = me.getNavigationMenu(),
+            currentSteps = wizard.query('[isWizardStep=true]'),
+            currentMenuItems = navigation.query('menuitem'),
+            currentStepNumber = wizard.getLayout().getActiveItem().navigationIndex,
+            stepsToAdd = [],
+            navigationItemsToAdd = [],
+            stepNumber = currentStepNumber;
+
+        Ext.suspendLayouts();
+        // remove steps depending on metrology configuration
+        for (var i = currentStepNumber; i < currentSteps.length - 1; i++) {
+            wizard.remove(currentSteps[i], true);
+        }
+        // remove menu items after current step
+        for (var j = currentStepNumber; j < currentMenuItems.length; j++) {
+            navigation.remove(currentMenuItems[j], true);
+        }
+
+        if (metrologyConfiguration) {
+            me.addCustomPropertySetsSteps(metrologyConfiguration, stepsToAdd, navigationItemsToAdd, currentStepNumber);
+        }
+        me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, currentStepNumber + stepsToAdd.length + 1);
+        navigation.insert(currentStepNumber, navigationItemsToAdd);
+        wizard.insert(currentStepNumber, stepsToAdd);
+        Ext.resumeLayouts(true);
+    },
+
     updateSteps: function (step2, serviceCategory) {
         var me = this,
             wizard = me.getWizard(),
@@ -267,22 +338,20 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         for (var j = 2; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
-        me.addCustomPropertySetsSteps(serviceCategory, stepsToAdd, navigationItemsToAdd);
+        me.addCustomPropertySetsSteps(serviceCategory, stepsToAdd, navigationItemsToAdd, stepsToAdd.length + 1);
         me.addLinkMetrologyConfigurationStep(stepsToAdd, navigationItemsToAdd);
-        me.modifyLifeCycleTransitionStep(wizard, stepsToAdd, navigationItemsToAdd);
+        me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, stepsToAdd.length + 1);
         navigation.add(navigationItemsToAdd);
         wizard.insert(1, stepsToAdd);
         Ext.resumeLayouts(true);
     },
 
-    addCustomPropertySetsSteps: function (serviceCategory, stepsToAdd, navigationItemsToAdd) {
-        var stepNumber = stepsToAdd.length + 1;
-
-        serviceCategory.customPropertySets().each(function (record, index) {
+    addCustomPropertySetsSteps: function (parent, stepsToAdd, navigationItemsToAdd, stepNumber) {
+        parent.customPropertySets().each(function (record) {
             stepNumber++;
             stepsToAdd.push({
                 xtype: 'cps-info-form',
-                itemId: 'step-cas' + index,
+                itemId: 'step-cas' + record.getId(),
                 title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, record.get('name')]),
                 navigationIndex: stepNumber,
                 stepName: 'casInfo',
@@ -332,7 +401,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                     availableMetrologyConfigurations = Ext.decode(response.responseText),
                     currentMetrologyConfiguration = metrologyConfigurationCombo ? metrologyConfigurationCombo.getValue() : null;
 
-                step.usagePoint = usagePoint;
                 linkableMetrologyConfigurationsStore.loadData(availableMetrologyConfigurations);
                 if (!currentMetrologyConfiguration || !linkableMetrologyConfigurationsStore.getById(currentMetrologyConfiguration.id)) {
                     step.prepareStep(!Ext.isEmpty(availableMetrologyConfigurations));
@@ -344,12 +412,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         });
     },
 
-    modifyLifeCycleTransitionStep: function (wizard, stepsToAdd, navigationItemsToAdd) {
+    modifyLifeCycleTransitionStep: function (wizard, navigationItemsToAdd, stepNumber) {
         var lifeCycleTransitionStep = wizard.down('life-cycle-transition-info-form'),
-            title = Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition'),
-            stepNumber = stepsToAdd.length + 1;
-
-        stepNumber++;
+            title = Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition');
 
         lifeCycleTransitionStep.setTitle(Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, title]));
         lifeCycleTransitionStep.navigationIndex = stepNumber;
