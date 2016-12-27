@@ -12,7 +12,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         'Imt.usagepointmanagement.view.forms.WaterInfo',
         'Imt.usagepointmanagement.view.forms.ThermalInfo',
         'Imt.usagepointmanagement.view.forms.CustomPropertySetInfo',
-        'Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters'
+        'Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters',
+        'Imt.usagepointmanagement.view.forms.LifeCycleTransition'
     ],
 
     models: [
@@ -280,14 +281,16 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 text: record.get('name')
             });
         });
-        me.addLinkMetrologyConfigurationStep(stepsToAdd, navigationItemsToAdd, stepNumber);
+        me.addLinkMetrologyConfigurationStep(stepsToAdd, navigationItemsToAdd);
+        me.addLifeCycleTransitionStep(stepsToAdd, navigationItemsToAdd);
         navigation.add(navigationItemsToAdd);
         wizard.add(stepsToAdd);
         Ext.resumeLayouts(true);
     },
 
-    addLinkMetrologyConfigurationStep: function (stepsToAdd, navigationItemsToAdd, stepNumber) {
-        var title = Uni.I18n.translate('general.linkMetrologyConfiguration', 'IMT', 'Link metrology configuration');
+    addLinkMetrologyConfigurationStep: function (stepsToAdd, navigationItemsToAdd) {
+        var title = Uni.I18n.translate('general.linkMetrologyConfiguration', 'IMT', 'Link metrology configuration'),
+            stepNumber = stepsToAdd.length + 1;
 
         stepNumber++;
         stepsToAdd.push({
@@ -300,6 +303,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             isWizardStep: true
         });
         navigationItemsToAdd.push({
+            itemId: 'navigation-metrology-configuration-with-meters-info',
             text: title
         });
     },
@@ -330,6 +334,26 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             callback: function () {
                 wizard.setLoading(false)
             }
+        });
+    },
+
+    addLifeCycleTransitionStep: function (stepsToAdd, navigationItemsToAdd) {
+        var title = Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition'),
+            stepNumber = stepsToAdd.length + 1;
+
+        stepNumber++;
+        stepsToAdd.push({
+            xtype: 'life-cycle-transition-info-form',
+            title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, title]),
+            navigationIndex: stepNumber,
+            stepName: 'lifeCycleTransitionInfo',
+            itemId: 'add-usage-point-step' + stepNumber,
+            ui: 'large',
+            isWizardStep: true
+        });
+        navigationItemsToAdd.push({
+            itemId: 'navigation-life-cycle-transition-info',
+            text: title
         });
     }
 });
