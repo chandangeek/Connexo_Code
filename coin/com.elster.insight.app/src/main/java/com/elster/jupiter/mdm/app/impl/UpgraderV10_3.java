@@ -29,14 +29,17 @@ public class UpgraderV10_3 implements Upgrader {
 
     private String[] getNewDataExpertPrivileges() {
         return new String[]{
-                // export
+                // Usage point
+                com.elster.jupiter.metering.security.Privileges.Constants.MANAGE_USAGE_POINT_ATTRIBUTES,
+
+                // Export
                 com.elster.jupiter.export.security.Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
 
-                //Import services
+                // Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
 
                 // Usage point groups
@@ -44,7 +47,7 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP,
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
 
-                //estimation
+                // Estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
                 com.elster.jupiter.estimation.security.Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,
@@ -53,7 +56,7 @@ public class UpgraderV10_3 implements Upgrader {
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK,
 
-                //Estimation configuration on metrology configuration
+                // Estimation configuration on metrology configuration
                 com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION,
                 com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION,
 
@@ -69,17 +72,17 @@ public class UpgraderV10_3 implements Upgrader {
 
     private String[] getNewDataOperatorPrivileges() {
         return new String[]{
-                // export
+                // Export
                 com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
 
-                //Import services
+                // Import services
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
 
-                //Usage point groups
+                // Usage point groups
                 com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
 
-                //estimation
+                // Estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
