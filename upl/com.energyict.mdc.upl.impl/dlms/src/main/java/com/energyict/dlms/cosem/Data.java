@@ -1,9 +1,9 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;

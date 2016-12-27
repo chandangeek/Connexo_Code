@@ -1,11 +1,18 @@
 package com.elster.protocolimpl.lis100.testutils;
 
 import com.elster.protocolimpl.lis100.Lis100ObjectFactory;
-import com.elster.protocolimpl.lis100.objects.*;
-import com.elster.protocolimpl.lis100.objects.api.*;
+import com.elster.protocolimpl.lis100.objects.ConstantObject;
+import com.elster.protocolimpl.lis100.objects.CounterObject;
+import com.elster.protocolimpl.lis100.objects.CpValueObject;
+import com.elster.protocolimpl.lis100.objects.DoubleObject;
+import com.elster.protocolimpl.lis100.objects.IntegerObject;
+import com.elster.protocolimpl.lis100.objects.IntervalObject;
+import com.elster.protocolimpl.lis100.objects.api.IBaseObject;
+import com.elster.protocolimpl.lis100.objects.api.IClockObject;
+import com.elster.protocolimpl.lis100.objects.api.ICounterObject;
+import com.elster.protocolimpl.lis100.objects.api.IDoubleObject;
+import com.elster.protocolimpl.lis100.objects.api.IIntegerObject;
 import com.elster.protocolimpl.lis100.profile.IIntervalDataStreamReader;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -166,11 +173,11 @@ public class Lis100TestObjectFactory
     }
 
     private class TestClockObject implements IClockObject {
-        public Date getDate() throws NestedIOException, ConnectionException {
+        public Date getDate() {
             return new Date();
         }
 
-        public void setDate(Date date) throws IOException {
+        public void setDate(Date date) {
         }
     }
 

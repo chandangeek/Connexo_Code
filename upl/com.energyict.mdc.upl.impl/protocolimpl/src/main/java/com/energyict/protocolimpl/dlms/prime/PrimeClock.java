@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Clock;

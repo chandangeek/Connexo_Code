@@ -1,8 +1,11 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -95,8 +98,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 					getLNResponseData(ATTRB_INACTIVITYTIMEOUT), 0);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new NestedIOException(e, "Could not retrieve the inactivityTimeout. "
-					+ e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the inactivityTimeout. " + e.getMessage());
 		}
 	}
 

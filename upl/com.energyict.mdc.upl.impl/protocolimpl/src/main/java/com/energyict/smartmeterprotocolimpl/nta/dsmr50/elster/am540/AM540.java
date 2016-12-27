@@ -1,25 +1,20 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.base.RTUCache;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
@@ -32,7 +27,6 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 
 /**

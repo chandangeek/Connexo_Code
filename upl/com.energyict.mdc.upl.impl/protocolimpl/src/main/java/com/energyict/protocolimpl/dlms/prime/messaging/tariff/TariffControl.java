@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.dlms.prime.messaging.tariff;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
@@ -163,7 +163,7 @@ public class TariffControl extends PrimeMessageExecutor {
      * @param contract The contract to write to the meter
      * @throws java.io.IOException If there went something wrong
      */
-    private final void writeContract(final Contract contract) throws IOException {
+    private void writeContract(final Contract contract) throws IOException {
         final PrimeActivityCalendarController activityCalendarController = new PrimeActivityCalendarController(getSession().getCosemObjectFactory(), getSession().getTimeZone());
         activityCalendarController.parseContent(contract);
         activityCalendarController.writeCalendarName();

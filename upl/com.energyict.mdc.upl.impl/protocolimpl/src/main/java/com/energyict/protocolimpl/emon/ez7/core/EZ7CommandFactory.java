@@ -6,10 +6,30 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.EZ7;
-import com.energyict.protocolimpl.emon.ez7.core.command.*;
+import com.energyict.protocolimpl.emon.ez7.core.command.AllEnergy;
+import com.energyict.protocolimpl.emon.ez7.core.command.AllMaximumDemand;
+import com.energyict.protocolimpl.emon.ez7.core.command.EventGeneral;
+import com.energyict.protocolimpl.emon.ez7.core.command.EventGeneralGeneration2;
+import com.energyict.protocolimpl.emon.ez7.core.command.EventLoad;
+import com.energyict.protocolimpl.emon.ez7.core.command.FlagsStatus;
+import com.energyict.protocolimpl.emon.ez7.core.command.GenericValue;
+import com.energyict.protocolimpl.emon.ez7.core.command.HookUp;
+import com.energyict.protocolimpl.emon.ez7.core.command.IMONInformation;
+import com.energyict.protocolimpl.emon.ez7.core.command.MeterInformation;
+import com.energyict.protocolimpl.emon.ez7.core.command.PowerQuality;
+import com.energyict.protocolimpl.emon.ez7.core.command.ProfileDataCompressed;
+import com.energyict.protocolimpl.emon.ez7.core.command.ProfileHeader;
+import com.energyict.protocolimpl.emon.ez7.core.command.ProfileStatus;
+import com.energyict.protocolimpl.emon.ez7.core.command.RGLInfo;
+import com.energyict.protocolimpl.emon.ez7.core.command.RTC;
+import com.energyict.protocolimpl.emon.ez7.core.command.SetKey;
+import com.energyict.protocolimpl.emon.ez7.core.command.SlidingKWDemands;
+import com.energyict.protocolimpl.emon.ez7.core.command.VerifyKey;
+import com.energyict.protocolimpl.emon.ez7.core.command.Version;
 
 import java.io.IOException;
 
@@ -18,10 +38,10 @@ import java.io.IOException;
  * @author  Koen
  */
 public class EZ7CommandFactory {
-    
-    
+
+
     EZ7 ez7=null;
-    
+
     // cached objects
     ProfileStatus profileStatus = null;
     AllEnergy allEnergy = null;
@@ -37,7 +57,7 @@ public class EZ7CommandFactory {
     ProfileHeader profileHeader=null;
     MeterInformation meterInformation=null;
     IMONInformation imonInformation=null;
-            
+
     // not cached
     RTC rtc=null;
     //ProfileDataCompressed profileDataCompressed=null;
@@ -48,11 +68,11 @@ public class EZ7CommandFactory {
         this.ez7=ez7;
     }
 
-    
+
     /*****************************************************************************************
-     * Generic command methods 
+     * Generic command methods
      *****************************************************************************************/
-    public GenericValue getGenericValue(int index) throws ConnectionException, IOException {
+    public GenericValue getGenericValue(int index) throws IOException {
         switch(index) {
             case 0:
                 return getEventGeneral(); // REG
@@ -66,42 +86,42 @@ public class EZ7CommandFactory {
                 return null;
         } // switch(index)
     } // public GenericValue getGenericValue(int index) throws ConnectionException, IOException
-    
+
     /*****************************************************************************************
      * C A C H E D  O B J E C T S  F R O M  M E T E R
      *****************************************************************************************/
-    public ProfileStatus getProfileStatus() throws ConnectionException, IOException {
+    public ProfileStatus getProfileStatus() throws IOException {
         if (profileStatus == null) {
            profileStatus = new ProfileStatus(this);
            profileStatus.build();
         }
         return profileStatus;
     }
-    
-    public AllEnergy getAllEnergy() throws ConnectionException, IOException {
+
+    public AllEnergy getAllEnergy() throws IOException {
         if (allEnergy == null) {
            allEnergy = new AllEnergy(this);
            allEnergy.build();
         }
         return allEnergy;
     }
-    
-    public AllMaximumDemand getAllMaximumDemand() throws ConnectionException, IOException {
+
+    public AllMaximumDemand getAllMaximumDemand() throws IOException {
         if (allMaximumDemand == null) {
            allMaximumDemand = new AllMaximumDemand(this);
            allMaximumDemand.build();
         }
         return allMaximumDemand;
     }
-    
-    public Version getVersion() throws ConnectionException, IOException {
+
+    public Version getVersion() throws IOException {
         if (version == null) {
            version = new Version(this);
            version.build();
         }
         return version;
     }
-    
+
     public RGLInfo getRGLInfo() throws ConnectionException, NestedIOException {
         if (rglInfo == null) {
            rglInfo = new RGLInfo(this);
@@ -109,16 +129,16 @@ public class EZ7CommandFactory {
         }
         return rglInfo;
     }
-    
-    public HookUp getHookUp() throws ConnectionException, IOException {
+
+    public HookUp getHookUp() throws IOException {
         if (hookUp == null) {
            hookUp = new HookUp(this);
            hookUp.build();
         }
         return hookUp;
     }
-    
-    public PowerQuality getPowerQuality() throws ConnectionException, IOException {
+
+    public PowerQuality getPowerQuality() throws IOException {
         if (powerQuality == null) {
            powerQuality = new PowerQuality(this);
            powerQuality.build();
@@ -126,7 +146,7 @@ public class EZ7CommandFactory {
         return powerQuality;
     }
 
-    public EventGeneral getEventGeneral() throws ConnectionException, IOException {
+    public EventGeneral getEventGeneral() throws IOException {
         if (eventGeneral == null) {
             if (isGeneration2Device()) {
                 eventGeneral = new EventGeneralGeneration2(this);
@@ -138,80 +158,80 @@ public class EZ7CommandFactory {
         return eventGeneral;
     }
 
-    public EventLoad getEventLoad() throws ConnectionException, IOException {
+    public EventLoad getEventLoad() throws IOException {
         if (eventLoad == null) {
            eventLoad = new EventLoad(this);
            eventLoad.build();
         }
         return eventLoad;
     }
-    
-    public FlagsStatus getFlagsStatus() throws ConnectionException, IOException {
+
+    public FlagsStatus getFlagsStatus() throws IOException {
         if (flagsStatus == null) {
            flagsStatus = new FlagsStatus(this);
            flagsStatus.build();
         }
         return flagsStatus;
     }
-    
-    public SlidingKWDemands getSlidingKWDemands() throws ConnectionException, IOException {
+
+    public SlidingKWDemands getSlidingKWDemands() throws IOException {
         if (slidingKWDemands == null) {
            slidingKWDemands = new SlidingKWDemands(this);
            slidingKWDemands.build();
         }
         return slidingKWDemands;
     }
-    
-    public ProfileHeader getProfileHeader() throws ConnectionException, IOException {
+
+    public ProfileHeader getProfileHeader() throws IOException {
         if (profileHeader == null) {
            profileHeader = new ProfileHeader(this);
            profileHeader.build();
         }
         return profileHeader;
     }
-    
-    public MeterInformation getMeterInformation() throws ConnectionException, IOException {
+
+    public MeterInformation getMeterInformation() throws IOException {
         if (meterInformation == null) {
            meterInformation = new MeterInformation(this);
            meterInformation.build();
         }
         return meterInformation;
     }
-    
-    public IMONInformation getImonInformation() throws ConnectionException, IOException {
+
+    public IMONInformation getImonInformation() throws IOException {
         if (imonInformation == null) {
            imonInformation = new IMONInformation(this);
            imonInformation.build();
         }
         return imonInformation;
     }
-    
+
     /*****************************************************************************************
      * U P D A T E D  O B J E C T S  F R O M  M E T E R
      *****************************************************************************************/
-    public RTC getRTC() throws ConnectionException, IOException {
+    public RTC getRTC() throws IOException {
         rtc = new RTC(this);
         rtc.build();
         return rtc;
     }
-    
-    public void setRTC() throws ConnectionException, IOException {
+
+    public void setRTC() throws IOException {
         rtc = new RTC(this);
         rtc.write(ez7.getInfoTypeRoundtripCorrection());
     }
-    
-    public ProfileDataCompressed getProfileDataCompressed(int dayBlockNr) throws ConnectionException, IOException {
+
+    public ProfileDataCompressed getProfileDataCompressed(int dayBlockNr) throws IOException {
         ProfileDataCompressed profileDataCompressed = new ProfileDataCompressed(this,dayBlockNr);
         profileDataCompressed.build();
         return profileDataCompressed;
     }
-    
-    public VerifyKey getVerifyKey() throws ConnectionException, IOException {
+
+    public VerifyKey getVerifyKey() throws IOException {
         verifyKey = new VerifyKey(this);
         verifyKey.build();
         return verifyKey;
     }
-    
+
     public SetKey getSetKey() {
         setKey = new SetKey(this);
         return setKey;
@@ -228,7 +248,7 @@ public class EZ7CommandFactory {
             return false;
         }
     }
-    
+
     /**
      * Getter for property ez7.
      * @return Value of property ez7.

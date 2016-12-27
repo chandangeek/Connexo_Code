@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.core.StreamConnection;
 import com.energyict.dialer.serialserviceprovider.SerialPort;
 import com.energyict.protocol.tools.InputStreamObserver;

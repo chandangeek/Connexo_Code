@@ -1,5 +1,7 @@
 package com.energyict.dialer.coreimpl;
 
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.core.DialerException;
 import com.energyict.dialer.core.IPDial;
 import com.energyict.dialer.core.LinkException;
@@ -21,7 +23,7 @@ public class IPDialer extends DialerImpl implements IPDial {
         dial(strDialAddress1, strDialAddress2, iTimeout);
     }
 
-    protected void doDisConnect() throws com.energyict.cbo.NestedIOException, DialerException {
+    protected void doDisConnect() throws NestedIOException, DialerException {
     }
 
     protected void dial(String strDialAddress1, String strDialAddress2, int iTimeout) throws IOException, LinkException {

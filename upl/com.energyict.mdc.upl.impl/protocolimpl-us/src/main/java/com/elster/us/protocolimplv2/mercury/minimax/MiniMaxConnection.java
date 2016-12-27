@@ -1,21 +1,37 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
-import static com.elster.us.protocolimplv2.mercury.minimax.Consts.*;
-import static com.elster.us.protocolimplv2.mercury.minimax.utility.ByteArrayHelper.*;
-import static com.elster.us.protocolimplv2.mercury.minimax.Command.*;
+import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.protocol.ComChannel;
 
-import com.energyict.cbo.NestedIOException;
-import com.elster.us.protocolimplv2.mercury.minimax.frame.*;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.RequestFrame;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.ResponseFrame;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.data.BasicData;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.data.ExtendedData;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.InboundFrameException;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import static com.elster.us.protocolimplv2.mercury.minimax.Command.RD;
+import static com.elster.us.protocolimplv2.mercury.minimax.Command.RG;
+import static com.elster.us.protocolimplv2.mercury.minimax.Command.SF;
+import static com.elster.us.protocolimplv2.mercury.minimax.Command.SN;
+import static com.elster.us.protocolimplv2.mercury.minimax.Command.WD;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.CONTROL_ACK;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.CONTROL_ENQ;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.CONTROL_EOT;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.CONTROL_ETX;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.CONTROL_RS;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.CONTROL_SOH;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.CONTROL_STX;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.ERROR_INVALID_ENQUIRY;
+import static com.elster.us.protocolimplv2.mercury.minimax.Consts.STR_VQ;
+import static com.elster.us.protocolimplv2.mercury.minimax.utility.ByteArrayHelper.arraysEqual;
+import static com.elster.us.protocolimplv2.mercury.minimax.utility.ByteArrayHelper.getBytes;
+import static com.elster.us.protocolimplv2.mercury.minimax.utility.ByteArrayHelper.getString;
 
 /**
  * Deals with the connection-level communications with the Mercury EVC
@@ -24,7 +40,7 @@ import java.util.logging.*;
  */
 public class MiniMaxConnection {
 
-    private final static int CRC_LENGTH = 4;
+    private static final int CRC_LENGTH = 4;
     private final MiniMaxProperties properties;
 
     private boolean connected = false;
@@ -103,7 +119,7 @@ public class MiniMaxConnection {
 
     private List<ResponseFrame> receiveResponseFrames(boolean sohAlreadyReceived) throws IOException  {
 
-        List<ResponseFrame> receivedFrames = new ArrayList<ResponseFrame>();
+        List<ResponseFrame> receivedFrames = new ArrayList<>();
 
         byte b = 0x00;
 
@@ -157,11 +173,7 @@ public class MiniMaxConnection {
     }
 
     private boolean checkCrc(byte[] receivedBytes, byte[] crc) {
-        if (arraysEqual(receivedBytes, crc)) {
-            return true;
-        } else {
-            return false;
-        }
+        return arraysEqual(receivedBytes, crc);
     }
 
     private byte[] readCrc() throws IOException {

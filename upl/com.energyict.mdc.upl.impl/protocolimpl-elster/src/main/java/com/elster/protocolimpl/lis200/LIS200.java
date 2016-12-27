@@ -1,5 +1,6 @@
 package com.elster.protocolimpl.lis200;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -28,7 +29,6 @@ import com.elster.protocolimpl.lis200.registers.StateRegisterDefinition;
 import com.elster.protocolimpl.lis200.registers.ValueRegisterDefinition;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.elster.utils.lis200.events.EventInterpreter;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;

@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 
@@ -17,24 +18,24 @@ import java.util.Date;
  * @author  Koen
  */
 public class PACTRegisterFactory {
-    
+
     private static final int DEBUG=0;
-    
+
     private long timeOffset = 0;
     private Date oldMeterTime;
-    
+
     ProtocolLink protocolLink;
     FileTransfer fileTransfer=null;
-    
+
     MeterIdentitySerialNumber meterIdentitySerialNumber=null;
     MeterReadingsInterpreter meterReadingsInterpreter=null;
-    
+
     /** Creates a new instance of PACTRegister */
     public PACTRegisterFactory(ProtocolLink protocolLink) {
         this.protocolLink=protocolLink;
     }
-    
-    
+
+
     /** Getter for property protocolLink.
      * @return Value of property protocolLink.
      *
@@ -42,58 +43,61 @@ public class PACTRegisterFactory {
     public com.energyict.protocolimpl.pact.core.common.ProtocolLink getProtocolLink() {
         return protocolLink;
     }
-    
+
     /** Getter for property meterIdentitySerialNumber.
      * @return Value of property meterIdentitySerialNumber.
      *
      */
     public com.energyict.protocolimpl.pact.core.common.MeterIdentitySerialNumber getMeterIdentitySerialNumber() throws NestedIOException, ConnectionException {
         if (meterIdentitySerialNumber==null) {
-            meterIdentitySerialNumber = new MeterIdentitySerialNumber(getProtocolLink().getPactConnection().sendStringRequest("s"));   
-            if (DEBUG >=1) 
-                System.out.println("KV_DEBUG>\n"+meterIdentitySerialNumber.toString());
+            meterIdentitySerialNumber = new MeterIdentitySerialNumber(getProtocolLink().getPactConnection().sendStringRequest("s"));
+            if (DEBUG >=1) {
+                System.out.println("KV_DEBUG>\n" + meterIdentitySerialNumber.toString());
+            }
         }
         return meterIdentitySerialNumber;
     }
-    
+
     public MeterReadingsInterpreter getMeterReadingsInterpreter() throws NestedIOException, ConnectionException {
         if (meterReadingsInterpreter == null) {
-        	
+
         	setTimeOffset();
-            
+
             // get raw meterreading data
             byte[] data=null;
-            if (getProtocolLink().getPACTMode().isPACTStandard())
-                data = getProtocolLink().getPactConnection().getMeterReadingData();   
-            else if (getProtocolLink().getPACTMode().isPAKNET())
-                data = getProtocolLink().getPactConnection().getMeterReadingDataStream();   
-            
+            if (getProtocolLink().getPACTMode().isPACTStandard()) {
+                data = getProtocolLink().getPactConnection().getMeterReadingData();
+            } else if (getProtocolLink().getPACTMode().isPAKNET()) {
+                data = getProtocolLink().getPactConnection().getMeterReadingDataStream();
+            }
+
             // do authorization and validation
             if (getProtocolLink().getPACTToolkit() != null) {
                 getFileTransfer().appendData(data);
                 try {
                     int encrypted = getProtocolLink().getPACTToolkit().validateData(getFileTransfer().getFileName());
                     if (encrypted == 1) {
-                       data = getFileTransfer().getDecryptedReadingsData();    
+                       data = getFileTransfer().getDecryptedReadingsData();
                     }
                 }
                 catch(IOException e) {
-                    throw new NestedIOException(e);   
+                    throw new NestedIOException(e);
                 }
             } // if (getProtocolLink().getPACTToolkit() != null)
-            
+
             meterReadingsInterpreter = new MeterReadingsInterpreter(data,getProtocolLink());
             meterReadingsInterpreter.parse();
             if (meterReadingsInterpreter.getCounters() != null) {
                 setOldMeterDate(meterReadingsInterpreter.getCounters().getMeterDateTime());
             }
-            
-            if (protocolLink.isExtendedLogging())
+
+            if (protocolLink.isExtendedLogging()) {
                 protocolLink.getLogger().info(meterReadingsInterpreter.toString());
+            }
         }
         return meterReadingsInterpreter;
     }
-    
+
     private void setTimeOffset(){
     	this.timeOffset = System.currentTimeMillis();
     }
@@ -104,12 +108,13 @@ public class PACTRegisterFactory {
     private void setOldMeterDate(Date meterDateTime) {
     	this.oldMeterTime = meterDateTime;
 	}
-    
+
     public Date getCurrentTime(){
-    	if(oldMeterTime != null)
-    		return new Date(oldMeterTime.getTime() + System.currentTimeMillis() - getTimeOffset());
-    	else
-    		return null;
+    	if(oldMeterTime != null) {
+            return new Date(oldMeterTime.getTime() + System.currentTimeMillis() - getTimeOffset());
+        } else {
+            return null;
+        }
     }
 
 
@@ -118,8 +123,9 @@ public class PACTRegisterFactory {
      *
      */
     public FileTransfer getFileTransfer() {
-        if (fileTransfer == null) 
+        if (fileTransfer == null) {
             fileTransfer = new FileTransfer();
+        }
         return fileTransfer;
     }
 }

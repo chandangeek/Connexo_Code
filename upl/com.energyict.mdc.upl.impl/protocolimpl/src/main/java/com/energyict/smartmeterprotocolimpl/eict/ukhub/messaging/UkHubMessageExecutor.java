@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -141,7 +141,7 @@ public class UkHubMessageExecutor extends MessageParser {
             } else if (removeAllZigBeeSlaves) {
                 removeAllZigBeeSlaves(messageHandler);
             } else if (backupZigBeeHanParameters) {
-                backupZigBeeHanParameters(messageHandler);
+                backupZigBeeHanParameters();
             } else if (restoreZigBeeParameters) {
                 restoreZigBeeHanParameters(messageHandler);
             } else if (readZigBeeStatus) {
@@ -459,7 +459,7 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "Restore ZigBee Han Keys successful");
     }
 
-    private void backupZigBeeHanParameters(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void backupZigBeeHanParameters() throws IOException, BusinessException, SQLException {
         log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();

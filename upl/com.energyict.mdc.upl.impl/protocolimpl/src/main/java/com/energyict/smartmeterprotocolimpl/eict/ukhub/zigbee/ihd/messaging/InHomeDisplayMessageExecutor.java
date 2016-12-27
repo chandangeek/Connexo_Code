@@ -1,9 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
@@ -12,7 +13,6 @@ import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
@@ -66,17 +66,9 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
             }
-        } catch (IOException e) {
+        } catch (IOException | BusinessException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
-        } catch (BusinessException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (InterruptedException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-            Thread.currentThread().interrupt();
-            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
 
         if (success) {
@@ -87,7 +79,7 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
         }
     }
 
-    private void updateFirmware(MessageHandler messageHandler, String content) throws IOException, InterruptedException {
+    private void updateFirmware(MessageHandler messageHandler, String content) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
@@ -97,7 +89,7 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
             throw new IOException(str);
         }
         UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof UserFile)) {
+        if (!(uf instanceof DeviceMessageFile)) {
             String str = "Not a valid entry for the userfileID " + userFileID;
             throw new IOException(str);
         }
@@ -136,12 +128,12 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
     }
 
     private Logger getLogger() {
-        return ((InHomeDisplay) protocol).getDlmsSession().getLogger();
+        return protocol.getDlmsSession().getLogger();
     }
 
     @Override
     protected TimeZone getTimeZone() {
-        return ((InHomeDisplay) this.protocol).getTimeZone();
+        return this.protocol.getTimeZone();
     }
 
     /*****************************************************************************/

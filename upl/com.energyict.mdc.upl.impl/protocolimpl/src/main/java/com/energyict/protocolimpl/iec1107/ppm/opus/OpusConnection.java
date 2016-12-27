@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.ppm.opus;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
@@ -19,8 +20,8 @@ import java.util.logging.Logger;
 /**
  * For information regarding Opus protocol, read manufacturer documentation:
  * Protocol for communication between an instation and outstation.
- * 
- * 
+ *
+ *
  * @author fbo
  */
 
@@ -52,13 +53,13 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * Just a constructor, move along
-	 * 
+	 *
 	 * @param inputStream
 	 * @param outputStream
 	 * @param ppm
 	 * @throws ConnectionException
 	 */
-	public OpusConnection(InputStream inputStream, OutputStream outputStream, PPM ppm) throws ConnectionException {
+	public OpusConnection(InputStream inputStream, OutputStream outputStream, PPM ppm) {
 
 		super(inputStream, outputStream, 0, 0);
 		this.nodeId = ppm.getNodeId();
@@ -94,7 +95,6 @@ public class OpusConnection extends Connection {
 	}
 
 	public OpusResponse readRegister(String dataIdentity, int packetNr, int dayNr, int nrPackets, boolean isProfileData)
-
             throws NestedIOException, ConnectionException, PPMIOException {
 
 		ReadCommand command = new ReadCommand(dataIdentity, packetNr, dayNr, nrPackets, isProfileData);
@@ -103,17 +103,15 @@ public class OpusConnection extends Connection {
 
 	}
 
-	public OpusResponse writeRegister(String dataIdentity, byte[] data) throws NestedIOException, ConnectionException, IOException {
-
+	public OpusResponse writeRegister(String dataIdentity, byte[] data) throws IOException {
 		WriteCommand command = new WriteCommand(dataIdentity, data);
 		doCommand(command);
 		return command.getOpusResponse();
-
 	}
 
 	abstract class OpusCommand {
 
-		abstract void execute() throws ConnectionException, IOException;
+		abstract void execute() throws IOException;
 
 		abstract OpusResponse getOpusResponse();
 
@@ -175,11 +173,11 @@ public class OpusConnection extends Connection {
 		int nrPackets = 0;
 		boolean isProfileData = false;
 
-		public ReadCommand(String dataIdentity) {
+		ReadCommand(String dataIdentity) {
 			this.dataIdentity = dataIdentity;
 		}
 
-		public ReadCommand(String dataIdentity, int packetNr, int dayNr, int nrPackets, boolean isProfileData) {
+		ReadCommand(String dataIdentity, int packetNr, int dayNr, int nrPackets, boolean isProfileData) {
 			this(dataIdentity);
 			this.packetNumber = buildZeroLeadingString(packetNr, 3);
 			this.dayNumber = buildZeroLeadingString(dayNr, 3);
@@ -206,7 +204,7 @@ public class OpusConnection extends Connection {
 		 * In case of the Profile data, the result has a dynamic lenght.
 		 * If the end of the days has been reached, the meter sends an <ETX>
 		 */
-		public void execute() throws ConnectionException, IOException {
+		public void execute() throws IOException {
 
 			int packetCount = 1;
 			boolean endOfRegister = false;
@@ -289,7 +287,7 @@ public class OpusConnection extends Connection {
 			this.data = data;
 		}
 
-		public void execute() throws ConnectionException, IOException {
+		public void execute() throws IOException {
 
 			MessageComposer iMessage = createInstruction(this.dataIdentity, this.packetNumber, WRITE, this.dayNumber);
 			sendOut(iMessage);
@@ -424,11 +422,11 @@ public class OpusConnection extends Connection {
 	private static final CtrlChar READ = new CtrlChar(0x52, "R", "READ");
 	private static final CtrlChar WRITE = new CtrlChar(0x57, "W", "WRITE");
 
-	public void sendOut(MessageComposer aMessage) throws ConnectionException, IOException {
+	public void sendOut(MessageComposer aMessage) throws IOException {
 
 		sendOut(aMessage.toByteArray());
 
-		if (receiveCtrlChar() != this.ACK) {
+		if (receiveCtrlChar() != ACK) {
 			throw new IOException();
 		}
 
@@ -436,16 +434,16 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, stops at ETX
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public byte[] receive() throws IOException {
-		return receive(this.ETX);
+		return receive(ETX);
 	}
 
 	/**
 	 * low level receive function, stops at endCtrlChar
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public byte[] receive(CtrlChar endCtrlChar) throws IOException {
@@ -476,7 +474,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, receives single CtrlChar
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public CtrlChar receiveCtrlChar() throws IOException {
@@ -488,17 +486,17 @@ public class OpusConnection extends Connection {
 		do {
 			input = readIn();
 
-			if (input == this.ACK.getByteValue()) {
-				result = this.ACK;
+			if (input == ACK.getByteValue()) {
+				result = ACK;
 			}
-			if (input == this.NAK.getByteValue()) {
-				result = this.NAK;
+			if (input == NAK.getByteValue()) {
+				result = NAK;
 			}
-			if (input == this.EOT.getByteValue()) {
-				result = this.EOT;
+			if (input == EOT.getByteValue()) {
+				result = EOT;
 			}
-			if (input == this.SOH.getByteValue()) {
-				result = this.SOH;
+			if (input == SOH.getByteValue()) {
+				result = SOH;
 			}
 			tries++;
 			//System.out.println( "tries " + tries );
@@ -534,7 +532,7 @@ public class OpusConnection extends Connection {
 			if (retries == this.maxRetry) {
 				throw new IOException("receive failed, max retry exceeded");
 			}
-			sendOut(this.NAK.getByteValue());
+			sendOut(NAK.getByteValue());
 			message = receive();
 			checksumOk = isCheckSumOk(message);
 			if (checksumOk) {
@@ -546,7 +544,7 @@ public class OpusConnection extends Connection {
 	}
 
 	/** Opus checksum: add up all characters of a message, modulo 256 */
-	private String calc0pusChecksum(MessageComposer m) throws ConnectionException {
+	private String calc0pusChecksum(MessageComposer m) {
 		byte[] data = m.toByteArray();
 		int checksum = calcOpusCheckSum(data, 0, data.length);
 		char[] csa = Integer.toString(checksum).toCharArray();
@@ -586,7 +584,7 @@ public class OpusConnection extends Connection {
 	 * outstation 7.3 pg 5. But the information in the manufacturer is
 	 * incorrect, the meter does NOT accept hexadecimal character, but only
 	 * decimal characters.
-	 * 
+	 *
 	 * @return next seed
 	 */
 	private String getNextSeed() {
@@ -620,7 +618,7 @@ public class OpusConnection extends Connection {
 	/////////////////////
 
 	MessageComposer createWakeUp(String nodeId) {
-		MessageComposer m = new MessageComposer().add(this.CR).add(this.SOH);
+		MessageComposer m = new MessageComposer().add(CR).add(SOH);
 		m.add(nodeId);
 		return m;
 	}
@@ -629,44 +627,44 @@ public class OpusConnection extends Connection {
 
 		MessageComposer m = new MessageComposer();
 
-		m.add(this.SOH).add(this.nodeId).add(dataIdentity).add(packetNr);
+		m.add(SOH).add(this.nodeId).add(dataIdentity).add(packetNr);
 
-		m.add(this.SHARP).add(Z);
+		m.add(SHARP).add(Z);
 
-		m.add(this.SHARP).add(dayOffset);
-		m.add(this.SHARP).add("0").add(this.SHARP).add("0");
-		m.add(this.SHARP).add("0").add(this.SHARP).add("0");
-		m.add(this.SHARP);
+		m.add(SHARP).add(dayOffset);
+		m.add(SHARP).add("0").add(SHARP).add("0");
+		m.add(SHARP).add("0").add(SHARP).add("0");
+		m.add(SHARP);
 
 		String seed = getNextSeed();
 
-		m.add(seed).add(this.SHARP).add(encrypt(seed));
+		m.add(seed).add(SHARP).add(encrypt(seed));
 
-		m.add(this.SHARP).add(this.SHARP);
+		m.add(SHARP).add(SHARP);
 		//byte[] r = m.toByteArray // KV 22072005 unused
 		m.add(calc0pusChecksum(m));
 
-		m.add(this.CR);
+		m.add(CR);
 		return m;
 	}
 
 	protected MessageComposer createDataMessage(String dataIdentity, String packetNr, byte[] data) throws ConnectionException {
 		MessageComposer m = new MessageComposer();
 
-		m.add(this.SOH).add(this.nodeId).add(dataIdentity).add(packetNr);
+		m.add(SOH).add(this.nodeId).add(dataIdentity).add(packetNr);
 
-		m.add(this.SHARP).add(data);
+		m.add(SHARP).add(data);
 
-		m.add(this.SHARP).add("0").add(this.SHARP).add("0");
-		m.add(this.SHARP).add("0").add(this.SHARP).add("0");
-		m.add(this.SHARP).add("0").add(this.SHARP).add("0");
-		m.add(this.SHARP).add("0");
+		m.add(SHARP).add("0").add(SHARP).add("0");
+		m.add(SHARP).add("0").add(SHARP).add("0");
+		m.add(SHARP).add("0").add(SHARP).add("0");
+		m.add(SHARP).add("0");
 
-		m.add(this.SHARP).add(this.SHARP);
+		m.add(SHARP).add(SHARP);
 		//byte[] r = m.toByteArray(); // KV 22072005 unused
 		m.add(calc0pusChecksum(m));
 
-		m.add(this.CR);
+		m.add(CR);
 		return m;
 	}
 

@@ -1,16 +1,11 @@
 package com.energyict.dlms.cosem.methods;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.ProtocolLink;
-
 import com.energyict.dlms.axrdencoding.BooleanObject;
-
 import com.energyict.dlms.axrdencoding.OctetString;
-
 import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ObjectReference;
-
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -41,7 +36,7 @@ public class USBSetup extends AbstractCosemObject {
         super(protocolLink, objectReference);
     }
 
-    public final static ObisCode getDefaultObisCode() {
+    public static ObisCode getDefaultObisCode() {
         return DEFAULT_OBIS_CODE;
     }
 

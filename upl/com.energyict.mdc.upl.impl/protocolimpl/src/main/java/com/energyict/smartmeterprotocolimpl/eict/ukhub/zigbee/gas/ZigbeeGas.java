@@ -62,7 +62,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this));
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, calendarFinder));
         }
         return this.zigbeeGasMessaging;
     }

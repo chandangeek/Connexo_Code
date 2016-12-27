@@ -1,8 +1,9 @@
 package com.elster.protocolimpl.lis100.profile;
 
+import com.energyict.mdc.io.NestedIOException;
+
 import com.elster.protocolimpl.lis100.Lis100ObjectFactory;
 import com.elster.protocolimpl.lis100.ProtocolLink;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class IVDataStreamReader implements IIntervalDataStreamReader {
      * reads telegrams as needed...
      *
      * @return one read value
-     * @throws com.energyict.cbo.NestedIOException - in case of io errors
+     * @throws NestedIOException - in case of io errors
      * @throws com.energyict.dialer.connection.ConnectionException - in case of io errors
      */
     public int readWord() throws NestedIOException, ConnectionException {
@@ -53,8 +54,9 @@ public class IVDataStreamReader implements IIntervalDataStreamReader {
         /* consumed a complete telegram? */
         if (valInLine > 10) {
             /* no read more than available... */
-            if (valTotal-- <= 0)
+            if (valTotal-- <= 0) {
                 return -1;
+            }
 
             /* read a new telegram */
             valData = link.getLis100Connection().receiveTelegram((byte)'x');

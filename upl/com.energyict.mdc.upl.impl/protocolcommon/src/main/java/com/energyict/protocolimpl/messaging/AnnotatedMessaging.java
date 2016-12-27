@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.messaging;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
@@ -12,7 +13,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.messaging.proxy.ProxyMessageInvocationHandler;

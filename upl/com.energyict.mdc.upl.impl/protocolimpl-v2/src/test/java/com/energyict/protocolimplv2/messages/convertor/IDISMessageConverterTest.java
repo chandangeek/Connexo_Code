@@ -79,7 +79,7 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new IDIS();
+        return new IDIS(calendarFinder);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {

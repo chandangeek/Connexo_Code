@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -29,19 +31,19 @@ import java.io.OutputStream;
  * @author Koen
  */
 public class SchlumbergerConnection extends Connection  implements ProtocolConnection {
-    
+
     private static final int DEBUG=0;
     private static final long TIMEOUT=60000;
-    
+
     int timeout;
     int maxRetries;
     long forcedDelay;
     ByteArrayOutputStream txOutputStream = new ByteArrayOutputStream();
     private String nodeId;
     int securityLevel;
-    
-    
-    
+
+
+
     /** Creates a new instance of DGCOMConnection */
     public SchlumbergerConnection(InputStream inputStream,
             OutputStream outputStream,
@@ -50,66 +52,68 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
             long forcedDelay,
             int echoCancelling,
             HalfDuplexController halfDuplexController,
-            int securityLevel) throws ConnectionException {
+            int securityLevel) {
         super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
         this.timeout = timeout;
         this.maxRetries=maxRetries;
         this.forcedDelay=forcedDelay;
         this.securityLevel=securityLevel;
-        
+
     } // EZ7Connection(...)
-    
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+
+    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
         this.setNodeId(nodeId);
         return null;
     }
-    
-    public byte[] dataReadout(String strID, String nodeId) throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+
+    public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {
         return null;
     }
-    
-    public void disconnectMAC() throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+
+    public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
     }
-    
+
     public HHUSignOn getHhuSignOn() {
         return null;
     }
-    
+
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
     }
-    
+
     public void delayAndFlush(int delay) throws IOException {
         super.delayAndFlush(delay);
     }
-    
-    private void doSendCommand(Command command) throws ConnectionException,IOException {
+
+    private void doSendCommand(Command command) throws IOException {
         txOutputStream.reset();
         int checksum=0;
-        if (command.getCommand() != 0)
+        if (command.getCommand() != 0) {
             txOutputStream.write(command.getCommand());
-        if (command.getData() != null)
+        }
+        if (command.getData() != null) {
             txOutputStream.write(command.getData());
+        }
         if (command.getCommand() != (char)ENQ) {
             int crc = CRCGenerator.calcCRCCCITTSchlumberger(txOutputStream.toByteArray());
             txOutputStream.write((crc>>8)&0xFF);
             txOutputStream.write(crc&0xFF);
         }
     } // void sendData(byte[] cmdData) throws ConnectionException
-        
+
     private void sendFrame() throws ConnectionException {
         sendOut(txOutputStream.toByteArray());
     }
-    
+
     public void sendEnqMultidrop(int nrOfEnqs) throws IOException {
         sendEnqMultidrop(nrOfEnqs, -1);
     }
-    
+
     public void sendEnqMultidrop(int nrOfEnqs,int slaveId) throws IOException {
         int retry=0;
-        if (slaveId != -1) { 
+        if (slaveId != -1) {
             delayAndFlush(1600);
-            // SlaveId 0,1,2 
-            int slave = slaveId | 0x08; 
+            // SlaveId 0,1,2
+            int slave = slaveId | 0x08;
             sendOut(new byte[]{(byte)0x58,(byte)slave,(byte)0x59,(byte)(slave^0xFF)});
             receiveUntilTimeout();
         }
@@ -126,10 +130,12 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                 }
                 return;
             } catch(ConnectionException e) {
-                if (DEBUG>=1) e.printStackTrace();
-                if (e.getReason() == PROTOCOL_ERROR)
-                    throw new ProtocolConnectionException("sendCommand() error, "+e.getMessage(), e.getReason());
-                else {
+                if (DEBUG>=1) {
+                    e.printStackTrace();
+                }
+                if (e.getReason() == PROTOCOL_ERROR) {
+                    throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage(), e.getReason());
+                } else {
 
                     //System.out.println("KV_DEBUG> timeout "+retry);
 
@@ -147,20 +153,20 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
     public void receiveUntilTimeout() throws IOException {
         long receiveTimeout;
         int kar;
-        
+
         receiveTimeout = System.currentTimeMillis() + 1500;
         while(true) {
-            
-            if ((kar = readIn()) != -1) {        
+
+            if ((kar = readIn()) != -1) {
                 receiveTimeout = System.currentTimeMillis() + 1500;
             }
-            
-            if (((long) (System.currentTimeMillis() - receiveTimeout)) > 0) {
+
+            if (System.currentTimeMillis() - receiveTimeout > 0) {
                 return;
-            }            
+            }
         }
     } // public void receiveUntilTimeout() throws IOException
-    
+
     public Response sendCommand(Command command) throws IOException {
         int retry=0;
         doSendCommand(command);
@@ -182,15 +188,15 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
             }
         } // while(true)
     }
-    
-    
 
-    
+
+
+
     private final int WAIT_FOR_CONTROL=0;
     private final int WAIT_FOR_DATA=1;
     private final int WAIT_FOR_CRC=2;
-    
-            
+
+
     public Response receiveResponse(Command command) throws IOException {
         return receiveResponse(command,-1);
     }
@@ -200,24 +206,24 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
         int count=0;
         int state = WAIT_FOR_CONTROL;
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
-        
-        
+
+
         interFrameTimeout = System.currentTimeMillis() + (timeoutEnq==-1?timeout:timeoutEnq);
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-        
-        
+
+
         if (DEBUG>=1) System.out.println("KV_DEBUG> timeout="+timeout);
-        
+
         resultArrayOutputStream.reset();
-        
+
         copyEchoBuffer();
         while(true) {
-            
+
             if ((kar = readIn()) != -1) {
-                
+
                 if (DEBUG >= 2) {
                     System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
+                    ProtocolUtils.outputHex(kar);
                 }
                 resultArrayOutputStream.write(kar);
                 switch(state) {
@@ -243,7 +249,7 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                             throw new ProtocolConnectionException("receiveResponse() NAK received, either CRC error or command invalid.",NAK_RECEIVED);
                         }
                         else if (kar == CAN) {
-                            
+
                             if (command.isICommand())
                                 throw new ProtocolConnectionException("receiveResponse() unitId or unitType missing or incorrect...",PROTOCOL_ERROR);
                             else
@@ -251,7 +257,7 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                         }
                         else
                             resultArrayOutputStream.reset();
-                        
+
                     } break; // WAIT_FOR_CONTROL
 
                     case WAIT_FOR_DATA: {
@@ -269,7 +275,7 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                                 throw new ProtocolConnectionException("receiveResponse() 0x"+Integer.toHexString(kar)+" received instead of second ACK for the D command...",PROTOCOL_ERROR);
                         }
                     } break; // WAIT_FOR_DATA
-                    
+
                     case WAIT_FOR_CRC: {
                         if (--count <= 0) {
                             byte[] data = resultArrayOutputStream.toByteArray();
@@ -284,29 +290,29 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                             }
                         } // if (--count <= 0)
                     } // WAIT_FOR_CRC
-                    
+
                 } // switch(state)
-                
+
             } // if ((kar = readIn()) != -1)
-            
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveResponse() response timeout error",TIMEOUT_ERROR);
             }
-            
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveResponse() interframe timeout error",TIMEOUT_ERROR);
             }
-            
+
         } // while(true)
-        
+
     } // public Response receiveResponse()
 
     public String getNodeId() {
-        return nodeId;  
+        return nodeId;
     }
 
     private void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
-    
+
 }

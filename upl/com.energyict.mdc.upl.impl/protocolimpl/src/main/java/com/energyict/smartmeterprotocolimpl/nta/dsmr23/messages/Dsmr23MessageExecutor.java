@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnection;

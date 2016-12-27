@@ -28,7 +28,7 @@ public class AS300MessageExecutorTest {
         DummyDLMSConnection connection = new DummyDLMSConnection();
         connection.setResponseByte(DLMSUtils.hexStringToByteArray(expectedResponse));
         protocol.getDlmsSession().setDlmsConnection(connection);
-        AS300MessageExecutor mExecutor = new AS300MessageExecutor(protocol);
+        AS300MessageExecutor mExecutor = new AS300MessageExecutor(protocol, calendarFinder);
         MessageResult result = mExecutor.executeMessageEntry(msgEntry);
         assertTrue(result.isSuccess());
     }

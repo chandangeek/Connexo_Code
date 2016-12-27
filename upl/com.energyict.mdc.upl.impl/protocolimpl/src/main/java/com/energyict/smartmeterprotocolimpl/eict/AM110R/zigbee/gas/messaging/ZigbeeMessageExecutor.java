@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.messaging;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -114,9 +114,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
         } catch (IOException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
-        } catch (InterruptedException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
         }
 
         if (success) {
@@ -224,7 +221,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, messageEntry.getContent());
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -261,7 +258,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, messageEntry.getContent());
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -303,7 +300,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, content);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
                 activationDate.setTime(activationDate.getTime() - (activationDate.getTime() % 60000));  // remove the seconds & milliseconds
             }
@@ -364,7 +361,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, content);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -400,7 +397,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, content);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -423,7 +420,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
     }
 
 
-    private void updateFirmware(MessageEntry messageEntry) throws IOException, InterruptedException {
+    private void updateFirmware(MessageEntry messageEntry) throws IOException {
         log(Level.INFO, "Upgrade firmware message received.");
         String userFileContent = getIncludedContent(messageEntry.getContent());
 
@@ -431,7 +428,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLTag(RtuMessageConstant.ACTIVATION_DATE, messageEntry.getContent());
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -473,7 +470,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         }
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex, endIndex;
         startIndex = content.indexOf(tag + "=\"");
         if (startIndex == -1) {

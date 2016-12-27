@@ -9,7 +9,8 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
@@ -94,7 +95,7 @@ public class PACTConnection extends Connection {
 
 	/** Creates a new instance of PACTConnection */
 	public PACTConnection(InputStream inputStream, OutputStream outputStream, int protocolTimeout, int maxRetries,
-			long forceDelay, int echoCancelling) throws ConnectionException {
+			long forceDelay, int echoCancelling) {
 		super(inputStream, outputStream, forceDelay, echoCancelling);
 		this.maxRetries = maxRetries;
 		this.forceDelay = forceDelay;
@@ -121,10 +122,8 @@ public class PACTConnection extends Connection {
 
 	public String getIntantaneousValue(String name) throws NestedIOException, ConnectionException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append(name);
-		strBuff.append("\r");
-		sendRawData(strBuff.toString().getBytes());
+		String strBuff = name + "\r";
+		sendRawData(strBuff.getBytes());
 		long timeout;
 		int val;
 		timeout = System.currentTimeMillis() + PACT_TIMEOUT;
@@ -132,14 +131,14 @@ public class PACTConnection extends Connection {
 		while (true) {
 			if ((val = readIn()) != -1) {
 				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
+					ProtocolUtils.outputHex(val);
 				}
 				baos.write(val);
 				if (val == '\r') {
 					return new String(baos.toByteArray());
 				}
 			} // if ((val = readIn()) != -1)
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				throw new PACTConnectionException("getIntantaneousValue() timeout error", TIMEOUT_ERROR);
 			}
 		} // while(true)
@@ -154,13 +153,13 @@ public class PACTConnection extends Connection {
 		while (true) {
 			if ((val = readIn()) != -1) {
 				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
+					ProtocolUtils.outputHex(val);
 				}
 				if ((val == CFM) || (val == PACTLAN_GLOBAL_ENABLE)) {
 					return;
 				}
 			} // if ((val = readIn()) != -1)
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				return;
 			}
 		} // while(true)
@@ -176,7 +175,7 @@ public class PACTConnection extends Connection {
 			if ((val = readIn()) != -1) {
 				// absorb
 			} // if ((val = readIn()) != -1)
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				return;
 			}
 		} // while(true)
@@ -426,7 +425,7 @@ public class PACTConnection extends Connection {
 						}
 
 					} // if ((val = readIn()) != -1)
-					if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+					if (System.currentTimeMillis() - timeout > 0) {
 
 						if (totalAmountOfRetries++ == 100) { // we will stop after 100 retries, I mean you can get the
 							// data faster if you drive to the meter and read if
@@ -538,7 +537,7 @@ public class PACTConnection extends Connection {
 					if ((val = readIn()) != -1) {
 						timeout = System.currentTimeMillis() + protocolTimeout; // rearm timeout
 						if (DEBUG >= 2) {
-							ProtocolUtils.outputHex(((int) val));
+							ProtocolUtils.outputHex(val);
 						}
 
 						// check first byte if different from 0x87 and 0x8A
@@ -611,7 +610,7 @@ public class PACTConnection extends Connection {
 						} // else timecount >= 7
 					} // if ((val = readIn()) != -1)
 
-					if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+					if (System.currentTimeMillis() - timeout > 0) {
 						throw new PACTConnectionException("getLoadSurveyDataStream() timeout error", TIMEOUT_ERROR);
 					}
 				} // while(true)
@@ -683,7 +682,7 @@ public class PACTConnection extends Connection {
 		} // while(true)
 	} // public boolean isConfirmed(int code) throws NestedIOException, ConnectionException
 
-	private byte[] doGetPasswordClearanceSeed() throws NestedIOException, ConnectionException, PACTConnectionException {
+	private byte[] doGetPasswordClearanceSeed() throws NestedIOException, ConnectionException {
 		sendRawData(new byte[] { (byte) REQUEST_PASSWORD_SEED });
 		long timeout;
 		int val;
@@ -694,7 +693,7 @@ public class PACTConnection extends Connection {
 		while (true) {
 			if ((val = readIn()) != -1) {
 				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
+					ProtocolUtils.outputHex(val);
 				}
 
 				frame[count] = (byte) val;
@@ -713,13 +712,13 @@ public class PACTConnection extends Connection {
 				}
 
 			} // if ((val = readIn()) != -1)
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				throw new PACTConnectionException("doConfirm() timeout error", TIMEOUT_ERROR);
 			}
 		} // while(true)
 	}
 
-	private boolean doConfirm(byte[] code) throws NestedIOException, ConnectionException, PACTConnectionException {
+	private boolean doConfirm(byte[] code) throws NestedIOException, ConnectionException {
 		sendRawData(code);
 		long timeout;
 		int val;
@@ -731,7 +730,7 @@ public class PACTConnection extends Connection {
 		while (true) {
 			if ((val = readIn()) != -1) {
 				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
+					ProtocolUtils.outputHex(val);
 				}
 
 				frame[count] = (byte) val;
@@ -769,14 +768,13 @@ public class PACTConnection extends Connection {
 				count++;
 
 			} // if ((val = readIn()) != -1)
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				throw new PACTConnectionException("doConfirm() timeout error", TIMEOUT_ERROR);
 			}
 		} // while(true)
 	} // private int doConfirm(byte[] code)
 
-	private byte[] doSendControlCode(int code, boolean blockTransaction) throws NestedIOException, ConnectionException,
-			PACTConnectionException {
+	private byte[] doSendControlCode(int code, boolean blockTransaction) throws NestedIOException, ConnectionException {
 		sendRawData((byte) code);
 		long timeout;
 		int val;
@@ -789,7 +787,7 @@ public class PACTConnection extends Connection {
 		while (true) {
 			if ((val = readIn()) != -1) {
 				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
+					ProtocolUtils.outputHex(val);
 				}
 				frame[count] = (byte) val;
 
@@ -815,7 +813,7 @@ public class PACTConnection extends Connection {
 				count++;
 
 			} // if ((val = readIn()) != -1)
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				throw new PACTConnectionException("doSendControlCode() timeout error", TIMEOUT_ERROR);
 			}
 		} // while(true)
@@ -839,8 +837,7 @@ public class PACTConnection extends Connection {
 		} // while(true)
 	}
 
-	private byte[] doSendStringRequest(String str) throws NestedIOException, ConnectionException,
-			PACTConnectionException {
+	private byte[] doSendStringRequest(String str) throws NestedIOException, ConnectionException {
 		String sendStr = str + "\r";
 		sendRawData(sendStr.getBytes());
 		long timeout;
@@ -851,7 +848,7 @@ public class PACTConnection extends Connection {
 		while (true) {
 			if ((val = readIn()) != -1) {
 				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
+					ProtocolUtils.outputHex(val);
 				}
 
 				if (val == 0x0D) {
@@ -861,7 +858,7 @@ public class PACTConnection extends Connection {
 
 			} // if ((val = readIn()) != -1)
 
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				throw new PACTConnectionException("sendStringRequest() timeout error", TIMEOUT_ERROR);
 			}
 		} // while(true)
@@ -875,7 +872,7 @@ public class PACTConnection extends Connection {
 	 * buffer is empty. We should ignore all received characters and wait for 1000 ms (see doc 'introduction to
 	 * metercommunication') after the last received character before returning.
 	 */
-	private void flushBuffer() throws NestedIOException, ConnectionException, PACTConnectionException {
+	private void flushBuffer() throws NestedIOException, ConnectionException {
 		int val;
 		long flushTimeout, timeout;
 		byte[] data = new byte[] { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x0D };
@@ -888,10 +885,10 @@ public class PACTConnection extends Connection {
 				flushTimeout = System.currentTimeMillis() + PACT_FLUSH_TIMEOUT;
 				// if (val == 0x0D) return;
 			} // if ((val = readIn()) != -1)
-			if (((long) (System.currentTimeMillis() - flushTimeout)) > 0) {
+			if (System.currentTimeMillis() - flushTimeout > 0) {
 				return;
 			}
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				throw new PACTConnectionException("flushBuffer() timeout error", TIMEOUT_ERROR);
 			}
 		} // while(true)

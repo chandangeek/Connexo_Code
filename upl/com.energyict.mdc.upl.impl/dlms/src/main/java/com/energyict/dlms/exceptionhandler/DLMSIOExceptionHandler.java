@@ -1,8 +1,8 @@
 package com.energyict.dlms.exceptionhandler;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocol.NotInObjectListException;

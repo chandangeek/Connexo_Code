@@ -1,6 +1,7 @@
 package com.energyict.dialer.coreimpl;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.core.ListenerException;
 import com.energyict.dialer.core.StreamConnection;
 import com.energyict.dialer.core.UDPListen;

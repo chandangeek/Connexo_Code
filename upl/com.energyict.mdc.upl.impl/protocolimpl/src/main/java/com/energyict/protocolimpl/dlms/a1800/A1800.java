@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;

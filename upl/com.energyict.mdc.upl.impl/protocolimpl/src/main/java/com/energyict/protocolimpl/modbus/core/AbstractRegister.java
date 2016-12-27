@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -34,31 +35,31 @@ import java.util.Date;
  * @author Koen
  */
 public class AbstractRegister {
-    
-    
+
+
     private AbstractRegisterFactory registerFactory;
 
     private ObisCode obisCode;
     private int reg,range;
     private String name;
-    private Unit unit;    
+    private Unit unit;
     private String parser=null;
-    
+
     private int scale;
 
     /** Creates a new instance of AbstractRegister */
     public AbstractRegister(int reg,int range,ObisCode obisCode) {
-       this(reg,range,obisCode,Unit.get(""),obisCode.getDescription());    
+       this(reg,range,obisCode,Unit.get(""),obisCode.toString());
     }
-    
+
     public AbstractRegister(int reg,int range,ObisCode obisCode,String description) {
-       this(reg,range,obisCode,Unit.get(""),description);    
+       this(reg,range,obisCode,Unit.get(""),description);
     }
-    
+
     public AbstractRegister(int reg,int range,ObisCode obisCode,Unit unit) {
-       this(reg,range,obisCode,unit,obisCode.getDescription());    
+       this(reg,range,obisCode,unit,obisCode.toString());
     }
-    
+
     public AbstractRegister(int reg,int range,ObisCode obisCode,Unit unit,String name) {
         this.reg=reg;
         this.range=range;
@@ -68,9 +69,9 @@ public class AbstractRegister {
     }
 
     public String toString() {
-       return getObisCode()+", reg="+getReg()+", range="+getRange()+", unit="+getUnit()+", name="+getName();     
+       return getObisCode()+", reg="+getReg()+", range="+getRange()+", unit="+getUnit()+", name="+getName();
     }
-    
+
     public ObisCode getObisCode() {
         return obisCode;
     }
@@ -110,7 +111,7 @@ public class AbstractRegister {
     public void setUnit(Unit unit) {
         this.unit = unit;
     }
-    
+
     public AbstractRegisterFactory getRegisterFactory() {
         return registerFactory;
     }
@@ -118,7 +119,7 @@ public class AbstractRegister {
     public void setRegisterFactory(AbstractRegisterFactory registerFactory) {
         this.registerFactory = registerFactory;
     }
-    
+
     public ReadHoldingRegistersRequest getReadHoldingRegistersRequest() throws IOException {
 		final int register = getReg()-(getRegisterFactory().isZeroBased()?1:0);
 		try {
@@ -156,7 +157,7 @@ public class AbstractRegister {
             throw new NestedIOException(e, "IOException while writing register [" + register + "]");
         }
     }
-    
+
     public WriteMultipleRegisters getWriteMultipleRegisters(byte[] registerValues) throws IOException {
         final int register = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
         try {
@@ -183,7 +184,7 @@ public class AbstractRegister {
             throw new NestedIOException(e, "IOException while writing Coil [" + coil + "] with range [" + getRange() + "]");
         }
     }
-    
+
     public ReportSlaveId getReportSlaveId() throws IOException {
         try {
             return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId();
@@ -209,7 +210,7 @@ public class AbstractRegister {
             throw new NestedIOException(e, "IOException while reading input statuses [" + register + "] with range [" + getRange() + "]");
         }
     }
-    
+
     public ReadDeviceIdentification getReadDeviceIdentification(int readDeviceIdCode, int objectID) throws IOException {
         try {
             return getRegisterFactory().getFunctionCodeFactory().getReadDeviceIdentification(readDeviceIdCode, objectID);
@@ -217,7 +218,7 @@ public class AbstractRegister {
             throw new NestedIOException(e, "IOException while reading device identification [" + objectID + "]");
         }
     }
-    
+
     public Date dateValue() throws IOException {
         if (this instanceof HoldingRegister)
             return (Date)getRegisterFactory().getParserFactory().get(getParser()==null?"Date":getParser()).val(getReadHoldingRegistersRequest().getRegisters(), this);
@@ -257,21 +258,21 @@ public class AbstractRegister {
         else if (this instanceof InputRegister)
             return getRegisterFactory().getParserFactory().get(key).val(getReadInputRegistersRequest().getRegisters(), this);
         throw new IOException ("AbstractRegister, objectValueWithParser(), invalid registertype "+this.getClass().getName());
-        
+
     }
-    
+
     public int[] values() throws IOException {
         return getReadHoldingRegistersRequest().getRegisters();
     }
 
-    
+
     public Quantity quantityValueWithParser(String key) throws IOException {
         if (this instanceof HoldingRegister)
             return new Quantity((BigDecimal)getRegisterFactory().getParserFactory().get(key).val(getReadHoldingRegistersRequest().getRegisters(), this),getUnit());
         else if (this instanceof InputRegister)
             return new Quantity((BigDecimal)getRegisterFactory().getParserFactory().get(key).val(getReadInputRegistersRequest().getRegisters(), this),getUnit());
         throw new IOException ("AbstractRegister, quantityValueWithParser(), invalid registertype "+this.getClass().getName());
-        
+
     }
 
     public RegisterValue registerValue(String key) throws IOException {
@@ -302,6 +303,6 @@ public class AbstractRegister {
         this.scale = scale;
         return this;
     }
-    
+
 
 }

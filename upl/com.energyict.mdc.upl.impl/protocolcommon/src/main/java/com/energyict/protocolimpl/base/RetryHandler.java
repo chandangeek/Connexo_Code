@@ -1,12 +1,11 @@
 package com.energyict.protocolimpl.base;
 
-import java.io.IOException;
+import com.energyict.mdc.io.NestedIOException;
 
-import com.energyict.cbo.NestedIOException;
+import java.io.IOException;
 
 /**
  * @author jme
- *
  */
 public class RetryHandler {
 

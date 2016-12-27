@@ -1,8 +1,8 @@
 package com.elster.protocolimpl.dlms.util;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;

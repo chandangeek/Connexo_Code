@@ -1,5 +1,12 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.ppm.opus.OpusProfileParser;
+import com.energyict.protocolimpl.iec1107.ppm.parser.ProfileParser;
+import com.energyict.protocolimpl.iec1107.ppm.parser.ProfileReverseParser;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Calendar;
@@ -7,14 +14,6 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ppm.opus.OpusProfileParser;
-import com.energyict.protocolimpl.iec1107.ppm.parser.ProfileParser;
-import com.energyict.protocolimpl.iec1107.ppm.parser.ProfileReverseParser;
 
 /**
  * <strong>Profile responsibilties: </strong>
@@ -60,7 +59,7 @@ public class Profile {
 	/**
 	 * Creates a new instance of Profile
 	 */
-	public Profile(PPM ppm, RegisterFactory rf) throws IOException {
+	public Profile(PPM ppm, RegisterFactory rf) {
 		this.ppm = ppm;
 		rFactory = rf;
 		if (ppm != null) {
@@ -104,7 +103,6 @@ public class Profile {
 	 * Get the {@link ProfileData} using the OPUS protocol version
 	 *
 	 * @return The {@link ProfileData} from the meter
-	 * @throws NestedIOException
 	 * @throws ConnectionException
 	 * @throws IOException
 	 */
@@ -271,28 +269,14 @@ public class Profile {
 		return calendar.getTimeInMillis() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
 	}
 
-	/**
-	 * @param nrChannels
-	 * @return
-	 */
 	private static int nrBytesPerIntegrationPeriod(int nrChannels) {
 		return STATUS_BYTE_SIZE + (CHANNEL_BYTE_SIZE * nrChannels);
 	}
 
-	/**
-	 * @param nrChannels
-	 * @param intervalLength
-	 * @return
-	 */
 	public static long dayByteSizeMin(int nrChannels, int intervalLength) {
 		return (minIntervalsPerDay(intervalLength) * nrBytesPerIntegrationPeriod(nrChannels)) + E4_BYTE_SIZE + DATE_BYTE_SIZE;
 	}
 
-	/**
-	 * @param nrChannels
-	 * @param intervalLength
-	 * @return
-	 */
 	public static long dayByteSizeMax(int nrChannels, int intervalLength) {
 		return (maxIntervalsPerDay(intervalLength) * nrBytesPerIntegrationPeriod(nrChannels)) + E4_BYTE_SIZE + DATE_BYTE_SIZE;
 	}

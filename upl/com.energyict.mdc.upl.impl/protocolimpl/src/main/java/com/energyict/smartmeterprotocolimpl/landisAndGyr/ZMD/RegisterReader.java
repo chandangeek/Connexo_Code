@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.protocol.Register;

@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.Clock;
@@ -98,18 +98,21 @@ public class XemexMessageExecutor extends Dsmr40MessageExecutor {
     private void enableDST(MessageEntry entry) throws IOException {
         log(Level.INFO, "Handling message EnableDST message.");
         String mode = getValueFromXML(ENABLE_DST, entry.getContent());
-        if (mode.equals("0")) {
-            log(Level.INFO, "Disabling DST switching.");
-        } else if (mode.equals("1")) {
-            log(Level.INFO, "Enabling DST switching");
-        } else {
-            String messageToLog = "Failed to parse the message value.";
-            log(Level.INFO, messageToLog);
-            throw new IOException(messageToLog);
+        switch (mode) {
+            case "0":
+                log(Level.INFO, "Disabling DST switching.");
+                break;
+            case "1":
+                log(Level.INFO, "Enabling DST switching");
+                break;
+            default:
+                String messageToLog = "Failed to parse the message value.";
+                log(Level.INFO, messageToLog);
+                throw new IOException(messageToLog);
         }
 
         Clock clock = getCosemObjectFactory().getClock();
-        clock.enableDisableDs(mode.equals("1") ? true : false);
+        clock.enableDisableDs("1".equals(mode));
     }
 
     private String getValueFromXML(String tag, String content) {
@@ -126,6 +129,6 @@ public class XemexMessageExecutor extends Dsmr40MessageExecutor {
      * @return true if this is the message, false otherwise
      */
     protected boolean isItThisMessage(MessageEntry messageEntry, String messageTag) {
-        return messageEntry.getContent().indexOf(messageTag) >= 0;
+        return messageEntry.getContent().contains(messageTag);
     }
 }

@@ -1,8 +1,6 @@
 package com.elster.protocolimpl.lis100.objects;
 
 import com.elster.protocolimpl.lis100.objects.api.IBaseObject;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 
 /**
  * class for a "constant" object (never read anything, because it's constant...)
@@ -19,7 +17,7 @@ public class ConstantObject implements IBaseObject {
         this.constData = constData;
     }
 
-    public String getValue() throws NestedIOException, ConnectionException {
+    public String getValue() {
         return constData;
     }
 }

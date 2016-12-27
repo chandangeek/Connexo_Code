@@ -187,7 +187,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, calendarFinder));
         }
         return messageProtocol;
     }

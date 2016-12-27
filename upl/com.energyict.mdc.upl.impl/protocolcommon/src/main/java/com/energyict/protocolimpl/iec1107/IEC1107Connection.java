@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -132,7 +132,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
      * Requests a MAC disconnect for the IEC1107 layer.
      */
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
-        if (boolFlagIEC1107Connected==true) {
+        if (boolFlagIEC1107Connected) {
             try {
                 //byte[] buffer = {(byte)SOH,(byte)0x42,(byte)0x30,(byte)ETX,(byte)0x71};
                 //sendRawData(buffer);
@@ -178,20 +178,22 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
      * for the buffersizes and windowsizes.
      */
     public MeterType connectMAC(String strIdentConfig, String strPass,int iSecurityLevel,String meterID) throws IOException {
-        if (boolFlagIEC1107Connected==false) {
+        if (!boolFlagIEC1107Connected) {
 
             MeterType meterType;
             this.iSecurityLevel=iSecurityLevel;
             try {
 
-            	if ( getReadoutEnabled() )
-            		hhuSignOn.enableDataReadout(true);
+            	if ( getReadoutEnabled() ) {
+                    hhuSignOn.enableDataReadout(true);
+                }
 
                 // KV 18092003
-                if (hhuSignOn == null)
-                    meterType = signOn(strIdentConfig,meterID);
-                else
-                    meterType = hhuSignOn.signOn(strIdentConfig,meterID);
+                if (hhuSignOn == null) {
+                    meterType = signOn(strIdentConfig, meterID);
+                } else {
+                    meterType = hhuSignOn.signOn(strIdentConfig, meterID);
+                }
                 boolFlagIEC1107Connected=true;
                 prepareAuthentication(strPass);
                 return meterType;
@@ -210,7 +212,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
     private MeterType signOn(String strIdentConfig, String meterID) throws IOException {
         int retries=0;
-        if (isNoBreakRetry()) retries = iMaxRetries - 1;
+        if (isNoBreakRetry()) {
+            retries = iMaxRetries - 1;
+        }
 
         while(true) {
             try {
@@ -219,8 +223,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 // KV 16122003
                 String strIdentRaw = receiveIdent(strIdentConfig);
                 // KV 28072004 remove rubbish at the beginning...
-                if (strIdentRaw.indexOf('/') == -1)
-                    throw new ProtocolConnectionException("signOn() invalid response received '/' missing! ("+strIdentRaw+")");
+                if (strIdentRaw.indexOf('/') == -1) {
+                    throw new ProtocolConnectionException("signOn() invalid response received '/' missing! (" + strIdentRaw + ")");
+                }
                 String strIdent = new String(ProtocolUtils.getSubArray(strIdentRaw.getBytes(),strIdentRaw.indexOf('/')));
                 if (iIEC1107Compatible == 1) {
                     // protocol mode C, programming mode
@@ -288,12 +293,15 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 else if (iSecurityLevel == 2) {
                     byte[] key = receiveData();
                     authenticationCommand = LOGON_LEVEL_2;
-                    if (encryptor != null)
+                    if (encryptor != null) {
                         authenticationData = buildData(encryptor.encrypt(pwd, new String(key)));
-                    else
+                    } else {
                         authenticationData = buildData(pwd);
+                    }
                 }
-                else throw new ProtocolConnectionException("FlagIEC1107Connection: invalid SecurityLevel",SECURITYLEVEL_ERROR);
+                else {
+                    throw new ProtocolConnectionException("FlagIEC1107Connection: invalid SecurityLevel", SECURITYLEVEL_ERROR);
+                }
 
                 authenticate();
                 return;
@@ -301,10 +309,11 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
             }
             catch (ProtocolConnectionException e) {
                 if (e.getReason() == SECURITYLEVEL_ERROR) // KV 06072004
+                {
                     throw e;
-                else if (iRetries++ >=iMaxRetries)
-                    throw new ProtocolConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), "+e.getMessage(), MAX_RETRIES_ERROR);
-                else {
+                } else if (iRetries++ >=iMaxRetries) {
+                    throw new ProtocolConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), " + e.getMessage(), MAX_RETRIES_ERROR);
+                } else {
                 	if (!isNoBreakRetry()) {
                 		sendBreak();
                 		delay(DELAY_AFTER_BREAK);
@@ -335,19 +344,22 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                     else if (resp.compareTo("(ERR1)")==0) {
                         throw new IOException(resp+" received");
                     }
-                    else if (resp.indexOf("(ER")!=-1) { // IskraEmeco errors...
+                    else if (resp.contains("(ER")) { // IskraEmeco errors...
                         throw new IOException(resp+" received");
                     }
-                    if (iRetries++ >=iMaxRetries) throw new ProtocolConnectionException("Authentication error! Possibly wrong password! (error iRetries)");
+                    if (iRetries++ >=iMaxRetries) {
+                        throw new ProtocolConnectionException("Authentication error! Possibly wrong password! (error iRetries)");
+                    }
                 }
             }
         }
         catch (ProtocolConnectionException e) {
             if (e.getReason() == SECURITYLEVEL_ERROR) // KV 06072004
+            {
                 throw e;
-            else if (iRetries++ >=iMaxRetries)
-                throw new ProtocolConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), "+e.getMessage());
-            else {
+            } else if (iRetries++ >=iMaxRetries) {
+                throw new ProtocolConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), " + e.getMessage());
+            } else {
                 sendBreak();
                 delay(DELAY_AFTER_BREAK);
             }
@@ -362,7 +374,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
     public byte[] dataReadout(String strIdent,String meterID) throws NestedIOException, ProtocolConnectionException, ProtocolException {
         byte[] data = null;
-        if (boolFlagIEC1107Connected==false) {
+        if (!boolFlagIEC1107Connected) {
             try {
                 data = doDataReadout(strIdent,meterID);
             }
@@ -411,7 +423,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         byte[] data = new byte[strPass.getBytes().length+2];
         int i=0;
         data[i++] = '(';
-        for (int t=0;t<strPass.getBytes().length;t++) data[i++] = strPass.getBytes()[t];
+        for (int t=0;t<strPass.getBytes().length;t++) {
+            data[i++] = strPass.getBytes()[t];
+        }
         data[i++] = ')';
         return data;
     }
@@ -422,7 +436,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         int state=0;
         for(int i = 0;i<buffer.length ; i++) {
             if (state == 0) {
-                if (buffer[i] == (byte)'(') state=1;
+                if (buffer[i] == (byte)'(') {
+                    state = 1;
+                }
             }
             else if (state == 1) {
                 if (buffer[i] == (byte)')') {
@@ -432,8 +448,11 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 data.write((int)buffer[i]);
             }
         }
-        if (state==2) return data.toByteArray();
-        else throw new ProtocolConnectionException("FlagIEC1107Connection, parseDataBetweenBrackets, error");
+        if (state==2) {
+            return data.toByteArray();
+        } else {
+            throw new ProtocolConnectionException("FlagIEC1107Connection, parseDataBetweenBrackets, error");
+        }
     }
 
     public static final byte[] WRITE5={'W','5'};
@@ -477,14 +496,19 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         delay(lForceDelay);
 
         i=0;
-        for (t = 0;t<command.length;t++) getTxBuffer()[i++] = command[t];
+        for (t = 0;t<command.length;t++) {
+            getTxBuffer()[i++] = command[t];
+        }
         getTxBuffer()[i++]=STX;
-        for (t = 0;t<data.length;t++) getTxBuffer()[i++] = data[t];
+        for (t = 0;t<data.length;t++) {
+            getTxBuffer()[i++] = data[t];
+        }
         getTxBuffer()[i++]=ETX;
-        if (getChecksumMethod()==0)
+        if (getChecksumMethod()==0) {
             bChecksum = calcChecksum(getTxBuffer());
-        else if (getChecksumMethod()==1)
+        } else if (getChecksumMethod()==1) {
             bChecksum = calcChecksumSDC(getTxBuffer());
+        }
 
         getTxBuffer()[getTxBuffer().length-1]=bChecksum;
 
@@ -497,25 +521,32 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 sendTxBuffer(); // KV 27102004
                 resetTxBuffer(); // KV 27102004
                 String resp = receiveString();
-                if (resp.compareTo("ACK") == 0) break;
-                if (returnResult) {
-                    if ((errorSignature != null) && (resp.indexOf(errorSignature) != -1))
-                        retVal = resp;
+                if (resp.compareTo("ACK") == 0) {
                     break;
                 }
-                if (iRetries++ >= iMaxRetries)
+                if (returnResult) {
+                    if ((errorSignature != null) && (resp.contains(errorSignature))) {
+                        retVal = resp;
+                    }
+                    break;
+                }
+                if (iRetries++ >= iMaxRetries) {
                     throw new ProtocolConnectionException("doSendCommandFrame() error iMaxRetries!", MAX_RETRIES_ERROR);
+                }
             }
         }
         else if ((command[0] == 'R') || (command[0] == 'P')) {
             sendTxBuffer(); // KV 27102004
         }
-        else throw new ProtocolConnectionException("doSendCommandFrame() error unknown tag!");
+        else {
+            throw new ProtocolConnectionException("doSendCommandFrame() error unknown tag!");
+        }
 
         if (DEBUG==1) {
             ProtocolUtils.outputHex( ((int)SOH)  &0x000000FF);
-            for (i=0;i<getTxBuffer().length;i++)
-                ProtocolUtils.outputHex( ((int)getTxBuffer()[i])  &0x000000FF);
+            for (i=0;i<getTxBuffer().length;i++) {
+                ProtocolUtils.outputHex(((int) getTxBuffer()[i]) & 0x000000FF);
+            }
             System.out.println();
         }
 
@@ -523,26 +554,32 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
     } // public void doSendCommandFrame(byte bCommand,byte[] data) throws ProtocolConnectionException
 
-    public void skipCommandMessage() throws NestedIOException,ConnectionException {
+    public void skipCommandMessage() throws NestedIOException, ConnectionException {
         long lMSTimeout;
         int iNewKar;
         byte bState=0;
 
-        if (isNoBreakRetry()) lMSTimeout = System.currentTimeMillis() + 5000;
-        else lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
+        if (isNoBreakRetry()) {
+            lMSTimeout = System.currentTimeMillis() + 5000;
+        } else {
+            lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
+        }
 
         copyEchoBuffer();
 
         while(true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex(iNewKar);
+                if (DEBUG == 1) {
+                    ProtocolUtils.outputHex(iNewKar);
+                }
 
-                if ((bState==0) && ((byte)iNewKar == SOH))
+                if ((bState==0) && ((byte)iNewKar == SOH)) {
                     bState = 1;
-                else if ((bState==1) && ((byte)iNewKar == ETX))
+                } else if ((bState==1) && ((byte)iNewKar == ETX)) {
                     bState = 2;
-                else if (bState==2)
+                } else if (bState==2) {
                     return;
+                }
 
             } // if ((iNewKar = readIn()) != -1)
 
@@ -590,7 +627,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                     }
 
                 }
-                else throw new ProtocolConnectionException(e.getMessage(), e.getReason());
+                else {
+                    throw new ProtocolConnectionException(e.getMessage(), e.getReason());
+                }
             }
         }
     }
@@ -614,27 +653,36 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         resultArrayOutputStream.reset();
         byteArrayOutputStream.reset();
 
-        if (DEBUG == 1) System.out.println("doReceiveData(...):");
+        if (DEBUG == 1) {
+            System.out.println("doReceiveData(...):");
+        }
         copyEchoBuffer();
 
         while(true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex(iNewKar);
+                if (DEBUG == 1) {
+                    ProtocolUtils.outputHex(iNewKar);
+                }
 
                 switch(iState) {
                     case STATE_WAIT_FOR_START: {
 
-                        if ((byte)iNewKar == SOH) iState = STATE_WAIT_FOR_END;
-                        if ((byte)iNewKar == STX) iState = STATE_WAIT_FOR_END;
+                        if ((byte)iNewKar == SOH) {
+                            iState = STATE_WAIT_FOR_END;
+                        }
+                        if ((byte)iNewKar == STX) {
+                            iState = STATE_WAIT_FOR_END;
+                        }
                         if ((byte)iNewKar == ACK) {
                             return ("ACK".getBytes());
                         }
                         // KV 27102004
                         if ((byte)iNewKar == NAK) {
-                            if (state != STATE_SIGNON)
+                            if (state != STATE_SIGNON) {
                                 throw new ProtocolConnectionException("doReceiveData() NAK received" + NAK_RECEIVED);
-                            else
+                            } else {
                                 throw new ProtocolConnectionException("Probably wrong password! (NAK received)");
+                            }
                         }
 
                     } break; // STATE_WAIT_FOR_START
@@ -655,24 +703,27 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
                     case STATE_WAIT_FOR_CHECKSUM: {
                         byteArrayOutputStream.write(iNewKar);
-                        if (getChecksumMethod()==0)
+                        if (getChecksumMethod()==0) {
                             calculatedChecksum = calcChecksum(byteArrayOutputStream.toByteArray());
-                        else if (getChecksumMethod()==1) {
+                        } else if (getChecksumMethod()==1) {
                             calculatedChecksum = calcChecksumSDC(byteArrayOutputStream.toByteArray());
                         }
 
                         if (calculatedChecksum == byteArrayOutputStream.toByteArray()[byteArrayOutputStream.toByteArray().length-1]) {
                             // remove head and tail from byteArrayOutputStream.toByteArray()...
                             byte[] data = new byte[byteArrayOutputStream.toByteArray().length-2];
-                            for (int i=0;i<(byteArrayOutputStream.toByteArray().length-2);i++)
+                            for (int i=0;i<(byteArrayOutputStream.toByteArray().length-2);i++) {
                                 data[i] = byteArrayOutputStream.toByteArray()[i];
+                            }
                             try {
                                 resultArrayOutputStream.write(data);
                             } catch ( IOException e) {
                                 throw new ProtocolConnectionException("receiveStreamData(), IOException, "+e.getMessage());
                             }
 
-                            if (end) return resultArrayOutputStream.toByteArray();
+                            if (end) {
+                                return resultArrayOutputStream.toByteArray();
+                            }
 
                             // init
                             iState=STATE_WAIT_FOR_START;
@@ -713,12 +764,12 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
 
     // KV 27102004
-    public void breakStreamingMode() throws NestedIOException,ConnectionException {
+    public void breakStreamingMode() throws NestedIOException, ConnectionException {
         sendRawData((byte)0x1B);
         delayAndFlush(3000);
     }
 
-    public byte[] receiveStreamData() throws NestedIOException,ConnectionException {
+    public byte[] receiveStreamData() throws NestedIOException, ConnectionException {
         long lMSTimeout,lMSTimeoutInterFrame;
         int iNewKar;
         int state=STREAM_STATE_WAIT_FOR_START;
@@ -739,13 +790,17 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         lMSTimeout = System.currentTimeMillis() + TIMEOUT;
         lMSTimeoutInterFrame = System.currentTimeMillis() + iProtocolTimeout;
 
-        if (DEBUG == 1) System.out.println("receiveStreamData(...):");
+        if (DEBUG == 1) {
+            System.out.println("receiveStreamData(...):");
+        }
 
         copyEchoBuffer();
 
         while(true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex(iNewKar);
+                if (DEBUG == 1) {
+                    ProtocolUtils.outputHex(iNewKar);
+                }
                 brutodata.write(iNewKar);
                 switch(state) {
                     case STREAM_STATE_WAIT_FOR_START: {
@@ -759,7 +814,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
                     case STREAM_STATE_WAIT_FOR_PACKET: {
                         packetNR |= (((byte)iNewKar&0xFF)<<(8*count));
-                        if (count++ >= 1) state = STREAM_STATE_WAIT_FOR_LENGTH;
+                        if (count++ >= 1) {
+                            state = STREAM_STATE_WAIT_FOR_LENGTH;
+                        }
                     } break; // STREAM_STATE_WAIT_FOR_PACKET
 
                     case STREAM_STATE_WAIT_FOR_LENGTH: {
@@ -770,7 +827,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
                     case STREAM_STATE_WAIT_FOR_DATA: {
                         nettodata.write(iNewKar);
-                        if (count++ >= length) state = STREAM_STATE_WAIT_FOR_END;
+                        if (count++ >= length) {
+                            state = STREAM_STATE_WAIT_FOR_END;
+                        }
                     } break; // STREAM_STATE_WAIT_FOR_DATA
 
                     case STREAM_STATE_WAIT_FOR_END: {
@@ -782,7 +841,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                         else if ((byte)iNewKar == EOT) {
                             end = true;
                         }
-                        else throw new ProtocolConnectionException("receiveStreamData() invalid end flag",PROTOCOL_ERROR);
+                        else {
+                            throw new ProtocolConnectionException("receiveStreamData() invalid end flag", PROTOCOL_ERROR);
+                        }
 
                         state = STREAM_STATE_WAIT_FOR_CRC;
                         count=0;
@@ -791,8 +852,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                     case STREAM_STATE_WAIT_FOR_CRC: {
                         if (count++ >= 1) {
                             if (CRCGenerator.calcCRC(brutodata.toByteArray()) == 0) {
-                                if (nettodata.toByteArray().length != (length+1))
-                                    throw new ProtocolConnectionException("receiveStreamData() nettodata invalid length",PROTOCOL_ERROR);
+                                if (nettodata.toByteArray().length != (length+1)) {
+                                    throw new ProtocolConnectionException("receiveStreamData() nettodata invalid length", PROTOCOL_ERROR);
+                                }
                                 try {
                                     alldata.write(nettodata.toByteArray());
                                 } catch ( IOException e) {
@@ -802,9 +864,13 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                                     alldata.write(255); // 0xFF end of data toevoegen!
                                     return alldata.toByteArray();
                                 }
-                                else state = STREAM_STATE_WAIT_FOR_START;
+                                else {
+                                    state = STREAM_STATE_WAIT_FOR_START;
+                                }
                             }
-                            else throw new ProtocolConnectionException("receiveStreamData() bad crc",CRC_ERROR);
+                            else {
+                                throw new ProtocolConnectionException("receiveStreamData() bad crc", CRC_ERROR);
+                            }
                         }
 
                     } break; // STREAM_STATE_WAIT_FOR_CRC
@@ -838,15 +904,20 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         while(true) {
 
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex(iNewKar);
+                if (DEBUG == 1) {
+                    ProtocolUtils.outputHex(iNewKar);
+                }
 
-                if ((byte)iNewKar==NAK) sendBreak();
+                if ((byte)iNewKar==NAK) {
+                    sendBreak();
+                }
 
                 convert[0] = (byte)iNewKar;
                 convertstr = new String(convert);
                 strIdent += convertstr;
-                if (convertstr.compareTo("\\") == 0)
+                if (convertstr.compareTo("\\") == 0) {
                     strIdent += convertstr;
+                }
 
                 // KV 15122003 if deviceid is different from null and not empty, use it to compare
                 // with the received deviceid.
@@ -860,8 +931,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                     }
                 }
                 else {
-                    if ((byte)iNewKar == 0x0A)
+                    if ((byte)iNewKar == 0x0A) {
                         return strIdent; // KV 16122003
+                    }
                 }
             } // if ((iNewKar = readIn()) != -1)
 
@@ -956,7 +1028,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
     private byte doCalcChecksumSDC(byte[] data, int length, int offset) throws ConnectionException {
         int checksum=0;
-        if (length > (data.length - offset)) throw new ConnectionException("Connection, doCalcChecksum, datalength="+data.length+", length="+length+", offset="+offset);
+        if (length > (data.length - offset)) {
+            throw new ConnectionException("Connection, doCalcChecksum, datalength=" + data.length + ", length=" + length + ", offset=" + offset);
+        }
         for (int i=0;i<length-1;i++) {
             checksum = checksum + data[offset+i]&0x7f;
         }

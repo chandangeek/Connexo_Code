@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.connection;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -50,7 +51,7 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
             int maxRetries,
             long forcedDelay,
             int echoCancelling,
-            HalfDuplexController halfDuplexController) throws ConnectionException {
+            HalfDuplexController halfDuplexController) {
         super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
         this.timeout = timeout;
         this.maxRetries=maxRetries;
@@ -66,38 +67,40 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
     public HHUSignOn getHhuSignOn() {
         return null;
     }
-    public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
-
+    public void disconnectMAC() {
     }
 
     public void setDtrBehaviour(int dtrBehaviour) {
         this.dtrBehaviour=dtrBehaviour;
     }
 
-    public MeterType connectMAC(String strID,String password,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID,String password,int securityLevel,String nodeId) throws IOException {
         String id=null;
 
         if (commChannel != null) {
             commChannel.setBaudrate(9600);
 
-            if (dtrBehaviour == 0)
+            if (dtrBehaviour == 0) {
                 commChannel.setDTR(false);
-            else if (dtrBehaviour == 1)
+            } else if (dtrBehaviour == 1) {
                 commChannel.setDTR(true);
+            }
 
             commChannel.setRTS(false);
             id = tryAuthentication(password,securityLevel);
         }
         else {
-            if ((nodeId!= null) && ("".compareTo(nodeId) != 0))
+            if ((nodeId!= null) && ("".compareTo(nodeId) != 0)) {
                 unlockMeter(nodeId);
+            }
             id = tryAuthentication(password,securityLevel);
         }
 
-        if (securityLevel>0)
-           return new MeterTypeImpl(id);
-        else
-           return null;
+        if (securityLevel>0) {
+            return new MeterTypeImpl(id);
+        } else {
+            return null;
+        }
     }
 
     private void unlockMeter(String nodeId) throws IOException {
@@ -118,11 +121,13 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
             while(true) {
                 if ((kar = readIn()) != -1) {
                     // characters received
-                    if (kar == '\n')
+                    if (kar == '\n') {
                         return;
+                    }
                 }
-                if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0)
+                if (System.currentTimeMillis() - interFrameTimeout > 0) {
                     break;
+                }
             } // while(true)
         } // while(retries++ < getMaxRetries())
         throw new ProtocolConnectionException("unlockMeter() nodeId acceptance max retries error!",MAX_RETRIES_ERROR);
@@ -180,7 +185,7 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
                 }
 
 
-                if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+                if (System.currentTimeMillis() - interFrameTimeout > 0) {
                     if (baos.toByteArray().length == 0) {
                         break;
                     }
@@ -190,7 +195,7 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
                     }
                 }
 
-                if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+                if (System.currentTimeMillis() - protocolTimeout > 0) {
                     throw new ProtocolConnectionException("authenticate() response to 'II' timeout error!",TIMEOUT_ERROR);
                 }
             } // while(true)
@@ -213,8 +218,9 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
         // request identification
         baos.write(receiveWithTimeout("II"));
 
-        if (baos.toByteArray().length == 0)
-            throw new ProtocolConnectionException("authenticate() response to 'II' max retries error!",MAX_RETRIES_ERROR);
+        if (baos.toByteArray().length == 0) {
+            throw new ProtocolConnectionException("authenticate() response to 'II' max retries error!", MAX_RETRIES_ERROR);
+        }
 
         // ***************************************************************************************************
         // send password
@@ -227,11 +233,13 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
             while(true) {
                 if ((kar = readIn()) != -1) {
                     // characters received
-                    if (kar == '?')
+                    if (kar == '?') {
                         return baos.toString();
+                    }
                 }
-                if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0)
+                if (System.currentTimeMillis() - interFrameTimeout > 0) {
                     break;
+                }
             } // while(true)
         } // while(retries++ < getMaxRetries())
         throw new ProtocolConnectionException("authenticate() password acceptance max retries error!",MAX_RETRIES_ERROR);
@@ -251,16 +259,18 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
                         baos.write(receiveFrame(false,frame));
                         // check for prompt...
                         rf = new ResponseFrame(baos.toString());
-                        if (rf.isRetry()||rf.isFailed()||rf.isDisabled()||rf.isDenied())
-                            throw new ProtocolConnectionException("sendCommand(), send argument, prompt "+rf.getPrompt()+" received for command "+CommandDescription.getDescriptionFor(ci.getCommand())+"!");
+                        if (rf.isRetry()||rf.isFailed()||rf.isDisabled()||rf.isDenied()) {
+                            throw new ProtocolConnectionException("sendCommand(), send argument, prompt " + rf.getPrompt() + " received for command " + CommandDescription.getDescriptionFor(ci.getCommand()) + "!");
+                        }
                         // send all arguments and wait for CR
                         for (int argument=0;(argument<ci.getArguments().length-1);argument++) {
                            frame = assembleAndSendFrame(ci.getArguments()[argument]);
                            baos.write(receiveFrame(false,frame));
                            // check for prompt...
                            rf = new ResponseFrame(baos.toString());
-                           if (rf.isRetry()||rf.isFailed()||rf.isDisabled()||rf.isDenied())
-                               throw new ProtocolConnectionException("sendCommand(), send argument, prompt "+rf.getPrompt()+" received for command "+CommandDescription.getDescriptionFor(ci.getCommand())+"!");
+                           if (rf.isRetry()||rf.isFailed()||rf.isDisabled()||rf.isDenied()) {
+                               throw new ProtocolConnectionException("sendCommand(), send argument, prompt " + rf.getPrompt() + " received for command " + CommandDescription.getDescriptionFor(ci.getCommand()) + "!");
+                           }
                            }
                         frame = assembleAndSendFrame(ci.getArguments()[ci.getArguments().length-1]);
                     } // if (ci.getArguments() != null)
@@ -300,8 +310,12 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
                             throw new ProtocolConnectionException("sendCommand(), failed prompt "+rf.getPrompt()+" received for command "+CommandDescription.getDescriptionFor(ci.getCommand())+"!");
                         }
                     }
-                    else return rf;
-                } else return null;
+                    else {
+                        return rf;
+                    }
+                } else {
+                    return null;
+                }
             } catch(ConnectionException e) {
                 if ((rf!= null) && (rf.isDenied()||(rf.isDisabled()))) {
                     throw new ProtocolConnectionException("sendCommand(), failed prompt "+rf.getPrompt()+" received for command "+CommandDescription.getDescriptionFor(ci.getCommand())+"!");
@@ -316,8 +330,6 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
 
 
     private byte[] receiveFrame(boolean prompt, byte[] frame) throws ConnectionException, NestedIOException {
-
-
         int kar;
         long protocolTimeout,interFrameTimeout;
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
@@ -336,7 +348,7 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
 
                    if (DEBUG == 1) {
                        System.out.print(",0x");
-                       ProtocolUtils.outputHex( ((int)kar));
+                       ProtocolUtils.outputHex(kar);
                        System.out.print("=0x");
                        ProtocolUtils.outputHex(((int)frame[frameKarPosition]&0xFF));
                    }
@@ -365,10 +377,10 @@ public class MarkVConnection extends Connection  implements ProtocolConnection {
 //                }
             } // if ((kar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
 

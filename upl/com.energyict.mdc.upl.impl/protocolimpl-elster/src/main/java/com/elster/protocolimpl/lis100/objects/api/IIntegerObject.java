@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.lis100.objects.api;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 
 /**
@@ -11,6 +12,5 @@ import com.energyict.dialer.connection.ConnectionException;
  * Time: 13:48
  */
 public interface IIntegerObject extends IBaseObject {
-
-    public int getIntValue() throws NestedIOException, ConnectionException;
+    int getIntValue() throws NestedIOException, ConnectionException;
 }

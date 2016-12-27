@@ -6,7 +6,8 @@
 
 package com.energyict.dialer.coreimpl;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.serialserviceprovider.SerInputStream;
 import com.energyict.dialer.serialserviceprovider.SerOutputStream;

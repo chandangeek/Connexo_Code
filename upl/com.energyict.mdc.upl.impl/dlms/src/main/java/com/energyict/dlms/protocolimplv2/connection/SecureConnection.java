@@ -1,8 +1,8 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCOSEMGlobals;

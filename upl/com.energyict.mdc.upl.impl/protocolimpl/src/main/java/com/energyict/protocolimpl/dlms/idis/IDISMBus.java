@@ -38,6 +38,10 @@ public class IDISMBus extends IDIS {
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final int MAX_MBUS_CHANNELS = 4;
 
+    public IDISMBus() {
+        super(calendarFinder);
+    }
+
     @Override
     public void connect() throws IOException {
         super.connect();

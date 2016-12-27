@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.lis100.objects.api;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 
 /**
@@ -11,6 +12,5 @@ import com.energyict.dialer.connection.ConnectionException;
  * To change this template use File | Settings | File Templates.
  */
 public interface IDoubleObject extends IBaseObject {
-
-    public double getDoubleValue() throws NestedIOException, ConnectionException;
+    double getDoubleValue() throws NestedIOException, ConnectionException;
 }

@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -43,7 +42,7 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 			long forcedDelay,
 			int echoCancelling,
 			HalfDuplexController halfDuplexController,
-			String serialNumber) throws ConnectionException {
+			String serialNumber) {
 		super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
 		this.timeout = timeout;
 		this.maxRetries=maxRetries;
@@ -53,16 +52,16 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 		}
 	} // EZ7Connection(...)
 
-	public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+	public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
 		sourceId = Long.parseLong(nodeId);
 		return null;
 	}
 
-	public byte[] dataReadout(String strID, String nodeId) throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+	public byte[] dataReadout(String strID, String nodeId) {
 		return null;
 	}
 
-	public void disconnectMAC() throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+	public void disconnectMAC() {
 	}
 
 	public HHUSignOn getHhuSignOn() {
@@ -72,7 +71,7 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 	public void setHHUSignOn(HHUSignOn hhuSignOn) {
 	}
 
-	private void sendByte(byte txbyte) throws ConnectionException {
+	private void sendByte(byte txbyte) {
 		switch(txbyte) {
 		case STX:
 		case ETX:
@@ -94,8 +93,7 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 			try {
 				delayAndFlush(forcedDelay); // KV_DEBUG
 				sendFrame();
-				ResponseData rd = receiveFrame();
-				return rd;
+				return receiveFrame();
 			}
 			catch(IOException e) {
 				if (retry++>=maxRetries) {
@@ -144,7 +142,7 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 	}
 
 
-	private void doSendCommand(byte[] rawData) throws ConnectionException {
+	private void doSendCommand(byte[] rawData) {
 		txOutputStream.reset();
 		assembleFrame(STX);
 		byte[] cmdData=rawData;
@@ -177,10 +175,10 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 	} // void sendData(byte[] cmdData) throws ConnectionException
 
 
-	private final int STATE_WAIT_FOR_STX=0;
-	private final int STATE_WAIT_FOR_DATA=1;
+	private static final int STATE_WAIT_FOR_STX=0;
+	private static final int STATE_WAIT_FOR_DATA=1;
 
-	public ResponseData receiveFrame() throws NestedIOException, IOException {
+	public ResponseData receiveFrame() throws IOException {
 
 		long protocolTimeout,interFrameTimeout;
 		int kar;

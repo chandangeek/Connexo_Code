@@ -1,25 +1,29 @@
 package com.elster.protocolimpl.dsfg.connection;
 
+import com.energyict.mdc.io.NestedIOException;
+
 import com.elster.protocolimpl.dsfg.telegram.DataBlock;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Implementation of dsfg protocol. <br>
  * <br>
- * 
+ *
  * <b>General Description:</b><br>
  * <br>
  * <br>
- * 
- * 
- * 
+ *
+ *
+ *
  * @author gh
  * @since 5-mai-2010
- * 
+ *
  */
 
 public class DsfgConnection extends Connection {
@@ -37,7 +41,7 @@ public class DsfgConnection extends Connection {
 	 */
 	/**
 	 * constructor of dsfg protocol
-	 * 
+	 *
 	 * @param inputStream
 	 * @param outputStream
 	 */
@@ -48,7 +52,7 @@ public class DsfgConnection extends Connection {
 
 	/**
 	 * calculate the BCC of a given String
-	 * 
+	 *
 	 * @param data - the data to build the bcc of
      *
 	 * @return bcc
@@ -72,16 +76,16 @@ public class DsfgConnection extends Connection {
 
 		/*
 		 * sendRawData(STX);
-		 * 
+		 *
 		 * byte[] buffer = new byte[order.length() + data.length()]; int p = 0;
 		 * for (int i = 0; i < order.length(); i++) buffer[p++] = (byte)
 		 * order.charAt(i); for (int i = 0; i < data.length(); i++) buffer[p++]
 		 * = (byte) data.charAt(i);
-		 * 
+		 *
 		 * sendRawData(buffer);
-		 * 
+		 *
 		 * sendRawData(ETX);
-		 * 
+		 *
 		 * if (withBCC) { byte bcc = calculateBCC(buffer); sendRawData((byte)
 		 * ((bcc >> 4) + 0x20)); sendRawData((byte) ((bcc & 0xF) + 0x20)); }
 		 */
@@ -113,18 +117,17 @@ public class DsfgConnection extends Connection {
 
 	/**
 	 * receive a telegram
-	 * 
+	 *
 	 * @param withBCC
 	 *            has to be set to true, if telegram will have bcc
-	 * 
+	 *
 	 * @return read data
-	 * 
+	 *
 	 * @throws ConnectionException
 	 *             if - timeout occurs - bcc is wrong
 	 * @throws NestedIOException
 	 */
-	private String receiveTelegram(boolean withBCC) throws ConnectionException,
-			NestedIOException {
+	private String receiveTelegram(boolean withBCC) throws ConnectionException, NestedIOException {
 
 		String result = "";
 		int iReceivedChar;
@@ -195,7 +198,7 @@ public class DsfgConnection extends Connection {
 
 	/**
 	 * Send a data string (with bcc) to device and wait for acknowledge
-	 * 
+	 *
 	 * @param data
 	 * @return answer of device (ACK, NAK, ENQ, CAN)
 	 * @throws IOException
@@ -233,9 +236,9 @@ public class DsfgConnection extends Connection {
 
 	/**
 	 * starting communication by sending the K command to the dsfg device
-	 * 
+	 *
 	 * @return name of dfue instance
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public String connect() throws IOException {
@@ -247,14 +250,14 @@ public class DsfgConnection extends Connection {
 	 * tries to sign on to a dsfg device (has to be done directly after
 	 * connection) if the login was successful, the instance address of the dfue
 	 * unit is stored
-	 * 
+	 *
 	 * @param password
 	 *            (has to be of a length of 16 char)
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void signon(String password) throws IOException {
-		
+
 		/* password always has to be 16 char long ! */
 		String tmp = password + "                ";
 		String pw = tmp.substring(0, 16);
@@ -267,7 +270,7 @@ public class DsfgConnection extends Connection {
 
 	/**
 	 * getDfueInstance()
-	 * 
+	 *
 	 * @return the dfue instance letter
 	 */
 	public char getDfueInstance() {

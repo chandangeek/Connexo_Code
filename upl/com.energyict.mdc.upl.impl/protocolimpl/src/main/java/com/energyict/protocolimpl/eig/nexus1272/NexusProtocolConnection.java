@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -44,7 +45,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 			long lForceDelay,
 			int iEchoCancelling,
 			int iIEC1107Compatible,
-			Encryptor encryptor,Logger logger) throws ConnectionException {
+			Encryptor encryptor,Logger logger) {
 		super(inputStream, outputStream, lForceDelay, iEchoCancelling);
 		this.iMaxRetries = iMaxRetries;
 		this.lForceDelay = lForceDelay;
@@ -65,12 +66,12 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 	public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
 		logger.info("call connection class disconnectMAC(...)");
 	}
-	public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
+	public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException {
 		logger.info("call connection class connectMAC(...)");
 		return null;
 	}
-	public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {
-		return null;   
+	public byte[] dataReadout(String strID,String nodeId) {
+		return null;
 	}
 
 	public void delayAndFlush(int delay) throws ConnectionException, NestedIOException {
@@ -82,11 +83,11 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 	}
 
 	private final long TIMEOUT = 8000;
-	
+
 	public enum RESPONSE_STATES {BUILD_TID, BUILD_PID, BUILD_LEN, BUILD_UID, BUILD_FC, HANDLE_READ_RESPONSE, HANDLE_WRITE_RESPONSE, CHECK_COMPLETE};
 	public enum READ_RESPONSE_STATES {BUILD_BC, BUILD_DATA};
 	public enum WRITE_RESPONSE_STATES{BUILD_SA, BUILD_DATA};
-	
+
 	public ByteArrayOutputStream receiveWriteResponse(Command c) throws ConnectionException, NestedIOException {
 		byte[] transId = new byte[2];
 		byte[] protocolId = new byte[2];
@@ -95,20 +96,20 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		byte[] startAddress = new byte[2];
 		byte[] data = new byte[2];
 		int byteCount = 0;
-		
+
 		//Initial States
 		RESPONSE_STATES state = RESPONSE_STATES.BUILD_TID;
 		WRITE_RESPONSE_STATES writeState = WRITE_RESPONSE_STATES.BUILD_SA;
 		READ_RESPONSE_STATES readState = READ_RESPONSE_STATES.BUILD_BC;
 		byte kar = -2;
-		
+
 		ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
 		long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-		
+
 		copyEchoBuffer();
 		int count = 0;
 		while(true) {
-			
+
 			int kar2;
 			if ((kar2 = readIn()) != -1) {
 				kar = (byte) kar2;
@@ -120,8 +121,9 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					count++;
 					if (count == 2) {
 						int recTID = getSmallInt(transId);
-						if ( recTID != (c.getTransactionID()))
-							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID()%65536);
+						if ( recTID != (c.getTransactionID())) {
+							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID() % 65536);
+						}
 						state = RESPONSE_STATES.BUILD_PID;
 					}
 
@@ -130,8 +132,9 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					protocolId[count-2] = kar;
 					count++;
 					if (count == 4) {
-						if (ProtocolUtils.getShort(protocolId, 0) != c.getProtocolID())
+						if (ProtocolUtils.getShort(protocolId, 0) != c.getProtocolID()) {
 							throw new ProtocolConnectionException("Protocol ID mismatch");
+						}
 						state = RESPONSE_STATES.BUILD_LEN;
 					}
 
@@ -185,10 +188,11 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 				case HANDLE_READ_RESPONSE: {
 					switch(readState) {
 					case BUILD_BC: {
-						if (kar <0)
-						byteCount= kar2;
-						else
-							byteCount= kar;
+						if (kar <0) {
+							byteCount = kar2;
+						} else {
+							byteCount = kar;
+						}
 						count++;
 						readState = READ_RESPONSE_STATES.BUILD_DATA;
 					} break; // BUILD_SA
@@ -206,21 +210,21 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					delayAndFlush(500);
 				} // CHECK_COMPLETE
 				}
-				
+
 			} // if ((kar = readIn()) != -1)
 
-			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+			if (System.currentTimeMillis() - protocolTimeout > 0) {
 				throw new ProtocolConnectionException("receiveWriteResponse() response timeout error",TIMEOUT_ERROR);
 			}
 			if (state == RESPONSE_STATES.CHECK_COMPLETE && kar2 == -1) {
 				return resultArrayOutputStream;
 			}
-			
+
 		} // while(true)
 	}
-	
+
 	public void receiveReadResponse(Command c) throws IOException {
-		
+
 		RESPONSE_STATES state;
 		byte[] transId = new byte[2];
 		byte[] protocolId = new byte[2];
@@ -229,12 +233,12 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		state = RESPONSE_STATES.BUILD_TID;
 		ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
 		long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-		
-		
+
+
 		copyEchoBuffer();
 		int count = 0;
 		while(true) {
-			
+
 			int kar2;
 			if ((kar2 = readIn()) != -1) {
 				kar = (byte) kar2;
@@ -247,8 +251,9 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					count++;
 					if (count == 2) {
 						int recTID = getSmallInt(transId);
-						if ( recTID != (c.getTransactionID()))
-							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID()%65536);
+						if ( recTID != (c.getTransactionID())) {
+							throw new ProtocolConnectionException("Transaction ID mismatch " + recTID + " // " + c.getTransactionID() % 65536);
+						}
 						state = RESPONSE_STATES.BUILD_PID;
 					}
 
@@ -257,8 +262,9 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					protocolId[count-2] = kar;
 					count++;
 					if (count == 4) {
-						if (ProtocolUtils.getShort(protocolId, 0) != c.getProtocolID())
+						if (ProtocolUtils.getShort(protocolId, 0) != c.getProtocolID()) {
 							throw new ProtocolConnectionException("Protocol ID mismatch");
+						}
 						state = RESPONSE_STATES.BUILD_LEN;
 					}
 
@@ -280,16 +286,16 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					throw new IOException("Response is longer than expected, revieved " + ProtocolUtils.outputHexString(kar) + " when expecting nothing");
 				}
 				}
-				
+
 			} // if ((kar = readIn()) != -1)
 
-			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+			if (System.currentTimeMillis() - protocolTimeout > 0) {
 				throw new ProtocolConnectionException("receiveWriteResponse() response timeout error",TIMEOUT_ERROR);
 			}
 			if (state == RESPONSE_STATES.CHECK_COMPLETE && kar2 == -1) {
 				return;
 			}
-			
+
 		} // while(true)
 	}
 
@@ -311,22 +317,22 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 				protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 			} // if ((kar = readIn()) != -1)
 
-			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+			if (System.currentTimeMillis() - protocolTimeout > 0) {
 				return resultArrayOutputStream;
 			}
 
-			if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+			if (System.currentTimeMillis() - interFrameTimeout > 0) {
 			}
 
 		} // while(true)
 
 	} // public Response receiveResponse()
-	
+
 	//Get 16 bit integer
 	public static int getSmallInt(byte[] byteBuffer) {
 		return((((int)byteBuffer[0]<<8)& 0x0000FF00) |
 				(((int)byteBuffer[1])&    0x000000FF));
 	}
-	
+
 }
 

@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.kaifa;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -25,14 +26,14 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
     /**
      * Creates a new instance of IEC1107Connection
      */
-    public KaifaHHUConnection(SerialCommunicationChannel commChannel, int timeout, int maxRetries, long lForceDelay, int iEchoCancelling) throws ConnectionException {
+    public KaifaHHUConnection(SerialCommunicationChannel commChannel, int timeout, int maxRetries, long lForceDelay, int iEchoCancelling) {
         super(commChannel, timeout, maxRetries, lForceDelay, iEchoCancelling);
         this.commChannel = commChannel;
         this.timeout = timeout;
         this.maxRetries = maxRetries;
     }
 
-    public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException {
         return doSignOn(strIdentConfig, nodeId, getProtocol(), getMode(), wakeup, baudrate);
     }
 
@@ -91,13 +92,13 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
                     return strIdent;
                 }
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ConnectionException("receiveIdent() timeout error", TIMEOUT_ERROR);
             }
         }
     }
 
-    private void delay300baudForDatalength(byte[] ack) throws NestedIOException, ConnectionException {
+    private void delay300baudForDatalength(byte[] ack) throws NestedIOException {
         // calc sleeptime using 300 baud and length of data
         try {
             Thread.sleep((ack.length * 10 * 3000) / 300);
@@ -122,7 +123,7 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
     }
 
 
-    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) throws IOException {
         int retries = 0;
         while (true) {
             try {

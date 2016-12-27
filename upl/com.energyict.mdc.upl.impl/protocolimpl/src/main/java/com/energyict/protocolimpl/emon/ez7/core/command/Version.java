@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
@@ -17,34 +15,35 @@ import java.util.List;
  * @author  Koen
  */
 public class Version extends AbstractCommand {
-    
+
     private static final int DEBUG=0;
     private static final String COMMAND="RV";
-    
+
     String completeVersionString;
     String versionString;
-    
+
     /** Creates a new instance of Version */
     public Version(EZ7CommandFactory ez7CommandFactory) {
         super(ez7CommandFactory);
     }
-    
+
     public String toString() {
         return "Version: "+ getCompleteVersionString();
     }
-    
-    public void build() throws ConnectionException, IOException {
+
+    public void build() throws IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);
     }
 
-    private void parse(byte[] data) throws NestedIOException {
-        
+    private void parse(byte[] data) {
+
         List values;
 
-        if (DEBUG>=1) 
-           System.out.println(new String(data)); 
+        if (DEBUG>=1) {
+            System.out.println(new String(data));
+        }
         String dataStr = new String(data);
         setCompleteVersionString(dataStr.trim().replaceAll("\r\n", ", "));
 
@@ -70,7 +69,7 @@ public class Version extends AbstractCommand {
     public java.lang.String getCompleteVersionString() {
         return completeVersionString;
     }
-    
+
     /**
      * Setter for property version.
      * @param completeVersionString New value of property version.
@@ -78,5 +77,5 @@ public class Version extends AbstractCommand {
     public void setCompleteVersionString(java.lang.String completeVersionString) {
         this.completeVersionString = completeVersionString;
     }
-    
+
 }

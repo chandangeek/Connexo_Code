@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
 import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
@@ -15,7 +16,6 @@ import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.TypedProperties;

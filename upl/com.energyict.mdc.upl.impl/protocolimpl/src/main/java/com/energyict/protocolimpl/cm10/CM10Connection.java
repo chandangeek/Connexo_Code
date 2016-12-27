@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -16,7 +15,7 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 public class CM10Connection extends Connection implements ProtocolConnection {
-	
+
 	private final int timeout;
 	private final int maxRetries;
 	private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -24,8 +23,8 @@ public class CM10Connection extends Connection implements ProtocolConnection {
 	private final CM10 cm10Protocol;
 	private final Logger logger;
 
-    public CM10Connection(InputStream in, OutputStream out, int timeout, int retries, long forcedDelay, int echoCancelling, 
-                          HalfDuplexController hdc, CM10 cm10) throws ConnectionException {
+    public CM10Connection(InputStream in, OutputStream out, int timeout, int retries, long forcedDelay, int echoCancelling,
+                          HalfDuplexController hdc, CM10 cm10) {
         super(in, out, forcedDelay, echoCancelling, hdc);
         this.timeout = timeout;
         this.maxRetries = retries;
@@ -37,7 +36,7 @@ public class CM10Connection extends Connection implements ProtocolConnection {
     public CM10 getCM10Protocol() {
 		return cm10Protocol;
 	}
-	
+
 	protected int getTimeout() {
 		return timeout;
 	}
@@ -67,7 +66,7 @@ public class CM10Connection extends Connection implements ProtocolConnection {
     public Response receiveResponse(Command command) throws IOException {
         return responseReceiver.receiveResponse(command);
     }
-    
+
     int readNext() throws IOException {
     	return readIn();
     }
@@ -75,24 +74,24 @@ public class CM10Connection extends Connection implements ProtocolConnection {
     byte getTimeoutError() {
     	return TIMEOUT_ERROR;
     }
-    
+
     void echoCancellation() {
     	this.copyEchoBuffer();
     }
-	
+
 	protected ByteArrayOutputStream getOutputStream() {
 		return this.outputStream;
 	}
-	
-	public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+
+	public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
 		return null;
 	}
 
-	public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {
+	public byte[] dataReadout(String strID, String nodeId) {
 		return null;
 	}
 
-	public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
+	public void disconnectMAC() {
 
 	}
 
@@ -102,5 +101,5 @@ public class CM10Connection extends Connection implements ProtocolConnection {
 
 	public void setHHUSignOn(HHUSignOn hhuSignOn) {
 	}
-	
+
 }

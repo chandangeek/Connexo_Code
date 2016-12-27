@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.utils;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cpo.Environment;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
@@ -1522,7 +1522,7 @@ public final class ProtocolTools {
     }
 
     /**
-     * Get the root cause of a {@link com.energyict.cbo.NestedIOException}
+     * Get the root cause of a {@link NestedIOException}
      *
      * @param e the NestedIOException, for which the root cause should be extracted
      * @return the {@link Throwable}, which is the root cause

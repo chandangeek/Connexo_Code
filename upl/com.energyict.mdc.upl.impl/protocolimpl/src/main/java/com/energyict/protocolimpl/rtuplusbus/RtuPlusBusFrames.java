@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -313,7 +312,7 @@ public class RtuPlusBusFrames {
 
 
 
-    private int[] doRTUReadFrame( ) throws NestedIOException, RtuPlusBusException {
+    private int[] doRTUReadFrame( ) throws RtuPlusBusException {
         long lMSTimeout;
         int iCurrentState;
         int iCurrByte, iPos;
@@ -325,7 +324,7 @@ public class RtuPlusBusFrames {
 
         try {
             iCurrentState= STATE_SOH;
-            while( boolAbort==false) {
+            while(!boolAbort) {
                 if( inputStream.available() != 0) {
                     iCurrByte = inputStream.read();
                     switch( iCurrentState ) {
@@ -341,10 +340,11 @@ public class RtuPlusBusFrames {
                             break;
 
                         case STATE_DESTINATION_COMPL:
-                            if( iCurrByte == (( ~ iDestination) & 0xFF) )
+                            if( iCurrByte == (( ~ iDestination) & 0xFF) ) {
                                 iCurrentState = STATE_SOURCE;
-                            else
-                                throw new RtuPlusBusException( RtuPlusBusException.DEST_COMPLEMENT );
+                            } else {
+                                throw new RtuPlusBusException(RtuPlusBusException.DEST_COMPLEMENT);
+                            }
                             break;
 
                         case STATE_SOURCE:
@@ -353,10 +353,11 @@ public class RtuPlusBusFrames {
                             break;
 
                         case STATE_SOURCE_COMPL:
-                            if( iCurrByte == (( ~ iSource) & 0xFF) )
+                            if( iCurrByte == (( ~ iSource) & 0xFF) ) {
                                 iCurrentState = STATE_DATASIZE;
-                            else
-                                throw new RtuPlusBusException( RtuPlusBusException.SRC_COMPLEMENT );
+                            } else {
+                                throw new RtuPlusBusException(RtuPlusBusException.SRC_COMPLEMENT);
+                            }
                             break;
 
                         case STATE_DATASIZE:
@@ -370,8 +371,9 @@ public class RtuPlusBusFrames {
                               iCheckSum = 0;
                               iPos=0;
                             }
-                            else
-                                throw new RtuPlusBusException( RtuPlusBusException.DATA_SIZE_COMPLEMENT );
+                            else {
+                                throw new RtuPlusBusException(RtuPlusBusException.DATA_SIZE_COMPLEMENT);
+                            }
                             break;
 
                         case STATE_DATA:
@@ -379,7 +381,9 @@ public class RtuPlusBusFrames {
                             iPos++;
                             bos.write(iCurrByte & 0xFF);
                             if( iDataSize == iPos )  // Received all databytes ..
+                            {
                                 iCurrentState = STATE_CHECKSUM_MSB;
+                            }
                             break;
 
                         case STATE_CHECKSUM_MSB:
@@ -398,8 +402,9 @@ public class RtuPlusBusFrames {
                                 throw new RtuPlusBusException( RtuPlusBusException.SERVER_ID_SMALL );
 
                             }
-                            else
-                                throw new RtuPlusBusException( RtuPlusBusException.CHECKSUM );
+                            else {
+                                throw new RtuPlusBusException(RtuPlusBusException.CHECKSUM);
+                            }
 
                         default:
                             break;
@@ -409,7 +414,7 @@ public class RtuPlusBusFrames {
                     Thread.sleep( 100 ); // KV 03062003
                 }
 
-                if( ((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if( System.currentTimeMillis() - lMSTimeout > 0) {
                     // inputStream.close();
                     //System.out.println("timeout");
                     throw new RtuPlusBusException( "currentState=" + iCurrentState, RtuPlusBusException.TIME_OUT_ERROR );
@@ -429,7 +434,7 @@ public class RtuPlusBusFrames {
         return null;
     }
 
-    private int[] doRTUReadFrameOriginal(int aiServerID ) throws NestedIOException, RtuPlusBusException {
+    private int[] doRTUReadFrameOriginal(int aiServerID ) throws RtuPlusBusException {
         long lMSTimeout;
         int iCurrentState;
         int iCurrByte, iPos;
@@ -449,7 +454,7 @@ public class RtuPlusBusFrames {
 
         try {
             iCurrentState= STATE_SOH;
-            while( boolAbort==false) {
+            while(!boolAbort) {
                 //System.out.println(" iDataSize " + iDataSize );
                 if( inputStreamD.available() != 0) {
                     iCurrByte = inputStreamD.read();
@@ -467,9 +472,9 @@ public class RtuPlusBusFrames {
                             break;
 
                         case STATE_DESTINATION_COMPL:
-                            if( iCurrByte == (( ~ iDestination) & 0xFF) )
+                            if( iCurrByte == (( ~ iDestination) & 0xFF) ) {
                                 iCurrentState = STATE_SOURCE;
-                            else
+                            } else
                             { inputStreamD.reset();
                               iCurrentState = STATE_SOH;
                             }
@@ -481,9 +486,9 @@ public class RtuPlusBusFrames {
                             break;
 
                         case STATE_SOURCE_COMPL:
-                            if( iCurrByte == (( ~ iSource) & 0xFF) )
+                            if( iCurrByte == (( ~ iSource) & 0xFF) ) {
                                 iCurrentState = STATE_DATASIZE;
-                            else
+                            } else
                             { inputStreamD.reset();
                               iCurrentState = STATE_SOH;
                             }
@@ -511,7 +516,9 @@ public class RtuPlusBusFrames {
                             iCheckSum += iCurrByte;
                             liReceivedData[iPos++] = iCurrByte & 0xFF;
                             if( iDataSize == iPos )  // Received all databytes ..
+                            {
                                 iCurrentState = STATE_CHECKSUM_MSB;
+                            }
                             break;
 
                         case STATE_CHECKSUM_MSB:
@@ -540,7 +547,7 @@ public class RtuPlusBusFrames {
                     Thread.sleep( 100 ); // KV 03062003
                 }
 
-                if( ((long) (System.currentTimeMillis() - lMSTimeout)) > 0)
+                if( System.currentTimeMillis() - lMSTimeout > 0)
                 { inputStreamD.close();
                   return null;  // Timeout
                 }
@@ -627,7 +634,7 @@ public class RtuPlusBusFrames {
         lTimeOfRecord +=(liReceivedData[3] & 0xFF) << 16;
         lTimeOfRecord +=(liReceivedData[2] & 0xFF) << 8;
         lTimeOfRecord +=(liReceivedData[1] & 0xFF);
-        calendar.set( 1980, calendar.JANUARY, 1, 0, 0, 0);
+        calendar.set( 1980, Calendar.JANUARY, 1, 0, 0, 0);
         calendar.setTimeInMillis( calendar.getTimeInMillis() + ( lTimeOfRecord * 1000 ) );
 
         Date newDate = calendar.getTime();

@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
@@ -13,7 +14,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
@@ -231,7 +231,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         parseAlarmRegister(structure.getNextDataType(), eventDate, 1);
         parseAlarmRegister(structure.getNextDataType(), eventDate, 2);
         parseAlarmRegister(structure.getNextDataType(), eventDate, 3);
-        if(getCollectedLogBook().getCollectedMeterEvents().size() > 0){
+        if (!getCollectedLogBook().getCollectedMeterEvents().isEmpty()) {
             getCollectedLogBooks().add(getCollectedLogBook());
         }
     }
@@ -247,7 +247,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             DataContainer dataContainer = new DataContainer();
             dataContainer.parseObjectList(structure.getNextDataType().getBEREncodedByteArray(), Logger.getLogger(this.getClass().getName()));
             List<MeterProtocolEvent> meterProtocolEventList = parseEvents(dataContainer, obisCode);
-            if(meterProtocolEventList.size() > 0){
+            if (!meterProtocolEventList.isEmpty()) {
                 CollectedLogBook collectedLogBook = this.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, obisCode));
                 collectedLogBook.addCollectedMeterEvents(meterProtocolEventList);
                 getCollectedLogBooks().add(collectedLogBook);
@@ -264,7 +264,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             if(obisCode.equals(LOAD_PROFILE_1_OBIS) || obisCode.equals(LOAD_PROFILE_2_OBIS)){
                 getColectedLoadProfile(structure.getNextDataType(), obisCode, getOfflineLoadProfile(allOfflineLoadProfiles, obisCode));
             } else if (obisCode.equalsIgnoreBChannel(MBUS_VALUE_CHANNEL_OBIS)){
-                getCollectedMbusChannelValue(structure.getNextDataType(), obisCode);
+                getCollectedMbusChannelValue();
             }
         }
     }
@@ -376,7 +376,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         return clockTime;
     }
 
-    private void getCollectedMbusChannelValue(AbstractDataType dataType, ObisCode obisCode) {
+    private void getCollectedMbusChannelValue() {
         //TODO: implement this
     }
 
@@ -389,7 +389,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         List<ChannelInfo> channelInfos = getDeviceChannelInfo(loadProfileObisCode, offlineLoadProfile);
         List<IntervalData> collectedIntervalData;
         if(offlineLoadProfile != null){
-            collectedIntervalData = getCollectedIntervalDataUserDefinedChannels((Array) dataType, loadProfileObisCode, offlineLoadProfile);
+            collectedIntervalData = getCollectedIntervalDataUserDefinedChannels((Array) dataType, offlineLoadProfile);
         } else {
             collectedIntervalData = getCollectedIntervalDataForHardCodedChannels((Array) dataType, loadProfileObisCode);
         }
@@ -398,7 +398,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         getCollectedLoadProfile().add(collectedLoadProfile);
     }
 
-    private List<IntervalData> getCollectedIntervalDataUserDefinedChannels(Array dataType, ObisCode loadProfileObisCode, OfflineLoadProfile offlineLoadProfile) {
+    private List<IntervalData> getCollectedIntervalDataUserDefinedChannels(Array dataType, OfflineLoadProfile offlineLoadProfile) {
         List<IntervalData> collectedIntervalData = new ArrayList<>();
         List<OfflineLoadProfileChannel> offlineChannels = offlineLoadProfile.getOfflineChannels();
 

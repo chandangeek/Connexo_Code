@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -276,7 +277,7 @@ public class FlagIEC1107Connection extends Connection {
      * @throws ConnectionException
      */
     public void disconnectMACWithoutBreak() throws ConnectionException, NestedIOException {
-        if (boolFlagIEC1107Connected == true) {
+        if (boolFlagIEC1107Connected) {
             try {
                 delayAndFlush(DELAY_AFTER_BREAK); // KV 06072004
                 boolFlagIEC1107Connected = false;
@@ -298,7 +299,7 @@ public class FlagIEC1107Connection extends Connection {
      * Method that requests a MAC disconnect for the IEC1107 layer.
      */
     public void disconnectMAC() throws NestedIOException, FlagIEC1107ConnectionException {
-        if (boolFlagIEC1107Connected == true) {
+        if (boolFlagIEC1107Connected) {
             try {
                 //byte[] buffer = {(byte)SOH,(byte)0x42,(byte)0x30,(byte)ETX,(byte)0x71};
                 //sendRawData(buffer);

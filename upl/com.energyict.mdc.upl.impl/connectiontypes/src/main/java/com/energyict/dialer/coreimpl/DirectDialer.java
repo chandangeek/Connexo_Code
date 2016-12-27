@@ -6,6 +6,8 @@
 
 package com.energyict.dialer.coreimpl;
 
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.core.DialerException;
 import com.energyict.dialer.core.Direct;
 
@@ -20,10 +22,10 @@ public class DirectDialer extends DialerImpl implements Direct {
     public DirectDialer() {
     }
 
-    protected void doConnect(String strDialAddress1, String strDialAddress2, int iTimeout) throws com.energyict.cbo.NestedIOException, DialerException {
+    protected void doConnect(String strDialAddress1, String strDialAddress2, int iTimeout) throws NestedIOException, DialerException {
     }
 
-    protected void doDisConnect() throws com.energyict.cbo.NestedIOException, DialerException {
+    protected void doDisConnect() throws NestedIOException, DialerException {
     }
 
 }

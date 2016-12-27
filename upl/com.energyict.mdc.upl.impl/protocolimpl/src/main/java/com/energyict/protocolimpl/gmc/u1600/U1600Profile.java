@@ -7,7 +7,8 @@
 package com.energyict.protocolimpl.gmc.u1600;
 
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ChannelInfo;
@@ -28,38 +29,38 @@ import java.util.List;
  * @author  weinert
  */
 public class U1600Profile {
-    
+
     private static final int DEBUG=0;
-    
+
     U1600 u1600;
     Date previousDate=null;
-    
-    
+
+
     /** Flags for Sommer-/Winterztimeswitching */
     boolean [] bSecondWZ = new boolean [] {false,false,false,false,false};
     /** Creates a new instance of U1600Profile */
     /** Creates a new instance of IndigoProfile */
     public U1600Profile(U1600 u1600) {
         this.u1600=u1600;
-        
+
     }
-    
-    
-    
-    
+
+
+
+
     public ProfileData getProfileData(Date from, Date to) throws IOException,ProtocolConnectionException {
-        
+
         previousDate=null;
-        
+
         //String answerTel = "";
-        
+
         int profileInterval = u1600.getProfileInterval();
         int iCountChannels = u1600.getNumberOfChannels();
         ProtocolChannelMap liCountChannels = u1600.getProtocolChannelMap();
         //String strCountChannels = liCountChannels.getChannelRegisterMap();
         iCountChannels  = liCountChannels.getNrOfProtocolChannels();
         //    iCountChannels = Integer.parseInt(strCountChannels) ;
-        
+
         if (DEBUG>=1) System.out.println("KV_DEBUG> getProfileData("+from.toString()+","+to.toString()+")");
         if (to.getTime() < from.getTime()) throw new IOException("U1600Profile, getProfileData, error ("+from.toString()+") > ("+to.toString()+")");
         long offset = to.getTime() - from.getTime();
@@ -67,20 +68,20 @@ public class U1600Profile {
         long tostd = to.getTime() + (long)u1600.getTimeZone().getOffset(to.getTime());
         long fromstd = from.getTime() + (long)u1600.getTimeZone().getOffset(from.getTime());
         long nrOfDaysToRetrieve = ((tostd/ONEDAY) - (fromstd/ONEDAY)) + 1;
-        
-        
-        
+
+
+
         Calendar ti_Start = ProtocolUtils.getCleanCalendar(getU1600().getTimeZone());
         ti_Start.setTime(from);
         Calendar ti_Stop = ProtocolUtils.getCleanCalendar(getU1600().getTimeZone());
         ti_Stop.setTime(to);
         Calendar startTI = ti_Start;
         Calendar stopTI  = ti_Stop;
-        
+
         Calendar calendar = ProtocolUtils.getCleanCalendar(getU1600().getTimeZone());
         Date oldestda = new Date();
         String telegram = u1600.getEclConnection().getOldestPeriod(oldestda);
-        
+
         int iStartByte = 0;
         calendar.set((Integer.parseInt(telegram.substring(iStartByte+6,iStartByte+8))+2000),(Integer.parseInt(telegram.substring(iStartByte+3,iStartByte+5))-1)
         , Integer.parseInt(telegram.substring(iStartByte,iStartByte+2))
@@ -88,12 +89,12 @@ public class U1600Profile {
                 Integer.parseInt(telegram.substring(iStartByte+12,iStartByte+14)),0);
         //oldestda  = calendar.getTime();
         // System.out.println(oldestda  + "  Date");
-        
+
         Calendar calendar_la = ProtocolUtils.getCleanCalendar(getU1600().getTimeZone());
         Date latestda = new Date();
         calendar_la.setTime(latestda);
         telegram = u1600.getEclConnection().getLatestPeriod(calendar_la);
-        
+
         iStartByte = 0;
         calendar_la.set((Integer.parseInt(telegram.substring(iStartByte+6,iStartByte+8))+2000),(Integer.parseInt(telegram.substring(iStartByte+3,iStartByte+5))-1)
         , Integer.parseInt(telegram.substring(iStartByte,iStartByte+2))
@@ -101,7 +102,7 @@ public class U1600Profile {
                 Integer.parseInt(telegram.substring(iStartByte+12,iStartByte+14)),0);
         //   latestda  = calendar_la.getTime();
         //     System.out.println(latestda  + " latest Date" + calendar.MONTH + "  " + calendar.DAY_OF_WEEK );
-        
+
         boolean noProfileData = true;
         /* calculate UCT-Time   */
         long iUCTOldestTime  = calendar.getTimeInMillis();
@@ -120,19 +121,19 @@ public class U1600Profile {
                     iStart = iUCTOldestTime;
                     startTI = calendar;
                 }
-                
+
                 /* Stop-Timestap is newerolder then Timestamp in UNit */
                 if(iStop > iUCTLatestTime) {
                     iStop = iUCTLatestTime;
                     stopTI = calendar_la;
                 }
-                
+
                 /* Calculate Periods in Uint */
                 long iCount = ((((iStop/1000) - (iStart/1000)) + (profileInterval)) / (profileInterval )); //+4;
                 if (!u1600.getTimeZone().inDaylightTime(ti_Start.getTime()) && u1600.getTimeZone().inDaylightTime(ti_Stop.getTime())) {
                     iCount+=4; // add an extra hour for the W->S dst transition...
                 }
-                
+
                 // Receive Prifile
                 //String iResult = getPeriods(startTI, stopTI, iCount, 96);
                 ProfileData profileData = getPeriods(startTI, stopTI, iCount, 96,profileInterval,iCountChannels, liCountChannels.getProtocolChannel(0).getValue());
@@ -142,20 +143,21 @@ public class U1600Profile {
         } catch (ConnectionException e) {
             throw new ProtocolConnectionException("U1600Error, "+e.getMessage(), e.getReason());
         }
-        
-        
-        
+
+
+
     }
-    
-    
-    
+
+
+
     /**
      * Bestimmte Anzahl von Perioden auswerten
      * @param TI_Start Startperiode
      * @param TI_Stop Endperiode
      */
     // 27.10.00 RW
-    private ProfileData getPeriods(Calendar ti_Start, Calendar ti_Stop, long iPeriods, long iMaxPeriods, int profileInterval, int iCountChannels, int startChannel)  throws IOException , NestedIOException, ProtocolConnectionException {
+    private ProfileData getPeriods(Calendar ti_Start, Calendar ti_Stop, long iPeriods, long iMaxPeriods, int profileInterval, int iCountChannels, int startChannel)  throws IOException ,
+            NestedIOException, ProtocolConnectionException {
         ProfileData profileData = new ProfileData();
         IntervalData savedIntervalData=null;
         IntervalData intervalData=null;
@@ -212,11 +214,11 @@ public class U1600Profile {
                 }//while((byBuf
                 strData += (char) (0x1A);
                 ti_Now = ti_Start;
-                
-                
+
+
                 if (strData.length() == 1) break; // KV 05122006
                 // *********************************************************************************************************************
-                
+
                 List channelInfos = new ArrayList();
                 for (int channelIndex=0;channelIndex<u1600.getNumberOfChannels();channelIndex++) {
                     // KV TO_DO following the doc about the profile, the value after calculation is the
@@ -224,13 +226,13 @@ public class U1600Profile {
                     channelInfos.add(new ChannelInfo(channelIndex,"U1600+ channel "+channelIndex,Unit.get("")));
                 }
                 profileData.setChannelInfos(channelInfos);
-                
-                
-                 
+
+
+
                 //if (Debug.TEST_JOB_U1600)
                 //                Debug.println("$$ Speichern :" + TI_Now.toString() + ", " + TI_Stop.toString());
                 intervalData = evaluateOnePeriod(ti_Now, ti_Stop, strData, 0x0083000000000000L,iCountChannels);
-                
+
                 // KV 05122006
                 if (isOnIntervalBoundary(intervalData)) {
                     if (savedIntervalData != null) {
@@ -247,15 +249,15 @@ public class U1600Profile {
                         savedIntervalData = addIntervalData(savedIntervalData,intervalData);
                     }
                 }
-                
-                
+
+
                 if (ti_First == null) {
                     ti_First = ti_Now;
                     ti_Last = ti_Now;
                 } else
                     ti_Last = ti_Now ;
             }//for
-            
+
             /* Auszuwertende Perioden inkrementieren */
             if(iMyPeriod > iMaxPeriods) {
                 iMyPeriod -= iMaxPeriods;
@@ -263,23 +265,23 @@ public class U1600Profile {
 //                iStartUCT += profileInterval*iGetPeriods* 1000;
 //                //  + add Time on Calendar
 //                ti_Start.setTimeInMillis(iStartUCT);
-                
-                ti_Start.setTime(intervalData.getEndTime()); 
+
+                ti_Start.setTime(intervalData.getEndTime());
                 ti_Start.add(Calendar.SECOND, profileInterval); // add 1 interval to avoid duplicate frame...
-                
+
             } else
                 iMyPeriod = 0;
         }
-        
-        
-        
+
+
+
         return profileData;
     }
-    
+
     private boolean isOnIntervalBoundary(IntervalData intervalData) throws IOException {
         return ((int)(intervalData.getEndTime().getTime()/1000) % u1600.getProfileInterval()) == 0;
     }
-    
+
     // KV 15122003 changed
     private IntervalData addIntervalData(IntervalData cumulatedIntervalData,IntervalData currentIntervalData) throws IOException {
         int currentCount = currentIntervalData.getValueCount();
@@ -292,7 +294,7 @@ public class U1600Profile {
         }
         return intervalData;
     }
-    
+
     /**
      * Auswertung einer Periode mit anschlie ender Speicherung in die
      * Datenbank
@@ -303,13 +305,13 @@ public class U1600Profile {
      */
     // 28.09.00 RW
     private IntervalData  evaluateOnePeriod(Calendar ti_Start, Calendar ti_Stop,String telegram, long flags, int iNumChannels)throws IOException, NestedIOException, ProtocolConnectionException{
-        
-        
-        
+
+
+
         //if (DEBUG>=1) System.out.println("KV_DEBUG> "+ti_Start.getTime()+", "+ti_Stop.getTime()+", 0x"+Long.toHexString(flags)+", "+telegram+", "+iNumChannels);
-        
+
         IntervalData intervalData=null;
-        
+
         byte[]  byBuf; //   = new byte[255];
         byte[]  byStat; //  = new byte[10];
         short   sChannelCount;
@@ -319,16 +321,16 @@ public class U1600Profile {
         Double  dVal;
         double  dValue;
         int     iUCTTime;
-        
+
         //String  strValue1;// = "";
         //String  strValue2;// = "";
-        
+
         double [] lValue  = new double[iNumChannels];
         //short[] sStatus = new short[iNumChannels];
         Number[] numbers = new Number[iNumChannels];
-        
+
         boolean isSaved = false;
-        
+
         /* Stringwerte in Byteformat konvertieren */
         byBuf  = telegram.getBytes();
         String strID =   u1600.getEclConnection().getStrID();
@@ -340,7 +342,7 @@ public class U1600Profile {
                 sChannelCount++;
         if(sChannelCount != iNumChannels+1)
             throw new ProtocolConnectionException("Wrong Profil Frame");
-        
+
         /* Startkennung */
         if((byBuf[0] != 0x0D) || (byBuf[1] != 0x0A))
             throw new ProtocolConnectionException("Wrong Profil Frame");
@@ -359,12 +361,12 @@ public class U1600Profile {
         }
         /*  berpr fung Datum und Uhrzeit */
         int iStartByte = 0;
-        
+
         /* Startbyte f r Datum und Zeit suchen */
         while((byBuf[iStartByte] != 0x3A) && (iStartByte < telegram.length()))
             iStartByte++;
         iStartByte++;
-        
+
         /* Datumstring aus Telegramm herausfiltern */
 //String strDate = telegram.substring(iStartByte,iStartByte+14);
         String strSek = telegram.substring(iStartByte+15,iStartByte+17);
@@ -373,26 +375,26 @@ public class U1600Profile {
                     , Integer.parseInt(telegram.substring(iStartByte,iStartByte+2))
                     , Integer.parseInt(telegram.substring(iStartByte+9,iStartByte+11)),
                     Integer.parseInt(telegram.substring(iStartByte+12,iStartByte+14)),0);
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
         // Corrction for summer wintertime switching
 //        long iStartUCT =  stamp.getTimeInMillis();
 //        stamp.setTimeInMillis(iStartUCT);
-        
-        
+
+
 //        int switch_Day = 0;
 //        if ((stamp.get(Calendar.WEEK_OF_MONTH) == 4) &&(stamp.get(Calendar.MONTH) == 9)
 //        && (stamp.get(Calendar.DAY_OF_WEEK)== Calendar.SUNDAY))
 //            switch_Day = 2;
-//        
+//
 //        if ((stamp.get(Calendar.WEEK_OF_MONTH) == 4) &&(stamp.get(Calendar.MONTH) == 2)
 //        && (stamp.get(Calendar.DAY_OF_WEEK)== Calendar.SUNDAY))
 //            switch_Day = 1;
-        
+
         int iSek = Integer.parseInt(strSek);
 //System.out.println("Telegramm :" + strDate + "   strSek : " + strSek);
         /*  find 1. Semikolon in Telegram */
@@ -403,7 +405,7 @@ public class U1600Profile {
         while((byBuf[iStartByte] != 0x3B) && (iStartByte < telegram.length()))
             iStartByte++;
         iStartByte++;
-        
+
 // build the intervaldata
         //int intervalsPerDay = (3600*24)/u1600.getProfileInterval();
         sChannelCount = 0;
@@ -417,7 +419,7 @@ public class U1600Profile {
                 dValue = dVal.doubleValue();
                 if(byBuf[iPointer] == 0x3B)
                     iStartByte = iPointer +1;
-                
+
                 /* Werte in Datenfeld konvertieren und speichern */
                 lValue[sChannelCount] = dValue;
                 numbers[sChannelCount] = dVal;
@@ -425,9 +427,9 @@ public class U1600Profile {
                 sChannelCount++;
             }//if((byBuf[iPointer]
         }//for(iPointer
-        
+
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+stamp.getTime());
-        
+
         // KV 30102006 fix to adjust load profile
         // SSSSSWWWW
         //      |
@@ -435,23 +437,23 @@ public class U1600Profile {
         if (previousDate != null) {
             if (getU1600().getTimeZone().inDaylightTime(previousDate) && !getU1600().getTimeZone().inDaylightTime(stamp.getTime())) {
         if (DEBUG>=1) System.out.println("KV_DEBUG> change S -> W");
-                
+
                 long diff = (stamp.getTime().getTime() - previousDate.getTime())/1000;
                 if ((diff<=7200) && (diff>3600)) {
-                    
+
         if (DEBUG>=1) System.out.println("KV_DEBUG> subtract 1 hour");
-                    
+
                     stamp.add(Calendar.HOUR_OF_DAY,-1);
                 }
             }
         }
         previousDate = stamp.getTime();
-        
+
         // KV new code
         intervalData = new IntervalData(((Calendar)stamp. clone()).getTime());
         intervalData.addValues(numbers);
-        
-        
+
+
 // Summer -> WinterHOUR_OF_DAY
 // Calculate new coreect Time
 //        if(( switch_Day == 2)) {
@@ -483,7 +485,7 @@ public class U1600Profile {
 //                    intervalData = new IntervalData(((Calendar)stamp. clone()).getTime());
 //                    intervalData.addValues(numbers);
 //                    isSaved = true;
-//                    
+//
 //                }
 //            }//if(!bSecondWZ[0])
 //            else {
@@ -508,7 +510,7 @@ public class U1600Profile {
 //                }
 //            } else {
 //                if((stamp.get(Calendar.HOUR) == 2) && (stamp.get(Calendar.MINUTE) == 15)) {
-//                    
+//
 //                    iStartUCT =  stamp.getTimeInMillis();
 //                    stamp.setTimeInMillis(iStartUCT);
 //                    intervalData = new IntervalData(((Calendar)stamp. clone()).getTime());
@@ -558,7 +560,7 @@ public class U1600Profile {
 //                }
 //            }//if(bSecondWZ[3])
 //        }//if(ti.isSwitchingDay() == 2)
-//        
+//
 //        // Winter -> Summer
 //        if(( switch_Day == 1)) {
 //            if((stamp.get(Calendar.HOUR) == 2) && (stamp.get(Calendar.MINUTE) == 0)) {
@@ -570,29 +572,29 @@ public class U1600Profile {
 //                isSaved = true;
 //            }
 //        }
-//        
-//        
+//
+//
 //        if(!isSaved) {
 //            intervalData = new IntervalData(((Calendar)stamp. clone()).getTime());
 //            intervalData.addValues(numbers);
 //            isSaved = false;
 //        }
-        
-        
-        
+
+
+
         return intervalData;
-        
-        
+
+
     }
-    
-    
-    
+
+
+
     private U1600 getU1600() {
         return u1600;
     }
-    
-    
-    
-    
-    
+
+
+
+
+
 }

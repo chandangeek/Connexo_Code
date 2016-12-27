@@ -57,6 +57,11 @@
 				<version>${eiserver.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>xmodem</artifactId>
+                <version>${eict.xmodem.version}</version>
+            </dependency>
 
 			<!--Only for connectiontypes module -->
 			<dependency>

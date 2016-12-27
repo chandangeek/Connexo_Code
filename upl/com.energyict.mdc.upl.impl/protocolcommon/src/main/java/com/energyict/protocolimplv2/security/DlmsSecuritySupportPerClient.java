@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import com.energyict.cbo.Password;
 import com.energyict.cpo.MdwToUplPropertySpecAdapter;
@@ -356,11 +356,6 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
                 SECURITY_LEVEL_PROPERTY_NAME,
                 DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME
         );
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.DLMS_SECURITY_PER_CLIENT.toString();
     }
 
     @Override

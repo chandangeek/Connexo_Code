@@ -1,6 +1,7 @@
 package com.energyict.dialer.coreimpl;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.core.DialerException;
 import com.energyict.dialer.core.DialerTimeoutException;
 import com.energyict.dialer.core.LinkException;

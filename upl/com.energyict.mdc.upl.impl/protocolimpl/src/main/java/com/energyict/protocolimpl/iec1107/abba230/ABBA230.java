@@ -17,6 +17,7 @@ entries occur twice or more they need an SL flag.
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.CachingProtocol;
@@ -36,7 +37,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;

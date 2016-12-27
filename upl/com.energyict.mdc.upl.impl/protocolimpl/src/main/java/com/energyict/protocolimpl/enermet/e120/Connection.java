@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.TimeZone;
 
 /** Connection encapsulates all the protocol layers:
  *  - application layer (message)
@@ -76,7 +76,7 @@ class Connection implements ProtocolConnection {
                         .add(pwd).add((byte)'\0')
                         .add(AUTHENTICATION_LEVEL));
 
-        Message message = new Message( MessageType.AUTHENTICATION, (MessageBody)request );
+        Message message = new Message( MessageType.AUTHENTICATION, request);
         return (DefaultResponse)send(new Packet(message,true)).getMessage().getBody();
 
     }
@@ -275,16 +275,13 @@ class Connection implements ProtocolConnection {
     /* not implemented
      * @see ProtocolConnection#disconnectMAC()
      */
-    public void disconnectMAC()
-        throws NestedIOException, ProtocolConnectionException { }
+    public void disconnectMAC() throws NestedIOException, ProtocolConnectionException { }
 
 
     /* not implemented
      * @see ProtocolConnection#connectMAC(String, String, int, String)
      */
-    public MeterType connectMAC(
-        String strID,String strPassword,int securityLevel,String nodeId)
-        throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) {
         return null;
     }
 
@@ -295,34 +292,6 @@ class Connection implements ProtocolConnection {
     public byte[] dataReadout(String strID,String nodeId)
         throws NestedIOException, ProtocolConnectionException {
         return null;
-    }
-
-    public static void main(String [] args) throws Exception {
-
-        E120 e120 = new E120();
-        e120.initDataType(TimeZone.getDefault());
-
-        Frame f = Frame.parse(e120, new ByteArray(Frame.m2) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m3) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m4) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m5) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m6) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m7) );
-        System.out.println(f.toString() );
-
-        f = Frame.parse(e120, new ByteArray(Frame.m8) );
-        System.out.println(f.toString() );
-
     }
 
 }
@@ -360,12 +329,10 @@ class Message {
 
     public String toString(){
         return
-            new StringBuffer()
-                .append( "Message [" )
-                .append( idepId )
-                .append( ", " )
-                .append( body.toString() + "]" )
-                    .toString();
+                "Message [" +
+                        idepId +
+                        ", " +
+                        body.toString() + "]";
     }
 
     static Message parse(E120 e120, ByteArray data){
@@ -375,7 +342,7 @@ class Message {
         Message m = new Message();
         m.idepId = messageType;
 
-        m.body = (MessageBody)messageType.parse(e120, data.sub(0));
+        m.body = messageType.parse(e120, data.sub(0));
 
         return m;
 
@@ -385,12 +352,12 @@ class Message {
 
 class Packet {
 
-    final static int ver = 01;
+    static final int ver = 01;
 
     /** communication opening */
-    final static byte ODEP_ADDRESS_MODEM = 0x00;
+    static final byte ODEP_ADDRESS_MODEM = 0x00;
     /** communication with integrated meter */
-    final static byte ODEP_ADDRESS_METER = 0x01;
+    static final byte ODEP_ADDRESS_METER = 0x01;
 
     int stat;
     StatCode statCode;
@@ -460,15 +427,13 @@ class Packet {
 
     public String toString(){
         return
-            new StringBuffer()
-                .append("Packet [")
-                .append( "ver 0x" + Integer.toHexString(ver)).append(", ")
-                .append( "stat 0x" + Integer.toHexString(stat)).append(", ")
-                .append( "seq 0x" + Integer.toHexString(seq)).append(", ")
-                .append( "addr 0x" + Integer.toHexString(odepAddress)).append(", ")
-                .append( message.toString() )
-                .append("]")
-                .toString();
+                "Packet [" +
+                        "ver 0x" + Integer.toHexString(ver) + ", " +
+                        "stat 0x" + Integer.toHexString(stat) + ", " +
+                        "seq 0x" + Integer.toHexString(seq) + ", " +
+                        "addr 0x" + Integer.toHexString(odepAddress) + ", " +
+                        message.toString() +
+                        "]";
     }
 
 }
@@ -518,11 +483,9 @@ class Frame {
 
     public String toString(){
         return
-            new StringBuffer()
-                .append("Frame [ " )
-                .append( packet )
-                .append(" ]")
-                    .toString();
+                "Frame [ " +
+                        packet +
+                        " ]";
     }
 
     static Frame parse(E120 e120, ByteArray byteArray) throws ParseException {
@@ -530,8 +493,9 @@ class Frame {
         int len = byteArray.sub(0,4).intValue(0);
         int lenChk = byteArray.sub(4,4).intValue(0);
 
-        if( (len + lenChk) != 0)
+        if( (len + lenChk) != 0) {
             throw new ParseException("LEN and LEN_CHK mismatch");
+        }
 
         ByteArray fBody = byteArray.sub(8, len-2);
         ByteArray crc = byteArray.sub(len+6, 2);

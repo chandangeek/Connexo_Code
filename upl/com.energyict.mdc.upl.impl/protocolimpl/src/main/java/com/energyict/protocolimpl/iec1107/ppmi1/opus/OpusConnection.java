@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
 /**
  * For information regarding Opus protocol, read manufacturer documentation:
  * Protocol for communication between an instation and outstation.
- * 
+ *
  * @author fbo
  */
 public class OpusConnection extends Connection {
@@ -38,13 +39,13 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * Just a constructor, move along
-	 * 
+	 *
 	 * @param inputStream
 	 * @param outputStream
 	 * @param ppm
 	 * @throws ConnectionException
 	 */
-	public OpusConnection(InputStream inputStream, OutputStream outputStream, PPM ppm) throws ConnectionException {
+	public OpusConnection(InputStream inputStream, OutputStream outputStream, PPM ppm) {
 		super(inputStream, outputStream, 0, 0);
 		this.nodeId = ppm.getNodeId();
 		this.password = ppm.getPassword();
@@ -86,8 +87,7 @@ public class OpusConnection extends Connection {
 
 	}
 
-	public OpusResponse writeRegister(String dataIdentity, byte[] data)
-	throws NestedIOException, ConnectionException, IOException {
+	public OpusResponse writeRegister(String dataIdentity, byte[] data) throws IOException {
 		WriteCommand command = new WriteCommand(dataIdentity, data, this);
 		doCommand(command);
 		return command.getOpusResponse();
@@ -169,7 +169,7 @@ public class OpusConnection extends Connection {
 
 	}
 
-	public void sendOut(MessageComposer aMessage) throws ConnectionException, IOException {
+	public void sendOut(MessageComposer aMessage) throws IOException {
 		sendOut(aMessage.toByteArray());
 		if (receiveCtrlChar() != CtrlChar.ACK) {
 			throw new IOException();
@@ -178,7 +178,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, stops at ETX
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -188,7 +188,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, stops at endCtrlChar
-	 * 
+	 *
 	 * @param endCtrlChar
 	 * @return
 	 * @throws IOException
@@ -223,7 +223,7 @@ public class OpusConnection extends Connection {
 	/**
 	 * low level receive function, receives single CtrlChar
 	 * This can be <ACK>, <NAK>, <EOT>, <SOH>
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -291,8 +291,7 @@ public class OpusConnection extends Connection {
 	}
 
 	/** Opus checksum: add up all characters of a message, modulo 256 */
-	private String calc0pusChecksum(MessageComposer m)
-	throws ConnectionException {
+	private String calc0pusChecksum(MessageComposer m) {
 		byte[] data = m.toByteArray();
 		int checksum = calcOpusCheckSum(data, 0, data.length);
 		char[] csa = Integer.toString(checksum).toCharArray();
@@ -322,11 +321,7 @@ public class OpusConnection extends Connection {
 
 		int receiveCheck = calcOpusCheckSum(content, 0, content.length);
 
-		if (receiveCheck == inputCheck) {
-			return true;
-		} else {
-			return false;
-		}
+		return receiveCheck == inputCheck;
 	}
 
 

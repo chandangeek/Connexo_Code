@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.Array;
@@ -49,9 +50,11 @@ public class Messages extends ProtocolMessages {
     public static ObisCode BILLING_RESET_OBIS = ObisCode.fromString("0.0.10.0.1.255");
 
     private final ActarisSl7000 protocol;
+    private final TariffCalendarFinder calendarFinder;
 
-    public Messages(final ActarisSl7000 protocol) {
+    public Messages(final ActarisSl7000 protocol, TariffCalendarFinder calendarFinder) {
         this.protocol = protocol;
+        this.calendarFinder = calendarFinder;
     }
 
     /**
@@ -191,10 +194,10 @@ public class Messages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder();
+        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.calendarFinder);
         ActivityCalendarController activityCalendarController = new com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.ActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
-        if (builder.getCodeId() > 0) { // codeTable implementation
+        if (!builder.getCodeId().isEmpty()) { // codeTable implementation
             infoLog("Parsing the content of the CodeTable.");
             activityCalendarController.parseContent(messageEntry.getContent());
             infoLog("Setting the new Passive Calendar Name.");

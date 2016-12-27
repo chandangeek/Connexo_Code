@@ -6,7 +6,8 @@
 
 package com.energyict.dialer.coreimpl;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.core.DialerException;
 import com.energyict.dialer.core.DialerTimeoutException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -54,7 +55,7 @@ public class PAKNETDialer extends DialerImpl {
         }
     } // protected void doConnect(String strDialAddress1, String strDialAddress2, int iTimeout) throws NestedIOException, DialerException
 
-    protected void doDisConnect() throws com.energyict.cbo.NestedIOException, DialerException {
+    protected void doDisConnect() throws NestedIOException, DialerException {
         try {
             delay(200);
             getStreamConnection().setDTR(false);

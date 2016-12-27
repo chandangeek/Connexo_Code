@@ -10,31 +10,35 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  *
  * @author Koen
  */
 public class DGCOMConnection extends Connection  implements ProtocolConnection {
-    
+
     private static final int DEBUG=0;
     private static final long TIMEOUT=60000;
-    
+
     int timeout;
     int maxRetries;
     long forcedDelay;
     ByteArrayOutputStream txOutputStream = new ByteArrayOutputStream();
     String nodeId;
     int securityLevel;
-    
+
     /** Creates a new instance of DGCOMConnection */
     public DGCOMConnection(InputStream inputStream,
             OutputStream outputStream,
@@ -43,42 +47,43 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
             long forcedDelay,
             int echoCancelling,
             HalfDuplexController halfDuplexController,
-            String serialNumber,int securityLevel) throws ConnectionException {
+            String serialNumber,int securityLevel) {
         super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
         this.timeout = timeout;
         this.maxRetries=maxRetries;
         this.forcedDelay=forcedDelay;
         this.securityLevel=securityLevel;
-        
+
     } // EZ7Connection(...)
-    
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+
+    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
         this.nodeId=nodeId;
         return null;
     }
-    
-    public byte[] dataReadout(String strID, String nodeId) throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+
+    public byte[] dataReadout(String strID, String nodeId) {
         return null;
     }
-    
-    public void disconnectMAC() throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+
+    public void disconnectMAC() {
     }
-    
+
     public HHUSignOn getHhuSignOn() {
         return null;
     }
-    
+
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
     }
-    
-    
+
+
     private void sendFrame() throws ConnectionException {
         sendOut(txOutputStream.toByteArray());
     }
-    
+
     public void signon() throws IOException {
-        if ((nodeId==null) || ("".compareTo(nodeId)==0))
+        if ((nodeId==null) || ("".compareTo(nodeId)==0)) {
             return;
+        }
         int retry=0;
         doSignon();
         while(true) {
@@ -88,16 +93,17 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
                    handshake();
                 }
                 catch(ConnectionException e) {
-                    if (e.getReason() != TIMEOUT_ERROR)
+                    if (e.getReason() != TIMEOUT_ERROR) {
                         throw e;
+                    }
                 }
                 sendFrame();
                 receiveFrame(true,0);
-            } 
+            }
             catch(ConnectionException e) {
-                if (e.getReason() == CRC_ERROR)
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
-                else {
+                if (e.getReason() == CRC_ERROR) {
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries (" + maxRetries + "), " + e.getMessage());
+                } else {
                     if (retry++>=maxRetries) {
                         throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
                     }
@@ -105,23 +111,24 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
             }
         } // while(true)
     }
-    
+
     public void doSignon() throws IOException {
         String str=new String("/?"+(nodeId==null?"":nodeId)+"!");
         byte[] rawData = str.getBytes();
         txOutputStream.reset();
         int checksum=0;
         txOutputStream.write(rawData);
-        for (int i=0;i<rawData.length;i++)
-            checksum+=(((int)rawData[i])&0xFF);
+        for (int i=0;i<rawData.length;i++) {
+            checksum += (((int) rawData[i]) & 0xFF);
+        }
         txOutputStream.write(checksum&0xFF);
         txOutputStream.write((checksum>>8)&0xFF);
-    }    
-    
+    }
+
      public ResponseData sendCommand(byte[] cmdData) throws IOException {
          return sendCommand(cmdData, true);
      }
-    
+
      public ResponseData sendCommand(byte[] cmdData, boolean response) throws IOException {
          return sendCommand(cmdData, response, 0);
      }
@@ -133,12 +140,11 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
                 delayAndFlush(forcedDelay); // KV_DEBUG
                 handshake();
                 sendFrame();
-                ResponseData rd = receiveFrame(response,size);
-                return rd;
+                return receiveFrame(response,size);
             } catch(ConnectionException e) {
-                if (e.getReason() == CRC_ERROR)
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
-                else {
+                if (e.getReason() == CRC_ERROR) {
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries (" + maxRetries + "), " + e.getMessage());
+                } else {
                     if (retry++>=maxRetries) {
                         throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
                     }
@@ -146,26 +152,27 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
             }
         } // while(true)
     }
-    
-    private void doSendCommand(byte[] rawData) throws ConnectionException,IOException {
+
+    private void doSendCommand(byte[] rawData) throws IOException {
         txOutputStream.reset();
         int checksum=0;
         txOutputStream.write(rawData);
-        for (int i=0;i<rawData.length;i++)
-            checksum+=(((int)rawData[i])&0xFF);
+        for (int i=0;i<rawData.length;i++) {
+            checksum += (((int) rawData[i]) & 0xFF);
+        }
         txOutputStream.write(checksum&0xFF);
         txOutputStream.write((checksum>>8)&0xFF);
     } // void sendData(byte[] cmdData) throws ConnectionException
-    
-    
+
+
     public void handshake() throws IOException {
         handshake(0x55);
         handshake((byte)0xAA);
     }
-    
-    private final int MAX_HANDSHAKE_RETRIES=5;
-    private final int HANDSHAKE_TIMEOUT=2000; // = 2 sec.
-    
+
+    private static final int MAX_HANDSHAKE_RETRIES=5;
+    private static final int HANDSHAKE_TIMEOUT=2000; // = 2 sec.
+
     private void handshake(int kar) throws IOException {
         int karRx;
         int retries=0;
@@ -180,34 +187,33 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
                         return;
                     }
                 }
-                if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+                if (System.currentTimeMillis() - timeout > 0) {
                     if (retries++<MAX_HANDSHAKE_RETRIES) {
                         timeout = System.currentTimeMillis() + HANDSHAKE_TIMEOUT;
                         break;
                     }
-                    else
-                        throw new ProtocolConnectionException("handshake() interframe timeout error",TIMEOUT_ERROR);
+                    else {
+                        throw new ProtocolConnectionException("handshake() interframe timeout error", TIMEOUT_ERROR);
+                    }
                 }
-            } // while(true) {
-        } // while(true) {
-    } // private void handshake(int kar)
-    
-    private final int STATE_WAIT_FOR_CONFIRMATION=0;
-    private final int STATE_WAIT_FOR_LENGTH=1;
-    private final int STATE_WAIT_FOR_DATA=2;
-    private final int STATE_WAIT_FOR_CHECKSUM=3;
-    
-    
-    private final int TRANSMISSION_ACCEPTED=0x33;
-    private final int CHECKSUM_ERROR=0x99;
-    private final int READY_FOR_NEXT_PACKET=0x66;
-    private final int COMMAND_NOT_ACCEPTED=0xCC;
-    private final int SUCCESSFUL_UNLOCK=0xDD;
-    
-    private ResponseData receiveFrame(boolean response, int size) throws NestedIOException, IOException {
-        
-//System.out.println("KV_DEBUG> receiveFrame "+size);        
-        
+            }
+        }
+    }
+
+    private static final int STATE_WAIT_FOR_CONFIRMATION=0;
+    private static final int STATE_WAIT_FOR_LENGTH=1;
+    private static final int STATE_WAIT_FOR_DATA=2;
+    private static final int STATE_WAIT_FOR_CHECKSUM=3;
+    private static final int TRANSMISSION_ACCEPTED=0x33;
+    private static final int CHECKSUM_ERROR=0x99;
+    private static final int READY_FOR_NEXT_PACKET=0x66;
+    private static final int COMMAND_NOT_ACCEPTED=0xCC;
+    private static final int SUCCESSFUL_UNLOCK=0xDD;
+
+    private ResponseData receiveFrame(boolean response, int size) throws IOException {
+
+//System.out.println("KV_DEBUG> receiveFrame "+size);
+
         long protocolTimeout,interFrameTimeout;
         int kar;
         int count=0;
@@ -218,57 +224,63 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
         int state = STATE_WAIT_FOR_CONFIRMATION;
         ByteArrayOutputStream frameArrayOutputStream = new ByteArrayOutputStream();
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
-        
-        
+
+
         interFrameTimeout = System.currentTimeMillis() + timeout;
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-        
+
         frameArrayOutputStream.reset();
         resultArrayOutputStream.reset();
-        
+
         copyEchoBuffer();
         while(true) {
-            
+
             if ((kar = readIn()) != -1) {
                 if (DEBUG >= 2) {
                     System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
+                    ProtocolUtils.outputHex(kar);
                 }
-                
+
                 switch(state) {
                     case STATE_WAIT_FOR_CONFIRMATION:
                         interFrameTimeout = System.currentTimeMillis() + timeout;
-                        
+
                         if (kar == TRANSMISSION_ACCEPTED) { // Transmission accepted
-                            if (!response) 
+                            if (!response) {
                                 return null;
-                            else {
+                            } else {
                                 state = STATE_WAIT_FOR_LENGTH;
                                 checksum=0;
                             }
                         }
-                        
+
                         if (kar == READY_FOR_NEXT_PACKET) { // Ready for next packet
                             //
                         }
-                        
+
                         if (kar == CHECKSUM_ERROR) { // Checksum error, re-transmit packet
-                            if (DEBUG>=1) System.out.println("KV_DEBUG> Checksum error, re-transmit packet");
+                            if (DEBUG>=1) {
+                                System.out.println("KV_DEBUG> Checksum error, re-transmit packet");
+                            }
                             throw new ProtocolConnectionException("receiveFrame() Checksum error, re-transmit packet",PROTOCOL_ERROR);
                         }
-                        
+
                         if (kar == COMMAND_NOT_ACCEPTED) { // Command not accepted
-                            if (DEBUG>=1) System.out.println("KV_DEBUG> Command not accepted");
+                            if (DEBUG>=1) {
+                                System.out.println("KV_DEBUG> Command not accepted");
+                            }
                             throw new ProtocolConnectionException("receiveFrame() Command not accepted",PROTOCOL_ERROR);
                         }
-                        
+
                         if (kar == SUCCESSFUL_UNLOCK) { // Confirmation of successfull unlock with L1 security key (RX only)
-                            if (DEBUG>=1) System.out.println("KV_DEBUG> Confirmation of successfull unlock with L1 security key (RX only)");
-                            return null;    
+                            if (DEBUG>=1) {
+                                System.out.println("KV_DEBUG> Confirmation of successfull unlock with L1 security key (RX only)");
+                            }
+                            return null;
                         }
-                        
+
                         break; // STATE_WAIT_FOR_CONFIRMATION
-                        
+
                     case STATE_WAIT_FOR_LENGTH:
                         checksum+=kar;
                         len = kar;
@@ -276,7 +288,7 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
                         checksumRx=0;
                         state = STATE_WAIT_FOR_DATA;
                         break; // STATE_WAIT_FOR_LENGTH
-                        
+
                     case STATE_WAIT_FOR_DATA:
                         checksum+=kar;
                         frameArrayOutputStream.write(kar);
@@ -286,26 +298,26 @@ public class DGCOMConnection extends Connection  implements ProtocolConnection {
                             state = STATE_WAIT_FOR_CHECKSUM;
                         }
                         break; // STATE_WAIT_FOR_DATA
-                        
+
                     case STATE_WAIT_FOR_CHECKSUM:
                         checksumRx += (kar<<(count*8));
-                        
+
                         if (count++==1) {
                             if (checksum == checksumRx) {
                                 resultArrayOutputStream.write(frameArrayOutputStream.toByteArray());
                                 frameArrayOutputStream.reset();
                                 if ((size > 0) && (len > 0)) {
-//System.out.println("KV_DEBUG> (size > 0) "+size);  
+//System.out.println("KV_DEBUG> (size > 0) "+size);
                                    size -= len;
                                    protocolTimeout = System.currentTimeMillis() + TIMEOUT;
                                 }
                                 if (size == 0) {
-if (DEBUG>=1) System.out.println("KV_DEBUG> return (size == 0)"); 
+if (DEBUG>=1) System.out.println("KV_DEBUG> return (size == 0)");
                                     sendOut((byte)TRANSMISSION_ACCEPTED);
                                     return new ResponseData(resultArrayOutputStream.toByteArray());
                                 }
                                 else {
-if (DEBUG>=1) System.out.println("KV_DEBUG> STATE_WAIT_FOR_LENGTH (size == "+size+")");                                     
+if (DEBUG>=1) System.out.println("KV_DEBUG> STATE_WAIT_FOR_LENGTH (size == "+size+")");
                                     state = STATE_WAIT_FOR_LENGTH;
                                     checksum=0;
                                     interFrameTimeout = System.currentTimeMillis() + timeout;
@@ -319,26 +331,26 @@ if (DEBUG>=1) System.out.println("KV_DEBUG> STATE_WAIT_FOR_LENGTH (size == "+siz
                                 state = STATE_WAIT_FOR_LENGTH;
                                 checksum=0;
                                 interFrameTimeout = System.currentTimeMillis() + timeout;
-                                
+
                                 frameArrayOutputStream.reset();
                                 sendOut((byte)CHECKSUM_ERROR);
                             }
                         }
                         break; // STATE_WAIT_FOR_CHECKSUM
-                        
+
                 } // switch(state)
-                
+
             } // if ((kar = readIn()) != -1)
-            
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
-            
+
         } // while(true)
-        
+
     } // public void receiveFrame() throws ConnectionException
-    
+
 } // public class DGCOMConnection extends Connection  implements ProtocolConnection

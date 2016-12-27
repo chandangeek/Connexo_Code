@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
@@ -7,11 +8,11 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
@@ -80,6 +81,11 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     private IDISStoredValues storedValues = null;
     private ObisCodeMapper obisCodeMapper = null;
     private int limitMaxNrOfDays = 0;
+    private final TariffCalendarFinder calendarFinder;
+
+    public IDIS(TariffCalendarFinder calendarFinder) {
+        this.calendarFinder = calendarFinder;
+    }
 
     private ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
@@ -94,7 +100,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
 
     protected IDISMessageHandler getMessageHandler() {
         if (messageHandler == null) {
-            messageHandler = new IDISMessageHandler(this, calendarFinder);
+            messageHandler = new IDISMessageHandler(this, this.calendarFinder);
         }
         return messageHandler;
     }

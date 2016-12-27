@@ -1,7 +1,8 @@
 package com.elster.protocolimpl.lis100.objects;
 
+import com.energyict.mdc.io.NestedIOException;
+
 import com.elster.protocolimpl.lis100.objects.api.IIntervalObject;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 
 /**

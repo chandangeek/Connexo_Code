@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P.messaging;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -51,8 +51,8 @@ import java.util.logging.Logger;
  */
 public class AS300PMessageExecutor extends MessageParser {
 
-    private static final List<ObisCode> allowedTimeOfUseObjects = new ArrayList<ObisCode>();
-    private static final List<ObisCode> allowedPriceMatrixObjects = new ArrayList<ObisCode>();
+    private static final List<ObisCode> allowedTimeOfUseObjects = new ArrayList<>();
+    private static final List<ObisCode> allowedPriceMatrixObjects = new ArrayList<>();
 
     static {
         // Activity Calendar, Special Days, Tariff Info
@@ -132,9 +132,6 @@ public class AS300PMessageExecutor extends MessageParser {
                 setEngineerPIN(messageEntry);
             }
         } catch (IOException e) {
-            logMessage = e.getMessage();
-            success = false;
-        } catch (InterruptedException e) {
             logMessage = e.getMessage();
             success = false;
         }
@@ -244,7 +241,7 @@ public class AS300PMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, messageEntry.getContent());
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -281,7 +278,7 @@ public class AS300PMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, messageEntry.getContent());
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -323,7 +320,7 @@ public class AS300PMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, content);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
                 activationDate.setTime(activationDate.getTime() - (activationDate.getTime() % 60000));  // remove the seconds & milliseconds
             }
@@ -370,7 +367,7 @@ public class AS300PMessageExecutor extends MessageParser {
         log(Level.INFO, "Change of tenancy or supplier message finished.");
     }
 
-    private void updateFirmware(MessageEntry messageEntry) throws IOException, InterruptedException {
+    private void updateFirmware(MessageEntry messageEntry) throws IOException {
         log(Level.INFO, "Upgrade firmware message received.");
         String userFileContent = getIncludedContent(messageEntry.getContent());
 
@@ -378,7 +375,7 @@ public class AS300PMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLTag(RtuMessageConstant.ACTIVATION_DATE, messageEntry.getContent());
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -419,7 +416,7 @@ public class AS300PMessageExecutor extends MessageParser {
         int engineerPINTimeout = 30;
         try {
             String engineerPINTimeoutString = getValueFromXMLAttribute(RtuMessageConstant.ENGINEER_PIN_TIMEOUT, messageEntry.getContent());
-            if (!engineerPINTimeoutString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(engineerPINTimeoutString)) {
                 engineerPINTimeout = Integer.parseInt(engineerPINTimeoutString);
             }
         } catch (NumberFormatException e) {
@@ -430,7 +427,7 @@ public class AS300PMessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(RtuMessageConstant.ACTIVATION_DATE, messageEntry.getContent());
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -491,7 +488,7 @@ public class AS300PMessageExecutor extends MessageParser {
         }
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex, endIndex;
         startIndex = content.indexOf(tag + "=\"");
         if (startIndex == -1) {

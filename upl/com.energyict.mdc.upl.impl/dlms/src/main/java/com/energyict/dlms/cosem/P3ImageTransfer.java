@@ -1,8 +1,8 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.BitString;

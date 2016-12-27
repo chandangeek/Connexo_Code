@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ScalerUnit;
@@ -35,7 +37,6 @@ import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -89,11 +90,13 @@ public class AS300MessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     protected final AbstractSmartDlmsProtocol protocol;
+    private final TariffCalendarFinder calendarFinder;
 
     protected boolean success;
 
-    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol) {
+    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder) {
         this.protocol = protocol;
+        this.calendarFinder = calendarFinder;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -120,9 +123,9 @@ public class AS300MessageExecutor extends MessageParser {
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
             } else if (isConnectControlMessage(content)) {
-                doConnect(content);
+                doConnect();
             } else if (isDisconnectControlMessage(content)) {
-                doDisconnect(content);
+                doDisconnect();
             } else if (isSetDisconnectControlMode(content)) {
                 setDisconnectControlMode(content);
             } else if (isTextToEMeterDisplayMessage(content)) {
@@ -153,20 +156,9 @@ public class AS300MessageExecutor extends MessageParser {
                     success = false;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | BusinessException | SQLException e) {
             logMessage = e.getMessage();
             success = false;
-        } catch (BusinessException e) {
-            logMessage = e.getMessage();
-            success = false;
-        } catch (SQLException e) {
-            logMessage = e.getMessage();
-            success = false;
-        } catch (InterruptedException e) {
-            logMessage = e.getMessage();
-            success = false;
-            Thread.currentThread().interrupt();
-            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
 
         if (success) {
@@ -324,7 +316,7 @@ public class AS300MessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(ACTIVATION_DATE, content);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -352,7 +344,7 @@ public class AS300MessageExecutor extends MessageParser {
         return content.substring(startIndex + tag.length() + 2, endIndex);
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex = content.indexOf(tag + "=\"");
         int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
         try {
@@ -372,7 +364,7 @@ public class AS300MessageExecutor extends MessageParser {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date activationDate = null;
         try {
-            if (!activationDateString.equalsIgnoreCase("0") && !activationDateString.equals("")) {
+            if (!"0".equalsIgnoreCase(activationDateString) && !"".equals(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -408,7 +400,7 @@ public class AS300MessageExecutor extends MessageParser {
         }
     }
 
-    private void updateFirmware(MessageHandler messageHandler, String content, String trackingId) throws IOException, InterruptedException {
+    private void updateFirmware(MessageHandler messageHandler, String content, String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
@@ -422,7 +414,7 @@ public class AS300MessageExecutor extends MessageParser {
             throw new IOException(str);
         }
         UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof UserFile)) {
+        if (!(uf instanceof DeviceMessageFile)) {
             String str = "Not a valid entry for the userfileID " + userFileID;
             throw new IOException(str);
         }
@@ -482,7 +474,7 @@ public class AS300MessageExecutor extends MessageParser {
         if (success) {
             try {
                 Calendar cal = Calendar.getInstance(protocol.getTimeZone());
-                if (messageHandler.getSupplierActivationDate() != null && !messageHandler.getSupplierActivationDate().equals("")) {
+                if (messageHandler.getSupplierActivationDate() != null && !"".equals(messageHandler.getSupplierActivationDate())) {
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                     Date date = formatter.parse(messageHandler.getSupplierActivationDate());
                     cal.setTime(date);
@@ -513,7 +505,7 @@ public class AS300MessageExecutor extends MessageParser {
 
         try {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
-            if (messageHandler.getTenantActivationDate() != null && !messageHandler.getTenantActivationDate().equals("")) {
+            if (messageHandler.getTenantActivationDate() != null && !"".equals(messageHandler.getTenantActivationDate())) {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = formatter.parse(messageHandler.getTenantActivationDate());
                 cal.setTime(date);
@@ -538,7 +530,7 @@ public class AS300MessageExecutor extends MessageParser {
         log(Level.FINEST, "Getting UserFile from message");
         String includedFile = getIncludedContent(content);
         try {
-            if (includedFile.length() > 0) {
+            if (!includedFile.isEmpty()) {
                 log(Level.FINEST, "Sending out the PricingInformation objects.");
                 handleXmlToDlms(includedFile);
             } else {
@@ -551,13 +543,13 @@ public class AS300MessageExecutor extends MessageParser {
         }
     }
 
-    private void doConnect(final String content) throws IOException {
+    private void doConnect() throws IOException {
         log(Level.INFO, "Received Disconnect Control - Remote Connect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteReconnect();
     }
 
-    private void doDisconnect(final String content) throws IOException {
+    private void doDisconnect() throws IOException {
         log(Level.INFO, "Received Disconnect Control - Disconnect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteDisconnect();
@@ -621,12 +613,12 @@ public class AS300MessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder();
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder);
         ActivityCalendarController activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
         try {
             builder.initFromXml(content);
 
-            if (builder.getCodeId() > 0) { // codeTable implementation
+            if (!builder.getCodeId().isEmpty()) { // codeTable implementation
                 log(Level.FINEST, "Parsing the content of the CodeTable.");
                 activityCalendarController.parseContent(content);
                 log(Level.FINEST, "Setting the new Passive Calendar Name.");

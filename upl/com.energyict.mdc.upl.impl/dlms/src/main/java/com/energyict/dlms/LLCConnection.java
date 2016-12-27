@@ -1,8 +1,8 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class LLCConnection extends CosemPDUConnection {
                 }
                 return receiveData();
             } catch (ConnectionException e) {
-                this.logger.warning(e.getMessage());
+                logger.warning(e.getMessage());
                 if (this.currentTryCount++ >= getMaxRetries()) {
                     throw new NestedIOException(e, "readResponseWithRetries, IOException");
                 }

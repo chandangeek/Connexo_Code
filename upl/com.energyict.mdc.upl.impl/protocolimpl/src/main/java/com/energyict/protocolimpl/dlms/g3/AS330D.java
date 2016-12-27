@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
@@ -9,8 +10,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -53,6 +54,11 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     private G3Events events;
     private G3Messaging messaging;
     private G3Cache cache = new G3Cache();
+    private final TariffCalendarFinder calendarFinder;
+
+    public AS330D(TariffCalendarFinder calendarFinder) {
+        this.calendarFinder = calendarFinder;
+    }
 
     @Override
     protected G3Properties getProperties() {
@@ -138,7 +144,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     }
 
     protected void initMessaging() {
-        setMessaging(new G3Messaging(getSession(), getProperties(), calendarFinder));
+        setMessaging(new G3Messaging(getSession(), getProperties(), this.calendarFinder));
     }
 
     @Override

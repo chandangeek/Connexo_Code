@@ -6,9 +6,9 @@
 
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.protocol.meteridentification.MeterType;
 
@@ -32,7 +32,7 @@ public interface ProtocolConnection {
 	HHUSignOn getHhuSignOn();
 	/**
 	 * Implements the specific meter communication disconnect
-	 * @throws com.energyict.cbo.NestedIOException Thrown when something goes wrong different from a protocol related exception
+	 * @throws NestedIOException Thrown when something goes wrong different from a protocol related exception
 	 * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
 	 */
 	void disconnectMAC() throws NestedIOException, ProtocolConnectionException;
@@ -51,7 +51,7 @@ public interface ProtocolConnection {
 	 * Implements the dataReadout functionality. Specific IEC1107 protocol related.
 	 * @param strID property MeterProtocol.ADDRESS (DeviceId)
 	 * @param nodeId property MeterProtocol.NODEID (NodeAddress)
-	 * @throws com.energyict.cbo.NestedIOException Thrown when something goes wrong different from a protocol related exception
+	 * @throws NestedIOException Thrown when something goes wrong different from a protocol related exception
 	 * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
      * @throws com.energyict.protocolimpl.base.ProtocolException thrown for protocol application exceptions
 	 * @return byte[] data

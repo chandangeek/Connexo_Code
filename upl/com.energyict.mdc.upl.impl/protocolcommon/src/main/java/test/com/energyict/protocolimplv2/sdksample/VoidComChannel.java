@@ -72,7 +72,7 @@ public class VoidComChannel implements ComChannel {
 
     @Override
     public TypedProperties getProperties() {
-        return null;
+        return com.energyict.protocolimpl.properties.TypedProperties.empty();
     }
 
     @Override

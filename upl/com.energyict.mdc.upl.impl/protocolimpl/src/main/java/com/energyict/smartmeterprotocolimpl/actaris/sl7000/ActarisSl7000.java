@@ -288,7 +288,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
      public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this);
+            messageProtocol = new Messages(this, calendarFinder);
         }
         return messageProtocol;
     }

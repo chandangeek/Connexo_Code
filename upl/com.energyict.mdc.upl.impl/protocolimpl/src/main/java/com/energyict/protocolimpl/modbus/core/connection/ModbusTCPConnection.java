@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
@@ -94,7 +95,7 @@ public class ModbusTCPConnection extends ModbusConnection {
                 responseDataFrame = readInArray();
             }
 
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveDataModbus(): receiveDataLength() response timeout error", TIMEOUT_ERROR);
             }
         }
@@ -139,7 +140,7 @@ public class ModbusTCPConnection extends ModbusConnection {
      * Assemble a valid request and send it to the device
      *
      * @param requestData
-     * @throws com.energyict.cbo.NestedIOException
+     * @throws NestedIOException
      *
      * @throws com.energyict.dialer.connection.ConnectionException
      *
@@ -165,7 +166,7 @@ public class ModbusTCPConnection extends ModbusConnection {
     }
 
     @Override
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) {
         //do nothing
         return null;
     }

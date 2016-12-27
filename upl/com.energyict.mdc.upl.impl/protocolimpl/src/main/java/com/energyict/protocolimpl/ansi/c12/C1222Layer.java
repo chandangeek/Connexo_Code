@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocolimpl.ansi.c12.EAXPrime.EAXPrimeEncoder;
@@ -15,7 +14,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
-import java.util.Random;
 import java.util.StringTokenizer;
 
 public class C1222Layer extends C12Layer2 {
@@ -141,10 +139,10 @@ public class C1222Layer extends C12Layer2 {
 
                 previousByte = currentByte;
             }
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error", TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error", TIMEOUT_ERROR);
             }
         }
@@ -210,7 +208,7 @@ public class C1222Layer extends C12Layer2 {
         return result;
     }
 
-    private int extractSize(int currentByte) throws NestedIOException, IOException {
+    private int extractSize(int currentByte) throws IOException {
         int result = currentByte;
         if ((currentByte & 0x80) != 0) // If high bit is set
         {

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.connection;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
@@ -91,7 +92,7 @@ public class UNIFLO1200Connection extends ModbusConnection {
      * @throws NestedIOException
      * @throws IOException
      */
-    private ResponseData receiveData(RequestData requestData) throws NestedIOException, IOException {
+    private ResponseData receiveData(RequestData requestData) throws IOException {
         ConnectionState cs = new ConnectionState();
         cs.setRequestData(requestData);
         cs.setProtocolTimeout(System.currentTimeMillis() + getTimeout());
@@ -129,7 +130,7 @@ public class UNIFLO1200Connection extends ModbusConnection {
             }
 
             // in case of a response timeout
-            if (((long) (System.currentTimeMillis() - cs.getProtocolTimeout())) > 0) {
+            if (System.currentTimeMillis() - cs.getProtocolTimeout() > 0) {
                 throw new ProtocolConnectionException("receiveDataLength() response timeout error", TIMEOUT_ERROR);
             }
 

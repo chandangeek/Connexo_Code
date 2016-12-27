@@ -12,6 +12,10 @@ import com.energyict.protocolimpl.dlms.g3.messaging.G3MessagingSagemCom;
  */
 public class SagemCom extends AS330D {
 
+    public SagemCom() {
+        super(calendarFinder);
+    }
+
     @Override
     protected void initMessaging() {
         setMessaging(new G3MessagingSagemCom(getSession(), getProperties()));

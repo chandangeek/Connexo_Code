@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.protocol.Register;
@@ -26,7 +27,7 @@ public class RegisterReader {
     }
 
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        List<RegisterValue> registerValues = new ArrayList<>();
 
         // Loop over all registers to determine the highest billingPoint & request billingPointDateTime for highest point
         // This will ensure all necessary billing points are present in the  profile buffer

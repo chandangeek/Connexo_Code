@@ -6,7 +6,8 @@
 
 package com.energyict.dialer.connection;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.ProtocolUtils;
@@ -261,8 +262,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      *
      * @param txbuffer    data to send
      * @param waitForEcho wait for echo enabled or disabled
-     * @throws com.energyict.cbo.NestedIOException
-     *          throws for all other then communication related exceptions
+     * @throws NestedIOException Thrown for all other then communication related exceptions
      * @throws com.energyict.dialer.connection.ConnectionException
      *          Thrown for communication related exceptions
      */
@@ -303,8 +303,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Wait until nothing receives anymore. Use delay as timeout
      *
      * @param delay timeout waiting for empty buffer
-     * @throws com.energyict.cbo.NestedIOException
-     *          throws for all other then communication related exceptions
+     * @throws NestedIOException Thrown for all other then communication related exceptions
      * @throws com.energyict.dialer.connection.ConnectionException
      *          Thrown for communication related exceptions
      */
@@ -410,8 +409,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * this is a non blocking method since we need to do timeout management in the sub class calling this method
      *
      * @return character or -1 if none is available
-     * @throws com.energyict.cbo.NestedIOException
-     *          throws for all other then communication related exceptions
+     * @throws NestedIOException Thrown for all other then communication related exceptions
      * @throws com.energyict.dialer.connection.ConnectionException
      *          Thrown for communication related exceptions
      */
@@ -444,8 +442,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * this is a non blocking method since we need to do timeout management in the sub class calling this method
      *
      * @return byte[] or null if none is available
-     * @throws com.energyict.cbo.NestedIOException
-     *          throws for all other then communication related exceptions
+     * @throws NestedIOException Thrown for all other then communication related exceptions
      * @throws com.energyict.dialer.connection.ConnectionException
      *          Thrown for communication related exceptions
      */
@@ -509,8 +506,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * delay for ms and then flush inputbuffer
      *
      * @param delay long delay in ms
-     * @throws com.energyict.cbo.NestedIOException
-     *          throws for all other then communication related exceptions
+     * @throws NestedIOException Thrown for all other then communication related exceptions
      * @throws com.energyict.dialer.connection.ConnectionException
      *          Thrown for communication related exceptions
      */
@@ -553,8 +549,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      *
      * @param txbuffer    data to send
      * @param waitForEcho wait for echo enabled or disabled
-     * @throws com.energyict.cbo.NestedIOException
-     *          throws for all other then communication related exceptions
+     * @throws NestedIOException Thrown for all other then communication related exceptions
      * @throws com.energyict.dialer.connection.ConnectionException
      *          Thrown for communication related exceptions
      */
@@ -567,8 +562,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Same as sendOut(byte[] txbuffer) but preceeded by a delay(lForceDelay) and flushEchoBuffer()
      *
      * @param txbuffer byte[] to send
-     * @throws com.energyict.cbo.NestedIOException
-     *          throws for all other then communication related exceptions
+     * @throws NestedIOException Thrown for all other then communication related exceptions
      * @throws com.energyict.dialer.connection.ConnectionException
      *          Thrown for communication related exceptions
      */
@@ -582,8 +576,7 @@ public abstract class Connection implements HalfDuplexEnabler {
      * Same as sendOut(byte txbuffer) but preceeded by a delay(lForceDelay) and flushEchoBuffer()
      *
      * @param txbuffer character to send
-     * @throws com.energyict.cbo.NestedIOException
-     *          throws for all other then communication related exceptions
+     * @throws NestedIOException Thrown for all other then communication related exceptions
      * @throws com.energyict.dialer.connection.ConnectionException
      *          Thrown for communication related exceptions
      */

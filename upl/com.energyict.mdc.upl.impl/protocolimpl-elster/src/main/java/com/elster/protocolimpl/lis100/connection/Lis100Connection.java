@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.lis100.connection;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -199,8 +200,7 @@ public class Lis100Connection extends Connection {
      * @return read data
      * @throws com.energyict.dialer.connection.ConnectionException
      *          if timeout occurs or bcc is wrong
-     * @throws com.energyict.cbo.NestedIOException
-     *          - in case of io errors
+     * @throws NestedIOException in case of io errors
      */
     public String receiveTelegram(byte order) throws ConnectionException,
             NestedIOException {

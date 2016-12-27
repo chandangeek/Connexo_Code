@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -38,9 +38,9 @@ public class TimeCommand extends AbstractCommand {
     }
 
     protected byte[] prepareBuild() {
-        if (getTime()==null)
-           return new byte[]{(byte)0x01,0,0,0,0,0,0,0,0};
-        else {
+        if (getTime()==null) {
+            return new byte[]{(byte) 0x01, 0, 0, 0, 0, 0, 0, 0, 0};
+        } else {
             // set time
             byte[] data = new byte[]{(byte)0x21,0,0,0,0,0,0,0,0};
             Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());

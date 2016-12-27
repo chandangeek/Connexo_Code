@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
@@ -38,8 +39,8 @@ import java.util.logging.Level;
  */
 public class LoadProfileBuilder {
 
-    protected final static ObisCode CLOCK_OBISCODE = ObisCode.fromString("0.0.1.0.0.255");
-    protected final static ObisCode STATUS_OBISCODE = ObisCode.fromString("0.0.96.240.12.255");
+    protected static final ObisCode CLOCK_OBISCODE = ObisCode.fromString("0.0.1.0.0.255");
+    protected static final ObisCode STATUS_OBISCODE = ObisCode.fromString("0.0.96.240.12.255");
 
     private ZMD meterProtocol;
 
@@ -56,9 +57,9 @@ public class LoadProfileBuilder {
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
 
-    private Map<LoadProfileReader, int[]> channelMaskMap = new HashMap<LoadProfileReader, int[]>();
+    private Map<LoadProfileReader, int[]> channelMaskMap = new HashMap<>();
 
     public LoadProfileBuilder(ZMD meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -73,7 +74,7 @@ public class LoadProfileBuilder {
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
         expectedLoadProfileReaders = loadProfileReaders;
-        loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        loadProfileConfigurationList = new ArrayList<>();
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
@@ -95,9 +96,7 @@ public class LoadProfileBuilder {
                     throw e;    // In case of a connection exception (of which we cannot recover), do throw the error.
                 }
                 lpc.setSupportedByMeter(false);
-            } catch (IOException e) {
-                lpc.setSupportedByMeter(false);
-            } catch (NullPointerException e) {
+            } catch (IOException | NullPointerException e) {
                 lpc.setSupportedByMeter(false);
             }
             loadProfileConfigurationList.add(lpc);
@@ -109,9 +108,9 @@ public class LoadProfileBuilder {
      * Construct a list of <CODE>ChannelInfos</CODE>.
      */
     private List<ChannelInfo> constructChannelInfos(ProfileGeneric profileGeneric, LoadProfileReader lpr) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
-        List<Register> registerList = new ArrayList<Register>();
+        List<Register> registerList = new ArrayList<>();
         String channelMask = new String();
         int clockMask = -1;
         int statusMask = -1;
@@ -152,15 +151,6 @@ public class LoadProfileBuilder {
         return channelInfos;
     }
 
-    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
-        for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
-            if (channelInfo.getChannelObisCode().equals(obisCode)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
@@ -178,7 +168,7 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {

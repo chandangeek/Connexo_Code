@@ -92,7 +92,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     private final ZMDMessages messageProtocol;
 
     public ZMD() {
-        this.messageProtocol = new ZMDMessages(this);
+        this.messageProtocol = new ZMDMessages(this, calendarFinder);
     }
 
     @Override

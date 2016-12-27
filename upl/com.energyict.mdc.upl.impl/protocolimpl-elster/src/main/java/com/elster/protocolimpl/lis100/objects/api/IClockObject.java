@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.lis100.objects.api;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 
 import java.io.IOException;
@@ -14,8 +15,7 @@ import java.util.Date;
  * Time: 13:51
  */
 public interface IClockObject {
-
-    public Date getDate() throws NestedIOException, ConnectionException;
+    Date getDate() throws NestedIOException, ConnectionException;
     @SuppressWarnings({"unused"})
-    public void setDate(Date date) throws IOException;
+    void setDate(Date date) throws IOException;
 }

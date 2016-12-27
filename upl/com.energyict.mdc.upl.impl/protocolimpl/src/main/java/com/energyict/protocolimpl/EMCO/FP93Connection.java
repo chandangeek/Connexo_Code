@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.EMCO;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
@@ -63,7 +64,7 @@ public class FP93Connection implements ProtocolConnection {
     /**
      * Implements the specific meter communication connect
      */
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         return null;  //No specific MAC connect needed.
     }
 

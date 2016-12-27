@@ -1,14 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -40,9 +41,11 @@ public class ZMDMessages extends ProtocolMessages {
     public static String END_OF_DST = "EndOfDST";
 
     private final ZMD protocol;
+    private final TariffCalendarFinder calendarFinder;
 
-    public ZMDMessages(final ZMD protocol) {
+    public ZMDMessages(final ZMD protocol, TariffCalendarFinder calendarFinder) {
         this.protocol = protocol;
+        this.calendarFinder = calendarFinder;
     }
 
     /**
@@ -163,10 +166,10 @@ public class ZMDMessages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder();
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder);
         ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
-        if (builder.getCodeId() > 0) { // codeTable implementation
+        if (!builder.getCodeId().isEmpty()) { // codeTable implementation
             infoLog("Parsing the content of the CodeTable.");
             activityCalendarController.parseContent(messageEntry.getContent());
             infoLog("Setting the new Passive Calendar Name.");

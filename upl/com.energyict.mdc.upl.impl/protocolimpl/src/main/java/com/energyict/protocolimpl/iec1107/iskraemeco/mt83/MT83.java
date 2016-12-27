@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -10,7 +11,6 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;

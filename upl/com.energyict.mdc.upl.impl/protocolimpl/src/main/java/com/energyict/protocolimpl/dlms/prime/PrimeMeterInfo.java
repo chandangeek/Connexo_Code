@@ -1,10 +1,13 @@
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -31,10 +34,7 @@ public class PrimeMeterInfo {
     }
 
     public String getAllFirmwareVersions() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("DLMS=[").append(getDLMSFirmware().trim()).append("], ");
-        sb.append("Prime=[").append(getPrimeFirmware().trim()).append("]");
-        return sb.toString();
+        return "DLMS=[" + getDLMSFirmware().trim() + "], " + "Prime=[" + getPrimeFirmware().trim() + "]";
     }
 
     public String getDLMSFirmware() {

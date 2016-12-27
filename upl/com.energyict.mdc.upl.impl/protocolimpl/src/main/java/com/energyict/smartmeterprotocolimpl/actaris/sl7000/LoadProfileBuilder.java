@@ -1,17 +1,39 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -122,10 +144,10 @@ public class LoadProfileBuilder {
      * Construct a list of <CODE>ChannelInfos</CODE>.
      **/
     private List<ChannelInfo> constructChannelInfos(ProfileGeneric profileGeneric, LoadProfileReader lpr) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
 
-        HashMap<ObisCode, ScalerUnit> loadProfileInformation = getLoadProfileInformation();
+        Map<ObisCode, ScalerUnit> loadProfileInformation = getLoadProfileInformation();
 
         for (CapturedObject capturedObject : captureObjects.subList(4, captureObjects.size())) {
             ObisCode registerObisCode = ObisCode.fromString(capturedObject.getLogicalName().toString());
@@ -148,7 +170,7 @@ public class LoadProfileBuilder {
     }
 
 
-    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) {
         for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
             if (channelInfo.getChannelObisCode().equals(obisCode)) {
                 return true;
@@ -160,13 +182,13 @@ public class LoadProfileBuilder {
     /**
      * Retrieve the load profile information from the 'load profile information summary' profile
      */
-    private HashMap<ObisCode, ScalerUnit> getLoadProfileInformation() throws IOException {
+    private Map<ObisCode, ScalerUnit> getLoadProfileInformation() throws IOException {
         ProfileGeneric loadProfileInformation = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(LOADPROFILE_INDFORMATION_OBIS);
         DataContainer buffer = loadProfileInformation.getBuffer();
         DataStructure dataStructure = buffer.getRoot().getStructure(0);
 
         int index = 0;
-        HashMap<ObisCode, ScalerUnit> channelInfoMap = new HashMap<ObisCode, ScalerUnit>();
+        Map<ObisCode, ScalerUnit> channelInfoMap = new HashMap<>();
         while (dataStructure.isOctetString(index) && dataStructure.isStructure(index + 1)) {
             ObisCode obisCode = dataStructure.getOctetString(index).toObisCode();
             ScalerUnit scalerUnit = new ScalerUnit(dataStructure.getStructure(index + 1).getInteger(0),
@@ -194,7 +216,7 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {
@@ -213,7 +235,7 @@ public class LoadProfileBuilder {
 
                 // If there are no intervals in the profile, read the profile data again, but now with limitMaxNrOfDays increased with the value of Custom Property limitMaxNrOfDays property
                 // This way we can prevent the profile to be stuck at a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
-                while ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0) && (limiter.getOriginalToDate().getTime() >= limiter.getToDate().getTime())) {
+                while ((profileData.getIntervalDatas().isEmpty()) && (getLimitMaxNrOfDays() > 0) && (limiter.getOriginalToDate().getTime() >= limiter.getToDate().getTime())) {
                     limiter = new ProfileLimiter(lpr.getStartReadingTime(), lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime(), limiter.getLimitMaxNrOfDays() + getLimitMaxNrOfDays(), meterProtocol.getTimeZone());
                     this.meterProtocol.getLogger().log(Level.INFO, "Retrieved no LoadProfile data for profile " + lpr.getProfileObisCode() +
                             " - re-retrieving data for period [" + DATE_FORMATTER.format(limiter.getFromDate()) + " - " + DATE_FORMATTER.format(limiter.getToDate()) + "].");
@@ -266,7 +288,7 @@ public class LoadProfileBuilder {
 
             // Adjust calendar for interval with profile interval period
             if (currentAdd) {
-                calendar.add(calendar.MINUTE, (lpc.getProfileInterval() / 60));
+                calendar.add(Calendar.MINUTE, (lpc.getProfileInterval() / 60));
             }
 
             currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar, lpr);
@@ -285,7 +307,7 @@ public class LoadProfileBuilder {
         }
     }
 
-    private Calendar parseProfileStartDateTime(DataStructure dataStructure, Calendar calendar, LoadProfileConfiguration lpc) throws IOException {
+    private Calendar parseProfileStartDateTime(DataStructure dataStructure, Calendar calendar, LoadProfileConfiguration lpc) {
         if (isNewDate(dataStructure.getStructure(0).getOctetString(0).getArray()) || isNewTime(dataStructure.getStructure(0).getOctetString(0).getArray())) {
             calendar = setCalendar(calendar, dataStructure.getStructure(0), 0, lpc);
         }
@@ -293,22 +315,14 @@ public class LoadProfileBuilder {
     }
 
     private boolean isNewDate(byte[] array) {
-        if ((array[0] != -1) && (array[1] != -1) && (array[2] != -1) && (array[3] != -1)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (array[0] != -1) && (array[1] != -1) && (array[2] != -1) && (array[3] != -1);
     }
 
     private boolean isNewTime(byte[] array) {
-        if ((array[5] != -1) && (array[6] != -1) && (array[7] != -1)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (array[5] != -1) && (array[6] != -1) && (array[7] != -1);
     }
 
-    private Calendar setCalendar(Calendar cal, DataStructure dataStructure, int btype, LoadProfileConfiguration lpc) throws IOException {
+    private Calendar setCalendar(Calendar cal, DataStructure dataStructure, int btype, LoadProfileConfiguration lpc) {
         Calendar calendar = (Calendar) cal.clone();
         if (dataStructure.getOctetString(0).getArray()[0] != -1) {
             calendar.set(Calendar.YEAR, (((int) dataStructure.getOctetString(0).getArray()[0] & 0xff) << 8) |
@@ -360,91 +374,88 @@ public class LoadProfileBuilder {
         return calendar;
     }
 
-    private boolean parseStart(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) throws IOException {
+    private boolean parseStart(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) {
         calendar = setCalendar(calendar, dataStructure.getStructure(0), 1, lpc);
         if ((dataStructure.getStructure(0).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
             profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
-                    (int) MeterEvent.SETCLOCK_AFTER,
-                    (int) dataStructure.getStructure(0).getInteger(1)));
+                    MeterEvent.SETCLOCK_AFTER,
+                    dataStructure.getStructure(0).getInteger(1)));
         }
         if ((dataStructure.getStructure(0).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
             profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
-                    (int) MeterEvent.POWERUP,
-                    (int) EV_POWER_FAILURE));
+                    MeterEvent.POWERUP,
+                    EV_POWER_FAILURE));
         }
         if ((dataStructure.getStructure(0).getInteger(1) & EV_WATCHDOG_RESET) != 0) { // watchdog
             profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
-                    (int) MeterEvent.WATCHDOGRESET,
-                    (int) EV_WATCHDOG_RESET));
+                    MeterEvent.WATCHDOGRESET,
+                    EV_WATCHDOG_RESET));
         }
         if ((dataStructure.getStructure(0).getInteger(1) & EV_DST) != 0) { // watchdog
             profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
-                    (int) MeterEvent.SETCLOCK_AFTER,
-                    (int) EV_DST));
+                    MeterEvent.SETCLOCK_AFTER,
+                    EV_DST));
         }
         return true;
     }
 
-    private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) throws IOException {
+    private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) {
         Calendar endIntervalCal = setCalendar(calendar, dataStructure.getStructure(1), 1, lpc);
 
         if ((dataStructure.getStructure(1).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
             profileData.addEvent(new MeterEvent(new Date(((Calendar) endIntervalCal.clone()).getTime().getTime()),
-                    (int) MeterEvent.SETCLOCK_BEFORE,
-                    (int) dataStructure.getStructure(1).getInteger(1)));
+                    MeterEvent.SETCLOCK_BEFORE,
+                    dataStructure.getStructure(1).getInteger(1)));
         }
 
         if ((dataStructure.getStructure(1).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
             profileData.addEvent(new MeterEvent(new Date(((Calendar) endIntervalCal.clone()).getTime().getTime()),
-                    (int) MeterEvent.POWERDOWN,
-                    (int) EV_POWER_FAILURE));
+                    MeterEvent.POWERDOWN,
+                    EV_POWER_FAILURE));
             return true; // KV 16012004
         }
 
         /* No WD event added cause time is set to 00h00'00" */
         if ((dataStructure.getStructure(1).getInteger(1) & EV_DST) != 0) { // power down
             profileData.addEvent(new MeterEvent(new Date(((Calendar) endIntervalCal.clone()).getTime().getTime()),
-                    (int) MeterEvent.SETCLOCK_BEFORE,
-                    (int) EV_DST));
+                    MeterEvent.SETCLOCK_BEFORE,
+                    EV_DST));
             return true;
         }
 
-        if ((lpc.getProfileInterval() * 1000) - (endIntervalCal.getTimeInMillis() - calendar.getTimeInMillis()) <= 2000) {
-            return true;    //GN 25042008 special case ...
-        }
-        return false;
+        return (lpc.getProfileInterval() * 1000) - (endIntervalCal.getTimeInMillis() - calendar.getTimeInMillis()) <= 2000;
     }
 
-    private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) throws IOException {
+    private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) {
         calendar = setCalendar(calendar, dataStructure.getStructure(2), 1, lpc);
 
         if ((dataStructure.getStructure(2).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
             profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
-                    (int) MeterEvent.SETCLOCK_BEFORE,
-                    (int) dataStructure.getStructure(2).getInteger(1)));
+                    MeterEvent.SETCLOCK_BEFORE,
+                    dataStructure.getStructure(2).getInteger(1)));
         }
 
         if ((dataStructure.getStructure(2).getInteger(1) & EV_POWER_FAILURE) != 0) {// power down
             profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
-                    (int) MeterEvent.POWERDOWN,
-                    (int) EV_POWER_FAILURE));
+                    MeterEvent.POWERDOWN,
+                    EV_POWER_FAILURE));
         }
         return true;
     }
 
-    private boolean parseTime2(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) throws IOException {
+    private boolean parseTime2(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) {
         calendar = setCalendar(calendar, dataStructure.getStructure(3), 1, lpc);
 
         if ((dataStructure.getStructure(3).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
             profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
-                    (int) MeterEvent.SETCLOCK_AFTER,
-                    (int) dataStructure.getStructure(3).getInteger(1)));
+                    MeterEvent.SETCLOCK_AFTER,
+                    dataStructure.getStructure(3).getInteger(1)));
         }
 
         if ((dataStructure.getStructure(3).getInteger(1) & EV_POWER_FAILURE) != 0) {// power down
             profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
-                    (int) MeterEvent.POWERUP,
-                    (int) EV_POWER_FAILURE));
+                    MeterEvent.POWERUP,
+                    EV_POWER_FAILURE));
         }
         return true;
     }
@@ -474,7 +485,7 @@ public class LoadProfileBuilder {
         return intervalData;
     }
 
-    private boolean isChannelInLpr(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+    private boolean isChannelInLpr(LoadProfileReader lpr, ObisCode obisCode) {
         for (ChannelInfo each : lpr.getChannelInfos()) {
             if (each.getChannelObisCode().equals(obisCode)) {
                 return true;

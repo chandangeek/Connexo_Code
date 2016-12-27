@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.edmi.mk10.streamfilters;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.CircularByteBuffer;
@@ -152,7 +151,7 @@ public class MK10PushInputStream extends InputStream {
         return packetBuffer.toByteArray();
     }
 
-    private void delay(long millis) throws NestedIOException {
+    private void delay(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {

@@ -92,7 +92,7 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS330D();
+        return new AS330D(calendarFinder);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {

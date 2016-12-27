@@ -68,11 +68,11 @@ public class TrimeranConnectionLayering extends ConnectionV25  implements Protoc
         return null;
     }
 
-    public byte[] dataReadout(String strID, String nodeId) throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+    public byte[] dataReadout(String strID, String nodeId) {
         return null;
     }
 
-    public void disconnectMAC() throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+    public void disconnectMAC() {
     }
 
     public HHUSignOn getHhuSignOn() {
@@ -97,9 +97,4 @@ public class TrimeranConnectionLayering extends ConnectionV25  implements Protoc
         return null;
     }
 
-
-
-
-
-
-} // public class TrimeranConnection extends Connection  implements ProtocolConnection
+}

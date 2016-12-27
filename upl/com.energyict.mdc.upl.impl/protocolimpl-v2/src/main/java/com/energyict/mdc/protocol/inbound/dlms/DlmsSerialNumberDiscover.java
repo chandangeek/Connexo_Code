@@ -1,6 +1,12 @@
 package com.energyict.mdc.protocol.inbound.dlms;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObject;
+import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
+import com.energyict.mdc.protocol.inbound.general.InboundConnection;
+
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -11,11 +17,6 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObject;
-import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
-import com.energyict.mdc.protocol.inbound.general.InboundConnection;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
@@ -33,8 +34,8 @@ import java.util.logging.Logger;
  * Extra requests are sent in the normal protocol session (e.g. fetch meter data).
  * <p/>
  *
- * @author: sva
- * @since: 26/10/12 (11:40)
+ * @author sva
+ * @since 26/10/12 (11:40)
  */
 public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
@@ -101,7 +102,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
      *
      * @return
      */
-    private SimpleApplicationServiceObject buildAso() throws IOException {
+    private SimpleApplicationServiceObject buildAso() {
         return new SimpleApplicationServiceObject(dlmsConnection);
     }
 
@@ -135,12 +136,6 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
         throw new IOException("Failed to read the serial number.");
     }
 
-    /**
-     * @param classId
-     * @param LN
-     * @param bAttr
-     * @return
-     */
     private byte[] buildGetRequest(int classId, byte[] LN, byte bAttr) {
         byte[] readRequestArray = new byte[DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE];
 

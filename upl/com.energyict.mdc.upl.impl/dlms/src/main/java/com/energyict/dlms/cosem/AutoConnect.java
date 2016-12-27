@@ -1,8 +1,14 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 
 import java.io.IOException;
 
@@ -59,7 +65,6 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Read the current mode from the device
 	 * @return
-	 * @throws java.io.IOException
 	 */
 	public TypeEnum readMode() throws NestedIOException {
 		try{

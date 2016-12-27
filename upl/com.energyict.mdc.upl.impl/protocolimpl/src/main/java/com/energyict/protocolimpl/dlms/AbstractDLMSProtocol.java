@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -7,7 +8,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.CosemPDUConnection;

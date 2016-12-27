@@ -1,8 +1,8 @@
 package com.energyict.dlms.cosem.generalblocktransfer;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.XdlmsApduTags;

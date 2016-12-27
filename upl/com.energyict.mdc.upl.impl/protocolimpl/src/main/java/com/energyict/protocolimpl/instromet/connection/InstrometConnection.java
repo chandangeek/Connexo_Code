@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -188,11 +189,11 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 		outputStream.write(commId & 0xFF);
 	}
 
-	public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+	public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) {
 		return null;
 	}
 
-	public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {
+	public byte[] dataReadout(String strID, String nodeId) {
 		return null;
 	}
 

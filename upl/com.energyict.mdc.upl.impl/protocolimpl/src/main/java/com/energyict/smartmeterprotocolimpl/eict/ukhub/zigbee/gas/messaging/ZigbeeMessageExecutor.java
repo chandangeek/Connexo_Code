@@ -1,10 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
@@ -94,12 +95,14 @@ public class ZigbeeMessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     private final AbstractSmartDlmsProtocol protocol;
-    private ActivityCalendarController activityCalendarController;
+    private final TariffCalendarFinder calendarFinder;
 
+    private ActivityCalendarController activityCalendarController;
     private boolean success;
 
-    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol) {
+    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder) {
         this.protocol = protocol;
+        this.calendarFinder = calendarFinder;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -581,12 +584,12 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder();
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder);
 
         try {
             builder.initFromXml(content);
 
-            if (builder.getCodeId() > 0) { // codeTable implementation
+            if (!builder.getCodeId().isEmpty()) { // codeTable implementation
                 log(Level.FINEST, "Parsing the content of the CodeTable.");
                 getActivityCalendarController().parseContent(content);
                 log(Level.FINEST, "Setting the new Passive Calendar Name.");
@@ -709,7 +712,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         int failures = 0;
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
-        if (!userFileId.equalsIgnoreCase("")) {
+        if (!"".equalsIgnoreCase(userFileId)) {
             if (com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileId)) {
                 UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
                 if (uf != null) {
@@ -740,7 +743,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                                     break;
                                     case 2: { // ACTION
                                         GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                        if (to.getData().equalsIgnoreCase("")) {
+                                        if ("".equalsIgnoreCase(to.getData())) {
                                             gi.invoke();
                                         } else {
                                             gi.invoke(com.energyict.protocolimpl.generic.ParseUtils.hexStringToByteArray(to.getData()));
@@ -792,14 +795,14 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
                             } catch (Exception e) {
                                 if (!hasWritten) {
-                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
+                                    if ((to.getExpected() != null) && (e.getMessage().contains(to.getExpected()))) {
                                         to.setResult(e.getMessage());
                                         log(Level.INFO, "Test " + i + " has successfully finished.");
                                         hasWritten = true;
                                     } else {
                                         log(Level.INFO, "Test " + i + " has failed.");
                                         String eMessage;
-                                        if (e.getMessage().indexOf("\r\n") != -1) {
+                                        if (e.getMessage().contains("\r\n")) {
                                             eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
                                         } else {
                                             eMessage = e.getMessage();

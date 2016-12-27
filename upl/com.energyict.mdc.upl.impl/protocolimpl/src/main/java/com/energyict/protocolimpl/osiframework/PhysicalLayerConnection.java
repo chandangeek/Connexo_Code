@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.osiframework;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
@@ -84,14 +85,6 @@ public class PhysicalLayerConnection {
     HalfDuplexController halfDuplexController=null;
     StateMachineCallBack stateMachineCallBack;
 
-
-    /** Creates a new instance of Connection.
-     * @param inputstream
-     * @param outputstream
-     * @param forceDelay delay in ms before sendRawData
-     * @param echocancelling on(1)/off(0)
-     * @param halfDuplexController
-     */
     protected PhysicalLayerConnection(InputStream inputStream,
                          OutputStream outputStream,
                          long lForceDelay,
@@ -109,8 +102,7 @@ public class PhysicalLayerConnection {
 
 
 
-    public void sendOutTerminalMode(byte[] txbuffer, boolean waitForEcho) throws NestedIOException,ConnectionException {
-
+    public void sendOutTerminalMode(byte[] txbuffer, boolean waitForEcho) throws NestedIOException, ConnectionException {
         if (waitForEcho) {
             for (int i=0;i<txbuffer.length;i++) {
                doSendOut(txbuffer[i]);
