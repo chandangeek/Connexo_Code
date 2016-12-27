@@ -25,6 +25,10 @@ import java.util.List;
  */
 public class AS300DPET extends AS300 {
 
+    public AS300DPET() {
+        super(calendarFinder);
+    }
+
     @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
         try {

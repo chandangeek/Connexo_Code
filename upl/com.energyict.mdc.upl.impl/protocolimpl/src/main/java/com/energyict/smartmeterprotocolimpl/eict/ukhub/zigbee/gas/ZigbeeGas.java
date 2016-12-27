@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BusinessException;
@@ -59,10 +60,15 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ZigbeeGasEventProfiles zigbeeGasEventProfiles;
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
     private ZigbeeGasRegisterFactory registerFactory;
+    private final TariffCalendarFinder calendarFinder;
+
+    public ZigbeeGas(TariffCalendarFinder calendarFinder) {
+        this.calendarFinder = calendarFinder;
+    }
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, calendarFinder));
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.calendarFinder));
         }
         return this.zigbeeGasMessaging;
     }
@@ -349,7 +355,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
             }
 
             getProperties().setSecurityProvider(new UkHubSecurityProvider(getProperties().getProtocolProperties()));
-            ((UkHubSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+            getProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter + 1);
 
             reInitDlmsSession(link);
         } else {

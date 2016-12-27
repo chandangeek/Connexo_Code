@@ -430,7 +430,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             }
 
             getProperties().setSecurityProvider(new UkHubSecurityProvider(getProperties().getProtocolProperties()));
-            ((UkHubSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+            getProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter + 1);
 
             reInitDlmsSession(link);
         } else {

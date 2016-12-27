@@ -12,10 +12,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.coreimpl.IPDialer;
-import com.energyict.dialer.coreimpl.NullDialer;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DlmsSession;
@@ -35,8 +31,6 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.events.AM110REventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.AM110RMessageExecutor;
@@ -46,7 +40,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -274,48 +267,6 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
         //This method is not used anymore
         return true;
-    }
-
-    /**
-     * Initializes the security provider and if necessary reads out the frame counter
-     */
-    private void initializeSecurityProvider(Link link, Logger logger) throws IOException {
-        init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        enableHHUSignOn(link.getSerialCommunicationChannel(), false);
-
-        if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {
-            int backupClientId = getProperties().getClientMacAddress();
-            String backupSecurityLevel = getProperties().getSecurityLevel();
-            String password = getProperties().getPassword();
-            CipheringType backUpCipheringType = getProperties().getCipheringType();
-
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.CLIENT_MAC_ADDRESS, "16");
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.SECURITY_LEVEL, "0:0");
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.CIPHERING_TYPE, "0");
-
-            getDlmsSession().connect();
-            long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(MultipleClientRelatedObisCodes.frameCounterForClient(backupClientId)).getValue();
-            getDlmsSession().disconnect();
-
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.SECURITY_LEVEL, backupSecurityLevel);
-            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.Property.PASSWORD.getName(), password);
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
-
-            if (link instanceof IPDialer || link instanceof NullDialer) {
-                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
-                link.getStreamConnection().serverClose();
-                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-                link.getStreamConnection().serverOpen();
-            }
-
-            getProperties().setSecurityProvider(new AM110RSecurityProvider(getProperties().getProtocolProperties()));
-            ((AM110RSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
-
-            reInitDlmsSession(link);
-        } else {
-            this.dlmsSession = null;
-        }
     }
 
     protected void reInitDlmsSession(final Link link) throws ConnectionException {

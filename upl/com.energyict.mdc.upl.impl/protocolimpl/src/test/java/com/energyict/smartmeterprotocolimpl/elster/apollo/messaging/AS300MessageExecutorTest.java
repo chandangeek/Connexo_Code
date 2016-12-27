@@ -24,7 +24,7 @@ public class AS300MessageExecutorTest {
     @Test
     public void testExecuteMessageEntry() throws Exception {
         MessageEntry msgEntry = MessageEntry.fromContent(new String(xmlContentBytes, "US-ASCII")).trackingId("TrackingId").serialNumber("SerialNumber").finish();
-        AS300 protocol = new AS300();
+        AS300 protocol = new AS300(calendarFinder);
         DummyDLMSConnection connection = new DummyDLMSConnection();
         connection.setResponseByte(DLMSUtils.hexStringToByteArray(expectedResponse));
         protocol.getDlmsSession().setDlmsConnection(connection);

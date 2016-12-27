@@ -8,10 +8,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
-import com.energyict.dialer.coreimpl.IPDialer;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -23,10 +19,8 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.eventhandling.AS300PEventProfiles;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.messaging.AS300PMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.messaging.AS300PMessaging;
@@ -34,8 +28,6 @@ import com.energyict.smartmeterprotocolimpl.elster.AS300P.messaging.AS300PMessag
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  * GB Smart Enhanced Credit - AS300P E-meter protocol
@@ -242,48 +234,6 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
             properties = new AS300PProperties();
         }
         return properties;
-    }
-
-    /**
-     * Initializes the security provider and if necessary reads out the frame counter
-     */
-    private void initializeSecurityProvider(Link link, Logger logger) throws IOException {
-        init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {
-            int backupClientId = getProperties().getClientMacAddress();
-            String backupSecurityLevel = getProperties().getSecurityLevel();
-            String password = getProperties().getPassword();
-
-            getProperties().getProtocolProperties().setProperty(AS300PProperties.CLIENT_MAC_ADDRESS, "16");
-            getProperties().getProtocolProperties().setProperty(AS300PProperties.SECURITY_LEVEL, "0:0");
-
-            getDlmsSession().connect();
-            long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(getObjectFactory().getObisCodeProvider().getFrameCounterObisCode(backupClientId)).getValue();
-            getDlmsSession().disconnect();
-
-            getProperties().getProtocolProperties().setProperty(AS300PProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
-            getProperties().getProtocolProperties().setProperty(AS300PProperties.SECURITY_LEVEL, backupSecurityLevel);
-            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.Property.PASSWORD.getName(), password);
-
-            if (link instanceof IPDialer) {
-                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
-                link.getStreamConnection().serverClose();
-                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-                link.getStreamConnection().serverOpen();
-            }
-
-            getProperties().setSecurityProvider(new AM110RSecurityProvider(getProperties().getProtocolProperties()));
-            ((AM110RSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
-
-            reInitDlmsSession(link);
-            this.objectFactory = null;
-        } else {
-            this.dlmsSession = null;
-        }
-    }
-
-    private void reInitDlmsSession(final Link link) {
-        this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
     }
 
     @Override

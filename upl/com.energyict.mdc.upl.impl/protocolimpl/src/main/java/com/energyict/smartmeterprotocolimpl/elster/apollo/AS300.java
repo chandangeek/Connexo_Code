@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.BusinessException;
@@ -51,6 +52,11 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private RegisterReader registerReader;
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
+    private final TariffCalendarFinder calendarFinder;
+
+    public AS300(TariffCalendarFinder calendarFinder) {
+        this.calendarFinder = calendarFinder;
+    }
 
     @Override
     public AS300Properties getProperties() {
@@ -187,7 +193,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, calendarFinder));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarFinder));
         }
         return messageProtocol;
     }
@@ -273,7 +279,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
             }
 
             getProperties().setSecurityProvider(new UkHubSecurityProvider(getProperties().getProtocolProperties()));
-            ((UkHubSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+            getProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter + 1);
 
             reInitDlmsSession(link);
             this.objectFactory = null;

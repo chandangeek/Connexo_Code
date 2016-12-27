@@ -2,24 +2,17 @@ package com.energyict.smartmeterprotocolimpl.kaifa;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.coreimpl.IPDialer;
-import com.energyict.dialer.coreimpl.NullDialer;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.CipheringType;
-import com.energyict.protocol.*;
+import com.energyict.protocol.BulkRegisterProtocol;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110R;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110RProperties;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.events.AM110REventProfiles;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 
 public class Kaifa extends AM110R {
@@ -56,7 +49,7 @@ public class Kaifa extends AM110R {
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        hhuSignOn = (HHUSignOn) new KaifaHHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        hhuSignOn = new KaifaHHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -90,55 +83,6 @@ public class Kaifa extends AM110R {
 
     public String getMeterSerialNumber() {
         return getProperties().getSerialNumber();
-    }
-
-
-    /**
-     * Initializes the security provider and if necessary reads out the frame counter
-     */
-    protected void initializeSecurityProvider(Link link, Logger logger) throws IOException {
-        init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        enableHHUSignOn(link.getSerialCommunicationChannel(), false);
-
-        if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {
-            int backupClientId = getProperties().getClientMacAddress();
-            String backupSecurityLevel = getProperties().getSecurityLevel();
-            String password = getProperties().getPassword();
-            CipheringType backUpCipheringType = getProperties().getCipheringType();
-
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.CLIENT_MAC_ADDRESS, "16");
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.SECURITY_LEVEL, "0:0");
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.CIPHERING_TYPE, "0");
-
-            getProperties().setSecurityProvider(new AM110RSecurityProvider(getProperties().getProtocolProperties()));
-            HHUSignOn hhuSignOn = getDlmsSession().getDLMSConnection().getHhuSignOn();
-            dlmsSession = null;
-            getDlmsSession().init();
-            getDlmsSession().getDLMSConnection().setHHUSignOn(hhuSignOn,"", 0);
-
-            getDlmsSession().connect();
-            long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(MultipleClientRelatedObisCodes.frameCounterForClient(backupClientId)).getValue();
-            getDlmsSession().disconnect();
-
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.SECURITY_LEVEL, backupSecurityLevel);
-            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.Property.PASSWORD.getName(), password);
-            getProperties().getProtocolProperties().setProperty(AM110RProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
-
-            if (link instanceof IPDialer || link instanceof NullDialer) {
-                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
-                link.getStreamConnection().serverClose();
-                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-                link.getStreamConnection().serverOpen();
-            }
-
-            getProperties().setSecurityProvider(new AM110RSecurityProvider(getProperties().getProtocolProperties()));
-            getProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter + 1);
-
-            reInitDlmsSession(link);
-        } else {
-            this.dlmsSession = null;
-        }
     }
 
     public BulkRegisterProtocol getRegisterFactory() {

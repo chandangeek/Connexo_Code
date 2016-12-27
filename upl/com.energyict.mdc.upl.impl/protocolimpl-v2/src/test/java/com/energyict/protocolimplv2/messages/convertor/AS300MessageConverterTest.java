@@ -116,7 +116,7 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS300();
+        return new AS300(calendarFinder);
     }
 
     @Override

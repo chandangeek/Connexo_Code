@@ -10,9 +10,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
-import com.energyict.dialer.coreimpl.IPDialer;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -24,8 +21,6 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
-import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.events.ZigbeeGasEventProfiles;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.messaging.ZigbeeGasMessaging;
@@ -36,7 +31,6 @@ import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.registers.Zig
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -239,47 +233,6 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
         //This method is not used anymore
         return true;
-    }
-
-    /**
-     * Initializes the security provider and if necessary reads out the frame counter
-     */
-    private void initializeSecurityProvider(Link link, Logger logger) throws IOException {
-        init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        if (getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5) {
-            int backupClientId = getProperties().getClientMacAddress();
-            String backupSecurityLevel = getProperties().getSecurityLevel();
-            String password = getProperties().getPassword();
-
-            getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.CLIENT_MAC_ADDRESS, "16");
-            getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.SECURITY_LEVEL, "0:0");
-
-            getDlmsSession().connect();
-            long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(MultipleClientRelatedObisCodes.frameCounterForClient(backupClientId)).getValue();
-            getDlmsSession().disconnect();
-
-            getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
-            getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.SECURITY_LEVEL, backupSecurityLevel);
-            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.Property.PASSWORD.getName(), password);
-
-            if (link instanceof IPDialer) {
-                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
-                link.getStreamConnection().serverClose();
-                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-                link.getStreamConnection().serverOpen();
-            }
-
-            getProperties().setSecurityProvider(new AM110RSecurityProvider(getProperties().getProtocolProperties()));
-            ((AM110RSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
-
-            reInitDlmsSession(link);
-        } else {
-            this.dlmsSession = null;
-        }
-    }
-
-    private void reInitDlmsSession(final Link link) {
-        this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
     }
 
     @Override
