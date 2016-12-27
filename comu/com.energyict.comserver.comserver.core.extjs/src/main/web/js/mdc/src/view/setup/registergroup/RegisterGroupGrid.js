@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.MasterData.admin,
-                menu: { xtype: 'register-group-action-menu' }
+                menu: {xtype: 'register-group-action-menu'}
             }
         ];
 

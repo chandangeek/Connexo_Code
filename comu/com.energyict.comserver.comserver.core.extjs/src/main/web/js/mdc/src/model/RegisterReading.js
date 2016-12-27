@@ -1,30 +1,30 @@
 Ext.define('Mdc.model.RegisterReading', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'id', type:'string', useNull: true, persist: false},
-        {name: 'timeStamp', type:'number', useNull: true},
-        {name: 'reportedDateTime', type:'int'},
-        {name: 'validationStatus', type:'auto', useNull: true, persist: false},
-        {name: 'type', type:'string'},
-        {name: 'value', type:'string'},
-        {name: 'unit', type:'string'},
-        {name: 'calculatedValue', type:'string'},
-        {name: 'calculatedUnit', type:'string'},
+        {name: 'id', type: 'string', useNull: true, persist: false},
+        {name: 'timeStamp', type: 'number', useNull: true},
+        {name: 'reportedDateTime', type: 'int'},
+        {name: 'validationStatus', type: 'auto', useNull: true, persist: false},
+        {name: 'type', type: 'string'},
+        {name: 'value', type: 'string'},
+        {name: 'unit', type: 'string'},
+        {name: 'calculatedValue', type: 'string'},
+        {name: 'calculatedUnit', type: 'string'},
         {name: 'multiplier', type: 'auto'},
-        {name: 'dataValidated', type:'auto', persist: false},
-        {name: 'suspectReason', type:'auto', persist: false},
-        {name: 'validationResult', type:'auto', persist: false},
+        {name: 'dataValidated', type: 'auto', persist: false},
+        {name: 'suspectReason', type: 'auto', persist: false},
+        {name: 'validationResult', type: 'auto', persist: false},
         {name: 'isConfirmed', type: 'boolean'},
         {name: 'readingQualities', type: 'auto', defaultValue: null},
-        {name: 'slaveRegister', type:'auto', defaultValue: null},
+        {name: 'slaveRegister', type: 'auto', defaultValue: null},
         {name: 'register', type: 'auto'},
-        {name: 'dataValidated', type:'auto', persist: false},
+        {name: 'dataValidated', type: 'auto', persist: false},
         {name: 'interval', type: 'auto'},  // for billing registers
         {
             name: 'valueAndUnit',
             useNull: true,
             convert: function (v, record) {
-                if ( Ext.isEmpty(record.get('value')) && Ext.isEmpty(record.get('calculatedValue')) ) {
+                if (Ext.isEmpty(record.get('value')) && Ext.isEmpty(record.get('calculatedValue'))) {
                     return '-';
                 }
                 if (record.get('type') === 'billing') {

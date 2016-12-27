@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceRegisterConfigurationActionMenu',
     itemId: 'deviceRegisterConfigurationActionMenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'viewSuspects',

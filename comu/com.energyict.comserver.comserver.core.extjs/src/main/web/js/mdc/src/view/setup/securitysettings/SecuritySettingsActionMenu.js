@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingsActionMenu', {
     itemId: 'security-settings-settings-menu',
     shadow: false,
 
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

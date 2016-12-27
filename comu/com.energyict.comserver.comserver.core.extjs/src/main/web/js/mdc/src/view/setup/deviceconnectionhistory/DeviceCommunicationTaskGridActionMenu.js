@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskGridActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.mdc-device-communication-task-grid-action-menu',
-    initComponent: function() {
+    initComponent: function () {
 
         this.items = [
             {

@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 {
                                     xtype: 'uni-actioncolumn',
                                     privileges: Mdc.privileges.DeviceType.admin,
-                                    menu: { xtype: 'device-logbook-action-menu' }
+                                    menu: {xtype: 'device-logbook-action-menu'}
                                 }
                             ]
                         },

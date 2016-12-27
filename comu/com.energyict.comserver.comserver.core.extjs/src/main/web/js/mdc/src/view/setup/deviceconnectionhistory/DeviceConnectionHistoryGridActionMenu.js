@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGridActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.mdc-device-connection-history-grid-action-menu',
-    initComponent: function() {
+    initComponent: function () {
 
         this.items = [
             {

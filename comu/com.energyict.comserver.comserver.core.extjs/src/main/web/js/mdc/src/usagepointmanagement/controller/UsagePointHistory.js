@@ -247,7 +247,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePoint'),
             versionRecord = me.getModel('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion'),
-            //usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
+        //usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
             availableConfigs = me.getStore('Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
@@ -309,7 +309,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                 fn: function (action) {
                     if (action == "confirm") {
                         doRemove();
-                    };
+                    }
+                    ;
                 }
             });
         }

@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.CommunicationSchedule.admin,
-                menu: { xtype: 'communication-schedule-action-menu' }
+                menu: {xtype: 'communication-schedule-action-menu'}
             }
 
         ];

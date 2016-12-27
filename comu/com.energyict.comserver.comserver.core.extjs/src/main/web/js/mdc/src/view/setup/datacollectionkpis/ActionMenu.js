@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.datacollectionkpis.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.dataCollectionKpisActionMenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

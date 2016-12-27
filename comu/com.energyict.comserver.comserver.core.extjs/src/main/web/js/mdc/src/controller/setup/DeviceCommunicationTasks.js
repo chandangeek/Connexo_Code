@@ -132,7 +132,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             menu.down('#changeUrgencyOfDeviceComTask').show();
         }
         if(menu.down('#runDeviceComTaskNow')) {
-            if(connectionDefinedOnDevice && !isOnHold) {
+            if (connectionDefinedOnDevice && !isOnHold) {
                 menu.down('#runDeviceComTaskNow').show();
             } else {
                 menu.down('#runDeviceComTaskNow').hide();
@@ -149,14 +149,14 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             menu.down('#viewHistoryOfDeviceComTask').show();
         }
         if(menu.down('#activateDeviceComTask')) {
-            if(isOnHold) {
+            if (isOnHold) {
                 menu.down('#activateDeviceComTask').show();
             } else {
                 menu.down('#activateDeviceComTask').hide();
             }
         }
         if(menu.down('#deactivateDeviceComTask')) {
-            if(isOnHold) {
+            if (isOnHold) {
                 menu.down('#deactivateDeviceComTask').hide();
             } else {
                 menu.down('#deactivateDeviceComTask').show();
@@ -182,13 +182,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     runDeviceComTask: function () {
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/run',Uni.I18n.translate('deviceCommunicationTask.run', 'MDC', 'Run succeeded'));
+        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/run', Uni.I18n.translate('deviceCommunicationTask.run', 'MDC', 'Run succeeded'));
     },
 
     runDeviceComTaskNow: function () {
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/runnow',Uni.I18n.translate('deviceCommunicationTask.runNow', 'MDC', 'Run now succeeded'));
+        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/runnow', Uni.I18n.translate('deviceCommunicationTask.runNow', 'MDC', 'Run now succeeded'));
     },
 
     showChangePopUp: function (menuItem) {

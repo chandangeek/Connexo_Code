@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.protocol-dialect-action-menu',
     itemId: 'protocol-dialect-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

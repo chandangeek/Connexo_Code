@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMen
     alias: 'widget.device-security-setting-action-menu',
     itemId: 'device-security-setting-action-menu',
 
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMen
             },
             {
                 text: Uni.I18n.translate('general.showEncryptedValue', 'MDC', 'Show values'),
-                privileges:Mdc.privileges.DeviceSecurity.viewLevels,
+                privileges: Mdc.privileges.DeviceSecurity.viewLevels,
                 itemId: 'showValueDeviceSecuritySetting',
                 action: 'showValueDeviceSecuritySetting',
                 hidden: true,
@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMen
             },
             {
                 text: Uni.I18n.translate('general.hideEncryptedValue', 'MDC', 'Hide values'),
-                privileges:Mdc.privileges.DeviceSecurity.viewLevels,
+                privileges: Mdc.privileges.DeviceSecurity.viewLevels,
                 itemId: 'hideValueDeviceSecuritySetting',
                 action: 'hideValueDeviceSecuritySetting',
                 hidden: true,

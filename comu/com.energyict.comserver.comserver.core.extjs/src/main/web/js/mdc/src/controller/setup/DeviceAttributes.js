@@ -151,7 +151,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         var editForm = this.getDeviceAttributesEditForm();
 
         if (editForm) {
-            if(key === 'name'){
+            if (key === 'name') {
                 key = 'name';
             }
             else if (key.indexOf('properties.')==0)
@@ -179,7 +179,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         this.goToAttributesLanding(cancelBtn.up('#device-attributes-edit').device.get('name'));
     },
 
-    goToAttributesLanding: function(deviceId) {
+    goToAttributesLanding: function (deviceId) {
         var router = this.getController('Uni.controller.history.Router'),
             route = router.previousRoute ? router.previousRoute : 'devices/device/attributes';
         router.getRoute(route).forward(Ext.isString(deviceId) ? {deviceId: deviceId} : undefined);

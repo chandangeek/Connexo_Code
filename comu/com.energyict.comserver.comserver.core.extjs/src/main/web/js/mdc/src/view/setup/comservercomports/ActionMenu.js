@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.comservercomports.ActionMenu', {
     alias: 'widget.comServerComPortsActionMenu',
     itemId: 'comServerComPortsActionMenu',
 
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'activate',

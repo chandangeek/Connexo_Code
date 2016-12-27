@@ -20,7 +20,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
         });
     },
 
-    initTabDeviceRegisterConfigurationDetailsView: function(deviceId, registerId){
+    initTabDeviceRegisterConfigurationDetailsView: function (deviceId, registerId) {
         this.deviceId = deviceId;
         this.registerId = registerId;
         this.getController('Mdc.controller.setup.DeviceRegisterConfiguration').fromSpecification = true;
@@ -34,7 +34,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
         if(this.veto===true)this.veto=false;
     },
 
-    initTabShowDeviceRegisterDataView: function(deviceId, registerId) {
+    initTabShowDeviceRegisterDataView: function (deviceId, registerId) {
         this.deviceId = deviceId;
         this.registerId = registerId;
         var c = this.getController('Mdc.controller.setup.DeviceRegisterData');

@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                 {
                     xtype: 'uni-actioncolumn',
                     privileges: Mdc.privileges.MasterData.admin,
-                    menu: { xtype: 'register-type-action-menu' }
+                    menu: {xtype: 'register-type-action-menu'}
                 }
             );
         }

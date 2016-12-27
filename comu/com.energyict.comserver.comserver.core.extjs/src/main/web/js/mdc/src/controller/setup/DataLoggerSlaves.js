@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         this.getController('Uni.controller.history.Router').getRoute('devices/device/dataloggerslaves/link').forward();
     },
 
-    showLinkWizard: function(deviceId) {
+    showLinkWizard: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
@@ -369,7 +369,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             deviceConfigValid = me.getDeviceConfigCombo().validate(),
             name = nameField.getValue(),
             formRecord = wizard.down('#deviceAdd form').getRecord(),
-            checkName = function() {
+            checkName = function () {
                 wizard.setLoading();
                 me.getStore('Mdc.store.Devices').load({
                     params: {
@@ -780,7 +780,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         });
     },
 
-    getSlaveName: function() {
+    getSlaveName: function () {
         var me = this,
             wizard = me.getWizard(),
             step1RadioGroup = wizard.down('#mdc-step1-radiogroup'),
@@ -836,7 +836,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         unlinkWindow.close();
         mainView.setLoading();
         Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-            if ( dataLoggerSlaveDeviceRecord.name === nameOfSlaveToUnlink ) {
+            if (dataLoggerSlaveDeviceRecord.name === nameOfSlaveToUnlink) {
                 dataLoggerSlaveDeviceRecord['unlinkingTimeStamp'] = unlinkDate.getTime();
             }
         }, me);

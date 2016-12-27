@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAction
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.rule-device-configuration-action-menu',
     itemId: 'device-configuration-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.view', 'MDC', 'View'),

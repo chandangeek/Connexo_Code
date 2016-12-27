@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.comportpool.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.comportpool-actionmenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'edit',

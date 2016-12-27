@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.validation.VersionActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.validation-version-actionmenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.view', 'MDC', 'View'),

@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.ActionMenu', {
     alias: 'widget.deviceLogbooksActionMenu',
     itemId: 'deviceLogbooksActionMenu',
     record: null,
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'editLogbook',
