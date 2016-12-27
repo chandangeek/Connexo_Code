@@ -252,19 +252,29 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             navigation = me.getNavigationMenu(),
             currentSteps = wizard.query('[isWizardStep=true]'),
             currentMenuItems = navigation.query('menuitem'),
-            stepNumber = 2,
             stepsToAdd = [step2],
             navigationItemsToAdd = [];
 
         Ext.suspendLayouts();
-        // remove all steps except first
-        for (var i = 1; i < currentSteps.length; i++) {
+        // remove steps depending on service category
+        for (var i = 1; i < currentSteps.length - 1; i++) {
             wizard.remove(currentSteps[i], true);
         }
         // remove all menu items except first two
         for (var j = 2; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
+        me.addCustomPropertySetsSteps(serviceCategory, stepsToAdd, navigationItemsToAdd);
+        me.addLinkMetrologyConfigurationStep(stepsToAdd, navigationItemsToAdd);
+        me.modifyLifeCycleTransitionStep(wizard, stepsToAdd, navigationItemsToAdd);
+        navigation.add(navigationItemsToAdd);
+        wizard.insert(1, stepsToAdd);
+        Ext.resumeLayouts(true);
+    },
+
+    addCustomPropertySetsSteps: function (serviceCategory, stepsToAdd, navigationItemsToAdd) {
+        var stepNumber = stepsToAdd.length + 1;
+
         serviceCategory.customPropertySets().each(function (record) {
             stepNumber++;
             stepsToAdd.push({
@@ -281,11 +291,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 text: record.get('name')
             });
         });
-        me.addLinkMetrologyConfigurationStep(stepsToAdd, navigationItemsToAdd);
-        me.addLifeCycleTransitionStep(stepsToAdd, navigationItemsToAdd);
-        navigation.add(navigationItemsToAdd);
-        wizard.add(stepsToAdd);
-        Ext.resumeLayouts(true);
     },
 
     addLinkMetrologyConfigurationStep: function (stepsToAdd, navigationItemsToAdd) {
@@ -337,20 +342,16 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         });
     },
 
-    addLifeCycleTransitionStep: function (stepsToAdd, navigationItemsToAdd) {
-        var title = Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition'),
+    modifyLifeCycleTransitionStep: function (wizard, stepsToAdd, navigationItemsToAdd) {
+        var lifeCycleTransitionStep = wizard.down('life-cycle-transition-info-form'),
+            title = Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition'),
             stepNumber = stepsToAdd.length + 1;
 
         stepNumber++;
-        stepsToAdd.push({
-            xtype: 'life-cycle-transition-info-form',
-            title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, title]),
-            navigationIndex: stepNumber,
-            stepName: 'lifeCycleTransitionInfo',
-            itemId: 'add-usage-point-step' + stepNumber,
-            ui: 'large',
-            isWizardStep: true
-        });
+
+        lifeCycleTransitionStep.setTitle(Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, title]));
+        lifeCycleTransitionStep.navigationIndex = stepNumber;
+
         navigationItemsToAdd.push({
             itemId: 'navigation-life-cycle-transition-info',
             text: title

@@ -28,6 +28,15 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                 stepName: 'generalInfo',
                 ui: 'large',
                 isPossibleAdd: me.isPossibleAdd
+            },
+            {
+                xtype: 'life-cycle-transition-info-form',
+                title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [4, Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition')]),
+                navigationIndex: 4,
+                stepName: 'lifeCycleTransitionInfo',
+                itemId: 'add-usage-point-step4',
+                ui: 'large',
+                isWizardStep: true
             }
         ];
 
