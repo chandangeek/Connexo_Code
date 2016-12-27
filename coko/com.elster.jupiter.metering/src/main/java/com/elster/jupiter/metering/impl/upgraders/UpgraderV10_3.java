@@ -2,20 +2,18 @@ package com.elster.jupiter.metering.impl.upgraders;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
-import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.InstallerV10_3Impl;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
-
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
@@ -45,6 +43,7 @@ public class UpgraderV10_3 implements Upgrader {
                          EventService eventService,
                          UserService userService,
                          InstallerV10_3Impl installerV10_3) {
+        this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.eventService = eventService;
