@@ -123,7 +123,7 @@ public class CodeTableXmlParsing {
             root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calendar.getTimeZone().getDisplayName()));
             root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calendar.getTimeZone().getDisplayName()));
             /* Todo: Extract the hard code 15 min to a parameter for this method.
-                     Calling context, i.e. the protocol or a protocol adapater
+                     com.energyict.mdc.upl.messages.legacy.Extractor#intervalInSeconds implementation
                      may need to access the available reading types,
                      sort them as:
                      favour Electricity, favour Wh over W, favour smaller intervals over larger intervals
