@@ -217,6 +217,34 @@ public final class UPLPropertySpecFactory {
         return durationPropertySpecBuilder.finish();
     }
 
+    public static PropertySpec temporalAmount(String name) {
+        return specBuilder(name, false, () -> Services.propertySpecService().temporalAmountSpec()).finish();
+    }
+
+    public static PropertySpec dateTime(String name) {
+        return specBuilder(name, false, () -> Services.propertySpecService().dateTimeSpec()).finish();
+    }
+
+    public static PropertySpec date(String name) {
+        return specBuilder(name, false, () -> Services.propertySpecService().dateSpec()).finish();
+    }
+
+    public static PropertySpec time(String name) {
+        return specBuilder(name, false, () -> Services.propertySpecService().timeSpec()).finish();
+    }
+
+    public static PropertySpec timeZone(String name) {
+        return specBuilder(name, false, () -> Services.propertySpecService().timeZoneSpec()).finish();
+    }
+
+    public static PropertySpec password(String name) {
+        return specBuilder(name, false, () -> Services.propertySpecService().passwordSpec()).finish();
+    }
+
+    public static PropertySpec reference(String name, Class apiClass) {
+        return specBuilder(name, false, () -> Services.propertySpecService().referenceSpec(apiClass.getName())).finish();
+    }
+
     public static PropertySpec encryptedString(String name, boolean required) {
         PropertySpecBuilder<String> encryptedStringPropertySpecBuilder = Services.propertySpecService().encryptedStringSpec().named(name, name).describedAs(name);
         if(required){

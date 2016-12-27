@@ -3,12 +3,18 @@ package com.energyict.mdc.channels;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TariffCalender;
 
+import com.energyict.cpo.MdwToUplPropertySpecAdapter;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -16,28 +22,28 @@ import java.util.Set;
 @SuppressWarnings("unused") // Pluggable
 public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
 
-    private final static PropertySpec BIG_DECIMAL_PROPERTY_SPEC = UPLPropertySpecFactory.bigDecimal("BigDecimal", true);
-    private final static PropertySpec BOOLEAN_PROPERTY_SPEC = UPLPropertySpecFactory.booleanValue("Boolean", true);
-    private final static PropertySpec DATE_TIME_PROPERTY_SPEC = UPLPropertySpecFactory.dateTimePropertySpec("DateTime");
-    private final static PropertySpec DATE_PROPERTY_SPEC = UPLPropertySpecFactory.datePropertySpec("MyDate");
-    private final static PropertySpec EAN_13_PROPERTY_SPEC = UPLPropertySpecFactory.ean13PropertySpec("Ean13");
-    private final static PropertySpec EAN_18_PROPERTY_SPEC = UPLPropertySpecFactory.ean18PropertySpec("Ean18");
-    private final static PropertySpec ENCRYPTED_STRING_PROPERTY_SPEC = UPLPropertySpecFactory.encryptedStringPropertySpec("EncryptedString");
-    private final static PropertySpec HEX_STRING_PROPERTY_SPEC = UPLPropertySpecFactory.hexString("HexString", true);
-    private final static PropertySpec LARGE_STRING_PROPERTY_SPEC = UPLPropertySpecFactory.largeStringPropertySpec("LargeString");
-    private final static PropertySpec OBIS_CODE_PROPERTY_SPEC = UPLPropertySpecFactory.obisCodePropertySpec("ObisCode");
-    private final static PropertySpec PASSWORD_PROPERTY_SPEC = UPLPropertySpecFactory.passwordPropertySpec("Password");
-    private final static PropertySpec SPATIAL_COORDINATES_PROPERTY_SPEC = UPLPropertySpecFactory.spatialCoordinatesPropertySpec("SpatialCoordinates");
-    private final static PropertySpec STRING_PROPERTY_SPEC = UPLPropertySpecFactory.string("String", true);
-    private final static PropertySpec TIME_DURATION_PROPERTY_SPEC = UPLPropertySpecFactory.timeDurationPropertySpec("TimeDuration");
-    private final static PropertySpec TIME_OF_DAY_PROPERTY_SPEC = UPLPropertySpecFactory.timeOfDayPropertySpec("TimeOfDay");
+    private static final PropertySpec BIG_DECIMAL_PROPERTY_SPEC = UPLPropertySpecFactory.bigDecimal("BigDecimal", true);
+    private static final PropertySpec BOOLEAN_PROPERTY_SPEC = UPLPropertySpecFactory.booleanValue("Boolean", true);
+    private static final PropertySpec DATE_TIME_PROPERTY_SPEC = UPLPropertySpecFactory.dateTime("DateTime");
+    private static final PropertySpec DATE_PROPERTY_SPEC = UPLPropertySpecFactory.date("MyDate");
+    private static final PropertySpec EAN_13_PROPERTY_SPEC = MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.ean13PropertySpec("Ean13"));
+    private static final PropertySpec EAN_18_PROPERTY_SPEC = MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.ean18PropertySpec("Ean18"));
+    private static final PropertySpec ENCRYPTED_STRING_PROPERTY_SPEC = UPLPropertySpecFactory.encryptedString("EncryptedString", true);
+    private static final PropertySpec HEX_STRING_PROPERTY_SPEC = UPLPropertySpecFactory.hexString("HexString", true);
+//    private static final PropertySpec LARGE_STRING_PROPERTY_SPEC = UPLPropertySpecFactory.largeStringPropertySpec("LargeString");
+    private static final PropertySpec OBIS_CODE_PROPERTY_SPEC = MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.obisCodePropertySpec("ObisCode"));
+    private static final PropertySpec PASSWORD_PROPERTY_SPEC = UPLPropertySpecFactory.password("Password");
+//    private static final PropertySpec SPATIAL_COORDINATES_PROPERTY_SPEC = UPLPropertySpecFactory.spatialCoordinatesPropertySpec("SpatialCoordinates");
+    private static final PropertySpec STRING_PROPERTY_SPEC = UPLPropertySpecFactory.string("String", true);
+    private static final PropertySpec TIME_DURATION_PROPERTY_SPEC = UPLPropertySpecFactory.temporalAmount("TimeDuration");
+    private static final PropertySpec TIME_OF_DAY_PROPERTY_SPEC = UPLPropertySpecFactory.time("TimeOfDay");
     //references
-    private final static PropertySpec CODE_PROPERTY_SPEC = UPLPropertySpecFactory.codeTableReferencePropertySpec("CodeTable");
-    private final static PropertySpec LOAD_PROFILE_PROPERTY_SPEC = UPLPropertySpecFactory.loadProfilePropertySpec("LoadProfile");
-    private final static PropertySpec LOAD_PROFILE_TYPE_PROPERTY_SPEC = UPLPropertySpecFactory.loadProfileTypePropertySpecByList("LoadProfileType");
-    private final static PropertySpec LOOKUP_PROPERTY_SPEC = UPLPropertySpecFactory.lookupPropertySpec("Lookup");
-    private final static PropertySpec TIME_ZONE_IN_USE_PROPERTY_SPEC = UPLPropertySpecFactory.timeZoneInUseReferencePropertySpec("TimeZoneInUse");
-    private final static PropertySpec USER_FILE_PROPERTY_SPEC = UPLPropertySpecFactory.userFileReferencePropertySpec("UserFile");
+    private static final PropertySpec CODE_PROPERTY_SPEC = UPLPropertySpecFactory.reference("CodeTable", TariffCalender.class);
+    private static final PropertySpec LOAD_PROFILE_PROPERTY_SPEC = UPLPropertySpecFactory.reference("LoadProfile", LoadProfile.class);
+//    private static final PropertySpec LOAD_PROFILE_TYPE_PROPERTY_SPEC = UPLPropertySpecFactory.loadProfileTypePropertySpecByList("LoadProfileType");
+    private static final PropertySpec LOOKUP_PROPERTY_SPEC = UPLPropertySpecFactory.reference("Lookup", NumberLookup.class);
+    private static final PropertySpec TIME_ZONE_IN_USE_PROPERTY_SPEC = UPLPropertySpecFactory.timeZone("TimeZoneInUse");
+    private static final PropertySpec USER_FILE_PROPERTY_SPEC = UPLPropertySpecFactory.reference("UserFile", DeviceMessageFile.class);
 
     @Override
     public ComChannel connect() throws ConnectionException {
@@ -61,30 +67,28 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(BIG_DECIMAL_PROPERTY_SPEC);
-        propertySpecs.add(BOOLEAN_PROPERTY_SPEC);
-        propertySpecs.add(DATE_TIME_PROPERTY_SPEC);
-        propertySpecs.add(DATE_PROPERTY_SPEC);
-        propertySpecs.add(EAN_13_PROPERTY_SPEC);
-        propertySpecs.add(EAN_18_PROPERTY_SPEC);
-        propertySpecs.add(ENCRYPTED_STRING_PROPERTY_SPEC);
-        propertySpecs.add(HEX_STRING_PROPERTY_SPEC);
-        propertySpecs.add(LARGE_STRING_PROPERTY_SPEC);
-        propertySpecs.add(OBIS_CODE_PROPERTY_SPEC);
-        propertySpecs.add(PASSWORD_PROPERTY_SPEC);
-        propertySpecs.add(SPATIAL_COORDINATES_PROPERTY_SPEC);
-        propertySpecs.add(STRING_PROPERTY_SPEC);
-        propertySpecs.add(TIME_DURATION_PROPERTY_SPEC);
-        propertySpecs.add(TIME_OF_DAY_PROPERTY_SPEC);
-        //references
-        propertySpecs.add(CODE_PROPERTY_SPEC);
-        propertySpecs.add(LOAD_PROFILE_PROPERTY_SPEC);
-        propertySpecs.add(LOAD_PROFILE_TYPE_PROPERTY_SPEC);
-        propertySpecs.add(LOOKUP_PROPERTY_SPEC);
-        propertySpecs.add(TIME_ZONE_IN_USE_PROPERTY_SPEC);
-        propertySpecs.add(USER_FILE_PROPERTY_SPEC);
-        return propertySpecs;
+        return Arrays.asList(
+                    BIG_DECIMAL_PROPERTY_SPEC,
+                    BOOLEAN_PROPERTY_SPEC,
+                    DATE_TIME_PROPERTY_SPEC,
+                    DATE_PROPERTY_SPEC,
+                    EAN_13_PROPERTY_SPEC,
+                    EAN_18_PROPERTY_SPEC,
+                    ENCRYPTED_STRING_PROPERTY_SPEC,
+                    HEX_STRING_PROPERTY_SPEC,
+//                  LARGE_STRING_PROPERTY_SPEC,
+                    OBIS_CODE_PROPERTY_SPEC,
+                    PASSWORD_PROPERTY_SPEC,
+//                    SPATIAL_COORDINATES_PROPERTY_SPEC,
+                    STRING_PROPERTY_SPEC,
+                    TIME_DURATION_PROPERTY_SPEC,
+                    TIME_OF_DAY_PROPERTY_SPEC,
+                    CODE_PROPERTY_SPEC,
+                    LOAD_PROFILE_PROPERTY_SPEC,
+//                    LOAD_PROFILE_TYPE_PROPERTY_SPEC,
+                    LOOKUP_PROPERTY_SPEC,
+                    TIME_ZONE_IN_USE_PROPERTY_SPEC,
+                    USER_FILE_PROPERTY_SPEC);
     }
 
     @Override
@@ -96,4 +100,5 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
     public ConnectionTypeDirection getDirection() {
         return ConnectionTypeDirection.OUTBOUND;
     }
+
 }
