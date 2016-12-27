@@ -33,7 +33,10 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>xmodem</artifactId>
+        </dependency>
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>

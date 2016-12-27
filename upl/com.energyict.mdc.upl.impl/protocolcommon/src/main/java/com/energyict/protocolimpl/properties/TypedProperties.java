@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.properties;
 
-import com.energyict.cbo.TimeDuration;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -296,8 +295,8 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
             if (value instanceof Boolean) {
                 Boolean flag = (Boolean) value;
                 newProps.setProperty(propertyName, flag ? "1" : "0");
-            } else if (value instanceof TimeDuration && "Timeout".equalsIgnoreCase(propertyName)){
-                newProps.setProperty(propertyName, String.valueOf(((TimeDuration) value).getMilliSeconds()));
+            } else if (value instanceof Duration && "Timeout".equalsIgnoreCase(propertyName)){
+                newProps.setProperty(propertyName, String.valueOf(((Duration) value).getSeconds() * 1000));
             }
             else  {
                 newProps.setProperty(propertyName, String.valueOf(value));

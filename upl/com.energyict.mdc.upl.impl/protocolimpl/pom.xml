@@ -42,12 +42,9 @@
             <artifactId>connectiontypes</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>xmodem</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -214,13 +211,22 @@
             </exclusions>
         </dependency>
 
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.5-FINAL</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

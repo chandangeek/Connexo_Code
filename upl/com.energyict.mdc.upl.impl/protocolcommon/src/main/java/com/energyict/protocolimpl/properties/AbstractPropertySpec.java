@@ -3,8 +3,6 @@ package com.energyict.protocolimpl.properties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 
-import com.energyict.cpo.PropertySpecPossibleValuesImpl;
-
 import java.util.Optional;
 
 /**
@@ -45,7 +43,7 @@ public abstract class AbstractPropertySpec implements PropertySpec {
 
     @Override
     public PropertySpecPossibleValues getPossibleValues() {
-        return new PropertySpecPossibleValuesImpl<>();
+        return new PropertySpecPossibleValuesImpl();
     }
 
     @SuppressWarnings("unchecked")
