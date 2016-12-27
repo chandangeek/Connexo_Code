@@ -88,6 +88,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             },
             '#add-usage-point metrology-configuration-with-meters-info-form': {
                 beforeshow: me.loadAvailableMetrologyConfigurations
+            },
+            '#add-usage-point life-cycle-transition-info-form': {
+                beforeshow: me.onLifeCycleTransitionStepShow
             }
         });
     },
@@ -313,27 +316,26 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         });
     },
 
-    loadAvailableMetrologyConfigurations: function () {
+    loadAvailableMetrologyConfigurations: function (step) {
         var me = this,
             wizard = me.getWizard(),
-            record = wizard.getRecord(),
-            linkMetrologyConfigurationWithMetersStep = wizard.down('metrology-configuration-with-meters-info-form'),
-            metrologyConfigurationCombo = linkMetrologyConfigurationWithMetersStep.down('#metrology-configuration-combo');
+            usagePoint = wizard.getRecord(),
+            metrologyConfigurationCombo = step.down('#metrology-configuration-combo');
 
         wizard.setLoading();
         Ext.Ajax.request({
             url: '/api/udr/field/metrologyconfigurations',
             method: 'POST',
-            jsonData: record.getProxy().getWriter().getRecordData(record),
+            jsonData: usagePoint.getProxy().getWriter().getRecordData(usagePoint),
             success: function (response) {
                 var linkableMetrologyConfigurationsStore = me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'),
                     availableMetrologyConfigurations = Ext.decode(response.responseText),
                     currentMetrologyConfiguration = metrologyConfigurationCombo ? metrologyConfigurationCombo.getValue() : null;
 
-                linkMetrologyConfigurationWithMetersStep.usagePoint = record;
+                step.usagePoint = usagePoint;
                 linkableMetrologyConfigurationsStore.loadData(availableMetrologyConfigurations);
                 if (!currentMetrologyConfiguration || !linkableMetrologyConfigurationsStore.getById(currentMetrologyConfiguration.id)) {
-                    linkMetrologyConfigurationWithMetersStep.prepareStep(!Ext.isEmpty(availableMetrologyConfigurations));
+                    step.prepareStep(!Ext.isEmpty(availableMetrologyConfigurations));
                 }
             },
             callback: function () {
@@ -356,5 +358,12 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             itemId: 'navigation-life-cycle-transition-info',
             text: title
         });
+    },
+
+    onLifeCycleTransitionStepShow: function (step) {
+        var me = this,
+            wizard = me.getWizard();
+
+        step.usagePoint = wizard.getRecord();
     }
 });
