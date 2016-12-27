@@ -22,6 +22,8 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
@@ -41,19 +43,21 @@ public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final Clock clock;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
-                          MetrologyConfigurationService metrologyConfigurationService, Clock clock) {
+                          MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleService usagePointLifeCycleService, Clock clock) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.clock = clock;
     }
 
@@ -206,6 +210,10 @@ public class ResourceHelper {
                     });
             linker.complete();
         }
+    }
+
+    public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
+        return usagePointLifeCycleService.getAvailableTransitions(usagePoint.getState(), "INS");
     }
 
     public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {

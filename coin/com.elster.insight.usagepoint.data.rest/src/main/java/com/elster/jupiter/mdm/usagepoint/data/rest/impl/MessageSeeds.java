@@ -45,7 +45,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CALENDAR(44, "NoSuchCalendar", "No such calendar."),
     NO_APPSERVER(45, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
     NO_SUCH_MESSAGE_QUEUE(46, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
-    BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}");
+    BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}"),
+    INVALID_ACTIVATION_TIME_OF_METER_ROLE(48, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point");
 
     private final int number;
     private final String key;
