@@ -35,6 +35,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
                         xtype: 'combo-returned-record-data',
                         name: 'id',
                         itemId: 'life-cycle-transition-combo',
+                        store: 'Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitions',
                         displayField: 'name',
                         valueField: 'id',
                         queryMode: 'local',

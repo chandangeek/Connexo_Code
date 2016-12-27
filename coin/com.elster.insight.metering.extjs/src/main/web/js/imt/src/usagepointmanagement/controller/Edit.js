@@ -38,7 +38,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         'Imt.usagepointmanagement.store.measurementunits.Capacity',
         'Imt.usagepointmanagement.store.measurementunits.EstimationLoad',
         'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations',
-        'Imt.usagepointmanagement.store.MeterActivations'
+        'Imt.usagepointmanagement.store.MeterActivations',
+        'Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitions'
     ],
 
     refs: [
@@ -94,7 +95,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 beforeshow: me.loadAvailableMetrologyConfigurations
             },
             '#add-usage-point life-cycle-transition-info-form': {
-                beforeshow: me.onLifeCycleTransitionStepShow
+                beforeshow: me.loadAvailableTransitions
             }
         });
     },
@@ -340,7 +341,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         }
         me.addCustomPropertySetsSteps(serviceCategory, stepsToAdd, navigationItemsToAdd, stepsToAdd.length + 1);
         me.addLinkMetrologyConfigurationStep(stepsToAdd, navigationItemsToAdd);
-        me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, stepsToAdd.length + 1);
+        me.modifyLifeCycleTransitionStep(wizard, navigationItemsToAdd, stepsToAdd.length + 2);
         navigation.add(navigationItemsToAdd);
         wizard.insert(1, stepsToAdd);
         Ext.resumeLayouts(true);
@@ -425,10 +426,26 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         });
     },
 
-    onLifeCycleTransitionStepShow: function (step) {
+    loadAvailableTransitions: function (step) {
         var me = this,
-            wizard = me.getWizard();
+            transitionStore = me.getStore('Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitions'),
+            wizard = me.getWizard(),
+            usagePoint = wizard.getRecord();
 
-        step.usagePoint = wizard.getRecord();
+        step.usagePoint = usagePoint;
+        wizard.setLoading();
+        Ext.Ajax.request({
+            url: '/api/udr/field/transitions/ ',
+            method: 'POST',
+            jsonData: usagePoint.getProxy().getWriter().getRecordData(usagePoint),
+            success: function (response) {
+                var availableTransitions = Ext.decode(response.responseText);
+
+                transitionStore.loadData(availableTransitions);
+            },
+            callback: function () {
+                wizard.setLoading(false)
+            }
+        });
     }
 });
