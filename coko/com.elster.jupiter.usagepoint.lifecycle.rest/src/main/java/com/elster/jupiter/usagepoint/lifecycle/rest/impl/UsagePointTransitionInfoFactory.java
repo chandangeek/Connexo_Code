@@ -3,6 +3,7 @@ package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
 import javax.inject.Inject;

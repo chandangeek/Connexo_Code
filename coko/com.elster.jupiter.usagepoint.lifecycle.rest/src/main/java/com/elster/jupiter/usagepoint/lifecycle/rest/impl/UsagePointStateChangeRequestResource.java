@@ -18,6 +18,7 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
 import javax.inject.Inject;

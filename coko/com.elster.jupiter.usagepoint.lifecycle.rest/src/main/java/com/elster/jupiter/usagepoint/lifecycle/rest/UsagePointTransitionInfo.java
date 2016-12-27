@@ -1,6 +1,7 @@
-package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
+package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.impl.UsagePointStateChangeRequestInfo;
 
 import java.time.Instant;
 import java.util.List;

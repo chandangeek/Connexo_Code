@@ -5,7 +5,6 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.impl.UsagePointStateChangeRequestInfo;
-import com.elster.jupiter.usagepoint.lifecycle.rest.impl.UsagePointTransitionInfo;
 import com.elster.jupiter.users.User;
 
 import com.jayway.jsonpath.JsonModel;
