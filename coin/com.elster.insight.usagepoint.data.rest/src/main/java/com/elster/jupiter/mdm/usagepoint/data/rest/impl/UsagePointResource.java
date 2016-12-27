@@ -31,7 +31,9 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -56,10 +58,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
-import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.TemporalAmountComparator;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -98,7 +101,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -157,6 +159,7 @@ public class UsagePointResource {
     private final TransactionService transactionService;
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TimeService timeService,
@@ -177,7 +180,8 @@ public class UsagePointResource {
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                               DataValidationTaskInfoFactory dataValidationTaskInfoFactory, TransactionService transactionService,
-                              UsagePointLifeCycleService usagePointLifeCycleService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+                              UsagePointLifeCycleService usagePointLifeCycleService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
+                              PropertyValueInfoService propertyValueInfoService) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -207,6 +211,7 @@ public class UsagePointResource {
         this.transactionService = transactionService;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     @GET
@@ -829,11 +834,15 @@ public class UsagePointResource {
                 .isEmpty();
     }
 
-    private void performLifeCycleTransition(UsagePointLifeCycleTransitionInfo transitionToPerform, UsagePoint usagePoint) {
+    private void performLifeCycleTransition(UsagePointTransitionInfo transitionToPerform, UsagePoint usagePoint) {
         if (transitionToPerform != null) {
             UsagePointTransition transition = usagePointLifeCycleConfigurationService.findUsagePointTransition(transitionToPerform.id)
                     .get();
-            usagePointLifeCycleService.performTransition(usagePoint, transition, "INS", new HashMap<>());
+            Map<String, Object> propertiesMap = DecoratedStream.decorate(transition.getActions().stream())
+                    .flatMap(microAction -> microAction.getPropertySpecs().stream())
+                    .distinct(PropertySpec::getName)
+                    .collect(Collectors.toMap(PropertySpec::getName, propertySpec -> this.propertyValueInfoService.findPropertyValue(propertySpec, transitionToPerform.properties)));
+            usagePointLifeCycleService.performTransition(usagePoint, transition, "INS", propertiesMap);
         }
     }
 
