@@ -4,6 +4,7 @@ import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
@@ -237,7 +238,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     }
 
     @Override
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return getMessages().getMessageCategories();
     }
 

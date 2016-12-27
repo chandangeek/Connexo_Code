@@ -10,6 +10,7 @@
 package com.energyict.protocolimpl.siemens7ED62;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -17,10 +18,8 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
@@ -29,6 +28,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
 import java.io.ByteArrayOutputStream;
@@ -38,15 +38,20 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 // KV 06092005 WVEM
 
@@ -426,60 +431,51 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         throw new UnsupportedException();
     }
 
-    @Override
-    public String getVersion() {
-        return getProtocolVersion();
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        List<com.energyict.mdc.upl.properties.PropertySpec> specs = new ArrayList<>();
+        this.getIntegerPropertyNames()
+                .stream()
+                .map(name -> UPLPropertySpecFactory.integer(name, false))
+                .forEach(specs::add);
+        specs.add(UPLPropertySpecFactory.string(ADDRESS.getName(), false));
+        specs.add(UPLPropertySpecFactory.string("MeterClass", false));
+        specs.add(UPLPropertySpecFactory.string(NODEID.getName(), false));
+        specs.add(UPLPropertySpecFactory.string("Software7E1", false));
+        return specs;
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
+    private List<String> getIntegerPropertyNames() {
+        List<String> result = new ArrayList<>();
+        result.add(PROFILEINTERVAL.getName());
+        result.add(TIMEOUT.getName());
+        result.add(RETRIES.getName());
+        result.add(ROUNDTRIPCORRECTION.getName());
+        result.add("EchoCancelling");
+        result.add("RemovePowerOutageIntervals");
+        result.add("ForcedDelay");
+        result.add("ChannelMap");
+        result.add("TimeSetMethod");
+        return result;
     }
 
-    @Override
-    public List<String> getRequiredKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "EchoCancelling",
-                    "MeterClass",
-                    "RemovePowerOutageIntervals",
-                    "LogBookReadCommand",
-                    "ForcedDelay",
-                    "ChannelMap",
-                    "TimeSetMethod",
-                    "Software7E1");
-    }
-
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+    private void validateProperties(Properties properties) throws InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredProperties().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
-                if (properties.getProperty(key) == null) {
-                    throw new MissingPropertyException(key + " key missing");
-                }
-            }
-            strID = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            iProfileInterval = Integer.parseInt(properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL.getName(), "900").trim()); // configured profile interval in seconds
+            strID = properties.getProperty(ADDRESS.getName());
+            iProfileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "900").trim()); // configured profile interval in seconds
 
-            iSCTMTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "2").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+            iSCTMTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "2").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
             iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
             strMeterClass = properties.getProperty("MeterClass", "1");
-            nodeId = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+            nodeId = properties.getProperty(NODEID.getName(), "");
             removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals", "0").trim()) == 1;
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "100"));
             nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap", "6"));
             timeSetMethod = Integer.parseInt(properties.getProperty("TimeSetMethod", "0").trim());
-            software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
+            throw new InvalidPropertyException(this.getClass().getSimpleName() + ", validateProperties, NumberFormatException, " + e.getMessage());
         }
     }
 
@@ -514,23 +510,10 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     }
 
     public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        validateProperties(properties);
+        validateProperties(properties.toStringProperties());
     }
 
-    public Object getCache() {
-        return null;
-    }
-
-    public Object fetchCache(int deviceId) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-        return null;
-    }
-
-    public void setCache(Object cacheObject) {
-    }
-
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-    }
-
+    @Override
     public void release() throws IOException {
     }
 

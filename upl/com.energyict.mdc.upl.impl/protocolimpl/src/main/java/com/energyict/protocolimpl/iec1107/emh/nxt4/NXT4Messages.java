@@ -32,7 +32,7 @@ public class NXT4Messages implements MessageProtocol {
         this.meterProtocol = meterProtocol;
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> theCategories = new ArrayList<>();
 
         MessageCategorySpec catResetMessages = new MessageCategorySpec(RtuMessageCategoryConstants.DEMANDRESET);
