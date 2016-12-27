@@ -3,6 +3,7 @@ package com.energyict.mdc.upl.meterdata;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A CollectedMessageList identifies a list of {@link com.energyict.mdc.upl.messages.DeviceMessage}s
@@ -28,6 +29,11 @@ public interface CollectedMessageList extends CollectedData {
 
     List<CollectedMessage> getCollectedMessages();
 
-    List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier);
+    default List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier) {
+        return getCollectedMessages()
+                .stream()
+                .filter(each -> messageIdentifier.equals(each.getMessageIdentifier()))
+                .collect(Collectors.toList());
+    }
 
 }
