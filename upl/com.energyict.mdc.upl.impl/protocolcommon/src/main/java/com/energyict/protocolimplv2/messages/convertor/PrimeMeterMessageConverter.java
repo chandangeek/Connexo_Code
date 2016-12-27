@@ -46,11 +46,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmw
  */
 public class PrimeMeterMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public PrimeMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -86,7 +83,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(contractsXmlUserFileAttributeName)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute);   //String = XML content in the userfile
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute);   //String = XML content in the userfile
         } else if (propertySpec.getName().equals(activationDatedAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(MulticastAddress1AttributeName)
@@ -94,7 +91,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute);
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newReadingClientPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newFirmwareClientPasswordAttributeName)) {

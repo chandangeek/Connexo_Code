@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -28,20 +30,26 @@ import java.util.List;
 public class AbstractDlmsMessaging {
 
     private final AbstractDlmsProtocol protocol;
+    private final Extractor extractor;
 
     public static final String SEPARATOR = ";";
 
-    public AbstractDlmsMessaging(AbstractDlmsProtocol protocol) {
+    public AbstractDlmsMessaging(AbstractDlmsProtocol protocol, Extractor extractor) {
         this.protocol = protocol;
+        this.extractor = extractor;
     }
 
     public AbstractDlmsProtocol getProtocol() {
         return protocol;
     }
 
+    protected Extractor getExtractor() {
+        return extractor;
+    }
+
     protected String convertCodeTableToXML(Code messageAttribute) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }
@@ -49,7 +57,7 @@ public class AbstractDlmsMessaging {
 
     protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 1, "");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 1, "");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

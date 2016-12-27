@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -38,8 +39,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.power
  */
 public class A1440MessageConverter extends AbstractMessageConverter {
 
-    public A1440MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public A1440MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override

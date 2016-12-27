@@ -825,7 +825,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             Date actDate = new Date(Long.valueOf(activationDate));
             if (!codeId.isEmpty()) {
                 try {
-                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder).parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
+                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder, extractor).parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
                     addChildTag(builder, RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException e) {
                     idis.getLogger().severe(e.getMessage());

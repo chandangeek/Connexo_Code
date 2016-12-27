@@ -160,7 +160,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     private WebRTUZ3Messaging getMessaging() {
         if (webRTUZ3Messaging == null) {
-            webRTUZ3Messaging = new WebRTUZ3Messaging(this);
+            webRTUZ3Messaging = new WebRTUZ3Messaging(this, propertySpecService, nlsService, converter);
         }
         return webRTUZ3Messaging;
     }

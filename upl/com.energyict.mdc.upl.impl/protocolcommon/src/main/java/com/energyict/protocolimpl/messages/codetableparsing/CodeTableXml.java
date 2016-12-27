@@ -7,25 +7,28 @@ package com.energyict.protocolimpl.messages.codetableparsing;
  * Time: 10:30
  */
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalender;
 
+import com.google.common.collect.Range;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.time.Year;
 
 /**
- * Parser object to convert the structure of a CodeTable to an XML format.
+ * Parser object to convert the structure of a CodeTable to XML format.
  * <p/>
  * Copyrights EnergyICT
  */
 public class CodeTableXml extends CodeTableXmlParsing {
 
-    public CodeTableXml(TariffCalendarFinder finder) {
-        super(finder);
+    public CodeTableXml(TariffCalendarFinder finder, Extractor extractor) {
+        super(finder, extractor);
     }
 
     /**
@@ -44,7 +47,8 @@ public class CodeTableXml extends CodeTableXmlParsing {
     public String parseActivityCalendarAndSpecialDayTable(String id, long activationTime) throws ParserConfigurationException {
         TariffCalender calendar = getCalendar(id).orElseThrow(() -> new IllegalArgumentException("Tariff calendar with id " + id + " not found!"));
 
-        CodeTableParser ctp = new CodeTableParser(calendar);
+        Extractor extractor = this.getExtractor();
+        CodeTableParser ctp = new CodeTableParser(calendar, extractor);
         try {
             ctp.parse();
 
@@ -58,14 +62,23 @@ public class CodeTableXml extends CodeTableXmlParsing {
              We use the name of the calendar as activityCalendarName
              This way we can track the calendars in the devices
               */
-            root.appendChild(createSingleElement(document, rootActCalendarName, calendar.getName()));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calendar.getDefinitionTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calendar.getDestinationTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(calendar.getIntervalInSeconds())));
-            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(calendar.getYearFrom())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calendar.getYearTo())));
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(calendar.getSeasonSetId())));
+            root.appendChild(createSingleElement(document, rootActCalendarName, extractor.name(calendar)));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, extractor.definitionTimeZone(calendar).getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, extractor.destinationTimeZone(calendar).getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(extractor.intervalInSeconds(calendar))));
+            Range<Year> range = extractor.range(calendar);
+            if (range.hasLowerBound()) {
+                root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(range.lowerEndpoint().getValue())));
+            } else {
+                root.appendChild(createSingleElement(document, codeTableFromYear, "1980"));
+            }
+            if (range.hasUpperBound()) {
+                root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(range.upperEndpoint().getValue())));
+                root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
+            } else {
+            }
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calendar)));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);
             rootActCalendar.appendChild(convertSeasonProfileToXml(ctp.getSeasonProfiles(), document));

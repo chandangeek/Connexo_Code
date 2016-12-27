@@ -1,6 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
@@ -20,8 +26,8 @@ import java.util.List;
  */
 public class AM540Messaging extends AM130Messaging {
 
-    public AM540Messaging(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public AM540Messaging(AbstractDlmsProtocol protocol, Extractor extractor, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(protocol, extractor, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter);
     }
 
     protected IDISMessageExecutor getMessageExecutor() {
@@ -33,67 +39,64 @@ public class AM540Messaging extends AM130Messaging {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if (supportedMessages == null) {
-            supportedMessages = new ArrayList<>();
-            addSupportedDeviceMessages(supportedMessages);
-        }
-        return supportedMessages;
+        return addSupportedDeviceMessages(new ArrayList<>());
     }
 
     @Override
-    protected void addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
+    protected List<DeviceMessageSpec> addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         addCommonDeviceMessages(supportedMessages);
         addAlarmConfigurationMessages(supportedMessages);
         addContactorDeviceMessages(supportedMessages);
         addPLCConfigurationDeviceMessages(supportedMessages);
         addAdditionalDeviceMessages(supportedMessages);
-        supportedMessages.add(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR);
-        supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT);
-        supportedMessages.add(LoadProfileMessage.SET_DISPLAY_ON_OFF);
+        supportedMessages.add(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_OPT_IN_OUT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(LoadProfileMessage.SET_DISPLAY_ON_OFF.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        return supportedMessages;
     }
 
     private void addAdditionalDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
-        supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware);
-        supportedMessages.add(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER);
+        supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
     }
 
     @Override
     protected void addAlarmConfigurationMessages(List<DeviceMessageSpec> supportedMessages) {
         super.addAlarmConfigurationMessages(supportedMessages);
-        supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS);
+        supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
     }
 
     private void addPLCConfigurationDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         // PLC configuration - G3-PLC MAC setup
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacA);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacK);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxBe);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacA.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMacK.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxBe.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
 
         // PLC configuration - G3-PLC MAC 6LoWPAN layer setup
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetCoordShortAddress);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetDisableDefaultRouting);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetDeviceType);
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetCoordShortAddress.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetDisableDefaultRouting.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.SetDeviceType.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
 
         // PLC configuration - Miscellaneous
-        supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters);
-        supportedMessages.add(PLCConfigurationDeviceMessage.WritePlcG3Timeout);
-        supportedMessages.add(PLCConfigurationDeviceMessage.ConfigurePLcG3KeepAlive);
+        supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.WritePlcG3Timeout.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(PLCConfigurationDeviceMessage.ConfigurePLcG3KeepAlive.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
     }
 }

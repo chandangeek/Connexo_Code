@@ -42,11 +42,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month
  */
 public class SmartZmdMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public SmartZmdMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -64,7 +61,7 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
             return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
             TariffCalender calender = (TariffCalender) messageAttribute;
-            return this.extractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender); //The ID and the XML representation of the code table, separated by a |
+            return this.getExtractor().id(calender) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender); //The ID and the XML representation of the code table, separated by a |
         }
         return EMPTY_FORMAT;
     }

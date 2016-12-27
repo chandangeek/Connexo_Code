@@ -44,11 +44,8 @@ import java.util.Map;
  */
 public class EIWebPlusMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public EIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -58,7 +55,7 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.PricingInformationUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.nodeListUserFile)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("US-ASCII"));
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName("US-ASCII"));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         }

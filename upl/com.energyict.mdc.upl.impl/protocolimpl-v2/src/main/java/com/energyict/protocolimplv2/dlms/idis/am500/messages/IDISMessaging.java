@@ -1,14 +1,18 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
-import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -26,7 +30,7 @@ import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -53,47 +57,72 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.under
  */
 public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    protected List<DeviceMessageSpec> supportedMessages;
-
     protected IDISMessageExecutor messageExecutor;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public IDISMessaging(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public IDISMessaging(AbstractDlmsProtocol protocol, Extractor extractor, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(protocol, extractor);
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+    }
+
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
+    protected Converter getConverter() {
+        return converter;
     }
 
     protected IDISMessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            this.messageExecutor = new IDISMessageExecutor(getProtocol(), collectedDataFactory);
+            this.messageExecutor = new IDISMessageExecutor(getProtocol(), this.collectedDataFactory, this.issueFactory);
         }
         return messageExecutor;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if (supportedMessages == null) {
-            supportedMessages = new ArrayList<>();
-            supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
-            supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
-            supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS);
-            supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS);
-            supportedMessages.add(AlarmConfigurationMessage.WRITE_ALARM_FILTER);
-            supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION);
-            supportedMessages.add(ContactorDeviceMessage.CLOSE_RELAY);
-            supportedMessages.add(ContactorDeviceMessage.OPEN_RELAY);
-            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-            supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
-            supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS);
-            supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR);
-            supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1);
-            supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2);
-            supportedMessages.add(MBusSetupDeviceMessage.Commission);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetTimeoutNotAddressed);
-            supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION);
-        }
-        return supportedMessages;
+        return Arrays.asList(
+                    ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(this.propertySpecService, this.nlsService, this.converter),
+                    ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.get(this.propertySpecService, this.nlsService, this.converter),
+                    AlarmConfigurationMessage.RESET_ALL_ALARM_BITS.get(this.propertySpecService, this.nlsService, this.converter),
+                    AlarmConfigurationMessage.RESET_ALL_ERROR_BITS.get(this.propertySpecService, this.nlsService, this.converter),
+                    AlarmConfigurationMessage.WRITE_ALARM_FILTER.get(this.propertySpecService, this.nlsService, this.converter),
+                    GeneralDeviceMessage.WRITE_FULL_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
+                    ContactorDeviceMessage.CLOSE_RELAY.get(this.propertySpecService, this.nlsService, this.converter),
+                    ContactorDeviceMessage.OPEN_RELAY.get(this.propertySpecService, this.nlsService, this.converter),
+                    ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter),
+                    ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter),
+                    ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter),
+                    ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter),
+                    ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE.get(this.propertySpecService, this.nlsService, this.converter),
+                    LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS.get(this.propertySpecService, this.nlsService, this.converter),
+                    LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR.get(this.propertySpecService, this.nlsService, this.converter),
+                    LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1.get(this.propertySpecService, this.nlsService, this.converter),
+                    LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2.get(this.propertySpecService, this.nlsService, this.converter),
+                    MBusSetupDeviceMessage.Commission.get(this.propertySpecService, this.nlsService, this.converter),
+                    PLCConfigurationDeviceMessage.SetTimeoutNotAddressed.get(this.propertySpecService, this.nlsService, this.converter),
+                    FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
@@ -107,7 +136,7 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)
                 || propertySpec.getName().equals(contactorActivationDateAttributeName)
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
@@ -136,7 +165,8 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
+
 }

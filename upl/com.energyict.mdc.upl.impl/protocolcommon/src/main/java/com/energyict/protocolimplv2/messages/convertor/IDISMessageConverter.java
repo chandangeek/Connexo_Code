@@ -75,8 +75,6 @@ public class IDISMessageConverter extends AbstractMessageConverter {
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd/mm/yyyy hh:mm");
 
-    private final Extractor extractor;
-
     private static String[] getLimiterAttributes() {
         String[] result = new String[10];
         result[0] = "Monitored value (1: Total inst. current, 2: Avg A+ (sliding demand), 3: Avg total A (sliding demand))";
@@ -93,8 +91,7 @@ public class IDISMessageConverter extends AbstractMessageConverter {
     }
 
     public IDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -120,10 +117,10 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((TariffCalender) messageAttribute);
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
-            return ((Boolean) messageAttribute).toString();
+            return messageAttribute.toString();
         } else if (propertySpec.getName().equals(configUserFileAttributeName)
                 || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(monitoredValueAttributeName)) {
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {

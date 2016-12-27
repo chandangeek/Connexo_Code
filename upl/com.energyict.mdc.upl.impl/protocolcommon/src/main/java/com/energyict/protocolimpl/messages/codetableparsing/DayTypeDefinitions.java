@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 
 /**
- * Describes 1 DayType definition.
+ * Describes 1 CalendarDayType definition.
  * Each definition contains a tariffCode + hour/min/sec
  */
 class DayTypeDefinitions {
@@ -13,17 +13,11 @@ class DayTypeDefinitions {
     final int minute;
     final int seconds;
 
-    /**
-     * Constructor with a CodeDayTypeDef as argument
-     *
-     * @param codeDayTypeDef the given CodeDayType definition
-     */
-    public DayTypeDefinitions(CodeDayTypeDef codeDayTypeDef) {
-        this.tariffcode = codeDayTypeDef.getCodeValue();
-        int tStamp = codeDayTypeDef.getTstampFrom();
-        this.hour = tStamp / 10000;
-        this.minute = (tStamp - hour * 10000) / 100;
-        this.seconds = tStamp - (hour * 10000) - (minute * 100);
+    DayTypeDefinitions(Extractor.CalendarDayTypeSlice slice) {
+        this.tariffcode = Integer.parseInt(slice.tariffCode());
+        this.hour = slice.start().getHour();
+        this.minute = slice.start().getMinute();
+        this.seconds = slice.start().getSecond();
     }
 
     /**

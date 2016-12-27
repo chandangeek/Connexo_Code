@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
@@ -38,12 +39,18 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final Extractor extractor;
 
-    protected AbstractMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    protected AbstractMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         this.messagingProtocol = messagingProtocol;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.extractor = extractor;
+    }
+
+    protected Extractor getExtractor() {
+        return extractor;
     }
 
     /**
@@ -81,7 +88,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
      */
     protected String convertCodeTableToXML(TariffCalender messageAttribute) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }
@@ -89,7 +96,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
 
     protected String convertSpecialDaysCodeTableToXML(TariffCalender messageAttribute) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 1, "");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 1, "");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

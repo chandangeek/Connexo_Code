@@ -50,7 +50,7 @@ public class TimeOfUseMessageBuilder extends com.energyict.messaging.TimeOfUseMe
         builder.append(">");
         if (!getCodeId().isEmpty()) {
             try {
-                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder()).parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
+                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), extractor).parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
                 addChildTag(builder, getTagCode(), getCodeId());
                 addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
             } catch (ParserConfigurationException | IOException e) {

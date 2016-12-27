@@ -46,11 +46,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month
  */
 public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public ActarisSL7000MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -84,7 +81,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:
                 TariffCalender calender = (TariffCalender) messageAttribute;
-                return this.extractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
+                return this.getExtractor().id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
             default:
                 return messageAttribute.toString();
         }
@@ -96,7 +93,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
      */
     protected String encode(TariffCalender calender) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calender, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calender, this.getExtractor(), 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

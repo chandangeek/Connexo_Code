@@ -50,18 +50,15 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
 
     private static final String ActivationDate = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
 
-    private final Extractor extractor;
-
     public ZigbeeGasMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.PricingInformationUserFileAttributeName:
-                return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
+                return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
             case DeviceMessageConstants.DisplayMessageActivationDate:
             case DeviceMessageConstants.ConfigurationChangeActivationDate:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
@@ -69,12 +66,12 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                return this.extractor.id((DeviceMessageFile) messageAttribute);
+                return this.getExtractor().id((DeviceMessageFile) messageAttribute);
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:
                 TariffCalender calender = (TariffCalender) messageAttribute;
-                return this.extractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
+                return this.getExtractor().id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
             default:
                 return messageAttribute.toString();
         }
@@ -124,7 +121,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
      */
     protected String encode(TariffCalender calender) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calender, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calender, this.getExtractor(), 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

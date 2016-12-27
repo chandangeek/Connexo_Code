@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -56,8 +57,8 @@ public class A1MessageConverter extends AbstractMessageConverter {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public A1MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
+    public A1MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -121,8 +122,8 @@ public class A1MessageConverter extends AbstractMessageConverter {
             LocalTime timeOfDay = (LocalTime) messageAttribute;
             return String.format("%02d", timeOfDay.getHour()) + ":" + String.format("%02d", timeOfDay.getMinute()) + ":" + String.format("%02d", timeOfDay.getSecond());
         } else if (propertySpec.getName().equals(XmlUserFileAttributeName) || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
-            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+            DeviceMessageFile deviceMessageFile = (DeviceMessageFile) messageAttribute;
+            return this.getExtractor().contents(deviceMessageFile);  //Bytes of the deviceMessageFile, as a string
         } else {
             return messageAttribute.toString();
         }

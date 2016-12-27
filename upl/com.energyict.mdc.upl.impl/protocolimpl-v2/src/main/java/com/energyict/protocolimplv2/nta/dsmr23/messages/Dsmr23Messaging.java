@@ -1,15 +1,17 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.Lookup;
@@ -21,6 +23,7 @@ import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
@@ -76,7 +79,9 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
 
 
     private final AbstractMessageExecutor messageExecutor;
-    private List<DeviceMessageSpec> supportedMessages;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
     /**
      * Boolean indicating whether or not to show the MBus related messages in EIServer
@@ -103,94 +108,97 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
      */
     protected boolean supportResetWindow = true;
 
-    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor) {
-        super(messageExecutor.getProtocol());
+    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(messageExecutor.getProtocol(), extractor);
         this.messageExecutor = messageExecutor;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
+    protected Converter getConverter() {
+        return converter;
+    }
+
+    protected DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
+        return supplier.get(this.propertySpecService, this.nlsService, this.converter);
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        if (supportedMessages == null) {
-            supportedMessages = new ArrayList<>();
+        List<DeviceMessageSpec> supportedMessages = new ArrayList<>();
+        supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE));
+        supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE));
+        supportedMessages.add(this.get(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1));
+        supportedMessages.add(this.get(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND));
+        supportedMessages.add(this.get(ClockDeviceMessage.SET_TIME));
+        supportedMessages.add(this.get(AdvancedTestMessage.XML_CONFIG));
+        supportedMessages.add(this.get(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION));
+        supportedMessages.add(this.get(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL));
+        supportedMessages.add(this.get(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY));
+        supportedMessages.add(this.get(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY));
+        supportedMessages.add(this.get(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD));
+        supportedMessages.add(this.get(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST));
+        supportedMessages.add(this.get(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST));
 
-            // firmware upgrade related
-            supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
-            supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE);
+        // contactor related
+        if (getProtocol().hasBreaker()) {
+            supportedMessages.add(this.get(ContactorDeviceMessage.CONTACTOR_OPEN));
+            supportedMessages.add(this.get(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE));
+            supportedMessages.add(this.get(ContactorDeviceMessage.CONTACTOR_CLOSE));
+            supportedMessages.add(this.get(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE));
+            supportedMessages.add(this.get(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE));
+        }
 
-            // display P1
-            supportedMessages.add(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1);
-            supportedMessages.add(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1);
+        // Load balance
+        if (supportLimiter) {
+            supportedMessages.add(this.get(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS));
+            supportedMessages.add(this.get(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS));
+            supportedMessages.add(this.get(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION));
+        }
 
-            // activity calendar related
-            supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND);
-            supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
-            supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
+        // Device Actions
+        if (supportMeterReset) {
+            supportedMessages.add(this.get(DeviceActionMessage.GLOBAL_METER_RESET));
+        }
 
-            // clock related
-            supportedMessages.add(ClockDeviceMessage.SET_TIME);
+        // network and connectivity
+        if (supportGPRS) {
+            supportedMessages.add(this.get(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM));
+            supportedMessages.add(this.get(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP));
+            supportedMessages.add(this.get(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS));
+            supportedMessages.add(this.get(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS));
+            supportedMessages.add(this.get(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST));
+        }
 
-            // Advanced test
-            supportedMessages.add(AdvancedTestMessage.XML_CONFIG);
+        // MBus setup
+        if (supportMBus) {
+            supportedMessages.add(this.get(MBusSetupDeviceMessage.Commission_With_Channel));
+            supportedMessages.add(this.get(MBusSetupDeviceMessage.MBusClientRemoteCommission));
+            supportedMessages.add(this.get(MBusSetupDeviceMessage.ChangeMBusAttributes));
+        }
 
-            // security related
-            supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
-            supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
-            supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY);
-            supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY);
-            supportedMessages.add(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD);
-
-            // LoadProfiles
-            supportedMessages.add(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST);
-            supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST);
-
-            // contactor related
-            if (getProtocol().hasBreaker()) {
-                supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-                supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-                supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-                supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-                supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
-            }
-
-            // Load balance
-            if (supportLimiter) {
-                supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS);
-                supportedMessages.add(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS);
-                supportedMessages.add(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION);
-            }
-
-            // Device Actions
-            if (supportMeterReset) {
-                supportedMessages.add(DeviceActionMessage.GLOBAL_METER_RESET);
-            }
-
-            // network and connectivity
-            if (supportGPRS) {
-                supportedMessages.add(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM);
-                supportedMessages.add(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP);
-                supportedMessages.add(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS);
-                supportedMessages.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
-                supportedMessages.add(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST);
-            }
-
-            // MBus setup
-            if (supportMBus) {
-                supportedMessages.add(MBusSetupDeviceMessage.Commission_With_Channel);
-                supportedMessages.add(MBusSetupDeviceMessage.MBusClientRemoteCommission);
-                supportedMessages.add(MBusSetupDeviceMessage.ChangeMBusAttributes);
-            }
-
-            // reset
-            supportedMessages.add(DeviceActionMessage.ALARM_REGISTER_RESET);
-            if (supportResetWindow) {
-                supportedMessages.add(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow);
-            }
+        // reset
+        supportedMessages.add(this.get(DeviceActionMessage.ALARM_REGISTER_RESET));
+        if (supportResetWindow) {
+            supportedMessages.add(this.get(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow));
         }
         return supportedMessages;
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case UserFileConfigAttributeName:
             case firmwareUpdateUserFileAttributeName:
@@ -232,7 +240,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
@@ -269,4 +277,5 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     protected AbstractMessageExecutor getMessageExecutor() {
         return messageExecutor;
     }
+
 }

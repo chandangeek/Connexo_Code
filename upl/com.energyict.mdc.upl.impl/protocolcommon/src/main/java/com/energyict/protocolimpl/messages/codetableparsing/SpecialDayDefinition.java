@@ -1,65 +1,39 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 
 /**
  * Describes 1 SpecialDay.
- * Each specialDay contains a start -year/-month/-day and a DayType ID
+ * Each specialDay contains a start -year/-month/-day and a CalendarDayType ID
  */
 class SpecialDayDefinition {
 
-    final int year;
-    final int month;
-    final int day;
-    final int dayTypeId;
-    private CodeTableParser codeTableParser;
+    private final int year;
+    private final int month;
+    private final int day;
+    private final int dayTypeId;
 
-    /**
-     * Constructor
-     *
-     * @param codeCalendar a CodeCalendar with a '0' season-code
-     */
-    public SpecialDayDefinition(CodeTableParser codeTableParser, CodeCalendar codeCalendar) {
-        this.codeTableParser = codeTableParser;
-        this.dayTypeId = codeTableParser.getDayIDValue(codeCalendar.getDayType().getId());
-        this.year = codeCalendar.getYear();
-        this.month = codeCalendar.getMonth();
-        this.day = codeCalendar.getDay();
+    SpecialDayDefinition(CodeTableParser codeTableParser, Extractor.CalendarRule rule) {
+        this.dayTypeId = codeTableParser.getDayIDValue(rule.dayTypeId());
+        this.year = rule.year();
+        this.month = rule.month();
+        this.day = rule.day();
     }
 
-    /**
-     * Getter for the Day value
-     *
-     * @return the day value
-     */
-    public int getDay() {
+    int getDay() {
         return day;
     }
 
-    /**
-     * Getter for the Month value
-     *
-     * @return the month value
-     */
-    public int getMonth() {
+    int getMonth() {
         return month;
     }
 
-    /**
-     * Getter for the Year value
-     *
-     * @return the year value
-     */
-    public int getYear() {
+    int getYear() {
         return year;
     }
 
-    /**
-     * Getter for the DayTypeID value
-     *
-     * @return the DayTypeId
-     */
-    public int getDayTypeId() {
+    int getDayTypeId() {
         return dayTypeId;
     }
+
 }

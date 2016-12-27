@@ -27,11 +27,8 @@ import java.util.Map;
  */
 public class IHDMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public IHDMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -40,7 +37,7 @@ public class IHDMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                return this.extractor.id((DeviceMessageFile) messageAttribute);
+                return this.getExtractor().id((DeviceMessageFile) messageAttribute);
             default:
                 return messageAttribute.toString();
         }

@@ -27,11 +27,8 @@ import java.util.Map;
  */
 public class ZigbeeGasAM110RMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public ZigbeeGasAM110RMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -43,7 +40,7 @@ public class ZigbeeGasAM110RMessageConverter extends AbstractMessageConverter {
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
             case DeviceMessageConstants.contractsXmlUserFileAttributeName:
-                return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We assume the UserFile contains regular ASCII
+                return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We assume the UserFile contains regular ASCII
             default:
                 return messageAttribute.toString();
         }

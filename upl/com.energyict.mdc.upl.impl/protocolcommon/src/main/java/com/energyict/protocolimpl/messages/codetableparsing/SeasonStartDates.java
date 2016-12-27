@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 
 /**
  * Describes 1 Season of the CodeTable.
@@ -32,12 +32,12 @@ class SeasonStartDates {
     /**
      * Constructor with a CodeCalendar as variable
      *
-     * @param cc the CodeCalendar containing the necessary dates
+     * @param rule the CodeCalendar containing the necessary dates
      */
-    SeasonStartDates(CodeCalendar cc) {
-        this.year = cc.getYear();
-        this.month = cc.getMonth();
-        this.day = cc.getDay();
+    SeasonStartDates(Extractor.CalendarRule rule) {
+        this.year = rule.year();
+        this.month = rule.month();
+        this.day = rule.day();
     }
 
     /**

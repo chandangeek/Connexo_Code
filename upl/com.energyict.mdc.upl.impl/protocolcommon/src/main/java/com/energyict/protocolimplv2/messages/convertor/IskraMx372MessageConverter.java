@@ -52,11 +52,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.white
  */
 public class IskraMx372MessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public IskraMx372MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -104,7 +101,7 @@ public class IskraMx372MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.loadLimitStartDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

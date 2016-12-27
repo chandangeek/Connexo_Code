@@ -31,11 +31,8 @@ import java.util.Map;
  */
 public class AS300PMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public AS300PMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -84,7 +81,7 @@ public class AS300PMessageConverter extends AbstractMessageConverter {
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
             case DeviceMessageConstants.contractsXmlUserFileAttributeName:
-                return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We assume the UserFile contains regular ASCII
+                return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We assume the UserFile contains regular ASCII
             case DeviceMessageConstants.engineerPinTimeout:
                 return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
             default:

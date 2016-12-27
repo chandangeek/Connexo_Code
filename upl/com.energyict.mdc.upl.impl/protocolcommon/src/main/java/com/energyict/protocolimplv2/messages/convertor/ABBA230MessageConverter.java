@@ -40,17 +40,14 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
     private static final String UPGRADE_METER_FIRMWARE = "UpgradeMeterFirmware";
     private static final String UPGRADE_METER_SCHEME = "UpgradeMeterScheme";
 
-    private final Extractor extractor;
-
     public ABBA230MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
         } else {
             return messageAttribute.toString();
         }

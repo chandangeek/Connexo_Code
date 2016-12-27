@@ -47,11 +47,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trans
  */
 public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public Dsmr23MBusDeviceMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -84,7 +81,7 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.contactorActivationDateAttributeName:
                 return Long.toString(((Date) messageAttribute).getTime() / 1000);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

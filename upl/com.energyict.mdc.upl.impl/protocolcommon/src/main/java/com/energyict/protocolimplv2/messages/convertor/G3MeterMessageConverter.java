@@ -68,11 +68,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.speci
  */
 public class G3MeterMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public G3MeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -97,7 +94,7 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((TariffCalender) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
                 || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();

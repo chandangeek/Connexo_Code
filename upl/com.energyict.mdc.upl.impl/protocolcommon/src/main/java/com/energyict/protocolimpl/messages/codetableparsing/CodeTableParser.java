@@ -1,19 +1,16 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.properties.TariffCalender;
-
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.CodeDayType;
-import com.energyict.mdw.core.CodeDayTypeDef;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Converts a given {@link Code} to easily usable objects for XML parsing
+ * Converts a given {@link TariffCalender} to easily usable objects for XML parsing.
  */
 public class CodeTableParser {
 
@@ -21,36 +18,38 @@ public class CodeTableParser {
      * The used CodeTable for this parser
      */
     private final TariffCalender calender;
+    private final Extractor extractor;
 
     /**
-     * Defines a relation between the DayType Database ID and the ID that will be used in the xml file
+     * Defines a relation between the CalendarDayType Database ID and the ID that will be used in the xml file
      */
-    private Map<Integer, Integer> tempDayIDMap = new HashMap<Integer, Integer>();
+    private Map<String, Integer> tempDayIDMap = new HashMap<>();
 
-    private Map<Integer, Integer> tempSeasonIdMap = new HashMap<Integer, Integer>();
+    private Map<String, Integer> tempSeasonIdMap = new HashMap<>();
 
     /**
-     * A Map containing all DayType ID's with there corresponding DayTypeDefinitions
+     * A Map containing all CalendarDayType ID's with there corresponding DayTypeDefinitions
      */
-    private Map<Integer, List<DayTypeDefinitions>> dayProfiles = new HashMap<Integer, List<DayTypeDefinitions>>();
+    private Map<Integer, List<DayTypeDefinitions>> dayProfiles = new HashMap<>();
 
     /**
      * A Map containing all Season ID's with there corresponding SeasonStartDate
      */
-    private Map<Integer, SeasonStartDates> seasonProfiles = new HashMap<Integer, SeasonStartDates>();
+    private Map<Integer, SeasonStartDates> seasonProfiles = new HashMap<>();
 
     /**
      * A Map containing all the Week ID's (the same as the Season ID's) with there corresponding list of WeekDayDefinitions
      */
-    private Map<Integer, List<WeekDayDefinitions>> weekProfiles = new HashMap<Integer, List<WeekDayDefinitions>>();
+    private Map<Integer, List<WeekDayDefinitions>> weekProfiles = new HashMap<>();
 
     /**
      * A List containing all the SpecialDays
      */
-    private List<SpecialDayDefinition> specialDays = new ArrayList<SpecialDayDefinition>();
+    private List<SpecialDayDefinition> specialDays = new ArrayList<>();
 
-    public CodeTableParser(TariffCalender calender) {
+    public CodeTableParser(TariffCalender calender, Extractor extractor) {
         this.calender = calender;
+        this.extractor = extractor;
     }
 
     /**
@@ -80,21 +79,21 @@ public class CodeTableParser {
      */
     private void createTempDayIDMap() {
         int counter = 0;
-        for (CodeDayType cdt : calender.getDayTypes()) {
-            tempDayIDMap.put(cdt.getId(), counter++);
+        for (Extractor.CalendarDayType dayType : this.extractor.dayTypes(this.calender)) {
+            tempDayIDMap.put(dayType.id(), counter++);
         }
     }
 
     /**
      * Create a temporary Map for the SeasonId's, these should be unique in the Calendar, but using hte Database ID is not desirable
      */
-    private void createTempSeasonIdMap(){
-        int counter = 0;
-        for(CodeCalendar cCalendars : calender.getCalendars()){
-            if(!tempSeasonIdMap.containsKey(cCalendars.getSeason()) && (cCalendars.getSeason() != 0)){
-                tempSeasonIdMap.put(cCalendars.getSeason(), counter++);
-            }
-        }
+    private void createTempSeasonIdMap() {
+        Counter counter = new Counter();
+        this.extractor
+                .rules(this.calender)
+                .stream()
+                .filter(each -> each.seasonId().isPresent())
+                .forEach(rule -> tempSeasonIdMap.computeIfAbsent(rule.seasonId().get(), seasonId -> counter.nextValue()));
     }
 
     /**
@@ -103,45 +102,45 @@ public class CodeTableParser {
      * @param dbDayId the key to get the value from
      * @return the value from the {@link #tempDayIDMap} corresponding to the key
      */
-    int getDayIDValue(int dbDayId) {
+    int getDayIDValue(String dbDayId) {
         return tempDayIDMap.get(dbDayId);
     }
 
     /**
      * Construct a list of {@link com.energyict.mdw.core.CodeDayType}s
      */
-    private final void constructDayProfileMap() {
-        for (CodeDayType cdt : calender.getDayTypes()) {
-            dayProfiles.put(getDayIDValue(cdt.getId()), getDayTypeStartsFromCodeDayType(cdt));
-        }
+    private void constructDayProfileMap() {
+        this.extractor
+                .dayTypes(this.calender)
+                .forEach(dayType ->
+                        dayProfiles.put(
+                                getDayIDValue(dayType.id()),
+                                getDayTypeStartsFromCodeDayType(dayType)));
     }
 
     /**
      * Constructs a list of DayTypeDefinitions for the given CodeDayType
      *
-     * @param cdt the CodeDayType to get the startDates from
+     * @param dayType the CodeDayType to get the startDates from
      * @return the created list
      */
-    private final List<DayTypeDefinitions> getDayTypeStartsFromCodeDayType(CodeDayType cdt) {
-        List<DayTypeDefinitions> startDates = new ArrayList<DayTypeDefinitions>();
-        for (Object cdtd : cdt.getDefinitions()) {
-            startDates.add(new DayTypeDefinitions((CodeDayTypeDef) cdtd));
-        }
-        return startDates;
+    private List<DayTypeDefinitions> getDayTypeStartsFromCodeDayType(Extractor.CalendarDayType dayType) {
+        return dayType.slices().stream().map(DayTypeDefinitions::new).collect(Collectors.toList());
     }
 
     /**
      * Constructs a list of available seasons
      */
-    private final void constructSeasons() {
-        List<com.energyict.mdw.core.CodeCalendar> calendars = calender.getCalendars();
-
-        for (CodeCalendar cc : calendars) {
-            if(tempSeasonIdMap.get(cc.getSeason()) != null){
-                seasonProfiles.put(tempSeasonIdMap.get(cc.getSeason()), new SeasonStartDates(cc));
-            }
-        }
-
+    private void constructSeasons() {
+        this.extractor
+                .rules(this.calender)
+                .stream()
+                .filter(each -> each.seasonId().isPresent())
+                .filter(each -> tempSeasonIdMap.containsKey(each.seasonId().get()))
+                .forEach(rule ->
+                        seasonProfiles.put(
+                                tempSeasonIdMap.get(rule.seasonId().get()),
+                                new SeasonStartDates(rule)));
         checkStartTimes();
     }
 
@@ -149,9 +148,9 @@ public class CodeTableParser {
      * Check whether the startDates of the seasons are correct. If only 1 season is defined, then it must start at a certain point,
      * not all fields may be empty, so just put in on 1th January.
      */
-    private final void checkStartTimes(){
-        if(seasonProfiles.size() == 1){
-            for(Integer key : seasonProfiles.keySet()){
+    private void checkStartTimes(){
+        if (seasonProfiles.size() == 1){
+            for (Integer key : seasonProfiles.keySet()) {
                 SeasonStartDates newSeasonStartdate= new SeasonStartDates(-1, 1, 1);
                 seasonProfiles.put(key, newSeasonStartdate);
             }
@@ -161,7 +160,7 @@ public class CodeTableParser {
     /**
      * Constructs a list of defined weeks
      */
-    private final void constructWeeks() {
+    private void constructWeeks() {
         for (int seasonId : seasonProfiles.keySet()) {
             weekProfiles.put(seasonId, getWeekDayTypes(seasonId));
             seasonProfiles.get(seasonId).setWeekProfileName(seasonId);
@@ -175,26 +174,26 @@ public class CodeTableParser {
      * @return the created list
      */
     private List<WeekDayDefinitions> getWeekDayTypes(int seasonId) {
-        List<WeekDayDefinitions> weekDayDefs = new ArrayList<WeekDayDefinitions>();
-        for (CodeCalendar cc : calender.getCalendars()) {
-            if(tempSeasonIdMap.containsKey(cc.getSeason())){
-                if (tempSeasonIdMap.get(cc.getSeason()) == seasonId) {
-                    weekDayDefs.add(new WeekDayDefinitions(this, cc));
-                }
-            }
-        }
-        return weekDayDefs;
+        return this.extractor
+                    .rules(this.calender)
+                    .stream()
+                    .filter(each -> each.seasonId().isPresent())
+                    .filter(each -> tempSeasonIdMap.containsKey(each.seasonId().get()))
+                    .filter(rule -> tempSeasonIdMap.get(rule.seasonId().get()) == seasonId)
+                    .map(rule -> new WeekDayDefinitions(this, rule))
+                    .collect(Collectors.toList());
     }
 
     /**
      * Construct a list of SpecialDays
      */
-    private final void constructSpecialDays() {
-        for (CodeCalendar cc : calender.getCalendars()) {
-            if (cc.getSeason() == 0) { // '0' means no Calendar is defined so it is a special day
-                specialDays.add(new SpecialDayDefinition(this, cc));
-            }
-        }
+    private void constructSpecialDays() {
+        this.extractor
+                .rules(this.calender)
+                .stream()
+                .filter(each -> !each.seasonId().isPresent())
+                .map(rule -> new SpecialDayDefinition(this, rule))
+                .forEach(this.specialDays::add);
     }
 
     /**
@@ -233,5 +232,10 @@ public class CodeTableParser {
         return specialDays;
     }
 
+    private static class Counter {
+        private int next = 0;
+        int nextValue() {
+            return this.next++;
+        }
+    }
 }
-

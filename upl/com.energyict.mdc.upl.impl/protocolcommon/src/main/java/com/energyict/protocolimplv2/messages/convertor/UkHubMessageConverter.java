@@ -36,11 +36,8 @@ import java.util.Map;
  */
 public class UkHubMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public UkHubMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -57,7 +54,7 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
-                return this.extractor.id((DeviceMessageFile) messageAttribute);
+                return this.getExtractor().id((DeviceMessageFile) messageAttribute);
             default:
                 return messageAttribute.toString();
         }

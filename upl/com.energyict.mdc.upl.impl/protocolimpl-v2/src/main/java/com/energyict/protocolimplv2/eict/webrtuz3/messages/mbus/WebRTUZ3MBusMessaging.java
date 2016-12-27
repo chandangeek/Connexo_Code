@@ -1,22 +1,25 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.messages.mbus;
 
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.webrtuz3.messages.WebRTUZ3MessageExecutor;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -32,34 +35,34 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trans
  */
 public class WebRTUZ3MBusMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    private final static List<DeviceMessageSpec> supportedMessages;
+    protected WebRTUZ3MessageExecutor messageExecutor;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    static {
-        supportedMessages = new ArrayList<>();
-
-        // valve related
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-        supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
-
-        // MBus messages
-        supportedMessages.add(MBusSetupDeviceMessage.Decommission);
-        supportedMessages.add(MBusSetupDeviceMessage.SetEncryptionKeys);
-        supportedMessages.add(MBusSetupDeviceMessage.UseCorrectedValues);
-        supportedMessages.add(MBusSetupDeviceMessage.UseUncorrectedValues);
+    public WebRTUZ3MBusMessaging(AbstractDlmsProtocol protocol, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(protocol, extractor);
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
-    protected WebRTUZ3MessageExecutor messageExecutor;
-
-    public WebRTUZ3MBusMessaging(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    private DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
+        return supplier.get(this.propertySpecService, this.nlsService, this.converter);
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return supportedMessages;
+        return Arrays.asList(
+                    this.get(ContactorDeviceMessage.CONTACTOR_OPEN),
+                    this.get(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE),
+                    this.get(ContactorDeviceMessage.CONTACTOR_CLOSE),
+                    this.get(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE),
+                    this.get(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE),
+                    this.get(MBusSetupDeviceMessage.Decommission),
+                    this.get(MBusSetupDeviceMessage.SetEncryptionKeys),
+                    this.get(MBusSetupDeviceMessage.UseCorrectedValues),
+                    this.get(MBusSetupDeviceMessage.UseUncorrectedValues));
     }
 
     @Override
@@ -73,7 +76,7 @@ public class WebRTUZ3MBusMessaging extends AbstractDlmsMessaging implements Devi
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
@@ -84,7 +87,8 @@ public class WebRTUZ3MBusMessaging extends AbstractDlmsMessaging implements Devi
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
+
 }

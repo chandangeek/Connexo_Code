@@ -286,7 +286,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new IDISMessaging(this);
+            idisMessaging = new IDISMessaging(this, extractor, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter);
         }
         return idisMessaging;
     }

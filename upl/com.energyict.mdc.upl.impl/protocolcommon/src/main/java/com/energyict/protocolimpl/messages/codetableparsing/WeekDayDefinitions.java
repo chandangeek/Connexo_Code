@@ -1,39 +1,27 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 
 /**
  * Describes 1 WeekDayDefinition
- * Each definition contains a DayType ID and a DayOfWeek value
+ * Each definition contains a CalendarDayType ID and a DayOfWeek value
  */
 class WeekDayDefinitions {
 
-    final int dayOfWeek;
+    private final int dayOfWeek;
+    private final int dayTypeId;
 
-    final int dayTypeId;
-    private CodeTableParser codeTableParser;
-
-    public WeekDayDefinitions(CodeTableParser codeTableParser, CodeCalendar cc) {
-        this.codeTableParser = codeTableParser;
-        this.dayOfWeek = cc.getDayOfWeek();
-        this.dayTypeId = codeTableParser.getDayIDValue(cc.getDayType().getId());
+    WeekDayDefinitions(CodeTableParser parser, Extractor.CalendarRule rule) {
+        this.dayOfWeek = rule.dayOfWeek();
+        this.dayTypeId = parser.getDayIDValue(rule.dayTypeId());
     }
 
-    /**
-     * Getter for the day of the Week
-     *
-     * @return the day of the week
-     */
-    public int getDayOfWeek() {
+    int getDayOfWeek() {
         return dayOfWeek;
     }
 
-    /**
-     * Getter for the dayType ID
-     *
-     * @return the dayType ID
-     */
-    public int getDayTypeId() {
+    int getDayTypeId() {
         return dayTypeId;
     }
+
 }

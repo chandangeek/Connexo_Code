@@ -237,7 +237,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     private EDPMessaging getMessaging() {
         if (edpMessaging == null) {
-            edpMessaging = new EDPMessaging(new EDPMessageExecutor(this));
+            edpMessaging = new EDPMessaging(propertySpecService, nlsService, converter, new EDPMessageExecutor(this));
         }
         return edpMessaging;
     }

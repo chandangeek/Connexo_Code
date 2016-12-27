@@ -104,11 +104,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public SDKSmartMeterProtocolMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -130,9 +127,9 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.extractor.id((DeviceMessageFile) messageAttribute);
+            return this.getExtractor().id((DeviceMessageFile) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return this.extractor.id((TariffCalender) messageAttribute);
+            return this.getExtractor().id((TariffCalender) messageAttribute);
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
@@ -143,12 +140,12 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
                 propertySpec.getName().equals(passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
-            return this.extractor.id((NumberLookup) messageAttribute);
+            return this.getExtractor().id((NumberLookup) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
             return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
+            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);

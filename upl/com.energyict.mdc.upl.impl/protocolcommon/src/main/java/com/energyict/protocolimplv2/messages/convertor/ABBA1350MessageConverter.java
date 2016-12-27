@@ -31,17 +31,14 @@ public class ABBA1350MessageConverter extends AbstractMessageConverter {
     private static final String UploadSwitchPointClock = "SPC_DATA";
     private static final String UploadSwitchPointClockUpdate = "SPCU_DATA";
 
-    private final Extractor extractor;
-
     public ABBA1350MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.SwitchPointClockSettings) || propertySpec.getName().equals(DeviceMessageConstants.SwitchPointClockUpdateSettings)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
         } else {
             return messageAttribute.toString();
         }

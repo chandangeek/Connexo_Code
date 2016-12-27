@@ -46,11 +46,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usern
  */
 public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public REMIDataloggerMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -79,7 +76,7 @@ public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.enableDSTAttributeName:
                 return ((Boolean) messageAttribute) ? "1" : "0";
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

@@ -38,11 +38,9 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
 public class IskraMx372MBusDeviceMessageConverter extends AbstractMessageConverter {
 
     private static final String MBUS_SET_VIF = "Mbus_Set_VIF";
-    private final Extractor extractor;
 
     public IskraMx372MBusDeviceMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -61,7 +59,7 @@ public class IskraMx372MBusDeviceMessageConverter extends AbstractMessageConvert
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadProfileAttributeName: {
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
             }
             case DeviceMessageConstants.fromDateAttributeName:  // Intentional fall-through
             case DeviceMessageConstants.toDateAttributeName: {

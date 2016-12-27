@@ -224,7 +224,7 @@ public class G3Messaging extends AnnotatedMessaging {
                     if (msgTag.getName().contains(RtuMessageConstant.TOU_ACTIVITY_CAL) && Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().after(actDate)) {
                         throw new ApplicationException("Invalid activation date, should be in the future");
                     }
-                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder).parseActivityCalendarAndSpecialDayTable(codeId, actDate.getTime(), name);
+                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder, extractor).parseActivityCalendarAndSpecialDayTable(codeId, actDate.getTime(), name);
                     addChildTag(builder, IDISMessageHandler.RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException | IOException e) {
                     getLogger().severe(e.getMessage());

@@ -128,11 +128,8 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
                 "CHANNEL6_CREDITWEIGHT"};
     }
 
-    private final Extractor extractor;
-
     public AS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -186,7 +183,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(RawDataAttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute);
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute);
         }
         return EMPTY_FORMAT;
     }

@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalender;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.mdw.core.Code;
+import com.google.common.collect.Range;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -20,6 +20,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.time.Year;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -92,9 +93,15 @@ public class CodeTableXmlParsing {
 
     protected static final Log logger = LogFactory.getLog(CodeTableXmlParsing.class);
     private final TariffCalendarFinder finder;
+    private final Extractor extractor;
 
-    public CodeTableXmlParsing(TariffCalendarFinder finder) {
+    public CodeTableXmlParsing(TariffCalendarFinder finder, Extractor extractor) {
         this.finder = finder;
+        this.extractor = extractor;
+    }
+
+    protected Extractor getExtractor() {
+        return extractor;
     }
 
     /**
@@ -112,11 +119,14 @@ public class CodeTableXmlParsing {
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
     public String parseActivityCalendarAndSpecialDayTable(String id, long activationTime, String name) throws ParserConfigurationException {
-        return parseActivityCalendarAndSpecialDayTable(getCalendar(id).orElseThrow(() -> new IllegalArgumentException("Tariff calendar with id " + id + " not found!")), activationTime, name);
+        return parseActivityCalendarAndSpecialDayTable(
+                    getCalendar(id).orElseThrow(() -> new IllegalArgumentException("Tariff calendar with id " + id + " not found!")),
+                    this.extractor,
+                    activationTime, name);
     }
 
-    public static String parseActivityCalendarAndSpecialDayTable(TariffCalender calender, long activationTime, String name) throws ParserConfigurationException {
-        CodeTableParser ctp = new CodeTableParser(calender);
+    public static String parseActivityCalendarAndSpecialDayTable(TariffCalender calender, Extractor extractor, long activationTime, String name) throws ParserConfigurationException {
+        CodeTableParser ctp = new CodeTableParser(calender, extractor);
         try {
 
             ctp.parse();
@@ -132,12 +142,21 @@ public class CodeTableXmlParsing {
              This way we can track the calendars in the devices
               */
             root.appendChild(createSingleElement(document, rootActCalendarName, name));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calender.getDefinitionTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calender.getDestinationTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(calender.getIntervalInSeconds())));
-            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(calender.getYearFrom())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calender.getYearTo())));
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(calender.getSeasonSetId())));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, extractor.definitionTimeZone(calender).getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, extractor.destinationTimeZone(calender).getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(extractor.intervalInSeconds(calender))));
+            Range<Year> range = extractor.range(calender);
+            if (range.hasLowerBound()) {
+                root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(range.lowerEndpoint().getValue())));
+            } else {
+                root.appendChild(createSingleElement(document, codeTableFromYear, "1980"));
+            }
+            if (range.hasUpperBound()) {
+                root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(range.upperEndpoint().getValue())));
+                root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
+            } else {
+            }
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calender)));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);
@@ -161,12 +180,12 @@ public class CodeTableXmlParsing {
     /**
      * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
      *
-     * @param codeTable     the {@link com.energyict.mdw.core.Code codeTable}
+     * @param calender     the {@link com.energyict.mdw.core.Code calender}
      * @return the complete xml for the RTUMessage
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
-    public static String parseActivityCalendarAndSpecialDayTable(Code codeTable) throws ParserConfigurationException {
-        CodeTableParser ctp = new CodeTableParser(codeTable);
+    public static String parseActivityCalendarAndSpecialDayTable(TariffCalender calender, Extractor extractor) throws ParserConfigurationException {
+        CodeTableParser ctp = new CodeTableParser(calender, extractor);
         try {
 
             ctp.parse();
@@ -177,13 +196,22 @@ public class CodeTableXmlParsing {
             Document document = builder.newDocument();
             Element root = document.createElement(rootTOUMessage);
 
-            root.appendChild(createSingleElement(document, rootActCalendarName, codeTable.getName()));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, codeTable.getDefinitionTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, codeTable.getDestinationTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(codeTable.getIntervalInSeconds())));
-            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(codeTable.getYearFrom())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(codeTable.getYearTo())));
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(codeTable.getSeasonSetId())));
+            root.appendChild(createSingleElement(document, rootActCalendarName, extractor.name(calender)));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, extractor.definitionTimeZone(calender).getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, extractor.destinationTimeZone(calender).getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(extractor.intervalInSeconds(calender))));
+            Range<Year> range = extractor.range(calender);
+            if (range.hasLowerBound()) {
+                root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(range.lowerEndpoint().getValue())));
+            } else {
+                root.appendChild(createSingleElement(document, codeTableFromYear, "1980"));
+            }
+            if (range.hasUpperBound()) {
+                root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(range.upperEndpoint().getValue())));
+                root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
+            } else {
+            }
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calender)));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);
             rootActCalendar.appendChild(convertSeasonProfileToXml(ctp.getSeasonProfiles(), document));
@@ -446,10 +474,10 @@ public class CodeTableXmlParsing {
                 transformer.transform(source, result);
                 return result.getWriter().toString();
             } catch (TransformerException e) {
-                throw new ApplicationException(e);
+                throw new IllegalArgumentException(e);
             }
         } catch (TransformerConfigurationException e) {
-            throw new ApplicationException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -463,24 +491,6 @@ public class CodeTableXmlParsing {
         String codeTableXml = documentToString(doc);
         int index = codeTableXml.indexOf("?>");
         return (index != -1) ? codeTableXml.substring(index + 2) : codeTableXml;
-    }
-
-    /**
-     * Prints an {@link org.w3c.dom.Element} to a xml format
-     *
-     * @param domElement the element for print out
-     * @return the xml formatted element as a readable string
-     */
-    public static String domElementToString(Element domElement) {
-        try {
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer trans = tf.newTransformer();
-            StringWriter sw = new StringWriter();
-            trans.transform(new DOMSource(domElement), new StreamResult(sw));
-            return sw.toString();
-        } catch (TransformerException e) {
-            throw new ApplicationException(e);
-        }
     }
 
     /**

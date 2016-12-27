@@ -25,11 +25,8 @@ import java.util.Map;
  */
 public class IHDAM110RMessageConverter extends AbstractMessageConverter{
 
-    private final Extractor extractor;
-
     public IHDAM110RMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -38,7 +35,7 @@ public class IHDAM110RMessageConverter extends AbstractMessageConverter{
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We assume the UserFile contains regular ASCII
+                return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We assume the UserFile contains regular ASCII
             default:
                 return messageAttribute.toString();
         }

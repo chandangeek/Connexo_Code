@@ -41,11 +41,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trans
  */
 public class EictZ3MessageConverter extends AbstractMessageConverter {
 
-    private final Extractor extractor;
-
     public EictZ3MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter);
-        this.extractor = extractor;
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
     }
 
     @Override
@@ -57,7 +54,7 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.extractor.contents((DeviceMessageFile) messageAttribute);
+            return this.getExtractor().contents((DeviceMessageFile) messageAttribute);
         }
         return EMPTY_FORMAT;
     }

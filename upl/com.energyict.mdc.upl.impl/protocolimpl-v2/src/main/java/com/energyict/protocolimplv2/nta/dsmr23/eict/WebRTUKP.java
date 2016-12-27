@@ -158,7 +158,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
-            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this), extractor, propertySpecService, nlsService, converter);
         }
         return dsmr23Messaging;
     }
