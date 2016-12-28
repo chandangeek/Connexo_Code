@@ -441,7 +441,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             success: function (response) {
                 var availableTransitions = Ext.decode(response.responseText);
 
-                transitionStore.loadData(availableTransitions);
+                transitionStore.loadRawData(availableTransitions);
             },
             callback: function () {
                 wizard.setLoading(false)
