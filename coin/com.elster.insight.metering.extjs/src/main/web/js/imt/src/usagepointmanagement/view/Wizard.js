@@ -125,6 +125,7 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         switch (step.stepName) {
             case 'casInfo':
             case 'metrologyConfigurationWithMetersInfo':
+            case 'lifeCycleTransitionInfo':
                 if (!isValid) {
                     step.markInvalid(errors);
                 } else {

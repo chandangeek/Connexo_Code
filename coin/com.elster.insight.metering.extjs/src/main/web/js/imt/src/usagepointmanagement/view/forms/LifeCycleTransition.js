@@ -143,5 +143,23 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
         }
 
         return record ? record.getProxy().getWriter().getRecordData(record) : null;
+    },
+
+    markInvalid: function (errors) {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.getForm().markInvalid(errors);
+        me.down('#transition-property-form').markInvalid(errors);
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function () {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.getForm().clearInvalid();
+        me.down('#transition-property-form').clearInvalid();
+        Ext.resumeLayouts(true);
     }
 });
