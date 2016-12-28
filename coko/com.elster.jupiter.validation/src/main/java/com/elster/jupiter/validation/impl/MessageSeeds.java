@@ -19,6 +19,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_VALIDATION_RULE(102, Constants.DUPLICATE_VALIDATION_RULE, "Name must be unique", Level.SEVERE),
 
     VETO_DEVICEGROUP_DELETION(1013, Constants.DEVICE_GROUP_STILL_IN_USE, "Device group {0} is still in use by a data validation task.", Level.SEVERE),
+    VETO_USAGEPOINTGROUP_DELETION(1014, Constants.VETO_USAGEPOINTGROUP_DELETION_KEY, "Usage point group {0} is still in use by a data validation task", Level.SEVERE),
 
     DUPLICATE_VALIDATION_TASK(104, Constants.DUPLICATE_VALIDATION_TASK, "Name must be unique", Level.SEVERE),
     CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "The validation task can''t be removed because the task is running at this moment", Level.SEVERE),
@@ -104,5 +105,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_GROUP_STILL_IN_USE = "DeviceGroupStillInUse";
         public static final String CAN_NOT_CHANGE_FREQUENCY_KEY = "CanNotChangeFrequency";
         public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "DeviceGroupMustBeUnique";
+        public static final String VETO_USAGEPOINTGROUP_DELETION_KEY = "UsagePointGroupXstillInUseByTask";
     }
 }
