@@ -39,7 +39,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         'Imt.usagepointmanagement.store.measurementunits.EstimationLoad',
         'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations',
         'Imt.usagepointmanagement.store.MeterActivations',
-        'Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitions'
+        'Imt.usagepointmanagement.store.UsagePointTransitions'
     ],
 
     refs: [
@@ -428,14 +428,14 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
     loadAvailableTransitions: function (step) {
         var me = this,
-            transitionStore = me.getStore('Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitions'),
+            transitionStore = me.getStore('Imt.usagepointmanagement.store.UsagePointTransitions'),
             wizard = me.getWizard(),
             usagePoint = wizard.getRecord();
 
         step.usagePoint = usagePoint;
         wizard.setLoading();
         Ext.Ajax.request({
-            url: '/api/udr/field/transitions/ ',
+            url: '/api/udr/field/transitions',
             method: 'POST',
             jsonData: usagePoint.getProxy().getWriter().getRecordData(usagePoint),
             success: function (response) {

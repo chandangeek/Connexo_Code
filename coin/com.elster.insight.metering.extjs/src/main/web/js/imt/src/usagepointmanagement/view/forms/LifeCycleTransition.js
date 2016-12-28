@@ -32,10 +32,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
                 layout: 'hbox',
                 items: [
                     {
-                        xtype: 'combo-returned-record-data',
+                        xtype: 'combobox',
                         name: 'id',
                         itemId: 'life-cycle-transition-combo',
-                        store: 'Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitions',
+                        store: 'Imt.usagepointmanagement.store.UsagePointTransitions',
                         displayField: 'name',
                         valueField: 'id',
                         queryMode: 'local',
@@ -62,7 +62,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
                 xtype: 'date-time',
                 itemId: 'transition-date',
                 fieldLabel: Uni.I18n.translate('general.transitionDate', 'IMT', 'Transition date'),
-                name: 'transitionDate',
+                name: 'effectiveTimestamp',
                 required: true,
                 hidden: true,
                 valueInMilliseconds: true,
@@ -80,6 +80,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
                 minutesConfig: {
                     width: 60
                 }
+            },
+            {
+                xtype: 'property-form',
+                itemId: 'transition-property-form',
+                defaults: {
+                    labelWidth: me.defaults.labelWidth,
+                    resetButtonHidden: true
+                }
             }
         ];
 
@@ -88,19 +96,32 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
 
     onLifeCycleTransitionChange: function (combo, newValue) {
         var me = this,
-            transitionDateField = me.down('#transition-date'),
             metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
-            possibleTransitionDates = [me.usagePoint.get('installationTime') || new Date().getTime()];
+            possibleTransitionDates = [me.usagePoint.get('installationTime') || new Date().getTime()],
+            transitionRecord = combo.findRecordByValue(newValue),
+            resetTransitionButton = me.down('#reset-life-cycle-transition'),
+            transitionDateField = me.down('#transition-date'),
+            transitionPropertyForm = me.down('#transition-property-form');
 
         if (metrologyConfiguration && !Ext.isEmpty(metrologyConfiguration.meterRoles)) {
             Ext.Array.each(metrologyConfiguration.meterRoles, function (meterRole) {
                 possibleTransitionDates.push(meterRole.activationTime);
             });
         }
+
         Ext.suspendLayouts();
-        me.down('#reset-life-cycle-transition').setDisabled(!newValue);
-        transitionDateField.setValue(_.max(possibleTransitionDates));
-        transitionDateField.setVisible(!!newValue);
+        if (transitionRecord) {
+            resetTransitionButton.enable();
+            transitionDateField.show();
+            transitionRecord.set('effectiveTimestamp', _.max(possibleTransitionDates));
+            me.loadRecord(transitionRecord);
+            transitionPropertyForm.show();
+            transitionPropertyForm.loadRecord(transitionRecord);
+        } else {
+            resetTransitionButton.disable();
+            transitionDateField.hide();
+            transitionPropertyForm.hide();
+        }
         Ext.resumeLayouts(true);
     },
 
@@ -108,5 +129,19 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
         var me = this;
 
         me.down('#life-cycle-transition-combo').reset();
+    },
+
+    getRecord: function () {
+        var me = this,
+            transitionField = me.down('#life-cycle-transition-combo'),
+            transitionRecord = transitionField.findRecordByValue(transitionField.getValue()),
+            record = transitionRecord ? me.callParent(arguments) : null;
+
+        if (record) {
+            me.updateRecord();
+            me.down('#transition-property-form').updateRecord();
+        }
+
+        return record ? record.getProxy().getWriter().getRecordData(record) : null;
     }
 });

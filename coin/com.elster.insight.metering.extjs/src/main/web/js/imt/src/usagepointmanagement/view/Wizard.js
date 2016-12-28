@@ -97,7 +97,10 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                 break;
             case 'metrologyConfigurationWithMetersInfo':
                 me.getRecord().set(step.getRecord());
-
+                break;
+            case 'lifeCycleTransitionInfo':
+                me.getRecord().set('transitionToPerform', step.getRecord());
+                break;
         }
     },
 
