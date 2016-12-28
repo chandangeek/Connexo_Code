@@ -112,6 +112,8 @@ public interface MeteringService {
      */
     Query<Meter> getMeterWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes);
 
+    Query<ChannelsContainer> getChannelsContainerWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes);
+
     Query<EndDevice> getEndDeviceQuery();
 
     List<EndDeviceEventType> getAvailableEndDeviceEventTypes();
