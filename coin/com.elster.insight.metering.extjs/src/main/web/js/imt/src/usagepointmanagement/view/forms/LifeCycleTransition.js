@@ -86,6 +86,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
                 itemId: 'transition-property-form',
                 defaults: {
                     labelWidth: me.defaults.labelWidth,
+                    width: 320,
                     resetButtonHidden: true
                 }
             }
