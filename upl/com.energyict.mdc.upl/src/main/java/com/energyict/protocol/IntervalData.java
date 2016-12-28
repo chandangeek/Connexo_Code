@@ -11,7 +11,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -399,31 +398,12 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     }
 
     /**
-     * adds a value to the receiver
-     *
-     * @param numbers an array of Numbers representing the values for the
-     *                given interval
-     */
-    public void addValues(Number[] numbers) {
-        for (int i = 0; i < numbers.length; i++) {
-            intervalValues.add(new IntervalValue(numbers[i]));
-        }
-    }
-
-    /* adds a value to the receiver
-     * @param numbers a collection of Numbers representing the value for the
-     * given interval and logical channel
-     */
-
-    /**
      * add a collection of values
      *
      * @param numbers collection of Number objects
      */
-    public void addValues(Collection<Number> numbers) {
-        for (Number number : numbers) {
-            intervalValues.add(new IntervalValue(number));
-        }
+    public void addValues(List<? extends Number> numbers) {
+        numbers.stream().map(IntervalValue::new).forEach(intervalValues::add);
     }
 
 
