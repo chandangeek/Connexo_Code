@@ -3,211 +3,51 @@ package com.elster.jupiter.mdm.usagepoint.data.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Effectivity;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-@Component(
-        name = "UsagePointDataServiceImpl",
-        service = {UsagePointDataService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
-        property = {"name=" + UsagePointDataService.COMPONENT_NAME},
-        immediate = true)
-public class UsagePointDataServiceImpl implements UsagePointDataService, MessageSeedProvider, TranslationKeyProvider {
-
-    private volatile Clock clock;
-    private volatile Thesaurus thesaurus;
-    private volatile CustomPropertySetService customPropertySetService;
-    private volatile MeteringService meteringService;
-    private volatile ValidationService validationService;
-    private volatile UsagePointConfigurationService usagePointConfigurationService;
-    private volatile UpgradeService upgradeService;
-    private volatile MessageService messageService;
-    private volatile UserService userService;
-
-    @SuppressWarnings("unused")
-    public UsagePointDataServiceImpl() {
-        // OSGI
-    }
+class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionService {
+    private final Thesaurus thesaurus;
+    private final ValidationService validationService;
 
     @Inject
-    public UsagePointDataServiceImpl(Clock clock,
-                                     MeteringService meteringService,
-                                     ValidationService validationService,
-                                     NlsService nlsService,
-                                     CustomPropertySetService customPropertySetService,
-                                     UsagePointConfigurationService usagePointConfigurationService,
-                                     UpgradeService upgradeService,
-                                     UserService userService,
-                                     MessageService messageService) {
-        setClock(clock);
-        setMeteringService(meteringService);
-        setValidationService(validationService);
-        setNlsService(nlsService);
-        setCustomPropertySetService(customPropertySetService);
-        setUsagePointConfigurationService(usagePointConfigurationService);
-        setUpgradeService(upgradeService);
-        setUserService(userService);
-        setMessageService(messageService);
-        activate();
-    }
-
-    Module getModule() {
-        return new AbstractModule() {
-            @Override
-            public void configure() {
-                bind(Clock.class).toInstance(clock);
-                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(UsagePointDataService.class).toInstance(UsagePointDataServiceImpl.this);
-                bind(MeteringService.class).toInstance(meteringService);
-                bind(ValidationService.class).toInstance(validationService);
-                bind(UpgradeService.class).toInstance(upgradeService);
-                bind(UserService.class).toInstance(userService);
-                bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
-                bind(MessageService.class).toInstance(messageService);
-            }
-        };
-    }
-
-    @Activate
-    public void activate() {
-        DataModel dataModel = upgradeService.newNonOrmDataModel();
-        dataModel.register(getModule());
-        upgradeService.register(
-                InstallIdentifier.identifier("Insight", getComponentName()),
-                dataModel,
-                Installer.class,
-                ImmutableMap.of(version(10, 3), UpgraderV10_3.class)
-        );
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setValidationService(ValidationService validationService) {
+    UsagePointDataCompletionServiceImpl(UsagePointDataModelService usagePointDataModelService,
+                                        ValidationService validationService) {
+        this.thesaurus = usagePointDataModelService.thesaurus();
         this.validationService = validationService;
-    }
-
-    @Reference
-    public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
-        this.usagePointConfigurationService = usagePointConfigurationService;
-    }
-
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Reference
-    public void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
-    }
-
-    @Override
-    public String getComponentName() {
-        return UsagePointDataService.COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Stream.of(
-                Arrays.stream(ChannelDataValidationSummaryFlag.values()),
-                Arrays.stream(Subscribers.values()),
-                Arrays.stream(Privileges.values()))
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
     }
 
     /**

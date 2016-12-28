@@ -1,6 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 class UsagePointGroupPrivilegesProvider implements PrivilegesProvider {
-
     private final UserService userService;
 
     @Inject
@@ -22,7 +21,7 @@ class UsagePointGroupPrivilegesProvider implements PrivilegesProvider {
 
     @Override
     public String getModuleName() {
-        return UsagePointDataService.COMPONENT_NAME;
+        return UsagePointDataModelService.COMPONENT_NAME;
     }
 
     @Override

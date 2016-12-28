@@ -18,7 +18,7 @@ public class AllTranslationKeysTest {
     @Test
     public void testTranslationKeys() {
         Set<String> uniqueKeys = new HashSet<>();
-        for (TranslationKey entry : new UsagePointDataServiceImpl().getKeys()) {
+        for (TranslationKey entry : new UsagePointDataModelServiceImpl().getKeys()) {
             String key = entry.getKey();
             String translation = "Translation key " + entry.getClass().getName() + '#' + key;
             assertThat(key).as(translation + " has null key")
