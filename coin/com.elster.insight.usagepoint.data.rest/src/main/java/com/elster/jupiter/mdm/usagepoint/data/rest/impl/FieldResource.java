@@ -7,8 +7,9 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
-import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -30,17 +31,17 @@ public class FieldResource {
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final Clock clock;
     private final ResourceHelper resourceHelper;
-    private final UsagePointLifeCycleTransitionInfoFactory usagePointLifeCycleTransitionInfoFactory;
+    private final UsagePointTransitionInfoFactory usagePointTransitionInfoFactory;
 
 
     @Inject
-    public FieldResource(CustomPropertySetInfoFactory customPropertySetInfoFactory, TransactionService transactionService, UsagePointInfoFactory usagePointInfoFactory, Clock clock, ResourceHelper resourceHelper, UsagePointLifeCycleTransitionInfoFactory usagePointLifeCycleTransitionInfoFactory) {
+    public FieldResource(CustomPropertySetInfoFactory customPropertySetInfoFactory, TransactionService transactionService, UsagePointInfoFactory usagePointInfoFactory, Clock clock, ResourceHelper resourceHelper, UsagePointLifeCycleTransitionInfoFactory usagePointLifeCycleTransitionInfoFactory, UsagePointTransitionInfoFactory usagePointTransitionInfoFactory) {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.transactionService = transactionService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.clock = clock;
         this.resourceHelper = resourceHelper;
-        this.usagePointLifeCycleTransitionInfoFactory = usagePointLifeCycleTransitionInfoFactory;
+        this.usagePointTransitionInfoFactory = usagePointTransitionInfoFactory;
     }
 
     @POST
@@ -64,15 +65,15 @@ public class FieldResource {
     @Path("/transitions")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public List<UsagePointLifeCycleTransitionInfo> getAvailableTransitions(UsagePointInfo usagePointInfo) {
+    public List<UsagePointTransitionInfo> getAvailableTransitions(UsagePointInfo usagePointInfo) {
         UsagePoint usagePoint;
-        List<UsagePointLifeCycleTransitionInfo> availableTransitions;
+        List<UsagePointTransitionInfo> availableTransitions;
 
         TransactionContext transaction = transactionService.getContext();
         usagePoint = getUsagePoint(usagePointInfo);
         List<UsagePointTransition> transitions = resourceHelper.getAvailableTransitions(usagePoint);
         availableTransitions = transitions.stream()
-                .map(usagePointLifeCycleTransitionInfoFactory::from)
+                .map(usagePointTransitionInfoFactory::from)
                 .collect(Collectors.toList());
         transaction.close();
 

@@ -50,6 +50,7 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFacto
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilegeInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -430,6 +431,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(ormService).to(OrmService.class);
             bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
             bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
+            bind(UsagePointTransitionInfoFactory.class).to(UsagePointTransitionInfoFactory.class);
         }
     }
 
