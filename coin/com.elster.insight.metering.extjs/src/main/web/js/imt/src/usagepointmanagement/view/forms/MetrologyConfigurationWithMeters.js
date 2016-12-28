@@ -22,12 +22,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             {
                 itemId: 'metrology-configuration-with-meters-info-warning',
                 xtype: 'uni-form-error-message',
+                width: 595,
                 hidden: true
             },
             {
                 xtype: 'uni-form-info-message',
                 itemId: 'not-all-meters-specified-message',
                 text: Uni.I18n.translate('metrologyConfigurationWithMetersInfoForm.info', 'IMT', "Not all the meters are specified. The purposes of the usage point will stay in 'Incomplete' state."),
+                width: 595,
                 hidden: true
             },
             {

@@ -23,6 +23,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
             {
                 itemId: 'life-cycle-transition-info-warning',
                 xtype: 'uni-form-error-message',
+                width: 595,
                 hidden: true
             },
             {
