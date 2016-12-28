@@ -132,7 +132,14 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
                     me.getApplication().fireEvent('changecontentevent', Ext.widget('usagepointgroup-details', {
                         router: router,
                         usagePointGroup: usagePointGroup,
-                        service: service
+                        service: service,
+                        favoriteRecord: Ext.create('Imt.usagepointgroups.model.UsagePointGroupFavorite', {
+                            id: currentUsagePointGroupId,
+                            parent: {
+                                id: currentUsagePointGroupId,
+                                version: usagePointGroup.get('version')
+                            }
+                        })
                     }));
                     me.updateCriteria(usagePointGroup);
                     me.updateActionMenuVisibility(usagePointGroup);

@@ -138,7 +138,9 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     },
 
     onLoad: function () {
-        this.showGraphView();
+        if(this.output.get('outputType') == 'channel'){
+            this.showGraphView();
+        }
         this.setLoading(false);
     },
 
