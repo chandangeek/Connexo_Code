@@ -32,7 +32,7 @@ public class DataValidationEventHandler implements MessageHandler {
     public void process(Message message) {
         Map<?, ?> map = jsonService.deserialize(message.getPayload(), Map.class);
         Optional<IssueEvent> event = createEvent(map);
-        if (event.isPresent()) {
+        if (event.filter(e -> e.getEndDevice().isPresent()).isPresent()) {
             issueCreationService.dispatchCreationEvent(Collections.singletonList(event.get()));
         }
     }

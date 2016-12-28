@@ -51,7 +51,7 @@ public abstract class DataValidationEvent implements IssueEvent {
 
     @Override
     public Optional<EndDevice> getEndDevice() {
-        return Optional.of(findMeter().orElse(null));
+        return Optional.ofNullable(findMeter().orElse(null));
     }
 
     public long getDeviceConfigurationId() {
