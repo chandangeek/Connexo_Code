@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -70,10 +71,12 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 
     private final AS220 as220;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder) {
+    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.as220 = as220;
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
         addSupportedMessageTag(CONNECT_EMETER);
         addSupportedMessageTag(DISCONNECT_EMETER);
         addSupportedMessageTag(ARM_EMETER);
@@ -256,7 +259,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
             }
 
             try {
-                String xmlContent = new CodeTableXml(this.calendarFinder).parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate);
+                String xmlContent = new CodeTableXml(this.calendarFinder, this.extractor).parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate);
                 builder.append(xmlContent);
             } catch (ParserConfigurationException e) {
                 return null;

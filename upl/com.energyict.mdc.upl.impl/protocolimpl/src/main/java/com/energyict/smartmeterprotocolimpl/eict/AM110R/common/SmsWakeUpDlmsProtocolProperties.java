@@ -1,9 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.common;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +35,16 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
     private long pollTimeOut;
     private int firstPollDelay;
     private int secondPollDelay;
+
+    private final PropertySpecService propertySpecService;
+
+    protected SmsWakeUpDlmsProtocolProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
 
     /**
      * Getter for the base URL of the Proximus VAMP SMS API
@@ -124,13 +137,21 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
 
     protected List<PropertySpec> getSmsWakeUpPropertySpecs(boolean required) {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(SMS_BASE_URL_PROP, required),
-                UPLPropertySpecFactory.string(SMS_SOURCE_PROP, required),
-                UPLPropertySpecFactory.string(SMS_AUTH_PROP, required),
-                UPLPropertySpecFactory.string(SMS_SERVICE_CODE_PROP, required),
-                UPLPropertySpecFactory.string(SMS_PHONE_NUMBER_PROP, required),
-                UPLPropertySpecFactory.longValue(WAKEUP_POLLING_TIMEOUT, required),
-                UPLPropertySpecFactory.string(WAKEUP_POLLING_FREQUENCY, required));
+                this.spec(SMS_BASE_URL_PROP, required, this.propertySpecService::stringSpec),
+                this.spec(SMS_SOURCE_PROP, required, this.propertySpecService::stringSpec),
+                this.spec(SMS_AUTH_PROP, required, this.propertySpecService::stringSpec),
+                this.spec(SMS_SERVICE_CODE_PROP, required, this.propertySpecService::stringSpec),
+                this.spec(SMS_PHONE_NUMBER_PROP, required, this.propertySpecService::stringSpec),
+                this.spec(WAKEUP_POLLING_TIMEOUT, required, this.propertySpecService::longSpec),
+                this.spec(WAKEUP_POLLING_FREQUENCY, required, this.propertySpecService::stringSpec));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
     }
 
 }

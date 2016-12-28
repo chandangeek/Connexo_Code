@@ -100,10 +100,10 @@ public class Logbook {
 
         return false;
     }
-    
-    public List getMeterEvents(DataContainer dc) {
+
+    public List<MeterEvent> getMeterEvents(DataContainer dc) {
         int size = dc.getRoot().getNrOfElements();
-        List meterEvents = new ArrayList(size);
+        List<MeterEvent> meterEvents = new ArrayList<>(size);
 
         Date eventTimeStamp = null;
         for (int i = (size - 1); i >= 0; i--) {
@@ -129,26 +129,26 @@ public class Logbook {
         }
         return meterEvents;
     }
-    
+
     private MeterEvent buildMeterEvent(int eventType, int eventParameter, Date eventTimeStamp) {
         int eiCode=MeterEvent.OTHER;
         String message=null;
-        
+
         switch(eventType) {
-            case EVENT_PERIODICAL_EOI: 
+            case EVENT_PERIODICAL_EOI:
                 return null;    // For normal end of interval events - occurring at the end of each interval period - we do not create a EiServer event
             case EVENT_ASYNCHRONOUS_EOI:
                 message = "Asynchronous end of interval";
                 break;
-            case EVENT_PERIODICAL_EOB: 
+            case EVENT_PERIODICAL_EOB:
                 eiCode = MeterEvent.BILLING_ACTION;
                 message = "Periodical end of billing";
                 break;
-            case EVENT_PROGRAMMED_EOB: 
+            case EVENT_PROGRAMMED_EOB:
                 eiCode = MeterEvent.BILLING_ACTION;
                 message = "Programmed end of billing";
                 break;
-            case EVENT_ASYNCHRONOUS_EOB: 
+            case EVENT_ASYNCHRONOUS_EOB:
                 eiCode = MeterEvent.BILLING_ACTION;
                 message = "Asynchroneous end of billing";
                 break;

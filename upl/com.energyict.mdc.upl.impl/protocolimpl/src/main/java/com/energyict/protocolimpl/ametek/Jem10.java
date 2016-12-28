@@ -72,7 +72,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
         cal.setTimeInMillis(0);
         boolean noDate = true;
         Date startTime = cal.getTime();
-        List dataList = new ArrayList();
+        List<List<BigDecimal>> dataList = new ArrayList<>();
         List<BigDecimal> partialVals = new ArrayList<>();
 
         ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
@@ -99,7 +99,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
                 }
                 BigDecimal bd;
                 if (!partialVals.isEmpty()) {
-                    bd = (BigDecimal) partialVals.remove(0);
+                    bd = partialVals.remove(0);
                 } else {
                     bd = new BigDecimal(0);
                 }
@@ -142,7 +142,7 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
                             IntervalData id = new IntervalData(cal.getTime(), eiStatus);
                             id.addValues(values);
                             pd.addInterval(id);
-                            partialVals = new ArrayList();
+                            partialVals = new ArrayList<>();
                             cal.setTime(endTime);
                             ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
                             eiStatus = IntervalStateBits.POWERUP;
@@ -166,9 +166,9 @@ public abstract class Jem10 extends Jem implements MessageProtocol {
 
             if (noDate) {
                 dataList.add(values);
-                partialVals = new ArrayList();
+                partialVals = new ArrayList<>();
             } else {
-                partialVals = new ArrayList();
+                partialVals = new ArrayList<>();
                 if (!dataList.isEmpty()) {
                     Calendar c = (Calendar) cal.clone();
                     c.setTime(startTime);

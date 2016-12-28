@@ -26,14 +26,13 @@ import java.io.IOException;
  */
 public class ObisCodeMapper {
 
-    S200 s200;
+    private final S200 s200;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(S200 s200) {
         this.s200=s200;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
@@ -49,7 +48,7 @@ public class ObisCodeMapper {
                     return new RegisterValue(obisCode,new Quantity(s200.getCommandFactory().getMeterDataCommand(obisCode.getB()-1).getBigDecimalCumulativePulseCount(),Unit.get("")));
                 }
             } else {
-                return new RegisterInfo(obisCode.getDescription());
+                return new RegisterInfo(obisCode.toString());
             }
         }
 

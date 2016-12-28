@@ -35,6 +35,10 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
 
     protected SecurityProvider securityProvider;
 
+    public AM110RProperties() {
+        super(propertySpecService);
+    }
+
     @ProtocolProperty
     public DLMSReference getReference() {
         return DLMSReference.LN;

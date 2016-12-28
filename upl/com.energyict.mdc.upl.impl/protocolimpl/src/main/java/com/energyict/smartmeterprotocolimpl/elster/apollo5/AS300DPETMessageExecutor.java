@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -25,7 +26,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
 
     private static final ObisCode PET_SETUP = ObisCode.fromString("0.128.0.2.0.255");
 
-    public AS300DPETMessageExecutor(final AbstractSmartDlmsProtocol protocol) {
+    public AS300DPETMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder) {
         super(protocol, calendarFinder);
     }
 
@@ -58,7 +59,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
     protected MessageResult setPublicKeysOfAggregationGroup(MessageEntry messageEntry) throws IOException {
 
         List<String> allKeyPairs = parseKeyPairs(messageEntry);
-        List<String> allKeyPairsPairsExceptOwn = new ArrayList<String>();        //A list of all key pairs, except our own public key pair.
+        List<String> allKeyPairsPairsExceptOwn = new ArrayList<>();        //A list of all key pairs, except our own public key pair.
         String ownKeyPair = getOwnPublicKeyPair();
 
         for (String keyPair : allKeyPairs) {
@@ -85,7 +86,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
     protected List<String> parseKeyPairs(MessageEntry messageEntry) throws IOException {
         String content = messageEntry.getContent();
         int index = 1;
-        List<String> keyPairs = new ArrayList<String>();
+        List<String> keyPairs = new ArrayList<>();
         while (true) {
             try {
                 String keyPair = getValueFromXML(AS300DPETMessaging.KEY + String.valueOf(index), content);

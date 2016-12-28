@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -66,6 +67,11 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
      * The used {@link AS300PMessaging} for messaging
      */
     protected AS300PMessaging messageProtocol;
+    private final PropertySpecService propertySpecService;
+
+    public AS300P(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     protected void initAfterConnect() throws ConnectionException {
@@ -231,7 +237,7 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
     @Override
     public AS300PProperties getProperties() {
         if (properties == null) {
-            properties = new AS300PProperties();
+            properties = new AS300PProperties(this.propertySpecService);
         }
         return properties;
     }

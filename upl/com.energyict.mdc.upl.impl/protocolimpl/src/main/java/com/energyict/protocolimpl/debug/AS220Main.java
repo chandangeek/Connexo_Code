@@ -32,9 +32,9 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -111,7 +111,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     public AS220 getMeterProtocol() {
         if (as220 == null) {
-            as220 = new AS220();
+            as220 = new AS220(new NoTariffCalendars(), new DummyExtractor());
             log("Created new instance of " + as220.getClass().getCanonicalName() + " [" + as220.getProtocolVersion() + "]");
         }
         return as220;
@@ -248,7 +248,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     public void readObjectList() throws IOException {
         UniversalObject[] uo = getMeterProtocol().getMeterConfig().getInstantiatedObjectList();
         for (UniversalObject universalObject : uo) {
-            System.out.println(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()) + " [" + universalObject.getBaseName() + "] " + universalObject.getObisCode().getDescription());
+            System.out.println(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()) + " [" + universalObject.getBaseName() + "] " + universalObject.getObisCode().toString());
         }
     }
 
@@ -350,7 +350,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     private void examineObisCode(ObisCode obisCode) {
         log("");
-        log(obisCode + " = " + obisCode.getDescription());
+        log(obisCode + " = " + obisCode.toString());
         for (int i = 0; i < 0x70; i += 8) {
             try {
                 GenericRead gr = getMeterProtocol().getCosemObjectFactory().getGenericRead(obisCode, i);
@@ -369,7 +369,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     private List<String> getFullRegisterList() {
-        List<String> registers = new ArrayList<String>();
+        List<String> registers = new ArrayList<>();
 
         registers.add("0.0.26.0.0.10");
         registers.add("0.0.26.0.0.11");
@@ -480,19 +480,11 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
     }
 
     private void readRegisters(String... registers) {
-        List registerList = new ArrayList();
-        for (Object register : registers) {
-            registerList.add(register);
-        }
-        readRegisters(registerList);
+        readRegisters(Arrays.asList(registers));
     }
 
     private void readRegisters(ObisCode... registers) {
-        List registerList = new ArrayList();
-        for (Object register : registers) {
-            registerList.add(register);
-        }
-        readRegisters(registerList);
+        readRegisters(Arrays.asList(registers));
     }
 
     public void firmwareUpgrade(byte[] base64Firmware) throws IOException {
@@ -505,18 +497,12 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     private String getB64EncodedFirmareString() throws IOException {
         File file = new File("C:\\Documents and Settings\\jme\\Desktop\\AM500_20110607_V2.08\\MeterEandis.v2.08_Serial_Release_ImageTransfer.bin");
-        FileInputStream fis = null;
         byte[] content = new byte[(int) file.length()];
 
-        try {
-            fis = new FileInputStream(file);
+        try (FileInputStream fis = new FileInputStream(file)) {
             fis.read(content);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            fis.close();
         }
 
         Base64EncoderDecoder base64Encoder = new Base64EncoderDecoder();

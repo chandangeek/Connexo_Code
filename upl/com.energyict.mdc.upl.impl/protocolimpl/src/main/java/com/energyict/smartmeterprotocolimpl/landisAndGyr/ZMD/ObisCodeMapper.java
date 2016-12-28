@@ -40,17 +40,14 @@ public class ObisCodeMapper {
     private final DLMSMeterConfig meterConfig;
     private final ZMD protocol;
 
-    /**
-     * Creates a new instance of ObisCodeMapper
-     */
     public ObisCodeMapper(final CosemObjectFactory cof, final DLMSMeterConfig meterConfig, final ZMD protocol) {
         this.cof = cof;
         this.meterConfig = meterConfig;
         this.protocol = protocol;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(Register register) throws IOException {
@@ -59,9 +56,9 @@ public class ObisCodeMapper {
 
     private Object doGetRegister(Register register) throws IOException {
 
-        RegisterValue registerValue = null;
+        RegisterValue registerValue;
         ObisCode obisCode = register.getObisCode();
-        int billingPoint = -1;
+        int billingPoint;
 
         // obis F code
         if ((obisCode.getF() >= 0) && (obisCode.getF() <= 99)) {
@@ -76,11 +73,11 @@ public class ObisCodeMapper {
 
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-        if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
+        if ((obisCode.toString().contains("1.0.0.1.0.255")) || (obisCode.toString().contains("1.1.0.1.0.255"))) { // billing counter
             registerValue = new RegisterValue(register, cof.getCosemObject(ObisCode.fromString("1.0.0.1.0.255")).getQuantityValue());
             return registerValue;
         } // billing counter
-        else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+        else if ((obisCode.toString().contains("1.0.0.1.2.")) || (obisCode.toString().contains("1.1.0.1.2."))) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                 registerValue = new RegisterValue(register,
                         cof.getStoredValues().getBillingPointTimeDate(billingPoint));
@@ -230,7 +227,7 @@ public class ObisCodeMapper {
         return new Date(gcalendarMeter.getTime().getTime());
     }
 
-    private Calendar buildCalendar(byte[] responseData) throws IOException {
+    private Calendar buildCalendar(byte[] responseData) {
         Calendar gcalendarMeter = null;
 
         int status = (int) responseData[13] & 0xFF;

@@ -31,18 +31,17 @@ import java.util.TimeZone;
  */
 public class AS220StoredValues implements StoredValues {
 
-    public static final ObisCode MONTHLY_OBISCODE = ObisCode.fromString("0.0.98.1.0.255");
     public static final ObisCode DAILY_OBISCODE = ObisCode.fromString("1.0.99.2.0.255");
 
     private final ObisCode obisCode;
     private final CosemObjectFactory cosemObjectFactory;
 
-    private List<UnitInfo> unitInfos = new ArrayList<UnitInfo>();
+    private List<UnitInfo> unitInfos = new ArrayList<>();
     private ProfileGeneric profileGeneric = null;
     private List<ObisCode> capturedCodes = null;
     private Array dataArray = null;
 
-	public AS220StoredValues(ObisCode obisCode, CosemObjectFactory cosemObjectFactory) throws IOException {
+	public AS220StoredValues(ObisCode obisCode, CosemObjectFactory cosemObjectFactory) {
 		this.obisCode = obisCode;
 		this.cosemObjectFactory = cosemObjectFactory;
 	}
@@ -57,7 +56,7 @@ public class AS220StoredValues implements StoredValues {
 
     private List<ObisCode> getCapturedCodes() throws IOException {
         if (capturedCodes == null) {
-            this.capturedCodes = new ArrayList<ObisCode>();
+            this.capturedCodes = new ArrayList<>();
             for (CapturedObject co : getProfileGeneric().getCaptureObjects()) {
                 if (co.getClassId() != DLMSClassId.CLOCK.getClassId()) {
                     capturedCodes.add(co.getLogicalName().getObisCode());
@@ -86,8 +85,7 @@ public class AS220StoredValues implements StoredValues {
 	}
 
     private TimeZone getTimeZone() {
-        TimeZone timeZone = getCosemObjectFactory().getProtocolLink().getTimeZone();
-        return timeZone;
+	    return getCosemObjectFactory().getProtocolLink().getTimeZone();
     }
 
 	public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
@@ -107,8 +105,8 @@ public class AS220StoredValues implements StoredValues {
         RetryHandler retryHandler = new RetryHandler();
 
 
-        Date billingPointTimeDate = null;
-        HistoricalRegister historicalRegister = null;
+        Date billingPointTimeDate;
+        HistoricalRegister historicalRegister;
         do {
             try {
                 BigDecimal value = getValue(baseObisCode, billingPoint);
@@ -203,7 +201,7 @@ public class AS220StoredValues implements StoredValues {
 		private final Unit unit;
 		private final ScalerUnit scalerUnit;
 
-		public UnitInfo(ObisCode obisCode, Unit unit, ScalerUnit scalerUnit) {
+		private UnitInfo(ObisCode obisCode, Unit unit, ScalerUnit scalerUnit) {
 			this.obis = obisCode;
 			this.unit = unit;
 			this.scalerUnit = scalerUnit;
@@ -213,11 +211,10 @@ public class AS220StoredValues implements StoredValues {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-
 		String crlf = "\r\n";
+		StringBuilder builder = new StringBuilder();
 
-		int billingPointCount = 0;
+		int billingPointCount;
 
 		try {
 			billingPointCount = getBillingPointCounter();
@@ -225,31 +222,31 @@ public class AS220StoredValues implements StoredValues {
 			billingPointCount = 0;
 		}
 
-		sb.append("AS220StoredValues").append(crlf);
-		sb.append(" > getBillingPointCounter = ").append(billingPointCount).append(crlf);
+		builder.append("AS220StoredValues").append(crlf);
+		builder.append(" > getBillingPointCounter = ").append(billingPointCount).append(crlf);
 
-		sb.append(" > obisCodes = ").append(crlf);
+		builder.append(" > obisCodes = ").append(crlf);
         try {
             for (ObisCode oc : getCapturedCodes()) {
-                sb.append("     # ").append(oc).append(" - ");
-                sb.append(oc.getDescription()).append(crlf);
+                builder.append("     # ").append(oc).append(" - ");
+                builder.append(oc.toString()).append(crlf);
             }
         } catch (IOException e) {
-            sb.append(e.getMessage()).append(crlf);
+            builder.append(e.getMessage()).append(crlf);
         }
 
-        sb.append(" > billingPointDates = ").append(crlf);
+        builder.append(" > billingPointDates = ").append(crlf);
 		for (int i = 0; i < billingPointCount; i++) {
-			sb.append("     # ").append(i).append(" = ");
+			builder.append("     # ").append(i).append(" = ");
 			try {
-				sb.append(getBillingPointTimeDate(i)).append(crlf);
+				builder.append(getBillingPointTimeDate(i)).append(crlf);
 			} catch (IOException e) {
-				sb.append(e.getMessage()).append(crlf);
+				builder.append(e.getMessage()).append(crlf);
 			}
 		}
-		sb.append(crlf);
+		builder.append(crlf);
 
-		return sb.toString();
+		return builder.toString();
 	}
 
 }

@@ -783,18 +783,18 @@ public final class ProtocolTools {
                         toAdd.add(id);
                     }
                 }
-                Number[] value = new Number[id2compare.getValueCount()];
+                List<Number> values = new ArrayList<>(id2compare.getValueCount());
                 IntervalData md = new IntervalData(id2compare.getEndTime());
                 for (IntervalData intervalData : toAdd) {
-                    for (int i = 0; i < value.length; i++) {
-                        if (value[i] == null) {
-                            value[i] = intervalData.get(i);
+                    for (int i = 0; i < id2compare.getValueCount(); i++) {
+                        if (values.get(i) == null) {
+                            values.set(i, intervalData.get(i));
                         } else {
-                            value[i] = NumberTools.add(value[i], intervalData.get(i));
+                            values.set(i, NumberTools.add(values.get(i), intervalData.get(i)));
                         }
                     }
                 }
-                md.addValues(value);
+                md.addValues(values);
                 mergedIntervals.add(md);
             }
 

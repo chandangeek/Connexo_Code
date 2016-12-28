@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
@@ -59,9 +61,9 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private FirmwareVersions activeFirmwareVersion;
     private FirmwareVersions passiveFirmwareVersion;
 
-    public AS220() {
+    public AS220(TariffCalendarFinder calendarFinder, Extractor extractor) {
     	messagingList = new ArrayList<>();
-    	messagingList.add(new AS220Messaging(this, calendarFinder));
+    	messagingList.add(new AS220Messaging(this, calendarFinder, extractor));
     	messagingList.add(new PLCMessaging(this));
     }
 

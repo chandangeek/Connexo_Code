@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 
 /**
  * <P>
@@ -20,9 +21,13 @@ import java.util.Properties;
  * @author gna
  */
 @Deprecated
-public class DLMSZMD_EXT extends DLMSZMD{
+public class DLMSZMD_EXT extends DLMSZMD {
 
 	private int profileInterval;
+
+    public DLMSZMD_EXT(TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(calendarFinder, extractor);
+    }
 
     @Override
     public int getProfileInterval() {
@@ -35,8 +40,8 @@ public class DLMSZMD_EXT extends DLMSZMD{
     }
 
     @Override
-    public void doSetProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException{
-    	profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "900"));
+    protected void doSetProperties(TypedProperties properties) throws PropertyValidationException {
+    	profileInterval = Integer.parseInt((String) properties.getProperty("ProfileInterval", "900"));
     	super.doSetProperties(properties);
     }
 

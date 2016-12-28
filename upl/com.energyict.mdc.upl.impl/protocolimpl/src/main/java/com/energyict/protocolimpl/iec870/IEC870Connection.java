@@ -6,37 +6,42 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.mdc.io.NestedIOException;
 
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
  * @author  Koen
  */
 public class IEC870Connection extends Connection {
-    
+
     final int DEBUG=0;
-    
+
     // General attributes
     private InputStream inputStream;
     private int iProtocolTimeout;
     int iMaxRetries;
     TimeZone timeZone=null;
-    
+
     // frame variables
     int rtuAddress=0xFFFF;
     boolean fcb=false;
-    
-    
+
+
     IEC870Frame currentFrameRx=null;
     IEC870Frame currentFrameTx=null;
-    
+
     /** Creates a new instance of IEC870Connection */
     public IEC870Connection(InputStream inputStream,
                             OutputStream outputStream,
@@ -44,26 +49,26 @@ public class IEC870Connection extends Connection {
                             int iMaxRetries,
                             long lForceDelay,
                             int iEchoCancelling,
-                            TimeZone timeZone) throws ConnectionException {
+                            TimeZone timeZone) {
         super(inputStream,outputStream,lForceDelay,iEchoCancelling);
         this.inputStream = inputStream;
         this.iMaxRetries = iMaxRetries;
         this.timeZone = timeZone;
-        
+
         iProtocolTimeout=iTimeout;
-        
+
         currentFrameRx=null;
         currentFrameTx=null;
-        
+
         rtuAddress = 0xFFFF;
-        
+
     } // public FlagIEC1107Connection(...)
-    
+
     private void printFrame(IEC870Frame frame) {
         System.out.println(frame.toString(timeZone));
     }
-    
-    public void connectLink() throws NestedIOException,IEC870ConnectionException {
+
+    public void connectLink() throws NestedIOException, IEC870ConnectionException {
         try {
             IEC870Frame frame;
             int retries=0;
@@ -77,26 +82,26 @@ public class IEC870Connection extends Connection {
                     waitFor(IEC870Frame.CONTROL_RESPOND_STATUS_LINK);
                     return;
                 }
-                catch(ConnectionException e) {
+                catch (ConnectionException e) {
                     if (retries++ > (iMaxRetries-1)) {
                         throw new IEC870ConnectionException("IEC870Connection, connectLink, max retries"+MAX_RETRIES_ERROR);
                     }
                 }
             } // while(true)
         }
-        catch(ConnectionException e) {
+        catch (ConnectionException e) {
             throw new IEC870ConnectionException("IEC870Connection, connectLink, ConnectionException, "+e.getMessage());
         }
     }
-    
+
     public void disconnectLink() throws IEC870ConnectionException {
-        
+
     }
-    
+
     public int getRTUAddress() {
-       return rtuAddress;  
+       return rtuAddress;
     }
-    
+
     /*
      * Copy currentFrameTx to previousFrameTx frame.
      * Adjust FCB in currentFrameTx.
@@ -106,15 +111,17 @@ public class IEC870Connection extends Connection {
         try {
             currentFrameTx = new IEC870Frame(function,rtuAddress);
             fcb = currentFrameTx.toggleFCB(fcb);
-            if (DEBUG >= 1) printFrame(currentFrameTx);
+            if (DEBUG >= 1) {
+                printFrame(currentFrameTx);
+            }
             sendRawData(currentFrameTx.getData());
         }
-        catch(ConnectionException e) {
+        catch (ConnectionException e) {
             throw new IEC870ConnectionException("IEC870Connection, sendFrame, ConnectionException, "+e.getMessage());
         }
     }
-    
-    
+
+
     /*
      * Copy currentFrameTx to previousFrameTx frame.
      * Adjust FCB in currentFrameTx.
@@ -124,26 +131,29 @@ public class IEC870Connection extends Connection {
         try {
             currentFrameTx = new IEC870Frame(function,rtuAddress,asdu);
             fcb=currentFrameTx.toggleFCB(fcb);
-            if (DEBUG >= 1) printFrame(currentFrameTx);
+            if (DEBUG >= 1) {
+                printFrame(currentFrameTx);
+            }
             sendRawData(currentFrameTx.getData());
         }
-        catch(ConnectionException e) {
+        catch (ConnectionException e) {
             throw new IEC870ConnectionException("IEC870Connection, sendFrame, ConnectionException, "+e.getMessage());
         }
     }
-    
+
     private void reSendCurrentFrameTx() throws NestedIOException, IEC870ConnectionException {
-        if (DEBUG >= 1) printFrame(currentFrameTx);
+        if (DEBUG >= 1) {
+            printFrame(currentFrameTx);
+        }
         try {
             sendRawData(currentFrameTx.getData());
         }
-        catch(ConnectionException e) {
+        catch (ConnectionException e) {
             throw new IEC870ConnectionException("IEC870Connection, sendCurrentFrame, ConnectionException, "+e.getMessage());
         }
     }
-    
-    public List sendConfirm(IEC870ASDU asdu) throws NestedIOException,ConnectionException {
-        List asdus=null;
+
+    public List sendConfirm(IEC870ASDU asdu) throws NestedIOException, ConnectionException {
         int retries=0;
         sendFrame(IEC870Frame.CONTROL_SEND_CONFIRM_USER_DATA,asdu);
         while(true) {
@@ -162,29 +172,31 @@ public class IEC870Connection extends Connection {
             }
         }
     }
-    
+
     /*
      * The linkLayerStateMachine collects APDU's using polling for data class1/2. The state machine continues polling for data class1/2 (with a timeout of 10 sec.) until the first secondary frame
      * RESPOND[user data] is received.
      */
-    
+
     private static final int POLL_TIMEOUT = 10000;
-    
+
     private static final int STATE_WAIT_FOR_FRAME=0;
     private static final int STATE_WAIT_FOR_CLASS1=1;
     private static final int STATE_WAIT_FOR_CLASS2=2;
-    
+
     private List linkLayerStateMachine() throws NestedIOException,IEC870ConnectionException {
         long lMSTimeout;
-        List asdus = new ArrayList();
+        List<IEC870ASDU> asdus = new ArrayList<>();
         int state = STATE_WAIT_FOR_FRAME;
         boolean booleanUserDataReceived=false;
-        
+
         lMSTimeout = System.currentTimeMillis() + POLL_TIMEOUT;
-        
+
         while(true) {
             currentFrameRx = waitForFrame();
-            if (DEBUG >= 1) printFrame(currentFrameRx);
+            if (DEBUG >= 1) {
+                printFrame(currentFrameRx);
+            }
             switch(state) {
                 case STATE_WAIT_FOR_FRAME: {
                     if (currentFrameRx.isSingleCharAck()) {
@@ -201,9 +213,11 @@ public class IEC870Connection extends Connection {
                             state = STATE_WAIT_FOR_CLASS2;
                         }
                     }
-                    else throw new IEC870ConnectionException("IEC870Connection, linkLayerStateMachine, frame error, control=0x"+Integer.toHexString(currentFrameRx.getControl()));
+                    else {
+                        throw new IEC870ConnectionException("IEC870Connection, linkLayerStateMachine, frame error, control=0x" + Integer.toHexString(currentFrameRx.getControl()));
+                    }
                 } break;
-                
+
                 case STATE_WAIT_FOR_CLASS1: {
                     if (currentFrameRx.isFunction(IEC870Frame.CONTROL_RESPOND_NACK)) {
                         sendFrame(IEC870Frame.CONTROL_REQUEST_RESPOND_CLASS2);
@@ -216,9 +230,11 @@ public class IEC870Connection extends Connection {
                         sendFrame(IEC870Frame.CONTROL_REQUEST_RESPOND_CLASS2);
                         state = STATE_WAIT_FOR_CLASS2;
                     }
-                    else  throw new IEC870ConnectionException("IEC870Connection, linkLayerStateMachine, frame error, control=0x"+Integer.toHexString(currentFrameRx.getControl()));
+                    else {
+                        throw new IEC870ConnectionException("IEC870Connection, linkLayerStateMachine, frame error, control=0x" + Integer.toHexString(currentFrameRx.getControl()));
+                    }
                 } break;
-                
+
                 case STATE_WAIT_FOR_CLASS2: {
                     if (currentFrameRx.isFunction(IEC870Frame.CONTROL_RESPOND_NACK)) {
                         if (currentFrameRx.isACD()) {
@@ -226,9 +242,10 @@ public class IEC870Connection extends Connection {
                             state = STATE_WAIT_FOR_CLASS1;
                         }
                         else {
-                            
-                            if (booleanUserDataReceived) return asdus; // end of story...
-                            else if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+
+                            if (booleanUserDataReceived) {
+                                return asdus; // end of story...
+                            } else if (System.currentTimeMillis() - lMSTimeout > 0) {
                                 System.out.println("timeout...");
                                 return asdus; // end of story...
                             }
@@ -236,7 +253,7 @@ public class IEC870Connection extends Connection {
                                 sendFrame(IEC870Frame.CONTROL_REQUEST_RESPOND_CLASS2);
                                 state = STATE_WAIT_FOR_CLASS2;
                             }
-                            
+
                         }
                     }
                     else if (currentFrameRx.isFunction(IEC870Frame.CONTROL_RESPOND_USER_DATA)) {
@@ -246,27 +263,32 @@ public class IEC870Connection extends Connection {
                         sendFrame(IEC870Frame.CONTROL_REQUEST_RESPOND_CLASS2);
                         state = STATE_WAIT_FOR_CLASS2;
                     }
-                    else  throw new IEC870ConnectionException("IEC870Connection, linkLayerStateMachine, frame error, control=0x"+Integer.toHexString(currentFrameRx.getControl()));
-                    
+                    else {
+                        throw new IEC870ConnectionException("IEC870Connection, linkLayerStateMachine, frame error, control=0x" + Integer.toHexString(currentFrameRx.getControl()));
+                    }
+
                 } break;
-                
+
             } // switch(state)
         } // while(true)
     } // private List linkLayerStateMachine() throws IEC870ConnectionException {
-    
+
     private void waitFor(int function) throws IEC870ConnectionException {
         currentFrameRx = waitForFrame();
-        if (DEBUG >= 1) printFrame(currentFrameRx);
-        if (!currentFrameRx.isFunction(function))
-            throw new IEC870ConnectionException("IEC870Connection, waitFor",FRAME_ERROR);
+        if (DEBUG >= 1) {
+            printFrame(currentFrameRx);
+        }
+        if (!currentFrameRx.isFunction(function)) {
+            throw new IEC870ConnectionException("IEC870Connection, waitFor", FRAME_ERROR);
+        }
     }
-    
+
     private static final int STATE_WAIT_FOR_START=0;
     private static final int STATE_WAIT_FOR_END=1;
     private static final int STATE_WAIT_FOR_LENGTH=2;
     private static final int STATE_WAIT_FOR_CHECKSUM=3;
     private static final int STATE_WAIT_FOR_DATA=4;
-    
+
     /*
      * Wait until timeout for a frame.
      * @return byte array with framedata.
@@ -278,19 +300,21 @@ public class IEC870Connection extends Connection {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int kar,count=0,length=0,checksumreceived,checksumcalculated;
         bos.reset();
-        
+
         lMSTimeoutInterFrame = System.currentTimeMillis() + iProtocolTimeout;
-        
+
         copyEchoBuffer();
-        
+
         try {
             while(true) {
                 if ((kar = readIn()) != -1) {
-                    if (DEBUG >= 2) ProtocolUtils.outputHex( ((int)kar));
+                    if (DEBUG >= 2) {
+                        ProtocolUtils.outputHex(kar);
+                    }
                     bos.write(kar);
                     switch(state) {
                         case STATE_WAIT_FOR_START:
-                            
+
                             if (kar == IEC870Frame.FRAME_VARIABLE_LENGTH) {
                                 state = STATE_WAIT_FOR_LENGTH;
                                 count=0;
@@ -309,7 +333,7 @@ public class IEC870Connection extends Connection {
                                 bos.reset();
                             }
                             break; // STATE_WAIT_FOR_START
-                            
+
                         case STATE_WAIT_FOR_LENGTH:
                             if (count == 0) {
                                 length = kar;
@@ -322,17 +346,17 @@ public class IEC870Connection extends Connection {
                                 state = STATE_WAIT_FOR_DATA;
                                 count=0;
                             }
-                            
+
                             break; // STATE_WAIT_FOR_LENGTH
-                            
+
                         case STATE_WAIT_FOR_DATA:
                             if (count++ >= (length-1)) {
                                 state = STATE_WAIT_FOR_CHECKSUM;
                                 count=0;
                             }
-                            
+
                             break; // STATE_WAIT_FOR_DATA
-                            
+
                         case STATE_WAIT_FOR_CHECKSUM:
                             byte data[] = bos.toByteArray();
                             checksumcalculated=0;
@@ -348,7 +372,7 @@ public class IEC870Connection extends Connection {
                                 throw new IEC870ConnectionException("IEC870Connection, waitForFrame, bad crc",CRC_ERROR);
                             }
                             break; // STATE_WAIT_FOR_CHECKSUM
-                            
+
                         case STATE_WAIT_FOR_END:
                             if (kar == 0x16) {
                                 return new IEC870Frame(bos.toByteArray());
@@ -357,19 +381,19 @@ public class IEC870Connection extends Connection {
                                 throw new IEC870ConnectionException("IEC870Connection, waitForFrame, end character invalid (0x"+Integer.toHexString(kar)+")",FRAMING_ERROR);
                             }
                     } // switch(state)
-                    
+
                 } // if ((iNewKar = readIn()) != -1)
-                if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+                if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                     throw new IEC870ConnectionException("IEC870Connection, waitForFrame, interframe timeout error",TIMEOUT_ERROR);
                 }
             } // while(true)
         }
-        catch(IOException e) {
+        catch (IOException e) {
             throw new IEC870ConnectionException("IEC870Connection, waitForFrame, "+e.getMessage());
         }
-        
+
     } // public IEC870Frame waitForFrame() throws IEC870ConnectionException
-    
+
     /*
      * For testing purposes. This method gets bytes from the inputstream until no bytes left
      * and returns a list with byte array frames.
@@ -389,7 +413,7 @@ public class IEC870Connection extends Connection {
                 bos.write(kar);
                 switch(state) {
                     case STATE_WAIT_FOR_START:
-                        
+
                         if (kar == IEC870Frame.FRAME_VARIABLE_LENGTH) {
                             state = STATE_WAIT_FOR_LENGTH;
                             count=0;
@@ -423,7 +447,7 @@ public class IEC870Connection extends Connection {
                             state = STATE_WAIT_FOR_DATA;
                             count=0;
                         }
-                        
+
                         break; // STATE_WAIT_FOR_LENGTH
                     case STATE_WAIT_FOR_DATA:
                         bosdata.write(kar);
@@ -431,9 +455,9 @@ public class IEC870Connection extends Connection {
                             state = STATE_WAIT_FOR_CHECKSUM;
                             count=0;
                         }
-                        
+
                         break; // STATE_WAIT_FOR_DATA
-                        
+
                     case STATE_WAIT_FOR_CHECKSUM:
                         checksumreceived = kar;
                         byte data[] = bosdata.toByteArray();
@@ -450,16 +474,18 @@ public class IEC870Connection extends Connection {
                             state = STATE_WAIT_FOR_START;
                         }
                         break; // STATE_WAIT_FOR_CHECKSUM
-                        
+
                     case STATE_WAIT_FOR_END:
                         if (kar == 0x16) {
                             frames.add(bos.toByteArray());
                             bos.reset();
                         }
-                        else System.out.println("Error, end character not valid");
-                        
+                        else {
+                            System.out.println("Error, end character not valid");
+                        }
+
                         state = STATE_WAIT_FOR_START;
-                        
+
                         break; // STATE_WAIT_FOR_END
                 } // switch(state)
             } // while(inputStream.available()>0)
@@ -467,8 +493,8 @@ public class IEC870Connection extends Connection {
         catch(IOException e) {
             throw new IEC870ConnectionException("IEC870Connection, parseFrames, "+e.getMessage());
         }
-        
+
         return frames;
     } // public List parseFrames()
-    
+
 } // public class IEC870Connection

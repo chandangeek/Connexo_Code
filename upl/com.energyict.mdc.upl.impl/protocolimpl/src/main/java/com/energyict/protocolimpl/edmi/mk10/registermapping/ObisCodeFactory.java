@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,7 +33,7 @@ import java.util.List;
 public class ObisCodeFactory {
 	static final int DEBUG = 0;
 	MK10 mk10;
-	List touRegisterInfos;
+	List<TOURegisterInfo> touRegisterInfos;
 	private BillingInfo billingInfo=null;
 
 	/** Creates a new instance of ObisCodeFactory */
@@ -46,8 +45,6 @@ public class ObisCodeFactory {
 	// tou register type
 	private final int TYPE_ENERGY=0;
 	private final int TYPE_MAX_DEMAND=1;
-	private final int TYPE_TIME_OF_MAX_DEMAND=2;
-
 
 	// tou period
 	private final int PERIOD_CURRENT=0;
@@ -56,16 +53,16 @@ public class ObisCodeFactory {
 	private final int PERIOD_TOTAL=15;
 
 	// tou channel
-	private final int CHANNEL_START=0;
-	private final int CHANNEL_NR_OF_CHANNELS=16;
+	private static final int CHANNEL_START=0;
+	private static final int CHANNEL_NR_OF_CHANNELS=16;
 
 	// tou register function
-	private final int RATE_UNIFIED=0;
-	private final int RATE_START=1;
+	private static final int RATE_UNIFIED=0;
+	private static final int RATE_START=1;
 
 	public void initTOURegisterInfos() throws IOException {
-		touRegisterInfos = new ArrayList();
-		TOUChannelTypeParser tou_ctp = null;
+		touRegisterInfos = new ArrayList<>();
+		TOUChannelTypeParser tou_ctp;
 
 		for (int channel=CHANNEL_START;channel<CHANNEL_NR_OF_CHANNELS;channel++) {
 			int c_definitions = mk10.getCommandFactory().getReadCommand(MK10Register.TOU_CHANNEL_DEFINITIONS + channel).getRegister().getBigDecimal().intValue();
@@ -149,11 +146,9 @@ public class ObisCodeFactory {
 
 		boolean timeOfMaxDemand=false;
 		boolean billingTimestampFrom=false;
-		boolean billingTimestampTo=false;
 
 		int dField=0;
 		int eField=255;
-
 
 		switch(period) {
 
@@ -175,7 +170,6 @@ public class ObisCodeFactory {
 		case PERIOD_PREVIOUS1: { // Time Integral 2, from begin of previous billing period to the end of the previous billing period
 			eField=0;
 			billingTimestampFrom=true;
-			billingTimestampTo=true;
 			switch(type) {
 			case TYPE_ENERGY: {
 				dField=9;
@@ -189,7 +183,6 @@ public class ObisCodeFactory {
 		} break; // PERIOD_PREVIOUS1
 
 		case PERIOD_BILLING_TOTAL: { // Time Integral 1 , from the start of measurements to the end of the previous billing period
-			billingTimestampTo=true;
 			eField=0;
 			switch(type) {
 			case TYPE_ENERGY: {
@@ -224,35 +217,35 @@ public class ObisCodeFactory {
 	}
 
 	public String getRegisterInfoDescription() {
-		StringBuffer strBuff = new StringBuffer();
-		Iterator it = touRegisterInfos.iterator();
-		while(it.hasNext()) {
-			TOURegisterInfo touri = (TOURegisterInfo)it.next();
-			strBuff.append(touri.getObisCode().toString()+", "+touri.getObisCode().getDescription()+", "+touri.getDescription()+"\n");
+		StringBuilder builder = new StringBuilder();
+		for (TOURegisterInfo touri : touRegisterInfos) {
+			builder
+                .append(touri.getObisCode().toString())
+                .append(", ")
+                .append(touri.getObisCode().toString())
+                .append(", ")
+                .append(touri.getDescription())
+                .append("\n");
 		}
-		return strBuff.toString();
+		return builder.toString();
 	}
 
 
 	private int findEdmiEnergyRegisterId(ObisCode obisCode) throws IOException {
-		Iterator it = touRegisterInfos.iterator();
-		while(it.hasNext()) {
-			TOURegisterInfo touri = (TOURegisterInfo)it.next();
-			if (touri.getObisCode().equals(obisCode)) {
-				return touri.getEdmiEnergyRegisterId();
-			}
-		}
+        for (TOURegisterInfo touri : touRegisterInfos) {
+            if (touri.getObisCode().equals(obisCode)) {
+                return touri.getEdmiEnergyRegisterId();
+            }
+        }
 		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 	}
 
 	private TOURegisterInfo findTOURegisterInfo(ObisCode obisCode) throws IOException {
-		Iterator it = touRegisterInfos.iterator();
-		while(it.hasNext()) {
-			TOURegisterInfo touri = (TOURegisterInfo)it.next();
-			if (touri.getObisCode().equals(obisCode)) {
-				return touri;
-			}
-		}
+        for (TOURegisterInfo touri : touRegisterInfos) {
+            if (touri.getObisCode().equals(obisCode)) {
+                return touri;
+            }
+        }
 		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 	}
 

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,7 +33,7 @@ public class ObisCodeFactory implements Serializable{
     /** Generated SerialVersionUID */
 	private static final long serialVersionUID = -7421692268267373026L;
 	private MK6 mk6;
-    private List touRegisterInfos;
+    private List<TOURegisterInfo> touRegisterInfos;
     private BillingInfo billingInfo=null;
 
     /** Creates a new instance of ObisCodeFactory */
@@ -46,8 +45,6 @@ public class ObisCodeFactory implements Serializable{
     // tou register type
     private static final int TYPE_ENERGY=0;
     private static final int TYPE_MAX_DEMAND=1;
-    private static final int TYPE_TIME_OF_MAX_DEMAND=8;
-
 
     // tou period
     private static final int PERIOD_CURRENT=0;
@@ -64,9 +61,8 @@ public class ObisCodeFactory implements Serializable{
     private static final int RATE_START=0;
     private static final int RATE_NR_OF_RATES=8;
 
-
     public void initTOURegisterInfos() throws IOException {
-        touRegisterInfos = new ArrayList();
+        touRegisterInfos = new ArrayList<>();
         for (int channel=CHANNEL_START;channel<CHANNEL_NR_OF_CHANNELS;channel++) {
             int edmiEnergyRegisterId = mk6.getCommandFactory().getReadCommand(0xF780+channel).getRegister().getBigDecimal().intValue();
             RegisterInf ri = RegisterFactory.getRegisterInf(edmiEnergyRegisterId&0xFFFF); // get external register!
@@ -99,7 +95,6 @@ public class ObisCodeFactory implements Serializable{
 
         int dField=0;
         int eField=255;
-
 
         switch(period) {
 
@@ -170,20 +165,22 @@ public class ObisCodeFactory implements Serializable{
     }
 
     public String getRegisterInfoDescription() {
-        StringBuffer strBuff = new StringBuffer();
-        Iterator it = touRegisterInfos.iterator();
-        while(it.hasNext()) {
-            TOURegisterInfo touri = (TOURegisterInfo)it.next();
-            strBuff.append(touri.getObisCode().toString()+", "+touri.getObisCode().getDescription()+", "+touri.getDescription()+"\n");
+        StringBuilder builder = new StringBuilder();
+        for (TOURegisterInfo touri : touRegisterInfos) {
+            builder
+                .append(touri.getObisCode().toString())
+                .append(", ")
+                .append(touri.getObisCode().toString())
+                .append(", ")
+                .append(touri.getDescription())
+                .append("\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
 
     private int findEdmiEnergyRegisterId(ObisCode obisCode) throws IOException {
-        Iterator it = touRegisterInfos.iterator();
-        while(it.hasNext()) {
-            TOURegisterInfo touri = (TOURegisterInfo)it.next();
+        for (TOURegisterInfo touri : touRegisterInfos) {
             if (touri.getObisCode().equals(obisCode)) {
                 return touri.getEdmiEnergyRegisterId();
             }
@@ -192,9 +189,7 @@ public class ObisCodeFactory implements Serializable{
     }
 
     private TOURegisterInfo findTOURegisterInfo(ObisCode obisCode) throws IOException {
-        Iterator it = touRegisterInfos.iterator();
-        while(it.hasNext()) {
-            TOURegisterInfo touri = (TOURegisterInfo)it.next();
+        for (TOURegisterInfo touri : touRegisterInfos) {
             if (touri.getObisCode().equals(obisCode)) {
                 return touri;
             }
@@ -231,7 +226,6 @@ public class ObisCodeFactory implements Serializable{
     public BillingInfo getBillingInfo() throws IOException {
         if (billingInfo==null) {
             billingInfo = new BillingInfo(mk6.getCommandFactory());
-//            System.out.println("KV_DEBUG> "+billingInfo);
         }
         return billingInfo;
     }

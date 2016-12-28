@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -42,10 +43,12 @@ public class ZMDMessages extends ProtocolMessages {
 
     private final ZMD protocol;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public ZMDMessages(final ZMD protocol, TariffCalendarFinder calendarFinder) {
+    public ZMDMessages(final ZMD protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     /**
@@ -166,7 +169,7 @@ public class ZMDMessages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder);
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder, this.extractor);
         ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (!builder.getCodeId().isEmpty()) { // codeTable implementation

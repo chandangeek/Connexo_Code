@@ -37,6 +37,10 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
 
     private SecurityProvider securityProvider;
 
+    public InHomeDisplayProperties() {
+        super(propertySpecService);
+    }
+
 
     public DLMSReference getReference() {
         return DLMSReference.LN;

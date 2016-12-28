@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -25,7 +27,7 @@ import java.util.List;
  */
 public class AS300DPET extends AS300 {
 
-    public AS300DPET() {
+    public AS300DPET(TariffCalendarFinder calendarFinder) {
         super(calendarFinder);
     }
 
@@ -37,7 +39,7 @@ public class AS300DPET extends AS300 {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
 
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(enableDataReadout);
@@ -95,7 +97,7 @@ public class AS300DPET extends AS300 {
     @Override
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this));
+            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarFinder()));
         }
         return messageProtocol;
     }

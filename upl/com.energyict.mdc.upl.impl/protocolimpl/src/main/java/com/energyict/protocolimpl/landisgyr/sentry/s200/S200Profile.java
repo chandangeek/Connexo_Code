@@ -10,13 +10,22 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.landisgyr.sentry.s200.core.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.landisgyr.sentry.s200.core.DataDumpFactory;
+import com.energyict.protocolimpl.landisgyr.sentry.s200.core.S200EventsFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -44,21 +53,20 @@ public class S200Profile {
         }
 
 
-//System.out.println("KV_DEBUG> "+profileData);      
+//System.out.println("KV_DEBUG> "+profileData);
         return profileData;
     }
 
-    private List buildChannelInfo() throws IOException {
-        List channelInfos = new ArrayList();
+    private List<ChannelInfo> buildChannelInfo() throws IOException {
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         for (int channelNr=0;channelNr<s200.getNumberOfChannels();channelNr++) {
             channelInfos.add(new ChannelInfo(channelNr,"S200 channel "+(channelNr+1),Unit.get("")));
         }
         return channelInfos;
     }
 
-    private List buildMeterEvents() throws IOException {
-
-        List meterEvents = new ArrayList();
+    private List<MeterEvent> buildMeterEvents() throws IOException {
+        List<MeterEvent> meterEvents = new ArrayList<>();
         DataDumpFactory ddf = new DataDumpFactory(s200.getCommandFactory());
         byte[] rawData = ddf.collectHistoryLogDataBlocks();
 
@@ -66,15 +74,18 @@ public class S200Profile {
 
         while((rawData.length-offset)>=5) {
             int s200EventCode = (int)rawData[offset++]&0xFF;
-            if (s200EventCode==0)
+            if (s200EventCode==0) {
                 continue;
+            }
             Calendar cal = ProtocolUtils.getCleanCalendar(s200.getTimeZone());
             cal.set(Calendar.MONTH,ProtocolUtils.BCD2hex(rawData[offset++])-1);
             cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(rawData[offset++]));
             cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(rawData[offset++]));
             cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(rawData[offset++]));
 
-            if (DEBUG>=1) System.out.println("KV_DEBUG> 1 cal="+cal.getTime());
+            if (DEBUG>=1) {
+                System.out.println("KV_DEBUG> 1 cal=" + cal.getTime());
+            }
 
             Calendar now = ProtocolUtils.getCalendar(s200.getTimeZone());
             ParseUtils.adjustYear(now,cal);
@@ -83,16 +94,16 @@ public class S200Profile {
                 cal.set(Calendar.YEAR,now.get(Calendar.YEAR));
             }
 
-            if (DEBUG>=1) System.out.println("KV_DEBUG> 2 cal="+cal.getTime());
+            if (DEBUG>=1) {
+                System.out.println("KV_DEBUG> 2 cal=" + cal.getTime());
+            }
 
             meterEvents.add(new MeterEvent(cal.getTime(),S200EventsFactory.findEventMapping(s200EventCode).getEiMeterEventCode(),s200EventCode, S200EventsFactory.findEventMapping(s200EventCode).getDescription()));
         }
-
-
         return meterEvents;
     }
 
-    private List buildIntervalData(Date lastReading) throws IOException {
+    private List<IntervalData> buildIntervalData(Date lastReading) throws IOException {
 
         // calculate nr of blocks
         long lastReadingInSeconds = lastReading.getTime()/1000;
@@ -125,45 +136,46 @@ public class S200Profile {
         DataDumpFactory ddf = new DataDumpFactory(s200.getCommandFactory());
         byte[] rawData = ddf.collectLoadProfileDataBlocks(nrOfBlocks);
 
-// KV_DEBUG    
-        if (DEBUG>=1) System.out.println("KV_DEBUG> nrOfBlocks="+nrOfBlocks);
+// KV_DEBUG
+        if (DEBUG>=1) {
+            System.out.println("KV_DEBUG> nrOfBlocks=" + nrOfBlocks);
+        }
 
-        if (DEBUG>=2) ProtocolUtils.printResponseData(rawData);
+        if (DEBUG>=2) {
+            ProtocolUtils.printResponseData(rawData);
+        }
 
-        List intervalDatas = new ArrayList();
+        List<IntervalData> intervalDatas = new ArrayList<>();
         Calendar cal = ddf.getDumpCommand().getLastEndingInterval();
         int offset=0;
-//        while((offset/2)<(rawData.length-1)) {
         for (int interval=0;interval<nrOfIntervalsPerChannel;interval++) {
             IntervalData intervalData = new IntervalData(new Date(cal.getTime().getTime()));
 
-            Number[] numbers = new Number[s200.getNumberOfChannels()];
+            List<Number> numbers = new ArrayList<>(s200.getNumberOfChannels());
             for (int channelNr=0;channelNr<s200.getNumberOfChannels();channelNr++) {
                 int value=0;
                 for (int nibbleNr=0;nibbleNr<nrOfNibbles;nibbleNr++) {
                     value <<= 4;
                     int nibbleVal = (int)ProtocolUtils.getNibble(rawData, offset++) & 0x0F;
                     value |= nibbleVal;
-                } // for (int nibbleNr=0;nibbleNr<nrOfNibbles;nibbleNr++)       
-                if (DEBUG>=1) System.out.println("KV_DEBUG> interval="+interval+", offset="+offset+", rawData.length="+rawData.length+" \n");
+                }
+                if (DEBUG>=1) {
+                    System.out.println("KV_DEBUG> interval=" + interval + ", offset=" + offset + ", rawData.length=" + rawData.length + " \n");
+                }
                 if (s200.getProtocolChannelMap()==null) {
-                    numbers[(s200.getNumberOfChannels()-1)-channelNr] = new BigDecimal(""+value);
+                    numbers.set((s200.getNumberOfChannels()-1)-channelNr, new BigDecimal("" + value));
                 }
                 else {
-                    numbers[s200.getProtocolChannelMap().getProtocolChannel(channelNr).getValue()] = new BigDecimal(""+value);
+                    numbers.set(s200.getProtocolChannelMap().getProtocolChannel(channelNr).getValue(), new BigDecimal("" + value));
                 }
-            } // for (int channelNr=0;channelNr<s200.getNumberOfChannels();channelNr++)
+            }
             intervalData.addValues(numbers);
-
 
             intervalDatas.add(intervalData);
             cal.add(Calendar.SECOND, -1*s200.getProfileInterval());
-        } // while((offset*2)<rawData.length)
+        }
 
         return intervalDatas;
-    } // private List buildIntervalData(Date lastReading) throws IOException
-
-
-
+    }
 
 }

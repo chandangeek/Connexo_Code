@@ -1,11 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalender;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 
@@ -28,7 +32,7 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
 
     public AS300 getMeterProtocol() {
         if (as300 == null) {
-            as300 = new AS300(calendarFinder);
+            as300 = new AS300(new Dummy());
             log("Created new instance of " + as300.getClass().getCanonicalName() + " [" + as300.getVersion() + "]");
         }
         return as300;
@@ -114,4 +118,10 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
         System.out.println(getMeterProtocol().getObjectFactory().getActivityCalendar().readCalendarNameActive());
     }
 
+    private static class Dummy implements TariffCalendarFinder {
+        @Override
+        public Optional<TariffCalender> from(String identifier) {
+            return Optional.empty();
+        }
+    }
 }

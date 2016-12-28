@@ -187,7 +187,7 @@ public class PrimeRegisters {
     }
 
     public static RegisterInfo translateRegister(ObisCode obisCode) {
-        return obisCode == null ? null : new RegisterInfo(obisCode.getDescription());
+        return obisCode == null ? null : new RegisterInfo(obisCode.toString());
     }
 
     /**
@@ -196,7 +196,7 @@ public class PrimeRegisters {
      * @param data The data to translate.
      * @return The ASII string.
      */
-    private static final String translateToASCII(final byte[] data) {
+    private static String translateToASCII(final byte[] data) {
         final StringBuilder builder = new StringBuilder();
 
         for (final byte b : data) {
@@ -212,7 +212,7 @@ public class PrimeRegisters {
      * @param data The data.
      * @return The resulting hex string.
      */
-    private static final String translateToHexString(final byte[] data) {
+    private static String translateToHexString(final byte[] data) {
         final StringBuilder formatBuilder = new StringBuilder();
         final Integer[] intData = new Integer[data.length];
 

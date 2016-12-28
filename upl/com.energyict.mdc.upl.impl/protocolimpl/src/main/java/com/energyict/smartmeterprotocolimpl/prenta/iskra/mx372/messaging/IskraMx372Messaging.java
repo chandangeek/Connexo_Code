@@ -26,7 +26,6 @@ import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.TCPUDPSetup;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -902,7 +901,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     public void checkMbusDevices() throws IOException, SQLException, BusinessException {
         String mSerial = "";
         Device rtu = getRtuFromDatabaseBySerialNumber();
-        if (!((rtu.getDownstreamDevices().isEmpty()) && (getProperties().getRtuType() == null))) {
+        if (!((rtu.getDownstreamDevices().isEmpty()) && (getProperties().getDeviceTypeName() == null))) {
             for (int i = 0; i < MBUS_MAX; i++) {
                 int mbusAddress = (int) protocol.getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
                 if (mbusAddress > 0) {
@@ -967,61 +966,29 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             return mbusRtu;
         }
         if (mbusList.size() > 1) {
-            String pattern = "Multiple meters where found with serial: {0}.  Data will not be read.";
-            protocol.getLogger().severe(new MessageFormat(pattern).format(new Object[]{customerID}));
+            String pattern = "Multiple meters where found with serial: {0}. Data will not be read.";
+            protocol.getLogger().severe(new MessageFormat(pattern).format(customerID));
             return null;
         }
-        DeviceType rtuType = getProperties().getRtuType();
-        if (rtuType == null) {
-            return null;
-        } else {
-            // we don't create any meters anymore!
-            return null;
-//            return createMeter(getProperties().getDeviceType(), customerID);
-        }
+        // we don't create any meters anymore!
+        return null;
     }
-
-    // we don't create any meters anymore!
-//    private Device createMeter(DeviceType type, String customerID) throws SQLException, BusinessException {
-//        DeviceShadow shadow = type.getConfigurations().get(0).newDeviceShadow();
-//        Date lastReading = shadow.getLastReading();
-//
-//        shadow.setName(customerID);
-//        shadow.setSerialNumber(customerID);
-//
-//        String folderExtName = getProperties().getFolderExtName();
-//        if (folderExtName != null) {
-//            Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
-//            ProtocolTools.closeConnection();
-//            if (result != null) {
-//                shadow.setFolderId(result.getId());
-//            } else {
-//                infoLog("No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
-//            }
-//        } else {
-//            infoLog("New meter will be placed in prototype folder.");
-//        }
-//
-//        shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
-//        shadow.setLastReading(lastReading);
-//        return mw().getDeviceFactory().create(shadow);
-//    }
 
     private void updateMbusDevices(List<Device> downstreamRtus) throws SQLException, BusinessException {
         Iterator<Device> it = downstreamRtus.iterator();
-        boolean present;
+        boolean missing;
         while (it.hasNext()) {
             Device mbus = it.next();
-            present = false;
+            missing = true;
             for (int i = 0; i < mbusDevices.length; i++) {
                 if (mbusDevices[i] != null) {
                     if (mbus.getSerialNumber().equalsIgnoreCase(mbusDevices[i].getCustomerID())) {
-                        present = true;
+                        missing = false;
                         break;
                     }
                 }
             }
-            if (!present) {
+            if (missing) {
                 mbus.updateGateway(null);
             }
         }

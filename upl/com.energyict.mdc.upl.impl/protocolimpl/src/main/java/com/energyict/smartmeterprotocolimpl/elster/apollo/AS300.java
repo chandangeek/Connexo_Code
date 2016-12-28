@@ -58,6 +58,10 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         this.calendarFinder = calendarFinder;
     }
 
+    protected TariffCalendarFinder getCalendarFinder() {
+        return calendarFinder;
+    }
+
     @Override
     public AS300Properties getProperties() {
         if (properties == null) {

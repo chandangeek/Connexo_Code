@@ -39,15 +39,14 @@ import java.util.List;
  */
 public class ObisCodeMapper {
 
-    Quantum1000 quantum1000;
+    private final Quantum1000 quantum1000;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(Quantum1000 quantum1000) {
         this.quantum1000=quantum1000;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {

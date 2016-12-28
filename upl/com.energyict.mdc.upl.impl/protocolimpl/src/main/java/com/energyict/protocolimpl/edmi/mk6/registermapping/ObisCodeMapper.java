@@ -28,22 +28,21 @@ import java.math.BigDecimal;
  */
 public class ObisCodeMapper {
 
-    private MK6 mk6;
+    private final MK6 mk6;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(MK6 mk6) {
         this.mk6=mk6;
     }
 
-    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        RegisterValue registerValue=null;
-        int billingPoint=-1;
+        int billingPoint;
 
         // obis F code
+        String obisCodeString = obisCode.toString();
         if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
 			billingPoint = obisCode.getF();
 		} else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99)) {
@@ -51,31 +50,31 @@ public class ObisCodeMapper {
 		} else if (obisCode.getF() == 255) {
 			billingPoint = -1;
 		} else {
-			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+			throw new NoSuchRegisterException("ObisCode "+ obisCodeString +" is not supported!");
 		}
 
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-        if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) ||(obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
+        if ((obisCodeString.contains("1.0.0.1.0.255")) ||(obisCodeString.contains("1.1.0.1.0.255"))) { // billing counter
             return new RegisterValue(obisCode,new Quantity(new BigDecimal(""+mk6.getObicCodeFactory().getBillingInfo().getNrOfBillingResets()),Unit.get("")));
         } // billing counter
-        else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+        else if ((obisCodeString.contains("1.0.0.1.2.")) || (obisCodeString.contains("1.1.0.1.2."))) { // billing point timestamp
             if (billingPoint == 0) {
                 return new RegisterValue(obisCode,mk6.getObicCodeFactory().getBillingInfo().getToDate());
             } else {
-				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+				throw new NoSuchRegisterException("ObisCode "+ obisCodeString +" is not supported!");
 			}
         } // billing point timestamp
-        else if ((obisCode.toString().indexOf("1.0.0.4.2.255") != -1) ||(obisCode.toString().indexOf("1.1.0.4.2.255") != -1)) { // CT numerator
+        else if ((obisCodeString.contains("1.0.0.4.2.255")) ||(obisCodeString.contains("1.1.0.4.2.255"))) { // CT numerator
             return new RegisterValue(obisCode,new Quantity(mk6.getCommandFactory().getReadCommand(0xF700).getRegister().getBigDecimal(),Unit.get("")));
         } // CT numerator
-        else if ((obisCode.toString().indexOf("1.0.0.4.3.255") != -1) ||(obisCode.toString().indexOf("1.1.0.4.3.255") != -1)) { // VT numerator
+        else if ((obisCodeString.contains("1.0.0.4.3.255")) ||(obisCodeString.contains("1.1.0.4.3.255"))) { // VT numerator
             return new RegisterValue(obisCode,new Quantity(mk6.getCommandFactory().getReadCommand(0xF701).getRegister().getBigDecimal(),Unit.get("")));
         } // VT numerator
-        else if ((obisCode.toString().indexOf("1.0.0.4.5.255") != -1) ||(obisCode.toString().indexOf("1.1.0.4.5.255") != -1)) { // CT denominator
+        else if ((obisCodeString.contains("1.0.0.4.5.255")) ||(obisCodeString.contains("1.1.0.4.5.255"))) { // CT denominator
             return new RegisterValue(obisCode,new Quantity(mk6.getCommandFactory().getReadCommand(0xF702).getRegister().getBigDecimal(),Unit.get("")));
         } // CT denominator
-        else if ((obisCode.toString().indexOf("1.0.0.4.6.255") != -1) ||(obisCode.toString().indexOf("1.1.0.4.6.255") != -1)) { // VT denominator
+        else if ((obisCodeString.contains("1.0.0.4.6.255")) ||(obisCodeString.contains("1.1.0.4.6.255"))) { // VT denominator
             return new RegisterValue(obisCode,new Quantity(mk6.getCommandFactory().getReadCommand(0xF703).getRegister().getBigDecimal(),Unit.get("")));
         } // VT denominator
         else {
@@ -83,6 +82,6 @@ public class ObisCodeMapper {
             return mk6.getObicCodeFactory().getRegisterValue(obisCode);
         }
 
-    } // public RegisterValue getRegisterValue(ObisCode obisCode)
+    }
 
-} // public class ObisCodeMapper
+}

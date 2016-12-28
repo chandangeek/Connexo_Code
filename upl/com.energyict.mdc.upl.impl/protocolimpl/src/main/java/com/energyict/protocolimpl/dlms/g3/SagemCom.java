@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.protocolimpl.dlms.g3.messaging.G3MessagingSagemCom;
 
 /**
@@ -12,13 +14,13 @@ import com.energyict.protocolimpl.dlms.g3.messaging.G3MessagingSagemCom;
  */
 public class SagemCom extends AS330D {
 
-    public SagemCom() {
+    public SagemCom(TariffCalendarFinder calendarFinder) {
         super(calendarFinder);
     }
 
     @Override
     protected void initMessaging() {
-        setMessaging(new G3MessagingSagemCom(getSession(), getProperties()));
+        setMessaging(new G3MessagingSagemCom(getSession(), getProperties(), this.getCalendarFinder()));
     }
 
     protected G3Properties getProperties() {

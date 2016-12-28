@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.IOException;
-import java.util.Iterator;
-
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -10,17 +7,16 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 
+import java.io.IOException;
+
 /**
  * @author jme
  */
 public class ExtendedLogging {
 
-	private final AS220			as220;
-	private static final String	CRLF	= "\r\n";
+	private final AS220 as220;
+	private static final String	CRLF = "\r\n";
 
-	/**
-	 * @param as220
-	 */
 	public ExtendedLogging(AS220 as220) {
 		this.as220 = as220;
 	}
@@ -30,22 +26,22 @@ public class ExtendedLogging {
 	}
 
 	public String getExtendedLogging() throws IOException {
-		StringBuffer sb = new StringBuffer();
-		sb.append(CRLF);
+		StringBuilder builder = new StringBuilder();
+		builder.append(CRLF);
 
-		sb.append("********************* All instantiated objects in the meter *********************\n");
-		sb.append(getObjectListInfo());
+		builder.append("********************* All instantiated objects in the meter *********************\n");
+		builder.append(getObjectListInfo());
 
-		sb.append("********************* Objects captured into load profile *********************\n");
-		sb.append(getProfileInfo());
+		builder.append("********************* Objects captured into load profile *********************\n");
+		builder.append(getProfileInfo());
 
-		sb.append("************************** Custom registers **************************\n");
-		sb.append(getCustumRegistersInfo());
+		builder.append("************************** Custom registers **************************\n");
+		builder.append(getCustumRegistersInfo());
 
-		sb.append("************************** Mapped attribute registers **************************\n");
-		sb.append(getMappedAttributesInfo());
+		builder.append("************************** Mapped attribute registers **************************\n");
+		builder.append(getMappedAttributesInfo());
 
-		return sb.toString();
+		return builder.toString();
 	}
 
 	private String getMappedAttributesInfo() throws IOException {
@@ -69,60 +65,48 @@ public class ExtendedLogging {
 		return sb.append(CRLF).toString();
 	}
 
-	/**
-	 * @return
-	 */
 	private String getCustumRegistersInfo() {
 		StringBuilder sb = new StringBuilder();
-		Iterator it = RegisterDescription.INFO.keySet().iterator();
-		while (it.hasNext()) {
-			ObisCode oc = ObisCode.fromString((String) it.next());
-			sb.append(oc.toString()).append(" = ").append(RegisterDescription.INFO.get(oc.toString()));
-			sb.append(CRLF);
-		}
+        for (String s : RegisterDescription.INFO.keySet()) {
+            ObisCode oc = ObisCode.fromString(s);
+            sb.append(oc.toString()).append(" = ").append(RegisterDescription.INFO.get(oc.toString()));
+            sb.append(CRLF);
+        }
 		return sb.append(CRLF).toString();
 	}
 
-	/**
-	 * @param sb
-	 * @throws IOException
-	 */
 	private String getProfileInfo() throws IOException {
-		StringBuilder sb = new StringBuilder();
-		Iterator it = getAs220().getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
-		while (it.hasNext()) {
-			CapturedObject capturedObject = (CapturedObject) it.next();
-			sb.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription()
-					+ " (load profile)\n");
+		StringBuilder builder = new StringBuilder();
+		for (CapturedObject capturedObject : getAs220().getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects()) {
+			builder
+                .append(capturedObject.getLogicalName().getObisCode().toString())
+                .append(" ")
+                .append(capturedObject.getLogicalName().getObisCode().toString())
+                .append(" (load profile)\n");
 		}
-		return sb.append(CRLF).toString();
+		return builder.append(CRLF).toString();
 	}
 
-	/**
-	 * @param CRLF
-	 * @param sb
-	 * @throws IOException
-	 */
-	private String getObjectListInfo() throws IOException {
-		StringBuffer sb = new StringBuffer();
+	private String getObjectListInfo() {
+		StringBuilder builder = new StringBuilder();
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
 
 			final ObisCode oc = universalObject.getObisCode();
 			final String shortName = "[" + universalObject.getBaseName() + "]";
 			final String classType = DLMSClassId.findById(universalObject.getClassID()).name();
-			final String description = oc.getDescription().equalsIgnoreCase(oc.toString()) ? RegisterDescription.INFO.get(oc.toString()) : oc.getDescription();
+			final String description = oc.toString().equalsIgnoreCase(oc.toString()) ? RegisterDescription.INFO.get(oc.toString()) : oc.toString();
 
-			sb.append(oc.toString()).append(" ");
-			sb.append(shortName).append(" = ");
-			sb.append(classType);
+			builder.append(oc.toString()).append(" ");
+			builder.append(shortName).append(" = ");
+			builder.append(classType);
 			if (description != null) {
-				sb.append(" ");
-				sb.append(description);
+				builder.append(" ");
+				builder.append(description);
 			}
-			sb.append(CRLF);
+			builder.append(CRLF);
 		}
-		return sb.append(CRLF).toString();
+		return builder.append(CRLF).toString();
 	}
 
 }

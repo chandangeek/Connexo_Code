@@ -1,17 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.Utils;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdw.core.DeviceType;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,8 +36,12 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     private static final String NEW_LLS_SECRET = "NewLLSSecret";
     private static final String DEFAULT_MANUFACTURER = "ISK";
 
-    private DeviceType rtuType;
+    private final PropertySpecService propertySpecService;
     private boolean bCSDCall = false;
+
+    public IskraMX372Properties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     public DLMSReference getReference() {
         return DLMSReference.LN;
@@ -51,27 +56,31 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.integer("RequestTimeZone", false),
-                UPLPropertySpecFactory.string("FirmwareVersion", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.integer("Connection", false),
-                UPLPropertySpecFactory.string("DeviceType", false),
-                UPLPropertySpecFactory.integer("TestLogging", false),
-                UPLPropertySpecFactory.string("FolderExtName", false),
-                UPLPropertySpecFactory.integer("CsdCall", false),          // enable the csd call functionality
-                UPLPropertySpecFactory.integer("IpPortNumber", false),     // portnumber for iskra meter (default 2048)
-                UPLPropertySpecFactory.integer("PollTimeOut", false),      // timeout for polling the radius database
-                UPLPropertySpecFactory.integer("CsdCallTimeOut", false),   // timeout between triggering the csd schedule and actually doing the schedule
-                UPLPropertySpecFactory.string("CsdPollFrequency", false), // seconds between 2 request to the radius server
-                UPLPropertySpecFactory.string("FixedIpAddress", false),   // use the filled in ip address for csd calls
-                UPLPropertySpecFactory.string(NEW_LLS_SECRET, false));
+                this.spec(PK_RETRIES, this.propertySpecService::integerSpec),
+                this.spec(PK_TIMEOUT, this.propertySpecService::integerSpec),
+                this.spec(SECURITY_LEVEL, this.propertySpecService::integerSpec),
+                this.spec(CLIENT_MAC_ADDRESS, this.propertySpecService::integerSpec),
+                this.spec(SERVER_MAC_ADDRESS, this.propertySpecService::stringSpec),
+                this.spec(ADDRESSING_MODE, this.propertySpecService::integerSpec),
+                this.spec(CONNECTION, this.propertySpecService::integerSpec),
+                this.spec("RequestTimeZone", this.propertySpecService::integerSpec),
+                this.spec("FirmwareVersion", this.propertySpecService::stringSpec),
+                this.spec("ExtendedLogging", this.propertySpecService::integerSpec),
+                this.spec("Connection", this.propertySpecService::integerSpec),
+                this.spec("DeviceType", this.propertySpecService::stringSpec),
+                this.spec("TestLogging", this.propertySpecService::integerSpec),
+                this.spec("FolderExtName", this.propertySpecService::stringSpec),
+                this.spec("CsdCall", this.propertySpecService::integerSpec),          // enable the csd call functionality
+                this.spec("IpPortNumber", this.propertySpecService::integerSpec),     // portnumber for iskra meter (default 2048)
+                this.spec("PollTimeOut", this.propertySpecService::integerSpec),      // timeout for polling the radius database
+                this.spec("CsdCallTimeOut", this.propertySpecService::integerSpec),   // timeout between triggering the csd schedule and actually doing the schedule
+                this.spec("CsdPollFrequency", this.propertySpecService::stringSpec), // seconds between 2 request to the radius server
+                this.spec("FixedIpAddress", this.propertySpecService::stringSpec),   // use the filled in ip address for csd calls
+                this.spec(NEW_LLS_SECRET, this.propertySpecService::stringSpec));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
     @ProtocolProperty
@@ -154,24 +163,8 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     }
 
     @ProtocolProperty
-    public DeviceType getRtuType() throws IOException {
-        if (rtuType == null) {
-            String type = getStringValue("DeviceType", "");
-
-            if (Utils.isNull(type)) {
-                // No automatic meter creation: no property DeviceType defined.
-                rtuType = null;
-            } else {
-                rtuType = mw().getDeviceTypeFactory().find(type);
-                if (rtuType == null) {
-                    throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
-                }
-                if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
-                    throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
-                }
-            }
-        }
-        return rtuType;
+    public String getDeviceTypeName() throws IOException {
+        return getStringValue("DeviceType", "");
     }
 
     @ProtocolProperty

@@ -23,6 +23,7 @@ import com.google.common.collect.Range;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -485,11 +486,11 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.clear();
 
-        Number[] channelValues;
+        List<Number> channelValues;
 
         // Check the number of Channels and fill list with available channels
         getNumberOfChannels();
-        channelValues = new Number[iListOfChannels.length];
+        channelValues = new ArrayList<>(iListOfChannels.length);
         ProfileData profileData = new ProfileData();
         //logger.info( "The following Channels provide Profiles:" );
         for (i = 0; i < iListOfChannels.length; i++) {  //logger.info( "CHN" + iListOfChannels[i] );
@@ -534,7 +535,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
             for (i = 0; i < iListOfChannels.length; i++) {
                 //channelValues[ i ] = new Long( (liReceivedData[ (4 + 1 + 2 * i) ] * 256 + liReceivedData[ (4 + 1 + 2 * i + 1) ] ) );
                 // KV 17072003 bugfix LE ipv BE
-                channelValues[i] = new Long((liReceivedData[(4 + 1 + 2 * i)] + liReceivedData[(4 + 1 + 2 * i + 1)] * 256));
+                channelValues.set(i, new Long((liReceivedData[(4 + 1 + 2 * i)] + liReceivedData[(4 + 1 + 2 * i + 1)] * 256)));
             }
 
             IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()), 0, 0, liTariffCode);

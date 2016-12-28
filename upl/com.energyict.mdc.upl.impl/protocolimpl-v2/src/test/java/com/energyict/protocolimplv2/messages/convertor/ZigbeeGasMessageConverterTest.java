@@ -123,7 +123,7 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ZigbeeGas(calendarFinder);
+        return new ZigbeeGas(calendarFinder, extractor);
     }
 
     @Override

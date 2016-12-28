@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
@@ -96,13 +97,15 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private final AbstractSmartDlmsProtocol protocol;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
     private ActivityCalendarController activityCalendarController;
     private boolean success;
 
-    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder) {
+    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -584,7 +587,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.extractor);
 
         try {
             builder.initFromXml(content);

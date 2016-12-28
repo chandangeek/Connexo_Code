@@ -10,30 +10,29 @@
 
 package com.energyict.protocolimpl.edf.trimaran.registermapping;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.RegisterValue;
 
 /**
  *
  * @author Koen
  */
 public class Register {
-    
+
     private RegisterValue registerValue;
     private String description;
-    
-    /** Creates a new instance of Register */
+
     public Register(RegisterValue registerValue) {
         this(registerValue,RegisterNameFactory.findObisCode(registerValue.getObisCode()));
     }
     public Register(RegisterValue registerValue, String description) {
         this.setRegisterValue(registerValue);
-        this.setDescription(registerValue.getObisCode().getDescription()+", "+description);
+        this.setDescription(registerValue.getObisCode().toString() + ", " + description);
     }
 
     public String toString() {
-        return getDescription()+", "+getRegisterValue();    
+        return getDescription()+", "+getRegisterValue();
     }
-    
+
     public RegisterValue getRegisterValue() {
         return registerValue;
     }
@@ -49,7 +48,5 @@ public class Register {
     private void setDescription(String description) {
         this.description = description;
     }
-    
-       
-    
+
 }

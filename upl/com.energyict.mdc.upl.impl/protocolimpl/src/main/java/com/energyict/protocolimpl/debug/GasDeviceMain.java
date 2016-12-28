@@ -20,7 +20,7 @@ public class GasDeviceMain extends AS220Main {
 
     private GasDevice gasDevice;
 
-    public static void main(String[] args) throws LinkException, IOException, InterruptedException {
+    public static void main(String[] args) {
         GasDeviceMain main = new GasDeviceMain();
         main.setCommPort(COMPORT);
         main.setBaudRate(BAUDRATE);

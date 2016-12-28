@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.cbo.BusinessException;
@@ -17,9 +18,11 @@ import java.util.Calendar;
 public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
+    private final Extractor extractor;
 
-    public AS300TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder) {
+    public AS300TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, Extractor extractor) {
         super(calendarFinder);
+        this.extractor = extractor;
     }
 
     /**
@@ -42,7 +45,7 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
         builder.append(">");
         if (!getCodeId().isEmpty()) {
             try {
-                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), extractor).parseActivityCalendarAndSpecialDayTable(getCodeId(), Calendar.getInstance().getTime().before(getActivationDate())?getActivationDate().getTime():1, getName());
+                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), this.extractor).parseActivityCalendarAndSpecialDayTable(getCodeId(), Calendar.getInstance().getTime().before(getActivationDate())?getActivationDate().getTime():1, getName());
                 addChildTag(builder, getTagCode(), getCodeId());
                 addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
             } catch (ParserConfigurationException | IOException e) {

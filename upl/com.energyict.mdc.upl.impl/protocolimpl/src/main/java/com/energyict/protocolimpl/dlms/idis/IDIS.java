@@ -87,6 +87,10 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         this.calendarFinder = calendarFinder;
     }
 
+    protected TariffCalendarFinder getCalendarFinder() {
+        return calendarFinder;
+    }
+
     private ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
             profileDataReader = new ProfileDataReader(this);

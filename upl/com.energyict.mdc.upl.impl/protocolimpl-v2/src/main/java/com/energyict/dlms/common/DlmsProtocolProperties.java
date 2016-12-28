@@ -149,7 +149,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
 
     @ProtocolProperty
     public int getForcedDelay() {
-        return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY);
+        return getIntProperty(FORCED_DELAY, BigDecimal.valueOf(DEFAULT_FORCED_DELAY.getSeconds()));
     }
 
     @ProtocolProperty

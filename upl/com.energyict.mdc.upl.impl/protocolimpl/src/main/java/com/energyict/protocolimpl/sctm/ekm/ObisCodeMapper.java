@@ -34,7 +34,6 @@ public class ObisCodeMapper {
     int autoBillingPointNrOfDigits;
     private String billingTimeStampId = "40*";
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(SCTMDumpData dump,TimeZone timeZone, RegisterConfig regs,int autoBillingPointNrOfDigits) {
         this.dump=dump;
         this.timeZone=timeZone;
@@ -46,7 +45,7 @@ public class ObisCodeMapper {
         this.billingTimeStampId = billingTimeStampId;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null,null,null,-1);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
@@ -114,10 +113,8 @@ public class ObisCodeMapper {
     }
 
     protected Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
-        RegisterValue registerValue=null;
-        String registerName=null;
-        Unit unit = null;
-        int billingPoint=-1;
+        RegisterValue registerValue;
+        int billingPoint;
 
         // obis F code
         if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
@@ -132,7 +129,7 @@ public class ObisCodeMapper {
 
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-        if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
+        if ((obisCode.toString().contains("1.0.0.1.0.255")) || (obisCode.toString().contains("1.1.0.1.0.255"))) { // billing counter
             if (read) {
                 registerValue = new RegisterValue(obisCode,new Quantity(new BigDecimal(dump.getBillingCounter()),Unit.get("")));
                 return registerValue;
@@ -140,7 +137,7 @@ public class ObisCodeMapper {
 				return new RegisterInfo("billing counter");
             }
         } // billing counter
-        else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+        else if ((obisCode.toString().contains("1.0.0.1.2.")) || (obisCode.toString().contains("1.1.0.1.2."))) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                 if (read) {
                 	ObisCode oc = new ObisCode(obisCode.getA(),1,obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
@@ -196,10 +193,10 @@ public class ObisCodeMapper {
                 }
             }
             else {
-                return new RegisterInfo(obisCode.getDescription());
+                return new RegisterInfo(obisCode.toString());
             }
         }
 
-    } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
+    }
 
-} // public class ObisCodeMapper
+}

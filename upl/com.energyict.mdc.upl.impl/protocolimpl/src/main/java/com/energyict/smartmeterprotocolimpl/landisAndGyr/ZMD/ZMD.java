@@ -1,9 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -62,15 +65,6 @@ import java.util.logging.Logger;
  */
 public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink, SerialNumberSupport {
 
-    protected static final ObisCode[] SerialNumberSelectionObjects = {
-            // Identification numbers 1.1, 1.2, 1.3 and 1.4
-            ObisCode.fromString("1.0.0.0.0.255"), ObisCode.fromString("1.0.0.0.1.255"), ObisCode.fromString("1.0.0.0.2.255"), ObisCode.fromString("1.0.0.0.3.255"),
-            // Identification numbers 2.1 and 2.2
-            ObisCode.fromString("0.0.96.1.0.255"), ObisCode.fromString("0.0.96.1.1.255"),
-            // Connection ID, Parametrisation ID and Configuration ID
-            ObisCode.fromString("0.0.96.2.1.255"), ObisCode.fromString("0.1.96.2.5.255"), ObisCode.fromString("0.1.96.2.2.255")
-    };
-
     protected String firmwareVersion;
 
     private CosemObjectFactory cosemObjectFactory = null;
@@ -91,8 +85,8 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
 
     private final ZMDMessages messageProtocol;
 
-    public ZMD() {
-        this.messageProtocol = new ZMDMessages(this, calendarFinder);
+    public ZMD(TariffCalendarFinder calendarFinder, Extractor extractor) {
+        this.messageProtocol = new ZMDMessages(this, calendarFinder, extractor);
     }
 
     @Override
@@ -119,7 +113,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                            //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -268,7 +262,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         return this.messageProtocol.queryMessage(messageEntry);
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return this.messageProtocol.getMessageCategories();
     }
 

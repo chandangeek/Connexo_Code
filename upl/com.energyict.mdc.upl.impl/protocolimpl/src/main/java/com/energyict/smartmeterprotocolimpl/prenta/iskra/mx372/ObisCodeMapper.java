@@ -30,17 +30,16 @@ import java.util.Date;
  */
 public class ObisCodeMapper {
 
-    CosemObjectFactory cof;
-    IskraMx372 meterProtocol;
+    private final CosemObjectFactory cof;
+    private final IskraMx372 meterProtocol;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(CosemObjectFactory cof, IskraMx372 meterProtocol) {
         this.cof = cof;
         this.meterProtocol = meterProtocol;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(Register register) throws IOException {
@@ -51,15 +50,16 @@ public class ObisCodeMapper {
 
         RegisterValue registerValue;
         ObisCode obisCode = register.getObisCode();
-        try {
+	    String obisCodeString = obisCode.toString();
+	    try {
         	if (obisCode.getF() != 255){
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! - The device doesn't support billing points.");
+                throw new NoSuchRegisterException("ObisCode "+ obisCodeString +" is not supported! - The device doesn't support billing points.");
         	}
 
             // *********************************************************************************
             // General purpose ObisRegisters & abstract general service
             // Activity Calendar name
-            if(obisCode.toString().indexOf("0.0.13.0.0.255") != -1){
+            if (obisCodeString.contains("0.0.13.0.0.255")){
             	registerValue = new RegisterValue(register,
             			null,
             			null, null, null, new Date(), 0,
@@ -91,17 +91,17 @@ public class ObisCodeMapper {
             // Abstract ObisRegisters
             if ((obisCode.getA() == 0) && (obisCode.getB() == 0)) {
 
-            	if(obisCode.toString().equalsIgnoreCase("0.0.128.20.3.255")){
+            	if("0.0.128.20.3.255".equalsIgnoreCase(obisCodeString)){
 	            	registerValue = new RegisterValue(register, null,
 	            			null, null, null, new Date(), 0, new VisibleString(cof.getData(obisCode).getAttrbAbstractDataType(2).getBEREncodedByteArray(), 0).getStr());
 	            	return registerValue;
-	            } else if(obisCode.toString().equalsIgnoreCase("0.0.128.20.20.255")){
+	            } else if("0.0.128.20.20.255".equalsIgnoreCase(obisCodeString)){
 	            	registerValue = new RegisterValue(register, null,
 	            			null, null, null, new Date(), 0, ParseUtils.decimalByteToString(OctetString.fromByteArray(cof.getData(obisCode).getAttrbAbstractDataType(2).getBEREncodedByteArray()).getContentBytes()));
 	            	return registerValue;
-	            } else if(obisCode.toString().equalsIgnoreCase(cof.getAutoConnect().getObisCode().toString())){
+	            } else if(obisCodeString.equalsIgnoreCase(cof.getAutoConnect().getObisCode().toString())){
 	            	Array phoneList = cof.getAutoConnect().readDestinationList();
-	            	StringBuffer numbers = new StringBuffer();
+	            	StringBuilder numbers = new StringBuilder();
 	            	for(int i = 0; i < phoneList.nrOfDataTypes(); i++){
 	            		numbers.append(new String(OctetString.fromByteArray(phoneList.getDataType(i).getBEREncodedByteArray()).getContentBytes()));
 	            		if(i < phoneList.nrOfDataTypes() - 1){
@@ -115,16 +115,16 @@ public class ObisCodeMapper {
 	            CosemObject cosemObject = cof.getCosemObject(obisCode);
 
 	            if (cosemObject==null){
-	                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+	                throw new NoSuchRegisterException("ObisCode "+ obisCodeString +" is not supported!");
 	            }
 
-	            if ( (obisCode.toString().indexOf("0.0.128.30.21.255") != -1) ) { // Disconnector
+	            if ( (obisCodeString.contains("0.0.128.30.21.255")) ) { // Disconnector
                     registerValue = new RegisterValue(register,
                             cosemObject.getQuantityValue(),
                             null, null, null,
                             new Date(),0);
                     return registerValue;
-	            }else if((obisCode.toString().indexOf("0.0.128.30.22.255") != -1) ) {	//ConnectorMode
+	            }else if((obisCodeString.contains("0.0.128.30.22.255")) ) {	//ConnectorMode
 	            	registerValue = new RegisterValue(register,
                             cosemObject.getQuantityValue(),
                             null, null, null,
@@ -132,7 +132,7 @@ public class ObisCodeMapper {
                     return registerValue;
 	            }
 
-	            else if (( obisCode.toString().indexOf("0.0.128.7.") != -1) || (obisCode.toString().indexOf("0.0.128.8.") != -1)){
+	            else if ((obisCodeString.contains("0.0.128.7.")) || (obisCodeString.contains("0.0.128.8."))){
 	            	registerValue = new RegisterValue(register,cosemObject.getQuantityValue());
 	            	return registerValue;
 	            }
@@ -164,7 +164,7 @@ public class ObisCodeMapper {
                     return registerValue;
                 }
                 catch(ClassCastException e) {
-                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                    throw new NoSuchRegisterException("ObisCode "+ obisCodeString +" is not supported!");
                 }
             }
 
@@ -183,7 +183,7 @@ public class ObisCodeMapper {
 
         } catch (IOException e) {
         }
-        throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
-    } // private Object doGetRegister(ObisCode obisCode) throws IOException
+        throw new NoSuchRegisterException("ObisCode " + obisCodeString + " is not supported!");
+    }
 
-} // public class ObisCodeMapper
+}

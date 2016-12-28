@@ -199,7 +199,7 @@ public final class UPLPropertySpecFactory {
         }
     }
 
-    private static <T> PropertySpecBuilder<T> specBuilder(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    public static <T> PropertySpecBuilder<T> specBuilder(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         PropertySpecBuilder<T> builder = optionsSupplier.get().named(name, name).describedAs("Description for " + name);
         if (required) {
             builder.markRequired();

@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -51,10 +52,12 @@ public class Messages extends ProtocolMessages {
 
     private final ActarisSl7000 protocol;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public Messages(final ActarisSl7000 protocol, TariffCalendarFinder calendarFinder) {
+    public Messages(final ActarisSl7000 protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     /**
@@ -126,8 +129,8 @@ public class Messages extends ProtocolMessages {
         return MessageResult.createFailed(messageEntry);
     }
 
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<>();
         MessageCategorySpec catDst = new MessageCategorySpec("Daylight saving");
         catDst.addMessageSpec(addMsgWithValues("Program Start of Daylight Saving Time", START_OF_DST, false, false, "Month", "Day of month", "Day of week", "Hour"));
         catDst.addMessageSpec(addMsgWithValues("Program End of Daylight Saving Time", END_OF_DST, false, false, "Month", "Day of month", "Day of week", "Hour"));
@@ -162,7 +165,7 @@ public class Messages extends ProtocolMessages {
         return msgSpec;
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex = content.indexOf(tag + "=\"");
         if (startIndex != -1) {
             int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
@@ -194,7 +197,7 @@ public class Messages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.calendarFinder);
+        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.calendarFinder, this.extractor);
         ActivityCalendarController activityCalendarController = new com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.ActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (!builder.getCodeId().isEmpty()) { // codeTable implementation

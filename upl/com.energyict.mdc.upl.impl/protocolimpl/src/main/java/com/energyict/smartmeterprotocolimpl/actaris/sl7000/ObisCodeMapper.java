@@ -43,8 +43,8 @@ public class ObisCodeMapper {
         this.meterProtocol = meterProtocol;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) {
-			return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+			return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(Register register) throws IOException {
@@ -57,10 +57,11 @@ public class ObisCodeMapper {
 
         // *********************************************************************************
         // Historical data
+        String obisCodeString = obisCode.toString();
         if (obisCode.getF() != 255) {
             billingPoint = Math.abs(obisCode.getF());
             // Billing point timestamp
-            if ((obisCode.toString().indexOf("1.1.0.1.2.") != -1) || (obisCode.toString().indexOf("1.0.0.1.2.") != -1)) {
+            if ((obisCodeString.contains("1.1.0.1.2.")) || (obisCodeString.contains("1.0.0.1.2."))) {
                 return new RegisterValue(register, meterProtocol.getStoredValues().getBillingPointTimeDate(billingPoint));
             } else { // billing register
                 HistoricalValue historicalValue = meterProtocol.getStoredValues().getHistoricalValue(obisCode);
@@ -70,7 +71,7 @@ public class ObisCodeMapper {
 
         // *********************************************************************************
         // Billing counter
-        if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) {
+        if ((obisCodeString.contains("1.1.0.1.0.255")) || (obisCodeString.contains("1.0.0.1.0.255"))) {
             com.energyict.dlms.cosem.Register cosmeRegister = meterProtocol.getDlmsSession().getCosemObjectFactory().getRegister(OBIS_NUMBER_OF_AVAILABLE_HISTORICAL_SETS);
             return new RegisterValue(register, cosmeRegister.getQuantityValue());
         }

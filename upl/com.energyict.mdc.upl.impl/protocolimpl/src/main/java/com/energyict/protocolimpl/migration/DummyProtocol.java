@@ -1,20 +1,17 @@
 package com.energyict.protocolimpl.migration;
 
+import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class DummyProtocol implements MeterProtocol {
 
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         throw new UnsupportedOperationException();
     }
 
@@ -111,32 +108,6 @@ public class DummyProtocol implements MeterProtocol {
     }
 
     public void release() throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    public Serializable getCache() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setCache(Object o) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
-        throw new UnsupportedOperationException();
-    }
-
-    public void updateCache(int i, Object o) throws SQLException, BusinessException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getVersion() {
-        return getProtocolVersion();
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
         throw new UnsupportedOperationException();
     }
 

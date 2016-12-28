@@ -14,7 +14,7 @@ public class InputStatusRegister extends AbstractRegister {
     }
 
     public InputStatusRegister(int reg, int range, ObisCode obisCode) {
-       super(reg,range,obisCode,obisCode.getUnitElectricity(0),obisCode.getDescription());
+       super(reg,range,obisCode,obisCode.getUnitElectricity(0),obisCode.toString());
     }
 
     public InputStatusRegister(int reg, int range, ObisCode obisCode, String name) {
@@ -22,10 +22,10 @@ public class InputStatusRegister extends AbstractRegister {
     }
 
     public InputStatusRegister(int reg, int range, ObisCode obisCode, Unit unit) {
-       super(reg,range,obisCode,unit,obisCode.getDescription());
+       super(reg,range,obisCode,unit,obisCode.toString());
     }
 
     public InputStatusRegister(int reg, int range, ObisCode obisCode, Unit unit, String name) {
-        super(reg,range,obisCode,unit,name);    
+        super(reg,range,obisCode,unit,name);
     }
 }

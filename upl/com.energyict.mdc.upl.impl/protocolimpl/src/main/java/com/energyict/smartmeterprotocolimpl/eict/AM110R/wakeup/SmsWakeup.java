@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.wakeup;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+
 import com.energyict.cbo.Sms;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
@@ -49,7 +50,7 @@ public class SmsWakeup {
      * @param smsProperties  the {@link com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties} to be used
      * @param logger the used <CODE>Logger</CODE>
      */
-    public SmsWakeup(String ipAddressAndPort, SmsWakeUpDlmsProtocolProperties smsProperties, Logger logger) throws BusinessException {
+    public SmsWakeup(String ipAddressAndPort, SmsWakeUpDlmsProtocolProperties smsProperties, Logger logger) throws MissingPropertyException {
         this.ipAddressAndPort = ipAddressAndPort;
         this.smsProperties = smsProperties;
         this.logger = logger;
@@ -59,10 +60,9 @@ public class SmsWakeup {
     /**
      * Triggers the wakeup
      *
-     * @throws com.energyict.cbo.BusinessException if a business error occurred, or when the acquireThread was interrupted
-     * @throws java.io.IOException       if parameters aren't correctly configured, when WSDL isn't found or when interrupted while sleeping
+     * @throws IOException if parameters aren't correctly configured, when WSDL isn't found or when interrupted while sleeping
      */
-    public void doWakeUp() throws IOException, BusinessException {
+    public void doWakeUp() throws IOException {
         try {
             // get a lock on the semaphore
             log(5, "Request Lock at " + Calendar.getInstance().getTime());
@@ -78,7 +78,8 @@ public class SmsWakeup {
             }
         } catch (InterruptedException e) {
             this.logger.info(e.getMessage());
-            throw new BusinessException("Interrupted while waiting for a lock on the SmsWakeup thread");
+            Thread.currentThread().interrupt();
+            return;
         }
 
         // wait and check until the device is online and accessible
@@ -88,17 +89,17 @@ public class SmsWakeup {
     /**
      * Verify if all needed properties for the wakeup are present
      */
-    private void checkAllRequiredPropertiesArePresent() throws BusinessException {
+    private void checkAllRequiredPropertiesArePresent() throws MissingPropertyException {
         if ("".equals(smsProperties.getSmsConnectionUrl())) {
-            throw new BusinessException("For SMS wakeup property SmsConnectionURL is required. Please correct first.");
+            throw MissingPropertyException.forName("SmsConnectionURL");
         } else if ("".equals(smsProperties.getSmsSource())) {
-            throw new BusinessException("For SMS wakeup property SmsSource is required. Please correct first.");
+            throw MissingPropertyException.forName("SmsSource");
         } else if ("".equals(smsProperties.getSmsAuthentication())) {
-            throw new BusinessException("For SMS wakeup property SmsAuthentication is required. Please correct first.");
+            throw MissingPropertyException.forName("SmsAuthentication");
         } else if ("".equals(smsProperties.getSmsServiceCode())) {
-            throw new BusinessException("For SMS wakeup property SmsServiceCode is required. Please correct first.");
+            throw MissingPropertyException.forName("SmsServiceCode");
         } else if ("".equals(smsProperties.getSmsPhoneNumber())) {
-            throw new BusinessException("For SMS wakeup property SmsPhoneNumber is required. Please correct first.");
+            throw MissingPropertyException.forName("SmsPhoneNumber");
         }
     }
 
@@ -123,7 +124,7 @@ public class SmsWakeup {
      * @throws com.energyict.cbo.BusinessException if there isn't an updated IP-address
      * @throws java.io.IOException       during the sleep
      */
-    private void waitAndCheckForOnlineDevice() throws BusinessException, IOException {
+    private void waitAndCheckForOnlineDevice() throws ConnectionException {
         long protocolTimeout = System.currentTimeMillis() + smsProperties.getPollTimeOut();
         logger.info("Polling until device becomes available on GPRS.");
 
@@ -132,7 +133,7 @@ public class SmsWakeup {
 
        while (socketStreamConnection == null) {
             if ((System.currentTimeMillis() - protocolTimeout) > 0) {
-                throw new BusinessException("Could not connect to the device - Polling timeout exceeded.");
+                throw new ConnectionException("Could not connect to the device - Polling timeout exceeded.");
             }
             sleep(smsProperties.getSecondPollDelay());
             socketStreamConnection = tryToConnectToDevice(ipAddressAndPort);
@@ -157,12 +158,6 @@ public class SmsWakeup {
         }
     }
 
-    /**
-     * Hold the thread for the given sleeptime
-     *
-     * @param sleepTime
-     * @throws java.io.IOException when we get interrupted while sleeping
-     */
     private void sleep(long sleepTime) {
         ProtocolTools.delay(sleepTime);
     }

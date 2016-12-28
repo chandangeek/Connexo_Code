@@ -60,6 +60,10 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
         this.calendarFinder = calendarFinder;
     }
 
+    protected TariffCalendarFinder getCalendarFinder() {
+        return calendarFinder;
+    }
+
     @Override
     protected G3Properties getProperties() {
         if (properties == null) {
@@ -144,7 +148,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     }
 
     protected void initMessaging() {
-        setMessaging(new G3Messaging(getSession(), getProperties(), this.calendarFinder));
+        setMessaging(new G3Messaging(getSession(), getProperties(), this.calendarFinder, extractor));
     }
 
     @Override
@@ -203,7 +207,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
 
     public G3Messaging getMessaging() {
         if (this.messaging == null) {
-            this.messaging = new G3Messaging(getSession(), getProperties(), calendarFinder);
+            this.messaging = new G3Messaging(getSession(), getProperties(), calendarFinder, extractor);
         }
         return messaging;
     }

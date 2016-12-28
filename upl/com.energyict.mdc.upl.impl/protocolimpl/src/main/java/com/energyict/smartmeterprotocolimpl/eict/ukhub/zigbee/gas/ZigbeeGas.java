@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
@@ -61,14 +62,16 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
     private ZigbeeGasRegisterFactory registerFactory;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public ZigbeeGas(TariffCalendarFinder calendarFinder) {
+    public ZigbeeGas(TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.calendarFinder));
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.calendarFinder, this.extractor));
         }
         return this.zigbeeGasMessaging;
     }

@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer8;
@@ -43,7 +44,7 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
     protected static final ObisCode DISCONNECTOR_SCRIPT_MBUS_OBISCODE = ObisCode.fromString("0.1.10.0.106.255");
     protected static final ObisCode DISCONNECTOR_CONTROL_MBUS_OBISCODE = ObisCode.fromString("0.0.24.4.0.255");
 
-    public IDISMBusMessageHandler(IDISMBus idis) {
+    public IDISMBusMessageHandler(IDISMBus idis, TariffCalendarFinder calendarFinder) {
         super(idis, calendarFinder);
     }
 

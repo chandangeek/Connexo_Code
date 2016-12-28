@@ -4,31 +4,35 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.migration.MigrateFromV1Protocol;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.UniversalObject;
@@ -43,8 +47,8 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
@@ -87,9 +91,17 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr50RegisterFactory registerFactory;
     private AM540Cache am540Cache;
+    private final PropertySpecService propertySpecService;
+    private final Extractor extractor;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super(collectedDataFactory, issueFactory);
+        this.extractor = extractor;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
@@ -249,9 +261,9 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
      * A collection of general DSMR50 properties.
      * These properties are not related to the security or the protocol dialects.
      */
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new Dsmr50ConfigurationSupport();
+            dlmsConfigurationSupport = new Dsmr50ConfigurationSupport(this.propertySpecService);
         }
         return dlmsConfigurationSupport;
     }
@@ -313,12 +325,12 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object o) {
-        return getAM540Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, o);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return getAM540Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
@@ -334,14 +346,20 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     private Dsmr50RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr50RegisterFactory(this);
+            this.registerFactory = new Dsmr50RegisterFactory(this, this.collectedDataFactory, this.issueFactory);
         }
         return registerFactory;
     }
 
     public AM540Messaging getAM540Messaging() {
         if (this.am540Messaging == null) {
-            this.am540Messaging = new AM540Messaging(new AM540MessageExecutor(this));
+            this.am540Messaging =
+                    new AM540Messaging(
+                            new AM540MessageExecutor(this, this.collectedDataFactory, this.issueFactory),
+                            this.extractor,
+                            this.propertySpecService,
+                            this.nlsService,
+                            this.converter);
         }
         return this.am540Messaging;
     }
@@ -393,7 +411,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     }
 
     @Override
-    public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
+    public TypedProperties formatLegacyProperties(com.energyict.mdc.upl.properties.TypedProperties legacyProperties) {
         TypedProperties result = TypedProperties.empty();
 
         // Map 'ServerMacAddress' to 'ServerUpperMacAddress' and 'ServerLowerMacAddress'
@@ -402,7 +420,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
             String[] macAddress = ((String) serverMacAddress).split(":");
             if (macAddress.length >= 1) {
                 String upperMacAddress = macAddress[0];
-                if (upperMacAddress.toLowerCase().equals("x")) {
+                if ("x".equals(upperMacAddress.toLowerCase())) {
                     result.setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, new BigDecimal(-1));
                 } else {
                     result.setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, mapToBigDecimal(upperMacAddress));
@@ -411,7 +429,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
             if (macAddress.length >= 2) {
                 String lowerMacAddress = macAddress[1];
-                if (lowerMacAddress.toLowerCase().equals("x")) {
+                if ("x".equals(lowerMacAddress.toLowerCase())) {
                     result.setProperty(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, new BigDecimal(-1));
                 } else {
                     result.setProperty(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, mapToBigDecimal(lowerMacAddress));
@@ -435,4 +453,15 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
             return null;
         }
     }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
 }

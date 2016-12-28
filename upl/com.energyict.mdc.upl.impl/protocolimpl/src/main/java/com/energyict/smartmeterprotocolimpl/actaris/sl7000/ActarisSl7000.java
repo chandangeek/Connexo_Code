@@ -1,9 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
@@ -84,6 +87,13 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     private StoredValuesImpl storedValues;
 
     private Messages messageProtocol;
+    private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
+
+    public ActarisSl7000(TariffCalendarFinder calendarFinder, Extractor extractor) {
+        this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
+    }
 
     @Override
     protected SL7000Properties getProperties() {
@@ -117,9 +127,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
             if (getDlmsSession().getDLMSConnection() != null && !isOldFirmware()) {
                 getDlmsSession().getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             getLogger().log(Level.FINEST, e.getMessage());
         }
     }
@@ -183,8 +191,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     }
 
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
-         List<LoadProfileConfiguration> loadProfileConfigurations = getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
-        return loadProfileConfigurations;
+        return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
@@ -270,7 +277,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return getMessageProtocol().queryMessage(messageEntry);
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
 
@@ -288,7 +295,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
      public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this, calendarFinder);
+            messageProtocol = new Messages(this, this.calendarFinder, this.extractor);
         }
         return messageProtocol;
     }

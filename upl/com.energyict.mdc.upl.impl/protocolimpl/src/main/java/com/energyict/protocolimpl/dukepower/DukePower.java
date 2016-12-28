@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -230,7 +231,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private int iRoundtripCorrection;
 
     private byte bChannelNR;
-    private Number[] channelValues;
+    private List<Number> channelValues;
 
     private static final byte DEBUG = 0;
 
@@ -560,7 +561,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         // 05082002 add to solve align bug
 
         bChannelNR = (byte) (bNROfChannels - (byte) 1);
-        channelValues = new Number[bNROfChannels];
+        channelValues = new ArrayList<>(bNROfChannels);
         profileData = new ProfileData();
         for (int i = 0; i < bNROfChannels; i++) {
             profileData.addChannel(new ChannelInfo(i, "dukepower_channel_" + i, Unit.get(BaseUnit.COUNT)));
@@ -692,8 +693,8 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private void parseIntervals(byte[] byteReceiveBuffer, ProfileData profileData, byte bNROfChannels, byte bYear) throws IOException {
         for (int i = 0; i < 256 / 2; i++) // 1 block contains 128 interval values
         {
-            channelValues[bChannelNR] = new Long(((long) byteReceiveBuffer[RDB_DATA + i * 2] & 0x000000FF) * 256 +
-                    ((long) byteReceiveBuffer[RDB_DATA + i * 2 + 1] & 0x000000FF));
+            channelValues.set(bChannelNR, new Long(((long) byteReceiveBuffer[RDB_DATA + i * 2] & 0x000000FF) * 256 +
+                    ((long) byteReceiveBuffer[RDB_DATA + i * 2 + 1] & 0x000000FF)));
             if (bChannelNR-- <= 0) {
                 // Fill profileData
                 IntervalData intervalData = new IntervalData(new Date(gcalendarEarliestTimeIntervalRequested.getTime().getTime()));

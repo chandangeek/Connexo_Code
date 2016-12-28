@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.UniversalObject;
@@ -38,7 +39,7 @@ public class IDISMBus extends IDIS {
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final int MAX_MBUS_CHANNELS = 4;
 
-    public IDISMBus() {
+    public IDISMBus(TariffCalendarFinder calendarFinder) {
         super(calendarFinder);
     }
 
@@ -48,7 +49,7 @@ public class IDISMBus extends IDIS {
 
         // search for the channel of the Mbus Device
         String serial;
-        List<String> receivedSerialNumbers = new ArrayList<String>();
+        List<String> receivedSerialNumbers = new ArrayList<>();
         ObisCode obisCode = MBUS_CLIENT_OBISCODE;
         String expectedSerialNumber = new String(getCalledAPTitle());
         for (int i = 1; i <= MAX_MBUS_CHANNELS; i++) {
@@ -114,7 +115,7 @@ public class IDISMBus extends IDIS {
     @Override
     protected IDISMessageHandler getMessageHandler() {
         if (messageHandler == null) {
-            messageHandler = new IDISMBusMessageHandler(this);
+            messageHandler = new IDISMBusMessageHandler(this, this.getCalendarFinder());
         }
         return messageHandler;
     }

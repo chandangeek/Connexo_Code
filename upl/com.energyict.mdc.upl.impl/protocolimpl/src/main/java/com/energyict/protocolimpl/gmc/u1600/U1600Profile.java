@@ -143,11 +143,7 @@ public class U1600Profile {
         } catch (ConnectionException e) {
             throw new ProtocolConnectionException("U1600Error, "+e.getMessage(), e.getReason());
         }
-
-
-
     }
-
 
 
     /**
@@ -306,8 +302,6 @@ public class U1600Profile {
     // 28.09.00 RW
     private IntervalData  evaluateOnePeriod(Calendar ti_Start, Calendar ti_Stop,String telegram, long flags, int iNumChannels)throws IOException, NestedIOException, ProtocolConnectionException{
 
-
-
         //if (DEBUG>=1) System.out.println("KV_DEBUG> "+ti_Start.getTime()+", "+ti_Stop.getTime()+", 0x"+Long.toHexString(flags)+", "+telegram+", "+iNumChannels);
 
         IntervalData intervalData=null;
@@ -327,7 +321,7 @@ public class U1600Profile {
 
         double [] lValue  = new double[iNumChannels];
         //short[] sStatus = new short[iNumChannels];
-        Number[] numbers = new Number[iNumChannels];
+        List<Number> numbers = new ArrayList<>(iNumChannels);
 
         boolean isSaved = false;
 
@@ -337,34 +331,42 @@ public class U1600Profile {
         byStat = strID.getBytes();
         /* Telegramm-Plausibilit t,  berpr fung der Semikolons */
         sChannelCount = 0;
-        for(int i=0;i < telegram.length();i++)
-            if(byBuf[i] == 0x3B)
+        for(int i=0;i < telegram.length();i++) {
+            if (byBuf[i] == 0x3B) {
                 sChannelCount++;
-        if(sChannelCount != iNumChannels+1)
+            }
+        }
+        if (sChannelCount != iNumChannels+1) {
             throw new ProtocolConnectionException("Wrong Profil Frame");
+        }
 
         /* Startkennung */
-        if((byBuf[0] != 0x0D) || (byBuf[1] != 0x0A))
+        if ((byBuf[0] != 0x0D) || (byBuf[1] != 0x0A)) {
             throw new ProtocolConnectionException("Wrong Profil Frame");
+        }
         /*  berpr fung der Stationskennung */
-        if(byStat[0] != byBuf[2])
+        if (byStat[0] != byBuf[2]) {
             throw new ProtocolConnectionException("Wrong Profil Frame");
+        }
 // Station mit Kennungsl nge 1
         if(strID.length() == 1) {
-            if(byBuf[3] != 0x3A)
+            if (byBuf[3] != 0x3A) {
                 throw new ProtocolConnectionException("Device Error");
+            }
         }
 // Station mit Kennungsl nge 2
         else {
-            if((byBuf[3] != byStat[1]) || (byBuf[4] != 0x3A))
+            if ((byBuf[3] != byStat[1]) || (byBuf[4] != 0x3A)) {
                 throw new ProtocolConnectionException("Device Error");
+            }
         }
         /*  berpr fung Datum und Uhrzeit */
         int iStartByte = 0;
 
         /* Startbyte f r Datum und Zeit suchen */
-        while((byBuf[iStartByte] != 0x3A) && (iStartByte < telegram.length()))
+        while ((byBuf[iStartByte] != 0x3A) && (iStartByte < telegram.length())) {
             iStartByte++;
+        }
         iStartByte++;
 
         /* Datumstring aus Telegramm herausfiltern */
@@ -375,11 +377,6 @@ public class U1600Profile {
                     , Integer.parseInt(telegram.substring(iStartByte,iStartByte+2))
                     , Integer.parseInt(telegram.substring(iStartByte+9,iStartByte+11)),
                     Integer.parseInt(telegram.substring(iStartByte+12,iStartByte+14)),0);
-
-
-
-
-
 
         // Corrction for summer wintertime switching
 //        long iStartUCT =  stamp.getTimeInMillis();
@@ -398,37 +395,43 @@ public class U1600Profile {
         int iSek = Integer.parseInt(strSek);
 //System.out.println("Telegramm :" + strDate + "   strSek : " + strSek);
         /*  find 1. Semikolon in Telegram */
-        while((byBuf[iStartByte] != 0x3B) && (iStartByte < telegram.length()))
+        while ((byBuf[iStartByte] != 0x3B) && (iStartByte < telegram.length())) {
             iStartByte++;
+        }
         iStartByte++;
         /* find 2. Semikolon in Telegram */
-        while((byBuf[iStartByte] != 0x3B) && (iStartByte < telegram.length()))
+        while ((byBuf[iStartByte] != 0x3B) && (iStartByte < telegram.length())) {
             iStartByte++;
+        }
         iStartByte++;
 
 // build the intervaldata
         //int intervalsPerDay = (3600*24)/u1600.getProfileInterval();
         sChannelCount = 0;
-        for(iPointer=iStartByte;iPointer<telegram.length();iPointer++) {
-            if((byBuf[iPointer] == 0x3B) || (byBuf[iPointer] == 0x1A)) {
+        for (iPointer=iStartByte;iPointer<telegram.length();iPointer++) {
+            if ((byBuf[iPointer] == 0x3B) || (byBuf[iPointer] == 0x1A)) {
                 /* Wert in String schreiben */
                 strBuf = "";
-                for(int j=iStartByte;j<iPointer;j++)
+                for (int j=iStartByte;j<iPointer;j++) {
                     strBuf += (char) (0xFF & byBuf[j]);
+                }
                 dVal = Double.valueOf(strBuf);
                 dValue = dVal.doubleValue();
-                if(byBuf[iPointer] == 0x3B)
-                    iStartByte = iPointer +1;
+                if (byBuf[iPointer] == 0x3B) {
+                    iStartByte = iPointer + 1;
+                }
 
                 /* Werte in Datenfeld konvertieren und speichern */
                 lValue[sChannelCount] = dValue;
-                numbers[sChannelCount] = dVal;
+                numbers.set(sChannelCount, dVal);
                 // System.out.println("evaluateOnePeriod lValue[sChannelCount] " + lValue[sChannelCount]);
                 sChannelCount++;
             }//if((byBuf[iPointer]
         }//for(iPointer
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+stamp.getTime());
+        if (DEBUG>=1) {
+            System.out.println("KV_DEBUG> " + stamp.getTime());
+        }
 
         // KV 30102006 fix to adjust load profile
         // SSSSSWWWW
@@ -436,12 +439,15 @@ public class U1600Profile {
         //      --> Transition from summer to wintertime AND previous time with current differs <= 2 hour BUT > 1 hour --> subtract 1 hour from current
         if (previousDate != null) {
             if (getU1600().getTimeZone().inDaylightTime(previousDate) && !getU1600().getTimeZone().inDaylightTime(stamp.getTime())) {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> change S -> W");
+                if (DEBUG>=1) {
+                    System.out.println("KV_DEBUG> change S -> W");
+                }
 
                 long diff = (stamp.getTime().getTime() - previousDate.getTime())/1000;
                 if ((diff<=7200) && (diff>3600)) {
-
-        if (DEBUG>=1) System.out.println("KV_DEBUG> subtract 1 hour");
+                    if (DEBUG>=1) {
+                        System.out.println("KV_DEBUG> subtract 1 hour");
+                    }
 
                     stamp.add(Calendar.HOUR_OF_DAY,-1);
                 }

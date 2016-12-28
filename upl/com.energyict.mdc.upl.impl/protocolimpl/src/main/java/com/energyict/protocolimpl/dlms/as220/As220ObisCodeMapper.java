@@ -136,7 +136,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 		}
 
     	RegisterInfo regInfo = RegisterDescription.getRegisterInfo(obisCode);
-    	return regInfo != null ? regInfo : new RegisterInfo(obisCode.getDescription());
+    	return regInfo != null ? regInfo : new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
@@ -160,14 +160,14 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
     			sb.append(universalObject.getObisCode()).append(" = ");
     			sb.append(DLMSClassId.findById(universalObject.getClassID()));
     			sb.append(" [").append(universalObject.getBaseName()).append("] ");
-    			sb.append(universalObject.getObisCode().getDescription());
+    			sb.append(universalObject.getObisCode().toString());
     			sb.append("\r\n");
     		}
 			return new RegisterValue(obisCode, sb.toString());
     	}
 
-        RegisterValue registerValue=null;
-        int billingPoint=-1;
+        RegisterValue registerValue;
+        int billingPoint;
 
         // obis F code
 		if ((obisCode.getF() >= 0) && (obisCode.getF() <= 99)) {
@@ -182,11 +182,11 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-		if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
+		if ((obisCode.toString().contains("1.0.0.1.0.255")) || (obisCode.toString().contains("1.1.0.1.0.255"))) { // billing counter
             Quantity billingQuantity = new Quantity(getCosemObjectFactory().getStoredValues().getBillingPointCounter(), Unit.get(""));
             registerValue = new RegisterValue(obisCode, billingQuantity);
 			return registerValue;
-		} else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+		} else if ((obisCode.toString().contains("1.0.0.1.2.")) || (obisCode.toString().contains("1.1.0.1.2."))) { // billing point timestamp
 			if ((billingPoint >= 0) && (billingPoint < 99)) {
 				registerValue = new RegisterValue(obisCode, getCosemObjectFactory().getStoredValues().getBillingPointTimeDate(billingPoint));
 				return registerValue;
@@ -238,10 +238,22 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
         String text = null;
         Quantity quantityValue = null;
 
-        try {captureTime = cosemObject.getCaptureTime();} catch (IOException e) {}
-		try {billingDate = cosemObject.getBillingDate();} catch (IOException e) {}
-		try {quantityValue = cosemObject.getQuantityValue();} catch (IOException e) {}
-		try {text = cosemObject.getText();} catch (IOException e) {}
+	    try {
+		    captureTime = cosemObject.getCaptureTime();
+	    } catch (IOException e) {
+	    }
+	    try {
+		    billingDate = cosemObject.getBillingDate();
+	    } catch (IOException e) {
+	    }
+	    try {
+		    quantityValue = cosemObject.getQuantityValue();
+	    } catch (IOException e) {
+	    }
+	    try {
+		    text = cosemObject.getText();
+	    } catch (IOException e) {
+	    }
 
 		registerValue =
 			new RegisterValue(

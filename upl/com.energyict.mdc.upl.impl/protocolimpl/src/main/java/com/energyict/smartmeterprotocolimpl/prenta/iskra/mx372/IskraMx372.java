@@ -86,7 +86,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new IskraMX372Properties();
+            this.properties = new IskraMX372Properties(propertySpecService);
         }
         return this.properties;
     }

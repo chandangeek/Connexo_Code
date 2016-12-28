@@ -21,7 +21,7 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  * Date: 20-jul-2011
  * Time: 13:29:29
  */
-class ZigbeeGasProperties extends DlmsProtocolProperties {
+public class ZigbeeGasProperties extends DlmsProtocolProperties {
 
     private static final String DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS = "64";
     public static final int FIRMWARE_CLIENT = 0x50;

@@ -9,6 +9,7 @@ import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -97,7 +98,7 @@ public class PPM1Main {
 		getDialer().connect();
 
 		try {
-			getPPM().setProperties(getProperties());
+			getPPM().setProperties(TypedProperties.copyOf(getProperties()));
 			getPPM().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getPPM().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
 			getPPM().connect();

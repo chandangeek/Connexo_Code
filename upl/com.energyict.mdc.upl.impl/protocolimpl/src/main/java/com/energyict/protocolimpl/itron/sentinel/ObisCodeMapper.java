@@ -33,8 +33,8 @@ public class ObisCodeMapper {
         this.sentinel=sentinel;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo(obisCode.toString());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
@@ -48,9 +48,11 @@ public class ObisCodeMapper {
             }
             catch(ResponseIOException e) {
                 if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-                   throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! ("+e.toString()+")");
-                else
-                   throw e;
+                {
+                    throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported! (" + e.toString() + ")");
+                } else {
+                    throw e;
+                }
             }
         }
         else {

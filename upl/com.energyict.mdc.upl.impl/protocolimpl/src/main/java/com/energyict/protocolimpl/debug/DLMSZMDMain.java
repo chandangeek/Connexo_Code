@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.VirtualDeviceDialer;
 
@@ -28,7 +29,7 @@ public class DLMSZMDMain {
 
     public static DLMSZMD getZmd() {
 		if (dlmsZmd == null) {
-			dlmsZmd = new DLMSZMD();
+			dlmsZmd = new DLMSZMD(new NoTariffCalendars(), new DummyExtractor());
 			log("Created new instance of " + dlmsZmd.getClass().getCanonicalName() + " [" + dlmsZmd.getProtocolVersion() + "]");
 		}
 		return dlmsZmd;
@@ -53,11 +54,6 @@ public class DLMSZMDMain {
 		return properties;
 	}
 
-	/**
-	 * @param args
-	 * @throws java.io.IOException
-	 * @throws com.energyict.dialer.core.LinkException
-	 */
 	public static void main(String[] args) throws IOException, LinkException {
 
         String debugFile = DLMSZMDMain.class.getResource("ZMD_New.log").getFile();
@@ -66,7 +62,7 @@ public class DLMSZMDMain {
         virtualDeviceDialer.setShowCommunication(true);
 
 		try {
-			getZmd().setProperties(getProperties());
+			getZmd().setProperties(TypedProperties.copyOf(getProperties()));
 			getZmd().init(virtualDeviceDialer.getInputStream(), virtualDeviceDialer.getOutputStream(), TimeZone.getTimeZone("GMT+01"), getLogger());
 //			getZmd().enableHHUSignOn(virtualDeviceDialer.getSerialCommunicationChannel(), false);
 			getZmd().connect();
@@ -74,8 +70,6 @@ public class DLMSZMDMain {
 			Calendar time = ProtocolTools.createCalendar(2010, 4, 20, 9, 10, 19, 0);
 
 //			System.out.println(ProtocolTools.getProfileInfo(getZmd().getProfileData(from.getTime(), false)));
-
-
 
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);

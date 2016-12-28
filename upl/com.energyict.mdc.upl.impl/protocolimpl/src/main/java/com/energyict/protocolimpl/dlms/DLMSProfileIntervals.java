@@ -135,15 +135,15 @@ public class DLMSProfileIntervals extends Array {
      */
     public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
-        List<IntervalData> intervalList = new ArrayList<IntervalData>();
+        List<IntervalData> intervalList = new ArrayList<>();
         Calendar cal = null;
-        IntervalData currentInterval = null;
+        IntervalData currentInterval;
         int profileStatus = 0;
-        if (getAllDataTypes().size() != 0) {
+        if (!getAllDataTypes().isEmpty()) {
 
             for (int i = 0; i < nrOfDataTypes(); i++) {
                 Structure element = (Structure) getDataType(i);
-                List<Number> values = new ArrayList<Number>();
+                List<Number> values = new ArrayList<>();
 
                 if (getNrOfStatusIndexes() <= 1) {
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
@@ -168,7 +168,7 @@ public class DLMSProfileIntervals extends Array {
                         throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
                 } else { // the implementation is different if you have multiple status flags
-                    Map<Integer, Integer> statuses = new HashMap<Integer, Integer>();
+                    Map<Integer, Integer> statuses = new HashMap<>();
                     int protocolStatus = 0;
                     for (int d = 0; d < element.nrOfDataTypes(); d++) {
                         if (isClockIndex(d)) {
@@ -384,4 +384,5 @@ public class DLMSProfileIntervals extends Array {
     public int getProfileInterval() {
         return profileInterval;
     }
+
 }

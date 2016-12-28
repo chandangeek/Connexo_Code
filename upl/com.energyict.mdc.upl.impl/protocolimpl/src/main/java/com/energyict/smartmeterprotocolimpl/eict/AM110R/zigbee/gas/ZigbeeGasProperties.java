@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
@@ -42,30 +42,35 @@ public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
 
     private SecurityProvider securityProvider;
 
+    public ZigbeeGasProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     public DLMSReference getReference() {
         return DLMSReference.LN;
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        PropertySpecService propertySpecService = this.getPropertySpecService();
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
-                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.integer(PK_FORCED_DELAY, false),
-                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false),
-                UPLPropertySpecFactory.integer(LOGBOOK_SELECTOR, false),
-                UPLPropertySpecFactory.integer(VERIFY_FIRMWARE_VERSION, false),
-                UPLPropertySpecFactory.string(ZIGBEE_MAC, false),
-                UPLPropertySpecFactory.string(ZIGBEE_PCLK, false))
+                this.spec(SECURITY_LEVEL, true, propertySpecService::integerSpec),
+                this.spec(ADDRESSING_MODE, false, propertySpecService::integerSpec),
+                this.spec(CLIENT_MAC_ADDRESS, false, propertySpecService::integerSpec),
+                this.spec(SERVER_MAC_ADDRESS, false, propertySpecService::stringSpec),
+                this.spec(CONNECTION, false, propertySpecService::integerSpec),
+                this.spec(PK_FORCED_DELAY, false, propertySpecService::integerSpec),
+                this.spec(MAX_REC_PDU_SIZE, false, propertySpecService::integerSpec),
+                this.spec(PK_RETRIES, false, propertySpecService::integerSpec),
+                this.spec(PK_TIMEOUT, false, propertySpecService::integerSpec),
+                this.spec(ROUND_TRIP_CORRECTION, false, propertySpecService::integerSpec),
+                this.spec(DATATRANSPORT_AUTHENTICATIONKEY, false, propertySpecService::hexStringSpec),
+                this.spec(DATATRANSPORT_ENCRYPTIONKEY, false, propertySpecService::hexStringSpec),
+                this.spec(LOGBOOK_SELECTOR, false, propertySpecService::integerSpec),
+                this.spec(VERIFY_FIRMWARE_VERSION, false, propertySpecService::integerSpec),
+                this.spec(ZIGBEE_MAC, false, propertySpecService::stringSpec),
+                this.spec(ZIGBEE_PCLK, false, propertySpecService::stringSpec))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
@@ -26,10 +27,12 @@ public class ZmdMessages extends ProtocolMessages {
 
     private final DLMSZMD protocol;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public ZmdMessages(final DLMSZMD protocol, TariffCalendarFinder calendarFinder) {
+    public ZmdMessages(final DLMSZMD protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     /**
@@ -81,7 +84,7 @@ public class ZmdMessages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder);
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder, this.extractor);
         ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (!builder.getCodeId().isEmpty()) { // codeTable implementation

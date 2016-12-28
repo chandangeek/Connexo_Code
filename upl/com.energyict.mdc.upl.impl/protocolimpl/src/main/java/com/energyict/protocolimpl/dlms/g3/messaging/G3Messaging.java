@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -163,16 +164,18 @@ public class G3Messaging extends AnnotatedMessaging {
     protected DlmsSession session;
     private G3Properties properties;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public G3Messaging(final DlmsSession session, G3Properties properties, TariffCalendarFinder calendarFinder) {
-        this(session, calendarFinder, MESSAGES);
+    public G3Messaging(final DlmsSession session, G3Properties properties, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        this(session, calendarFinder, extractor, MESSAGES);
         this.properties = properties;
     }
 
-    public G3Messaging(final DlmsSession session, TariffCalendarFinder calendarFinder, final Class<? extends AnnotatedMessage>... messages) {
+    public G3Messaging(final DlmsSession session, TariffCalendarFinder calendarFinder, Extractor extractor, final Class<? extends AnnotatedMessage>... messages) {
         super(session != null ? session.getLogger() : null, messages);
         this.session = session;
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     @Override
@@ -224,7 +227,7 @@ public class G3Messaging extends AnnotatedMessaging {
                     if (msgTag.getName().contains(RtuMessageConstant.TOU_ACTIVITY_CAL) && Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().after(actDate)) {
                         throw new ApplicationException("Invalid activation date, should be in the future");
                     }
-                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder, extractor).parseActivityCalendarAndSpecialDayTable(codeId, actDate.getTime(), name);
+                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder, this.extractor).parseActivityCalendarAndSpecialDayTable(codeId, actDate.getTime(), name);
                     addChildTag(builder, IDISMessageHandler.RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException | IOException e) {
                     getLogger().severe(e.getMessage());

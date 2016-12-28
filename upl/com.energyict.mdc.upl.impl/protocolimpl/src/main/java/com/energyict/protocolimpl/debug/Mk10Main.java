@@ -6,6 +6,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -149,7 +150,7 @@ public class Mk10Main {
 	public static void main(String[] args) throws LinkException, IOException {
 
 		try {
-			getMk10().setProperties(getProperties());
+			getMk10().setProperties(TypedProperties.copyOf(getProperties()));
 			getMk10().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, LOGGER);
 			getMk10().connect();
 

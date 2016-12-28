@@ -1,12 +1,15 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
-import java.io.IOException;
-import java.util.Calendar;
-
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Contains one profileRecord, in EIServer terms, an Interval
@@ -14,12 +17,12 @@ import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
  *
  */
 public class SiemensS4sProfileRecord {
-	
+
 	private final static int HOURES 	= 0;
 	private final static int MINUTES 	= 1;
 	private final static int MONTHS		= 0;
 	private final static int DAYS		= 1;
-	
+
 	private final static int PHASE_FAILURE = 0x01;
 	private final static int GENERAL_ERROR = 0x02;
 	private final static int BATTERY_ALARM = 0x04;
@@ -33,7 +36,7 @@ public class SiemensS4sProfileRecord {
 	private Calendar timeStamp;
 	private int numberOfChannels;
 	private boolean possibleDelete;
-	
+
 	/**
 	 * Create a new instance of a profileRecord
 	 * @param rawData - the byteArray containing the value and sometimes a dateTime
@@ -48,7 +51,7 @@ public class SiemensS4sProfileRecord {
 		this.numberOfChannels = numberOfChannels;
 		this.possibleDelete = false;
 	}
-	
+
 	/**
 	 * Construct an intervalData object with the given rawData
 	 * If a timeStamp is included in the rawData, then we use that one, otherwise the one set in the constructor
@@ -57,7 +60,6 @@ public class SiemensS4sProfileRecord {
 	 */
 	public IntervalData getIntervalData() throws IOException{
 		IntervalData iv;
-		
 		int status = getStatus();
 		if(S4sObjectUtils.itsActuallyADateIntervalRecord(this.rawData)){
 			this.timeStamp = getDataIntervalDate();
@@ -67,14 +69,14 @@ public class SiemensS4sProfileRecord {
 		iv.addValues(getIntervalValues());
 		return iv;
 	}
-	
+
 	/**
 	 * @return the timeStamp of the current intervalRecord
 	 */
 	public Calendar getLastIntervalCalendar(){
 		return this.timeStamp;
 	}
-	
+
 	/**
 	 * Construct a Calendar with the date and time from the rawData byteArray
 	 * @return the current intervals calendar(timeStamp)
@@ -82,9 +84,9 @@ public class SiemensS4sProfileRecord {
 	private Calendar getDataIntervalDate(){
 		int offset = this.rawData.length-8;
 		byte[] time = S4sObjectUtils.getAsciiConvertedDecimalByteArray(ProtocolUtils.getSubArray2(rawData, offset, 4));
-		offset -= 4; 
+		offset -= 4;
 		byte[] date = S4sObjectUtils.getAsciiConvertedDecimalByteArray(ProtocolUtils.getSubArray2(rawData, offset, 4));
-		
+
 		Calendar cal = ProtocolUtils.getCleanGMTCalendar();
 		cal.setTimeInMillis(timeStamp.getTimeInMillis());	// first set it to the current date
 		cal.set(Calendar.MONTH, date[MONTHS]-1);
@@ -93,22 +95,18 @@ public class SiemensS4sProfileRecord {
 		cal.set(Calendar.MINUTE, time[MINUTES]);
 		cal.set(Calendar.SECOND,0);
 		cal.set(Calendar.MILLISECOND,0);
-		
 		return cal;
-		
 	}
-	
+
 	/**
 	 * @return all intervalValues
 	 */
-	private Number[] getIntervalValues(){
+	private List<Number> getIntervalValues() {
 		int offset = (numberOfChannels-1)*4;
-		Integer[] values = new Integer[numberOfChannels];
-		for(int i = 0; i < numberOfChannels; i++){
-			values[i] = Integer.valueOf(new String(ProtocolUtils.getSubArray2(rawData, offset, 4)));
-			offset -= 4;
-		}
-		return values;
+		return IntStream
+                .range(0, numberOfChannels - 1)
+                .mapToObj(i -> Integer.valueOf(new String(ProtocolUtils.getSubArray2(rawData, offset, 4))))
+                .collect(Collectors.toList());
 	}
 
 	/**
@@ -119,7 +117,7 @@ public class SiemensS4sProfileRecord {
 	public boolean possibleDelete() {
 		return this.possibleDelete;
 	}
-	
+
 	/**
 	 * Construct the EIStatus code from the rawData
 	 * @return the value of the EIStatuscode, mapped to the intervalStateBits
@@ -131,7 +129,7 @@ public class SiemensS4sProfileRecord {
 		offset++;
 		int rawStatusLow = ProtocolUtils.hex2nibble(rawData[offset]);
 		int eiCode = 0;
-		
+
 		if((rawStatusLow & PHASE_FAILURE) == PHASE_FAILURE){
 			eiCode |= IntervalStateBits.PHASEFAILURE;
 		}
@@ -141,7 +139,7 @@ public class SiemensS4sProfileRecord {
 		if((rawStatusLow & BATTERY_ALARM) == BATTERY_ALARM){
 			eiCode |= IntervalStateBits.BATTERY_LOW;
 		}
-//		if((rawStatusLow & SERIAL_PORT_WRITE) == SERIAL_PORT_WRITE){	// don't know exactly how to map this one 
+//		if((rawStatusLow & SERIAL_PORT_WRITE) == SERIAL_PORT_WRITE){	// don't know exactly how to map this one
 //			eiCode |= IntervalStateBits.OTHER;
 //		}
 		if((rawStatusHigh & REVERSE_DETECT) == REVERSE_DETECT){
@@ -153,10 +151,10 @@ public class SiemensS4sProfileRecord {
 		if((rawStatusHigh & CLOCK_WRITE) == CLOCK_WRITE){
 			eiCode |= IntervalStateBits.SHORTLONG;
 		}
-//		if((rawStatusHigh & GLITCH_RESET) == GLITCH_RESET){				// don't know exactly how to map this one 
+//		if((rawStatusHigh & GLITCH_RESET) == GLITCH_RESET){				// don't know exactly how to map this one
 //			eiCode |= IntervalStateBits.OTHER;
 //		}
 		return eiCode;
 	}
-	
+
 }

@@ -1,19 +1,33 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ActivePassive;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -30,11 +44,11 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
     }
 
     public RegisterInfo translateRegister(Register register) throws IOException {
-        return new RegisterInfo(register.getObisCode().getDescription());
+        return new RegisterInfo(register.getObisCode().toString());
     }
 
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        List<RegisterValue> registerValues = new ArrayList<>();
         for (Register register : registers) {
             try {
                 registerValues.add(readSingleRegister(register));

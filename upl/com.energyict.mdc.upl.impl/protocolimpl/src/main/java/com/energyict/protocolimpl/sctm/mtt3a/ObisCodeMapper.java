@@ -32,8 +32,6 @@ public class ObisCodeMapper {
     RegisterConfig regs;
     int autoBillingPointNrOfDigits;
 
-    /** Creates a new instance of ObisCodeMapper */
-
     public ObisCodeMapper(SCTMDumpData dump,TimeZone timeZone, RegisterConfig regs,int autoBillingPointNrOfDigits) {
         this.dump=dump;
         this.timeZone=timeZone;
@@ -41,7 +39,7 @@ public class ObisCodeMapper {
         this.autoBillingPointNrOfDigits=autoBillingPointNrOfDigits;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(null,null,null,-1);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
@@ -62,45 +60,53 @@ public class ObisCodeMapper {
     }
 
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
-        RegisterValue registerValue=null;
-        String registerName=null;
-        Unit unit = null;
-        int billingPoint=-1;
+        RegisterValue registerValue;
+        int billingPoint;
 
         // obis F code
-        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
+        String obisCodeString = obisCode.toString();
+        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
             billingPoint = obisCode.getF();
-        else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
-            billingPoint = obisCode.getF()*-1;
-        else if (obisCode.getF() == 255)
+        } else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99)) {
+            billingPoint = obisCode.getF() * -1;
+        } else if (obisCode.getF() == 255) {
             billingPoint = -1;
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        } else {
+            throw new NoSuchRegisterException("ObisCode " + obisCodeString + " is not supported!");
+        }
 
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-        if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
+        if ((obisCodeString.contains("1.0.0.1.0.255")) || (obisCodeString.contains("1.1.0.1.0.255"))) { // billing counter
             if (read) {
                 registerValue = new RegisterValue(obisCode,new Quantity(new BigDecimal(dump.getBillingCounter()),Unit.get("")));
                 return registerValue;
             }
-            else return new RegisterInfo("billing counter");
+            else {
+                return new RegisterInfo("billing counter");
+            }
         } // billing counter
-        else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+        else if ((obisCodeString.contains("1.0.0.1.2.")) || (obisCodeString.contains("1.1.0.1.2."))) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                 if (read) {
                     registerValue = new RegisterValue(obisCode,getBillingPointTimestamp(billingPoint));
                     return registerValue;
                 }
-                else return new RegisterInfo("billing point "+billingPoint+" timestamp");
+                else {
+                    return new RegisterInfo("billing point " + billingPoint + " timestamp");
+                }
             }
-            else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+            else {
+                throw new NoSuchRegisterException("ObisCode " + obisCodeString + " is not supported!");
+            }
         } // // billing point timestamp
         else {
             if (read) {
                 ObisCode oc = new ObisCode(obisCode.getA(),1,obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
                 String strReg = regs.getMeterRegisterCode(oc);
-                if (strReg == null)
-                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                if (strReg == null) {
+                    throw new NoSuchRegisterException("ObisCode " + obisCodeString + " is not supported!");
+                }
 
                 Date billingDate=null;
                 if (billingPoint != -1) {
@@ -121,19 +127,22 @@ public class ObisCodeMapper {
                 Quantity quantity = dump.getRegister(strReg);
                 Date eventDate = dump.getRegisterDateTime(strReg, timeZone);
                 if (quantity != null) {
-                    if (billingPoint != -1)
-                        registerValue = new RegisterValue(obisCode,quantity, eventDate==null?billingDate:eventDate, billingDate); // eventtime = toTime
-                    else
-                        registerValue = new RegisterValue(obisCode,quantity, eventDate);
+                    if (billingPoint != -1) {
+                        registerValue = new RegisterValue(obisCode, quantity, eventDate == null ? billingDate : eventDate, billingDate); // eventtime = toTime
+                    } else {
+                        registerValue = new RegisterValue(obisCode, quantity, eventDate);
+                    }
                     return registerValue;
                 }
-                else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                else {
+                    throw new NoSuchRegisterException("ObisCode " + obisCodeString + " is not supported!");
+                }
             }
             else {
-                return new RegisterInfo(obisCode.getDescription());
+                return new RegisterInfo(obisCodeString);
             }
         }
 
-    } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
+    }
 
-} // public class ObisCodeMapper
+}

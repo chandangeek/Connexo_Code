@@ -76,7 +76,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     public AM540Messaging(AM540 protocol, Class<? extends AnnotatedMessage>[] messages) {
-        super(protocol.getDlmsSession(), calendarFinder, messages);
+        super(protocol.getDlmsSession(), calendarFinder, extractor, messages);
         this.protocol = protocol;
     }
 
