@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -28,7 +29,6 @@ import com.energyict.protocolimpl.coronis.wavesense.core.AlarmFrameParser;
 import com.energyict.protocolimpl.coronis.wavesense.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavesense.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.RadioCommandFactory;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +57,10 @@ public class WaveSense extends AbstractProtocol implements MessageProtocol, Prot
     private ProfileDataReader profileDataReader;
 
     private static final int WAVESENSE_NUMBER_OF_CHANNELS = 1;
+
+    public WaveSense(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     final boolean isVerifyProfileInterval() {
         return verifyProfileInterval;
@@ -109,8 +113,8 @@ public class WaveSense extends AbstractProtocol implements MessageProtocol, Prot
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("verifyProfileInterval", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("LoadProfileObisCode", false));
+        propertySpecs.add(this.integerSpec("verifyProfileInterval", false));
+        propertySpecs.add(this.stringSpec("LoadProfileObisCode", false));
         return propertySpecs;
     }
 

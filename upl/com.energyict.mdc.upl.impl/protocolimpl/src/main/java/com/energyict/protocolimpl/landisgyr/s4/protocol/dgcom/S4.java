@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -28,7 +29,6 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.CommandFactory;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.registermappping.RegisterMapperFactory;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +52,10 @@ public class S4 extends AbstractProtocol implements SerialNumberSupport {
     private String modemPassword;
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     private SerialCommunicationChannel commChannel;
+
+    public S4(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
@@ -103,7 +107,7 @@ public class S4 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string("ModemPassword", false));
+        propertySpecs.add(this.stringSpec("ModemPassword", false));
         return propertySpecs;
     }
 

@@ -6,6 +6,7 @@ package com.energyict.protocolimpl.modbus.eimeter;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -28,6 +29,10 @@ import java.util.List;
  *         JME	|27042009|	Added instantaneous power registers, per phase.
  */
 public class EIMeter extends Modbus {
+
+    public EIMeter(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheConnect() throws IOException { /* relax */ }

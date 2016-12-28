@@ -38,7 +38,7 @@ import java.util.logging.Level;
  */
 abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements SerialNumberSupport, CachingProtocol {
 
-    private final PrimeProperties properties = new PrimeProperties();
+    private final PrimeProperties properties = new PrimeProperties(propertySpecService);
     private PrimeProfile loadProfile;
     private PrimeEventLogs eventLogs;
     private PrimeClock clock;

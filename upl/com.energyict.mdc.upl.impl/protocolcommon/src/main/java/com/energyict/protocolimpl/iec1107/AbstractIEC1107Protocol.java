@@ -11,6 +11,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -32,6 +34,7 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,22 +95,32 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     private boolean requestDataReadout;
     protected boolean software7E1;
     protected Encryptor encryptor;
+    private final PropertySpecService propertySpecService;
 
-    public AbstractIEC1107Protocol() {
-        this(false, null);
+    public AbstractIEC1107Protocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+        this(false, propertySpecService);
     }
 
-    public AbstractIEC1107Protocol(boolean requestDataReadout) {
-        this(requestDataReadout, null);
+    public AbstractIEC1107Protocol(boolean requestDataReadout, PropertySpecService propertySpecService) {
+        super(propertySpecService);
+        this(requestDataReadout, null, propertySpecService);
     }
 
-    public AbstractIEC1107Protocol(Encryptor encryptor) {
-        this(false, encryptor);
+    public AbstractIEC1107Protocol(Encryptor encryptor, PropertySpecService propertySpecService) {
+        super(propertySpecService);
+        this(false, encryptor, propertySpecService);
     }
 
-    public AbstractIEC1107Protocol(boolean requestDataReadout, Encryptor encryptor) {
+    public AbstractIEC1107Protocol(boolean requestDataReadout, Encryptor encryptor, PropertySpecService propertySpecService) {
+        super(propertySpecService);
         this.requestDataReadout = requestDataReadout;
         this.encryptor = encryptor;
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     @Override
@@ -163,23 +176,39 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
+                this.stringSpec(ADDRESS.getName(), false),
+                this.stringSpec(PASSWORD.getName(), false),
+                this.integerSpec(TIMEOUT.getName(), false),
+                this.integerSpec(RETRIES.getName(), false),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
+                this.integerSpec(SECURITYLEVEL.getName(), false),
+                this.stringSpec(NODEID.getName(), false),
+                this.integerSpec("EchoCancelling", false),
+                this.integerSpec("IEC1107Compatible", false),
+                this.integerSpec("ExtendedLogging", false),
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
                 ProtocolChannelMap.propertySpec("ChannelMap", false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.integer("RequestHeader", false),
-                UPLPropertySpecFactory.integer("Scaler", false),
-                UPLPropertySpecFactory.integer("ForcedDelay", false),
-                UPLPropertySpecFactory.string("Software7E1", false));
+                this.integerSpec(PROFILEINTERVAL.getName(), false),
+                this.integerSpec("RequestHeader", false),
+                this.integerSpec("Scaler", false),
+                this.integerSpec("ForcedDelay", false),
+                this.stringSpec("Software7E1", false));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, boolean required) {
+        return this.integerSpec(name, required);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -30,7 +31,6 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +61,10 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     private int bubbleUpEndHour;
     private int initialRFCommand = 0;
     private boolean roundDownToNearestInterval = false;
+
+    public RTM(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public ObisCodeMapper getObisCodeMapper() {
         return obisCodeMapper;
@@ -180,12 +184,12 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("verifyProfileInterval", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("EnableMultiFrameMode", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("WavenisBubbleUpInfo", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("InitialRFCommand", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("RoundDownToNearestInterval", false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
+        propertySpecs.add(this.integerSpec("verifyProfileInterval", false));
+        propertySpecs.add(this.integerSpec("EnableMultiFrameMode", false));
+        propertySpecs.add(this.stringSpec("WavenisBubbleUpInfo", false));
+        propertySpecs.add(this.integerSpec("InitialRFCommand", false));
+        propertySpecs.add(this.integerSpec("RoundDownToNearestInterval", false));
         return propertySpecs;
     }
 

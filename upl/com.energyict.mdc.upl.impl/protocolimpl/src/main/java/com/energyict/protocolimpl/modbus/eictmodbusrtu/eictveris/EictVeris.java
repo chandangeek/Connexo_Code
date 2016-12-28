@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -30,6 +31,10 @@ import java.util.logging.Logger;
 public class EictVeris extends Modbus {
 
     private MultiplierFactory multiplierFactory = null;
+
+    public EictVeris(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheConnect() throws IOException {

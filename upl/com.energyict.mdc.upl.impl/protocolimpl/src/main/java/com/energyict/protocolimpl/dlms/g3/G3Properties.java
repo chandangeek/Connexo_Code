@@ -1,12 +1,15 @@
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.base.Supplier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,13 +38,15 @@ public class G3Properties extends DlmsProtocolProperties {
     public static final String PROP_LASTSEENDATE = "LastSeenDate";
 
     private G3SecurityProvider g3SecurityProvider;
+    private final PropertySpecService propertySpecService;
 
-    public G3Properties() {
-        this(new Properties());
+    public G3Properties(PropertySpecService propertySpecService) {
+        this(new Properties(), propertySpecService);
     }
 
-    public G3Properties(Properties properties) {
+    public G3Properties(Properties properties, PropertySpecService propertySpecService) {
         super(properties);
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -70,20 +75,36 @@ public class G3Properties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.string(HLS_SECRET, false),
-                UPLPropertySpecFactory.string(DSMR_40_HEX_PASSWORD, false),
-                UPLPropertySpecFactory.integer(PROFILE_TYPE, false),
-                UPLPropertySpecFactory.string(PROP_LASTSEENDATE, false),
-                UPLPropertySpecFactory.integer(AARQ_RETRIES, false),
-                UPLPropertySpecFactory.integer(AARQ_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(VALIDATE_INVOKE_ID, false),
-                UPLPropertySpecFactory.string(PSK, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false));
+                this.integerSpec(SECURITY_LEVEL),
+                this.integerSpec(CLIENT_MAC_ADDRESS),
+                this.stringSpec(SERVER_MAC_ADDRESS),
+                this.integerSpec(CONNECTION),
+                this.stringSpec(HLS_SECRET),
+                this.stringSpec(DSMR_40_HEX_PASSWORD),
+                this.integerSpec(PROFILE_TYPE),
+                this.stringSpec(PROP_LASTSEENDATE),
+                this.integerSpec(AARQ_RETRIES),
+                this.integerSpec(AARQ_TIMEOUT),
+                this.integerSpec(VALIDATE_INVOKE_ID),
+                this.stringSpec(PSK),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY));
+    }
+
+    protected <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec hexStringSpec(String name) {
+        return this.spec(name, this.propertySpecService::hexStringSpec);
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.itron.sentinel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -39,7 +40,6 @@ import com.energyict.protocolimpl.itron.sentinel.procedures.ManufacturerProcedur
 import com.energyict.protocolimpl.itron.sentinel.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.SentinelItron;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,6 +77,10 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     private ManufacturerProcedureFactory manufacturerProcedureFactory;
     private DataReadFactory dataReadFactory=null;
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
+
+    public Sentinel(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -145,12 +149,12 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string("C12User", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("C12UserId", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("MaxNrPackets", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("ReadLoadProfilesChunked", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("ChunkSize", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("ConvertRegisterReadsToKiloUnits", false));
+        propertySpecs.add(this.stringSpec("C12User", false));
+        propertySpecs.add(this.integerSpec("C12UserId", false));
+        propertySpecs.add(this.integerSpec("MaxNrPackets", false));
+        propertySpecs.add(this.stringSpec("ReadLoadProfilesChunked", false));
+        propertySpecs.add(this.integerSpec("ChunkSize", false));
+        propertySpecs.add(this.stringSpec("ConvertRegisterReadsToKiloUnits", false));
         return propertySpecs;
     }
 

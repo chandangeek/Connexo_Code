@@ -10,6 +10,8 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.connection.ConnectionException;
@@ -21,6 +23,7 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +70,12 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
     private int extendedLogging;
 
     private byte[] dataReadout = null;
+
+    private final PropertySpecService propertySpecService;
+
+    public Unigas300(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
@@ -148,19 +157,31 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer("Timeout", false),
-                UPLPropertySpecFactory.integer("Retries", false),
-                UPLPropertySpecFactory.integer("RoundtripCorrection", false),
-                UPLPropertySpecFactory.integer("SecurityLevel", false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integer("ProfileInterval", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.string("Software7E1", false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec("Timeout"),
+                this.integerSpec("Retries"),
+                this.integerSpec("RoundtripCorrection"),
+                this.integerSpec("SecurityLevel"),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("IEC1107Compatible"),
+                this.integerSpec("ProfileInterval"),
+                this.integerSpec("ExtendedLogging"),
+                this.stringSpec("Software7E1"),
+                this.stringSpec(SERIALNUMBER.getName()));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

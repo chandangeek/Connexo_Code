@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.core.discover;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -35,6 +36,10 @@ import java.util.logging.Logger;
 public class GenericModbusDiscover extends Modbus {
 
     final int DEBUG=0;
+
+    public GenericModbusDiscover(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheConnect() throws IOException {

@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.transdata.markv;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -29,7 +30,6 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.transdata.markv.core.MarkVProfile;
 import com.energyict.protocolimpl.transdata.markv.core.commands.CommandFactory;
 import com.energyict.protocolimpl.transdata.markv.core.commands.ObisCodeMapper;
@@ -59,6 +59,10 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
     private CommandFactory commandFactory = null;
     private SerialCommunicationChannel commChannel;
     private int verifyTimeDelay;
+
+    public MarkV(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     @Override
@@ -113,7 +117,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("VerifyTimeDelay", false));
+        propertySpecs.add(this.integerSpec("VerifyTimeDelay", false));
         return propertySpecs;
     }
 

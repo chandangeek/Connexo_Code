@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.cutlerhammer.iq200;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -29,6 +30,10 @@ public class IQ200 extends Modbus  {
 
     private MultiplierFactory multiplierFactory=null;
 
+    public IQ200(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     protected void doTheConnect() throws IOException {
     }
@@ -45,7 +50,7 @@ public class IQ200 extends Modbus  {
 
     @Override
     public String getFirmwareVersion() throws IOException {
-        return ""+ getRegisterFactory().findRegister("productid").value();
+        return "" + getRegisterFactory().findRegister("productid").value();
     }
 
     @Override

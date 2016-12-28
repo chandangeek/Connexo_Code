@@ -1,9 +1,9 @@
 
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
@@ -17,6 +17,7 @@ import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,33 +38,36 @@ class A1800Properties extends DlmsProtocolProperties implements DlmsSessionPrope
 
     private static final String READ_SERIAL_NUMBER = "ReadSerialNumber";
 
+    private final PropertySpecService propertySpecService;
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler = null;
+
+    A1800Properties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(READ_SERIAL_NUMBER, false),
-                UPLPropertySpecFactory.integer(PROPNAME_SEND_PREFIX, false),
+                this.integerSpec(SECURITY_LEVEL, false),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
+                this.integerSpec(READ_SERIAL_NUMBER, false),
+                this.integerSpec(PROPNAME_SEND_PREFIX, false),
                 new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_APPLY_TRANSFORMER_RATIOS, false));
+                this.integerSpec(PROPNAME_APPLY_TRANSFORMER_RATIOS, false));
     }
 
-    protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
-        final String obisString = getStringValue(PROPNAME_LOAD_PROFILE_OBIS_CODE, "");
-        if (!obisString.isEmpty()) {
-            ObisCode obisCode = ObisCode.fromString(obisString);
-            if (!obisCode.equals(A1800Profile.LOAD_PROFILE_EU_CUMULATIVE) &&
-                    !obisCode.equals(A1800Profile.LOAD_PROFILE_PULSES) &&
-                    !obisCode.equals(A1800Profile.LOAD_PROFILE_EU_NONCUMULATIVE) &&
-                    !obisCode.equals(A1800Profile.PROFILE_INSTRUMENTATION_SET1) &&
-                    !obisCode.equals(A1800Profile.PROFILE_INSTRUMENTATION_SET2)) {
-                throw new InvalidPropertyException(String.format("Illegal argument for '%s':%s", PROPNAME_LOAD_PROFILE_OBIS_CODE, obisString));
-            }
-        }
+    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::integerSpec);
     }
 
     public DLMSReference getReference() {

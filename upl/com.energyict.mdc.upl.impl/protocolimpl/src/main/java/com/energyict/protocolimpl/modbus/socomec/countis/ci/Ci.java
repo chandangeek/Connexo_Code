@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.socomec.countis.ci;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -30,7 +31,11 @@ public class Ci extends Modbus {
 
 	private MultiplierFactory multiplierFactory = null;
 
-	@Override
+    public Ci(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
+    @Override
 	protected void doTheConnect() throws IOException {
 	}
 

@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -22,7 +23,6 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,9 +51,8 @@ public abstract class EnermetBase extends AbstractProtocol{
 
     protected abstract RegisterConfig getRegs();
 
-    /** Creates a new instance of EnermetE70X */
-    protected EnermetBase() {
-        super(false); // true for datareadout;
+    protected EnermetBase(PropertySpecService propertySpecService) {
+        super(false, propertySpecService); // true for datareadout;
     }
 
     @Override
@@ -142,7 +141,7 @@ public abstract class EnermetBase extends AbstractProtocol{
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string("Software7E1", false));
+        propertySpecs.add(this.stringSpec("Software7E1", false));
         return propertySpecs;
     }
 

@@ -6,6 +6,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
@@ -34,6 +36,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -76,6 +79,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     private static final ObisCode BILLING_COUNTER = ObisCode.fromString("1.1.0.1.0.255");
     private static final ObisCode SERIAL_NUMBER = ObisCode.fromString("1.0.9.0.0.255");
+    private final PropertySpecService propertySpecService;
 
     private String strID;
     private String strPassword;
@@ -108,6 +112,10 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
     private static SimpleDateFormat registerFormat;
     private DataDumpParser dataDumpParser;
     private boolean software7E1;
+
+    public Zmd(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -153,20 +161,32 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("IEC1107Compatible"),
+                this.integerSpec(PROFILEINTERVAL.getName()),
                 ProtocolChannelMap.propertySpec("ChannelMap", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.string("Software7E1", false));
+                this.integerSpec("ExtendedLogging"),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.stringSpec("Software7E1"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

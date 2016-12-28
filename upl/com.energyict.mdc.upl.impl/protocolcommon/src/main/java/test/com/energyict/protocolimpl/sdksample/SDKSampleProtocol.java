@@ -26,6 +26,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -47,7 +48,6 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -81,6 +81,10 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     private int sDKSampleProperty;
     private boolean simulateRealCommunication = false;
     private ObisCode loadProfileObisCode;
+
+    public SDKSampleProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public void applyMessages(List messageEntries) throws IOException {
@@ -332,9 +336,9 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(PK_SAMPLE, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(PK_SIMULATE_REAL_COMMUNICATION, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(PK_LOAD_PROFILE_OBIS_CODE, false));
+        propertySpecs.add(this.integerSpec(PK_SAMPLE, false));
+        propertySpecs.add(this.stringSpec(PK_SIMULATE_REAL_COMMUNICATION, false));
+        propertySpecs.add(this.stringSpec(PK_LOAD_PROFILE_OBIS_CODE, false));
         return propertySpecs;
     }
 

@@ -47,19 +47,19 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
                 UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
-                this.spec(ADDRESSING_MODE, this.getPropertySpecService()::integerSpec),
-                this.spec(CLIENT_MAC_ADDRESS, this.getPropertySpecService()::integerSpec),
-                this.spec(SERVER_MAC_ADDRESS, this.getPropertySpecService()::stringSpec),
-                this.spec(CONNECTION, this.getPropertySpecService()::integerSpec),
-                this.spec(PK_FORCED_DELAY, this.getPropertySpecService()::integerSpec),
-                this.spec(MAX_REC_PDU_SIZE, this.getPropertySpecService()::integerSpec),
-                this.spec(PK_RETRIES, this.getPropertySpecService()::integerSpec),
-                this.spec(PK_TIMEOUT, this.getPropertySpecService()::integerSpec),
-                this.spec(ROUND_TRIP_CORRECTION, this.getPropertySpecService()::integerSpec),
-                this.spec(DATATRANSPORT_AUTHENTICATIONKEY, this.getPropertySpecService()::hexStringSpec),
-                this.spec(DATATRANSPORT_ENCRYPTIONKEY, this.getPropertySpecService()::hexStringSpec),
-                this.spec(VERIFY_FIRMWARE_VERSION, this.getPropertySpecService()::integerSpec),
-                this.spec(LOGBOOK_SELECTOR, this.getPropertySpecService()::integerSpec))
+                this.integerSpec(ADDRESSING_MODE, false),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false),
+                this.stringSpec(SERVER_MAC_ADDRESS, false),
+                this.integerSpec(CONNECTION, false),
+                this.integerSpec(PK_FORCED_DELAY, false),
+                this.integerSpec(MAX_REC_PDU_SIZE, false),
+                this.integerSpec(PK_RETRIES, false),
+                this.integerSpec(PK_TIMEOUT, false),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false),
+                this.integerSpec(VERIFY_FIRMWARE_VERSION, false),
+                this.integerSpec(LOGBOOK_SELECTOR, false))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

@@ -93,7 +93,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     @Override
     public UkHubProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new UkHubProperties();
+            this.properties = new UkHubProperties(propertySpecService);
         }
         return this.properties;
     }

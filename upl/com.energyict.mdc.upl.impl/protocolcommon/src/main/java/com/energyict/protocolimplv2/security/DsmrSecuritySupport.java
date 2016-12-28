@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 
 import java.util.Arrays;
@@ -14,6 +15,10 @@ import java.util.List;
  * Author: khe
  */
 public class DsmrSecuritySupport extends DlmsSecuritySupport {
+
+    public DsmrSecuritySupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {

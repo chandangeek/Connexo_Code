@@ -4,6 +4,8 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -21,6 +23,7 @@ import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,6 +107,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     private static final int PD_SECURITY_LEVEL = 2;
     private static final String PD_EXTENDED_LOGGING = "0";
     private static final int PD_FORCE_DELAY = 250;
+    private final PropertySpecService propertySpecService;
 
     /**
      * Property values Required properties will have NO default value Optional
@@ -152,6 +156,10 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     private Table16 table16;
     private Table18 table18;
 
+    public MaxSys(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     public Logger getLogger() {
         return this.logger;
     }
@@ -175,19 +183,35 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(PK_SERIALNUMBER, false),
-                UPLPropertySpecFactory.stringOfExactLength(PK_NODEID, false, 7),
-                UPLPropertySpecFactory.string(PK_NODE_PREFIX, false),
-                UPLPropertySpecFactory.stringOfExactLength(PK_PASSWORD, false, 4),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_ROUNDTRIPCORRECTION, false),
-                UPLPropertySpecFactory.integer(PK_CORRECTTIME, false),
-                UPLPropertySpecFactory.integer(PK_FORCE_DELAY, false),
-                UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.string(PK_SHOULD_DISCONNECT, false),
-                UPLPropertySpecFactory.string(PK_READ_UNIT1_SERIALNUMBER, false),
-                UPLPropertySpecFactory.string(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, false));
+                this.stringSpec(PK_SERIALNUMBER),
+                this.stringSpecofExactLength(PK_NODEID, 7),
+                this.stringSpec(PK_NODE_PREFIX),
+                this.stringSpecofExactLength(PK_PASSWORD, 4),
+                this.integerSpec(PK_TIMEOUT),
+                this.integerSpec(PK_RETRIES),
+                this.integerSpec(PK_ROUNDTRIPCORRECTION),
+                this.integerSpec(PK_CORRECTTIME),
+                this.integerSpec(PK_FORCE_DELAY),
+                this.stringSpec(PK_EXTENDED_LOGGING),
+                this.stringSpec(PK_SHOULD_DISCONNECT),
+                this.stringSpec(PK_READ_UNIT1_SERIALNUMBER),
+                this.stringSpec(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec stringSpecofExactLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfExactLength(length));
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.iec1107.indigo;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
@@ -21,7 +22,6 @@ import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,9 +70,8 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     private int statusFlagChannel,readCurrentDay;
     private int emptyNodeAddress;
 
-    /** Creates a new instance of IndigoPlus */
-    public IndigoPlus() {
-        super(false,new Encryption());
+    public IndigoPlus(PropertySpecService propertySpecService) {
+        super(false,new Encryption(), propertySpecService);
     }
 
     @Override
@@ -223,9 +222,9 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("StatusFlagChannel", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("ReadCurrentDay", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("EmptyNodeAddress", false));
+        propertySpecs.add(this.integerSpec("StatusFlagChannel", false));
+        propertySpecs.add(this.integerSpec("ReadCurrentDay", false));
+        propertySpecs.add(this.integerSpec("EmptyNodeAddress", false));
         return propertySpecs;
     }
 

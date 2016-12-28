@@ -11,13 +11,13 @@
 package com.energyict.protocolimpl.modbus.socomec.a20;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -33,6 +33,10 @@ public class A20 extends Modbus {
     private MultiplierFactory multiplierFactory=null;
     private String socomecType;
 
+    public A20(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     protected void doTheConnect() throws IOException {
     }
@@ -44,7 +48,7 @@ public class A20 extends Modbus {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getPropertySpecs();
-        propertySpecs.add(UPLPropertySpecFactory.string("SocomecType", false));
+        propertySpecs.add(this.stringSpec("SocomecType", false));
         return propertySpecs;
     }
 

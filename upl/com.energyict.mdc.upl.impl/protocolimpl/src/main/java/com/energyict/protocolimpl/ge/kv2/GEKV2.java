@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.ge.kv2;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -40,7 +41,6 @@ import com.energyict.protocolimpl.ge.kv2.procedures.ManufacturerProcedureFactory
 import com.energyict.protocolimpl.ge.kv2.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.KV2;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,6 +77,10 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
     private int useSnapshotProcedure;
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     private SerialCommunicationChannel commChannel;
+
+    public GEKV2(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading,new Date(),includeEvents);
@@ -142,9 +146,9 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string("C12User", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("C12UserId", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("UseSnapshotProcedure", false));
+        propertySpecs.add(this.stringSpec("C12User", false));
+        propertySpecs.add(this.integerSpec("C12UserId", false));
+        propertySpecs.add(this.integerSpec("UseSnapshotProcedure", false));
         return propertySpecs;
     }
 

@@ -9,6 +9,9 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
@@ -41,6 +44,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
 
 import java.io.ByteArrayOutputStream;
@@ -89,6 +93,7 @@ public class ABBA1350
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
+    private final PropertySpecService propertySpecService;
 
     private String strID;
     private String strPassword;
@@ -128,6 +133,10 @@ public class ABBA1350
     private String meterSerial = null;
 
     private boolean software7E1;
+
+    public ABBA1350(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -200,25 +209,43 @@ public class ABBA1350
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("ForceDelay", false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("ForceDelay"),
+                this.integerSpec(PROFILEINTERVAL.getName()),
                 ProtocolChannelMap.propertySpec("ChannelMap", false),
-                UPLPropertySpecFactory.integer("RequestHeader", false),
-                UPLPropertySpecFactory.integer("Scaler", false),
-                UPLPropertySpecFactory.integer("DataReadout", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.integer("VDEWCompatible", false),
-                UPLPropertySpecFactory.integer("LoadProfileNumber", false, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
-                UPLPropertySpecFactory.string("Software7E1", false));
+                this.integerSpec("RequestHeader"),
+                this.integerSpec("Scaler"),
+                this.integerSpec("DataReadout"),
+                this.integerSpec("ExtendedLogging"),
+                this.integerSpec("VDEWCompatible"),
+                this.integerSpec("LoadProfileNumber", false, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
+                this.stringSpec("Software7E1"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    private PropertySpec integerSpec(String name, boolean required, Range<Integer> validValues) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::integerSpec);
+        UPLPropertySpecFactory.addIntegerValues(specBuilder, validValues);
+        return specBuilder.finish();
     }
 
     @Override

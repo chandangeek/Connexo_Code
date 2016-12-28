@@ -4,6 +4,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -26,6 +28,7 @@ import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,6 +100,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     private static final int PD_DTR_BEHAVIOUR = 2;
     private static final int PD_NODE_ID = 100;
     private static final long PD_FORCE_DELAY = 200;
+    private final PropertySpecService propertySpecService;
 
     /**
      * Property values Required properties will have NO default value.
@@ -140,6 +144,10 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     private IonParser parser;
     private Profile profile;
 
+    public Ion(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public String getSerialNumber() {
         Command c = toCmd(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
@@ -166,22 +174,35 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(PK_NODEID, true),
-                UPLPropertySpecFactory.string(PK_USER_ID, false),
-                UPLPropertySpecFactory.string(PK_PASSWORD, false),
-                UPLPropertySpecFactory.string(PK_SERIALNUMBER, false),
-                UPLPropertySpecFactory.integer(PK_PROFILEINTERVAL, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_ROUNDTRIPCORRECTION, false),
-                UPLPropertySpecFactory.integer(PK_CORRECTTIME, false),
-                UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.string(PK_DATA_RECORDER_NAME, false),
-                UPLPropertySpecFactory.string(PK_DTR_BEHAVIOUR, false),
-                UPLPropertySpecFactory.string(PK_FORCE_DELAY, false),
+                this.integerSpec(PK_NODEID),
+                this.stringSpec(PK_USER_ID),
+                this.stringSpec(PK_PASSWORD),
+                this.stringSpec(PK_SERIALNUMBER),
+                this.integerSpec(PK_PROFILEINTERVAL),
+                this.integerSpec(PK_TIMEOUT),
+                this.integerSpec(PK_RETRIES),
+                this.integerSpec(PK_ROUNDTRIPCORRECTION),
+                this.integerSpec(PK_CORRECTTIME),
+                this.stringSpec(PK_EXTENDED_LOGGING),
+                this.stringSpec(PK_DATA_RECORDER_NAME),
+                this.stringSpec(PK_DTR_BEHAVIOUR),
+                this.stringSpec(PK_FORCE_DELAY),
                 ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false));
     }
 
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    @Override
     public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             pNodeId = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));

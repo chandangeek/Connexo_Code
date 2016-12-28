@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.security.SecuritySuite;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
@@ -25,14 +26,20 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
     private static final String RESPONSE_SECURITY_TRANSLATION_CONSTANT = "DlmsSecuritySuite1And2Support.responses.security.";
     private static final String SECURITY_SUITE_TRANSLATION_KEY_CONSTANT = "security.suite.";
 
+    private final PropertySpecService propertySpecService;
+
+    public DlmsSecuritySuite1And2Support(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService));
+        propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService));
+        propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(this.propertySpecService));
+        propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(this.propertySpecService));
+        propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(this.propertySpecService));
         propertySpecs.add(getClientMacAddressPropertySpec());
         return propertySpecs;
     }
@@ -48,7 +55,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
      */
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>(new DlmsSecuritySupport().getAuthenticationAccessLevels());
+        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>(new DlmsSecuritySupport(propertySpecService).getAuthenticationAccessLevels());
         authenticationAccessLevels.add(new Sha256Authentication());
         authenticationAccessLevels.add(new ECDSAAuthentication());
         return authenticationAccessLevels;
@@ -92,11 +99,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
      */
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return new DlmsSecuritySupport().getEncryptionAccessLevels();
+        return new DlmsSecuritySupport(propertySpecService).getEncryptionAccessLevels();
     }
 
     protected PropertySpec getClientMacAddressPropertySpec() {
-        return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec();
+        return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService);
     }
 
     @Override
@@ -202,7 +209,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
 
         @Override
         public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-            DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+            DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
             return Arrays.asList(
                     dlmsSecuritySupport.new NoMessageEncryption(),
                     dlmsSecuritySupport.new MessageAuthentication(),
@@ -213,7 +220,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
 
         @Override
         public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-            DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+            DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
             return Arrays.asList(
                     dlmsSecuritySupport.new NoAuthentication(),
                     dlmsSecuritySupport.new LowLevelAuthentication(),
@@ -259,7 +266,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
 
         @Override
         public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-            DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+            DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
             return Arrays.asList(
                     dlmsSecuritySupport.new NoAuthentication(),
                     dlmsSecuritySupport.new LowLevelAuthentication(),
@@ -334,10 +341,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -358,10 +365,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -382,10 +389,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -406,7 +413,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -427,10 +434,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -451,10 +458,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -475,10 +482,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -519,10 +526,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -543,10 +550,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -567,10 +574,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -591,7 +598,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -612,10 +619,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -636,10 +643,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -660,10 +667,10 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -689,7 +696,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -719,7 +726,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }

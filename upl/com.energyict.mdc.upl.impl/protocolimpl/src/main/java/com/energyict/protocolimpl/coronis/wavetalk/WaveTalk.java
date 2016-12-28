@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.wavetalk;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -10,7 +12,6 @@ import com.energyict.protocolimpl.coronis.wavetalk.core.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavetalk.core.ParameterFactoryImpl;
 
 import java.io.IOException;
-
 
 public class WaveTalk extends AbstractWaveTalk {
 
@@ -28,6 +29,10 @@ public class WaveTalk extends AbstractWaveTalk {
 	 * The parameter factory interface
 	 */
 	private ParameterFactory parameterFactory=null;
+
+	public WaveTalk(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
 	@Override
 	protected void doTheConnect() throws IOException {

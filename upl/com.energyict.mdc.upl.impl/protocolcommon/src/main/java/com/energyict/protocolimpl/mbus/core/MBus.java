@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -26,7 +27,6 @@ import com.energyict.protocolimpl.mbus.core.connection.MBusConnection;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.discover.SecondaryAddressDiscover;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +42,10 @@ import java.util.List;
 public abstract class MBus extends AbstractProtocol implements Discover {
 
     final int DEBUG=1;
+
+    public MBus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected abstract void doTheConnect() throws IOException;
     protected abstract void doTheDisConnect() throws IOException;
@@ -86,12 +90,12 @@ public abstract class MBus extends AbstractProtocol implements Discover {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getPropertySpecs();
-        propertySpecs.add(UPLPropertySpecFactory.integer("SecondaryAddressing", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("VirtualLoadProfile", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("DataQuantitiesAreZeroBased", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("HeaderManufacturerCode", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("HeaderMedium", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("HeaderVersion", false));
+        propertySpecs.add(this.integerSpec("SecondaryAddressing", false));
+        propertySpecs.add(this.integerSpec("VirtualLoadProfile", false));
+        propertySpecs.add(this.integerSpec("DataQuantitiesAreZeroBased", false));
+        propertySpecs.add(this.stringSpec("HeaderManufacturerCode", false));
+        propertySpecs.add(this.integerSpec("HeaderMedium", false));
+        propertySpecs.add(this.integerSpec("HeaderVersion", false));
         return propertySpecs;
     }
 

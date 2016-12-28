@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107.enermete60x;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.customerconfig.UcontoRegisterConfig;
@@ -28,6 +30,10 @@ KV|01092005|Add manufacturer specific code
 public class EnermetE60X extends EnermetBase implements SerialNumberSupport {
 
     private RegisterConfig regs = new UcontoRegisterConfig();
+
+    protected EnermetE60X(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected RegisterConfig getRegs() {

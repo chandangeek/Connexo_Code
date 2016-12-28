@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.elgama;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -31,7 +32,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -63,6 +63,10 @@ public class G3B extends AbstractDLMSProtocol {
     private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.3.255");
     private ProfileGeneric loadProfile;
     private ProfileChannel profileChannel;
+
+    public G3B(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     /**
      * G3B adds the storedvalue impl to the init method. (via override)
@@ -230,27 +234,27 @@ public class G3B extends AbstractDLMSProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getPropertySpecs();
-        propertySpecs.add(UPLPropertySpecFactory.string("Connection", false));
-        propertySpecs.add(UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false));
-        propertySpecs.add(UPLPropertySpecFactory.string("ClientMacAddress", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("ServerUpperMacAddress", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("ServerLowerMacAddress", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("InformationFieldSize", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("LoadProfileId", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("AddressingMode", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("MaxMbusDevices", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("IIAPInvokeId", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("IIAPPriority", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("IIAPServiceClass", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("Manufacturer", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("InformationFieldSize", false));
-        propertySpecs.add(UPLPropertySpecFactory.string(ROUNDTRIPCORRECTION.getName(), false));
-        propertySpecs.add(UPLPropertySpecFactory.string("IpPortNumber", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("WakeUp", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("CipheringType", false));
-        propertySpecs.add(UPLPropertySpecFactory.string(LocalSecurityProvider.DATATRANSPORTKEY, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(LocalSecurityProvider.MASTERKEY, false));
+        propertySpecs.add(this.stringSpec("Connection", false));
+        propertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), false));
+        propertySpecs.add(this.stringSpec("ClientMacAddress", false));
+        propertySpecs.add(this.stringSpec("ServerUpperMacAddress", false));
+        propertySpecs.add(this.stringSpec("ServerLowerMacAddress", false));
+        propertySpecs.add(this.stringSpec("InformationFieldSize", false));
+        propertySpecs.add(this.stringSpec("LoadProfileId", false));
+        propertySpecs.add(this.stringSpec("AddressingMode", false));
+        propertySpecs.add(this.stringSpec("MaxMbusDevices", false));
+        propertySpecs.add(this.stringSpec("IIAPInvokeId", false));
+        propertySpecs.add(this.stringSpec("IIAPPriority", false));
+        propertySpecs.add(this.stringSpec("IIAPServiceClass", false));
+        propertySpecs.add(this.stringSpec("Manufacturer", false));
+        propertySpecs.add(this.stringSpec("InformationFieldSize", false));
+        propertySpecs.add(this.stringSpec(ROUNDTRIPCORRECTION.getName(), false));
+        propertySpecs.add(this.stringSpec("IpPortNumber", false));
+        propertySpecs.add(this.stringSpec("WakeUp", false));
+        propertySpecs.add(this.stringSpec("CipheringType", false));
+        propertySpecs.add(this.stringSpec(LocalSecurityProvider.DATATRANSPORTKEY, false));
+        propertySpecs.add(this.stringSpec(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, false));
+        propertySpecs.add(this.stringSpec(LocalSecurityProvider.MASTERKEY, false));
         return propertySpecs;
     }
 

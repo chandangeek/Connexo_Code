@@ -34,6 +34,8 @@ import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -80,6 +82,7 @@ import com.energyict.protocolimpl.dlms.actarissl7000.Logbook;
 import com.energyict.protocolimpl.dlms.actarissl7000.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.actarissl7000.StoredValuesImpl;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -130,6 +133,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     private static final int EV_ALL_CLOCK_SETTINGS = 0x30;
     private static final int EV_POWER_FAILURE = 0x40;
     private static final int EV_START_OF_MEASUREMENT = 0x80;
+    private final PropertySpecService propertySpecService;
     private String version = null;
     private String serialnr = null;
 
@@ -212,6 +216,10 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("SLB::SL7000");
     private DLMSCache dlmsCache = new DLMSCache();
     private int extendedLogging;
+
+    public DLMSLNSL7000(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public DLMSConnection getDLMSConnection() {
@@ -1270,22 +1278,46 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, 16),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integer("ClientMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
-                UPLPropertySpecFactory.string("FirmwareVersion", false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.integer("AddressingMode", false),
-                UPLPropertySpecFactory.integer("Connection", false),
-                UPLPropertySpecFactory.integer(USE_LEGACY_HDLC_CONNECTION, false));
+                this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.stringSpec(SECURITYLEVEL.getName()),
+                this.integerSpec("ClientMacAddress"),
+                this.integerSpec("ServerUpperMacAddress"),
+                this.integerSpec("ServerLowerMacAddress"),
+                this.stringSpec("FirmwareVersion"),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec("ExtendedLogging"),
+                this.integerSpec("AddressingMode"),
+                this.integerSpec("Connection"),
+                this.integerSpec(USE_LEGACY_HDLC_CONNECTION));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec stringSpecOfMaxLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, Integer... validValues) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .addValues(validValues)
+                .markExhaustive()
+                .finish();
     }
 
     @Override

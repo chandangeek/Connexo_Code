@@ -1,12 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,18 +33,36 @@ class SL7000Properties extends DlmsProtocolProperties {
     private static final String DEFAULT_LIMIT_MAX_NR_OF_DAYS = "0";
     private static final String DEFAULT_USE_LEGACY_HDLC_CONNECTION = "0";
 
+    private final PropertySpecService propertySpecService;
+
+    SL7000Properties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_ERROR, false),
-                UPLPropertySpecFactory.string(SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(USE_REGISTER_PROFILE, false),
-                UPLPropertySpecFactory.integer(LIMIT_MAX_NR_OF_DAYS, false),
-                UPLPropertySpecFactory.integer(USE_LEGACY_HDLC_CONNECTION, false));
+                this.integerSpec(PK_TIMEOUT),
+                this.integerSpec(PK_RETRIES),
+                this.integerSpec(PK_DELAY_AFTER_ERROR),
+                this.stringSpec(SECURITY_LEVEL),
+                this.integerSpec(CLIENT_MAC_ADDRESS),
+                this.stringSpec(SERVER_MAC_ADDRESS),
+                this.integerSpec(USE_REGISTER_PROFILE),
+                this.integerSpec(LIMIT_MAX_NR_OF_DAYS),
+                this.integerSpec(USE_LEGACY_HDLC_CONNECTION));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     public DLMSReference getReference() {

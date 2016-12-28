@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -33,7 +34,6 @@ import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFactory;
 import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -62,6 +62,10 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	private boolean messageFailed = false;
 	private int rs485RtuPlusServer = 0;
 
+	public A1800(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
 	@Override
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return a1800LoadProfile.getProfileData(from,to,includeEvents);
@@ -87,7 +91,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 	@Override
 	public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("RS485RtuPlusServer", false));
+        propertySpecs.add(this.integerSpec("RS485RtuPlusServer", false));
         return propertySpecs;
 	}
 

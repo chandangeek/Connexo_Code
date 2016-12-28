@@ -1,9 +1,12 @@
 package com.energyict.protocolimpl.dlms.edp;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +30,11 @@ class EDPProperties {
     private static final int FIRMWARE_CLIENT = 3;
 
     private final Properties properties;
+    private final PropertySpecService propertySpecService;
 
-    EDPProperties(Properties properties) {
+    EDPProperties(Properties properties, PropertySpecService propertySpecService) {
         this.properties = properties;
+        this.propertySpecService = propertySpecService;
     }
 
     public void addProperties(Properties properties) {
@@ -45,13 +50,17 @@ class EDPProperties {
 
     protected List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(DlmsProtocolProperties.CONNECTION, false),
-                UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_TIMEOUT, false),
-                UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_RETRIES, false),
-                UPLPropertySpecFactory.string(READCACHE_PROPERTY, false));
+                this.spec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, this.propertySpecService::stringSpec),
+                this.spec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, this.propertySpecService::stringSpec),
+                this.spec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, this.propertySpecService::stringSpec),
+                this.spec(DlmsProtocolProperties.CONNECTION, this.propertySpecService::stringSpec),
+                this.spec(DlmsProtocolProperties.PK_TIMEOUT, this.propertySpecService::stringSpec),
+                this.spec(DlmsProtocolProperties.PK_RETRIES, this.propertySpecService::stringSpec),
+                this.spec(READCACHE_PROPERTY, this.propertySpecService::stringSpec));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
     boolean isFirmwareClient() {

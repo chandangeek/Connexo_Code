@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.ametek;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -30,6 +32,10 @@ import java.util.Map;
  *
  */
 public class JemStar extends Jem implements MessageProtocol  {
+
+    public JemStar(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public int getProfileInterval() {

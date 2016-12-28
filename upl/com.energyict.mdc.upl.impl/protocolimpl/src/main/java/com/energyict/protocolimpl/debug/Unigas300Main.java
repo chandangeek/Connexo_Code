@@ -23,7 +23,7 @@ public class Unigas300Main extends AbstractDebuggingMain<Unigas300> {
     @Override
     Unigas300 getMeterProtocol() {
         if (unigas300 == null) {
-            unigas300 = new Unigas300();
+            unigas300 = new Unigas300(propertySpecService);
             log("Created new instance of " + unigas300.getClass().getCanonicalName() + " [" + unigas300.getProtocolVersion() + "]");
         }
         return unigas300;

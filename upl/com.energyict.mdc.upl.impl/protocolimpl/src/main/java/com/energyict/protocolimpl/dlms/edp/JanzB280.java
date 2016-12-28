@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.edp;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 /**
  * Copyrights EnergyICT
  * Date: 17/02/14
@@ -7,6 +9,10 @@ package com.energyict.protocolimpl.dlms.edp;
  * Author: khe
  */
 public class JanzB280 extends CX20009 {
+
+    public JanzB280(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getProtocolVersion() {

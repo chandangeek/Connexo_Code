@@ -22,7 +22,7 @@ public class UnilogMain extends AbstractDebuggingMain<Unilog> {
     @Override
     Unilog getMeterProtocol() {
         if (unilog == null) {
-            unilog = new Unilog();
+            unilog = new Unilog(propertySpecService);
             log("Created new instance of " + unilog.getClass().getCanonicalName() + " [" + unilog.getProtocolVersion() + "]");
         }
         return unilog;

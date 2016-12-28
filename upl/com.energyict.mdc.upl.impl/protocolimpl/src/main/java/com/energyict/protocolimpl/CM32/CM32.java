@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.CM32;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -21,6 +23,10 @@ public class CM32 extends AbstractProtocol {
     private CommandFactory commandFactory=null;
     private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
     private RegisterFactory registerFactory;
+
+	public CM32(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
 	@Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {

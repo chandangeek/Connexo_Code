@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -28,7 +29,6 @@ import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,6 +53,10 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     private String password;
     private int intervalLength;
     private boolean isDeltaWired = false;
+
+    public Nexus1272(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doConnect() throws IOException {
@@ -89,7 +93,7 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.add(new ChannelMappingPropertySpec("NexusChannelMapping", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("Delta Wired", false));
+        propertySpecs.add(this.stringSpec("Delta Wired", false));
         return propertySpecs;
     }
 

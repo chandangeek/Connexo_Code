@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.sctm.ekm;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -47,15 +48,22 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     private GenericRegisters genericRegisters;
     private String billingTimeStampId = BILLINGPOINT_TIMESTAMP_ID_DEFAULT;
 
-    public EKM() {
+    private final PropertySpecService propertySpecService;
+
+    public EKM(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
         genericRegisters = new GenericRegisters(this);
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string(BILLING_TIME_STAMP_ID, false));
+        propertySpecs.add(this.stringSpec(BILLING_TIME_STAMP_ID));
         return propertySpecs;
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::stringSpec).finish();
     }
 
     @Override

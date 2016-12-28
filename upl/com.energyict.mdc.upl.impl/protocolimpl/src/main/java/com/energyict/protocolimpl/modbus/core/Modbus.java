@@ -23,6 +23,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -39,7 +40,6 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,6 +69,10 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
     protected static final String PK_RESPONSE_TIMEOUT = "ResponseTimeout";
     protected static final String PK_FIRST_TIME_DELAY = "FirstTimeDelay";
     public static final String PK_METER_FIRMWARE_VERSION = "MeterFirmwareVersion";
+
+    public Modbus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected abstract void doTheConnect() throws IOException;
     protected abstract void doTheDisConnect() throws IOException;
@@ -131,17 +135,17 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(PK_INTERFRAME_TIMEOUT, false));
-        propertySpecs.add(UPLPropertySpecFactory.string("NetworkId", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("VirtualLoadProfile", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PK_PHYSICAL_LAYER, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PK_RESPONSE_TIMEOUT, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("RegisterOrderFixedPoint", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("RegisterOrderFloatingPoint", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PK_FIRST_TIME_DELAY, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(PK_METER_FIRMWARE_VERSION, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("Connection", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("NodeAddress", false));
+        propertySpecs.add(this.integerSpec(PK_INTERFRAME_TIMEOUT, false));
+        propertySpecs.add(this.stringSpec("NetworkId", false));
+        propertySpecs.add(this.integerSpec("VirtualLoadProfile", false));
+        propertySpecs.add(this.integerSpec(PK_PHYSICAL_LAYER, false));
+        propertySpecs.add(this.integerSpec(PK_RESPONSE_TIMEOUT, false));
+        propertySpecs.add(this.integerSpec("RegisterOrderFixedPoint", false));
+        propertySpecs.add(this.integerSpec("RegisterOrderFloatingPoint", false));
+        propertySpecs.add(this.integerSpec(PK_FIRST_TIME_DELAY, false));
+        propertySpecs.add(this.stringSpec(PK_METER_FIRMWARE_VERSION, false));
+        propertySpecs.add(this.integerSpec("Connection", false));
+        propertySpecs.add(this.integerSpec("NodeAddress", false));
         return propertySpecs;
     }
 

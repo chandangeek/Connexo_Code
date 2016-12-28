@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.elster.alpha.alphaplus;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -41,7 +42,6 @@ import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterF
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
 import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,6 +76,10 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     private SerialCommunicationChannel commChannel;
     private int totalRegisterRate;
+
+    public AlphaPlus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -121,9 +125,9 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("WhoAreYouTimeout", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("TotalRegisterRate", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("OpticalHandshakeOverModemport", false));
+        propertySpecs.add(this.integerSpec("WhoAreYouTimeout", false));
+        propertySpecs.add(this.integerSpec("TotalRegisterRate", false));
+        propertySpecs.add(this.integerSpec("OpticalHandshakeOverModemport", false));
         return propertySpecs;
     }
 

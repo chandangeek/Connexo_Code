@@ -8,6 +8,8 @@ import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -44,6 +46,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -172,6 +175,11 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private int iForcedDelay;
     private int limitMaxNrOfDays;
     private boolean readPlcLogbook;
+    private final PropertySpecService propertySpecService;
+
+    public DLMSSNAS220(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     protected abstract void doConnect();
 
@@ -431,33 +439,57 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer(PR_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.integer(PR_ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(PR_CONNECTION, false),
-                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(PR_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PR_FORCED_DELAY, false),
-                UPLPropertySpecFactory.integer(PR_RETRIES, false),
-                UPLPropertySpecFactory.integer(PR_REQUEST_TIME_ZONE, false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integer(PR_CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(PR_CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(PR_SRV_UP_MACADDR, false),
-                UPLPropertySpecFactory.integer(PR_SRV_LOW_MACADDR, false),
-                UPLPropertySpecFactory.integer(PR_TRANSP_CONNECT_TIME, false),
-                UPLPropertySpecFactory.integer(PR_TRANSP_BAUDRATE, false),
-                UPLPropertySpecFactory.integer(PR_TRANSP_DATABITS, false),
-                UPLPropertySpecFactory.integer(PR_TRANSP_STOPBITS, false),
-                UPLPropertySpecFactory.integer(PR_TRANSP_PARITY, false),
-                UPLPropertySpecFactory.integer(PR_PROFILE_TYPE, false),
-                UPLPropertySpecFactory.integer(PR_OPTICAL_BAUDRATE, false),
-                UPLPropertySpecFactory.integer(PR_CIPHERING_TYPE, false, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()),
-                UPLPropertySpecFactory.integer(PR_LIMIT_MAX_NR_OF_DAYS, false),
-                UPLPropertySpecFactory.string(PR_READ_PLC_LOG, false));
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec(PR_EXTENDED_LOGGING),
+                this.integerSpec(PR_ADDRESSING_MODE),
+                this.integerSpec(PR_CONNECTION),
+                this.stringSpecOfMaxLength(ADDRESS.getName(), MAX_ADDRESS_LENGTH),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(PR_TIMEOUT),
+                this.integerSpec(PR_FORCED_DELAY),
+                this.integerSpec(PR_RETRIES),
+                this.integerSpec(PR_REQUEST_TIME_ZONE),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.stringSpec(SECURITYLEVEL.getName()),
+                this.integerSpec(PR_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PR_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PR_SRV_UP_MACADDR),
+                this.integerSpec(PR_SRV_LOW_MACADDR),
+                this.integerSpec(PR_TRANSP_CONNECT_TIME),
+                this.integerSpec(PR_TRANSP_BAUDRATE),
+                this.integerSpec(PR_TRANSP_DATABITS),
+                this.integerSpec(PR_TRANSP_STOPBITS),
+                this.integerSpec(PR_TRANSP_PARITY),
+                this.integerSpec(PR_PROFILE_TYPE),
+                this.integerSpec(PR_OPTICAL_BAUDRATE),
+                this.integerSpec(PR_CIPHERING_TYPE, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()),
+                this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS),
+                this.stringSpec(PR_READ_PLC_LOG));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec stringSpecOfMaxLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, Integer... validValues) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .addValues(validValues)
+                .markExhaustive()
+                .finish();
     }
 
     @Override

@@ -28,7 +28,7 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
      */
     public G3SecurityProvider(Properties properties) {
         super(properties);
-        this.g3Properties = new G3Properties(properties);
+        this.g3Properties = new G3Properties(properties, propertySpecService);
     }
 
     protected void initializeRespondingFrameCounterHandler() {

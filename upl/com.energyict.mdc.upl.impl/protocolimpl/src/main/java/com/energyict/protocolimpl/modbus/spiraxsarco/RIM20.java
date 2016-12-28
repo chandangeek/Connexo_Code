@@ -1,9 +1,14 @@
 package com.energyict.protocolimpl.modbus.spiraxsarco;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 /**
  * Created by cisac on 11/19/2015.
  */
 public class RIM20 extends VLM20 {
+    public RIM20(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getProtocolVersion() {

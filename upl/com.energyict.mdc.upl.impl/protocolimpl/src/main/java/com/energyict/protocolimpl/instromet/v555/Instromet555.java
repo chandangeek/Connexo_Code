@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.instromet.v555;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -30,6 +32,10 @@ public class Instromet555 extends InstrometProtocol implements SerialNumberSuppo
     private RegisterFactory registerFactory;
     private List<BigDecimal> wrapValues = new ArrayList<>();
     private int iRoundtripCorrection;
+
+	public Instromet555(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
 	@Override
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {

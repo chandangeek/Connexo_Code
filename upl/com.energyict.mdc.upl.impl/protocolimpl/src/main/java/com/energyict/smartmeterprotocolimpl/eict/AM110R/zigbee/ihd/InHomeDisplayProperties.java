@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
@@ -37,10 +37,9 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
 
     private SecurityProvider securityProvider;
 
-    public InHomeDisplayProperties() {
+    public InHomeDisplayProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
-
 
     public DLMSReference getReference() {
         return DLMSReference.LN;
@@ -50,28 +49,28 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
-                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.integer(PK_FORCED_DELAY, false),
-                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_ERROR, false),
-                UPLPropertySpecFactory.integer(INFORMATION_FIELD_SIZE, false),
-                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false),
-                UPLPropertySpecFactory.hexString(NEW_DATATRANSPORT_AUTHENTICATION_KEY, false),
-                UPLPropertySpecFactory.hexString(NEW_DATATRANSPORT_ENCRYPTION_KEY, false),
-                UPLPropertySpecFactory.string(NEW_HLS_SECRET, false),
-                UPLPropertySpecFactory.string(ZIGBEE_MAC, false),
-                UPLPropertySpecFactory.string(ZIGBEE_PCLK, false),
-                UPLPropertySpecFactory.integer(NTA_SIMULATION_TOOL, false),
-                UPLPropertySpecFactory.integer(CIPHERING_TYPE, false),
-                UPLPropertySpecFactory.integer(BULK_REQUEST, false))
+                this.integerSpec(SECURITY_LEVEL, true),
+                this.integerSpec(ADDRESSING_MODE, false),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false),
+                this.stringSpec(SERVER_MAC_ADDRESS, false),
+                this.integerSpec(CONNECTION, false),
+                this.integerSpec(PK_FORCED_DELAY, false),
+                this.integerSpec(PK_DELAY_AFTER_ERROR, false),
+                this.integerSpec(INFORMATION_FIELD_SIZE, false),
+                this.integerSpec(MAX_REC_PDU_SIZE, false),
+                this.integerSpec(PK_RETRIES, false),
+                this.integerSpec(PK_TIMEOUT, false),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false),
+                this.hexStringSpec(NEW_DATATRANSPORT_AUTHENTICATION_KEY, false),
+                this.hexStringSpec(NEW_DATATRANSPORT_ENCRYPTION_KEY, false),
+                this.stringSpec(NEW_HLS_SECRET, false),
+                this.stringSpec(ZIGBEE_MAC, false),
+                this.stringSpec(ZIGBEE_PCLK, false),
+                this.integerSpec(NTA_SIMULATION_TOOL, false),
+                this.integerSpec(CIPHERING_TYPE, false),
+                this.integerSpec(BULK_REQUEST, false))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

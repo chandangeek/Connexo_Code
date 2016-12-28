@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
@@ -8,6 +10,7 @@ import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
+import com.google.common.base.Supplier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +36,11 @@ class UkHubProperties extends DlmsProtocolProperties {
     public static final int FIRMWARE_CLIENT = 0x50;
 
     private SecurityProvider securityProvider;
+    private final PropertySpecService propertySpecService;
+
+    UkHubProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     public DLMSReference getReference() {
         return DLMSReference.LN;
@@ -41,24 +49,40 @@ class UkHubProperties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
-                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.integer(PK_FORCED_DELAY, false),
-                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_ERROR, false),
-                UPLPropertySpecFactory.integer(INFORMATION_FIELD_SIZE, false),
-                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
-                UPLPropertySpecFactory.integer(BULK_REQUEST, false),
-                UPLPropertySpecFactory.integer(CIPHERING_TYPE, false),
-                UPLPropertySpecFactory.integer(NTA_SIMULATION_TOOL, false),
-                UPLPropertySpecFactory.integer(LOGBOOK_SELECTOR, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false));
+                this.integerSpec(SECURITY_LEVEL, true),
+                this.integerSpec(ADDRESSING_MODE, false),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false),
+                this.stringSpec(SERVER_MAC_ADDRESS, false),
+                this.integerSpec(CONNECTION, false),
+                this.integerSpec(PK_FORCED_DELAY, false),
+                this.integerSpec(PK_DELAY_AFTER_ERROR, false),
+                this.integerSpec(INFORMATION_FIELD_SIZE, false),
+                this.integerSpec(MAX_REC_PDU_SIZE, false),
+                this.integerSpec(PK_RETRIES, false),
+                this.integerSpec(PK_TIMEOUT, false),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false),
+                this.integerSpec(BULK_REQUEST, false),
+                this.integerSpec(CIPHERING_TYPE, false),
+                this.integerSpec(NTA_SIMULATION_TOOL, false),
+                this.integerSpec(LOGBOOK_SELECTOR, false),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false));
+    }
+
+    private <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec hexStringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::hexStringSpec);
+    }
+
+    private PropertySpec integerSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::integerSpec);
     }
 
     @ProtocolProperty

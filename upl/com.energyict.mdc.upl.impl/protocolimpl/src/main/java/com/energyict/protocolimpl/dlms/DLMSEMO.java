@@ -14,6 +14,7 @@ KV|31032005|Handle DataContainerException
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -26,7 +27,6 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,6 +54,10 @@ public class DLMSEMO extends DLMSSN {
     private static final long EV_TIME_DATE_ADJUSTED=    0x00000020;
     private static final long EV_POWER_DOWN=            0x00000080;
     private static final long EV_CAPTURED_EVENTS=       0x000000A9; // Add new events...
+
+    DLMSEMO(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void getEventLog(ProfileData profileDate,Calendar fromCalendar, Calendar toCalendar) throws IOException {
@@ -162,7 +166,7 @@ public class DLMSEMO extends DLMSSN {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false));
+        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName(), false));
         return propertySpecs;
     }
 

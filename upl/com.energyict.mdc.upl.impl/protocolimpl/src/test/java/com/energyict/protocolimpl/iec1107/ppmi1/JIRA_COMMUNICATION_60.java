@@ -156,7 +156,7 @@ public class JIRA_COMMUNICATION_60 {
      * @throws IOException
      */
     private PPM getPreparedPPMProtocol(Dialer dialer, TimeZone timeZone, Properties properties) throws IOException {
-        PPM ppm = new PPM();
+        PPM ppm = new PPM(propertySpecService);
         ppm.setProperties(properties);
         ppm.init(dialer.getInputStream(), dialer.getOutputStream(), timeZone, getLogger());
         ppm.enableHHUSignOn(dialer.getSerialCommunicationChannel(), false);

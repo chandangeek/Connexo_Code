@@ -10,6 +10,7 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -57,7 +58,11 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 	private UNIFLO1200Profile loadProfile;
 	private int loadProfileNumber;
 
-    @Override
+	public UNIFLO1200(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
+	@Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeout, int retries, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         modbusConnection = new UNIFLO1200Connection(inputStream, outputStream, timeout, getInterframeTimeout(), retries, forcedDelay, echoCancelling, halfDuplexController, getLogger());
         return getModbusConnection();
@@ -165,8 +170,16 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
                         .stream()
                         .filter(propertySpec -> !propertySpec.getName().equals(PASSWORD.getName()))
                         .collect(Collectors.toList());
-        propertySpecs.add(UPLPropertySpecFactory.stringOfMaxLength(PASSWORD.getName(), false, 8));
-        propertySpecs.add(UPLPropertySpecFactory.integer("LoadProfileNumber", false, MIN_LOADPROFILE_NUMBER, MAX_LOADPROFILE_NUMBER));
+        PropertySpecService propertySpecService = this.getPropertySpecService();
+        propertySpecs.add(
+                UPLPropertySpecFactory
+                        .specBuilder(PASSWORD.getName(), false, () -> propertySpecService.stringSpecOfMaximumLength(8))
+                        .finish());
+        propertySpecs.add(
+                UPLPropertySpecFactory
+                        .specBuilder("LoadProfileNumber", false, propertySpecService::integerSpec)
+                        .addValues(MIN_LOADPROFILE_NUMBER, MAX_LOADPROFILE_NUMBER)
+                        .finish());
         return propertySpecs;
 	}
 

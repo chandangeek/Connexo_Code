@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 /**
  * From function perspective, this class is same as DlmsSecuritySupport, but some of the properties have a different name.
  * <p/>
@@ -10,6 +12,10 @@ package com.energyict.protocolimplv2.security;
 public class WebRTUZ3DlmsSecuritySupport extends DlmsSecuritySupport {
 
     private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportKey";
+
+    public WebRTUZ3DlmsSecuritySupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected String getDataTransportEncryptionKeyLegacyPropertyName() {

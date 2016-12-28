@@ -10,6 +10,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -41,6 +43,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,6 +96,8 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         EXCEPTIONINFOMAP.put("ERR6", "General Comms error");
     }
 
+    private final PropertySpecService propertySpecService;
+
     private boolean soft7E1 = false;
     private boolean breakBeforeConnect = false;
     private String nodeId = null;
@@ -117,6 +122,10 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     private int iIEC1107Compatible;
     private int extendedLogging;
     private int forcedDelay;
+
+    public ABBA1700(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public Quantity getMeterReading(String name) throws IOException {
@@ -205,30 +214,42 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer("MeterType", false),
-                UPLPropertySpecFactory.integer("ForcedDelay", false),
-                UPLPropertySpecFactory.string("Software7E1", false),
-                UPLPropertySpecFactory.string("BreakBeforeConnect", false),
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("IEC1107Compatible"),
+                this.integerSpec("ExtendedLogging"),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec("MeterType"),
+                this.integerSpec("ForcedDelay"),
+                this.stringSpec("Software7E1"),
+                this.stringSpec("BreakBeforeConnect"),
 
-                UPLPropertySpecFactory.integer("AddressingMode", false),
-                UPLPropertySpecFactory.integer("Connection", false),
-                UPLPropertySpecFactory.integer("DelayAfterfail", false),
-                UPLPropertySpecFactory.integer("RequestTimeZone", false),
-                UPLPropertySpecFactory.integer("RequestClockObject", false),
-                UPLPropertySpecFactory.integer("ClientMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false));
+                this.integerSpec("AddressingMode"),
+                this.integerSpec("Connection"),
+                this.integerSpec("DelayAfterfail"),
+                this.integerSpec("RequestTimeZone"),
+                this.integerSpec("RequestClockObject"),
+                this.integerSpec("ClientMacAddress"),
+                this.integerSpec("ServerUpperMacAddress"),
+                this.integerSpec("ServerLowerMacAddress"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {

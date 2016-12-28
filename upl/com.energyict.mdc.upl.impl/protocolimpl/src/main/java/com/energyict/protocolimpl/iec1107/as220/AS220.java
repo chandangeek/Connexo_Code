@@ -10,6 +10,9 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -47,6 +50,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
 
 import java.io.ByteArrayOutputStream;
@@ -93,6 +97,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 	private static final String INVERT_BILLING_ORDER = "InvertBillingOrder";
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
     private static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
+    private final PropertySpecService propertySpecService;
 
     private String strID;
     private String strPassword;
@@ -144,6 +149,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private String dateFormat = null;
     private String billingDateFormat = null;
     private boolean useEquipmentIdentifierAsSerial;
+
+    public AS220(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -236,33 +245,51 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("ForceDelay", false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("ForceDelay"),
+                this.integerSpec(PROFILEINTERVAL.getName()),
                 ProtocolChannelMap.propertySpec("ChannelMap", false),
-                UPLPropertySpecFactory.integer("RequestHeader", false),
-                UPLPropertySpecFactory.integer("Scaler", false),
-                UPLPropertySpecFactory.string(PROPERTY_DATE_FORMAT, false),
-                UPLPropertySpecFactory.string(PROPERTY_BILLING_DATE_FORMAT, false),
-                UPLPropertySpecFactory.integer("DataReadout", false, Range.closed(0, 2)),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.integer("VDEWCompatible", false),
-                UPLPropertySpecFactory.integer("LoadProfileNumber", false, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
-                UPLPropertySpecFactory.string("Software7E1", false),
-                UPLPropertySpecFactory.string("FailOnUnitMismatch", false),
-                UPLPropertySpecFactory.string("HalfDuplex", false),
-                UPLPropertySpecFactory.integer("RS485RtuPlusServer", false),
-                UPLPropertySpecFactory.integer(PR_LIMIT_MAX_NR_OF_DAYS, false),
-                UPLPropertySpecFactory.string(INVERT_BILLING_ORDER, false),
-                UPLPropertySpecFactory.string(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false));
+                this.integerSpec("RequestHeader"),
+                this.integerSpec("Scaler"),
+                this.stringSpec(PROPERTY_DATE_FORMAT),
+                this.stringSpec(PROPERTY_BILLING_DATE_FORMAT),
+                this.integerSpec("DataReadout", Range.closed(0, 2)),
+                this.integerSpec("ExtendedLogging"),
+                this.integerSpec("VDEWCompatible"),
+                this.integerSpec("LoadProfileNumber", Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
+                this.stringSpec("Software7E1"),
+                this.stringSpec("FailOnUnitMismatch"),
+                this.stringSpec("HalfDuplex"),
+                this.integerSpec("RS485RtuPlusServer"),
+                this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS),
+                this.stringSpec(INVERT_BILLING_ORDER),
+                this.stringSpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    private PropertySpec integerSpec(String name, Range<Integer> validValues) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::integerSpec);
+        UPLPropertySpecFactory.addIntegerValues(specBuilder, validValues);
+        return specBuilder.finish();
     }
 
     @Override

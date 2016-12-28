@@ -137,13 +137,13 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
 
     protected List<PropertySpec> getSmsWakeUpPropertySpecs(boolean required) {
         return Arrays.asList(
-                this.spec(SMS_BASE_URL_PROP, required, this.propertySpecService::stringSpec),
-                this.spec(SMS_SOURCE_PROP, required, this.propertySpecService::stringSpec),
-                this.spec(SMS_AUTH_PROP, required, this.propertySpecService::stringSpec),
-                this.spec(SMS_SERVICE_CODE_PROP, required, this.propertySpecService::stringSpec),
-                this.spec(SMS_PHONE_NUMBER_PROP, required, this.propertySpecService::stringSpec),
-                this.spec(WAKEUP_POLLING_TIMEOUT, required, this.propertySpecService::longSpec),
-                this.spec(WAKEUP_POLLING_FREQUENCY, required, this.propertySpecService::stringSpec));
+                this.stringSpec(SMS_BASE_URL_PROP, required),
+                this.stringSpec(SMS_SOURCE_PROP, required),
+                this.stringSpec(SMS_AUTH_PROP, required),
+                this.stringSpec(SMS_SERVICE_CODE_PROP, required),
+                this.stringSpec(SMS_PHONE_NUMBER_PROP, required),
+                this.longSpec(WAKEUP_POLLING_TIMEOUT, required),
+                this.stringSpec(WAKEUP_POLLING_FREQUENCY, required));
     }
 
     protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -152,6 +152,22 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
 
     protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec hexStringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::hexStringSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::integerSpec);
+    }
+
+    protected PropertySpec longSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::longSpec);
     }
 
 }

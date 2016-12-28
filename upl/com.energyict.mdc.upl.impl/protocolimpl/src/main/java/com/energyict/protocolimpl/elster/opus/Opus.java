@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.elster.opus;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -13,7 +14,6 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,12 +107,12 @@ public class Opus extends AbstractProtocol {
 
 	private TimeZone timezone;
 
-	public Opus(){
-		super();
+	public Opus(PropertySpecService propertySpecService){
+		super(propertySpecService);
 	}
 
-	public Opus(String oldPassword, String newPassword, int outstationID) {
-        this();
+	public Opus(PropertySpecService propertySpecService, String oldPassword, String newPassword, int outstationID) {
+		this(propertySpecService);
 		this.oldPassword = oldPassword;
 		this.newPassword = newPassword;
 		this.outstationID = outstationID;
@@ -240,7 +240,7 @@ public class Opus extends AbstractProtocol {
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.add(ProtocolChannelMap.propertySpec("ChannelMap", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("NodeAddress", true));
+        propertySpecs.add(this.integerSpec("NodeAddress", true));
         return propertySpecs;
     }
 

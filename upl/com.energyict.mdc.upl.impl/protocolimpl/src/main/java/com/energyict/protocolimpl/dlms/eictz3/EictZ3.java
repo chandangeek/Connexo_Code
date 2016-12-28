@@ -17,6 +17,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
@@ -101,6 +103,7 @@ import com.energyict.protocolimpl.dlms.nta.eventhandling.PowerFailureLog;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -321,6 +324,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * protocol status.
      */
     private static final int FATAL_DEVICE_ERROR = 0x0001;
+    private final PropertySpecService propertySpecService;
 
     /**
      * Contains the node address.
@@ -521,6 +525,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * The used ApplicationServiceObject for proper handling the DLMS connection
      */
     private ApplicationServiceObject aso;
+
+    public EictZ3(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public final DLMSConnection getDLMSConnection() {
@@ -1359,28 +1367,52 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, 16),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.string(PROPNAME_SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(PROPNAME_REQUEST_TIME_ZONE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer(PROPNAME_ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_CONNECTION, false),
+                this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.stringSpec(PROPNAME_SECURITY_LEVEL),
+                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE),
+                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec(PROPNAME_ADDRESSING_MODE),
+                this.integerSpec(PROPNAME_CONNECTION),
                 new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_INFORMATION_FIELD_SIZE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, false),
-                UPLPropertySpecFactory.string(PROPNAME_MAX_APDU_SIZE, false),
-                UPLPropertySpecFactory.string(PROPNAME_FORCE_DELAY, false),
-                UPLPropertySpecFactory.string(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, false),
-                UPLPropertySpecFactory.string(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, false),
-                UPLPropertySpecFactory.integer("CipheringType", false, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
+                this.integerSpec(PROPNAME_INFORMATION_FIELD_SIZE),
+                this.integerSpec(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES),
+                this.stringSpec(PROPNAME_MAX_APDU_SIZE),
+                this.stringSpec(PROPNAME_FORCE_DELAY),
+                this.stringSpec(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD),
+                this.stringSpec(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES),
+                this.integerSpec("CipheringType", CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec stringSpecOfMaxLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    private PropertySpec integerSpec(String name, Integer... validValues) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .addValues(validValues)
+                .markExhaustive()
+                .finish();
     }
 
     @Override

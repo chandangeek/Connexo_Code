@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -26,7 +27,6 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.EventParser;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.CeweRegisters;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ObisCodeMapper;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -176,6 +176,10 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     private CeweDateFormats dateFormats = null;
     private CeweRegisters registers = null;
 
+    public CewePrometer(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     protected ProtocolConnection doInit(InputStream in, OutputStream out, int pTimeout, int pRetries, int pForcedDelay, int pEchoCancelling, int pCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         try {
@@ -237,7 +241,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string("Software7E1", false));
+        propertySpecs.add(this.stringSpec("Software7E1", false));
         return propertySpecs;
     }
 

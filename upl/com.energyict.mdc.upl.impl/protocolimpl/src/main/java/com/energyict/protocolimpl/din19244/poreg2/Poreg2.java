@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -23,6 +25,10 @@ import java.util.Date;
  * Time: 14:37:53
  */
 public class Poreg2 extends Poreg {
+
+    public Poreg2(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {

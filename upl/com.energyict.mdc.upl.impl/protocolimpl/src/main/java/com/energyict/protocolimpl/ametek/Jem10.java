@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.ametek;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -27,6 +29,10 @@ import java.util.List;
  */
 @Deprecated     //Protocol was never released, only kept as a technical class
 public abstract class Jem10 extends Jem implements MessageProtocol {
+
+    public Jem10(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {

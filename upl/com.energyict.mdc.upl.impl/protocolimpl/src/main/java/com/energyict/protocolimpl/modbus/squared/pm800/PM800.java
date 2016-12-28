@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.squared.pm800;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -31,6 +32,10 @@ import java.util.logging.Logger;
 public class PM800 extends Modbus  {
 
     private MultiplierFactory multiplierFactory = null;
+
+    public PM800(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheConnect() throws IOException {

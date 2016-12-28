@@ -23,6 +23,8 @@ import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -70,6 +72,7 @@ import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -179,6 +182,12 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     private int dstFlag; // -1=unknown, 0=not set, 1=set
     private int addressingMode;
     private int connectionMode;
+
+    private final PropertySpecService propertySpecService;
+
+    DLMSSN(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     protected abstract String getDeviceID();
 
@@ -703,30 +712,50 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, 16),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(PROPNAME_DELAY_AFTERFAIL, false),
-                UPLPropertySpecFactory.integer(PROPNAME_REQUEST_TIME_ZONE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_REQUEST_CLOCK_OBJECT, false),
-                UPLPropertySpecFactory.integer(PROPNAME_CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(PROPNAME_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.integer(PROPNAME_ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_CONNECTION, false),
+                this.stringSpec(NODEID.getName(), false),
+                this.stringSpecOfMaxLength(ADDRESS.getName(), false, 16),
+                this.stringSpec(PASSWORD.getName(), false),
+                this.stringSpec(SERIALNUMBER.getName(), false),
+                this.integerSpec(TIMEOUT.getName(), false),
+                this.integerSpec(RETRIES.getName(), false),
+                this.integerSpec(PROPNAME_DELAY_AFTERFAIL, false),
+                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE, false),
+                this.integerSpec(PROPNAME_REQUEST_CLOCK_OBJECT, false),
+                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, false),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
+                this.integerSpec(PROPNAME_EXTENDED_LOGGING, false),
+                this.integerSpec(PROPNAME_ADDRESSING_MODE, false),
+                this.integerSpec(PROPNAME_CONNECTION, false),
                 ProtocolChannelMap.propertySpec(PROPNAME_CHANNEL_MAP, false),
-                UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integer(PROPNAME_IIAP_INVOKE_ID, false),
-                UPLPropertySpecFactory.integer(PROPNAME_IIAP_PRIORITY, false),
-                UPLPropertySpecFactory.integer(PROPNAME_IIAP_SERVICE_CLASS, false),
-                UPLPropertySpecFactory.integer(PROPNAME_CIPHERING_TYPE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_MAX_PDU_SIZE, false),
-                UPLPropertySpecFactory.integer(PROPNAME_IFORCEDELAY_BEFORE_SEND, false));
+                this.stringSpec(SECURITYLEVEL.getName(), false),
+                this.integerSpec(PROPNAME_IIAP_INVOKE_ID, false),
+                this.integerSpec(PROPNAME_IIAP_PRIORITY, false),
+                this.integerSpec(PROPNAME_IIAP_SERVICE_CLASS, false),
+                this.integerSpec(PROPNAME_CIPHERING_TYPE, false),
+                this.integerSpec(PROPNAME_MAX_PDU_SIZE, false),
+                this.integerSpec(PROPNAME_IFORCEDELAY_BEFORE_SEND, false));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec stringSpecOfMaxLength(String name, boolean required, int length) {
+        return this.spec(name, required, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    }
+
+    protected PropertySpec integerSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::integerSpec);
     }
 
     @Override

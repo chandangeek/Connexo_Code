@@ -14,6 +14,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -45,6 +47,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -148,6 +151,8 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         exceptionInfoMap.put("ERR6", "General Comms error");
     }
 
+    private final PropertySpecService propertySpecService;
+
     private boolean extendedProfileStatus;
     /**
      * Property values Required properties will have NO default value Optional
@@ -188,6 +193,10 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     private boolean useSelectiveAccessByFromAndToDate = true;
 
+    public ABBA1140(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     /**
      * Returns the serial number
      *
@@ -205,23 +214,35 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false),
-                UPLPropertySpecFactory.integer(PK_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.integer(PK_DELAY_BEFORE_CONNECT, false),
-                UPLPropertySpecFactory.integer(PK_SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(PK_ECHO_CANCELING, false),
-                UPLPropertySpecFactory.integer(PK_IEC1107_COMPATIBLE, false),
-                UPLPropertySpecFactory.string("Software7E1", false),
-                UPLPropertySpecFactory.string("DisableLogOffCommand", false),
-                UPLPropertySpecFactory.string("ExtendedProfileStatus", false),
-                UPLPropertySpecFactory.string("UseSelectiveAccessByFromAndToDate", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(PK_TIMEOUT),
+                this.integerSpec(PK_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(CORRECTTIME.getName()),
+                this.integerSpec(PK_EXTENDED_LOGGING),
+                this.integerSpec(PK_DELAY_BEFORE_CONNECT),
+                this.integerSpec(PK_SECURITY_LEVEL),
+                this.integerSpec(PK_ECHO_CANCELING),
+                this.integerSpec(PK_IEC1107_COMPATIBLE),
+                this.stringSpec("Software7E1"),
+                this.stringSpec("DisableLogOffCommand"),
+                this.stringSpec("ExtendedProfileStatus"),
+                this.stringSpec("UseSelectiveAccessByFromAndToDate"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

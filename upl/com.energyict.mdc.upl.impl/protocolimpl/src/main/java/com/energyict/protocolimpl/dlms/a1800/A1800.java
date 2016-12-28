@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.a1800;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -36,14 +37,19 @@ public class A1800 extends AbstractDlmsSessionProtocol implements SerialNumberSu
 
     static final ObisCode CLOCK_OBIS_CODE = ObisCode.fromString("0.0.1.0.0.255");
 
-    protected A1800Properties properties = new A1800Properties();
     private OutputStream outputStream;
-
     private A1800MeterInfo info;
+
     private A1800Profile loadProfile;
     private A1800EventLog eventLog;
     private ProfileCacheImpl cache = new ProfileCacheImpl();
     private RegisterReader registerReader = null;
+
+    protected final A1800Properties properties;
+
+    public A1800(PropertySpecService propertySpecService) {
+        this.properties = new A1800Properties(propertySpecService);
+    }
 
     @Override
     public String getProtocolVersion() {

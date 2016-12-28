@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -23,7 +24,6 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.RegisterCache;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +43,10 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     private static final String VERIFY_PROFILE_INTERVAL_PROPERTY = "verifyProfileInterval";
     private static final String SERIAL_NUMBER_A = "SerialNumberA";
     private static final String SERIAL_NUMBER_B = "SerialNumberB";
+
+    public WaveFlow100mW(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected abstract void doTheConnect() throws IOException;
 
@@ -196,12 +200,12 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string(LOAD_PROFILE_OBIS_CODE_PROPERTY, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(READ_LOAD_PROFILE_PROPERTY, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
-        propertySpecs.add(UPLPropertySpecFactory.string(VERIFY_PROFILE_INTERVAL_PROPERTY, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(SERIAL_NUMBER_A, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(SERIAL_NUMBER_B, false));
+        propertySpecs.add(this.stringSpec(LOAD_PROFILE_OBIS_CODE_PROPERTY, false));
+        propertySpecs.add(this.stringSpec(READ_LOAD_PROFILE_PROPERTY, false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
+        propertySpecs.add(this.stringSpec(VERIFY_PROFILE_INTERVAL_PROPERTY, false));
+        propertySpecs.add(this.stringSpec(SERIAL_NUMBER_A, false));
+        propertySpecs.add(this.stringSpec(SERIAL_NUMBER_B, false));
         return propertySpecs;
     }
 

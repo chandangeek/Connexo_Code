@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.itron.protocol;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -21,7 +22,6 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.CommandFactory;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.IdentifyCommand;
 import com.energyict.protocolimpl.itron.protocol.schlumberger.SchlumbergerConnection;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +51,10 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     private static final String UNIT_ID_MASTER = "UnitIdMaster";
     private static final String SECURITY_LEVEL_MASTER = "SecurityLevelMaster";
     private static final String PASSWORD_MASTER = "PasswordMaster";
+
+    public SchlumbergerProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected abstract void doTheInit();
     protected abstract void doTheConnect() throws IOException;
@@ -163,16 +167,16 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string(UNIT_TYPE, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(UNIT_ID, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(NODE_ADDRESS, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(DELAY_AFTER_CONNECT, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(BLOCK_SIZE, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(DAISY_CHAIN, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(ALLOW_CLOCK_SET, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(UNIT_ID_MASTER, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(SECURITY_LEVEL_MASTER, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(PASSWORD_MASTER, false));
+        propertySpecs.add(this.stringSpec(UNIT_TYPE, false));
+        propertySpecs.add(this.stringSpec(UNIT_ID, false));
+        propertySpecs.add(this.stringSpec(NODE_ADDRESS, false));
+        propertySpecs.add(this.integerSpec(DELAY_AFTER_CONNECT, false));
+        propertySpecs.add(this.integerSpec(BLOCK_SIZE, false));
+        propertySpecs.add(this.integerSpec(DAISY_CHAIN, false));
+        propertySpecs.add(this.integerSpec(ALLOW_CLOCK_SET, false));
+        propertySpecs.add(this.stringSpec(UNIT_ID_MASTER, false));
+        propertySpecs.add(this.integerSpec(SECURITY_LEVEL_MASTER, false));
+        propertySpecs.add(this.stringSpec(PASSWORD_MASTER, false));
         return propertySpecs;
     }
 

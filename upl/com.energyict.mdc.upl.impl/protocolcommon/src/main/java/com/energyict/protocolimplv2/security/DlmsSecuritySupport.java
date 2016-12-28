@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -35,13 +36,23 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
+    private final PropertySpecService propertySpecService;
+
+    public DlmsSecuritySupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-        propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-        propertySpecs.add(getClientMacAddressPropertySpec());
+        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService));
+        propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService));
+        propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(this.propertySpecService));
+        propertySpecs.add(getClientMacAddressPropertySpec(this.propertySpecService));
         return propertySpecs;
     }
 
@@ -234,14 +245,18 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         }
     }
 
-    protected PropertySpec getClientMacAddressPropertySpec() {
-        return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec();
+    protected PropertySpec getClientMacAddressPropertySpec(PropertySpecService propertySpecService) {
+        return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService);
     }
 
     protected List<PropertySpec> getManufactureSpecificSecurityProperties() {
+        return this.getManufactureSpecificSecurityProperties(this.propertySpecService);
+    }
+
+    protected List<PropertySpec> getManufactureSpecificSecurityProperties(PropertySpecService propertySpecService) {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
-        propertySpecs.add(getClientMacAddressPropertySpec());
+        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+        propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
         return propertySpecs;
     }
 
@@ -304,7 +319,7 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(getClientMacAddressPropertySpec());
+            return Collections.singletonList(getClientMacAddressPropertySpec(propertySpecService));
         }
     }
 
@@ -327,9 +342,9 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -353,9 +368,9 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -379,9 +394,9 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -404,7 +419,7 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(getClientMacAddressPropertySpec());
+            return Collections.singletonList(getClientMacAddressPropertySpec(propertySpecService));
         }
     }
 
@@ -427,8 +442,8 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -478,8 +493,8 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -504,8 +519,8 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }
@@ -530,9 +545,9 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+            propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             return propertySpecs;
         }
     }

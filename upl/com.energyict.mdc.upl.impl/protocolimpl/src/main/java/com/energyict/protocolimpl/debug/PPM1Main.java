@@ -45,7 +45,7 @@ public class PPM1Main {
 
 	public static PPM getPPM() {
 		if (ppm == null) {
-			ppm = new PPM();
+			ppm = new PPM(propertySpecService);
 			log("Created new instance of " + ppm.getClass().getCanonicalName() + " [" + ppm.getProtocolVersion() + "]");
 		}
 		return ppm;

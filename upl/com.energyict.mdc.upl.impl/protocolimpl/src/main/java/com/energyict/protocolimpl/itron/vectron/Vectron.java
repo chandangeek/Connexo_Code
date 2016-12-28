@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.itron.vectron;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -34,6 +35,10 @@ public class Vectron extends SchlumbergerProtocol {
     private RegisterFactory registerFactory = null;
     private VectronProfile vectronProfile = null;
     private boolean allowClockSet;
+
+    public Vectron(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {

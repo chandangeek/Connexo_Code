@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -52,6 +53,10 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
     protected ProfileData pd;
     protected Map registerValues = null;
 
+    public Jem(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public void applyMessages(List messageEntries) throws IOException {
         for (Object messageEntry1 : messageEntries) {
@@ -67,7 +72,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
     }
 
     @Override
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> theCategories = new ArrayList<>();
         // General Parameters
         MessageCategorySpec cat = new MessageCategorySpec("sampleCategoryName");
@@ -175,7 +180,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
     }
 
     @Override
-    protected void doDisconnect() throws IOException {
+    protected void doDisconnect() {
     }
 
     @Override

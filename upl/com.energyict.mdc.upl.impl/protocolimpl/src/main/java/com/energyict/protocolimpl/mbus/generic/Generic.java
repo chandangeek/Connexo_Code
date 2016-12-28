@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.generic;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -40,6 +41,10 @@ public class Generic extends MBus {
     // we cache this in the Generic protocol instantiation. and return the elements until iteration is complete...
     private List<DiscoverResult> discoverResults = null;
     private int discoverResultIndex = 0;
+
+    public Generic(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public DiscoverResult discover(DiscoverTools discoverTools) {

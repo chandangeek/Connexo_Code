@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.dlms.prime;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
@@ -10,6 +12,7 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,12 +44,15 @@ public class PrimeProperties extends DlmsProtocolProperties {
     private static final int FIRMWARE_CLIENT_ADDRESS = 3;
     private static final String DOT = ".";
 
-    PrimeProperties() {
-        this(new Properties());
+    private final PropertySpecService propertySpecService;
+
+    PrimeProperties(PropertySpecService propertySpecService) {
+        this(new Properties(), propertySpecService);
     }
 
-    private PrimeProperties(Properties properties) {
+    private PrimeProperties(Properties properties, PropertySpecService propertySpecService) {
         super(properties);
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -57,18 +63,42 @@ public class PrimeProperties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false),
-                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
-                new ObisCodePropertySpec(PROPNAME_EVENT_LOGBOOK_OBIS_CODE, false),
-                UPLPropertySpecFactory.string(FW_IMAGE_NAME, false),
-                UPLPropertySpecFactory.integer(FW_UPGRADE_POLLING_DELAY, false),
-                UPLPropertySpecFactory.integer(FW_UPGRADE_POLLING_RETRIES, false),
-                UPLPropertySpecFactory.integer(READ_SERIAL_NUMBER, false));
+                this.integerSpec(CLIENT_MAC_ADDRESS),
+                this.stringSpec(SERVER_MAC_ADDRESS),
+                this.integerSpec(SECURITY_LEVEL),
+                this.integerSpec(CONNECTION),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY),
+                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE),
+                new ObisCodePropertySpec(PROPNAME_EVENT_LOGBOOK_OBIS_CODE),
+                this.stringSpec(FW_IMAGE_NAME),
+                this.integerSpec(FW_UPGRADE_POLLING_DELAY),
+                this.integerSpec(FW_UPGRADE_POLLING_RETRIES),
+                this.integerSpec(READ_SERIAL_NUMBER));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec hexStringSpec(String name) {
+        return this.spec(name, this.propertySpecService::hexStringSpec);
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, Integer... validValues) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .addValues(validValues)
+                .markExhaustive()
+                .finish();
     }
 
     @Override

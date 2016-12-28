@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -40,7 +41,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -98,6 +98,10 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     private ObisCode[] loadProfileObisCodes;
 
     private JanzStoredValues storedValues;
+
+    public JanzC280(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected InvokeIdAndPriorityHandler buildInvokeIdAndPriorityHandler() throws IOException {
@@ -320,15 +324,15 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.ADDRESSING_MODE, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.CONNECTION, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(PROPERTY_FORCEDTOREADCACHE, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_TIMEOUT, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.PK_RETRIES, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.SECURITY_LEVEL, false));
+        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.ADDRESSING_MODE, false));
+        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false));
+        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.CONNECTION, false));
+        propertySpecs.add(this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false));
+        propertySpecs.add(this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false));
+        propertySpecs.add(this.stringSpec(PROPERTY_FORCEDTOREADCACHE, false));
+        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.PK_TIMEOUT, false));
+        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.PK_RETRIES, false));
+        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.SECURITY_LEVEL, false));
         return propertySpecs;
     }
 

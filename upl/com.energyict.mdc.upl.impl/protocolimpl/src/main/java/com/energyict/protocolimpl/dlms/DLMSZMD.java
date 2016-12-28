@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -40,7 +41,6 @@ import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -97,7 +97,8 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     private final MessageProtocol messageProtocol;
     private int eventIdIndex;
 
-    public DLMSZMD(TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public DLMSZMD(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(propertySpecService);
         this.messageProtocol = new ZmdMessages(this, calendarFinder, extractor);
     }
 
@@ -367,7 +368,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_EVENT_ID_INDEX, false));
+        propertySpecs.add(this.integerSpec(PROPNAME_EVENT_ID_INDEX, false));
         return propertySpecs;
     }
 

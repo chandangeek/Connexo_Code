@@ -7,22 +7,22 @@ public class MedoCommandFactory {
 	 * The command factory takes in blocks of raw data received by the input stream
 	 * The data is either in vector format or a sequence of a vector
 	 * The factory merges all the data together and builds the correct object
-	 * 
+	 *
 	 * Use instanceof for determination of the correct type
 	 */
 	private byte[][] byteArray=new byte[1][];
 	private Parsers command;
 	private boolean flag=false;
 	private boolean type=true;
-	
+
 	MedoCommandFactory(){};
-	
+
 	MedoCommandFactory(ComStruc s, Parsers command) throws IOException{
 		process(s,command);
 	}
-	
+
 	private Parsers process(ComStruc s, Parsers command) throws IOException{
-		Medo medo=new Medo();
+		Medo medo=new Medo(propertySpecService);
 		type=s.isType();
 		if (type){ // SEND (is always in a vector)
 			this.command=medo.getMcf().buildCommand(s.getByteArray(), null); // returns object for the receive side
@@ -35,7 +35,7 @@ public class MedoCommandFactory {
 				flag=true;
 			}
 			// other cases
-			else if((s.getByteArray()[0] & 0x20)==0x20){ // last block						
+			else if((s.getByteArray()[0] & 0x20)==0x20){ // last block
 				byte[][] bArray=new byte[byteArray.length+1][];
 				for(int i=0; i<byteArray.length; i++){
 					bArray[i]=byteArray[i];

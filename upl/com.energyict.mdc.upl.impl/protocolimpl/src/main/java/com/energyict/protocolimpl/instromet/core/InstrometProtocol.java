@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.instromet.core;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -13,6 +15,10 @@ import java.io.OutputStream;
 public abstract class InstrometProtocol extends AbstractProtocol {
 
 	private InstrometConnection instrometConnection=null;
+
+    public InstrometProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected abstract void doTheInit() throws IOException ;
 

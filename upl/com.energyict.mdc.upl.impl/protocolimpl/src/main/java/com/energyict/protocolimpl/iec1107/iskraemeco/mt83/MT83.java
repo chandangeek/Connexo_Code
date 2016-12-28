@@ -9,6 +9,9 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -39,6 +42,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83RegisterConfig;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83Registry;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
 
 import java.io.IOException;
@@ -79,6 +83,7 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     private static final int LOADPROFILES_FIRST = 1;
     private static final int LOADPROFILES_LAST = 2;
+    private final PropertySpecService propertySpecService;
 
     private String strID;
     private String strPassword;
@@ -109,6 +114,10 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     private byte[] dataReadout = null;
     private boolean software7E1;
     private int dataReadoutRequest;
+
+    public MT83(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -193,24 +202,43 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.integer("ReadCurrentDay", false),
-                UPLPropertySpecFactory.integer("LoadProfileNumber", false, Range.closed(LOADPROFILES_FIRST, LOADPROFILES_LAST)),
-                UPLPropertySpecFactory.string("Software7E1", false),
-                UPLPropertySpecFactory.integer("DataReadout", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("IEC1107Compatible"),
+                this.integerSpec(PROFILEINTERVAL.getName()),
+                this.integerSpec("ExtendedLogging"),
+                this.integerSpec("ReadCurrentDay"),
+                this.integerSpec("LoadProfileNumber", Range.closed(LOADPROFILES_FIRST, LOADPROFILES_LAST)),
+                this.stringSpec("Software7E1"),
+                this.integerSpec("DataReadout"));
     }
 
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    private PropertySpec integerSpec(String name, Range<Integer> validValue) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::integerSpec);
+        UPLPropertySpecFactory.addIntegerValues(specBuilder, validValue);
+        return specBuilder.finish();
+    }
+
+    @Override
     public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());

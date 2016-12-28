@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.modbus.enerdis.recdigitpower;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -22,7 +23,6 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -82,6 +82,10 @@ public class RecDigitPower extends Modbus {
 
 	private RegisterFactory rFactory;
 
+    public RecDigitPower(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     protected void doTheConnect() throws IOException { }
 
@@ -91,7 +95,7 @@ public class RecDigitPower extends Modbus {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(PK_LIMIT_MAX_NR_OF_DAYS, false));
+        propertySpecs.add(this.integerSpec(PK_LIMIT_MAX_NR_OF_DAYS, false));
         return propertySpecs;
     }
 

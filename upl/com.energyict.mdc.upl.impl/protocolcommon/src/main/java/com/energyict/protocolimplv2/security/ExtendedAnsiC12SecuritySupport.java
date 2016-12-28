@@ -23,6 +23,10 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     private static final String SECURITY_MODE_LEGACY_PROPERTY = "SecurityMode";
     private final String encryptionTranslationKeyConstant = "AnsiC12SecuritySupport.encryptionlevel.";
 
+    public ExtendedAnsiC12SecuritySupport() {
+        super(propertySpecService);
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(

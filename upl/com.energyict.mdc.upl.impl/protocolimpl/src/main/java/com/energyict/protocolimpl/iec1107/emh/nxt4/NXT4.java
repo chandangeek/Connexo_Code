@@ -70,6 +70,10 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
         EXCEPTION_INFO_MAP.put("ERROR", "Request could not be executed!");
     }
 
+    public NXT4() {
+        super(propertySpecService);
+    }
+
     @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
@@ -381,7 +385,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
 
     public NXT4Properties getProperties() {
         if (this.properties == null) {
-            this.properties = new NXT4Properties(this);
+            this.properties = new NXT4Properties(this, propertySpecService);
         }
         return properties;
     }

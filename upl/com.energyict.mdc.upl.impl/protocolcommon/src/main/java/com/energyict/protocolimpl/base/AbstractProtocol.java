@@ -10,6 +10,8 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -33,6 +35,7 @@ import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -176,22 +179,24 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     private BigDecimal adjustRegisterMultiplier;
 
     private int dtrBehaviour; // 0=force low, 1 force high, 2 don't force anything
+    private final PropertySpecService propertySpecService;
 
-    public AbstractProtocol() {
-        this(false, null);
+    public AbstractProtocol(PropertySpecService propertySpecService) {
+        this(false, propertySpecService);
     }
 
-    public AbstractProtocol(boolean requestDataReadout) {
-        this(requestDataReadout, null);
+    public AbstractProtocol(boolean requestDataReadout, PropertySpecService propertySpecService) {
+        this(requestDataReadout, null, propertySpecService);
     }
 
-    public AbstractProtocol(Encryptor encryptor) {
-        this(false, encryptor);
+    public AbstractProtocol(Encryptor encryptor, PropertySpecService propertySpecService) {
+        this(false, encryptor, propertySpecService);
     }
 
-    public AbstractProtocol(boolean requestDataReadout, Encryptor encryptor) {
+    public AbstractProtocol(boolean requestDataReadout, Encryptor encryptor, PropertySpecService propertySpecService) {
         this.requestDataReadout = requestDataReadout;
         this.encryptor = encryptor;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -233,26 +238,46 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), this.passwordIsRequired()),
-                UPLPropertySpecFactory.string(PROP_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PROP_RETRIES, false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(PROP_SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer(PROP_ECHO_CANCELING, false),
-                UPLPropertySpecFactory.integer(PROP_PROTOCOL_COMPATIBLE, false),
-                UPLPropertySpecFactory.integer(PROP_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), this.serialNumberIsRequired()),
+                this.stringSpec(ADDRESS.getName(), false),
+                this.stringSpec(PASSWORD.getName(), this.passwordIsRequired()),
+                this.stringSpec(PROP_TIMEOUT, false),
+                this.integerSpec(PROP_RETRIES, false),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
+                this.integerSpec(PROP_SECURITY_LEVEL, false),
+                this.stringSpec(NODEID.getName(), false),
+                this.integerSpec(PROP_ECHO_CANCELING, false),
+                this.integerSpec(PROP_PROTOCOL_COMPATIBLE, false),
+                this.integerSpec(PROP_EXTENDED_LOGGING, false),
+                this.stringSpec(SERIALNUMBER.getName(), this.serialNumberIsRequired()),
                 ProtocolChannelMap.propertySpec(PROP_CHANNEL_MAP, false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.integer(PROP_REQUEST_HEADER, false),
-                UPLPropertySpecFactory.integer(PROP_SCALER, false),
-                UPLPropertySpecFactory.integer(PROP_FORCED_DELAY, false),
-                UPLPropertySpecFactory.integer(PROP_HALF_DUPLEX, false),
-                UPLPropertySpecFactory.integer(PROP_DTR_BEHAVIOUR, false),
-                UPLPropertySpecFactory.bigDecimal(PROP_ADJUST_CHANNEL_MULTIPLIER, false),
-                UPLPropertySpecFactory.bigDecimal(PROP_ADJUST_REGISTER_MULTIPLIER, false));
+                this.integerSpec(PROFILEINTERVAL.getName(), false),
+                this.integerSpec(PROP_REQUEST_HEADER, false),
+                this.integerSpec(PROP_SCALER, false),
+                this.integerSpec(PROP_FORCED_DELAY, false),
+                this.integerSpec(PROP_HALF_DUPLEX, false),
+                this.integerSpec(PROP_DTR_BEHAVIOUR, false),
+                this.spec(PROP_ADJUST_CHANNEL_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec),
+                this.spec(PROP_ADJUST_REGISTER_MULTIPLIER, false, this.propertySpecService::bigDecimalSpec));
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::integerSpec);
     }
 
     protected boolean passwordIsRequired() {

@@ -67,7 +67,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     @Override
     protected G3Properties getProperties() {
         if (properties == null) {
-            properties = new G3Properties();
+            properties = new G3Properties(propertySpecService);
         }
         return properties;
     }

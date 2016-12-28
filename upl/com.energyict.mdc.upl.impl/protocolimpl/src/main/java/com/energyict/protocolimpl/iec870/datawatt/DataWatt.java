@@ -11,6 +11,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -22,6 +24,7 @@ import com.energyict.protocolimpl.iec870.IEC870Connection;
 import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.iec870.IEC870ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +56,7 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     static final int MAX_COUNTER = 100000000; // = max counter + 1
 
     private static final int DEBUG = 0;
+    private final PropertySpecService propertySpecService;
 
     // properties
     private String strID;
@@ -71,6 +75,10 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     private Logger logger = null;
     private DatawattRegistry datawattRegistry = null;
     private DatawattProfile datawattProfile = null;
+
+    public DataWatt(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void connect() throws IOException {
@@ -185,14 +193,10 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, java.util.logging.Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
-        try {
-            iec870Connection = new IEC870Connection(inputStream, outputStream, iIEC870TimeoutProperty, iProtocolRetriesProperty, (long) 300, 0, getTimeZone());
-            applicationFunction = new ApplicationFunction(timeZone, iec870Connection, logger);
-            datawattRegistry = new DatawattRegistry(this);
-            datawattProfile = new DatawattProfile(this);
-        } catch (IEC870ConnectionException e) {
-            logger.severe("DataWatt: init(...), " + e.getMessage());
-        }
+        iec870Connection = new IEC870Connection(inputStream, outputStream, iIEC870TimeoutProperty, iProtocolRetriesProperty, (long) 300, 0, getTimeZone());
+        applicationFunction = new ApplicationFunction(timeZone, iec870Connection, logger);
+        datawattRegistry = new DatawattRegistry(this);
+        datawattProfile = new DatawattProfile(this);
     }
 
     public void initializeDevice() throws IOException {
@@ -200,29 +204,35 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     }
 
     public List<String> getOptionalKeys() {
-        return Arrays.asList(
-                "MeterType");
-    }
-
-    public List<String> getRequiredKeys() {
-        return Collections.singletonList("ChannelMap");
+        return Collections.singletonList("MeterType");
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.string(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.string("ChannelMap", false),
-                UPLPropertySpecFactory.integer("MeterType", false),
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.stringSpec(PROFILEINTERVAL.getName()),
+                this.stringSpec("ChannelMap"),
+                this.integerSpec("MeterType"),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(CORRECTTIME.getName()));
+    }
 
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

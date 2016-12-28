@@ -9,6 +9,7 @@
  */
 package com.energyict.protocolimpl.modbus.cutlerhammer.iq230;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -27,6 +28,10 @@ import java.util.Date;
 public class IQ230 extends Modbus {
 
     private MultiplierFactory multiplierFactory = null;
+
+    public IQ230(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheConnect() throws IOException {

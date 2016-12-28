@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.iec1107.sdc;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -24,7 +25,6 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,8 +55,8 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
 
     protected abstract RegisterConfig getRegs();
 
-    SdcBase() {
-        super(false); // true for datareadout;
+    SdcBase(PropertySpecService propertySpecService) {
+        super(false, propertySpecService); // true for datareadout;
     }
 
     @Override
@@ -110,7 +110,7 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string("Software7E1", false));
+        propertySpecs.add(this.stringSpec("Software7E1", false));
         return propertySpecs;
     }
 

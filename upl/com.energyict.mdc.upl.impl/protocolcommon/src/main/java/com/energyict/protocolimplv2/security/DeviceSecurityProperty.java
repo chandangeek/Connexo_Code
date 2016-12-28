@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.Certificate;
 
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -25,8 +25,8 @@ public enum DeviceSecurityProperty {
      */
     PASSWORD {
         @Override
-        public PropertySpec getPropertySpec() {
-            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.PASSWORD).finish();
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.PASSWORD).finish();
         }
     },
     /**
@@ -34,8 +34,8 @@ public enum DeviceSecurityProperty {
      */
     ENCRYPTION_KEY {
         @Override
-        public PropertySpec getPropertySpec() {
-            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.ENCRYPTION_KEY).finish();
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY).finish();
         }
     },
     /**
@@ -43,8 +43,8 @@ public enum DeviceSecurityProperty {
      */
     AUTHENTICATION_KEY {
         @Override
-        public PropertySpec getPropertySpec() {
-            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY).finish();
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.AUTHENTICATION_KEY).finish();
         }
     },
     /**
@@ -52,24 +52,23 @@ public enum DeviceSecurityProperty {
      */
     CLIENT_MAC_ADDRESS {
         @Override
-        public PropertySpec getPropertySpec() {
-            return this.getPropertySpec(BigDecimal.ONE);
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.getPropertySpec(propertySpecService, BigDecimal.ONE);
         }
 
         @Override
-        public PropertySpec getPropertySpec(Object defaultValue) {
-            return this.getPropertySpec((BigDecimal) defaultValue);
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Object defaultValue) {
+            return this.getPropertySpec(propertySpecService, (BigDecimal) defaultValue);
         }
 
-        private PropertySpec getPropertySpec(BigDecimal defaultValue) {
-            return Services
-                    .propertySpecService()
-                    .boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(0x7F))
-                    .named(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-                    .describedAs("Description for " + SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-                    .setDefaultValue(defaultValue)
-                    .addValues(getPossibleClientMacAddressValues(1, 0x7F))
-                    .finish();
+        private PropertySpec getPropertySpec(PropertySpecService propertySpecService, BigDecimal defaultValue) {
+            return propertySpecService
+                        .boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(0x7F))
+                        .named(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
+                        .describedAs("Description for " + SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
+                        .setDefaultValue(defaultValue)
+                        .addValues(getPossibleClientMacAddressValues(1, 0x7F))
+                        .finish();
         }
     },
 
@@ -79,8 +78,8 @@ public enum DeviceSecurityProperty {
      */
     SERVER_SIGNATURE_CERTIFICATE {
         @Override
-        public PropertySpec getPropertySpec() {
-            return certificatePropertySpecBuilder(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE).finish();
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return certificatePropertySpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE).finish();
         }
     },
 
@@ -89,8 +88,8 @@ public enum DeviceSecurityProperty {
      */
     SERVER_KEY_AGREEMENT_CERTIFICATE {
         @Override
-        public PropertySpec getPropertySpec() {
-            return certificatePropertySpecBuilder(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE).finish();
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return certificatePropertySpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE).finish();
         }
     },
 
@@ -103,15 +102,22 @@ public enum DeviceSecurityProperty {
      */
     CRYPTOSERVER_PHASE {
         @Override
-        public PropertySpec getPropertySpec() {
-            return UPLPropertySpecFactory.stringWithDefault(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), false, "0", "1", "2", "S");
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                        .specBuilder(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), false, propertySpecService::stringSpec)
+                        .setDefaultValue("0")
+                        .addValues("1", "2", "S")
+                        .markExhaustive()
+                        .finish();
         }
     },
 
     SECURITY_LEVEL {
         @Override
-        public PropertySpec getPropertySpec() {
-            return UPLPropertySpecFactory.string(SecurityPropertySpecName.SECURITY_LEVEL.toString(), false);
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                        .specBuilder(SecurityPropertySpecName.SECURITY_LEVEL.toString(), false, propertySpecService::stringSpec)
+                        .finish();
         }
     },
 
@@ -120,8 +126,10 @@ public enum DeviceSecurityProperty {
      */
     DEVICE_ACCESS_IDENTIFIER {
         @Override
-        public PropertySpec getPropertySpec() {
-            return UPLPropertySpecFactory.string(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString(), false);
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                        .specBuilder(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString(), false, propertySpecService::stringSpec)
+                        .finish();
         }
     },
     /**
@@ -129,8 +137,10 @@ public enum DeviceSecurityProperty {
      */
     ANSI_C12_USER {
         @Override
-        public PropertySpec getPropertySpec() {
-            return UPLPropertySpecFactory.string(SecurityPropertySpecName.ANSI_C12_USER.toString(), false);
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                        .specBuilder(SecurityPropertySpecName.ANSI_C12_USER.toString(), false, propertySpecService::stringSpec)
+                        .finish();
         }
     },
     /**
@@ -138,8 +148,11 @@ public enum DeviceSecurityProperty {
      */
     ANSI_C12_USER_ID {
         @Override
-        public PropertySpec getPropertySpec() {
-            return UPLPropertySpecFactory.bigDecimal(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), false, BigDecimal.ONE);
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                        .specBuilder(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), false, propertySpecService::bigDecimalSpec)
+                        .setDefaultValue(BigDecimal.ONE)
+                        .finish();
         }
     },
     /**
@@ -147,8 +160,11 @@ public enum DeviceSecurityProperty {
      */
     BINARY_PASSWORD {
         @Override
-        public PropertySpec getPropertySpec() {
-            return UPLPropertySpecFactory.booleanValue(SecurityPropertySpecName.BINARY_PASSWORD.toString(), false, false);
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                        .specBuilder(SecurityPropertySpecName.BINARY_PASSWORD.toString(), false, propertySpecService::booleanSpec)
+                        .setDefaultValue(false)
+                        .finish();
         }
     },
     /**
@@ -156,8 +172,10 @@ public enum DeviceSecurityProperty {
      */
     ANSI_CALLED_AP_TITLE {
         @Override
-        public PropertySpec getPropertySpec() {
-            return UPLPropertySpecFactory.string(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), false);
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                        .specBuilder(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), false, propertySpecService::stringSpec)
+                        .finish();
         }
     },
     /**
@@ -165,8 +183,8 @@ public enum DeviceSecurityProperty {
      */
     ANSI_SECURITY_KEY {
         @Override
-        public PropertySpec getPropertySpec() {
-            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.ANSI_SECURITY_KEY).finish();
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ANSI_SECURITY_KEY).finish();
         }
     },
     /**
@@ -174,8 +192,8 @@ public enum DeviceSecurityProperty {
      */
     MANUFACTURER_ENCRYPTION_KEY {
         @Override
-        public PropertySpec getPropertySpec() {
-            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER).finish();
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER).finish();
         }
     },
     /**
@@ -183,25 +201,23 @@ public enum DeviceSecurityProperty {
      */
     CUSTOMER_ENCRYPTION_KEY {
         @Override
-        public PropertySpec getPropertySpec() {
-            return this.encryptedStringSpecBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER).finish();
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER).finish();
         }
     };
 
-    protected static PropertySpecBuilder certificatePropertySpecBuilder(SecurityPropertySpecName name) {
-        return Services
-                .propertySpecService()
-                .referenceSpec(Certificate.class.getName())
-                .named(name.toString(), name.toString())
-                .describedAs("Description for " + name.toString());
+    protected static PropertySpecBuilder certificatePropertySpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
+        return propertySpecService
+                    .referenceSpec(Certificate.class.getName())
+                    .named(name.toString(), name.toString())
+                    .describedAs("Description for " + name.toString());
     }
 
-    protected PropertySpecBuilder<String> encryptedStringSpecBuilder(SecurityPropertySpecName name) {
-        return Services
-                .propertySpecService()
-                .encryptedStringSpec()
-                .named(name.toString(), name.toString())
-                .describedAs("Description for" + name.toString());
+    protected PropertySpecBuilder<String> encryptedStringSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
+        return propertySpecService
+                    .encryptedStringSpec()
+                    .named(name.toString(), name.toString())
+                    .describedAs("Description for" + name.toString());
     }
 
     /**
@@ -215,10 +231,10 @@ public enum DeviceSecurityProperty {
                 .toArray(new BigDecimal[upperLimit - lowerLimit + 1]);
     }
 
-    public abstract PropertySpec getPropertySpec();
+    public abstract PropertySpec getPropertySpec(PropertySpecService propertySpecService);
 
-    public PropertySpec getPropertySpec(Object defaultValue) {
-        return this.getPropertySpec();
+    public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Object defaultValue) {
+        return this.getPropertySpec(propertySpecService);
     }
 
 }

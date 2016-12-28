@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -39,7 +40,6 @@ import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
 import com.energyict.protocolimpl.dlms.idis.registers.IDISStoredValues;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -83,7 +83,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     private int limitMaxNrOfDays = 0;
     private final TariffCalendarFinder calendarFinder;
 
-    public IDIS(TariffCalendarFinder calendarFinder) {
+    public IDIS(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder) {
+        super(propertySpecService);
         this.calendarFinder = calendarFinder;
     }
 
@@ -240,18 +241,18 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> myPropertySpecs = new ArrayList<>(super.getPropertySpecs());
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(READCACHE_PROPERTY, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(LIMITMAXNROFDAYS_PROPERTY, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(CALLING_AP_TITLE, false));
+        myPropertySpecs.add(this.integerSpec(READCACHE_PROPERTY, false));
+        myPropertySpecs.add(this.integerSpec(LIMITMAXNROFDAYS_PROPERTY, false));
+        myPropertySpecs.add(this.stringSpec(CALLING_AP_TITLE, false));
         myPropertySpecs.add(new ObisCodePropertySpec(LOAD_PROFILE_OBIS_CODE_PROPERTY, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
-        myPropertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
-        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.CONNECTION, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.ADDRESSING_MODE, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.MAX_REC_PDU_SIZE, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(DlmsProtocolProperties.ISKRA_WRAPPER, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
+        myPropertySpecs.add(this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.CONNECTION, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.ADDRESSING_MODE, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.MAX_REC_PDU_SIZE, false));
+        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.ISKRA_WRAPPER, false));
         return myPropertySpecs;
     }
 

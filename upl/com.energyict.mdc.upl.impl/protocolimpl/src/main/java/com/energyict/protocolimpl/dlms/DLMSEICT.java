@@ -18,6 +18,7 @@ package com.energyict.protocolimpl.dlms;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
@@ -28,7 +29,6 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,6 +58,10 @@ public class DLMSEICT extends DLMSSN {
     private static final long EV_EVENT_LOG_CLEARED = 0x00002000;
     private static final long EV_LOAD_PROFILE_CLEARED = 0x00004000;
     private static final long EV_CAPTURED_EVENTS = 0x008860E5; // Add new events...
+
+    DLMSEICT(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected String getDeviceID() {
@@ -181,7 +185,7 @@ public class DLMSEICT extends DLMSSN {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false));
+        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName(), false));
         return propertySpecs;
     }
 

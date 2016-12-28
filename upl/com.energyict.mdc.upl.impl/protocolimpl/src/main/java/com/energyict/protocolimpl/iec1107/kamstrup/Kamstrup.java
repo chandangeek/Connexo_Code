@@ -10,6 +10,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -27,6 +29,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,6 +74,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     private static final String[] KAMSTRUP_METERREADINGS_979E1 = {"23.2.0", "1:12.0.0", "1:13.0.0", "0:41.0.0", "0:42.0.0", "97.97.0"};
     private static final String[] KAMSTRUP_METERREADINGS_979A1 = {"23.2.0", "13.1.0", "1:13.0.0", "0:41.0.0", "0:42.0.0", "97.97.0"};
     private static final String[] KAMSTRUP_METERREADINGS_DEFAULT = {"23.2.0", "13.1.0", "1:13.0.0", "0:41.0.0", "0:42.0.0", "97.97.0"};
+    private final PropertySpecService propertySpecService;
 
     private String strID;
     private String strPassword;
@@ -92,6 +96,10 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     private int extendedLogging;
 
     private byte[] dataReadout = null;
+
+    public Kamstrup(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -185,18 +193,30 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
-                UPLPropertySpecFactory.string(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.string("Software7E1", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("IEC1107Compatible"),
+                this.stringSpec(PROFILEINTERVAL.getName()),
+                this.integerSpec("ExtendedLogging"),
+                this.stringSpec("Software7E1"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

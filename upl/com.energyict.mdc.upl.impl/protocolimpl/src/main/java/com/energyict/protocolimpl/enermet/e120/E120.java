@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.enermet.e120;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -14,7 +15,6 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,6 +92,10 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
 
     private int pRetries;
 
+    public E120(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     protected ProtocolConnection doInit(
             InputStream inputStream, OutputStream outputStream,
@@ -152,7 +156,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string(PK_USER_ID, true));
+        propertySpecs.add(this.stringSpec(PK_USER_ID, true));
         propertySpecs.add(ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, true));
         return propertySpecs;
     }

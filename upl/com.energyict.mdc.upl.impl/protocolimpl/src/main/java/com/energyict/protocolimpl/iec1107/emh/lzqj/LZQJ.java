@@ -6,6 +6,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
@@ -34,6 +36,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -76,6 +79,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  */
 public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
 
+    private final PropertySpecService propertySpecService;
     private String strID;
     private String strPassword;
     private int iIEC1107TimeoutProperty;
@@ -111,6 +115,10 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
      * Indication whether longNameObisCodes can be used
      */
     private boolean longNameObisCodes = false;
+
+    public LZQJ(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -183,23 +191,35 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.integer("RequestHeader", false),
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("IEC1107Compatible"),
+                this.integerSpec(PROFILEINTERVAL.getName()),
+                this.integerSpec("RequestHeader"),
                 ProtocolChannelMap.propertySpec("ChannelMap", false),
-                UPLPropertySpecFactory.integer("DataReadout", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.integer("VDEWCompatible", false),
-                UPLPropertySpecFactory.integer("FixedProfileTimeZone", false),
-                UPLPropertySpecFactory.string("Software7E1", false));
+                this.integerSpec("DataReadout"),
+                this.integerSpec("ExtendedLogging"),
+                this.integerSpec("VDEWCompatible"),
+                this.integerSpec("FixedProfileTimeZone"),
+                this.stringSpec("Software7E1"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

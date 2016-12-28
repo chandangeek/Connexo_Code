@@ -19,6 +19,8 @@ import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.NotFoundException;
@@ -66,6 +68,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,6 +96,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     private static final byte[] profileLN = {0, 0, 99, 1, 0, (byte) 255};
     private static final int iNROfIntervals = 50000;
+    private final PropertySpecService propertySpecService;
 
     private int iInterval = 0;
     private ScalerUnit[] demandScalerUnits = null;
@@ -159,6 +163,10 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private int extendedLogging;
     private int addressingMode;
     private int connectionMode;
+
+    public ACE6000(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public DLMSConnection getDLMSConnection() {
@@ -1330,23 +1338,43 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, 16),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(PK_SECURITYLEVEL, false),
-                UPLPropertySpecFactory.integer("RequestTimeZone", false),
-                UPLPropertySpecFactory.integer("ClientMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
-                UPLPropertySpecFactory.string("FirmwareVersion", false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.string("AddressingMode", false),
-                UPLPropertySpecFactory.string("Connection", false),
-                UPLPropertySpecFactory.string("StatusFlagChannel", false));
+                this.stringSpecOfMaxLength(ADDRESS.getName(), false, 16),
+                this.stringSpec(PASSWORD.getName(), false),
+                this.integerSpec(PK_TIMEOUT, false),
+                this.integerSpec(PK_RETRIES, false),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
+                this.integerSpec(PK_SECURITYLEVEL, false),
+                this.integerSpec("RequestTimeZone", false),
+                this.integerSpec("ClientMacAddress", false),
+                this.integerSpec("ServerUpperMacAddress", false),
+                this.integerSpec("ServerLowerMacAddress", false),
+                this.stringSpec("FirmwareVersion", false),
+                this.stringSpec(NODEID.getName(), false),
+                this.stringSpec(SERIALNUMBER.getName(), false),
+                this.stringSpec(PK_EXTENDED_LOGGING, false),
+                this.stringSpec("AddressingMode", false),
+                this.stringSpec("Connection", false),
+                this.stringSpec("StatusFlagChannel", false));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec stringSpecOfMaxLength(String name, boolean required, int length) {
+        return this.spec(name, required, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    }
+
+    protected PropertySpec integerSpec(String name, boolean required) {
+        return this.spec(name, required, this.propertySpecService::integerSpec);
     }
 
     @Override

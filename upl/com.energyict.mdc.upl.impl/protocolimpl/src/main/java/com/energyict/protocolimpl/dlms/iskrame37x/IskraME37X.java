@@ -32,6 +32,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -82,6 +84,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,6 +136,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     private static final byte[] connectMsg = new byte[]{0x11, 0x01};
     private static final byte[] disconnectMsg = new byte[]{0x11, 0x00};
+    private final PropertySpecService propertySpecService;
 
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("ISK");
     private DLMSCache dlmsCache = new DLMSCache();
@@ -241,6 +245,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     private ObisCode loadProfileObisCode97 = ObisCode.fromString("1.0.99.97.0.255");
     private ObisCode breakerObisCode = ObisCode.fromString("0.0.128.30.21.255");
     private ObisCode eventLogObisCode = ObisCode.fromString("1.0.99.98.0.255");
+
+    public IskraME37X(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public DLMSConnection getDLMSConnection() {
@@ -1089,8 +1097,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     private DataContainer doRequestAttribute(int classId, byte[] ln, int lnAttr) throws IOException {
-        DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
-        return dc;
+        return getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
     }
 
     @Override
@@ -1117,24 +1124,48 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integer("RequestTimeZone", false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer("ClientMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
-                UPLPropertySpecFactory.integer("FirmwareVersion", false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.integer("LoadProfileId", false, 1, 2, 97),
-                UPLPropertySpecFactory.integer("AddressingMode", false),
-                UPLPropertySpecFactory.integer("Connection", false),
-                UPLPropertySpecFactory.integer("DeviceType", false));
+                this.stringSpecOfMaxLength(ADDRESS.getName(), MAX_ADDRESS_LENGTH),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.integerSpec("RequestTimeZone"),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec("ClientMacAddress"),
+                this.integerSpec("ServerUpperMacAddress"),
+                this.integerSpec("ServerLowerMacAddress"),
+                this.integerSpec("FirmwareVersion"),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec("ExtendedLogging"),
+                this.integerSpec("LoadProfileId", 1, 2, 97),
+                this.integerSpec("AddressingMode"),
+                this.integerSpec("Connection"),
+                this.integerSpec("DeviceType"));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec stringSpecOfMaxLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, Integer... validValues) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .addValues(validValues)
+                .markExhaustive()
+                .finish();
     }
 
     @Override

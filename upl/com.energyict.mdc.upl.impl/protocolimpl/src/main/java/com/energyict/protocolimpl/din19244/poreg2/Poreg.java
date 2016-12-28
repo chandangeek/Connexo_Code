@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -18,7 +19,6 @@ import com.energyict.protocolimpl.din19244.poreg2.core.PoregMessages;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RegisterFactory;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RequestFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,6 +42,10 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     boolean isPoreg2;
     private int apparentEnergyResultLevel;
     private String systemAddress = "00000000";
+
+    public Poreg(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doDisconnect() throws IOException {
@@ -111,8 +115,8 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("ApparentEnergyResultLevel", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("SystemAddress", false));
+        propertySpecs.add(this.integerSpec("ApparentEnergyResultLevel", false));
+        propertySpecs.add(this.stringSpec("SystemAddress", false));
         return propertySpecs;
     }
 

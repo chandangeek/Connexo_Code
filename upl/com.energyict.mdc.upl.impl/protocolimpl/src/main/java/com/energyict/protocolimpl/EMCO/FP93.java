@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -52,7 +54,8 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
 
     private final MessageProtocol messageProtocol;
 
-    public FP93() {
+    public FP93(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         this.messageProtocol = new FP93Messages(this);
     }
 
@@ -81,7 +84,10 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
                 .stream()
                 .filter(propertySpec -> !propertySpec.getName().equals(ADDRESS.getName()))
                 .forEach(propertySpecs::add);
-        propertySpecs.add(UPLPropertySpecFactory.integer(ADDRESS.getName(), false, Range.closed(1, 99999)));
+        PropertySpecService propertySpecService = this.getPropertySpecService();
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, propertySpecService::integerSpec);
+        UPLPropertySpecFactory.addIntegerValues(specBuilder, Range.closed(1, 99999));
+        propertySpecs.add(specBuilder.finish());
         return propertySpecs;
     }
 

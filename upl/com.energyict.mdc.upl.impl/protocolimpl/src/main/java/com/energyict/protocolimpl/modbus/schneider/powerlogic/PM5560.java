@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.modbus.generic.Generic;
 
 import java.io.IOException;
@@ -9,6 +11,10 @@ import java.io.IOException;
  * @since 18/03/2015 - 11:24
  */
 public class PM5560 extends Generic {
+
+    public PM5560(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getProtocolVersion() {

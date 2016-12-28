@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -21,9 +23,11 @@ public class NXT4Properties {
 
     private final NXT4 meterProtocol;
     private Properties protocolProperties;
+    private final PropertySpecService propertySpecService;
 
-    public NXT4Properties(NXT4 meterProtocol) {
+    public NXT4Properties(NXT4 meterProtocol, PropertySpecService propertySpecService) {
         this.meterProtocol = meterProtocol;
+        this.propertySpecService = propertySpecService;
     }
 
     public void setProperties(Properties properties) {
@@ -138,11 +142,11 @@ public class NXT4Properties {
         return meterProtocol;
     }
 
-    List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
-        List<com.energyict.mdc.upl.properties.PropertySpec> specs = new ArrayList<>();
+    List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> specs = new ArrayList<>();
         this.getIntegerPropertyNames()
                 .stream()
-                .map(name -> UPLPropertySpecFactory.integer(name, false))
+                .map(this::integerSpec)
                 .forEach(specs::add);
         specs.add(ProtocolChannelMap.propertySpec("ChannelMap", false));
         return specs;
@@ -164,6 +168,10 @@ public class NXT4Properties {
         result.add("ReadUserLogBook");
         result.add("ReconnectAfterR6Read");
         return result;
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::integerSpec).finish();
     }
 
 }

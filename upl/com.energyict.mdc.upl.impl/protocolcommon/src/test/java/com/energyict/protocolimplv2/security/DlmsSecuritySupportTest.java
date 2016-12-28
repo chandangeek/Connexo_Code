@@ -28,7 +28,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
 
         // currently only 4 properties are necessary
         assertThat(dlmsSecuritySupport.getSecurityProperties()).hasSize(4);
@@ -92,7 +92,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
 
         // currently only 6 levels are supported
         assertThat(dlmsSecuritySupport.getAuthenticationAccessLevels()).hasSize(6);
@@ -184,7 +184,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest() {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
 
         // currently only 6 levels are supported
         assertThat(dlmsSecuritySupport.getEncryptionAccessLevels()).hasSize(4);
@@ -248,7 +248,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void convertToTypedPropertiesTest() {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String encryptionKeyValue = "MyEncryptionKey";
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKeyValue);
@@ -290,7 +290,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void testConvertTypedPropertiesToSecuritySet() throws Exception {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "12:21");
 
@@ -303,7 +303,7 @@ public class DlmsSecuritySupportTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalFormat() throws Exception {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "12;21"); // illegal format
 
@@ -312,7 +312,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void testConvertTypedPropertiesToSecuritySetWithoutEncryptionLevelDefaultsTo0() throws Exception {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "13");
 
@@ -325,7 +325,7 @@ public class DlmsSecuritySupportTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalAuthenticationLevel() throws Exception {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "1A2:21"); // illegal int value
 
@@ -336,7 +336,7 @@ public class DlmsSecuritySupportTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalEncryptionLevel() throws Exception {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "12:2A1"); // illegal int value
 
@@ -346,7 +346,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void testConvertTypedPropertiesToSecuritySetMissingSecurityProperty() throws Exception {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
 
         DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
@@ -356,7 +356,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void testPasswordConversion() {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         Password password = new SimplePassword(passwordValue);
@@ -388,7 +388,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void testSecuredPropertySetConversionWithTypedProperties() throws Exception {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", DlmsSecuritySupport.AuthenticationAccessLevelIds.MD5_AUTHENTICATION.getAccessLevel() + ":" + DlmsSecuritySupport.EncryptionAccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel());
         securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName(), "some mac address");
@@ -407,7 +407,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void testSecuredPropertySetConversionWithDifferentTypedPropertiesInAuthenticationAndEncryption() throws Exception {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", DlmsSecuritySupport.EncryptionAccessLevelIds.MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel() + ":" + DlmsSecuritySupport.AuthenticationAccessLevelIds.LOW_LEVEL_AUTHENTICATION.getAccessLevel());
         securityProperties.setProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec().getName(), "unused");
@@ -431,7 +431,7 @@ public class DlmsSecuritySupportTest {
 
     @Test
     public void testClientMacAddressConversion() {
-        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec().getName(), "16");
 

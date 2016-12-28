@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -140,6 +141,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int maxRecPduSize;
     private int iskraWrapper = 1;
     private boolean incrementFrameCounterForRetries;
+
+    public AbstractDLMSProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doConnect() throws IOException {
@@ -349,24 +354,30 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Stream<PropertySpec> propertySpecs = super.getPropertySpecs().stream().filter(propertySpec -> !propertySpec.getName().equals(SECURITYLEVEL.getName()));
+        PropertySpecService propertySpecService = this.getPropertySpecService();
         List<PropertySpec> myPropertySpecs = new ArrayList<>();
-        myPropertySpecs.add(UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), true));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_CONNECTION, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_CLIENT_MAC_ADDRESS, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_ADDRESSING_MODE, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(PROPNAME_MANUFACTURER, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_INFORMATION_FIELD_SIZE, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_IIAP_INVOKE_ID, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_IIAP_PRIORITY, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_IIAP_SERVICE_CLASS, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_CIPHERING_TYPE, false, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.integer(ISKRA_WRAPPER, false));
-        myPropertySpecs.add(UPLPropertySpecFactory.string(INCREMENT_FRAMECOUNTER_FOR_RETRIES, false));
+        myPropertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), true));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_CONNECTION, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_ADDRESSING_MODE, false));
+        myPropertySpecs.add(this.stringSpec(PROPNAME_MANUFACTURER, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_INFORMATION_FIELD_SIZE, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_INVOKE_ID, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_PRIORITY, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_IIAP_SERVICE_CLASS, false));
+        myPropertySpecs.add(
+                UPLPropertySpecFactory
+                        .specBuilder(PROPNAME_CIPHERING_TYPE, false, propertySpecService::integerSpec)
+                        .addValues(CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType())
+                        .markExhaustive()
+                        .finish());
+        myPropertySpecs.add(this.integerSpec(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, false));
+        myPropertySpecs.add(this.integerSpec(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, false));
+        myPropertySpecs.add(this.integerSpec(MAX_REC_PDU_SIZE, false));
+        myPropertySpecs.add(this.integerSpec(ISKRA_WRAPPER, false));
+        myPropertySpecs.add(this.stringSpec(INCREMENT_FRAMECOUNTER_FOR_RETRIES, false));
         propertySpecs.forEach(myPropertySpecs::add);
         return myPropertySpecs;
     }

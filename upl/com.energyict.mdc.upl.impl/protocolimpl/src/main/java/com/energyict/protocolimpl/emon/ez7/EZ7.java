@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.emon.ez7;
 
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -46,6 +47,10 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     private EZ7Connection ez7Connection = null;
     private EZ7Profile ez7Profile = null;
     private EZ7CommandFactory ez7CommandFactory = null;
+
+    public EZ7(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getSerialNumber() {
@@ -94,7 +99,6 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
 
     @Override
     protected void validateDeviceId() throws IOException {
-        boolean check = true;
         if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) {
             return;
         }

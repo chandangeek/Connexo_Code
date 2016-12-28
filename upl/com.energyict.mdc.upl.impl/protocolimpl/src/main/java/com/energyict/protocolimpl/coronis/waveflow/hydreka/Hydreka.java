@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BubbleUpObject;
@@ -36,6 +37,10 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
     private ParameterFactoryHydreka parameterFactory = null;
     private RadioCommandFactoryHydreka radioCommandFactory;
     private ProfileDataReader profileDataReader = null;
+
+    public Hydreka(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -46,17 +46,15 @@ public class Enerium200 extends Modbus implements SerialNumberSupport {
 	private MeterInfo meterInfo 	= null;
 	private Profile profile 		= null;
 
+	public Enerium200(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
 	@Override
 	protected void doTheConnect() throws IOException {}
 
 	@Override
 	protected void doTheDisConnect() throws IOException {}
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        return propertySpecs;
-    }
 
     @Override
 	public void setProperties(TypedProperties properties) throws PropertyValidationException {

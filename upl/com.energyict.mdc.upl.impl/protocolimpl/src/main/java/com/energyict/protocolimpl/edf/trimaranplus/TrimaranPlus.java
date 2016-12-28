@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.edf.trimaranplus;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -34,7 +35,6 @@ import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
 import com.energyict.protocolimpl.edf.trimaranplus.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimaranplus.core.VDEType;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +70,10 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
     TrimaranPlusProfile trimaranPlusProfile=null;
     private RegisterFactory registerFactory=null;
 
+    public TrimaranPlus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     protected void doConnect() throws IOException {
         getAPSEFactory().getAuthenticationReqAPSE();
@@ -98,14 +102,14 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("T1Timeout", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("SafetyTimeOut", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("STSAP", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("DTSAP", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("ClientType", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("CallingPhysicalAddress", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("ProposedAppCtxName", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("DelayAfterConnect", false));
+        propertySpecs.add(this.integerSpec("T1Timeout", false));
+        propertySpecs.add(this.integerSpec("SafetyTimeOut", false));
+        propertySpecs.add(this.integerSpec("STSAP", false));
+        propertySpecs.add(this.integerSpec("DTSAP", false));
+        propertySpecs.add(this.integerSpec("ClientType", false));
+        propertySpecs.add(this.stringSpec("CallingPhysicalAddress", false));
+        propertySpecs.add(this.integerSpec("ProposedAppCtxName", false));
+        propertySpecs.add(this.integerSpec("DelayAfterConnect", false));
         return propertySpecs;
     }
 

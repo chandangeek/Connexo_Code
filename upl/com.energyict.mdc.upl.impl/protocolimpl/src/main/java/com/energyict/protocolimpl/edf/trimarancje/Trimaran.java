@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.edf.trimarancje;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -29,7 +30,6 @@ import com.energyict.protocolimpl.edf.trimarancje.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimarancje.core.SPDUFactory;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.RegisterFactory;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +57,10 @@ public class Trimaran extends AbstractProtocol {
     private int commandTimeout;
     private int flushTimeout;
     private String meterVersion;
+
+    public Trimaran(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doConnect() throws IOException {
@@ -95,11 +99,11 @@ public class Trimaran extends AbstractProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("ACKTimeoutTL", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("InterCharTimeout", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("CommandTimeout", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("FlushTimeout", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("MeterVersion", false));
+        propertySpecs.add(this.integerSpec("ACKTimeoutTL", false));
+        propertySpecs.add(this.integerSpec("InterCharTimeout", false));
+        propertySpecs.add(this.integerSpec("CommandTimeout", false));
+        propertySpecs.add(this.integerSpec("FlushTimeout", false));
+        propertySpecs.add(this.stringSpec("MeterVersion", false));
         return propertySpecs;
     }
 

@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.veris.hawkeye;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -28,6 +29,10 @@ import java.util.logging.Logger;
  * @author Koen
  */
 public class Hawkeye extends Modbus  {
+
+    public Hawkeye(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheConnect() throws IOException {

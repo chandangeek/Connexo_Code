@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.edmi.mk6;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -28,7 +29,6 @@ import com.energyict.protocolimpl.edmi.mk6.command.TimeInfo;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeMapper;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +65,11 @@ public class MK6 extends AbstractProtocol implements Serializable {
 	private TimeZone timeZone;
 	private boolean useOldProfileFromDate;
 
-    @Override
+	public MK6(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
+	@Override
 	protected void doConnect() throws IOException {
 		getCommandFactory().enterCommandLineMode();
 		getCommandFactory().logon(getInfoTypeDeviceID(),getInfoTypePassword());
@@ -83,11 +87,11 @@ public class MK6 extends AbstractProtocol implements Serializable {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getPropertySpecs();
-        propertySpecs.add(UPLPropertySpecFactory.string("EventLogName", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("LoadSurveyName", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("StatusFlagChannel", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("DisableLogOff", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("UseOldProfileFromDate", false));
+        propertySpecs.add(this.stringSpec("EventLogName", false));
+        propertySpecs.add(this.stringSpec("LoadSurveyName", false));
+        propertySpecs.add(this.integerSpec("StatusFlagChannel", false));
+        propertySpecs.add(this.integerSpec("DisableLogOff", false));
+        propertySpecs.add(this.stringSpec("UseOldProfileFromDate", false));
         return propertySpecs;
     }
 

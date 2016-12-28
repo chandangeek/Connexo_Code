@@ -98,7 +98,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     @Override
     protected SL7000Properties getProperties() {
         if (properties == null) {
-            properties = new SL7000Properties();
+            properties = new SL7000Properties(propertySpecService);
         }
         return properties;
     }

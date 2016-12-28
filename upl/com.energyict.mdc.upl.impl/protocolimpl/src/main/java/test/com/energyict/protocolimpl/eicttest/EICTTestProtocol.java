@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -47,7 +48,6 @@ import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,6 +84,10 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 	private ObisCode loadProfileObisCode;
 
 	private long steps;
+
+	public EICTTestProtocol(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
 
 	@Override
     public void applyMessages(List messageEntries) throws IOException {
@@ -538,7 +542,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(PK_TEST_PROPERTY, false));
+        propertySpecs.add(this.integerSpec(PK_TEST_PROPERTY, false));
         propertySpecs.add(new ObisCodePropertySpec(PK_TEST_PROPERTY, false));
         return propertySpecs;
     }

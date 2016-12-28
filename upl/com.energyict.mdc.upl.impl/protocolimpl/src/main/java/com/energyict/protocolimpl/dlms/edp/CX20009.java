@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -62,6 +63,10 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     private LoadProfileReader loadProfileReader;
     private EDPStoredValues storedValues;
 
+    public CX20009(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public Date getTime() throws IOException {
         if (getEdpProperties().isFirmwareClient()) {
@@ -109,7 +114,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
 
     private EDPProperties getEdpProperties() {
         if (edpProperties == null) {
-            edpProperties = new EDPProperties(new Properties());
+            edpProperties = new EDPProperties(new Properties(), this.getPropertySpecService());
         }
         return edpProperties;
     }

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.multilin.epm2200;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -28,6 +29,10 @@ import java.util.logging.Logger;
  * Time: 10:21
  */
 public class EPM2200 extends Modbus implements SerialNumberSupport {
+
+    public EPM2200(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheConnect() throws IOException {

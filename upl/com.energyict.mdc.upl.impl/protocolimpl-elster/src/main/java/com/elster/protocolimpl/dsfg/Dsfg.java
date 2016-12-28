@@ -106,6 +106,10 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
      */
     private ArchiveRecordConfig archiveStructure = null;
 
+    public Dsfg() {
+        super(propertySpecService);
+    }
+
     @Override
     public void init(InputStream inputStream, OutputStream outputStream,
                      TimeZone timezone, Logger logger) throws IOException {

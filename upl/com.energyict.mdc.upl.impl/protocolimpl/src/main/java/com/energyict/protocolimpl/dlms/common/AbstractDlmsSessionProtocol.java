@@ -42,6 +42,10 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     private DlmsSession session = null;
 
+    public AbstractDlmsSessionProtocol() {
+        super(propertySpecService);
+    }
+
     protected abstract DlmsProtocolProperties getProperties();
 
     protected abstract void doInit();

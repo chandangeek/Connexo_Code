@@ -11,6 +11,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -39,6 +41,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppm.opus.OpusConnection;
 import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -173,6 +176,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
     private static final String PD_EXTENDED_LOGGING = "0";
 
     private static final long TIME_SHIFT_RATE = (60 * 10500) / 0x07F;
+    private final PropertySpecService propertySpecService;
 
     /**
      * Property values
@@ -222,6 +226,10 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
             "TotalKvah"
     };
 
+    public PPM(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public String getSerialNumber() {
         try {
@@ -234,20 +242,36 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.stringOfExactLength(PASSWORD.getName(), true, 8),
-                UPLPropertySpecFactory.string(PK_OPUS, false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_FAIL, false),
-                UPLPropertySpecFactory.integer(PK_SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false),
-                UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.integer(PK_FORCE_DELAY, false),
-                UPLPropertySpecFactory.string("Software7E1", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.stringSpecOfExactLength(PASSWORD.getName(), 8),
+                this.stringSpec(PK_OPUS),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(PK_DELAY_AFTER_FAIL),
+                this.integerSpec(PK_SECURITY_LEVEL),
+                this.integerSpec(CORRECTTIME.getName()),
+                this.stringSpec(PK_EXTENDED_LOGGING),
+                this.integerSpec(PK_FORCE_DELAY),
+                this.stringSpec("Software7E1"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec stringSpecOfExactLength(String name, int length) {
+        return this.spec(name, () -> propertySpecService.stringSpecOfExactLength(length));
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

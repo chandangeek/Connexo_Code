@@ -11,6 +11,8 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -28,6 +30,7 @@ import com.energyict.protocolimpl.siemens7ED62.SCTMRegister;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +65,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 public abstract class Metcom extends PluggableMeterProtocol implements HalfDuplexEnabler {
 
     private static final int DEBUG = 0;
+    private final PropertySpecService propertySpecService;
     private boolean TESTING = false;
 
     // init
@@ -95,6 +99,10 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
     private List<SCTMDumpData> dumpDatas = null; // of type SCTMDumpData
     private int autoBillingPointNrOfDigits;
     int timeSetMethod;
+
+    public Metcom(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     public abstract String getDefaultChannelMap();
 
@@ -476,25 +484,37 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), true),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.string("MeterClass", false),
-                UPLPropertySpecFactory.integer("HalfDuplex", false),
-                UPLPropertySpecFactory.integer("RemovePowerOutageIntervals", false),
-                UPLPropertySpecFactory.integer("ForcedDelay", false),
-                UPLPropertySpecFactory.integer("IntervalStatusBehaviour", false),
-                UPLPropertySpecFactory.string("ChannelMap", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.string("LogBookReadCommand", false),
-                UPLPropertySpecFactory.integer("AutoBillingPointNrOfDigits", false),
-                UPLPropertySpecFactory.integer("TimeSetMethod", false),
-                UPLPropertySpecFactory.string("Software7E1", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(PROFILEINTERVAL.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.stringSpec("MeterClass"),
+                this.integerSpec("HalfDuplex"),
+                this.integerSpec("RemovePowerOutageIntervals"),
+                this.integerSpec("ForcedDelay"),
+                this.integerSpec("IntervalStatusBehaviour"),
+                this.stringSpec("ChannelMap"),
+                this.integerSpec("ExtendedLogging"),
+                this.stringSpec("LogBookReadCommand"),
+                this.integerSpec("AutoBillingPointNrOfDigits"),
+                this.integerSpec("TimeSetMethod"),
+                this.stringSpec("Software7E1"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override
@@ -557,22 +577,18 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
         // lazy initializing
         dumpDatas = null;
 
-        try {
-            // KV 16022004 STA changed from 0x6X to 0x3X
-            siemensSCTM = new SiemensSCTM(
-                    isSoftware7E1() ? new Software7E1InputStream(inputStream) : inputStream,
-                    isSoftware7E1() ? new Software7E1OutputStream(outputStream) : outputStream,
-                    iSCTMTimeoutProperty,
-                    iProtocolRetriesProperty,
-                    strPassword,
-                    nodeId,
-                    iEchoCancelling,
-                    halfDuplex != 0 ? halfDuplexController : null,
-                    forcedDelay
-            );
-        } catch (SiemensSCTMException e) {
-            logger.severe("SiemensSCTM: init(...), " + e.getMessage());
-        }
+        // KV 16022004 STA changed from 0x6X to 0x3X
+        siemensSCTM = new SiemensSCTM(
+                isSoftware7E1() ? new Software7E1InputStream(inputStream) : inputStream,
+                isSoftware7E1() ? new Software7E1OutputStream(outputStream) : outputStream,
+                iSCTMTimeoutProperty,
+                iProtocolRetriesProperty,
+                strPassword,
+                nodeId,
+                iEchoCancelling,
+                halfDuplex != 0 ? halfDuplexController : null,
+                forcedDelay
+        );
     }
 
     @Override

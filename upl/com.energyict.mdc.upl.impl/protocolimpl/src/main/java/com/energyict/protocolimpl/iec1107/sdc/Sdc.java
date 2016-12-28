@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
@@ -30,6 +32,10 @@ KV|01092005|Add manufacturer specific code
 public class Sdc extends SdcBase implements SerialNumberSupport {
 
     private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
+
+    Sdc(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected RegisterConfig getRegs() {

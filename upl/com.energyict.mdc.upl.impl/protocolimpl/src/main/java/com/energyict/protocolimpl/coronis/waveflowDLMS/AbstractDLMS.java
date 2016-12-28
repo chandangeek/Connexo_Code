@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -30,7 +31,6 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.RegisterCache;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,6 +111,10 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
      * reference to the lower connect latyers of the wavenis stack
      */
     private WaveFlowConnect waveFlowConnect;
+
+    public AbstractDLMS(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     enum PairingMeterId {
         AS253(1),
@@ -307,13 +311,13 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("correctWaveflowTime", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("verifyProfileInterval", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("isOldFirmware", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("optimizeChangeContactorStatus", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("SerialNumberA", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("MaxNumberOfIntervals", false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
+        propertySpecs.add(this.integerSpec("correctWaveflowTime", false));
+        propertySpecs.add(this.stringSpec("verifyProfileInterval", false));
+        propertySpecs.add(this.stringSpec("isOldFirmware", false));
+        propertySpecs.add(this.stringSpec("optimizeChangeContactorStatus", false));
+        propertySpecs.add(this.stringSpec("SerialNumberA", false));
+        propertySpecs.add(this.integerSpec("MaxNumberOfIntervals", false));
         propertySpecs.add(WaveflowProtocolUtils.propertySpec("WavenisEncryptionKey", false));
         return propertySpecs;
     }

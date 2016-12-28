@@ -4,6 +4,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -18,6 +20,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,12 +87,10 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     // first three bits are to be set in BuildIdent method (later)
     // byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 
-    /*
-      * constructors, usually the meteor() constructor will be called
-      * the source and destination address should be set in a method
-      * that is done in the properties method.
-      */
-    public Meteor() {// blank constructor for testing purposes only
+    private final PropertySpecService propertySpecService;
+
+    public Meteor(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;// blank constructor for testing purposes only
         byte[] blank = {0, 0};
         sourceCode = blank;        // Defines central equipment of origin
         sourceCodeExt = 0;        // Defines peripheral equipment of origin
@@ -98,14 +99,16 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public Meteor(  // real constructor, sets header correct.
-                    byte[] sourceCode,
-                    byte sourceCodeExt,
-                    byte[] destinationCode,
-                    byte destinationCodeExt) {
+            byte[] sourceCode,
+            byte sourceCodeExt,
+            byte[] destinationCode,
+            byte destinationCodeExt,
+            PropertySpecService propertySpecService) {
         this.sourceCode = sourceCode;
         this.sourceCodeExt = sourceCodeExt;
         this.destinationCode = destinationCode;
         this.destinationCodeExt = destinationCodeExt;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -354,11 +357,19 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer("Retry", false),
-                UPLPropertySpecFactory.integer("DelayAfterConnect", false),
+                this.integerSpec(NODEID.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec("Retry"),
+                this.integerSpec("DelayAfterConnect"),
                 ProtocolChannelMap.propertySpec("ChannelMap", false));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.modbus.energyict;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -32,6 +33,10 @@ public class EIMeterFlexSlaveModule extends Modbus {
 
     public final DiscoverResult discover(final DiscoverTools discoverTools) {
         return null;
+    }
+
+    public EIMeterFlexSlaveModule(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     @Override

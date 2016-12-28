@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -26,7 +27,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,6 +59,10 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     private static final String MUC_WAVECELL_CONNECTION = "0";
     public static final String LEGACY_WAVECELL_CONNECTION = "1";
     private static final String CONNECTION_PROPERTY = "Connection";
+
+    public WaveFlow(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     protected abstract void doTheInit() throws IOException;
 
@@ -222,22 +226,22 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("EnableMultiFrameMode", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("verifyProfileInterval", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("WavenisBubbleUpInfo", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("ApplicationStatusVariant", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("RoundDownToNearestInterval", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("InitialRFCommand", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(CONNECTION_PROPERTY, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROP_SCALE_A, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROP_SCALE_B, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROP_SCALE_C, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROP_SCALE_D, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROP_MULTIPLIER_A, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROP_MULTIPLIER_B, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROP_MULTIPLIER_C, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROP_MULTIPLIER_D, false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
+        propertySpecs.add(this.integerSpec("EnableMultiFrameMode", false));
+        propertySpecs.add(this.integerSpec("verifyProfileInterval", false));
+        propertySpecs.add(this.stringSpec("WavenisBubbleUpInfo", false));
+        propertySpecs.add(this.integerSpec("ApplicationStatusVariant", false));
+        propertySpecs.add(this.integerSpec("RoundDownToNearestInterval", false));
+        propertySpecs.add(this.integerSpec("InitialRFCommand", false));
+        propertySpecs.add(this.integerSpec(CONNECTION_PROPERTY, false));
+        propertySpecs.add(this.integerSpec(PROP_SCALE_A, false));
+        propertySpecs.add(this.integerSpec(PROP_SCALE_B, false));
+        propertySpecs.add(this.integerSpec(PROP_SCALE_C, false));
+        propertySpecs.add(this.integerSpec(PROP_SCALE_D, false));
+        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_A, false));
+        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_B, false));
+        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_C, false));
+        propertySpecs.add(this.integerSpec(PROP_MULTIPLIER_D, false));
         return propertySpecs;
     }
 
@@ -304,7 +308,7 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
         if (multiplier == null) {
             return null;
         }
-        return new PulseWeight(new WaveFlowV2(), scale, multiplier, port);
+        return new PulseWeight(new WaveFlowV2(this.getPropertySpecService()), scale, multiplier, port);
     }
 
     /**

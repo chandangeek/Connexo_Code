@@ -133,6 +133,10 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     private boolean readUnit1SerialNumber = false;
     private boolean readProfileDataBeforeConfigChange = true;
 
+    public Quad4() {
+        super(propertySpecService);
+    }
+
     public Logger getLogger() {
         return this.logger;
     }

@@ -5,6 +5,9 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
@@ -18,6 +21,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
 
 import java.io.IOException;
@@ -125,7 +129,11 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     // Time difference in ms between system time and rtu time
     private long rtuTimeDelta[];
 
-    public rtuplusbus() { // Create an RtuPlusBusFrame instance in order to Read / Write Frames
+    private final PropertySpecService propertySpecService;
+
+    public rtuplusbus(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+        // Create an RtuPlusBusFrame instance in order to Read / Write Frames
         RtuPlusBusFrame = new RtuPlusBusFrames();
     }
 
@@ -141,17 +149,37 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer("HalfDuplex", false),
-                UPLPropertySpecFactory.integer("ForcedDelay", false),
-                UPLPropertySpecFactory.integer(NODEID.getName(), false, Range.closedOpen(new Integer(3), new Integer(255))),
-                UPLPropertySpecFactory.longValue(PASSWORD.getName(), false, Range.closedOpen(1L, 0x7FFFFFFFL)),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer("DelayAfterFail", false),
-                UPLPropertySpecFactory.integer("RtuPlusBusProtocolVersion", false),
-                UPLPropertySpecFactory.integer("MaximumNumberOfRecords", false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false));
+                this.integerSpec("HalfDuplex"),
+                this.integerSpec("ForcedDelay"),
+                this.integerSpec(NODEID.getName(), Range.closedOpen(new Integer(3), new Integer(255))),
+                this.longSpec(PASSWORD.getName(), Range.closedOpen(1L, 0x7FFFFFFFL)),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec("DelayAfterFail"),
+                this.integerSpec("RtuPlusBusProtocolVersion"),
+                this.integerSpec("MaximumNumberOfRecords"),
+                this.integerSpec(PROFILEINTERVAL.getName()));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec longSpec(String name, Range<Long> validValues) {
+        PropertySpecBuilder<Long> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::longSpec);
+        UPLPropertySpecFactory.addLongValues(specBuilder, validValues);
+        return specBuilder.finish();
+    }
+
+    private PropertySpec integerSpec(String name, Range<Integer> validValues) {
+        PropertySpecBuilder<Integer> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::integerSpec);
+        UPLPropertySpecFactory.addIntegerValues(specBuilder, validValues);
+        return specBuilder.finish();
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

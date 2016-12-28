@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -27,13 +28,19 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
     protected static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private final String authenticationTranslationKeyConstant = "AnsiC12SecuritySupport.authenticationlevel.";
 
+    private final PropertySpecService propertySpecService;
+
+    public AnsiC12SecuritySupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
-                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
+                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(this.propertySpecService),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.propertySpecService),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.propertySpecService)
         );
     }
 
@@ -134,8 +141,8 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService)
             );
         }
     }
@@ -158,10 +165,10 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService)
             );
         }
     }
@@ -184,10 +191,10 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService)
             );
         }
     }

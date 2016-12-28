@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.elster.a3;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -47,7 +48,6 @@ import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.meteridentification.A3;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,6 +101,10 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     private String calledAPTitle;
     private String securityKey;
     private SerialCommunicationChannel commChannel;
+
+    public AlphaA3(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -178,13 +182,13 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string("C12User", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("C12UserId", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("PasswordBinary", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("RetrieveExtraIntervals", false));
-        propertySpecs.add(UPLPropertySpecFactory.string(CALLED_AP_TITLE, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(SECURITY_KEY, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(SECURITY_MODE, false));
+        propertySpecs.add(this.stringSpec("C12User", false));
+        propertySpecs.add(this.integerSpec("C12UserId", false));
+        propertySpecs.add(this.integerSpec("PasswordBinary", false));
+        propertySpecs.add(this.integerSpec("RetrieveExtraIntervals", false));
+        propertySpecs.add(this.stringSpec(CALLED_AP_TITLE, false));
+        propertySpecs.add(this.stringSpec(SECURITY_KEY, false));
+        propertySpecs.add(this.stringSpec(SECURITY_MODE, false));
         return propertySpecs;
     }
 

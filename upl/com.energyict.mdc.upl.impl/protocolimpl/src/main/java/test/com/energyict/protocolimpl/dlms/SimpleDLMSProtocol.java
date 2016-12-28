@@ -186,6 +186,10 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     private static final int PROPOSED_QOS = -1;
     private static final int PROPOSED_DLMS_VERSION = 6;
 
+    public SimpleDLMSProtocol() {
+        super(propertySpecService);
+    }
+
     @Override
     public String getSerialNumber() {
         try {

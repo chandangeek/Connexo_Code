@@ -4,6 +4,8 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -31,6 +33,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,6 +95,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     private static final int PD_ROUNDTRIP_CORRECTION = 0;
     private static final int PD_SECURITY_LEVEL = 2;
     private static final String PD_EXTENDED_LOGGING = "0";
+    private final PropertySpecService propertySpecService;
 
     /**
      * Property values Required properties will have NO default value Optional
@@ -123,6 +127,10 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     private boolean software7E1;
 
+    public A140(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public String getSerialNumber() {
         try {
@@ -139,16 +147,28 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false),
-                UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.string("Software7E1", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(PK_TIMEOUT),
+                this.integerSpec(PK_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(CORRECTTIME.getName()),
+                this.stringSpec(PK_EXTENDED_LOGGING),
+                this.stringSpec("Software7E1"));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

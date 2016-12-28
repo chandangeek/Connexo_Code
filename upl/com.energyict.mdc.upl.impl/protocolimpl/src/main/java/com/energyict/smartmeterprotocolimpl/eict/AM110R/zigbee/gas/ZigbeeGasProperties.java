@@ -52,25 +52,24 @@ public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpecService propertySpecService = this.getPropertySpecService();
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                this.spec(SECURITY_LEVEL, true, propertySpecService::integerSpec),
-                this.spec(ADDRESSING_MODE, false, propertySpecService::integerSpec),
-                this.spec(CLIENT_MAC_ADDRESS, false, propertySpecService::integerSpec),
-                this.spec(SERVER_MAC_ADDRESS, false, propertySpecService::stringSpec),
-                this.spec(CONNECTION, false, propertySpecService::integerSpec),
-                this.spec(PK_FORCED_DELAY, false, propertySpecService::integerSpec),
-                this.spec(MAX_REC_PDU_SIZE, false, propertySpecService::integerSpec),
-                this.spec(PK_RETRIES, false, propertySpecService::integerSpec),
-                this.spec(PK_TIMEOUT, false, propertySpecService::integerSpec),
-                this.spec(ROUND_TRIP_CORRECTION, false, propertySpecService::integerSpec),
-                this.spec(DATATRANSPORT_AUTHENTICATIONKEY, false, propertySpecService::hexStringSpec),
-                this.spec(DATATRANSPORT_ENCRYPTIONKEY, false, propertySpecService::hexStringSpec),
-                this.spec(LOGBOOK_SELECTOR, false, propertySpecService::integerSpec),
-                this.spec(VERIFY_FIRMWARE_VERSION, false, propertySpecService::integerSpec),
-                this.spec(ZIGBEE_MAC, false, propertySpecService::stringSpec),
-                this.spec(ZIGBEE_PCLK, false, propertySpecService::stringSpec))
+                this.integerSpec(SECURITY_LEVEL, true),
+                this.integerSpec(ADDRESSING_MODE, false),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false),
+                this.stringSpec(SERVER_MAC_ADDRESS, false),
+                this.integerSpec(CONNECTION, false),
+                this.integerSpec(PK_FORCED_DELAY, false),
+                this.integerSpec(MAX_REC_PDU_SIZE, false),
+                this.integerSpec(PK_RETRIES, false),
+                this.integerSpec(PK_TIMEOUT, false),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false),
+                this.integerSpec(LOGBOOK_SELECTOR, false),
+                this.integerSpec(VERIFY_FIRMWARE_VERSION, false),
+                this.stringSpec(ZIGBEE_MAC, false),
+                this.stringSpec(ZIGBEE_PCLK, false))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

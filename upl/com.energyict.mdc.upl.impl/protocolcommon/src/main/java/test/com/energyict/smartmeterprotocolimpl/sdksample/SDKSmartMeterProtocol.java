@@ -144,7 +144,7 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
      */
     public SDKSmartMeterProperties getProtocolProperties() {
         if (properties == null) {
-            this.properties = new SDKSmartMeterProperties();
+            this.properties = new SDKSmartMeterProperties(propertySpecService);
         }
         return properties;
     }

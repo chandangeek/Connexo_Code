@@ -10,6 +10,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -24,6 +26,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +70,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
     private static final int FERRANTI_NR_OF_PROFILE_CHANNELS = 3;
     private static final int FERRANTI_NR_OF_METERREADINGS = 4;
     private static final String[] FERRANTI_METERREADINGS = {"7-0:23.0.0*101", "7-0:23.2.0*101", "7-0:97.97.0*101", "7-0:0.1.2*101"};
+    private final PropertySpecService propertySpecService;
 
     private String strID;
     private String strPassword;
@@ -90,6 +94,10 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
     private byte[] dataReadout = null;
 
     private boolean software7E1;
+
+    public Ferranti(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -167,23 +175,35 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.integer("EchoCancelling", false),
-                UPLPropertySpecFactory.integer("IEC1107Compatible", false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.string("ChannelMap", false),
-                UPLPropertySpecFactory.string("Software7E1", false),
-                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integer("ForceDelay", false),
-                UPLPropertySpecFactory.integer("AddressingMode", false),
-                UPLPropertySpecFactory.integer("RequestTimeZone", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("IEC1107Compatible"),
+                this.integerSpec(PROFILEINTERVAL.getName()),
+                this.stringSpec("ChannelMap"),
+                this.stringSpec("Software7E1"),
+                this.integerSpec("ServerLowerMacAddress"),
+                this.integerSpec("ServerUpperMacAddress"),
+                this.integerSpec("ForceDelay"),
+                this.integerSpec("AddressingMode"),
+                this.integerSpec("RequestTimeZone"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

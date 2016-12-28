@@ -16,6 +16,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
@@ -54,6 +56,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -93,6 +96,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 @Deprecated
 public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessageProtocol, ProtocolLink, RegisterProtocol, Constant {
 
+    private final PropertySpecService propertySpecService;
     /**
      * Properties
      */
@@ -117,6 +121,10 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private Clock clock;
     private Device rtu;
     private TimeZone timeZone;
+
+    public DLMSZ3Messaging(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -215,17 +223,29 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integer("ConnectionMode", false),
-                UPLPropertySpecFactory.integer("ClientMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer("ForceDelay", false),
-                UPLPropertySpecFactory.integer("AddressingMode", false),
-                UPLPropertySpecFactory.integer("RequestTimeZone", false));
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.integerSpec("ConnectionMode"),
+                this.integerSpec("ClientMacAddress"),
+                this.integerSpec("ServerLowerMacAddress"),
+                this.integerSpec("ServerUpperMacAddress"),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec("ForceDelay"),
+                this.integerSpec("AddressingMode"),
+                this.integerSpec("RequestTimeZone"));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

@@ -173,6 +173,10 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     protected ObisCode ocLogProfile = null;
     protected ILogProcessor logProfile = null;
 
+    public Dlms() {
+        super(propertySpecService);
+    }
+
     @Override
     public void init(
             InputStream inputStream, OutputStream outputStream,

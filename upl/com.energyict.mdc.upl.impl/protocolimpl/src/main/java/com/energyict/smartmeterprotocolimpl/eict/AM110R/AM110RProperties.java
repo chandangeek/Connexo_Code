@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
@@ -35,7 +35,7 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
 
     protected SecurityProvider securityProvider;
 
-    public AM110RProperties() {
+    public AM110RProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
@@ -48,20 +48,20 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
-                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.integer(PK_FORCED_DELAY, false),
-                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false),
-                UPLPropertySpecFactory.integer(VERIFY_FIRMWARE_VERSION, false),
-                UPLPropertySpecFactory.integer(LOGBOOK_SELECTOR, false))
+                this.integerSpec(SECURITY_LEVEL, true),
+                this.integerSpec(ADDRESSING_MODE, false),
+                this.integerSpec(CLIENT_MAC_ADDRESS, false),
+                this.stringSpec(SERVER_MAC_ADDRESS, false),
+                this.integerSpec(CONNECTION, false),
+                this.integerSpec(PK_FORCED_DELAY, false),
+                this.integerSpec(MAX_REC_PDU_SIZE, false),
+                this.integerSpec(PK_RETRIES, false),
+                this.integerSpec(PK_TIMEOUT, false),
+                this.integerSpec(ROUND_TRIP_CORRECTION, false),
+                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false),
+                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false),
+                this.integerSpec(VERIFY_FIRMWARE_VERSION, false),
+                this.integerSpec(LOGBOOK_SELECTOR, false))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

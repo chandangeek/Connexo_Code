@@ -19,6 +19,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
@@ -35,6 +37,7 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -71,6 +74,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private static final byte EV_METER_INPUT3_OVF = 0x0B;
     private static final byte EV_METER_INPUT4_OVF = 0x0C;
     private static final byte EV_ALTER_OPTIONS = 0x19;
+    private final PropertySpecService propertySpecService;
 
     private String strID;
     private long lIDMV90;
@@ -236,6 +240,10 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     private static final byte DEBUG = 0;
 
     private TimeZone timeZone = null;
+
+    public DukePower(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
@@ -750,12 +758,36 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.stringOfExactLength(ADDRESS.getName(), false, 7),
-                UPLPropertySpecFactory.stringOfExactLength(PASSWORD.getName(), false, 4),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer("DelayAfterFail", false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false));
+                this.stringSpecOfExactLength(ADDRESS.getName(), 7),
+                this.stringSpecOfExactLength(PASSWORD.getName(), 4),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec("DelayAfterFail"),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec stringSpecOfExactLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfExactLength(length));
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    protected PropertySpec integerSpec(String name, Integer... validValues) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::integerSpec)
+                .addValues(validValues)
+                .markExhaustive()
+                .finish();
     }
 
     @Override

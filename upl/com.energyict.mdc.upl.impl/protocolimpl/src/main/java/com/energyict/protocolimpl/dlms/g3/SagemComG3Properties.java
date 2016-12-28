@@ -10,6 +10,10 @@ class SagemComG3Properties extends G3Properties {
 
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "0";
 
+    SagemComG3Properties() {
+        super(propertySpecService);
+    }
+
     /**
      * Use other conformance block for the SagemCom meter
      */

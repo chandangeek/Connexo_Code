@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -30,7 +31,6 @@ import com.energyict.protocolimpl.coronis.wavetherm.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavetherm.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,6 +56,10 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     private ObisCode loadProfileObisCode;
     private ProfileDataReader profileDataReader;
     private int numberOfChannels = -1;
+
+    public WaveTherm(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     private boolean isVerifyProfileInterval() {
         return verifyProfileInterval;
@@ -111,8 +115,8 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false));
-        propertySpecs.add(UPLPropertySpecFactory.integer("verifyProfileInterval", false));
+        propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
+        propertySpecs.add(this.integerSpec("verifyProfileInterval", false));
         return propertySpecs;
     }
 

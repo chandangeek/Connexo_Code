@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -25,8 +26,8 @@ public class DLMSZMD_EXT extends DLMSZMD {
 
 	private int profileInterval;
 
-    public DLMSZMD_EXT(TariffCalendarFinder calendarFinder, Extractor extractor) {
-        super(calendarFinder, extractor);
+    public DLMSZMD_EXT(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(propertySpecService, calendarFinder, extractor);
     }
 
     @Override

@@ -24,7 +24,7 @@ public class AnsiC12SecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport(propertySpecService);
 
         // currently only 3 properties are necessary
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(4);
@@ -61,7 +61,7 @@ public class AnsiC12SecuritySupportTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport(propertySpecService);
 
         // currently only 3 levels are supported
         assertThat(ansiC12SecuritySupport.getAuthenticationAccessLevels()).hasSize(3);
@@ -93,7 +93,7 @@ public class AnsiC12SecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest() {
-        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport(propertySpecService);
 
         // currently no encryption levels are supported
         assertThat(ansiC12SecuritySupport.getEncryptionAccessLevels()).isEmpty();
@@ -101,7 +101,7 @@ public class AnsiC12SecuritySupportTest {
 
     @Test
     public void convertToTypedPropertiesTest() {
-        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String ansiC12UserIdValue = "MyAnsiC12UserId";
         securityProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), ansiC12UserIdValue);
@@ -140,7 +140,7 @@ public class AnsiC12SecuritySupportTest {
 
     @Test
     public void testConvertToSecurityPropertySet() throws Exception {
-        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "6");
         securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), "1pwd2");
@@ -152,7 +152,7 @@ public class AnsiC12SecuritySupportTest {
 
     @Test
     public void testConvertToSecurityPropertySetMissingSecurityLevel() throws Exception {
-        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport(propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = ansiC12SecuritySupport.convertFromTypedProperties(securityProperties);

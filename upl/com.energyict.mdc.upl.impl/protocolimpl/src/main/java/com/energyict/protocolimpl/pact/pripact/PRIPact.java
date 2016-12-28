@@ -10,6 +10,8 @@ import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -34,6 +36,7 @@ import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 import com.energyict.protocolimpl.pact.core.instant.InstantaneousFactory;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingIdentifier;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,6 +74,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  */
 public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol {
 
+    private final PropertySpecService propertySpecService;
     private int DEBUG = 0;
 
     private TimeZone timeZone;
@@ -106,6 +110,10 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     private PACTProfile pactProfile = null;
     private PACTToolkit pactToolkit = null;
     private InstantaneousFactory instantaneousFactory = null;
+
+    public PRIPact(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void connect() throws IOException {
@@ -244,28 +252,40 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string("EchoCancelling", false),
-                UPLPropertySpecFactory.string("ChannelMap", false),
-                UPLPropertySpecFactory.string("HighKey", false),
-                UPLPropertySpecFactory.string("HighKeyRef", false),
-                UPLPropertySpecFactory.string("LowKey", false),
-                UPLPropertySpecFactory.integer("PAKNET", false),
-                UPLPropertySpecFactory.integer("PACTLAN", false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.string("RegisterTimeZone", false),
-                UPLPropertySpecFactory.integer("StatusFlagChannel", false),
-                UPLPropertySpecFactory.integer("Modulo", false),
-                UPLPropertySpecFactory.integer("MeterType", false),
-                UPLPropertySpecFactory.integer("KeyInfoRequired", false),
-                UPLPropertySpecFactory.integer("ForcedRequestExtraDays", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec("EchoCancelling"),
+                this.stringSpec("ChannelMap"),
+                this.stringSpec("HighKey"),
+                this.stringSpec("HighKeyRef"),
+                this.stringSpec("LowKey"),
+                this.integerSpec("PAKNET"),
+                this.integerSpec("PACTLAN"),
+                this.integerSpec("ExtendedLogging"),
+                this.stringSpec("RegisterTimeZone"),
+                this.integerSpec("StatusFlagChannel"),
+                this.integerSpec("Modulo"),
+                this.integerSpec("MeterType"),
+                this.integerSpec("KeyInfoRequired"),
+                this.integerSpec("ForcedRequestExtraDays"));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

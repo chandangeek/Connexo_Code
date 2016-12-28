@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -73,6 +74,10 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 	private boolean logOffDisabled = true;
 	private boolean fullDebugLogging = false;
 
+	public MK10(PropertySpecService propertySpecService) {
+		super(propertySpecService);
+	}
+
 	@Override
 	protected void doConnect() throws IOException {
 		sendDebug("doConnect()");
@@ -95,10 +100,15 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer("LoadSurveyNumber", true, 1, 2));
-        propertySpecs.add(UPLPropertySpecFactory.integer("DisableLogOff", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("PushProtocol", false));
-        propertySpecs.add(UPLPropertySpecFactory.string("FullDebug", false));
+        propertySpecs.add(
+		        UPLPropertySpecFactory
+                        .specBuilder("LoadSurveyNumber", true, this.getPropertySpecService()::integerSpec)
+                        .addValues( 1, 2)
+                        .markExhaustive()
+                        .finish());
+        propertySpecs.add(this.integerSpec("DisableLogOff", false));
+        propertySpecs.add(this.stringSpec("PushProtocol", false));
+        propertySpecs.add(this.stringSpec("FullDebug", false));
         return propertySpecs;
     }
 

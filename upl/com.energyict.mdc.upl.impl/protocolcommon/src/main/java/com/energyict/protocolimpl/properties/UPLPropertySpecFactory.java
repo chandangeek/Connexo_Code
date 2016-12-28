@@ -26,6 +26,14 @@ import static com.google.common.collect.BoundType.OPEN;
  */
 public final class UPLPropertySpecFactory {
 
+    public static void addIntegerValues(PropertySpecBuilder<Integer> builder, Range<Integer> range) {
+        builder.addValues(toIntegerStream(range).collect(Collectors.toList()));
+    }
+
+    public static void addLongValues(PropertySpecBuilder<Long> builder, Range<Long> range) {
+        builder.addValues(toLongStream(range).collect(Collectors.toList()));
+    }
+
     public static PropertySpec integer(String name, boolean required) {
         return integerSpecBuilder(name, required).finish();
     }

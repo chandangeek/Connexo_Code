@@ -15,6 +15,9 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -30,6 +33,7 @@ import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
+import com.google.common.base.Supplier;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -67,6 +71,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  */
 public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
 
+    private final PropertySpecService propertySpecService;
     // init
     private TimeZone timeZone;
     private Logger logger;
@@ -99,11 +104,8 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     private int DEBUG = 0;
     private boolean software7E1;
 
-    /**
-     * Creates a new instance of Siemens7ED62
-     */
-    public Siemens7ED62() {
-
+    public Siemens7ED62(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     /**
@@ -431,16 +433,16 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         throw new UnsupportedException();
     }
 
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
-        List<com.energyict.mdc.upl.properties.PropertySpec> specs = new ArrayList<>();
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> specs = new ArrayList<>();
         this.getIntegerPropertyNames()
                 .stream()
-                .map(name -> UPLPropertySpecFactory.integer(name, false))
+                .map(this::integerSpec)
                 .forEach(specs::add);
-        specs.add(UPLPropertySpecFactory.string(ADDRESS.getName(), false));
-        specs.add(UPLPropertySpecFactory.string("MeterClass", false));
-        specs.add(UPLPropertySpecFactory.string(NODEID.getName(), false));
-        specs.add(UPLPropertySpecFactory.string("Software7E1", false));
+        specs.add(this.stringSpec(ADDRESS.getName()));
+        specs.add(this.stringSpec("MeterClass"));
+        specs.add(this.stringSpec(NODEID.getName()));
+        specs.add(this.stringSpec("Software7E1"));
         return specs;
     }
 
@@ -456,6 +458,18 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         result.add("ChannelMap");
         result.add("TimeSetMethod");
         return result;
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     private void validateProperties(Properties properties) throws InvalidPropertyException {

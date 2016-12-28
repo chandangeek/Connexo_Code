@@ -4,6 +4,8 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -43,6 +45,7 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +73,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
 
     private static final int DEBUG = 0;
     private static final String DEVICE_ID = "ELS";
+    private final PropertySpecService propertySpecService;
 
     protected String strID;
     protected String strPassword;
@@ -109,11 +113,12 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     private int addressingMode;
     private int connectionMode;
 
-    public EK2xx() {
+    public EK2xx(PropertySpecService propertySpecService) {
         this.meterConfig = DLMSMeterConfig.getInstance(getDeviceID());
         this.ek2xxAarq = new EK2xxAarq(this);
         this.ek2xxRegisters = new EK2xxRegisters();
         this.ek2xxProfile = new EK2xxProfile(this);
+        this.propertySpecService = propertySpecService;
     }
 
     private String getDeviceID() {
@@ -140,23 +145,39 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.stringOfMaxLength(ADDRESS.getName(), false, MAX_ADDRESS_LENGTH),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer("ExtendedLogging", false),
-                UPLPropertySpecFactory.integer("AddressingMode", false),
-                UPLPropertySpecFactory.integer("Connection", false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer("DelayAfterfail", false),
-                UPLPropertySpecFactory.integer("RequestTimeZone", false),
-                UPLPropertySpecFactory.integer("RequestClockObject", false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.integer("ClientMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false));
+                this.stringSpecOfMaxLength(ADDRESS.getName(), MAX_ADDRESS_LENGTH),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec("ExtendedLogging"),
+                this.integerSpec("AddressingMode"),
+                this.integerSpec("Connection"),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec("DelayAfterfail"),
+                this.integerSpec("RequestTimeZone"),
+                this.integerSpec("RequestClockObject"),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.integerSpec("ClientMacAddress"),
+                this.integerSpec("ServerUpperMacAddress"),
+                this.integerSpec("ServerLowerMacAddress"));
+    }
+
+    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    protected PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    protected PropertySpec stringSpecOfMaxLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
+    }
+
+    protected PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

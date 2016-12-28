@@ -202,7 +202,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     protected AdvancedDeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DlmsSecuritySuite1And2Support();
+            dlmsSecuritySupport = new DlmsSecuritySuite1And2Support(propertySpecService);
         }
         return (AdvancedDeviceProtocolSecurityCapabilities) dlmsSecuritySupport;
     }

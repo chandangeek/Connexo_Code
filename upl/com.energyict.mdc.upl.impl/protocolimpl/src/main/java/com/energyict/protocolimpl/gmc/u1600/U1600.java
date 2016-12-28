@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.gmc.u1600;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
@@ -47,6 +48,10 @@ public class U1600 extends AbstractProtocol {
     private LogicalAddressFactory logicalAddressFactory;
     private U1600Profile u1600Profile = null;
     private EclConnection eclConnection = null;
+
+    public U1600(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getFirmwareVersion() throws IOException {

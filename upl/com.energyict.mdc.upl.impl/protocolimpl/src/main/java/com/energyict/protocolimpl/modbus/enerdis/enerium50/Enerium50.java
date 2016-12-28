@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium50;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200;
 
 import java.io.IOException;
@@ -11,6 +13,10 @@ import java.io.IOException;
  * Time: 14:38
  */
 public class Enerium50 extends Enerium200 {
+
+    public Enerium50(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getFirmwareVersion() throws IOException {

@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -22,6 +24,10 @@ import java.io.IOException;
  * @author Koen
  */
 public class EictModbusRtu extends Modbus {
+
+    public EictModbusRtu(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected void doTheConnect() throws IOException {

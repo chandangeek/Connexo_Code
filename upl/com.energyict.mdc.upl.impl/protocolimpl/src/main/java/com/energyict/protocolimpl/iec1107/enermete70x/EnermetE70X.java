@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -33,9 +35,9 @@ public class EnermetE70X extends EnermetBase {
 
     private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
 
-    /** Creates a new instance of EnermetE70X */
-    public EnermetE70X() {
-    	setTestE70xConnection(true);
+    public EnermetE70X(PropertySpecService propertySpecService) {
+    	super(propertySpecService);
+        setTestE70xConnection(true);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -34,6 +35,12 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
     private static final String HEX_PASSWORD_LEGACY_PROPERTY_NAME = "HexPassword";
     private static final String CRYPTOSERVER_LEGACY_PROPERTY_NAME = "CryptoServer";
 
+    private final PropertySpecService propertySpecService;
+
+    public CryptoDlmsSecuritySupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<String> getLegacySecurityProperties() {
         return Arrays.asList(
@@ -47,12 +54,12 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                DeviceSecurityProperty.CRYPTOSERVER_PHASE.getPropertySpec(),
-                DeviceSecurityProperty.SECURITY_LEVEL.getPropertySpec()
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
+                DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(this.propertySpecService),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService),
+                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService),
+                DeviceSecurityProperty.CRYPTOSERVER_PHASE.getPropertySpec(this.propertySpecService),
+                DeviceSecurityProperty.SECURITY_LEVEL.getPropertySpec(this.propertySpecService)
         );
     }
 
@@ -124,7 +131,7 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
         if (oldTypedProperties.hasValueFor(CRYPTOSERVER_LEGACY_PROPERTY_NAME)) {
             result.setProperty(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), oldTypedProperties.getStringProperty(CRYPTOSERVER_LEGACY_PROPERTY_NAME));
         } else {
-            result.setProperty(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), DeviceSecurityProperty.CRYPTOSERVER_PHASE.getPropertySpec().getPossibleValues().getDefault());
+            result.setProperty(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), DeviceSecurityProperty.CRYPTOSERVER_PHASE.getPropertySpec(this.propertySpecService).getPossibleValues().getDefault());
         }
 
         return new DeviceProtocolSecurityPropertySet() {
