@@ -53,7 +53,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
                         tooltip: Uni.I18n.translate('general.reset', 'IMT', 'Reset'),
                         disabled: true,
                         width: 30,
-                        margin: '0 0 0 20',
+                        margin: '0 0 0 5',
                         handler: Ext.bind(me.resetLifeCycleTransition, me)
                     }
                 ]
