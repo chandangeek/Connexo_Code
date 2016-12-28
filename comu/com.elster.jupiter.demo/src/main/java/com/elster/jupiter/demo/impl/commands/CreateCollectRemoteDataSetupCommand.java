@@ -115,17 +115,13 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createComSchedules();
             createCalendars();
         });
-        executeTransaction(() -> {
-            createMetrologyConfigurations();
-        });
+        executeTransaction(this::createMetrologyConfigurations);
         createDeviceStructure();
         executeTransaction(() -> {
             createCreationRules();
             createAssignmentRules();
         });
-        executeTransaction(() -> {
-            createDeviceGroups();
-        });
+        executeTransaction(this::createDeviceGroups);
         executeTransaction(() -> {
             createDataCollectionKpi();
             createDataValidationKpi();
@@ -184,10 +180,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createLogBookTypes() {
         EnumSet.of(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)
-                .stream()
-                .forEach(
-                        tpl -> Builders.from(tpl).get()
-                );
+                .forEach(tpl -> Builders.from(tpl).get());
     }
 
     private void createLoadProfileTypes() {
@@ -243,15 +236,15 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void createDevices(DeviceTypeTpl deviceTypeTpl){
-        Optional<DeviceType> deviceType = Builders.from(deviceTypeTpl).find();
+        DeviceType deviceType = Builders.from(deviceTypeTpl).get();
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
             int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
-            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl,  validationStrictDeviceCount);
+            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType).get(), deviceTypeTpl,  validationStrictDeviceCount);
             deviceCount = Math.max(0, deviceCount - validationStrictDeviceCount);
         }
-        createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl, deviceCount >> 1);
-        createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl, deviceCount >> 1);
+        createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
+        createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
     }
 
     private void createDevices(DeviceConfiguration configuration, DeviceTypeTpl deviceTypeTpl, int deviceCount){

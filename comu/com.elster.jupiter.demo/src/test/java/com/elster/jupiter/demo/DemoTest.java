@@ -29,7 +29,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
-import com.elster.jupiter.export.processor.impl.StandardCsvDataFormatterFactory;
+import com.elster.jupiter.export.processor.impl.CsvMeterDataFormatterFactory;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
@@ -74,6 +74,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
+import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -269,6 +272,8 @@ public class DemoTest {
                 new IdsModule(),
                 new BpmModule(),
                 new FiniteStateMachineModule(),
+                new UsagePointLifeCycleConfigurationModule(),
+                new UsagePointLifeCycleModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -766,6 +771,7 @@ public class DemoTest {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(UsagePointLifeCycleService.class); // install default usage point life cycle
             initializeCustomPropertySets();
             createRequiredProtocols();
             createDefaultStuff();
@@ -829,7 +835,7 @@ public class DemoTest {
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(CalendarImporterFactory.class));
 
         ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
-        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(StandardCsvDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
+        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(CsvMeterDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
 
         injector.getInstance(MeteringDataModelService.class).addHeadEndInterface(injector.getInstance(MultiSenseHeadEndInterfaceImpl.class));
         injector.getInstance(IssueDataCollectionService.class);
