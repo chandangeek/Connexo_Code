@@ -22,6 +22,7 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilege
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStageInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
