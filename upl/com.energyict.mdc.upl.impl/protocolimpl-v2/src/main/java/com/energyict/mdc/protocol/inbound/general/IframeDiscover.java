@@ -1,6 +1,8 @@
 package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.exceptions.InboundFrameException;
@@ -17,11 +19,19 @@ import com.energyict.protocol.meteridentification.IdentificationFactory;
  */
 public class IframeDiscover extends AbstractDiscover {
 
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public IframeDiscover(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
+
     @Override
     public DiscoverResultType doDiscovery ()  {
         try {
             ComChannel comChannel = this.getComChannel();
-            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty()));
+            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.collectedDataFactory, this.issueFactory));
             String identificationFrame = getInboundConnection().sendIRequestAndReadResponse();
             IdentificationFactory identificationFactory = processIdentificationFactory();
             String meterProtocolClass = processMeterProtocolClass(identificationFrame, identificationFactory);

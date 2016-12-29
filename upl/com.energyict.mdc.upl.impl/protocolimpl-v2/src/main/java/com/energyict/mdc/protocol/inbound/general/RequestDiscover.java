@@ -2,6 +2,8 @@ package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import com.energyict.protocol.exceptions.InboundFrameException;
 
@@ -15,10 +17,18 @@ import com.energyict.protocol.exceptions.InboundFrameException;
  */
 public class RequestDiscover extends AbstractDiscover {
 
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public RequestDiscover(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
+
     @Override
     public DiscoverResultType doDiscovery() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.collectedDataFactory, this.issueFactory));
         boolean receivedValidFrame = false;
         boolean notTimedOut = true;
         while (notTimedOut) {

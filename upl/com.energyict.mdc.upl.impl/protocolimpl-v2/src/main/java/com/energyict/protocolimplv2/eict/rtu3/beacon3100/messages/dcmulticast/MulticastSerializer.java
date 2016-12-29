@@ -65,7 +65,7 @@ public class MulticastSerializer {
                 throw DeviceConfigurationException.missingProperty("SerialNumber", "Device with ID '" + slaveDevice.getId() + "'");
             }
 
-            final byte[] dlmsMeterKEK = MasterDataSerializer.parseKey(offlineDevice.getId(), Beacon3100ConfigurationSupport.DLMS_METER_KEK, beaconDevice.getProtocolProperties().getStringProperty(Beacon3100ConfigurationSupport.DLMS_METER_KEK));
+            final byte[] dlmsMeterKEK = MasterDataSerializer.parseKey((int) offlineDevice.getId(), Beacon3100ConfigurationSupport.DLMS_METER_KEK, beaconDevice.getProtocolProperties().getStringProperty(Beacon3100ConfigurationSupport.DLMS_METER_KEK));
             String macAddress = MasterDataSerializer.parseCallHomeId(slaveDevice);
 
             //Find the keys in a security set that has clientMacAddress 1 (management client)

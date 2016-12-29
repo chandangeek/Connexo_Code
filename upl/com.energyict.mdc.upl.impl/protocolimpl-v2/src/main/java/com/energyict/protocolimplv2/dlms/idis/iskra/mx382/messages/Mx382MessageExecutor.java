@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.dlms.cosem.ScriptTable;
@@ -16,8 +18,8 @@ import java.io.IOException;
  */
 public class Mx382MessageExecutor extends AM130MessageExecutor {
 
-    public Mx382MessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public Mx382MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override

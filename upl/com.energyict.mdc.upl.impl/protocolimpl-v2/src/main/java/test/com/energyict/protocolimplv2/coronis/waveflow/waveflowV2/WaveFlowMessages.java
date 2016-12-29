@@ -1,13 +1,12 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
-import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.cpo.PropertySpec;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.List;
  */
 public class WaveFlowMessages implements DeviceMessageSupport {
 
-    private WaveFlowV2 waveFlowV2;
+    private final WaveFlowV2 waveFlowV2;
 
     public WaveFlowMessages(WaveFlowV2 waveFlowV2) {
         this.waveFlowV2 = waveFlowV2;
@@ -50,4 +49,5 @@ public class WaveFlowMessages implements DeviceMessageSupport {
     public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return "";
     }
+
 }

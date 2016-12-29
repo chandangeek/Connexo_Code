@@ -46,7 +46,7 @@ public abstract class AbstractInboundFrame {
 
     public List<CollectedData> getCollectedDatas() {
         if (collectedDatas == null) {
-            collectedDatas = new ArrayList<CollectedData>();
+            collectedDatas = new ArrayList<>();
         }
         return collectedDatas;
     }

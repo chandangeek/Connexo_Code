@@ -4,12 +4,18 @@ import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.issue.Issue;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
@@ -232,7 +238,7 @@ public class RequestDiscoverTest {
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(AbstractDiscover.TIMEOUT_KEY, TimeDuration.seconds(1));
         properties.setProperty(AbstractDiscover.RETRIES_KEY, BigDecimal.ZERO);
-        RequestDiscover requestDiscover = new RequestDiscover();
+        RequestDiscover requestDiscover = new RequestDiscover(collectedDataFactory, issueFactory);
         requestDiscover.addProperties(properties);
         return requestDiscover;
     }

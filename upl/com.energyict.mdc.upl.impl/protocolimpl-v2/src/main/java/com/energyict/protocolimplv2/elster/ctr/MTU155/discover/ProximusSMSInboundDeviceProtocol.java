@@ -2,18 +2,20 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Sms;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
@@ -58,11 +60,19 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
     private static final String ERROR_PREFIX = "\n    <" + "error code=\"";
     private static final String ERROR_SUFFIX = "</error>";
 
-
     private ResultType resultType = ResultType.OK;
 
     private DeviceIdentifier deviceIdentifier;
     private List<CollectedData> collectedDataList = new ArrayList<>();
+    private final PropertySpecService propertySpecService;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public ProximusSMSInboundDeviceProtocol(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.propertySpecService = propertySpecService;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
@@ -90,7 +100,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport(propertySpecService).convertToTypedProperties(protocolSecurityProperties));
             SMSFrame smsFrame = ((CTRCryptographer) getContext().getCryptographer()).decryptSMS(mtu155Properties, sms.getMessage());
 
-            SmsHandler smsHandler = new SmsHandler(getDeviceIdentifier(), allRelevantProperties, collectedDataFactory);
+            SmsHandler smsHandler = new SmsHandler(getDeviceIdentifier(), allRelevantProperties, collectedDataFactory, issueFactory);
             smsHandler.parseSMSFrame(smsFrame);
             addCollectedData(smsHandler.getCollectedDataList());
 

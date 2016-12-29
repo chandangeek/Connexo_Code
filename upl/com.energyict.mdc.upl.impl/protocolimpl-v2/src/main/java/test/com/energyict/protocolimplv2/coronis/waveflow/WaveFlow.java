@@ -88,6 +88,14 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
         this.issueFactory = issueFactory;
     }
 
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
+    }
+
     /**
      * If the ComChannel is of type WavenisGatewayComChannel, this means the RF module is being read out over a transparent gateway (MUC Wavecell).
      * In this case, the comchannel provides a fully started Wavenis stack that allows us to create a link to the module, based on the RF address.

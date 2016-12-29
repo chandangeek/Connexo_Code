@@ -6,6 +6,8 @@ import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObject;
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.general.InboundConnection;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -51,6 +53,13 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private DLMSConnection dlmsConnection;
     private SimpleApplicationServiceObject aso;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+
+    public DlmsSerialNumberDiscover(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+    }
 
     @Override
     public InboundDeviceProtocol.DiscoverResultType doDiscovery() {
@@ -72,7 +81,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private void setInboundConnection() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.collectedDataFactory, this.issueFactory));
     }
 
     public void init() throws IOException {

@@ -1344,7 +1344,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), this.getCollectedDataFactory());
+            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return plcConfigurationDeviceMessageExecutor;
     }
@@ -1509,7 +1509,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private MasterDataSync getMasterDataSync() {
         if (masterDataSync == null) {
-            masterDataSync = new MasterDataSync(this, issueFactory);
+            masterDataSync = new MasterDataSync(this, this.getIssueFactory());
         }
         return masterDataSync;
     }

@@ -1,5 +1,12 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 
@@ -18,7 +25,7 @@ public class WaveFlowV2 extends WaveFlow {
     private ProfileDataReader profileDataReader;
     private EventReader eventReader;
 
-    public WaveFlowV2() {
+    public WaveFlowV2(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(collectedDataFactory, issueFactory);
         isV1 = false;
         isV210 = false;
@@ -37,7 +44,7 @@ public class WaveFlowV2 extends WaveFlow {
     @Override
     protected ObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            obisCodeMapper = new ObisCodeMapper(this, collectedDataFactory, issueFactory);
+            obisCodeMapper = new ObisCodeMapper(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return obisCodeMapper;
     }
@@ -52,7 +59,7 @@ public class WaveFlowV2 extends WaveFlow {
     @Override
     protected DeviceLoadProfileSupport getProfileDataReader() {
         if (profileDataReader == null) {
-            profileDataReader = new ProfileDataReader(this, collectedDataFactory);
+            profileDataReader = new ProfileDataReader(this, this.getCollectedDataFactory());
         }
         return profileDataReader;
     }
@@ -60,8 +67,33 @@ public class WaveFlowV2 extends WaveFlow {
     @Override
     protected DeviceLogBookSupport getEventReader() {
         if (eventReader == null) {
-            eventReader = new EventReader(this, collectedDataFactory);
+            eventReader = new EventReader(this, this.getCollectedDataFactory());
         }
         return eventReader;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return null;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return null;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return null;
     }
 }

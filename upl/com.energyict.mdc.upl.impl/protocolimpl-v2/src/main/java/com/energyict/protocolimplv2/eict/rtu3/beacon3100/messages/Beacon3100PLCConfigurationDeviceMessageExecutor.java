@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -34,7 +35,7 @@ public class Beacon3100PLCConfigurationDeviceMessageExecutor extends PLCConfigur
     private static final String SEPARATOR = ";";
     private final CollectedDataFactory collectedDataFactory;
 
-    public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory) {
+    public Beacon3100PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(session, offlineDevice, collectedDataFactory, issueFactory);
         this.collectedDataFactory = collectedDataFactory;
     }

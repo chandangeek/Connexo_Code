@@ -14,8 +14,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * InboundDeviceProtocol implementation made for the IDIS DataPush (based on DLMS Data-notification)<br/>
-  *
+ * InboundDeviceProtocol implementation made for the IDIS DataPush (based on DLMS Data-notification).
+ *
  * @author sva
  * @since 13/04/2015 - 16:45
  */
@@ -43,7 +43,7 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public DiscoverResultType doDiscovery() {
-        parser = new DataPushNotificationParser(comChannel, getContext(), collectedDataFactory);
+        parser = new DataPushNotificationParser(comChannel, getContext());
         parser.parseInboundFrame();
 
         return DiscoverResultType.DATA;

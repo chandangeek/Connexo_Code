@@ -7,6 +7,8 @@ import com.energyict.mdc.protocol.inbound.general.frames.EventFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.EventPOFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RegisterFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RequestFrame;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.InboundFrameException;
@@ -40,16 +42,20 @@ public class InboundConnection {
      * Contains the received frame(s) that should be ACK'ed after finding the Device in the database
      */
     private List<AbstractInboundFrame> framesToAck;
+    private final IssueFactory issueFactory;
+    private final CollectedDataFactory collectedDataFactory;
 
     /**
      * Constructor taking in the comChannel, the timeout value and the retries value
      *
      * @param comChannel channel containing the input and output streams, and methods to read and send bytes
      */
-    public InboundConnection(ComChannel comChannel, int timeout, int retries) {
+    public InboundConnection(ComChannel comChannel, int timeout, int retries, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.comChannel = comChannel;
         this.timeout = timeout;
         this.retries = retries;
+        this.issueFactory = issueFactory;
+        this.collectedDataFactory = collectedDataFactory;
     }
 
     /**
@@ -109,9 +115,7 @@ public class InboundConnection {
      * Acknowledge all received frames, after the Device has been found in the database
      */
     public void ackFrames() {
-        for (AbstractInboundFrame frame : framesToAck) {
-            sendAck(frame);
-        }
+        framesToAck.forEach(this::sendAck);
     }
 
     /**
@@ -146,13 +150,13 @@ public class InboundConnection {
             return new RequestFrame(frame, callHomeIdPlaceHolder);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, callHomeIdPlaceHolder, collectedDataFactory);
+            return new EventFrame(frame, callHomeIdPlaceHolder, this.collectedDataFactory);
         }
         if (frame.contains(EVENTPO_TAG)) {
             return new EventPOFrame(frame, callHomeIdPlaceHolder, collectedDataFactory);
         }
         if (frame.contains(DEPLOY_TAG)) {
-            return new DeployFrame(frame, callHomeIdPlaceHolder, collectedDataFactory, issueFactory);
+            return new DeployFrame(frame, callHomeIdPlaceHolder, collectedDataFactory, this.issueFactory);
         }
         if (frame.contains(REGISTER_TAG)) {
             return new RegisterFrame(frame, callHomeIdPlaceHolder, collectedDataFactory);
@@ -272,4 +276,5 @@ public class InboundConnection {
     public void updateSerialNumberPlaceHolder(String serialNumber) {
         this.callHomeIdPlaceHolder.setSerialNumber(serialNumber);
     }
+
 }

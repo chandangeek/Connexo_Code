@@ -28,7 +28,7 @@ public class Mx382Messaging extends AM130Messaging{
 
     protected IDISMessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            this.messageExecutor = new Mx382MessageExecutor(getProtocol());
+            this.messageExecutor = new Mx382MessageExecutor(getProtocol(), getCollectedDataFactory(), getIssueFactory());
         }
         return messageExecutor;
     }

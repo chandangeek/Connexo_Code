@@ -1,27 +1,30 @@
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
@@ -73,11 +76,16 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     protected IDISProfileDataReader idisProfileDataReader = null;
     protected IDISStoredValues storedValues = null;
     private IDISRegisterFactory registerFactory = null;
-    private String serialNumber = null;
     private static final ObisCode LOGICAL_DEVICE_NAME_OBIS = ObisCode.fromString("0.0.42.0.0.255");
+    private final Extractor extractor;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public AM500(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AM500(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory);
+        this.extractor = extractor;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
@@ -172,7 +180,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     @Override
     protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new AM500SecuritySupport();
+            dlmsSecuritySupport = new AM500SecuritySupport(this.getPropertySpecService());
         }
         return dlmsSecuritySupport;
     }
@@ -243,7 +251,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     public IDISProfileDataReader getIDISProfileDataReader() {
         if (idisProfileDataReader == null) {
-            idisProfileDataReader = new IDISProfileDataReader(this, getDlmsSessionProperties().getLimitMaxNrOfDays(), collectedDataFactory, issueFactory);
+            idisProfileDataReader = new IDISProfileDataReader(this, getDlmsSessionProperties().getLimitMaxNrOfDays(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return idisProfileDataReader;
     }
@@ -255,7 +263,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     protected IDISLogBookFactory getIDISLogBookFactory() {
         if (idisLogBookFactory == null) {
-            idisLogBookFactory = new IDISLogBookFactory(this, collectedDataFactory, issueFactory);
+            idisLogBookFactory = new IDISLogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return idisLogBookFactory;
     }
@@ -276,18 +284,18 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         return getIDISMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new IDISMessaging(this, extractor, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter);
+            idisMessaging = new IDISMessaging(this, this.extractor, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.nlsService, this.converter);
         }
         return idisMessaging;
     }
@@ -304,7 +312,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     private IDISRegisterFactory getIDISRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new IDISRegisterFactory(this, collectedDataFactory, issueFactory);
+            this.registerFactory = new IDISRegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }
@@ -351,7 +359,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     @Override
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
-            meterTopology = new IDISMeterTopology(this, collectedDataFactory);
+            meterTopology = new IDISMeterTopology(this, this.getCollectedDataFactory());
             meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
@@ -360,5 +368,15 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     @Override
     public String getVersion() {
         return "$Date: 2016-05-09 15:56:50 +0300 (Mon, 09 May 2016)$";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

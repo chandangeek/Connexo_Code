@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.ace4000;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
@@ -24,12 +26,12 @@ import java.util.List;
  */
 public class ACE4000MBus extends ACE4000Outbound {
 
-    public ACE4000MBus() {
+    public ACE4000MBus(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(collectedDataFactory, issueFactory);
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        List<DeviceProtocolCapabilities> capabilities = new ArrayList<DeviceProtocolCapabilities>();
+        List<DeviceProtocolCapabilities> capabilities = new ArrayList<>();
         capabilities.add(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
         return capabilities;
     }
@@ -67,8 +69,6 @@ public class ACE4000MBus extends ACE4000Outbound {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        ArrayList<DeviceProtocolDialect> dialects = new ArrayList<DeviceProtocolDialect>();
-        dialects.add(new NoParamsDeviceProtocolDialect());
-        return dialects;
+        return Collections.singletonList(new NoParamsDeviceProtocolDialect());
     }
 }

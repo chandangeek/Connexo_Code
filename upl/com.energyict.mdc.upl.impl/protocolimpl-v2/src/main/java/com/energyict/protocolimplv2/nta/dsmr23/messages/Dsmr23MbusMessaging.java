@@ -73,7 +73,7 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
             case DeviceMessageConstants.openKeyAttributeName:
             case DeviceMessageConstants.transferKeyAttributeName:
                 return ((Password) messageAttribute).getValue();

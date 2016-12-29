@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -73,9 +74,11 @@ public class SmsHandler {
      */
     private List<CollectedData> collectedDataList;
     private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public SmsHandler(DeviceIdentifier deviceIdentifier, TypedProperties typedProperties, CollectedDataFactory collectedDataFactory) {
+    public SmsHandler(DeviceIdentifier deviceIdentifier, TypedProperties typedProperties, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
         this.collectedDataList = new ArrayList<>();
         this.deviceIdentifier = deviceIdentifier;
         this.allProperties = typedProperties;
@@ -155,7 +158,7 @@ public class SmsHandler {
         if (data.getPeriod().isHourly() || data.getPeriod().isHourlyFistPart() || data.getPeriod().isHourlySecondPart()) {
             return LoadProfileBuilder.FLOW_MEASUREMENT_PROFILE;
         } else if (data.getPeriod().isDaily()) {
-            if (Arrays.asList(LoadProfileBuilder.VOLUME_MEASUREMENT_PROFILE).contains(data.getId().toString())) {
+            if (LoadProfileBuilder.VOLUME_MEASUREMENT_PROFILE.toString().equals(data.getId().toString())) {
                 return LoadProfileBuilder.VOLUME_MEASUREMENT_PROFILE;
             } else if (Arrays.asList(LoadProfileBuilder.TOTALIZERS_OBJECT_IDS).contains(data.getId().toString())) {
                 return LoadProfileBuilder.TOTALIZERS_PROFILE;
@@ -197,7 +200,7 @@ public class SmsHandler {
     }
 
     private SmsObisCodeMapper getSmsObisCodeMapper() {
-        return new SmsObisCodeMapper(getDeviceIdentifier());
+        return new SmsObisCodeMapper(getDeviceIdentifier(), this.collectedDataFactory, this.issueFactory);
     }
 
     private <T extends Data> void verifyCallHomeID(AbstractCTRObject pdr) throws CTRException {

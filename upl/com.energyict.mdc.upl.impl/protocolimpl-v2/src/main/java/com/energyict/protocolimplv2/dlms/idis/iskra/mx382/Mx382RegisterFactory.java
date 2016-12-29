@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -17,7 +19,7 @@ import java.io.IOException;
  */
 public class Mx382RegisterFactory extends AM130RegisterFactory{
 
-    public Mx382RegisterFactory(Mx382 mx382) {
+    public Mx382RegisterFactory(Mx382 mx382, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(mx382, collectedDataFactory, issueFactory);
     }
 

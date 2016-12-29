@@ -78,9 +78,9 @@ public class DataPushNotificationParser {
     private final InboundDiscoveryContext context;
     private final CollectedDataFactory collectedDataFactory;
 
-    public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, CollectedDataFactory collectedDataFactory) {
+    public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         this.comChannel = comChannel;
-        this.collectedDataFactory = collectedDataFactory;
+        this.collectedDataFactory = context.getCollectedDataFactory();
         this.inboundDAO = context.getInboundDAO();
         this.inboundComPort = context.getComPort();
         this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;

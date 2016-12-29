@@ -70,7 +70,7 @@ public class AM130 extends AM500 {
     private final Converter converter;
 
     public AM130(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        super(propertySpecService, collectedDataFactory, issueFactory);
+        super(propertySpecService, collectedDataFactory, issueFactory, extractor, nlsService, converter);
         this.nlsService = nlsService;
         this.converter = converter;
         this.extractor = extractor;
@@ -235,7 +235,7 @@ public class AM130 extends AM500 {
 
     protected AM130RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new AM130RegisterFactory(this, collectedDataFactory, issueFactory);
+            this.registerFactory = new AM130RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }

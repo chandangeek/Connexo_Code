@@ -598,4 +598,5 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     public DeviceFunction getDeviceFunction() {
         return DeviceFunction.NONE;
     }
+
 }

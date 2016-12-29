@@ -194,7 +194,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
     private IDISMBusMessageExecutor getIdisMBusMessageExecutor() {
         if (idisMBusMessageExecutor == null) {
-            idisMBusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory());
+            idisMBusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return idisMBusMessageExecutor;
     }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
@@ -17,7 +19,7 @@ import java.util.logging.Level;
  */
 public class SmsObisCodeMapper extends ObisCodeMapper {
 
-    public SmsObisCodeMapper(DeviceIdentifier deviceIdentifier) {
+    public SmsObisCodeMapper(DeviceIdentifier deviceIdentifier, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(collectedDataFactory, issueFactory);
         super.setDeviceIdentifier(deviceIdentifier);
         super.initRegisterMapping();

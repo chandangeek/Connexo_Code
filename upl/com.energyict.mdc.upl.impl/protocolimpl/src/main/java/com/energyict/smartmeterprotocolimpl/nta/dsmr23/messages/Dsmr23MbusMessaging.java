@@ -8,7 +8,7 @@ import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,7 +17,6 @@ import java.util.List;
  * Time: 13:23:56
  */
 public class Dsmr23MbusMessaging extends GenericMessaging implements MessageProtocol{
-
 
     public Dsmr23MbusMessaging() {
     }
@@ -47,13 +46,10 @@ public class Dsmr23MbusMessaging extends GenericMessaging implements MessageProt
         return MessageResult.createFailed(messageEntry);
     }
 
-    public List getMessageCategories() {
-		List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
-		MessageCategorySpec catDisconnect = getConnectControlCategory();
-		MessageCategorySpec catMbusSetup = getMbusSetupCategory();
-
-		categories.add(catDisconnect);
-		categories.add(catMbusSetup);
-		return categories;
+    public List<MessageCategorySpec> getMessageCategories() {
+		return Arrays.asList(
+                    getConnectControlCategory(),
+		            getMbusSetupCategory());
     }
+
 }

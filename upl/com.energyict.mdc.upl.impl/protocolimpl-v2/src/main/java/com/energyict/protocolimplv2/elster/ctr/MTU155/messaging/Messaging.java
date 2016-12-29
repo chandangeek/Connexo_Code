@@ -174,7 +174,7 @@ public class Messaging implements DeviceMessageSupport {
 
                 // Connectivity setup group
                 new DevicePhoneNumberSetupMessage(this),
-                new ApnSetupMessage(this),
+                new ApnSetupMessage(this, collectedDataFactory, issueFactory),
                 new SMSCenterSetupMessage(this),
                 new IPSetupMessage(this),
                 new WakeUpFrequency(this),

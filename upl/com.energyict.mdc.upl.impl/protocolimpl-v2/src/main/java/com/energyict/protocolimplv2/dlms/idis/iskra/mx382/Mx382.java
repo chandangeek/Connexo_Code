@@ -47,7 +47,7 @@ public class Mx382 extends AM130{
     @Override
     protected AM130RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Mx382RegisterFactory(this);
+            this.registerFactory = new Mx382RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }
