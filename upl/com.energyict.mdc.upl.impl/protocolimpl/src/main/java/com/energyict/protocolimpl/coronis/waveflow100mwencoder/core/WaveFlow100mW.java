@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
@@ -187,7 +188,7 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
                                         HalfDuplexController halfDuplexController) throws IOException {
 
         parameterFactory = new ParameterFactory(this);
-        radioCommandFactory = new RadioCommandFactory(this, propertySpecService);
+        radioCommandFactory = new RadioCommandFactory(this, this.getPropertySpecService());
         waveFlowConnect = new WaveFlowConnect(inputStream, outputStream, timeoutProperty, getLogger(), forcedDelay, getInfoTypeProtocolRetriesProperty());
         commonObisCodeMapper = new CommonObisCodeMapper(this);
 
@@ -312,7 +313,7 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
     @Override
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return waveFlow100mWMessages.getMessageCategories();
     }
 

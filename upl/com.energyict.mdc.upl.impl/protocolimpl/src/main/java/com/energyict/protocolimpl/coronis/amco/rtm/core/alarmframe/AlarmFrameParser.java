@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
@@ -8,7 +10,10 @@ import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -23,9 +28,11 @@ public class AlarmFrameParser {
     private Date date;
     private int alarmData;
     private ProfileType profileType;
+    private final PropertySpecService propertySpecService;
 
-    public AlarmFrameParser(RTM rtm) {
+    public AlarmFrameParser(RTM rtm, PropertySpecService propertySpecService) {
         this.rtm = rtm;
+        this.propertySpecService = propertySpecService;
     }
 
     public int getStatus() {
@@ -38,7 +45,7 @@ public class AlarmFrameParser {
         alarmId = data[offset] & 0xFF;   //Received from the RTU+Server, indicates the alarm frame type!
         offset++;
 
-        GenericHeader header = new GenericHeader(rtm);
+        GenericHeader header = new GenericHeader(rtm, this.propertySpecService);
         header.parse(ProtocolTools.getSubArray(data, offset));
         profileType = header.getProfileType();
 
@@ -80,7 +87,7 @@ public class AlarmFrameParser {
             AlarmFrameEncoderAndValveProfile alarmFrame = new AlarmFrameEncoderAndValveProfile(rtm, alarmData, status, date);
             return alarmFrame.getMeterEvents();
         } else {
-            return new ArrayList<MeterEvent>();
+            return new ArrayList<>();
         }
     }
 

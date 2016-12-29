@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
@@ -29,6 +31,10 @@ public class Metcom3FCL extends Metcom3 {
     //protected final String[] REG_NR_OF_CHANNELS16={"62308","63308"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
     private static final String[] REG_PROFILEINTERVAL={"70101","70102"};
     private static final String[] DIGITS_PER_VALUE={"62200","63200"};
+
+    public Metcom3FCL(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected BufferStructure getBufferStructure(int bufferNr) throws IOException {

@@ -24,7 +24,6 @@ public class ObisCodeMapper {
 
     private final S4s s4s;
 
-    /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(S4s s4s) {
         this.s4s=s4s;
     }

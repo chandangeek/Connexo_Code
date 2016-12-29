@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.sctm.fag;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -24,9 +26,10 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 public class FAG extends Metcom3FAG implements RegisterProtocol {
 
-    private FAGRegisters fagRegisters;
+    private final FAGRegisters fagRegisters;
 
-    public FAG() {
+    public FAG(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         fagRegisters = new FAGRegisters(this);
     }
 

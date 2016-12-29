@@ -7,7 +7,9 @@ import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.ModuleType
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -16,13 +18,12 @@ import java.util.*;
  */
 public class AlarmFrameParser {
 
-
     private static final double VOLTAGE_MULTIPLIER = (1 / 819);
     private static final double AMPERE_MULTIPLIER = (1 / 256);
     private static final int AMPERE_OFFSET = 4;
     private static final double AMPERE_MIN_VALUE = 4;
     private static final double AMPERE_MAX_VALUE = 20;
-    
+
     private WaveSense waveSense;
     private int status;
     private Date date;
@@ -65,7 +66,7 @@ public class AlarmFrameParser {
     private double calcValue(int rawValue) throws IOException {
         double realValue = 0;
         ModuleType moduleType = waveSense.getRadioCommandFactory().readModuleType();
-        
+
         if (moduleType.isOfType05Voltage()) {
             realValue = rawValue * VOLTAGE_MULTIPLIER;
         } else if (moduleType.isOfType420MilliAmpere()) {
@@ -82,7 +83,7 @@ public class AlarmFrameParser {
 
 
     public List<MeterEvent> getMeterEvents() throws IOException {
-        List<MeterEvent> events = new ArrayList<MeterEvent>();
+        List<MeterEvent> events = new ArrayList<>();
 
         if ((status & 0x01) == 0x01) {
             events.add(new MeterEvent(date, 0, "Low threshold detection. Duration: " + duration + " (in multiples of detection measurement period. Integrated value: " + integratedValue));

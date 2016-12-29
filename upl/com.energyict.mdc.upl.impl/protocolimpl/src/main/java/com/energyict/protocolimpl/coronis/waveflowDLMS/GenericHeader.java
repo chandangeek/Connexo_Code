@@ -3,12 +3,13 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Date;
 
 public class GenericHeader {
 
-	
 	private int version;
 	private int operatingMode;
 	private int applicationStatus;
@@ -24,9 +25,9 @@ public class GenericHeader {
 		       "currentDateTime="+currentDateTime+", "+
 		       "qos="+WaveflowProtocolUtils.toHexString(qos);
 	}
-	
+
 	GenericHeader(byte[] data,AbstractDLMS abstractDLMS) throws IOException {
-		
+
 		DataInputStream dais = null;
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -48,9 +49,9 @@ public class GenericHeader {
 					abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}			
+		}
 	}
-	
+
 	static int size() {
 		return 13;
 	}
@@ -78,5 +79,5 @@ public class GenericHeader {
 	final int getQos() {
 		return qos;
 	}
-	
+
 }

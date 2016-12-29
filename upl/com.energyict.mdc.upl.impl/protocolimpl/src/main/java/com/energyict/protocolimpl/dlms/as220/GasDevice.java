@@ -4,11 +4,13 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -57,6 +59,10 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
     private GMeterMessaging messaging;
     private int dif = -1;
 
+	public GasDevice(TariffCalendarFinder calendarFinder, Extractor extractor) {
+		super(calendarFinder, extractor);
+	}
+
 	@Override
 	public int getNumberOfChannels() throws IOException {
 		return getgMeter().getNrOfChannels();
@@ -80,7 +86,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 	protected void doConnect() {
 		// search for the channel of the Mbus Device
 		for(int i = 0; i < MAX_MBUS_CHANNELS; i++){
-            String tempSerial = "";
+            String tempSerial;
 			try {
 				tempSerial = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(i).getObisCode()).getString();
 				if(tempSerial.equalsIgnoreCase(gmeterSerialnumber)){

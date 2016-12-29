@@ -10,36 +10,35 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
-import java.io.IOException;
-import java.io.Serializable;
-
 import com.energyict.obis.ObisCode;
+
+import java.io.Serializable;
 
 /**
  * FIXME: Run the tests again with the serialVersionUID so you can rebuild the registers correctly with the fixed ID
  * @author Koen
  */
 public class Register implements Serializable{
-    
+
 	private static final long serialVersionUID = -4426044576073453175L;
-	
+
 	private VariableName variableName;
     private int index;
     private String description;
     private ObisCode obisCode;
-    
+
     /** Creates a new instance of Register */
-    public Register(VariableName variableName, int index, int obisEField) throws IOException {
+    public Register(VariableName variableName, int index, int obisEField) {
         setIndex(index);
         setVariableName(variableName);
         setObisCode(new ObisCode(getVariableName().getObisAField(),1, getVariableName().getObisCField(),getVariableName().getObisDField(),obisEField,getVariableName().getObisFField()));
-        setDescription(RegisterNameFactory.findObisCode(obisCode)==null?obisCode.getDescription():RegisterNameFactory.findObisCode(obisCode));
+        setDescription(RegisterNameFactory.findObisCode(obisCode)==null?obisCode.toString():RegisterNameFactory.findObisCode(obisCode));
     }
 
     public Register(VariableName variableName, ObisCode obisCode) {
     	setVariableName(variableName);
     	setObisCode(obisCode);
-    	setDescription(RegisterNameFactory.findObisCode(obisCode)==null?obisCode.getDescription():RegisterNameFactory.findObisCode(obisCode));
+    	setDescription(RegisterNameFactory.findObisCode(obisCode)==null?obisCode.toString():RegisterNameFactory.findObisCode(obisCode));
 	}
 
 	public String toString() {

@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.sctm.fbc;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -27,9 +29,10 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 public class FBC extends Metcom3FBC implements RegisterProtocol {
 
-    private FBCRegisters fbcRegisters;
+    private final FBCRegisters fbcRegisters;
 
-    public FBC() {
+    public FBC(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         fbcRegisters = new FBCRegisters(this);
     }
 

@@ -1,5 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.AM540Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor;
@@ -12,8 +15,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsm
  */
 public class SagemComMessaging extends AM540Messaging {
 
-    public SagemComMessaging(AM540 protocol) {
-        super(protocol);
+    public SagemComMessaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(protocol, calendarFinder, extractor);
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {

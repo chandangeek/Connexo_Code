@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
@@ -61,7 +62,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private FirmwareVersions activeFirmwareVersion;
     private FirmwareVersions passiveFirmwareVersion;
 
-    public AS220(TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public AS220(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(propertySpecService);
     	messagingList = new ArrayList<>();
     	messagingList.add(new AS220Messaging(this, calendarFinder, extractor));
     	messagingList.add(new PLCMessaging(this));
@@ -271,12 +273,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		long diff = to.getTime() - from.getTime();
 		final int minimumDiff = 1 * 60 * 1000;
 		if (diff <= minimumDiff) {
-			StringBuffer sb = new StringBuffer();
-			sb.append("Unable to read profile data, from date is after or to short to the to date! ");
-			sb.append("[from=").append(from);
-			sb.append(", to=").append(to);
-			sb.append(", diff=").append(diff).append(" ms]");
-			getLogger().warning(sb.toString());
+            String sb = "Unable to read profile data, from date is after or to short to the to date! " +
+                    "[from=" + from +
+                    ", to=" + to +
+                    ", diff=" + diff + " ms]";
+            getLogger().warning(sb);
 			return true;
 		}
 		return false;

@@ -42,10 +42,6 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     private DlmsSession session = null;
 
-    public AbstractDlmsSessionProtocol() {
-        super(propertySpecService);
-    }
-
     protected abstract DlmsProtocolProperties getProperties();
 
     protected abstract void doInit();
@@ -102,32 +98,32 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     @Override
-    public void setRegister(String name, String value) throws IOException {
+    public void setRegister(String name, String value) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public Quantity getMeterReading(int channelId) throws IOException {
+    public Quantity getMeterReading(int channelId) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public Quantity getMeterReading(String name) throws IOException {
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public String getRegister(String name) throws IOException {
+    public String getRegister(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public void initializeDevice() throws IOException {
+    public void initializeDevice() {
         // No init required
     }
 
     @Override
-    public void release() throws IOException {
+    public void release() {
         // No release required
     }
 

@@ -1,12 +1,17 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
+import com.energyict.protocolimpl.coronis.core.WaveFlowException;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.LeakageEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 public class AlarmFrameParser {
 
@@ -65,7 +70,7 @@ public class AlarmFrameParser {
         }
     }
 
-    public List<MeterEvent> getMeterEvents() throws IOException {
+    public List<MeterEvent> getMeterEvents() throws WaveFlowException {
         if (alarmId == 0x40) {
             return getAlarmEvents();
         } else if (alarmId == 0x41) {
@@ -77,7 +82,7 @@ public class AlarmFrameParser {
     }
 
     private List<MeterEvent> getValveEvents() {
-        List<MeterEvent> events = new ArrayList<MeterEvent>();
+        List<MeterEvent> events = new ArrayList<>();
 
         if ((status & 0x01) == 0x01) {
             events.add(new MeterEvent(date, MeterEvent.METER_ALARM, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Wirecut on valve"));
@@ -95,7 +100,7 @@ public class AlarmFrameParser {
     }
 
     private List<MeterEvent> getAlarmEvents() {
-        List<MeterEvent> events = new ArrayList<MeterEvent>();
+        List<MeterEvent> events = new ArrayList<>();
         String input = A;
         switch (status & 0x03) {     //b1 and b0 in the status byte indicate the concerning input channel.
             case 0:
@@ -141,7 +146,7 @@ public class AlarmFrameParser {
      * @return list of the received events, with the origin of the events added to their messages
      */
     private List<MeterEvent> addOriginNotion(List<MeterEvent> events) {
-        List<MeterEvent> result = new ArrayList<MeterEvent>();
+        List<MeterEvent> result = new ArrayList<>();
         for (MeterEvent meterEvent : events) {
             result.add(new MeterEvent(meterEvent.getTime(), meterEvent.getEiCode(), meterEvent.getProtocolCode(), meterEvent.getMessage() + ORIGIN_SAF));
         }

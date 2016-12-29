@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.sctm.mtt3a;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -34,11 +36,13 @@ KV|14112007|Password mechanism
  */
 public class MTT3A extends Metcom3 implements RegisterProtocol {
 
-    private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
-    private GenericRegisters genericRegisters;
+    private final RegisterConfig regs;
+    private final GenericRegisters genericRegisters;
 
-    public MTT3A() {
+    public MTT3A(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         genericRegisters = new GenericRegisters(this);
+        regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
     }
 
     @Override

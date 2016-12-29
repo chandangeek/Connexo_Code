@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
@@ -71,11 +73,11 @@ public class AM540Messaging extends G3Messaging {
     protected final AM540 protocol;
     private Dsmr40Messaging dsmr40Messaging;
 
-    public AM540Messaging(AM540 protocol) {
-        this(protocol, ANNOTATED_MESSAGES);
+    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        this(protocol, calendarFinder, extractor, ANNOTATED_MESSAGES);
     }
 
-    public AM540Messaging(AM540 protocol, Class<? extends AnnotatedMessage>[] messages) {
+    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor, Class<? extends AnnotatedMessage>[] messages) {
         super(protocol.getDlmsSession(), calendarFinder, extractor, messages);
         this.protocol = protocol;
     }
@@ -91,7 +93,7 @@ public class AM540Messaging extends G3Messaging {
 
     @Override
     public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> allMessages = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> allMessages = new ArrayList<>();
 
         //Annotated messages
         allMessages.addAll(super.getAnnotatedMessageCategories());

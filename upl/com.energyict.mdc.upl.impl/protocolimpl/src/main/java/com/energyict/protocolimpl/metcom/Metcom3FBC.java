@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.metcom;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
@@ -28,6 +29,10 @@ import java.util.List;
 public class Metcom3FBC extends Metcom3 {
 
     private static final int DEBUG = 0;
+
+    public Metcom3FBC(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected BufferStructure getBufferStructure(int bufferNr) throws IOException, UnsupportedException, NoSuchRegisterException {

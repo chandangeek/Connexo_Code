@@ -6,7 +6,9 @@ import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -67,7 +69,7 @@ public class AlarmFrameParser {
     }
 
     public List<MeterEvent> getMeterEvents() throws IOException {
-        List<MeterEvent> events = new ArrayList<MeterEvent>();
+        List<MeterEvent> events = new ArrayList<>();
 
         if ((status & 0x01) == 0x01) {
             String integratedValue = validIntegratedValue ? this.integratedValue + " \u00B0C" : "missing.";

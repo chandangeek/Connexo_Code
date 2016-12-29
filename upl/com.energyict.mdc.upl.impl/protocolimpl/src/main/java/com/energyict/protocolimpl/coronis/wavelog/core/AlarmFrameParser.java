@@ -7,7 +7,9 @@ import com.energyict.protocolimpl.coronis.wavelog.WaveLog;
 import com.energyict.protocolimpl.coronis.wavelog.core.radiocommand.Event;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -21,7 +23,7 @@ public class AlarmFrameParser {
     private int ioState;
     private int event1 = 0x00;
     private int cause;
-    private List<Event> events = new ArrayList<Event>();
+    private List<Event> events = new ArrayList<>();
     private Date date;
     private int alarmId;
 
@@ -83,7 +85,7 @@ public class AlarmFrameParser {
     }
 
     private List<MeterEvent> getAlarmEvents() {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
 
         //Event 1
         if ((event1 & 0x01) == 0x01) {
@@ -96,7 +98,7 @@ public class AlarmFrameParser {
     }
 
     private List<MeterEvent> getPeriodicEvents() {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         for (Event event : events) {
             meterEvents.add(new MeterEvent(event.getEventDate(), 0,
                     "Cause: " + event.getCauseDescription() +

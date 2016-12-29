@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
@@ -27,6 +29,10 @@ public class Metcom3FAF extends Metcom3 {
     private static final int DEBUG = 0;
     protected static final String REG_PROFILEINTERVAL = "70300";
     protected static final String DIGITS_PER_VALUE = "82001";
+
+    public Metcom3FAF(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected BufferStructure getBufferStructure(int bufferNr) throws IOException {

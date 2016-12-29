@@ -3,17 +3,24 @@ package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.BubbleUpObject;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.coronis.amco.rtm.ProfileDataReader;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
-import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.*;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.CurrentRegisterReading;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.DailyConsumption;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.ExtendedDataloggingTable;
+import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.ReadTOUBuckets;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -132,7 +139,7 @@ public class BubbleUpFrameParser {
     private static List<RegisterValue> getGenericHeaderRegisters(RTM rtm, byte[] data, byte[] radioAddress) throws IOException {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
-        genericHeader = new GenericHeader(rtm, radioAddress);
+        genericHeader = new GenericHeader(rtm, radioAddress, propertySpecService);
         genericHeader.parse(data);
 
         double battery = genericHeader.getShortLifeCounter();

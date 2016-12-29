@@ -264,11 +264,11 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         return propertySpecService;
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    protected <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    protected <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
     }
 

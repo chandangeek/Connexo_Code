@@ -2,14 +2,10 @@ package com.energyict.protocolimpl.instromet.v444.tables;
 
 import com.energyict.mdc.upl.ProtocolException;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
-import com.energyict.protocolimpl.instromet.v444.Instromet444;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -17,16 +13,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 
 public class LoggedDataTable extends AbstractTable {
 
-	private List intervalDatas = new ArrayList();
+	private List<IntervalData> intervalDatas = new ArrayList<>();
 	private int numberOfItemsLogged;
 	private Date lastReading;
-	private int defaultSize = 528;
+	private static final int DEFAULT_SIZE = 528;
 
 	public LoggedDataTable(TableFactory tableFactory) {
 		super(tableFactory);
@@ -47,7 +41,6 @@ public class LoggedDataTable extends AbstractTable {
 	public void setNumberOfItemsLogged(int numberOfItemsLogged)  {
 		this.numberOfItemsLogged = numberOfItemsLogged;
 	}
-
 
 	protected void parse(byte[] data) throws ProtocolException {
 		Calendar cal = null;
@@ -147,8 +140,9 @@ public class LoggedDataTable extends AbstractTable {
 				//System.out.println(cal.getTime());
 				System.out.println("");
 			}
-			else
+			else {
 				throw new LastReadingReachedException();
+			}
 		}
 	}
 
@@ -187,7 +181,7 @@ public class LoggedDataTable extends AbstractTable {
 		try {
 			int startAddress = 6;
 			int endAddress = getEndAddress();
-			int size = defaultSize;
+			int size = DEFAULT_SIZE;
 			while (startAddress < endAddress) {
 				if ((startAddress + size) >= endAddress) {
 					size = endAddress - startAddress;
@@ -218,42 +212,5 @@ public class LoggedDataTable extends AbstractTable {
 		return ((((tableLength - 6) / bytesPerRecord)) * bytesPerRecord) + 6;
 
 	}
-
-	static public void main(String[] argv) throws Exception {
-
-		Dialer dialer =DialerFactory.getDefault().newDialer();
-        dialer.init("COM1", "AT+CBST=71");
-        dialer.getSerialCommunicationChannel().setParams(9600,
-                                                       SerialCommunicationChannel.DATABITS_8,
-                                                       SerialCommunicationChannel.PARITY_NONE,
-                                                      SerialCommunicationChannel.STOPBITS_1);
-        dialer.connect("0031651978414",60000);
-        Instromet444 instromet = new Instromet444();
-        instromet.init(
-        		dialer.getInputStream(),
-        		dialer.getOutputStream(),
-        		TimeZone.getDefault(),
-        		Logger.getLogger("name"));
-        instromet.connect();
-        LoggingConfigurationTable table =
-        	instromet.getTableFactory().getLoggingConfigurationTable();
-        System.out.println(table.getChannelInfos().size());
-        System.out.println(table);
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        //instromet.getTableFactory().getLoggedDataTable(cal.getTime());
-        System.out.println(instromet.getTime());
-        System.out.println("peak: " +
-        		instromet.getTableFactory().getPeakHourPeakDayTable().getPeak());
-        System.out.println("peak time: " +
-        		instromet.getTableFactory().getPeakHourPeakDayTable().getPeakTime());
-        /*System.out.println("uncorrected: " +
-        		instromet.getTableFactory().getCountersTable().getUnCorrectedVolume());
-
-        System.out.println("corrected: " +
-        		instromet.getTableFactory().getCountersTable().getCorrectedVolume());*/
-    }
-
-
 
 }

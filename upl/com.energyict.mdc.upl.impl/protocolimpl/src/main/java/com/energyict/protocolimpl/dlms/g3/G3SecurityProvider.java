@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
@@ -26,7 +28,7 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
      *
      * @param properties - contains the keys for the authentication/encryption
      */
-    public G3SecurityProvider(Properties properties) {
+    public G3SecurityProvider(PropertySpecService propertySpecService, Properties properties) {
         super(properties);
         this.g3Properties = new G3Properties(properties, propertySpecService);
     }

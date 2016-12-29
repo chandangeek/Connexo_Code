@@ -6,8 +6,12 @@ import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class AlarmFrameParser {
 
@@ -15,7 +19,7 @@ public class AlarmFrameParser {
 	 * generic header
 	 */
 	GenericHeader<?> genericHeader;
-	
+
 	/**
 	 * alarmstatus
 	 */
@@ -27,21 +31,21 @@ public class AlarmFrameParser {
 	Date date;
 
 	/**
-	 * 
+	 *
 	 */
 	int alarmData;
-	
+
 	/**
 	 * Reference to the instantiation class
 	 */
 	WaveFlow100mW waveFlow100mW;
-	
+
 	AlarmFrameParser(byte[] data,WaveFlow100mW waveFlow100mW) throws IOException {
-		
+
 		this.waveFlow100mW=waveFlow100mW;
-		
+
 		DataInputStream dais = null;
-		
+
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 
@@ -50,24 +54,24 @@ public class AlarmFrameParser {
 			}
 			else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.ECHODIS) {
 				genericHeader = new MBusGenericHeader(dais,waveFlow100mW.getLogger(),waveFlow100mW.getTimeZone());
-			}			
-			
+			}
+
 			int offset = 0;
 			byte[] temp = new byte[dais.available()];
 			dais.read(temp);
-			
+
 			if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	{
 				alarmStatus = new EncoderAlarmStatus(ProtocolUtils.getSubArray(temp, offset), waveFlow100mW);
 			}
 			else if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.ECHODIS) {
 				alarmStatus = new MBusAlarmStatus(ProtocolUtils.getSubArray(temp, offset), waveFlow100mW);
-			}			
-			
+			}
+
 			offset += AlarmStatus.size();
 			date = TimeDateRTCParser.parse(ProtocolUtils.getSubArray(temp, offset), waveFlow100mW.getTimeZone()).getTime();
-			
+
 			alarmData = WaveflowProtocolUtils.toInt(dais.readShort());
-			
+
 		}
 		finally {
 			if (dais != null) {
@@ -78,8 +82,8 @@ public class AlarmFrameParser {
 					waveFlow100mW.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}		
-		
+		}
+
 	}
 
 	final GenericHeader getGenericHeader() {
@@ -93,10 +97,10 @@ public class AlarmFrameParser {
 	final Date getDate() {
 		return date;
 	}
-	
-	
+
+
 	final List getMeterEvents() {
-		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+		List<MeterEvent> meterEvents = new ArrayList<>();
 
 		if (waveFlow100mW.getMeterProtocolType()==MeterProtocolType.SM150E)	{
 			EncoderAlarmStatus encoderAlarmStatus = (EncoderAlarmStatus)alarmStatus;
@@ -163,17 +167,17 @@ public class AlarmFrameParser {
 			if (mbusAlarmStatus.isMeterReadingErrorPortB()) {
 				meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"Alarm received: Reading error port B"));
 			}
-		}			
-		
+		}
+
 		return meterEvents;
 	}
-	
-	
+
+
     /**
      * Used in the acknowledgement of the push frame.
      */
     public byte[] getResponseACK() {
         return ProtocolUtils.concatByteArrays(new byte[]{(byte)0xC0},alarmStatus.getStatus());
     }
-	
+
 }

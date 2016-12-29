@@ -23,22 +23,18 @@ import java.util.Date;
  */
 abstract class AbstractPPM extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
-	AbstractPPM() {
-		super(propertySpecService);
-	}
-
 	@Override
-	public void setRegister(String name, String value) throws IOException {
+	public void setRegister(String name, String value) throws UnsupportedException {
 		throw new UnsupportedException();
 	}
 
 	@Override
-	public void initializeDevice() throws IOException {
+	public void initializeDevice() throws UnsupportedException {
 		throw new UnsupportedException();
 	}
 
 	@Override
-	public void release() throws IOException {
+	public void release() {
 	}
 
 	public ChannelMap getChannelMap() {
@@ -61,7 +57,7 @@ abstract class AbstractPPM extends PluggableMeterProtocol implements HHUEnabler,
 	}
 
 	@Override
-	public String getRegister(String name) throws IOException {
+	public String getRegister(String name) throws UnsupportedException {
 		throw new UnsupportedException();
 	}
 

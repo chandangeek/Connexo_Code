@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
@@ -33,6 +35,10 @@ KV|23092005|Changed intervalstate bits behaviour (EDP)
 public class Metcom3 extends Metcom {
 
     private static final int DEBUG = 0;
+
+    public Metcom3(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public int getNumberOfChannels() throws IOException {

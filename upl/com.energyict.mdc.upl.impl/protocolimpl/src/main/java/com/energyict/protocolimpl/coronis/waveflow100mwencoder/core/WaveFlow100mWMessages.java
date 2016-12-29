@@ -139,7 +139,7 @@ public class WaveFlow100mWMessages implements MessageProtocol {
 		}
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
        List<MessageCategorySpec> theCategories = new ArrayList<>();
 
        MessageCategorySpec cat1 = new MessageCategorySpec("Waveflow100mw messages");

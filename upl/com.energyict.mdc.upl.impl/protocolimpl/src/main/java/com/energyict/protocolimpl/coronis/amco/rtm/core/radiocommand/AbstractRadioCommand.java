@@ -8,7 +8,11 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 abstract public class AbstractRadioCommand {
 
@@ -65,7 +69,7 @@ abstract public class AbstractRadioCommand {
 
     public GenericHeader getGenericHeader() {
         if (genericHeader == null) {
-            genericHeader = new GenericHeader(getRTM());
+            genericHeader = new GenericHeader(getRTM(), propertySpecService);
         }
         return genericHeader;
     }

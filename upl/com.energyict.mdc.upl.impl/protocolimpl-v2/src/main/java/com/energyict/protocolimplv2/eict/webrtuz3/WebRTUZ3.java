@@ -97,7 +97,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     @Override
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new WebRTUZ3ConfigurationSupport();
+            dlmsConfigurationSupport = new WebRTUZ3ConfigurationSupport(this.getPropertySpecService());
         }
         return dlmsConfigurationSupport;
     }

@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.sctm.fcl;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -28,9 +30,10 @@ KV|30032007|Add support for FCM3 and FCR1.4W (Cegedel project)
  */
 public class FCL extends Metcom3FCL implements RegisterProtocol {
 
-    private FCLRegisters fclRegisters;
+    private final FCLRegisters fclRegisters;
 
-    public FCL() {
+    public FCL(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         fclRegisters = new FCLRegisters(this);
     }
 

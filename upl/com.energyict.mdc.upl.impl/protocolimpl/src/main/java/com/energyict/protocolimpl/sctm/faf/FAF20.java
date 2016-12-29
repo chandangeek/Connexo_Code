@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.sctm.faf;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
@@ -27,9 +29,10 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 public class FAF20 extends Metcom3FAF implements RegisterProtocol {
 
-    private FAF20Registers fafRegisters = null;
+    private final FAF20Registers fafRegisters;
 
-    public FAF20() {
+    public FAF20(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         fafRegisters = new FAF20Registers(this);
     }
 
