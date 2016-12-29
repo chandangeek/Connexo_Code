@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Implementation for {@link DeviceMessageSupport} interface for MTU155 CTR protocol
+ * Implementation for {@link DeviceMessageSupport} interface for MTU155 CTR protocol.
  *
  * @author sva
  * @since 12/06/13 - 10:12
@@ -103,16 +103,16 @@ public class Messaging implements DeviceMessageSupport {
         CollectedMessageList result = this.collectedDataFactory.createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-            boolean messageFound = false;
+            boolean messageNotFound = true;
             CollectedMessage collectedMessage = null;
             for (AbstractMTU155Message messageExecutor : getAllSupportedMTU155MessageExecutors()) {
                 if (messageExecutor.canExecuteThisMessage(pendingMessage)) {
-                    messageFound = true;
+                    messageNotFound = false;
                     collectedMessage = messageExecutor.executeMessage(pendingMessage);
                     break;
                 }
             }
-            if (!messageFound) {
+            if (messageNotFound) {
                 collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
@@ -147,9 +147,9 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.passwordAttributeName:
                 return ((Password) messageAttribute).getValue();
             case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
-                return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalender) messageAttribute);
+                return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalender) messageAttribute, this.extractor);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 DeviceMessageFile messageFile = (DeviceMessageFile) messageAttribute;
                 return this.extractor.contents(messageFile);
@@ -180,7 +180,7 @@ public class Messaging implements DeviceMessageSupport {
                 new WakeUpFrequency(this),
 
                 // Key management
-                new ActivateTemporaryKeyMessage(this),
+                new ActivateTemporaryKeyMessage(this, this.collectedDataFactory, this.issueFactory),
                 new ChangeExecutionKeyMessage(this),
                 new ChangeTemporaryKeyMessage(this),
 
@@ -189,7 +189,7 @@ public class Messaging implements DeviceMessageSupport {
                 new ChangeSealStatusMessage(this),
 
                 // Tariff management
-                new TariffUploadPassiveMessage(this),
+                new TariffUploadPassiveMessage(this, this.collectedDataFactory, this.issueFactory),
                 new TariffDisablePassiveMessage(this),
 
                 // LoadProfile group

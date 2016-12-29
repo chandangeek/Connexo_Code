@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 /**
  * Protocol for the Elster g-meter, following the DSMR 4.0 spec.
  * This meter should behave exactly the same as the L+G DSMR 4.0 g-meter
@@ -10,6 +12,10 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster;
  * Author: khe
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
+
+    public MBusDevice(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getVersion() {

@@ -2,12 +2,14 @@ package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -19,16 +21,17 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -47,23 +50,22 @@ import java.util.logging.Logger;
 public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol, SerialNumberSupport {
 
     private final AbstractSmartNtaProtocol meterProtocol;
-
+    private final PropertySpecService propertySpecService;
     private final String serialNumber;
     private final int physicalAddress;
 
     public abstract MessageProtocol getMessageProtocol();
 
-    /**
-     * Only for dummy instantiations
-     */
-    protected AbstractNtaMbusDevice() {
+    protected AbstractNtaMbusDevice(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
         this.meterProtocol = new WebRTUKP();
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }
 
-    public AbstractNtaMbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
+    public AbstractNtaMbusDevice(final AbstractSmartNtaProtocol meterProtocol, PropertySpecService propertySpecService, final String serialNumber, final int physicalAddress) {
         this.meterProtocol = meterProtocol;
+        this.propertySpecService = propertySpecService;
         this.serialNumber = serialNumber;
         this.physicalAddress = physicalAddress;
     }
@@ -128,7 +130,7 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
         return getMessageProtocol().queryMessage(messageEntry);
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
 
@@ -154,17 +156,17 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     */
 
     @Override
-    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         // nothing to init
     }
 
     @Override
-    public void connect() throws IOException {
+    public void connect() {
         // nothing to connect, already connected
     }
 
     @Override
-    public void disconnect() throws IOException {
+    public void disconnect() {
         // nothing to disconnect, already disconnected
     }
 
@@ -179,37 +181,37 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     }
 
     @Override
-    public Date getTime() throws IOException {
+    public Date getTime() throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not have a time");
     }
 
     @Override
-    public void setTime(Date newMeterTime) throws IOException {
+    public void setTime(Date newMeterTime) {
         // nothing to set
     }
 
     @Override
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() {
         // nothing to initialize
     }
 
     @Override
-    public void release() throws IOException {
+    public void release() {
         // nothing to release
     }
 
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not fetch his own loadProfiles configs, his master will do this for him");
     }
 
     @Override
-    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
+    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not read his own loadProfiles, his master will do this for him");
     }
 
     @Override
-    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
+    public List<RegisterValue> readRegisters(List<Register> registers) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not read his own registers, his master will do this.");
     }
 
@@ -224,37 +226,27 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     }
 
     @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
+    public Serializable fetchCache(int deviceId, Connection connection) {
         return null;
     }
 
     @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) {
 
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
+    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not read his own events, his master will do this for him.");
     }
 
-    /**
-     * Returns a list of required property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getRequiredKeys() {
-        return new ArrayList<>();
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.singletonList(this.spec(DlmsProtocolProperties.NTA_SIMULATION_TOOL, this.propertySpecService::stringSpec));
     }
 
-    /**
-     * Returns a list of optional property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getOptionalKeys() {
-        final ArrayList<String> optionals = new ArrayList<>(1);
-        optionals.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
-        return optionals;
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
+
 }

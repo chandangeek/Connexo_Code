@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging.XemexWatchTalkMbusMessaging;
 
@@ -8,6 +10,10 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging.XemexWatc
  * @since 20/03/2014 - 11:58
  */
 public class MbusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice {
+
+    public MbusDevice(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public MessageProtocol getMessageProtocol() {

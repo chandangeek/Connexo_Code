@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 
 import java.io.Serializable;
+import java.time.LocalTime;
 
 /**
  * Copyrights EnergyICT
@@ -11,17 +12,13 @@ import java.io.Serializable;
  */
 public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTypeDefObject> {
 
-    private int dayTypeId;
-    private String dayTypeName;
     private int from;
     private int codeValue;
 
-    public static CodeDayTypeDefObject fromCodeDayTypeDef(CodeDayTypeDef def) {
+    public static CodeDayTypeDefObject fromCodeDayTypeDef(Extractor.CalendarDayTypeSlice slice) {
         CodeDayTypeDefObject dtd = new CodeDayTypeDefObject();
-        dtd.setCodeValue(def.getCodeValue());
-        dtd.setFrom(def.getTstampFrom());
-        dtd.setDayTypeId(def.getDayType().getId());
-        dtd.setDayTypeName(def.getDayType().getName());
+        dtd.setCodeValue(slice.tariffCode());
+        dtd.setFrom(slice.start());
         return dtd;
     }
 
@@ -33,12 +30,8 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
         this.codeValue = codeValue;
     }
 
-    public int getDayTypeId() {
-        return dayTypeId;
-    }
-
-    public void setDayTypeId(int dayTypeId) {
-        this.dayTypeId = dayTypeId;
+    private void setCodeValue(String codeValue) {
+        this.setCodeValue(Integer.parseInt(codeValue));
     }
 
     public int getFrom() {
@@ -49,24 +42,16 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
         this.from = from;
     }
 
-    public String getDayTypeName() {
-        return dayTypeName;
-    }
-
-    public void setDayTypeName(String dayTypeName) {
-        this.dayTypeName = dayTypeName;
+    private void setFrom(LocalTime from) {
+        this.setFrom(from.getHour() * 10_000 + from.getMinute() * 100 + from.getSecond());
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CodeDayTypeDefObject");
-        sb.append("{codeValue=").append(codeValue);
-        sb.append(", dayTypeId=").append(dayTypeId);
-        sb.append(", dayTypeName='").append(dayTypeName).append('\'');
-        sb.append(", from=").append(from);
-        sb.append('}');
-        return sb.toString();
+        return "CodeDayTypeDefObject" +
+                "{codeValue=" + codeValue +
+                ", from=" + from +
+                '}';
     }
 
     public int compareTo(CodeDayTypeDefObject other) {

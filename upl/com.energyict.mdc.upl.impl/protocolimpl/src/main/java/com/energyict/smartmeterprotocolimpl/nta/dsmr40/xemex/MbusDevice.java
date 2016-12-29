@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -11,21 +10,18 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbus
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author sva
  * @since 30/01/13 - 10:18
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
-    public MbusDevice() {
-        super();
+    public MbusDevice(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
-    public MbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    public MbusDevice(AbstractSmartNtaProtocol meterProtocol, PropertySpecService propertySpecService, String serialNumber, int physicalAddress) {
+        super(meterProtocol, propertySpecService, serialNumber, physicalAddress);
     }
 
     @Override
@@ -33,11 +29,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return new XemexMbusMessaging();
     }
 
-    /**
-     * Returns the implementation version
-     *
-     * @return a version string
-     */
+    @Override
     public String getVersion() {
         return "$Date: 2012-08-06 14:46:33 +0200 (ma, 06 aug 2012) $";
     }
@@ -51,12 +43,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
+    public void setProperties(TypedProperties properties) {
     }
 
-    @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-
-    }
 }

@@ -30,7 +30,6 @@ import com.elster.protocolimpl.dlms.tariff.objects.CodeDayTypeObject;
 import com.elster.protocolimpl.dlms.tariff.objects.CodeObject;
 import com.elster.protocolimpl.dlms.tariff.objects.SeasonObject;
 import com.elster.protocolimpl.dlms.tariff.objects.SeasonTransitionObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -62,7 +61,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IllegalArgumentException {
         try {
             String activationTimeAttr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_ACTIVATION_TIME);
             String codeTableBase64Attr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_CODE_TABLE_ID);
@@ -72,44 +71,44 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
             int defaultTariff = validateDefaultTariffString(defaultTariffStr);
             writeCodeTable(codeObject, activationTime, defaultTariff);
         } catch (IOException e) {
-            throw new BusinessException("Unable to write new tariff to device: " + e.getMessage());
+            throw new IllegalArgumentException("Unable to write new tariff to device: " + e.getMessage());
         }
     }
 
-    private int validateDefaultTariffString(String defaultTariffStr) throws BusinessException {
+    private int validateDefaultTariffString(String defaultTariffStr) throws IllegalArgumentException {
         try {
             int i = Integer.parseInt(defaultTariffStr);
             if ((i < 1) || (i > 3)) {
-                throw new IOException("value is out of range (1..3)");
+                throw new IllegalArgumentException("value is out of range (1..3)");
             }
             return i;
-        } catch (Exception ex) {
-            throw new BusinessException("Default tariff: " + ex.getMessage());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Default tariff: " + e.getMessage(), e);
         }
     }
 
-    private CodeObject validateAndGetCodeObject(String codeTableBase64) throws IOException, BusinessException {
+    private CodeObject validateAndGetCodeObject(String codeTableBase64) throws IOException {
         CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(codeTableBase64);
         CodeObjectValidator.validateCodeObject(codeObject);
         return codeObject;
     }
 
-    private Date validateAndGetActivationTime(String activationTimeAttr) throws BusinessException {
+    private Date validateAndGetActivationTime(String activationTimeAttr) throws IllegalArgumentException {
         if (activationTimeAttr == null) {
-            throw new BusinessException("Activation time cannot be 'null'!");
+            throw new IllegalArgumentException("Activation time cannot be 'null'!");
         }
         Date activationDate = ProtocolTools.getEpochDateFromString(activationTimeAttr);
         if (activationDate == null) {
-            throw new BusinessException("Unable to get Date object from activation time attribute [" + activationTimeAttr + "]. Maybe wrong format.");
+            throw new IllegalArgumentException("Unable to get Date object from activation time attribute [" + activationTimeAttr + "]. Maybe wrong format.");
         }
         Date after = ProtocolTools.getDateFromYYYYMMddhhmmss("2000-01-01 00:00:00");
         if (activationDate.before(after)) {
-            throw new BusinessException("Invalid activation date [" + activationDate + "]. Date should be after [" + after + "]");
+            throw new IllegalArgumentException("Invalid activation date [" + activationDate + "]. Date should be after [" + after + "]");
         }
         return activationDate;
     }
 
-    private void writeCodeTable(CodeObject codeObject, Date activationDate, int defaultTariff) throws BusinessException, IOException {
+    private void writeCodeTable(CodeObject codeObject, Date activationDate, int defaultTariff) throws IllegalArgumentException, IOException {
 
         Calendar activeDate = GregorianCalendar.getInstance(getExecutor().getDlms().getTimeZone());
         activeDate.setTime(activationDate);
@@ -117,18 +116,18 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         try {
             writeSpecialDaysTable(codeObject.getCalendars(), activeDate);
         } catch (IOException ioe) {
-            throw new BusinessException("Error writing CodeTable: SpecialDaysTable - " + ioe.getMessage());
+            throw new IllegalArgumentException("Error writing CodeTable: SpecialDaysTable - " + ioe.getMessage());
         }
 
         SeasonAndDate billingPeriod;
         billingPeriod = getNextBillingPeriod(codeObject.getSeasonSet().getSeasons(), activeDate);
         if (billingPeriod == null) {
-            throw new BusinessException("Error writing CodeTable: no BillingPeriod after " + activeDate.getTime().toString());
+            throw new IllegalArgumentException("Error writing CodeTable: no BillingPeriod after " + activeDate.getTime().toString());
         }
 
         String cmp = getDayTypeAbbreviation(billingPeriod.getSeason().getName());
         if (cmp == null) {
-            throw new BusinessException("Error writing CodeTable: wrong billing period name " + billingPeriod);
+            throw new IllegalArgumentException("Error writing CodeTable: wrong billing period name " + billingPeriod);
         }
 
         DayProfile d1 = getDayProfile(codeObject.getDayTypes(), 1, "WEEKDAY", cmp);
@@ -171,7 +170,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
 
     private void writeSpecialDaysTable(List<CodeCalendarObject> calendars, Calendar activeDate) throws IOException {
 
-        TreeMap<Calendar, CodeCalendarObject> holidays = new TreeMap<>();
+        Map<Calendar, CodeCalendarObject> holidays = new TreeMap<>();
 
         Calendar tst = (Calendar) activeDate.clone();
         tst.set(Calendar.HOUR_OF_DAY, 0);

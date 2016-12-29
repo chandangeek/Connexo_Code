@@ -75,8 +75,8 @@ public class CodeTableXml extends CodeTableXmlParsing {
             }
             if (range.hasUpperBound()) {
                 root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(range.upperEndpoint().getValue())));
-                root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
             } else {
+                root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
             }
             root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calendar)));
 

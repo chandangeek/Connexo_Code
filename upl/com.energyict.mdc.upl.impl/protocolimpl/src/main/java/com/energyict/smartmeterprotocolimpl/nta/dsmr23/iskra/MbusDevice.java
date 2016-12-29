@@ -1,16 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -19,12 +15,12 @@ import java.util.List;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
-    public MbusDevice() {
-        super();
+    public MbusDevice(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
-    public MbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    public MbusDevice(AbstractSmartNtaProtocol meterProtocol, PropertySpecService propertySpecService, String serialNumber, int physicalAddress) {
+        super(meterProtocol, propertySpecService, serialNumber, physicalAddress);
     }
 
     @Override
@@ -32,22 +28,13 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return new Dsmr23MbusMessaging();
     }
 
-    /**
-     * Returns the implementation version
-     *
-     * @return a version string
-     */
+    @Override
     public String getVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
+    public void setProperties(TypedProperties properties) {
     }
 
-    @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-
-    }
 }

@@ -1,16 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Parser;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeCalendarObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -210,14 +205,6 @@ public class RawTariffScheme extends AbstractField<RawTariffScheme> {
         }
 
         return sb.toString();
-    }
-
-    public static void main(String[] args) throws IOException, BusinessException {
-        MeteringWarehouse.createBatchContext();
-        Code code = MeteringWarehouse.getCurrent().getCodeFactory().find(3);
-        byte[] xml = CodeTableBase64Builder.getBase64FromCodeTable(code);
-        CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(xml);
-        System.out.println(new RawTariffScheme(codeObject, code.getName(), new Date()));
     }
 
 }

@@ -1,12 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdw.core.Season;
-import com.energyict.mdw.core.SeasonTransition;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -22,16 +21,12 @@ public class SeasonObject implements Serializable {
     public SeasonObject() {
     }
 
-    public static SeasonObject fromSeason(Season season) {
-        SeasonObject so = new SeasonObject();
-        so.setId(season.getId());
-        so.setName(season.getName());
-        so.setTransitions(new ArrayList<SeasonTransitionObject>());
-        List<SeasonTransition> eis = season.getTransitions();
-        for (SeasonTransition trans : eis) {
-            so.getTransitions().add(SeasonTransitionObject.fromSeasonTransition(trans));
-        }
-        return so;
+    public static SeasonObject fromSeason(Extractor.CalendarSeason uplSeason) {
+        SeasonObject season = new SeasonObject();
+        season.setId(uplSeason.id());
+        season.setName(uplSeason.name());
+        season.setTransitions(uplSeason.transistions().stream().map(SeasonTransitionObject::fromSeasonTransition).collect(Collectors.toList()));
+        return season;
     }
 
     public List<SeasonTransitionObject> getTransitions() {
@@ -39,13 +34,10 @@ public class SeasonObject implements Serializable {
     }
 
     public List<SeasonTransitionObject> getTransitionsPerYear(int year) {
-        List<SeasonTransitionObject> transitionsForYear = new ArrayList<>();
-        for (SeasonTransitionObject transition : transitions) {
-            if (transition.getStartCalendar().get(Calendar.YEAR) == year) {
-                transitionsForYear.add(transition);
-            }
-        }
-        return transitionsForYear;
+        return this.transitions
+                .stream()
+                .filter(transition -> transition.getStartCalendar().get(Calendar.YEAR) == year)
+                .collect(Collectors.toList());
     }
 
     public List<SeasonTransitionObject> getTransitionsForCurrentYear() {
@@ -64,6 +56,10 @@ public class SeasonObject implements Serializable {
         this.id = id;
     }
 
+    private void setId(String id) {
+        this.setId(Integer.parseInt(id));
+    }
+
     public String getName() {
         return name;
     }
@@ -78,23 +74,29 @@ public class SeasonObject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("SeasonObject");
-        sb.append("{id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", transitions=").append(transitions);
-        sb.append('}');
-        return sb.toString();
+        return "SeasonObject" +
+                "{id=" + id +
+                ", name='" + name + '\'' +
+                ", transitions=" + transitions +
+                '}';
     }
 
     public int getStartMonth(int year) {
         List<SeasonTransitionObject> transitions = getTransitionsPerYear(year);
-        return transitions.isEmpty() ? 0 : transitions.get(0).getStartCalendar().get(Calendar.MONTH) + 1;
+        if (transitions.isEmpty()) {
+            return 0;
+        } else {
+            return transitions.get(0).getStartCalendar().get(Calendar.MONTH) + 1;
+        }
     }
 
     public int getStartDay(int year) {
         List<SeasonTransitionObject> transitions = getTransitionsPerYear(year);
-        return transitions.isEmpty() ? 0 : transitions.get(0).getStartCalendar().get(Calendar.DAY_OF_MONTH);
+        if (transitions.isEmpty()) {
+            return 0;
+        } else {
+            return transitions.get(0).getStartCalendar().get(Calendar.DAY_OF_MONTH);
+        }
     }
 
 }

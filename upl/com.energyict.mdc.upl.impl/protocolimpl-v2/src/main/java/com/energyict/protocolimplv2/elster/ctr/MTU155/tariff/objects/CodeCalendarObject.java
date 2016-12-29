@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.Holidays;
 
@@ -15,7 +16,6 @@ import java.util.Date;
  */
 public class CodeCalendarObject implements Serializable {
 
-    private int codeId;
     private String dayTypeName;
     private int year;
     private int month;
@@ -37,24 +37,15 @@ public class CodeCalendarObject implements Serializable {
             ProtocolTools.createCalendar(2000, 12, 26)
     };
 
-    public static CodeCalendarObject fromCodeCalendar(CodeCalendar codeCalendar) {
+    public static CodeCalendarObject fromCodeCalendar(Extractor.CalendarRule rule) {
         CodeCalendarObject cc = new CodeCalendarObject();
-        cc.setCodeId(codeCalendar.getCode().getId());
-        cc.setDayTypeName(codeCalendar.getDayType().getName());
-        cc.setYear(codeCalendar.getYear());
-        cc.setMonth(codeCalendar.getMonth());
-        cc.setDay(codeCalendar.getDay());
-        cc.setDayOfWeek(codeCalendar.getDayOfWeek());
-        cc.setSeasonId(codeCalendar.getSeason());
+        cc.setDayTypeName(rule.dayTypeName());
+        cc.setYear(rule.year());
+        cc.setMonth(rule.month());
+        cc.setDay(rule.day());
+        cc.setDayOfWeek(rule.dayOfWeek());
+        cc.setSeasonId(rule.seasonId().orElse("0"));
         return cc;
-    }
-
-    public int getCodeId() {
-        return codeId;
-    }
-
-    public void setCodeId(int codeId) {
-        this.codeId = codeId;
     }
 
     public int getDay() {
@@ -95,6 +86,10 @@ public class CodeCalendarObject implements Serializable {
 
     public void setSeasonId(int seasonId) {
         this.seasonId = seasonId;
+    }
+
+    private void setSeasonId(String seasonId) {
+        this.setSeasonId(Integer.parseInt(seasonId));
     }
 
     public int getYear() {
@@ -200,19 +195,16 @@ public class CodeCalendarObject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CodeCalendarObject");
-        sb.append("{codeId=").append(codeId);
-        sb.append(", dayTypeId=").append(dayTypeName);
-        sb.append(", year=").append(year);
-        sb.append(", month=").append(month);
-        sb.append(", day=").append(day);
-        sb.append(", dayOfWeek=").append(dayOfWeek);
-        sb.append(", seasonId=").append(seasonId);
-        sb.append(", holiday=").append(isHoliday());
-        sb.append(", customDay=").append(isCustomDay());
-        sb.append(", specialDay=").append(isSpecialDay());
-        sb.append('}');
-        return sb.toString();
+        return "CodeCalendarObject" +
+                "{dayTypeId=" + dayTypeName +
+                ", year=" + year +
+                ", month=" + month +
+                ", day=" + day +
+                ", dayOfWeek=" + dayOfWeek +
+                ", seasonId=" + seasonId +
+                ", holiday=" + isHoliday() +
+                ", customDay=" + isCustomDay() +
+                ", specialDay=" + isSpecialDay() +
+                '}';
     }
 }

@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.Season;
-import com.energyict.mdw.core.SeasonSet;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -20,19 +20,14 @@ public class SeasonSetObject implements Serializable {
     private List<SeasonObject> seasons;
 
     public SeasonSetObject() {
-
     }
 
-    public static SeasonSetObject fromSeasonSet(SeasonSet seasonSet) {
-        SeasonSetObject ss = new SeasonSetObject();
-        ss.setId(seasonSet.getId());
-        ss.setName(seasonSet.getName());
-        List<Season> eiserverSeasons = seasonSet.getSeasons();
-        ss.setSeasons(new ArrayList<SeasonObject>());
-        for (Season eis : eiserverSeasons) {
-            ss.getSeasons().add(SeasonObject.fromSeason(eis));
-        }
-        return ss;
+    public static SeasonSetObject fromSeasonSet(Extractor.CalendarSeasonSet uplSeasonSet) {
+        SeasonSetObject seasonSet = new SeasonSetObject();
+        seasonSet.setId(uplSeasonSet.id());
+        seasonSet.setName(uplSeasonSet.name());
+        seasonSet.setSeasons(uplSeasonSet.seasons().stream().map(SeasonObject::fromSeason).collect(Collectors.toList()));
+        return seasonSet;
     }
 
     public int getId() {
@@ -41,6 +36,10 @@ public class SeasonSetObject implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    private void setId(String id) {
+        this.setId(Integer.parseInt(id));
     }
 
     public String getName() {
@@ -65,18 +64,16 @@ public class SeasonSetObject implements Serializable {
                 return season;
             }
         }
-        throw new BusinessException("No season found for period [" + period + "]");
+        throw new IllegalArgumentException("No season found for period [" + period + "]");
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("SeasonSetObject");
-        sb.append("{id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", seasons=").append(seasons);
-        sb.append('}');
-        return sb.toString();
+        return "SeasonSetObject" +
+                "{id=" + id +
+                ", name='" + name + '\'' +
+                ", seasons=" + seasons +
+                '}';
     }
 
 }

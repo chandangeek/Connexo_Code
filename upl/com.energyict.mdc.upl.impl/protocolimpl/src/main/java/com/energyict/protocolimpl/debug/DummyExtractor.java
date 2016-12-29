@@ -91,6 +91,11 @@ final class DummyExtractor implements Extractor {
     }
 
     @Override
+    public Optional<CalendarSeasonSet> season(TariffCalender calender) {
+        return Optional.empty();
+    }
+
+    @Override
     public List<CalendarDayType> dayTypes(TariffCalender calender) {
         return Collections.emptyList();
     }

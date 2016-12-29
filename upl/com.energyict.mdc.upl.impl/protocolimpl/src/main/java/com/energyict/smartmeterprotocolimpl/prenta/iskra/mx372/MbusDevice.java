@@ -1,8 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Unit;
@@ -13,9 +11,6 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -39,15 +34,17 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     public Device mbus;
     private Logger logger;
 
-    public MbusDevice() {
-        hasBreaker = true;
+    public MbusDevice(PropertySpecService propertySpecService) {
+        this(propertySpecService, true);
     }
 
-    public MbusDevice(boolean hasBreaker) {
+    public MbusDevice(PropertySpecService propertySpecService, boolean hasBreaker) {
+        super(propertySpecService);
         this.hasBreaker = hasBreaker;
     }
 
-    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
+    public MbusDevice(PropertySpecService propertySpecService, int mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, IskraMx372 protocol) {
+        this(propertySpecService, protocol.hasBreaker());
         this.mbusAddress = mbusAddress;
         this.physicalAddress = phyAddress;
         this.customerID = serial;
@@ -56,7 +53,6 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         this.mbusUnit = unit;
         this.logger = protocol.getLogger();
         this.iskra = protocol;
-        this.hasBreaker = iskra.hasBreaker();
         if (mbus != null) {
             setProperties(mbus.getProtocolProperties());
         }
@@ -75,36 +71,12 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return ((IskraMx372MbusMessaging) getMessageProtocol()).getPartialLoadProfileMessageBuilder();
     }
 
-    /**
-     * Returns the implementation version
-     *
-     * @return a version string
-     */
+    @Override
     public String getVersion() {
         return "$Date: 2015-03-10 09:02:30 +0100 (Tue, 10 Mar 2015) $";
     }
 
-    /**
-     * add the properties
-     *
-     * @param properties properties to add
-     */
-    public void addProperties(Properties properties) {
-        try {
-            setProperties(com.energyict.cpo.TypedProperties.copyOf(properties));
-        } catch (InvalidPropertyException e) {
-            e.printStackTrace();
-        } catch (MissingPropertyException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setProperties(TypedProperties properties) {
         rtuType = properties.getTypedProperty("DeviceType", "mbus");
     }
 
@@ -141,13 +113,9 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return mbus;
     }
 
-    /**
-     * Getter for the used Logger
-     *
-     * @return the Logger
-     */
     @Override
     public Logger getLogger() {
         return logger;
     }
+
 }

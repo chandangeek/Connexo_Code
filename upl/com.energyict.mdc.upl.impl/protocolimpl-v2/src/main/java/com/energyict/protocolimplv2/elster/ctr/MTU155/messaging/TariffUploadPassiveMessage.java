@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.cbo.BusinessException;
@@ -27,17 +29,16 @@ import java.util.Date;
 public class TariffUploadPassiveMessage extends AbstractMTU155Message {
 
     private static final String OBJECT_ID = "11.0.B";
-    private static final String OBJECT_ID_CURRENT = "17.0.0";
     private static final String OBJECT_ID_FUTURE = "17.0.1";
 
-    public TariffUploadPassiveMessage(Messaging messaging) {
+    public TariffUploadPassiveMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getPrimaryKey().getValue()) ||
-                message.getDeviceMessageSpecPrimaryKey().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.id()
+            || message.getSpecification().getId() == ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.id();
     }
 
     @Override
@@ -60,7 +61,7 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
             CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(codeTableBase64);
             CodeObjectValidator.validateCodeObject(codeObject);
             return codeObject;
-        } catch (BusinessException e) {
+        } catch (IllegalArgumentException e) {
             throw new CTRException(e.getMessage());
         }
     }
