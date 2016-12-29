@@ -275,6 +275,9 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     }
 
     private void createDeleteRequest() {
+        if(commandRulePendingUpdate.isPresent()) {
+            reject();
+        }
         CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
         update.initializeRemoval(this);
         update.save();

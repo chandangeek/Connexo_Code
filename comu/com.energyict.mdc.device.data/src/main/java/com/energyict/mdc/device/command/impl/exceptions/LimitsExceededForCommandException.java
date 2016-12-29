@@ -10,13 +10,13 @@ import com.energyict.mdc.device.command.impl.TranslationKeys;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LimitsExceededForCommandException extends BaseException {
+public class LimitsExceededForCommandException extends LocalizedException {
     private final Thesaurus thesaurus;
     String message;
 
     public LimitsExceededForCommandException(Thesaurus thesaurus, List<ExceededCommandRule> exceededCommandRules) {
         //Dummy call to super so it the exception would get propagated correctly to the FE
-        super(MessageSeeds.LIMITS_EXCEEDED);
+        super(thesaurus, MessageSeeds.LIMITS_EXCEEDED);
         this.thesaurus = thesaurus;
         if (exceededCommandRules.size() > 0) {
             createTranslatedMessage(exceededCommandRules);
@@ -32,7 +32,7 @@ public class LimitsExceededForCommandException extends BaseException {
             message += ", ";
             exceededCommandRules.remove(0);
             message += exceededCommandRules.stream()
-                    .map(rule -> thesaurus.getFormat(MessageSeeds.THE_X_OF_Y).format(getFancyLimits(rule, and), rule.getName()))
+                    .map(rule -> thesaurus.getFormat(TranslationKeys.THE_X_OF_Y).format(getFancyLimits(rule, and), rule.getName()))
                     .collect(FancyJoiner.joining(", ", and));
         }
     }

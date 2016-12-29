@@ -7,7 +7,8 @@ public enum TranslationKeys implements TranslationKey {
     AND("andSeparator", "and"),
     DAY_LIMIT_NO_CASE("dayLimitNoCase", "day limit"),
     WEEK_LIMIT_NO_CASE("weekLimitNoCase", "week limit"),
-    MONTH_LIMIT_NO_CASE("monthLimitNoCase", "month limit");
+    MONTH_LIMIT_NO_CASE("monthLimitNoCase", "month limit"),
+    THE_X_OF_Y("theXOfY", "the {0} of ''{1}''");
 
 
     private final String key;

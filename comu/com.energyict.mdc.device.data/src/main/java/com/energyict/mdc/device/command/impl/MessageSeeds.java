@@ -25,8 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_COMMAND(14, Keys.DUPLICATE_COMMAND, "Duplicate commands are not allowed in a command limitation rule"),
     LIMITS_EXCEEDED(15, Keys.LIMITS_EXCEEDED, "The command cannot be added on this release date as this would exceed the {0} of ''{1}''"),
     INVALID_STATS(16, Keys.INVALID_STATS, "The counters for command limitation rules have been tampered with"),
-    MAC_COMMAND_RULES_FAILED(17, Keys.MAC_COMMAND_RULES_FAILED, "Message authentication check on one or more command limitation rules failed. Please contact your system administrator."),
-    THE_X_OF_Y(18, Keys.THE_X_OF_Y, "the {0} of ''{1}''")
+    MAC_COMMAND_RULES_FAILED(17, Keys.MAC_COMMAND_RULES_FAILED, "Message authentication check on one or more command limitation rules failed. Please contact your system administrator.")
     ;
 
 
