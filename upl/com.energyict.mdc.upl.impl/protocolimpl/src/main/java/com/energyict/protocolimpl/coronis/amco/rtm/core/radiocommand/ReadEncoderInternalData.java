@@ -125,11 +125,11 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
     @Override
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        encoderModelOnPortA = new EncoderModel(getRTM());
+        encoderModelOnPortA = new EncoderModel(getPropertySpecService(), getRTM());
         encoderModelOnPortA.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
         offset += 2;
 
-        encoderModelOnPortB = new EncoderModel(getRTM());
+        encoderModelOnPortB = new EncoderModel(getPropertySpecService(), getRTM());
         encoderModelOnPortB.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
         offset += 2;
 
@@ -142,7 +142,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
             offset += 6;
             serialNumberA = new String(ProtocolTools.getSubArray(data, offset, offset + 10));
             offset += 10;
-            unitA = new EncoderUnit(getRTM());
+            unitA = new EncoderUnit(getPropertySpecService(), getRTM());
             unitA.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
             offset += 2;
             encodedWheelDigitsA = data[offset++] & 0xFF;
@@ -163,7 +163,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
             offset += 6;
             serialNumberB = new String(ProtocolTools.getSubArray(data, offset, offset + 10));
             offset += 10;
-            unitB = new EncoderUnit(getRTM());
+            unitB = new EncoderUnit(getPropertySpecService(), getRTM());
             unitB.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
             offset += 2;
             encodedWheelDigitsB = data[offset++] & 0xFF;

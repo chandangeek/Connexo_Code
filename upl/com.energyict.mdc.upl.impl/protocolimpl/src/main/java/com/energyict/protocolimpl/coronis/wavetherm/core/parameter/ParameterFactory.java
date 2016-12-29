@@ -3,7 +3,9 @@ package com.energyict.protocolimpl.coronis.wavetherm.core.parameter;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ParameterFactory {
 
@@ -26,7 +28,7 @@ public class ParameterFactory {
         this.waveTherm = waveTherm;
     }
 
-    final public ApplicationStatus readApplicationStatus() throws IOException {
+    public final ApplicationStatus readApplicationStatus() throws IOException {
         if (applicationStatus == null) {
             applicationStatus = new ApplicationStatus(waveTherm);
             applicationStatus.read();
@@ -34,13 +36,13 @@ public class ParameterFactory {
         return applicationStatus;
     }
 
-    final public void writeApplicationStatus(final int status) throws IOException {
+    public final void writeApplicationStatus(final int status) throws IOException {
         applicationStatus = new ApplicationStatus(waveTherm);
         applicationStatus.setStatus(status);
         applicationStatus.write();
     }
 
-    final public OperatingMode readOperatingMode() throws IOException {
+    public final OperatingMode readOperatingMode() throws IOException {
         if (operatingMode == null) {
             operatingMode = new OperatingMode(waveTherm);
             operatingMode.read();
@@ -73,7 +75,7 @@ public class ParameterFactory {
         operatingMode.write();
     }
 
-    final public void writeOperatingMode(int operationMode) throws IOException {
+    public final void writeOperatingMode(int operationMode) throws IOException {
         this.operatingMode = null; //Reset cache
         new OperatingMode(waveTherm, operationMode).write();
     }
@@ -119,13 +121,13 @@ public class ParameterFactory {
 
     //Write start hour for periodic data logging
 
-    final public void writeStartHourForPeriodicLogging(final int startHour) throws IOException {
+    public final void writeStartHourForPeriodicLogging(final int startHour) throws IOException {
         DataLoggingStartHourForPeriodicSteps startHourForPeriodicSteps = new DataLoggingStartHourForPeriodicSteps(waveTherm);
         startHourForPeriodicSteps.setStartHour(startHour);
         startHourForPeriodicSteps.write();
     }
 
-    //Write start hour for weekly / monthly data logging                                                
+    //Write start hour for weekly / monthly data logging
 
     public void writeTimeOfMeasurement(int time) throws IOException {
         DataLoggingTimeOfMeasurement timeOfMeasurement = new DataLoggingTimeOfMeasurement(waveTherm);

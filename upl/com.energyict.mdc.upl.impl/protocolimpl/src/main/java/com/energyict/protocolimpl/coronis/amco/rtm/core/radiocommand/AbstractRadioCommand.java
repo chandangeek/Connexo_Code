@@ -114,6 +114,10 @@ public abstract class AbstractRadioCommand {
         return rtm;
     }
 
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
     protected abstract void parse(byte[] data) throws IOException;
 
     protected abstract byte[] prepare() throws IOException;

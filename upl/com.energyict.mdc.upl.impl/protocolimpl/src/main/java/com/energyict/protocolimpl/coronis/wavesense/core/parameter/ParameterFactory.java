@@ -3,7 +3,9 @@ package com.energyict.protocolimpl.coronis.wavesense.core.parameter;
 import com.energyict.protocolimpl.coronis.wavesense.WaveSense;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ParameterFactory {
 
@@ -21,12 +23,12 @@ public class ParameterFactory {
     private static final int DAILY = 60 * 60 * 24;
     private static final int WEEKLY = DAILY * 7;
     private static final int MONTHLY = (WEEKLY * 4) - 1;
-    
+
     public ParameterFactory(final WaveSense waveSense) {
         this.waveSense = waveSense;
     }
 
-    final public ApplicationStatus readApplicationStatus() throws IOException {
+    public final ApplicationStatus readApplicationStatus() throws IOException {
         if (applicationStatus == null) {
             applicationStatus = new ApplicationStatus(waveSense);
             applicationStatus.read();
@@ -34,13 +36,13 @@ public class ParameterFactory {
         return applicationStatus;
     }
 
-    final public void writeApplicationStatus(final int status) throws IOException {
+    public final void writeApplicationStatus(final int status) throws IOException {
         applicationStatus = new ApplicationStatus(waveSense);
         applicationStatus.setStatus(status);
         applicationStatus.write();
     }
 
-    final public OperatingMode readOperatingMode() throws IOException {
+    public final OperatingMode readOperatingMode() throws IOException {
         if (operatingMode == null) {
             operatingMode = new OperatingMode(waveSense);
             operatingMode.read();
@@ -97,7 +99,7 @@ public class ParameterFactory {
         timeOfMeasurement.write();
     }
 
-    final public void writeOperatingMode(int operationMode) throws IOException {
+    public final void writeOperatingMode(int operationMode) throws IOException {
         this.operatingMode = null; //Reset cache
         new OperatingMode(waveSense, operationMode).write();
     }
@@ -124,7 +126,7 @@ public class ParameterFactory {
         return batteryLifeDurationCounter;
     }
 
-    final public void writeSamplingPeriod(final int samplingPeriodInSeconds) throws IOException {
+    public final void writeSamplingPeriod(final int samplingPeriodInSeconds) throws IOException {
         samplingPeriod = new SamplingPeriod(waveSense);
         samplingPeriod.setSamplingPeriodInSeconds(samplingPeriodInSeconds);
         samplingPeriod.write();
@@ -221,7 +223,7 @@ public class ParameterFactory {
         return hour.getStartHour();
     }
 
-    final public void writeStartHourForPeriodicLogging(final int startHour) throws IOException {
+    public final void writeStartHourForPeriodicLogging(final int startHour) throws IOException {
         DataLoggingStartHourForPeriodicSteps startHourForPeriodicSteps = new DataLoggingStartHourForPeriodicSteps(waveSense);
         startHourForPeriodicSteps.setStartHour(startHour);
         startHourForPeriodicSteps.write();
@@ -238,7 +240,7 @@ public class ParameterFactory {
         measurementStep.read();
         return measurementStep.getMinutes();
     }
-      
+
     public void setMeasurementPeriod(int period) throws IOException {
         DetectionMeasurementPeriod measurementPeriod = new DetectionMeasurementPeriod(waveSense);
         measurementPeriod.setMinutes(period);
@@ -280,7 +282,7 @@ public class ParameterFactory {
         excessTime.read();
         return excessTime.getTime();
     }
-    
+
     public void setLowThresholdExcessTime(int time) throws IOException {
         LowThresholdExcessTime excessTime = new LowThresholdExcessTime(waveSense);
         excessTime.setTime(time);

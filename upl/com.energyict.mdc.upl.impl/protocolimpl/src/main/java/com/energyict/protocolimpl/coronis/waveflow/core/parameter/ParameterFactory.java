@@ -162,7 +162,7 @@ public class ParameterFactory {
         parameter.write();
     }
 
-    final public int readApplicationStatus() throws IOException {
+    public final int readApplicationStatus() throws IOException {
         if (applicationStatus == null) {
             applicationStatus = new ApplicationStatus(waveFlow);
             applicationStatus.read();
@@ -179,7 +179,7 @@ public class ParameterFactory {
         this.applicationStatus.setStatus(applicationStatus);
     }
 
-    final public int readValveApplicationStatus() throws IOException {
+    public final int readValveApplicationStatus() throws IOException {
         if (valveApplicationStatus == null) {
             valveApplicationStatus = new ValveApplicationStatus(waveFlow);
             valveApplicationStatus.read();
@@ -189,7 +189,7 @@ public class ParameterFactory {
 
     //Advanced restart, sets the start moment in 3 minutes.
 
-    final public void restartDataLogging(int mode) throws IOException {
+    public final void restartDataLogging(int mode) throws IOException {
         stopDataLogging();
         if (waveFlow.isV1()) {
             writeSamplingActivationNextHour(mode);
@@ -216,7 +216,7 @@ public class ParameterFactory {
 
     //Simple restart, uses the time parameters
 
-    final public void simpleRestartDataLogging(int mode) throws IOException {
+    public final void simpleRestartDataLogging(int mode) throws IOException {
         stopDataLogging();
 
         //Now restart it
@@ -307,7 +307,7 @@ public class ParameterFactory {
         }
     }
 
-    final public void writeApplicationStatus(final int status) throws IOException {
+    public final void writeApplicationStatus(final int status) throws IOException {
         applicationStatus = new ApplicationStatus(waveFlow);
         applicationStatus.setStatus(status);
         applicationStatus.write();
@@ -325,7 +325,7 @@ public class ParameterFactory {
         valveApplicationStatus.write();
     }
 
-    final public void writeValveApplicationStatus(final int status) throws IOException {
+    public final void writeValveApplicationStatus(final int status) throws IOException {
         valveApplicationStatus = new ValveApplicationStatus(waveFlow);
         valveApplicationStatus.setStatus(status);
         valveApplicationStatus.write();
@@ -351,7 +351,7 @@ public class ParameterFactory {
         this.extendedOperationMode = new ExtendedOperationMode(waveFlow, extendedOperationMode);
     }
 
-    final public void enableDataLoggingPeriodic() throws IOException {
+    public final void enableDataLoggingPeriodic() throws IOException {
         readOperatingMode();
         operatingMode.setDataLoggingStepsToPeriodic();
         operatingMode.write();
@@ -388,7 +388,7 @@ public class ParameterFactory {
     /**
      * The queried sampling period is only valid for periodic measurements, otherwise, it's a weekly / monthly interval.
      */
-    final public int readSamplingPeriod() throws IOException {
+    public final int readSamplingPeriod() throws IOException {
         int interval = 0;
         if (!waveFlow.isV1()) {
             interval = readRawSamplingPeriod();           //In case of Waveflow V2, the operation mode is also returned and cached
@@ -410,7 +410,7 @@ public class ParameterFactory {
     /**
      * Return the sampling period for the periodic time step logging, even if that mode is not enabled.
      */
-    final public int readRawSamplingPeriod() throws IOException {
+    public final int readRawSamplingPeriod() throws IOException {
         if (samplingPeriod == null) {
             samplingPeriod = new SamplingPeriod(waveFlow);
             samplingPeriod.read();
@@ -429,7 +429,7 @@ public class ParameterFactory {
      * @return byte containing the flags
      * @throws java.io.IOException
      */
-    final public ExtendedOperationMode readExtendedOperationMode() throws IOException {
+    public final ExtendedOperationMode readExtendedOperationMode() throws IOException {
         if (extendedOperationMode == null) {
             extendedOperationMode = new ExtendedOperationMode(waveFlow);
             extendedOperationMode.read();
@@ -437,13 +437,13 @@ public class ParameterFactory {
         return extendedOperationMode;
     }
 
-    final public void writeSamplingPeriod(final int samplingPeriodInSeconds) throws IOException {
+    public final void writeSamplingPeriod(final int samplingPeriodInSeconds) throws IOException {
         samplingPeriod = new SamplingPeriod(waveFlow);
         samplingPeriod.setSamplingPeriodInSeconds(samplingPeriodInSeconds);
         samplingPeriod.write();
     }
 
-    final public void writeSamplingActivationIn3Minutes(int mode) throws IOException {
+    public final void writeSamplingActivationIn3Minutes(int mode) throws IOException {
         Calendar cal = Calendar.getInstance(waveFlow.getTimeZone());
         int minute = (cal.get(Calendar.MINUTE) + 3);
         int hour = cal.get(Calendar.HOUR_OF_DAY) + (minute >= 60 ? 1 : 0);
@@ -452,7 +452,7 @@ public class ParameterFactory {
         writeStartMinuteOfMeasurement(minute % 60);     //Set start in 3 minutes
     }
 
-    final public void writeSamplingActivationNextHour(int mode) throws IOException {
+    public final void writeSamplingActivationNextHour(int mode) throws IOException {
         Calendar cal = Calendar.getInstance(waveFlow.getTimeZone());
         int hour = cal.get(Calendar.HOUR_OF_DAY) + 1;
         hour = hour % 24;
@@ -467,13 +467,13 @@ public class ParameterFactory {
 
     //This is the start hour for the data logging in periodic time steps
 
-    final public void writeSamplingActivationType(final int startHour) throws IOException {
+    public final void writeSamplingActivationType(final int startHour) throws IOException {
         SamplingActivationType samplingActivationType = new SamplingActivationType(waveFlow);
         samplingActivationType.setStartHour(startHour);
         samplingActivationType.write();
     }
 
-    final public int getProfileIntervalInSeconds() throws IOException {
+    public final int getProfileIntervalInSeconds() throws IOException {
         return readSamplingPeriod();
     }
 
@@ -485,11 +485,11 @@ public class ParameterFactory {
         return batteryLifeDurationCounter.remainingBatteryLife();
     }
 
-    final public void setBatteryLifeDurationCounter(int shortLifeCounter) {
+    public final void setBatteryLifeDurationCounter(int shortLifeCounter) {
         batteryLifeDurationCounter = new BatteryLifeDurationCounter(waveFlow, shortLifeCounter);
     }
 
-    final public Date readBatteryLifeDateEnd() throws IOException {
+    public final Date readBatteryLifeDateEnd() throws IOException {
         BatteryLifeDateEnd o = new BatteryLifeDateEnd(waveFlow);
         o.read();
         return (o.getCalendar().getTime());

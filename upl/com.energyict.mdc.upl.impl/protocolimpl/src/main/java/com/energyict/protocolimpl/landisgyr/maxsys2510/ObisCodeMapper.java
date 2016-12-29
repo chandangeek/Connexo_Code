@@ -20,15 +20,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /** @author  fbo */
 
 class ObisCodeMapper {
 
     /** Collection for sorting the keys */
-    private ArrayList keys = new ArrayList();
+    private List<ObisCodeWrapper> keys = new ArrayList<>();
     /** HashMap with the ValueFactories per ObisCode  */
-    private HashMap oMap = new HashMap();
+    private Map<ObisCodeWrapper, ValueFactory> oMap = new HashMap<>();
 
     int dataBlkTblSize [];
     HashMap dMap = new HashMap( );
@@ -42,21 +43,22 @@ class ObisCodeMapper {
     }
 
     /** @return a RegisterInfo for the obiscode */
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo( obisCode.getDescription() );
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
+        return new RegisterInfo( obisCode.toString() );
     }
 
     /** @return a RegisterValue for the obiscode */
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        ValueFactory vFactory = (ValueFactory)get( obisCode );
-        if( vFactory == null )
+        ValueFactory vFactory = get( obisCode );
+        if( vFactory == null ) {
             throw new NoSuchRegisterException();
+        }
         return vFactory.getRegisterValue(obisCode);
     }
 
     /** Retrieves objects from the ObisCodeMap */
     public ValueFactory get( ObisCode o ) {
-        return (ValueFactory)oMap.get( new ObisCodeWrapper( o ) );
+        return oMap.get( new ObisCodeWrapper( o ) );
     }
 
     /** Add objects to the ObisCodeMap */
@@ -76,40 +78,34 @@ class ObisCodeMapper {
 
     /** @return construct extended logging */
     public String getExtendedLogging( ) throws IOException {
-        StringBuffer result = new StringBuffer();
-        List obisList = getMeterSupportedObisCodes();
-        Iterator i = obisList.iterator();
-        while( i.hasNext() ){
-            ObisCode obc = (ObisCode) i.next();
-            result.append( obc.toString() + " " + getRegisterInfo(obc) + "\n" );
+        StringBuilder builder = new StringBuilder();
+        List<ObisCode> obisList = getMeterSupportedObisCodes();
+        for (ObisCode obc : obisList) {
+            builder.append(obc.toString()).append(" ").append(getRegisterInfo(obc)).append("\n");
         }
-        return result.toString();
+        return builder.toString();
     }
 
     /** @return get Values for all available obiscodes */
     public String getDebugLogging( ) throws IOException {
-        StringBuffer result = new StringBuffer();
-        Iterator i = getMeterSupportedObisCodes().iterator();
-        while( i.hasNext() ) {
-            ObisCode o = (ObisCode)i.next();
-            ValueFactory vf = (ValueFactory)oMap.get(new ObisCodeWrapper(o));
-            result.append( o + " " + vf + "\n" );
-            result.append( getRegisterValue( o) + "\n" );
+        StringBuilder builder = new StringBuilder();
+        for (ObisCode o : getMeterSupportedObisCodes()) {
+            ValueFactory vf = oMap.get(new ObisCodeWrapper(o));
+            builder.append(o).append(" ").append(vf).append("\n");
+            builder.append(getRegisterValue(o)).append("\n");
         }
-        return result.toString();
+        return builder.toString();
     }
 
     /** @return short desciption of ALL the possibly available obiscodes */
     public String toString( ){
-        StringBuffer result = new StringBuffer();
-        result.append( "All possibly supported ObisCodes \n" );
-        Iterator i = keys.iterator();
-        while( i.hasNext() ){
-            ObisCodeWrapper key = (ObisCodeWrapper)i.next();
-            ValueFactory vf = (ValueFactory)oMap.get(key);
-            result.append( key + " " + vf.toString() + "\n" );
+        StringBuilder builder = new StringBuilder();
+        builder.append( "All possibly supported ObisCodes \n" );
+        for (ObisCodeWrapper key : keys) {
+            ValueFactory vf = oMap.get(key);
+            builder.append(key).append(" ").append(vf.toString()).append("\n");
         }
-        return result.toString();
+        return builder.toString();
     }
 
     /** This is the init for the actual values, this method does not
@@ -168,12 +164,15 @@ class ObisCodeMapper {
         Date d = (Date)dMap.get( new Integer(billingPoint) );
         if( d == null ) {
             int offset = 0;
-            if( billingPoint == 255 )
+            if( billingPoint == 255 ) {
                 offset = 0;
-            if( billingPoint == 128 )
+            }
+            if( billingPoint == 128 ) {
                 offset = getDataBlkTblSize();
-            if( billingPoint >= 0 && billingPoint <= maxSys.getTable0().getTypeMaximumValues().getMaxSelfReads() )
+            }
+            if( billingPoint >= 0 && billingPoint <= maxSys.getTable0().getTypeMaximumValues().getMaxSelfReads() ) {
                 offset = getDataBlkTblSize() * (billingPoint + 2);
+            }
             d = new TableAddress( maxSys, 15, offset ).readDate();
         }
         return d;
@@ -181,7 +180,7 @@ class ObisCodeMapper {
 
     private void init( final int billing, final int offset ) throws IOException {
 
-    ObisCode o = null;
+    ObisCode o;
 
     // create obiscodes for time register
     o = ObisCode.fromString("1.1.0.1.2." + billing );
@@ -459,11 +458,11 @@ class ObisCodeMapper {
 
     /** @return list of all ObisCodes supported by the currently connected
      * meter.  Does this by trial and error. */
-    private List getMeterSupportedObisCodes( ) throws IOException {
-        ArrayList validObisCodes = new ArrayList( );
-        Iterator i = keys.iterator();
+    private List<ObisCode> getMeterSupportedObisCodes( ) throws IOException {
+        List<ObisCode> validObisCodes = new ArrayList<>();
+        Iterator<ObisCodeWrapper> i = keys.iterator();
         while( i.hasNext() ){
-            ObisCodeWrapper key = (ObisCodeWrapper)i.next();
+            ObisCodeWrapper key = i.next();
             ObisCode oc = key.obisCode;
             // if no exception is thrown, the ObisCode is supported
             try {
@@ -499,17 +498,20 @@ class ObisCodeMapper {
         };
 
         Date getEventTime( ) throws IOException {
-            if( obisCode.getF() == 255 )
+            if( obisCode.getF() == 255 ) {
                 return getBillingPointDate(obisCode.getF());
-            else
+            } else {
                 return null;
+            }
         };
 
         ObisCode getObisCode( ) throws IOException  { return obisCode;   };
 
         RegisterValue getRegisterValue( ObisCode obisCode ) throws IOException  {
             Quantity q = getQuantity();
-            if( q == null ) throwException( obisCode );
+            if( q == null ) {
+                throwException(obisCode);
+            }
             Date e = getEventTime();
             Date f = getFromTime();
             Date t = getToTime();
@@ -517,7 +519,7 @@ class ObisCodeMapper {
         }
 
         public String toString(){
-            return obisCode.getDescription();
+            return obisCode.toString();
         }
 
     }
@@ -550,8 +552,9 @@ class ObisCodeMapper {
         }
 
         public boolean equals( Object o ){
-            if(!(o instanceof ObisCodeWrapper))
+            if(!(o instanceof ObisCodeWrapper)) {
                 return false;
+            }
 
             ObisCodeWrapper other = (ObisCodeWrapper)o;
             return  os.equals( other.os );
@@ -569,14 +572,6 @@ class ObisCodeMapper {
             ObisCodeWrapper other = (ObisCodeWrapper)o;
             return reversedOs.compareTo(other.reversedOs);
         }
-
-    }
-
-    public static void main(String [] args) throws Exception {
-
-        ObisCodeMapper ocm = new ObisCodeMapper(null);
-
-        System.out.println( ocm );
 
     }
 

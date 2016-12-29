@@ -161,7 +161,7 @@ public class ParameterFactory {
         parameter.write();
     }
 
-    final public int readApplicationStatus() {
+    public final int readApplicationStatus() {
         if (applicationStatus == null) {
             applicationStatus = new ApplicationStatus(waveFlow);
             applicationStatus.read();
@@ -178,7 +178,7 @@ public class ParameterFactory {
         this.applicationStatus.setStatus(applicationStatus);
     }
 
-    final public int readValveApplicationStatus() {
+    public final int readValveApplicationStatus() {
         if (valveApplicationStatus == null) {
             valveApplicationStatus = new ValveApplicationStatus(waveFlow);
             valveApplicationStatus.read();
@@ -188,7 +188,7 @@ public class ParameterFactory {
 
     //Advanced restart, sets the start moment in 3 minutes.
 
-    final public void restartDataLogging(int mode) {
+    public final void restartDataLogging(int mode) {
         stopDataLogging();
         if (waveFlow.isV1()) {
             writeSamplingActivationNextHour(mode);
@@ -215,7 +215,7 @@ public class ParameterFactory {
 
     //Simple restart, uses the time parameters
 
-    final public void simpleRestartDataLogging(int mode) {
+    public final void simpleRestartDataLogging(int mode) {
         stopDataLogging();
 
         //Now restart it
@@ -298,7 +298,7 @@ public class ParameterFactory {
         return (eventDate.after(new Date()) ? new Date() : eventDate);
     }
 
-    final public void writeApplicationStatus(final int status) {
+    public final void writeApplicationStatus(final int status) {
         applicationStatus = new ApplicationStatus(waveFlow);
         applicationStatus.setStatus(status);
         applicationStatus.write();
@@ -316,7 +316,7 @@ public class ParameterFactory {
         valveApplicationStatus.write();
     }
 
-    final public void writeValveApplicationStatus(final int status) {
+    public final void writeValveApplicationStatus(final int status) {
         valveApplicationStatus = new ValveApplicationStatus(waveFlow);
         valveApplicationStatus.setStatus(status);
         valveApplicationStatus.write();
@@ -342,7 +342,7 @@ public class ParameterFactory {
         this.extendedOperationMode = new ExtendedOperationMode(waveFlow, extendedOperationMode);
     }
 
-    final public void enableDataLoggingPeriodic() {
+    public final void enableDataLoggingPeriodic() {
         readOperatingMode();
         operatingMode.setDataLoggingStepsToPeriodic();
         operatingMode.write();
@@ -379,7 +379,7 @@ public class ParameterFactory {
     /**
      * The queried sampling period is only valid for periodic measurements, otherwise, it's a weekly / monthly interval.
      */
-    final public int readSamplingPeriod() {
+    public final int readSamplingPeriod() {
         int interval = 0;
         if (!waveFlow.isV1()) {
             interval = readRawSamplingPeriod();           //In case of Waveflow V2, the operation mode is also returned and cached
@@ -401,7 +401,7 @@ public class ParameterFactory {
     /**
      * Return the sampling period for the periodic time step logging, even if that mode is not enabled.
      */
-    final public int readRawSamplingPeriod() {
+    public final int readRawSamplingPeriod() {
         if (samplingPeriod == null) {
             samplingPeriod = new SamplingPeriod(waveFlow);
             samplingPeriod.read();
@@ -419,7 +419,7 @@ public class ParameterFactory {
      * @return byte containing the flags
      * @throws java.io.IOException
      */
-    final public ExtendedOperationMode readExtendedOperationMode() {
+    public final ExtendedOperationMode readExtendedOperationMode() {
         if (extendedOperationMode == null) {
             extendedOperationMode = new ExtendedOperationMode(waveFlow);
             extendedOperationMode.read();
@@ -427,13 +427,13 @@ public class ParameterFactory {
         return extendedOperationMode;
     }
 
-    final public void writeSamplingPeriod(final int samplingPeriodInSeconds) {
+    public final void writeSamplingPeriod(final int samplingPeriodInSeconds) {
         samplingPeriod = new SamplingPeriod(waveFlow);
         samplingPeriod.setSamplingPeriodInSeconds(samplingPeriodInSeconds);
         samplingPeriod.write();
     }
 
-    final public void writeSamplingActivationIn3Minutes(int mode) {
+    public final void writeSamplingActivationIn3Minutes(int mode) {
         Calendar cal = Calendar.getInstance(waveFlow.getTimeZone());
         int minute = (cal.get(Calendar.MINUTE) + 3);
         int hour = cal.get(Calendar.HOUR_OF_DAY) + (minute >= 60 ? 1 : 0);
@@ -442,7 +442,7 @@ public class ParameterFactory {
         writeStartMinuteOfMeasurement(minute % 60);     //Set start in 3 minutes
     }
 
-    final public void writeSamplingActivationNextHour(int mode) {
+    public final void writeSamplingActivationNextHour(int mode) {
         Calendar cal = Calendar.getInstance(waveFlow.getTimeZone());
         int hour = cal.get(Calendar.HOUR_OF_DAY) + 1;
         hour = hour % 24;
@@ -457,13 +457,13 @@ public class ParameterFactory {
 
     //This is the start hour for the data logging in periodic time steps
 
-    final public void writeSamplingActivationType(final int startHour) {
+    public final void writeSamplingActivationType(final int startHour) {
         SamplingActivationType samplingActivationType = new SamplingActivationType(waveFlow);
         samplingActivationType.setStartHour(startHour);
         samplingActivationType.write();
     }
 
-    final public int getProfileIntervalInSeconds() {
+    public final int getProfileIntervalInSeconds() {
         return readSamplingPeriod();
     }
 
@@ -475,11 +475,11 @@ public class ParameterFactory {
         return batteryLifeDurationCounter.remainingBatteryLife();
     }
 
-    final public void setBatteryLifeDurationCounter(int shortLifeCounter) {
+    public final void setBatteryLifeDurationCounter(int shortLifeCounter) {
         batteryLifeDurationCounter = new BatteryLifeDurationCounter(waveFlow, shortLifeCounter);
     }
 
-    final public Date readBatteryLifeDateEnd() {
+    public final Date readBatteryLifeDateEnd() {
         BatteryLifeDateEnd o = new BatteryLifeDateEnd(waveFlow);
         o.read();
         return (o.getCalendar().getTime());

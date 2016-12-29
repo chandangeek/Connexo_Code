@@ -58,7 +58,7 @@ public class BubbleUpFrameParser {
     private static BubbleUpObject parseDataloggingTable(byte[] data, RTM rtm, byte[] radioAddress, PropertySpecService propertySpecService) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<ProfileData> profileDatas = new ArrayList<>();
-        ExtendedDataloggingTable table = new ExtendedDataloggingTable(rtm);
+        ExtendedDataloggingTable table = new ExtendedDataloggingTable(propertySpecService, rtm);
 
         List<RegisterValue> registerValues = new ArrayList<>();
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress, propertySpecService));
@@ -76,7 +76,7 @@ public class BubbleUpFrameParser {
                 }
             }
 
-            OperatingMode operatingMode = new OperatingMode(rtm, table.getOperationMode());
+            OperatingMode operatingMode = new OperatingMode(propertySpecService, rtm, table.getOperationMode());
             boolean monthly = operatingMode.isMonthlyLogging();
             profileDataReader.setNumberOfInputs(numberOfPorts);
             profileDataReader.setProfileInterval(table.getProfileInterval());
@@ -92,7 +92,7 @@ public class BubbleUpFrameParser {
     private static BubbleUpObject parseTouBucketsReading(byte[] data, RTM rtm, byte[] radioAddress, PropertySpecService propertySpecService) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
         List<RegisterValue> registerValues = new ArrayList<>();
-        ReadTOUBuckets readTOUBuckets = new ReadTOUBuckets(rtm);
+        ReadTOUBuckets readTOUBuckets = new ReadTOUBuckets(propertySpecService, rtm);
         readTOUBuckets.parse(data, radioAddress);
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress, propertySpecService));
 
@@ -119,7 +119,7 @@ public class BubbleUpFrameParser {
 
         registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress, propertySpecService));
 
-        CurrentRegisterReading currentRegisterReading = new CurrentRegisterReading(rtm);
+        CurrentRegisterReading currentRegisterReading = new CurrentRegisterReading(propertySpecService, rtm);
         currentRegisterReading.parse(data, radioAddress);
 
         RegisterValue reg;
@@ -168,7 +168,7 @@ public class BubbleUpFrameParser {
         ProfileData profileData = new ProfileData();
         List<RegisterValue> registerValues = new ArrayList<>();
 
-        DailyConsumption dailyConsumption = new DailyConsumption(rtm);
+        DailyConsumption dailyConsumption = new DailyConsumption(propertySpecService, rtm);
         dailyConsumption.parse(data, radioAddress);
         List<List<Integer[]>> rawValues = new ArrayList<>();
 

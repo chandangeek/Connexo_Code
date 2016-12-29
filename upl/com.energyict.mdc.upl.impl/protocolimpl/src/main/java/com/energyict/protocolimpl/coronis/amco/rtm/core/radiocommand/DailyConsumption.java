@@ -79,7 +79,7 @@ public class DailyConsumption extends AbstractRadioCommand {
         lastLoggedValue = TimeDateRTCParser.parse(data, offset, 7, timeZone).getTime();
         offset += 7;
 
-        SamplingPeriod period = new SamplingPeriod(getRTM());
+        SamplingPeriod period = new SamplingPeriod(getPropertySpecService(), getRTM());
         period.parse(ProtocolTools.getSubArray(data, offset, offset + 1));
         int multiplier = data[offset + 2] & 0xFF;
         profileInterval = multiplier * period.getSamplingPeriodInSeconds();

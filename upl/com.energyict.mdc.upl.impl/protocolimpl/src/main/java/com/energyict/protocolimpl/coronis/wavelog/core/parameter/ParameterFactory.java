@@ -18,7 +18,7 @@ public class ParameterFactory {
         this.waveLog = waveLog;
     }
 
-    final public ApplicationStatus readApplicationStatus() throws IOException {
+    public final ApplicationStatus readApplicationStatus() throws IOException {
         if (applicationStatus == null) {
             applicationStatus = new ApplicationStatus(waveLog);
             applicationStatus.read();
@@ -26,13 +26,13 @@ public class ParameterFactory {
         return applicationStatus;
     }
 
-    final public void writeApplicationStatus(final int status) throws IOException {
+    public final void writeApplicationStatus(final int status) throws IOException {
         applicationStatus = new ApplicationStatus(waveLog);
         applicationStatus.setStatus(status);
         applicationStatus.write();
     }
 
-    final public OperatingMode readOperatingMode() throws IOException {
+    public final OperatingMode readOperatingMode() throws IOException {
         if (operatingMode == null) {
             operatingMode = new OperatingMode(waveLog);
             operatingMode.read();
@@ -40,7 +40,7 @@ public class ParameterFactory {
         return operatingMode;
     }
 
-    final public void writeOperatingMode(int operationMode) throws IOException {
+    public final void writeOperatingMode(int operationMode) throws IOException {
         this.operatingMode = null; //Reset cache
         new OperatingMode(waveLog, operationMode).write();
     }
