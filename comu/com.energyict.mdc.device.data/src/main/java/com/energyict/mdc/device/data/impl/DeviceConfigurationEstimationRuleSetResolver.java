@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Priority;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -36,10 +37,11 @@ public class DeviceConfigurationEstimationRuleSetResolver implements EstimationR
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
+
     @Override
-    public List<EstimationRuleSet> resolve(MeterActivation meterActivation) {
-        if (hasMdcMeter(meterActivation)) {
-            return getDeviceForEstimation(meterActivation.getMeter().get())
+    public List<EstimationRuleSet> resolve(ChannelsContainer channelsContainer) {
+        if (hasMdcMeter(channelsContainer)) {
+            return getDeviceForEstimation(channelsContainer.getMeter().get())
                     .filter(DeviceEstimation::isEstimationActive)
                     .map(deviceEstimation -> deviceEstimation.getEstimationRuleSetActivations().stream())
                     .orElseGet(Stream::empty)
@@ -67,6 +69,10 @@ public class DeviceConfigurationEstimationRuleSetResolver implements EstimationR
 
     private boolean hasMdcMeter(MeterActivation meterActivation) {
         return meterActivation.getMeter().isPresent() && isMdcMeter(meterActivation.getMeter().get());
+    }
+
+    private boolean hasMdcMeter(ChannelsContainer channelsContainer) {
+        return channelsContainer.getMeter().isPresent() && isMdcMeter(channelsContainer.getMeter().get());
     }
 
     private boolean isMdcMeter(Meter meter) {
