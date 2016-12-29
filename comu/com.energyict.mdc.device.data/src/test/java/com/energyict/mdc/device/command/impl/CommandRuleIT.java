@@ -405,26 +405,26 @@ public class CommandRuleIT {
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
 
         //checks if the command is valid to create and then creates it, creating the counters. Checks if the new limit is reached. (yes)
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         //checks if a command added the next day is valid (yes), create the command. Checks if the limit for the next day is reached (yes)
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(1, ChronoUnit.DAYS));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         //checks if a command added 2 days later is valid (no), create the command. Checks if the limit for the week is reached (yes)
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(2, ChronoUnit.DAYS));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         //checks if a command added a week later is valid (yes), create the command. Checks if the limit for the month is reached (yes)
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(7, ChronoUnit.DAYS));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(9, ChronoUnit.DAYS));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         //checks if a command added a month later is valid (yes)
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(30, ChronoUnit.DAYS));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
 
     }
 
@@ -438,13 +438,13 @@ public class CommandRuleIT {
         when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
 
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(1, ChronoUnit.DAYS));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
     }
 
     @Test
@@ -457,13 +457,13 @@ public class CommandRuleIT {
         when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
 
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(7, ChronoUnit.DAYS));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
     }
 
     @Test
@@ -476,13 +476,13 @@ public class CommandRuleIT {
         when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
 
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(30, ChronoUnit.DAYS));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
     }
 
     @Test
@@ -492,18 +492,19 @@ public class CommandRuleIT {
         CommandRule rule = createRule("test5", 1, 0, 0, 1);
         activateAndApproveRule(rule);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
-        DeviceMessage deviceMessageReloaded = mock(DeviceMessage.class);
         when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
-        when(deviceMessageReloaded.getDeviceMessageId()).thenReturn(deviceMessageId);
-        when(deviceMessageReloaded.getReleaseDate()).thenReturn(Instant.now(programmableClock));
-        when(deviceMessageService.findDeviceMessageById(anyLong())).thenReturn(Optional.of(deviceMessageReloaded));
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock).plus(1, ChronoUnit.DAYS));
-        commandRuleService.commandUpdated(deviceMessage);
+        commandRuleService.commandUpdated(deviceMessage, Instant.now(programmableClock));
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
+
+        CommandRule commandRule = commandRuleService.findCommandRule(rule.getId()).orElse(rule);
+        assertThat(commandRule.getCounters()).hasSize(2);
+        assertThat(commandRule.getCounters().get(0).getCount()).isEqualTo(0);
+        assertThat(commandRule.getCounters().get(1).getCount()).isEqualTo(1);
     }
 
     @Test
@@ -515,13 +516,13 @@ public class CommandRuleIT {
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
     }
 
     @Test
@@ -534,9 +535,9 @@ public class CommandRuleIT {
         when(deviceMessage.getDeviceMessageId()).thenReturn(deviceMessageId);
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.now(programmableClock));
         commandRuleService.commandCreated(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isTrue();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isNotEmpty();
         commandRuleService.commandDeleted(deviceMessage);
-        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isFalse();
+        assertThat(commandRuleService.limitsExceededForNewCommand(deviceMessage)).isEmpty();
     }
 
     @Test

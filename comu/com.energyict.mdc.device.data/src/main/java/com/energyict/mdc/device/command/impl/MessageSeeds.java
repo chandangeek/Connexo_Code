@@ -2,7 +2,6 @@ package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.command.CommandRuleService;
-import com.energyict.mdc.device.data.DeviceDataServices;
 
 import java.util.logging.Level;
 
@@ -13,20 +12,22 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_TOO_LONG(1, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     FIELD_IS_REQUIRED(2, Keys.FIELD_REQUIRED, "This field is required"),
     DUPLICATE_NAME(3, Keys.DUPLICATE_NAME, "Name must be unique"),
-    DAY_LIMIT_SMALLER_THAN_WEEK_AND_MONTH(4, Keys.DAY_LIMIT_SMALLER_THAN_WEEK_AND_MONTH, "Day limit should be smaller than week limit and smaller than month limit"),
-    DAY_LIMIT_SMALLER_THAN_WEEK(5, Keys.DAY_LIMIT_SMALLER_THAN_WEEK, "Day limit should be smaller than week limit"),
-    DAY_LIMIT_SMALLER_THAN_MONTH(6, Keys.DAY_LIMIT_SMALLER_THAN_MONTH, "Day limit should be smaller than month limit"),
-    WEEK_LIMIT_BIGGER_THAN_DAY_SMALLER_THAN_MONTH(7, Keys.WEEK_LIMIT_BIGGER_THAN_DAY_SMALLER_THAN_MONTH, "Week limit should be bigger than day limit and smaller than month limit"),
-    WEEK_LIMIT_BIGGER_THAN_DAY(8, Keys.WEEK_LIMIT_BIGGER_THAN_DAY, "Week limit should be bigger than day limit"),
-    WEEK_LIMIT_SMALLER_THAN_MONTH(9, Keys.WEEK_LIMIT_SMALLER_THAN_MONTH, "Week limit should be smaller than month limit"),
-    MONTH_LIMIT_BIGGER_THAN_DAY_AND_WEEK(10, Keys.MONTH_LIMIT_BIGGER_THAN_DAY_AND_WEEK, "Month limit should be bigger than day limit and bigger than week limit"),
-    MONTH_LIMIT_BIGGER_THAN_DAY(11, Keys.MONTH_LIMIT_BIGGER_THAN_DAY, "Month limit should be bigger than day limit"),
-    MONTH_LIMIT_BIGGER_THAN_WEEK(12, Keys.MONTH_LIMIT_BIGGER_THAN_WEEK, "Month limit should be bigger than week limit"),
-    AT_LEAST_ONE_COMMAND_REQUIRED(13, Keys.AT_LEAST_ONE_COMMAND_REQUIRED, "At least one command required"),
+    DAY_LIMIT_SMALLER_THAN_WEEK_AND_MONTH(4, Keys.DAY_LIMIT_SMALLER_THAN_WEEK_AND_MONTH, "Day limit must be lower than or equal to the week limit and the month limit"),
+    DAY_LIMIT_SMALLER_THAN_WEEK(5, Keys.DAY_LIMIT_SMALLER_THAN_WEEK, "Day limit must be lower than or equal to the week limit"),
+    DAY_LIMIT_SMALLER_THAN_MONTH(6, Keys.DAY_LIMIT_SMALLER_THAN_MONTH, "Day limit must be lower than or equal to the month limit"),
+    WEEK_LIMIT_BIGGER_THAN_DAY_SMALLER_THAN_MONTH(7, Keys.WEEK_LIMIT_BIGGER_THAN_DAY_SMALLER_THAN_MONTH, "Week limit must be higher than or equal to the day limit and lower than or equal to the month limit"),
+    WEEK_LIMIT_BIGGER_THAN_DAY(8, Keys.WEEK_LIMIT_BIGGER_THAN_DAY, "Week limit must be higher than or equal to the day limit"),
+    WEEK_LIMIT_SMALLER_THAN_MONTH(9, Keys.WEEK_LIMIT_SMALLER_THAN_MONTH, "Week limit must be lower than or equal to the month limit"),
+    MONTH_LIMIT_BIGGER_THAN_DAY_AND_WEEK(10, Keys.MONTH_LIMIT_BIGGER_THAN_DAY_AND_WEEK, "Month limit must be higher than or equal to the day limit and the week limit"),
+    MONTH_LIMIT_BIGGER_THAN_DAY(11, Keys.MONTH_LIMIT_BIGGER_THAN_DAY, "Month limit must be higher than or equal to the day limit"),
+    MONTH_LIMIT_BIGGER_THAN_WEEK(12, Keys.MONTH_LIMIT_BIGGER_THAN_WEEK, "Month limit must be higher than or equal to the week limit"),
+    AT_LEAST_ONE_COMMAND_REQUIRED(13, Keys.AT_LEAST_ONE_COMMAND_REQUIRED, "At least one command is required"),
     DUPLICATE_COMMAND(14, Keys.DUPLICATE_COMMAND, "Duplicate commands are not allowed in a command limitation rule"),
-    LIMITS_EXCEEDED(15, Keys.LIMITS_EXCEEDED, "The command would exceed the limits for a command limitation rule"),
+    LIMITS_EXCEEDED(15, Keys.LIMITS_EXCEEDED, "The command cannot be added on this release date as this would exceed the {0} of ''{1}''"),
     INVALID_STATS(16, Keys.INVALID_STATS, "The counters for command limitation rules have been tampered with"),
-    MAC_COMMAND_RULES_FAILED(17, Keys.MAC_COMMAND_RULES_FAILED, "Message authentication check on one or more command limitation rules failed. Please contact your system administrator.");
+    MAC_COMMAND_RULES_FAILED(17, Keys.MAC_COMMAND_RULES_FAILED, "Message authentication check on one or more command limitation rules failed. Please contact your system administrator."),
+    THE_X_OF_Y(18, Keys.THE_X_OF_Y, "the {0} of ''{1}''")
+    ;
 
 
     private final int number;
@@ -88,5 +89,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String LIMITS_EXCEEDED = "limitsExceeded";
         public static final String INVALID_STATS = "invalidStats";
         public static final String MAC_COMMAND_RULES_FAILED = "macCommandRulesFailed";
+        public static final String THE_X_OF_Y = "theXOfY";
     }
     }

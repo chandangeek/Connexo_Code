@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.device.command.CommandRuleService;
+import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
 import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -14,6 +15,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.List;
 
 @Component(name="com.energyict.mdc.device.command.CommandCreationVetoHandler", service = TopicHandler.class, immediate = true)
 public class CommandCreationVetoHandler implements TopicHandler {
@@ -43,8 +46,9 @@ public class CommandCreationVetoHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
-        if(commandRuleService.limitsExceededForNewCommand(deviceMessage)) {
-            throw new LimitsExceededForCommandException(thesaurus, MessageSeeds.LIMITS_EXCEEDED);
+        List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForNewCommand(deviceMessage);
+        if(!exceededCommandRules.isEmpty()) {
+            throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules);
         } else {
             commandRuleService.commandCreated(deviceMessage);
         }

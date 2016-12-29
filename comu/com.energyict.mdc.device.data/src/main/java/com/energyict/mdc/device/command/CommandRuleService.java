@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.command;
 
 
+import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -39,11 +39,11 @@ public interface CommandRuleService {
 
     void commandCreated(DeviceMessage deviceMessage);
 
-    boolean limitsExceededForUpdatedCommand(DeviceMessage deviceMessage);
+    List<ExceededCommandRule>  limitsExceededForUpdatedCommand(DeviceMessage deviceMessage, Instant oldReleaseDate);
 
-    boolean limitsExceededForNewCommand(DeviceMessage deviceMessage);
+    List<ExceededCommandRule>  limitsExceededForNewCommand(DeviceMessage deviceMessage);
 
-    void commandUpdated(DeviceMessage deviceMessage);
+    void commandUpdated(DeviceMessage deviceMessage, Instant oldReleaseDate);
 
     void commandDeleted(DeviceMessage deviceMessage);
 

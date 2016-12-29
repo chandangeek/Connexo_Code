@@ -59,7 +59,8 @@ public enum EventType {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
             EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
-            eventTypeBuilder.withProperty("oldDeviceMessageStatus", ValueType.INTEGER, "oldDeviceMessageStatus");
+            eventTypeBuilder.withProperty("oldDeviceMessageStatus", ValueType.INTEGER, "oldDeviceMessageStatus")
+                    .withProperty("oldReleaseDate", ValueType.LONG, "oldReleaseDate");
             return eventTypeBuilder;
         }
     },

@@ -7,15 +7,20 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.device.command.CommandRuleService;
+import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
 import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name="com.energyict.mdc.device.command.CommandUpdateVetoHandler", service = TopicHandler.class, immediate = true)
+import java.time.Instant;
+import java.util.List;
+
+@Component(name = "com.energyict.mdc.device.command.CommandUpdateVetoHandler", service = TopicHandler.class, immediate = true)
 public class CommandUpdateVetoHandler implements TopicHandler {
     private volatile CommandRuleService commandRuleService;
     private volatile Thesaurus thesaurus;
@@ -26,7 +31,7 @@ public class CommandUpdateVetoHandler implements TopicHandler {
 
     @Inject
     public CommandUpdateVetoHandler(CommandRuleService commandRuleService, Thesaurus thesaurus) {
-       setCommandRuleService(commandRuleService);
+        setCommandRuleService(commandRuleService);
         this.thesaurus = thesaurus;
     }
 
@@ -43,11 +48,19 @@ public class CommandUpdateVetoHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
-        if(commandRuleService.limitsExceededForUpdatedCommand(deviceMessage)) {
-            throw new LimitsExceededForCommandException(thesaurus, MessageSeeds.LIMITS_EXCEEDED);
+
+        if (deviceMessage.getStatus().equals(DeviceMessageStatus.REVOKED)) {
+            commandRuleService.commandDeleted(deviceMessage);
         } else {
-            commandRuleService.commandUpdated(deviceMessage);
+            long oldReleaseDate = (Long) localEvent.toOsgiEvent().getProperty("oldReleaseDate");
+            List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForUpdatedCommand(deviceMessage, Instant.ofEpochMilli(oldReleaseDate));
+            if (!exceededCommandRules.isEmpty()) {
+                throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules);
+            } else {
+                commandRuleService.commandUpdated(deviceMessage, Instant.ofEpochMilli(oldReleaseDate));
+            }
         }
+
     }
 
     @Override

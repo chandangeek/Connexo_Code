@@ -20,6 +20,7 @@ import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.ServerCommandRule;
+import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
 import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandRuleStatsException;
 import com.energyict.mdc.device.command.security.Privileges;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -46,9 +47,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.Range;
 
@@ -150,7 +154,11 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Privileges.values());
+        return Stream.of(
+                Stream.of(Privileges.values()),
+                Stream.of(TranslationKeys.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Activate
@@ -243,38 +251,37 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Override
-    public boolean limitsExceededForUpdatedCommand(DeviceMessage deviceMessage) {
-        Optional<DeviceMessage> reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId());
-        if(reloadedDeviceMessage.isPresent()) {
-            return limitsExceededForCommand(deviceMessage, reloadedDeviceMessage.get().getReleaseDate());
-        } else {
-            return  limitsExceededForNewCommand(deviceMessage);
-        }
+    public List<ExceededCommandRule> limitsExceededForUpdatedCommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
+        return limitsExceededForCommand(deviceMessage, oldReleaseDate);
     }
 
     @Override
-    public boolean limitsExceededForNewCommand(DeviceMessage deviceMessage) {
+    public List<ExceededCommandRule> limitsExceededForNewCommand(DeviceMessage deviceMessage) {
         return limitsExceededForCommand(deviceMessage, null);
 
     }
 
-    private boolean limitsExceededForCommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
+    private List<ExceededCommandRule> limitsExceededForCommand(DeviceMessage deviceMessage, Instant oldReleaseDate) {
         checkCommandRuleStatsAndThrowException();
         List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
-        return !commandRulesByDeviceMessageId.isEmpty() && commandRulesByDeviceMessageId.stream()
-                .filter(commandRule -> this.wouldCommandExceedLimits(commandRule, deviceMessage.getReleaseDate(), oldReleaseDate))
-                .findFirst()
-                .isPresent();
+        if (commandRulesByDeviceMessageId.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return commandRulesByDeviceMessageId.stream()
+                    .map(commandRule -> this.wouldCommandExceedLimits(commandRule, deviceMessage.getReleaseDate(), oldReleaseDate))
+                    .filter(ExceededCommandRule::isLimitExceeded)
+                    .collect(Collectors.toList());
+        }
     }
 
     private void checkCommandRuleStatsAndThrowException() {
-        if(areCountersInValid()) {
+        if (areCountersInValid()) {
             throw new InvalidCommandRuleStatsException(thesaurus, MessageSeeds.INVALID_STATS);
         }
     }
 
     void checkCommandRuleStats() {
-        if(areCountersInValid()) {
+        if (areCountersInValid()) {
             throw new MacException();
         }
     }
@@ -283,7 +290,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         CommandRuleStats commandRuleStats = getCommandRuleStats();
         int numberOfCommandRules = findAllCommandRules().size();
         int numberOfCounters = dataModel.mapper(CommandRuleCounter.class).find().size();
-       return commandRuleStats.getNrOfCounters() != numberOfCounters || commandRuleStats.getNrOfMessageRules() != numberOfCommandRules;
+        return commandRuleStats.getNrOfCounters() != numberOfCounters || commandRuleStats.getNrOfMessageRules() != numberOfCommandRules;
     }
 
     private List<CommandRule> getActiveCommandRulesByDeviceMessageId(DeviceMessageId deviceMessageId) {
@@ -298,34 +305,45 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                 .collect(Collectors.toList());
     }
 
-    private boolean wouldCommandExceedLimits(CommandRule commandRule, Instant releaseDate, Instant oldReleaseDate) {
-        return commandRule.getCounters()
+    private ExceededCommandRule wouldCommandExceedLimits(CommandRule commandRule, Instant releaseDate, Instant oldReleaseDate) {
+        ExceededCommandRule exceededCommandRule = new ExceededCommandRule(commandRule.getName());
+        commandRule.getCounters()
                 .stream()
                 .filter(commandRuleCounter -> Range.closedOpen(commandRuleCounter.getFrom(), commandRuleCounter.getTo()).contains(releaseDate))
-                .filter(commandRuleCounter -> this.wouldExceedCounter(commandRuleCounter, oldReleaseDate))
-                .findFirst()
-                .isPresent();
+                .forEach(commandRuleCounter -> this.wouldExceedCounter(commandRuleCounter, oldReleaseDate, exceededCommandRule));
+
+        return exceededCommandRule;
     }
 
-    private boolean wouldExceedCounter(CommandRuleCounter commandRuleCounter, Instant oldReleaseDate) {
+    private ExceededCommandRule wouldExceedCounter(CommandRuleCounter commandRuleCounter, Instant oldReleaseDate, ExceededCommandRule exceededCommandRule) {
         CommandRule commandRule = commandRuleCounter.getCommandRule();
         long currentCount = commandRuleCounter.getCount();
-        if(oldReleaseDate != null && Range.closedOpen(commandRuleCounter.getFrom(), commandRuleCounter.getTo()).contains(oldReleaseDate)) {
+        if (oldReleaseDate != null && Range.closedOpen(commandRuleCounter.getFrom(), commandRuleCounter.getTo()).contains(oldReleaseDate)) {
             currentCount--;
         }
         long limitToCheck;
+        Consumer<Boolean> setter;
         switch (commandRuleCounter.getCounterType()) {
             case DAY:
                 limitToCheck = commandRule.getDayLimit();
+                setter = exceededCommandRule::setDayLimitExceeded;
                 break;
             case WEEK:
                 limitToCheck = commandRule.getWeekLimit();
+                setter = exceededCommandRule::setWeekLimitExceeded;
                 break;
             default:
                 limitToCheck = commandRule.getMonthLimit();
+                setter = exceededCommandRule::setMonthLimitExceeded;
                 break;
         }
-        return currentCount >= limitToCheck && limitToCheck != 0;
+        boolean wouldExceedCounter = currentCount >= limitToCheck && limitToCheck != 0;
+        if (wouldExceedCounter) {
+            setter.accept(true);
+            return exceededCommandRule;
+        } else {
+            return exceededCommandRule;
+        }
     }
 
     @Override
@@ -334,11 +352,8 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Override
-    public void commandUpdated(DeviceMessage deviceMessage) {
-        Optional<DeviceMessage> reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId());
-        if(reloadedDeviceMessage.isPresent()) {
-            decreaseExistingCounters(deviceMessage, reloadedDeviceMessage.get().getReleaseDate());
-        }
+    public void commandUpdated(DeviceMessage deviceMessage, Instant oldReleaseDate) {
+        decreaseExistingCounters(deviceMessage, oldReleaseDate);
         increaseOrCreateCounters(deviceMessage, deviceMessage.getReleaseDate());
     }
 
@@ -350,7 +365,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     private void increaseOrCreateCounters(DeviceMessage deviceMessage, Instant releaseDate) {
         List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
-        if(commandRulesByDeviceMessageId.isEmpty()) {
+        if (commandRulesByDeviceMessageId.isEmpty()) {
             return;
         }
         commandRulesByDeviceMessageId.stream()
@@ -360,14 +375,14 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     private void increaseOrCreateCountersForRule(CommandRule commandRule, Instant releaseDate) {
         List<CommandRuleCounter> applicableCounters = getApplicableCounters(commandRule, releaseDate);
 
-        if(applicableCounters.size() > 3) {
+        if (applicableCounters.size() > 3) {
             throw new IllegalArgumentException("Illegal situation: too many counters for given release date");
         } else {
             applicableCounters.forEach(CommandRuleCounter::increaseCount);
             createNewCounters(commandRule, releaseDate, applicableCounters);
         }
         long numberOfCountersRemoved = ((CommandRuleImpl) commandRule).cleanUpCounters(getDayFor(Instant.now(clock)).lowerEndpoint());
-        if(numberOfCountersRemoved > 0) {
+        if (numberOfCountersRemoved > 0) {
             getCommandRuleStats().decreaseNumberOfCommandRuleCounters(numberOfCountersRemoved);
         }
     }
@@ -378,7 +393,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         boolean monthCounterExists = false;
 
         for (CommandRuleCounter counter : applicableCounters) {
-            switch(counter.getCounterType()) {
+            switch (counter.getCounterType()) {
                 case DAY:
                     dayCounterExists = true;
                     break;
@@ -390,20 +405,20 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
                     break;
             }
         }
-        if(!dayCounterExists && commandRule.getDayLimit() > 0) {
+        if (!dayCounterExists && commandRule.getDayLimit() > 0) {
             commandRule.createCounterFor(getDayFor(releaseDate));
         }
-        if(!weekCounterExists && commandRule.getWeekLimit() > 0) {
+        if (!weekCounterExists && commandRule.getWeekLimit() > 0) {
             commandRule.createCounterFor(getWeekFor(releaseDate));
         }
-        if(!monthCounterExists && commandRule.getMonthLimit() > 0) {
+        if (!monthCounterExists && commandRule.getMonthLimit() > 0) {
             commandRule.createCounterFor(getMonthFor(releaseDate));
         }
     }
 
     private void decreaseExistingCounters(DeviceMessage deviceMessage, Instant oldReleaseDate) {
         List<CommandRule> commandRulesByDeviceMessageId = this.getActiveCommandRulesByDeviceMessageId(deviceMessage.getDeviceMessageId());
-        if(commandRulesByDeviceMessageId.isEmpty()) {
+        if (commandRulesByDeviceMessageId.isEmpty()) {
             return;
         }
         commandRulesByDeviceMessageId.stream()
@@ -463,8 +478,9 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         getCommandRuleStats().increaseNumberOfCommandRules();
     }
 
-    public void commandRuleRemoved() {
+    public void commandRuleRemoved(long numberOfCounters) {
         getCommandRuleStats().decreaseNumberOfCommandRules();
+        getCommandRuleStats().decreaseNumberOfCommandRuleCounters(numberOfCounters);
     }
 
     private CommandRuleStats getCommandRuleStats() {

@@ -270,8 +270,8 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     private void actualDelete() {
         this.isRemoved = true;
+        ((CommandRuleServiceImpl) commandRuleService).commandRuleRemoved(this.getCounters().size());
         dataModel.remove(this);
-        ((CommandRuleServiceImpl) commandRuleService).commandRuleRemoved();
     }
 
     private void createDeleteRequest() {

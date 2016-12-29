@@ -35,9 +35,9 @@ public class Installer implements FullInstaller {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        doTry("Install command limitation rule privileges", this::installPrivileges, logger);
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         createCommandRuleStats();
-        doTry("Install command limitation rule privileges?", this::installPrivileges, logger);
     }
 
     private void createCommandRuleStats() {
