@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.kaifa;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -18,14 +20,13 @@ import java.util.List;
 public class Kaifa extends AM110R {
 
     private KaifaProperties properties;
-    private HHUSignOn hhuSignOn;
 
     /**
      * The used {@link KaifaLoadProfileBuilder} to read and manage the load profiles
      */
     private KaifaLoadProfileBuilder loadProfileBuilder;
 
-    public Kaifa() {
+    public Kaifa(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
@@ -53,7 +54,7 @@ public class Kaifa extends AM110R {
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        hhuSignOn = new KaifaHHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = new KaifaHHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -75,7 +76,7 @@ public class Kaifa extends AM110R {
     @Override
     public KaifaProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new KaifaProperties();
+            this.properties = new KaifaProperties(this.getPropertySpecService());
         }
         return this.properties;
     }

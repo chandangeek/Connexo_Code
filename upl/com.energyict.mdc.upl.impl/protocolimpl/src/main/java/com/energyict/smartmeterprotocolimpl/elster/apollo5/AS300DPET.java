@@ -28,7 +28,7 @@ import java.util.List;
 public class AS300DPET extends AS300 {
 
     public AS300DPET(TariffCalendarFinder calendarFinder) {
-        super(calendarFinder);
+        super(calendarFinder, extractor);
     }
 
     @Override

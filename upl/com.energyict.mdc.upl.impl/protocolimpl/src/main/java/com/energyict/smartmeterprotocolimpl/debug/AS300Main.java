@@ -32,7 +32,7 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
 
     public AS300 getMeterProtocol() {
         if (as300 == null) {
-            as300 = new AS300(new Dummy());
+            as300 = new AS300(new Dummy(), extractor);
             log("Created new instance of " + as300.getClass().getCanonicalName() + " [" + as300.getVersion() + "]");
         }
         return as300;

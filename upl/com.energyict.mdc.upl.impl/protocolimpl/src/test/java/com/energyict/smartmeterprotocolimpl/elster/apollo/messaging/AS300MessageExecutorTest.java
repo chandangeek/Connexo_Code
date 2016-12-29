@@ -24,11 +24,11 @@ public class AS300MessageExecutorTest {
     @Test
     public void testExecuteMessageEntry() throws Exception {
         MessageEntry msgEntry = MessageEntry.fromContent(new String(xmlContentBytes, "US-ASCII")).trackingId("TrackingId").serialNumber("SerialNumber").finish();
-        AS300 protocol = new AS300(calendarFinder);
+        AS300 protocol = new AS300(calendarFinder, extractor);
         DummyDLMSConnection connection = new DummyDLMSConnection();
         connection.setResponseByte(DLMSUtils.hexStringToByteArray(expectedResponse));
         protocol.getDlmsSession().setDlmsConnection(connection);
-        AS300MessageExecutor mExecutor = new AS300MessageExecutor(protocol, calendarFinder);
+        AS300MessageExecutor mExecutor = new AS300MessageExecutor(protocol, calendarFinder, extractor);
         MessageResult result = mExecutor.executeMessageEntry(msgEntry);
         assertTrue(result.isSuccess());
     }

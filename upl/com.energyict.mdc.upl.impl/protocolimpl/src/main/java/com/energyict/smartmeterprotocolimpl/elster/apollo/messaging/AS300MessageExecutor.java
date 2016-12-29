@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -91,12 +92,14 @@ public class AS300MessageExecutor extends MessageParser {
 
     protected final AbstractSmartDlmsProtocol protocol;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
     protected boolean success;
 
-    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder) {
+    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {

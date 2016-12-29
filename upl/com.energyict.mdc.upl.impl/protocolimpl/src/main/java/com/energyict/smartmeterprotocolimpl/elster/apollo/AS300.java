@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
@@ -11,7 +12,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.IPDialer;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -53,9 +53,11 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public AS300(TariffCalendarFinder calendarFinder) {
+    public AS300(TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     protected TariffCalendarFinder getCalendarFinder() {
@@ -197,7 +199,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarFinder));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarFinder, extractor));
         }
         return messageProtocol;
     }

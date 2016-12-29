@@ -27,7 +27,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
     private static final ObisCode PET_SETUP = ObisCode.fromString("0.128.0.2.0.255");
 
     public AS300DPETMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder) {
-        super(protocol, calendarFinder);
+        super(protocol, calendarFinder, extractor);
     }
 
     @Override

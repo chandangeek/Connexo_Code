@@ -87,6 +87,10 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         this.propertySpecService = propertySpecService;
     }
 
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
     @Override
     protected void initAfterConnect() throws ConnectionException {
         if (this.dlmsSession != null) {

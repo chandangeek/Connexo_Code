@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 /**
@@ -8,6 +9,10 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 public class MaxSys extends com.energyict.protocolimpl.landisgyr.maxsys2510.MaxSys {
 
     private static final String PD_NODE_PREFIX = "F";   // Standalone (this allows us in the US to interrogate standalone meters)
+
+    public MaxSys(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected String getpNodePrefix(TypedProperties p) {

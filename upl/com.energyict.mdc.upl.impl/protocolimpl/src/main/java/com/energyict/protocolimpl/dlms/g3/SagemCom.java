@@ -27,7 +27,7 @@ public class SagemCom extends AS330D {
 
     protected G3Properties getProperties() {
         if (properties == null) {
-            properties = new SagemComG3Properties();
+            properties = new SagemComG3Properties(this.getPropertySpecService());
         }
         return properties;
     }
