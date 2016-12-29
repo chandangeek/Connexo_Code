@@ -110,6 +110,7 @@ public class MdcAppInstaller {
             return MdcAppPrivileges.getApplicationPrivileges()
                     .stream()
                     .filter(p -> !p.equals(com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS))
+                    .filter(p -> !p.equals(com.energyict.mdc.device.command.security.Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE))
                     .toArray(String[]::new);
         }
 
