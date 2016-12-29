@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.registers;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -41,7 +43,7 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
 
-    public AM540RegisterFactory(AM540 am540) {
+    public AM540RegisterFactory(AM540 am540, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(am540, collectedDataFactory, issueFactory);
     }
 

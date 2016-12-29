@@ -202,7 +202,7 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new EiWebPlusDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new EiWebPlusDialect(propertySpecService));
     }
 
     @Override

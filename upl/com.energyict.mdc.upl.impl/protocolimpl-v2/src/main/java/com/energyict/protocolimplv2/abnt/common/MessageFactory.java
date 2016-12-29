@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -64,7 +65,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.speci
  */
 public class MessageFactory implements DeviceMessageSupport {
 
-
     private static final int NUMBER_OF_MILLIS_PER_MIN = 60 * 1000;
     private static SimpleDateFormat dateFormatter = new SimpleDateFormat("ddMMyy");
 
@@ -78,14 +78,16 @@ public class MessageFactory implements DeviceMessageSupport {
     private final Converter converter;
     private final NlsService nlsService;
     private final PropertySpecService propertySpecService;
+    private final Extractor extractor;
 
-    public MessageFactory(AbstractAbntProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public MessageFactory(AbstractAbntProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         this.meterProtocol = meterProtocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.converter = converter;
         this.nlsService = nlsService;
         this.propertySpecService = propertySpecService;
+        this.extractor = extractor;
     }
 
     @Override
@@ -108,9 +110,9 @@ public class MessageFactory implements DeviceMessageSupport {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
                 if (pendingMessage.getSpecification().equals(DeviceActionMessage.DEMAND_RESET)) {
-                    demandReset(pendingMessage);
+                    demandReset();
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.DemandResetWithForceClock)) {
-                    demandResetWithForceClock(pendingMessage);
+                    demandResetWithForceClock();
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureAutomaticDemandReset)) {
                     configureAutomaticDemandReset(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
@@ -130,7 +132,7 @@ public class MessageFactory implements DeviceMessageSupport {
         return collectedMessages;
     }
 
-    private void demandReset(OfflineDeviceMessage pendingMessage) throws AbntException {
+    private void demandReset() throws AbntException {
         if (allowedToDoDemandReset()) {
             doDemandReset();
         } else {
@@ -161,16 +163,16 @@ public class MessageFactory implements DeviceMessageSupport {
         return true;
     }
 
-    private void demandResetWithForceClock(OfflineDeviceMessage pendingMessage) throws AbntException {
+    private void demandResetWithForceClock() throws AbntException {
         getMeterProtocol().getRequestFactory().forceTime();
         doDemandReset();
     }
 
-    private void doDemandReset() throws AbntException {
+    private void doDemandReset() throws ParsingException {
         getMeterProtocol().getRequestFactory().readActualParametersWithDemandReset();
     }
 
-    private void configureAutomaticDemandReset(OfflineDeviceMessage pendingMessage) throws AbntException {
+    private void configureAutomaticDemandReset(OfflineDeviceMessage pendingMessage) throws ParsingException {
         boolean enableAutomaticDemandReset = ProtocolTools.getBooleanFromString(
                 getDeviceMessageAttributeValue(pendingMessage, enableAutomaticDemandResetAttributeName)
         );
@@ -304,7 +306,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     private String convertCodeTableToXML(TariffCalendar messageAttribute) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -25,13 +27,13 @@ public class WriteConverterMasterDataMessage extends AbstractMTU155Message {
     private static final int TYPE_LENGTH = 4;
     private static final int SERIAL_MAX_LENGTH = 16;
 
-    public WriteConverterMasterDataMessage(Messaging messaging) {
+    public WriteConverterMasterDataMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.ConfigureConverterMasterData.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == ConfigurationChangeDeviceMessage.ConfigureConverterMasterData.id();
     }
 
     @Override

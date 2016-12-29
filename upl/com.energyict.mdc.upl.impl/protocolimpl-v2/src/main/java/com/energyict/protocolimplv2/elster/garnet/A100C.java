@@ -1,6 +1,16 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -22,19 +32,28 @@ import java.util.List;
 public class A100C extends AbstractMbusDevice {
 
     private EMeterMessaging EMeterMessaging;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public A100C() {
+    public A100C(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super(new GarnetConcentrator(collectedDataFactory, issueFactory));
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
-    public A100C(GarnetConcentrator meterProtocol, String serialNumber) {
+    public A100C(GarnetConcentrator meterProtocol, String serialNumber, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super(meterProtocol, serialNumber);
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
     public DeviceMessageSupport getDeviceMessageSupport() {
         if (EMeterMessaging == null) {
-            EMeterMessaging = new EMeterMessaging(this);
+            EMeterMessaging = new EMeterMessaging(this, propertySpecService, nlsService, converter);
         }
         return EMeterMessaging;
     }
@@ -84,4 +103,28 @@ public class A100C extends AbstractMbusDevice {
         // Ignore since there are not properties
     }
 
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return null;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return null;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return null;
+    }
 }

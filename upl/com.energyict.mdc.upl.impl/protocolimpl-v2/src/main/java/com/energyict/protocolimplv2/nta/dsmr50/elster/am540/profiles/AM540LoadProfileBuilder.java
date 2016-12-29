@@ -83,7 +83,7 @@ public class AM540LoadProfileBuilder extends LGLoadProfileBuilder {
 
     private IDISProfileDataReader getIDISProfileDataReader() {
         if (idisProfileDataReader == null) {
-            idisProfileDataReader = new AM540MbusProfileDataReader(getMeterProtocol());
+            idisProfileDataReader = new AM540MbusProfileDataReader(getMeterProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return idisProfileDataReader;
     }

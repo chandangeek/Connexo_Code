@@ -1,13 +1,14 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,6 +19,11 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     public static final String SERVER_LOG_LEVER_PROPERTY = "ServerLogLevel";
     public static final String PORT_LOG_LEVEL_PROPERTY = "PortLogLevel";
     public static final String DEFAULT_LOG_LEVEL = "INFO";
+    private final PropertySpecService propertySpecService;
+
+    public EiWebPlusDialect(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -30,12 +36,7 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.serverLogLevelPropertySpec(),
                 this.portLogLevelPropertySpec()
@@ -56,22 +57,20 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     }
 
     protected PropertySpec serverLogLevelPropertySpec() {
-        return PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(SERVER_LOG_LEVER_PROPERTY, DEFAULT_LOG_LEVEL, getPossibleLogValues());
+        return this.stringSpec(SERVER_LOG_LEVER_PROPERTY, DEFAULT_LOG_LEVEL, getPossibleLogValues());
     }
 
     protected PropertySpec portLogLevelPropertySpec() {
-        return PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(PORT_LOG_LEVEL_PROPERTY, DEFAULT_LOG_LEVEL, getPossibleLogValues());
+        return this.stringSpec(PORT_LOG_LEVEL_PROPERTY, DEFAULT_LOG_LEVEL, getPossibleLogValues());
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case SERVER_LOG_LEVER_PROPERTY:
-                return this.serverLogLevelPropertySpec();
-            case PORT_LOG_LEVEL_PROPERTY:
-                return this.portLogLevelPropertySpec();
-            default:
-                return null;
-        }
+    private PropertySpec stringSpec(String name, String defaultValue, String... otherValues) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::stringSpec)
+                .setDefaultValue(defaultValue)
+                .addValues(otherValues)
+                .markExhaustive()
+                .finish();
     }
+
 }

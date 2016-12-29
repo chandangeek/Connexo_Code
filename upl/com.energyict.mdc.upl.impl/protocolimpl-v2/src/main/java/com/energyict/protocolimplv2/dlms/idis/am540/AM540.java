@@ -521,7 +521,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     @Override
     protected AM130RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new AM540RegisterFactory(this);
+            registerFactory = new AM540RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }

@@ -1,17 +1,20 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,26 +23,23 @@ import java.util.List;
  */
 public class EMeterMessaging implements DeviceMessageSupport {
 
-    private final static List<DeviceMessageSpec> supportedMessages;
-
     private final A100C deviceProtocol;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    static {
-        supportedMessages = new ArrayList<>();
-
-        // contactor related
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-    }
-
-
-    public EMeterMessaging(A100C deviceProtocol) {
+    public EMeterMessaging(A100C deviceProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.deviceProtocol = deviceProtocol;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return supportedMessages;
+        return Arrays.asList(
+                ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter),
+                ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override

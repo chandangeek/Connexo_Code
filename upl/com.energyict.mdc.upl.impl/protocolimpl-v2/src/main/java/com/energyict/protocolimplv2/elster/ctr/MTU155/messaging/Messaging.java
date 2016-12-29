@@ -166,7 +166,7 @@ public class Messaging implements DeviceMessageSupport {
     private AbstractMTU155Message[] getAllSupportedMTU155MessageExecutors() {
         return new AbstractMTU155Message[]{
                 // Device configuration group
-                new WriteConverterMasterDataMessage(this),
+                new WriteConverterMasterDataMessage(this, this.collectedDataFactory, this.issueFactory),
                 new WriteMeterMasterDataMessage(this),
                 new WriteGasParametersMessage(this),
                 new ChangeDSTMessage(this),

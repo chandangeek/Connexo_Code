@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
-import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.cbo.BaseUnit;
@@ -34,7 +34,7 @@ public class LoadProfileToRegisterParser {
                 if (MBUS_VALUE_OBISCODE.equalsIgnoreBChannel(registerIdentifier.getRegisterObisCode())) {
                     Map<Date, MBusRegisterPair> intervalPairs = allMBusIntervalPairs.get(registerIdentifier);
                     if (intervalPairs == null) {
-                        intervalPairs = new HashMap<Date, MBusRegisterPair>();
+                        intervalPairs = new HashMap<>();
                     }
                     MBusRegisterPair mBusRegisterPair = intervalPairs.get(collectedRegister.getToTime());  //Get the pair with the toTime of this interval
                     if (mBusRegisterPair == null) {
@@ -108,19 +108,17 @@ public class LoadProfileToRegisterParser {
 
     private class MBusRegisterPair {
 
-        private List<CollectedRegister> collectedRegisters;
+        private final List<CollectedRegister> collectedRegisters;
 
-        public MBusRegisterPair() {
+        private MBusRegisterPair() {
+            this(new ArrayList<>());
         }
 
-        public MBusRegisterPair(List<CollectedRegister> collectedRegisters) {
+        private MBusRegisterPair(List<CollectedRegister> collectedRegisters) {
             this.collectedRegisters = collectedRegisters;
         }
 
         public List<CollectedRegister> getCollectedRegisters() {
-            if (collectedRegisters == null) {
-                collectedRegisters = new ArrayList<CollectedRegister>();
-            }
             return collectedRegisters;
         }
     }
