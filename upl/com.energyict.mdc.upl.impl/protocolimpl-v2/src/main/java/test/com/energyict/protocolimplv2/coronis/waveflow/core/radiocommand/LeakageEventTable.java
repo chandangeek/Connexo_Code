@@ -5,10 +5,9 @@ import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 
 public class LeakageEventTable extends AbstractRadioCommand {
 
-
     LeakageEvent[] leakageEvents = new LeakageEvent[5];
 
-    final public LeakageEvent[] getLeakageEvents() {
+    public final LeakageEvent[] getLeakageEvents() {
         return leakageEvents;
     }
 

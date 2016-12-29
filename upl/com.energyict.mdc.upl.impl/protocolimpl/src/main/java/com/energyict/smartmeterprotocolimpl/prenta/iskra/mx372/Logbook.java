@@ -4,7 +4,10 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,8 +61,8 @@ public class Logbook {
         this.logger = logger;
     }
 
-    public List getMeterEvents(DataContainer dc) {
-        List meterEvents = new ArrayList(); // of type MeterEvent
+    public List<MeterEvent> getMeterEvents(DataContainer dc) {
+        List<MeterEvent> meterEvents = new ArrayList<>();
         int size = dc.getRoot().getNrOfElements();
         Date eventTimeStamp = null;
         for (int i = 0; i < size; i++) {
@@ -76,7 +79,7 @@ public class Logbook {
                 } else {
                     // When 2 events have the same timestamp, the first one contains the eventTimeStamp.
                     // The 2th one contains no OctetString, but an Integer 0 value, indicating the same eventTimeStamp as previous event has to be used.
-                    if ((dc.getRoot().getStructure(i).getElement(0).equals((int) 0)) && (eventTimeStamp != null)) {
+                    if ((dc.getRoot().getStructure(i).getElement(0).equals(0)) && (eventTimeStamp != null)) {
                         buildMeterEvent(meterEvents, eventTimeStamp, eventId);
                     }   else {
                             // we don't store it in the database
@@ -95,14 +98,10 @@ public class Logbook {
     }
 
     private boolean isOctetString(DataStructure structure) {
-        if (structure.getElement(0) instanceof com.energyict.dlms.OctetString) {
-            return true;
-        } else {
-            return false;
-        }
+        return structure.getElement(0) instanceof com.energyict.dlms.OctetString;
     }
 
-    private void buildMeterEvent(List meterEvents, Date eventTimeStamp,
+    private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp,
                                  int eventId) {
 
         int aloneEventId = eventId + 0x10000;

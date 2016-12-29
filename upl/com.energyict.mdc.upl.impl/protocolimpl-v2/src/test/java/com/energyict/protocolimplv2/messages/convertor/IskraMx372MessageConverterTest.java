@@ -108,7 +108,7 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new IskraMx372();
+        return new IskraMx372(propertySpecService);
     }
 
     @Override

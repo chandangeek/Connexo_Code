@@ -138,8 +138,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 //        this.properties = (IskraMX372Properties) protocol.getDlmsSession().getProperties();
     }
 
-    public List getMessageCategories() {
-        List theCategories = new ArrayList();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec catAuthenticationEncryption = getAuthEncryptCategory();
         MessageCategorySpec catBasicMessages = getBasicMessagesCategory();
         MessageCategorySpec catLoadLimit = getLoadLimitCategory();

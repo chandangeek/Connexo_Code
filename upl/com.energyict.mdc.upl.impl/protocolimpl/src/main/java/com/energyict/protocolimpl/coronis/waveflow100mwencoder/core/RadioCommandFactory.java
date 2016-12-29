@@ -64,7 +64,7 @@ public class RadioCommandFactory {
 
 
     final public LeakageEventTable readLeakageEventTable() throws IOException {
-        LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW);
+        LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW, propertySpecService);
         leakageEventTable.invoke();
         return leakageEventTable;
     }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.support.SerialNumberSupport;
 
@@ -12,6 +14,10 @@ import java.io.IOException;
  * Author: khe
  */
 public class AS330D extends AbstractPrimeMeter implements SerialNumberSupport{
+
+    public AS330D(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getProtocolVersion() {
@@ -26,4 +32,5 @@ public class AS330D extends AbstractPrimeMeter implements SerialNumberSupport{
             throw DLMSIOExceptionHandler.handle(e, super.getSession().getProperties().getRetries() + 1);
         }
     }
+
 }

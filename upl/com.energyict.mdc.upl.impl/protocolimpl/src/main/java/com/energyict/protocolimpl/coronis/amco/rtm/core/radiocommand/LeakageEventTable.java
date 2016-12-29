@@ -5,16 +5,17 @@ import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LeakageEventTable extends AbstractRadioCommand {
 
-
     LeakageEvent[] leakageEvents = new LeakageEvent[5];
 
-    final public LeakageEvent[] getLeakageEvents() {
+    public final LeakageEvent[] getLeakageEvents() {
         return leakageEvents;
     }
 
@@ -23,7 +24,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
     }
 
     public List<MeterEvent> getMeterEvents() {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         EventStatusAndDescription translator = new EventStatusAndDescription();
         for (LeakageEvent event : leakageEvents) {
             if (event != null) {

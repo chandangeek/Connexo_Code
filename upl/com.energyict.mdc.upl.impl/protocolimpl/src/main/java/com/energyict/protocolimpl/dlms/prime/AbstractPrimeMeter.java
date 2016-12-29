@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -38,7 +39,6 @@ import java.util.logging.Level;
  */
 abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements SerialNumberSupport, CachingProtocol {
 
-    private final PrimeProperties properties = new PrimeProperties(propertySpecService);
     private PrimeProfile loadProfile;
     private PrimeEventLogs eventLogs;
     private PrimeClock clock;
@@ -46,6 +46,11 @@ abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements
     private PrimeMeterInfo meterInfo;
     private PrimeMessaging messaging;
     private ProfileCacheImpl cache = new ProfileCacheImpl();
+    private final PrimeProperties properties;
+
+    protected AbstractPrimeMeter(PropertySpecService propertySpecService) {
+        this.properties = new PrimeProperties(propertySpecService);
+    }
 
     @Override
     public String getProtocolVersion() {

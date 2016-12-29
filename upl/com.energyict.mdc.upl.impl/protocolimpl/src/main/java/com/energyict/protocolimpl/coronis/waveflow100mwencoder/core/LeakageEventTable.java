@@ -1,19 +1,21 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.LeakageEvent;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Date;
 
 public class LeakageEventTable extends AbstractRadioCommand {
 
     public class LeakEvent {
-
-
         /**
          * indicates the event type (occurrence or disappearance) and the corresponding Port.
          * Bit 7 Bit 6 Bit 5 Bit 4 Bit 3 Bit 2 Bit 1 Bit 0
@@ -41,7 +43,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
         boolean valid = false;
 
 
-        final public boolean isValid() {
+        public final boolean isValid() {
             return valid;
         }
 
@@ -58,17 +60,17 @@ public class LeakageEventTable extends AbstractRadioCommand {
             }
         }
 
-        final public int getStatus() {
+        public final int getStatus() {
             return status;
         }
 
 
-        final public int getConsumptionRate() {
+        public final int getConsumptionRate() {
             return consumptionRate;
         }
 
 
-        final public Date getDate() {
+        public final Date getDate() {
             return date;
         }
 
@@ -89,20 +91,22 @@ public class LeakageEventTable extends AbstractRadioCommand {
         }
 
         public int getDeviceCode() {
-            EventStatusAndDescription eventStatus = new EventStatusAndDescription(new WaveFlowV2());
+            EventStatusAndDescription eventStatus = new EventStatusAndDescription(new WaveFlowV2(propertySpecService));
             return eventStatus.getProtocolCodeForLeakage(getStartDescription(), getTypeDescription(), getPortDescription());
         }
     }
 
     LeakEvent[] leakageEvents = new LeakEvent[5];
+    private final PropertySpecService propertySpecService;
 
-    final public LeakEvent[] getLeakageEvents() {
+    public final LeakEvent[] getLeakageEvents() {
         return leakageEvents;
     }
 
-    LeakageEventTable(WaveFlow100mW waveFlow100mW) {
+    LeakageEventTable(WaveFlow100mW waveFlow100mW, PropertySpecService propertySpecService) {
         super(waveFlow100mW);
         // TODO Auto-generated constructor stub
+        this.propertySpecService = propertySpecService;
     }
 
     @Override

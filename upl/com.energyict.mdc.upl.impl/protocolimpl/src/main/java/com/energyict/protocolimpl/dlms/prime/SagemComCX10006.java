@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.support.SerialNumberSupport;
 
@@ -12,6 +14,10 @@ import java.io.IOException;
  * Author: khe
  */
 public class SagemComCX10006 extends AbstractPrimeMeter implements SerialNumberSupport {
+
+    public SagemComCX10006(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getSerialNumber() {
@@ -26,4 +32,5 @@ public class SagemComCX10006 extends AbstractPrimeMeter implements SerialNumberS
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:25:13 +0200 (Thu, 26 Nov 2015)$";
     }
+
 }

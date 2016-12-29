@@ -5,15 +5,11 @@ import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  * <pre>
@@ -36,7 +32,7 @@ import java.util.logging.Logger;
 public class EventParser {
 
     private final CewePrometer prometer;
-    private Map map = new LinkedHashMap();
+    private Map<Integer, EventType> map = new HashMap<>();
 
     public EventParser(CewePrometer prometer){
         this.prometer = prometer;
@@ -44,12 +40,7 @@ public class EventParser {
     }
 
     void init( ){
-
-        String dscr = null;
-
-        dscr = "Single phase reverse energy direction";
-        put( 1, new EventType(MeterEvent.OTHER, dscr){
-
+        put( 1, new EventType(MeterEvent.OTHER, "Single phase reverse energy direction"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d = description + ", phase L" + parseFirstIndex(data);
                 return new MeterEvent(date, eiCode, protocolCode, d);
@@ -57,8 +48,7 @@ public class EventParser {
 
         });
 
-        dscr = "Time set";
-        put( 2, new EventType(MeterEvent.SETCLOCK, dscr){
+        put( 2, new EventType(MeterEvent.SETCLOCK, "Time set"){
             MeterEvent toMeterEvent(Date date, String data) {
 
                 SimpleDateFormat sdf = new SimpleDateFormat();
@@ -72,92 +62,70 @@ public class EventParser {
             }
         });
 
-        dscr = "Registers cleared";
-        put( 3, new EventType(MeterEvent.CLEAR_DATA, dscr) );
+        put( 3, new EventType(MeterEvent.CLEAR_DATA, "Registers cleared") );
 
-        dscr = "Logger has been reset";
-        put( 4, new EventType(MeterEvent.CLEAR_DATA, dscr){
+        put( 4, new EventType(MeterEvent.CLEAR_DATA, "Logger has been reset"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d = description + ", Logger " + parseFirstIndex(data);
                 return new MeterEvent(date, eiCode, protocolCode, d);
             }
         });
 
-        dscr = "Supply lost";
-        put( 5, new EventType(MeterEvent.POWERDOWN, dscr) );
+        put( 5, new EventType(MeterEvent.POWERDOWN, "Supply lost") );
 
-        dscr = "Historical registers cleared (all billing periods cleared)";
-        put( 6, new EventType(MeterEvent.CLEAR_DATA, dscr) );
+        put( 6, new EventType(MeterEvent.CLEAR_DATA, "Historical registers cleared (all billing periods cleared)") );
 
-        dscr = "Historical period finished and MD-registers reset (Billing " +
-                "period reset)";
-        put( 7, new EventType(MeterEvent.BILLING_ACTION, dscr) );
+        put( 7, new EventType(MeterEvent.BILLING_ACTION, "Historical period finished and MD-registers reset (Billing period reset)") );
 
-        dscr = "All MD-registers cleared due to configuration changed";
-        put( 8, new EventType(MeterEvent.CLEAR_DATA, dscr) );
+        put( 8, new EventType(MeterEvent.CLEAR_DATA, "All MD-registers cleared due to configuration changed") );
 
-        dscr = "Logger cleared due to configuration changed";
-        put( 9, new EventType(MeterEvent.CONFIGURATIONCHANGE, dscr){
+        put( 9, new EventType(MeterEvent.CONFIGURATIONCHANGE, "Logger cleared due to configuration changed"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d = description + ", Logger " + parseFirstIndex(data);
                 return new MeterEvent(date, eiCode, protocolCode, d);
             }
         });
 
-        dscr = "Voltage interruption in seconds";
-        put( 14, new EventType(MeterEvent.POWERDOWN, dscr){
+        put( 14, new EventType(MeterEvent.POWERDOWN, "Voltage interruption in seconds"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d = description + " " + parseLong(data) + " s";
                 return new MeterEvent(date, eiCode, protocolCode, d);
             }
         });
 
-        dscr = "Voltage sag";
-        put( 15, new EventType(MeterEvent.VOLTAGE_SAG, dscr){
+        put( 15, new EventType(MeterEvent.VOLTAGE_SAG, "Voltage sag"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d = description + " " + parseLong(data) + " s";
                 return new MeterEvent(date, eiCode, protocolCode, d);
             }
         });
 
-        dscr = "Voltage swell";
-        put( 16, new EventType(MeterEvent.VOLTAGE_SWELL, dscr){
+        put( 16, new EventType(MeterEvent.VOLTAGE_SWELL, "Voltage swell"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d = description + " " + parseLong(data) + " s";
                 return new MeterEvent(date, eiCode, protocolCode, d);
             }
         });
 
-        dscr = "Voltage below limit";
-        put( 17, new EventType(MeterEvent.OTHER, dscr) );
+        put( 17, new EventType(MeterEvent.OTHER, "Voltage below limit") );
 
-        dscr = "Voltage exceeding limit";
-        put( 18, new EventType(MeterEvent.OTHER, dscr) );
+        put( 18, new EventType(MeterEvent.OTHER, "Voltage exceeding limit") );
 
-        dscr = "Power factor below limit";
-        put( 19, new EventType(MeterEvent.OTHER, dscr) );
+        put( 19, new EventType(MeterEvent.OTHER, "Power factor below limit") );
 
-        dscr = "Voltage unbalance";
-        put( 20, new EventType(MeterEvent.OTHER, dscr) );
+        put( 20, new EventType(MeterEvent.OTHER, "Voltage unbalance") );
 
-        dscr = "Current unbalance";
-        put( 21, new EventType(MeterEvent.OTHER, dscr) );
+        put( 21, new EventType(MeterEvent.OTHER, "Current unbalance") );
 
-        dscr = "Active power below limit";
-        put( 22, new EventType(MeterEvent.OTHER, dscr) );
+        put( 22, new EventType(MeterEvent.OTHER, "Active power below limit") );
 
-        dscr = "Active power exceeding limit";
-        put( 23, new EventType(MeterEvent.OTHER, dscr) );
+        put( 23, new EventType(MeterEvent.OTHER, "Active power exceeding limit") );
 
-        dscr = "Voltage THD exceeding limit";
-        put( 24, new EventType(MeterEvent.OTHER, dscr) );
+        put( 24, new EventType(MeterEvent.OTHER, "Voltage THD exceeding limit") );
 
-        dscr = "Current THD exceeding limit";
-        put( 25, new EventType(MeterEvent.OTHER, dscr) );
+        put( 25, new EventType(MeterEvent.OTHER, "Current THD exceeding limit") );
 
-
-        dscr = "Single harmonic on voltage exceeding limit";
-        put( 26, new EventType(MeterEvent.OTHER, dscr){
+        put( 26, new EventType(MeterEvent.OTHER, "Single harmonic on voltage exceeding limit"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d =
                     description + " Phase L" + parseFirstIndex(data) +
@@ -166,8 +134,7 @@ public class EventParser {
             }
         });
 
-        dscr = "Single harmonic on current exceeding limit";
-        put( 27, new EventType(MeterEvent.OTHER, dscr){
+        put( 27, new EventType(MeterEvent.OTHER, "Single harmonic on current exceeding limit"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d =
                     description + " Phase L" + parseFirstIndex(data) +
@@ -176,8 +143,7 @@ public class EventParser {
             }
         });
 
-        dscr = "Digital input pulse length too long";
-        put( 28, new EventType(MeterEvent.OTHER, dscr){
+        put( 28, new EventType(MeterEvent.OTHER, "Digital input pulse length too long"){
 
             MeterEvent toMeterEvent(Date date, String data) {
                 String d =
@@ -187,8 +153,7 @@ public class EventParser {
             }
         });
 
-        dscr = "Digital input pulse lenth too short";
-        put( 29, new EventType(MeterEvent.OTHER, dscr){
+        put( 29, new EventType(MeterEvent.OTHER, "Digital input pulse lenth too short"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String a = data.substring(0,2) + "." + data.substring(2, data.length() );
                 String d = description + " " + Double.parseDouble(a) + "ms";
@@ -196,66 +161,49 @@ public class EventParser {
             }
         });
 
-        dscr = "Voltage phase failure. 2-element meters will always have phases = 00";
-        put( 30, new EventType(MeterEvent.OTHER, dscr){
+        put( 30, new EventType(MeterEvent.OTHER, "Voltage phase failure. 2-element meters will always have phases = 00"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d = description + ", phase L" + parseFirstIndex(data);
                 return new MeterEvent(date, eiCode, protocolCode, d);
             }
         });
 
-        dscr = "Meter configuration altered";
-        put( 42, new EventType(MeterEvent.OTHER, dscr) );
+        put( 42, new EventType(MeterEvent.OTHER, "Meter configuration altered") );
 
-        dscr = "Meter calibration altered";
-        put( 43, new EventType(MeterEvent.OTHER, dscr) );
+        put( 43, new EventType(MeterEvent.OTHER, "Meter calibration altered") );
 
-        dscr = "Meter initialised";
-        put( 44, new EventType(MeterEvent.OTHER, dscr) );
+        put( 44, new EventType(MeterEvent.OTHER, "Meter initialised") );
 
-        dscr = "Reverse running. 2-element meters will always have bit 1 (L2)=0";
-        put( 45, new EventType(MeterEvent.OTHER, dscr){
+        put( 45, new EventType(MeterEvent.OTHER, "Reverse running. 2-element meters will always have bit 1 (L2)=0"){
             MeterEvent toMeterEvent(Date date, String data) {
                 String d = description + ", phase L" + parseFirstIndex(data);
                 return new MeterEvent(date, eiCode, protocolCode, d);
             }
         });
 
-        dscr = "Meter firmware upgrade";
-        put( 46, new EventType(MeterEvent.OTHER, dscr) );
+        put( 46, new EventType(MeterEvent.OTHER, "Meter firmware upgrade") );
 
-        dscr = "Time to change battery";
-        put( 47, new EventType(MeterEvent.BATTERY_VOLTAGE_LOW, dscr) );
+        put( 47, new EventType(MeterEvent.BATTERY_VOLTAGE_LOW, "Time to change battery") );
 
-        dscr = "Energy registers corrupt";
-        put( 1000, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1000, new EventType(MeterEvent.HARDWARE_ERROR, "Energy registers corrupt") );
 
-        dscr = "Communication module config. corrupt";
-        put( 1001, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1001, new EventType(MeterEvent.HARDWARE_ERROR, "Communication module config. corrupt") );
 
-        dscr = "IO module config. corrupt";
-        put( 1002, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1002, new EventType(MeterEvent.HARDWARE_ERROR, "IO module config. corrupt") );
 
-        dscr = "Measuring module config. corrupt";
-        put( 1003, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1003, new EventType(MeterEvent.HARDWARE_ERROR, "Measuring module config. corrupt") );
 
-        dscr = "Measuring module initialisation corrupt";
-        put( 1004, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1004, new EventType(MeterEvent.HARDWARE_ERROR, "Measuring module initialisation corrupt") );
 
-        dscr = "Measurig module calibration corrupt";
-        put( 1005, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1005, new EventType(MeterEvent.HARDWARE_ERROR, "Measurig module calibration corrupt") );
 
-        dscr = "Main module config. corrupt";
-        put( 1006, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1006, new EventType(MeterEvent.HARDWARE_ERROR, "Main module config. corrupt") );
 
-        dscr = "Historical period corrupt";
-        put( 1007, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1007, new EventType(MeterEvent.HARDWARE_ERROR, "Historical period corrupt") );
 
-        dscr = "MD-register corrupt";
-        put( 1008, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1008, new EventType(MeterEvent.HARDWARE_ERROR, "MD-register corrupt") );
 
-        dscr = "Measuring module faulty";
-        put( 1009, new EventType(MeterEvent.HARDWARE_ERROR, dscr) );
+        put( 1009, new EventType(MeterEvent.HARDWARE_ERROR, "Measuring module faulty") );
 
     }
 
@@ -292,30 +240,28 @@ public class EventParser {
         }
 
         long parseLong(String data){
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder builder = new StringBuilder();
             for(int i=data.length(); i > 1; i=i-2){
-                buffer.append( data.substring(i-2,i) );
+                builder.append( data.substring(i-2,i) );
             }
-            return Long.parseLong(buffer.toString(),16);
+            return Long.parseLong(builder.toString(),16);
         }
 
         public String toString(){
-            return new StringBuffer()
-                .append("EventType [")
-                .append(protocolCode).append("")
-                .append( "\t\t" ).append(eiCode).append("")
-                .append( "\t" ).append( eventToString(eiCode) ).append( ", ")
-                .append( "\t" ).append(description).append("")
-
-                .toString();
+            return "EventType [" +
+                    protocolCode + "" +
+                    "\t\t" + eiCode + "" +
+                    "\t" + eventToString(eiCode) + ", " +
+                    "\t" + description + "";
         }
     }
 
     private EventType getEventType(Integer id){
-        EventType result = (EventType) map.get(id);
+        EventType result = map.get(id);
 
-        if( result != null)     /* short circuit */
-            return (EventType) map.get(id);
+        if( result != null)     /* short circuit */ {
+            return map.get(id);
+        }
 
         return
             new EventType(MeterEvent.OTHER, "Unknown event id: " + id ){
@@ -400,48 +346,11 @@ public class EventParser {
     }
 
     public String toString(){
-        StringBuffer rslt = new StringBuffer( );
-
-        Iterator i = map.values().iterator();
-        while(i.hasNext()) {
-            rslt.append(i.next()).append("\n");
+        StringBuilder builder = new StringBuilder( );
+        for (Object o : map.values()) {
+            builder.append(o).append("\n");
         }
-
-        return rslt.toString();
-    }
-
-    /** contains all the test messages from the CEWE documentation for testing
-     * the EventParser */
-    public static void main(String [] args) throws IOException{
-
-        CewePrometer prometer = new CewePrometer();
-        prometer.init(null, null, TimeZone.getDefault(), Logger.getAnonymousLogger());
-        EventParser p = new EventParser(prometer);
-
-        System.out.println(p.toString());
-
-        // Test messages for debugging
-        String [] s = new String [] {
-            "1,010000000000", "2,9F5F8A410000", "3,000000000000",
-            "4,010000000000", "5,000000000000", "6,000000000000",
-            "7,000000000000", "8,000000000000", "9,010000000000",
-            "14,000000000000", "15,A20200000000", "16,550100000000",
-            "17,000000000000", "18,000000000000", "19,000000000000",
-            "20,000000000000", "21,000000000000", "22,000000000000",
-            "23,000000000000", "24,000000000000", "25,000000000000",
-            "26,000400000000", "27,010200000000", "28,042C01000000",
-            "29,031400000000", "30,030000000000", "42,000000000000",
-            "43,000000000000", "44,000000000000", "45,050000000000",
-            "46,000000000000", "1000,000000000000", "1001,000000000000",
-            "1002,000000000000", "1003,000000000000", "1004,000000000000",
-            "1005,000000000000", "1006,000000000000", "1007,000000000000",
-            "1008,000000000000", "1009,000000000000"
-        };
-
-        for (int i = 0; i < s.length; i++) {
-            System.out.println( i + " \t " + p.getMeterEvent(new Date(), s[i]));
-        }
-
+        return builder.toString();
     }
 
 }

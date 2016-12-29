@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.support.SerialNumberSupport;
 
@@ -15,6 +17,10 @@ import java.io.IOException;
  */
 public class ZIV extends AbstractPrimeMeter  implements SerialNumberSupport{
 
+    public ZIV(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public String getSerialNumber() {
         try {
@@ -28,4 +34,5 @@ public class ZIV extends AbstractPrimeMeter  implements SerialNumberSupport{
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
     }
+
 }

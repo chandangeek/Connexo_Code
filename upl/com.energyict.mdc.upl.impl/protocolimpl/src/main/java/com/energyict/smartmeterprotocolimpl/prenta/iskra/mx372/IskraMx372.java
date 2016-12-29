@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -55,7 +57,6 @@ import java.util.logging.Logger;
  */
 public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, WakeUpProtocolSupport, SerialNumberSupport {
 
-
     private IskraMX372Properties properties;
     private String serialnr = null;
     private String devID = null;
@@ -77,6 +78,11 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
      */
     private boolean hasBreaker = true;
+    private final PropertySpecService propertySpecService;
+
+    public IskraMx372(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
@@ -86,7 +92,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new IskraMX372Properties(propertySpecService);
+            this.properties = new IskraMX372Properties(this.propertySpecService);
         }
         return this.properties;
     }
@@ -191,7 +197,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
             } else {
                 return getProperties().getSerialNumber();
             }
-        }catch (IOException e){
+        } catch (IOException e){
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
@@ -286,8 +292,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
         if (!properties.madeCSDCall()) {
-            List<LoadProfileConfiguration> loadProfileConfigurations = getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
-            return loadProfileConfigurations;
+            return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
         } else {
             throw new IOException("Reading of demand values not allowed in the CSD schedule. Please correct this first.");
         }
@@ -455,7 +460,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
 
@@ -512,7 +517,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @param physicalAddress
      * @return
      */
-    public String getSerialNumberFromPhysicalAddress(int physicalAddress) throws IOException {
+    public String getSerialNumberFromPhysicalAddress(int physicalAddress) {
         for (MbusDevice mbusDevice : messageProtocol.getMbusDevices()) {
             if ((mbusDevice != null) && (mbusDevice.getPhysicalAddress() == physicalAddress)) {
                 return mbusDevice.getCustomerID();
