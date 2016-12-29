@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
@@ -27,9 +28,15 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
 
     private static final int AUTH_DEVICE_ACCESS_LEVEL = 0;
 
+    private final PropertySpecService propertySpecService;
+
+    public SimplePasswordSecuritySupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
     }
 
     @Override
@@ -44,8 +51,8 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
 
     @Override
     public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        if (DeviceSecurityProperty.PASSWORD.getPropertySpec().getName().equals(name)) {
-            return Optional.of(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        if (DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName().equals(name)) {
+            return Optional.of(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         } else {
             return null;
         }
@@ -108,7 +115,7 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 

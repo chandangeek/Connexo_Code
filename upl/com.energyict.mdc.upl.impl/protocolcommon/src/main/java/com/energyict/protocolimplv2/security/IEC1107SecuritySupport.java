@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -26,7 +27,12 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
     public static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DEFAULT_SECURITY_LEVEL_VALUE = "1";
-    private final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
+    private static final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
+    private final PropertySpecService propertySpecService;
+
+    public IEC1107SecuritySupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public List<String> getLegacySecurityProperties() {
@@ -55,7 +61,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
     }
 
     @Override
@@ -156,7 +162,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -177,7 +183,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -198,7 +204,7 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 }

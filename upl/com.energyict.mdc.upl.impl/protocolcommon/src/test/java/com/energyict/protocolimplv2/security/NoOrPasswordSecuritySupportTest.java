@@ -22,7 +22,7 @@ public class NoOrPasswordSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        NoOrPasswordSecuritySupport noOrPasswordSecuritySupport = new NoOrPasswordSecuritySupport();
+        NoOrPasswordSecuritySupport noOrPasswordSecuritySupport = new NoOrPasswordSecuritySupport(propertySpecService);
 
         // assert that you only have two properties to set
         assertThat(noOrPasswordSecuritySupport.getSecurityProperties()).hasSize(1);
@@ -44,7 +44,7 @@ public class NoOrPasswordSecuritySupportTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        NoOrPasswordSecuritySupport noOrPasswordSecuritySupport = new NoOrPasswordSecuritySupport();
+        NoOrPasswordSecuritySupport noOrPasswordSecuritySupport = new NoOrPasswordSecuritySupport(propertySpecService);
 
         // assert that you only have one authentication level
         assertThat(noOrPasswordSecuritySupport.getAuthenticationAccessLevels()).hasSize(2);
@@ -80,7 +80,7 @@ public class NoOrPasswordSecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest(){
-        NoOrPasswordSecuritySupport passwordWithLevelSecuritySupport = new NoOrPasswordSecuritySupport();
+        NoOrPasswordSecuritySupport passwordWithLevelSecuritySupport = new NoOrPasswordSecuritySupport(propertySpecService);
 
         // assert that you only have one encryption level
         assertThat(passwordWithLevelSecuritySupport.getEncryptionAccessLevels()).hasSize(0);

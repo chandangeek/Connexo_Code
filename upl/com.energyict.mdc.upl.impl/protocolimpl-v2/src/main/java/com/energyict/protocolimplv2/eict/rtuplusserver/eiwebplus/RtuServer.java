@@ -68,7 +68,7 @@ import java.util.Optional;
 public class RtuServer implements DeviceProtocol, SerialNumberSupport {
 
     private OfflineDevice offlineDevice;
-    private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport();
+    private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport(propertySpecService);
     private LegacyMessageConverter messageConverter;
     private final CollectedDataFactory collectedDataFactory;
     private final PropertySpecService propertySpecService;

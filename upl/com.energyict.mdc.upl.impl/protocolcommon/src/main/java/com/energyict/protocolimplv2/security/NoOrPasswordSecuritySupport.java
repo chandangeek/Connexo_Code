@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
@@ -28,11 +29,16 @@ import java.util.List;
  */
 public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    private final String authenticationTranslationKeyConstant = "NoOrPasswordSecuritySupport.authenticationlevel.";
+    private static final String authenticationTranslationKeyConstant = "NoOrPasswordSecuritySupport.authenticationlevel.";
+    private final PropertySpecService propertySpecService;
+
+    public NoOrPasswordSecuritySupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
     }
 
     @Override
@@ -67,7 +73,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
     }
 
     private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
-        String passwordProperty = typedProperties.getStringProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName());
+        String passwordProperty = typedProperties.getStringProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName());
         final AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel;
         if (passwordProperty == null) {
             authenticationDeviceAccessLevel = new NoAuthenticationAccessLevel();
@@ -134,7 +140,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 

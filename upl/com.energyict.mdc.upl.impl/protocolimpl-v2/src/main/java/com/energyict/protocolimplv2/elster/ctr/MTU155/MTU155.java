@@ -7,18 +7,22 @@ import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ServerProximusSmsComChannel;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.CTRDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -28,9 +32,12 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -49,7 +56,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
-import com.energyict.util.IssueFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +71,11 @@ import java.util.logging.Logger;
  */
 public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
-    private final DeviceProtocolSecurityCapabilities securityCapabilities = new Mtu155SecuritySupport();
+    private final DeviceProtocolSecurityCapabilities securityCapabilities;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+    private final Extractor extractor;
 
     /**
      * The offline rtu
@@ -99,15 +109,20 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public MTU155(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public MTU155(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.extractor = extractor;
+        this.securityCapabilities = new Mtu155SecuritySupport(propertySpecService);
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        this.setProperties(offlineDevice.getAllProperties().toStringProperties());
+        this.setProperties(offlineDevice.getAllProperties());
         updateRequestFactory(comChannel);
     }
 
@@ -250,9 +265,6 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
         return getObisCodeMapper().readRegisters(rtuRegisters);
     }
 
-    /**
-     * @return
-     */
     protected GprsObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
             obisCodeMapper = new GprsObisCodeMapper(this);
@@ -400,7 +412,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(propertySpecService);
         TypedProperties securityProperties = mtu155SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
         if (this.allProperties != null) {
             this.allProperties.setAllProperties(securityProperties); // this will add the dialectProperties to the deviceProperties
@@ -466,4 +478,13 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
                 .map(OfflineCalendar::getName);*/
     }
 
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
 }

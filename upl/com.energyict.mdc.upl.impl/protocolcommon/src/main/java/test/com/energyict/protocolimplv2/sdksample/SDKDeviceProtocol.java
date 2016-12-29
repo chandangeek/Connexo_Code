@@ -93,7 +93,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      * Will group this protocols' security features.
      * As an example the {@link DlmsSecuritySupport} component is used
      */
-    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
+    private final DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
     /**
      * Will hold the cache object of the Device related to this protocol
      */
@@ -113,6 +113,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
     @Override

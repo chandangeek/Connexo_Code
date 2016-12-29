@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -62,11 +63,10 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
     private SDKSmartMeterProfile smartMeterProfile;
     private SDKSmartMeterRegisterFactory registerFactory;
 
-    /**
-     * Constructor ...
-     */
-    public SDKSmartMeterProtocol() {
+    private final PropertySpecService propertySpecService;
 
+    public SDKSmartMeterProtocol(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     /**

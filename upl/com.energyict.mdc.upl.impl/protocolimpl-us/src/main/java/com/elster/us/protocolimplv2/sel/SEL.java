@@ -280,22 +280,22 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return new NoOrPasswordSecuritySupport().getAuthenticationAccessLevels();
+        return new NoOrPasswordSecuritySupport(propertySpecService).getAuthenticationAccessLevels();
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return new NoOrPasswordSecuritySupport().getEncryptionAccessLevels();
+        return new NoOrPasswordSecuritySupport(propertySpecService).getEncryptionAccessLevels();
     }
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return new NoOrPasswordSecuritySupport().getSecurityProperties();
+        return new NoOrPasswordSecuritySupport(propertySpecService).getSecurityProperties();
     }
 
     @Override
     public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        return new NoOrPasswordSecuritySupport().getSecurityPropertySpec(name);
+        return new NoOrPasswordSecuritySupport(propertySpecService).getSecurityPropertySpec(name);
     }
 
     @Override

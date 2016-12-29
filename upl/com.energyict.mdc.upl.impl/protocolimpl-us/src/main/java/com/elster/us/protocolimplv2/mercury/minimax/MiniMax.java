@@ -30,6 +30,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -115,17 +116,19 @@ public class MiniMax implements DeviceProtocol {
 
     private MiniMaxConnection connection;
     private MiniMaxProperties properties = new MiniMaxProperties();
+    private final NoOrPasswordSecuritySupport securitySupport;
+    private final PropertySpecService propertySpecService;
 
     private OfflineDevice offlineDevice;
 
     private List<ObisCode> channelObisCodes;
 
-    private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport();
-
     private Logger logger = Logger.getLogger(this.getClass().getName());
     private final CollectedDataFactory collectedDataFactory;
 
-    public MiniMax(CollectedDataFactory collectedDataFactory) {
+    public MiniMax(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
+        this.propertySpecService = propertySpecService;
+        this.securitySupport = new NoOrPasswordSecuritySupport(propertySpecService);
         this.collectedDataFactory = collectedDataFactory;
     }
 
@@ -289,13 +292,12 @@ public class MiniMax implements DeviceProtocol {
      *
      * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
      * @return a list of <CODE>LoadProfileConfiguration</CODE> objects corresponding with the meter
-     * @throws IOException if a communication or parsing error occurred
      */
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
 
         // Read what is setup in the meter
-        List<String> registers = new ArrayList<String>();
+        List<String> registers = new ArrayList<>();
         registers.add(OBJECT_AUDIT_1);
         registers.add(OBJECT_AUDIT_2);
         registers.add(OBJECT_AUDIT_3);
@@ -310,7 +312,7 @@ public class MiniMax implements DeviceProtocol {
         ResponseFrame responseFrame = getConnection().readMultipleRegisterValues(registers);
         MultiReadResponseData data = (MultiReadResponseData)responseFrame.getData();
 
-        List<String> registersToMap = new ArrayList();
+        List<String> registersToMap = new ArrayList<>();
 
         for (int count = 0; count < registers.size(); count++) {
             registersToMap.add(data.getResponse(count));
@@ -333,7 +335,7 @@ public class MiniMax implements DeviceProtocol {
 
 
         // Go through the list of load profiles provided from EiServer
-        List<CollectedLoadProfileConfiguration> loadProfileConfigList = new ArrayList<CollectedLoadProfileConfiguration>();
+        List<CollectedLoadProfileConfiguration> loadProfileConfigList = new ArrayList<>();
         for (LoadProfileReader lpReader : loadProfilesToRead) {
 
             String serialNumber = lpReader.getMeterSerialNumber();
@@ -341,7 +343,7 @@ public class MiniMax implements DeviceProtocol {
 
             // Create a LoadProfileConfiguration to return
             CollectedLoadProfileConfiguration config = new DeviceLoadProfileConfiguration(obisCode, serialNumber);
-            List<ChannelInfo> channelInfosToReturn = new ArrayList<ChannelInfo>();
+            List<ChannelInfo> channelInfosToReturn = new ArrayList<>();
             config.setChannelInfos(channelInfosToReturn);
             // These devices are always 1 hour intervals
             config.setProfileInterval(3600);
@@ -376,12 +378,11 @@ public class MiniMax implements DeviceProtocol {
      *
      * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
      * @return a list of <CODE>ProfileData</CODE> objects containing interval records
-     * @throws IOException if a communication or parsing error occurred
      */
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
 
-        List<CollectedLoadProfile> profileDataList = new ArrayList<CollectedLoadProfile>();
+        List<CollectedLoadProfile> profileDataList = new ArrayList<>();
 
         for (LoadProfileReader lpr : loadProfiles) {
 
@@ -391,7 +392,7 @@ public class MiniMax implements DeviceProtocol {
 
             // These are the channels we are interested in...
             List<ChannelInfo> channelInfosFromEiServer = lpr.getChannelInfos();
-            List<Integer> interestedIn = new ArrayList<Integer>();
+            List<Integer> interestedIn = new ArrayList<>();
 
             for (ChannelInfo channelInfo : channelInfosFromEiServer) {
                 ObisCode obis = channelInfo.getChannelObisCode();
@@ -402,7 +403,7 @@ public class MiniMax implements DeviceProtocol {
                 }
             }
 
-            List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+            List<IntervalData> intervalDatas = new ArrayList<>();
 
             // Construct the date and time strings to send to the device
             Date startReadingTime = lpr.getStartReadingTime();
@@ -475,7 +476,7 @@ public class MiniMax implements DeviceProtocol {
 
 
             if (auditLogs != null && auditLogs.size() == 1 && !(auditLogs.get(0).getData() instanceof DMResponseData)) {
-                BasicResponseData brd = (BasicResponseData)auditLogs.get(0).getData();
+                BasicResponseData brd = auditLogs.get(0).getData();
                 if (arraysEqual(brd.getErrorCode(), getBytes(RESPONSE_OK))) {
                     // Ignore this
                 } else if (arraysEqual(brd.getErrorCode(), getBytes(ERROR_NO_AUDIT_TRAIL_RECORDS_AVAILABLE))){
@@ -523,7 +524,7 @@ public class MiniMax implements DeviceProtocol {
 
                             IntervalData interval = new IntervalData(dateInMeterTz, eiStatus);
                             for (int i : interestedIn) {
-                                BigDecimal value = null;
+                                BigDecimal value;
                                 try {
                                     value = new BigDecimal(record.getStuff(i).trim());
                                 } catch (Throwable t) {
@@ -547,18 +548,11 @@ public class MiniMax implements DeviceProtocol {
         return profileDataList;
     }
 
-    /**
-     * Gets the connection
-     * @return
-     */
     public MiniMaxConnection getConnection() {
         return connection;
     }
 
-    /**
-     * Gets the version
-     * @return
-     */
+    @Override
     public String getVersion() {
         return "$Date: 2016-06-14 09:25:49 -0400 (Tue, 14 Jun 2016) $";
     }

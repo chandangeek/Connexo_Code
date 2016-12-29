@@ -87,7 +87,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             allRelevantProperties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), getDeviceSerialNumber());
 
             List<SecurityProperty> protocolSecurityProperties = getContext().getInboundDAO().getDeviceProtocolSecurityProperties(this.deviceIdentifier, getContext().getComPort());
-            MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport().convertToTypedProperties(protocolSecurityProperties));
+            MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport(propertySpecService).convertToTypedProperties(protocolSecurityProperties));
             SMSFrame smsFrame = ((CTRCryptographer) getContext().getCryptographer()).decryptSMS(mtu155Properties, sms.getMessage());
 
             SmsHandler smsHandler = new SmsHandler(getDeviceIdentifier(), allRelevantProperties, collectedDataFactory);

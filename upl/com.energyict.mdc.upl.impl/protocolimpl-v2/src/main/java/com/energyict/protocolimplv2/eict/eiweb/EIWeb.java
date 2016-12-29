@@ -3,18 +3,33 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -48,13 +63,22 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private static final String PHONE_NUMBER = "PhoneNumber";
     private OfflineDevice offlineDevice;
-    private SimplePasswordSecuritySupport securitySupport = new SimplePasswordSecuritySupport();
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
     private LegacyMessageConverter messageConverter;
+    private final SimplePasswordSecuritySupport securitySupport;
     private final CollectedDataFactory collectedDataFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+    private final Extractor extractor;
 
-    public EIWeb(CollectedDataFactory collectedDataFactory) {
+    public EIWeb(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
         this.collectedDataFactory = collectedDataFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.extractor = extractor;
+        this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
     }
 
     @Override
@@ -175,7 +199,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebMessageConverter();
+            messageConverter = new EIWebMessageConverter(null, propertySpecService, nlsService, converter, extractor);
         }
         return messageConverter;
     }
@@ -253,5 +277,15 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     @Override
     public CollectedCalendar getCollectedCalendar() {
         return this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

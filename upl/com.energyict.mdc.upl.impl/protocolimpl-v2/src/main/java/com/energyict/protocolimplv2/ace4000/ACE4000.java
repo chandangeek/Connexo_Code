@@ -41,6 +41,10 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
      */
     private List<ObisCode> receivedRegisterObisCodeList = new ArrayList<>();
 
+    public ACE4000() {
+        super(propertySpecService);
+    }
+
     public abstract DeviceIdentifier getDeviceIdentifier();
 
     public ACE4000Connection getAce4000Connection() {

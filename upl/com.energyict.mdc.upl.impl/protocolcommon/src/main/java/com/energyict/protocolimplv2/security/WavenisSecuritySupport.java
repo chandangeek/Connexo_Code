@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -29,11 +30,17 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
     private static final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";
 
+    private final PropertySpecService propertySpecService;
+
+    public WavenisSecuritySupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
     }
 
     @Override
@@ -133,8 +140,8 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
         }
     }
 
@@ -156,8 +163,8 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
         }
     }
 }

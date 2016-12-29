@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -31,6 +32,12 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     private static final String AUTHENTICATION_TRANSLATION_KEY_CONSTANT = "Mtu155SecuritySupport.authenticationlevel.";
     private static final String ENCRYPTION_TRANSLATION_KEY_CONSTANT = "Mtu155SecuritySupport.encryptionlevel.";
 
+    private final PropertySpecService propertySpecService;
+
+    public Mtu155SecuritySupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     /**
      * Summarizes the used ID for the Encryption- and AuthenticationLevels.
      */
@@ -53,7 +60,7 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(),
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
                 getEncryptionKeyCPropertySpec(),
                 getEncryptionKeyFPropertySpec(),
                 getEncryptionKeyTPropertySpec());
@@ -232,7 +239,7 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
