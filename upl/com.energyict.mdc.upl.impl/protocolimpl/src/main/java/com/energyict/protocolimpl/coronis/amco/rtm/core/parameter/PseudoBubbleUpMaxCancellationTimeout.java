@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
@@ -7,10 +9,10 @@ import java.io.IOException;
 
 public class PseudoBubbleUpMaxCancellationTimeout extends AbstractParameter {
 
-    int seconds;
+    private int seconds;
 
-    PseudoBubbleUpMaxCancellationTimeout(RTM rtm) {
-        super(rtm);
+    PseudoBubbleUpMaxCancellationTimeout(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
     final int getSeconds() {

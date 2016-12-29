@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
@@ -9,7 +11,7 @@ import java.io.IOException;
 
 public class FirmwareVersion extends AbstractRadioCommand {
 
-	FirmwareVersion(RTM rtm) {
+	FirmwareVersion(PropertySpecService propertySpecService, RTM rtm) {
 		super(propertySpecService, rtm);
 	}
 

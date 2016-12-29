@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -9,12 +11,12 @@ import java.util.Date;
 
 public class TamperDetectionDate extends AbstractParameter {
 
-    public TamperDetectionDate(RTM rtm) {
-        super(rtm);
+    public TamperDetectionDate(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public TamperDetectionDate(RTM rtm, int input) {
-        super(rtm);
+    public TamperDetectionDate(PropertySpecService propertySpecService, RTM rtm, int input) {
+        super(propertySpecService, rtm);
         this.input = input;
     }
 
@@ -52,7 +54,7 @@ public class TamperDetectionDate extends AbstractParameter {
         date = TimeDateRTCParser.parse(data, 0, 7, getRTM().getTimeZone()).getTime();
     }
 
-    protected byte[] prepare() throws IOException {
+    protected byte[] prepare() throws WaveFlowException {
         throw new WaveFlowException("Not allowed to write this parameter.");
     }
 }

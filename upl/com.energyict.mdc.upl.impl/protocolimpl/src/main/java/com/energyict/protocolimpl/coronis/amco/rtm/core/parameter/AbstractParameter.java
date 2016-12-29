@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.AbstractRadioCommand;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -12,7 +14,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-abstract public class AbstractParameter extends AbstractRadioCommand {
+public abstract class AbstractParameter extends AbstractRadioCommand {
 
     static final int PARAM_UPDATE_OK = 0x00;
 
@@ -137,7 +139,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         }
     }
 
-    AbstractParameter(RTM rtm) {
+    AbstractParameter(PropertySpecService propertySpecService, RTM rtm) {
         super(propertySpecService, rtm);
     }
 

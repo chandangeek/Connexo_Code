@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.SamplingPeriod;
@@ -41,7 +43,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         return profileInterval;
     }
 
-    public ExtendedDataloggingTable(RTM rtm) {
+    public ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm) {
         super(propertySpecService, rtm);
     }
 
@@ -49,21 +51,21 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         return profileDataForAllPorts;
     }
 
-    protected ExtendedDataloggingTable(RTM rtm, int port, int numberOfRequestedReadings, int offset) {
+    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int port, int numberOfRequestedReadings, int offset) {
         super(propertySpecService, rtm);
         this.portMask = (int) Math.pow(2, port - 1);
         this.numberOfRequestedReadings = numberOfRequestedReadings;
         this.offset = offset;
     }
 
-    protected ExtendedDataloggingTable(RTM rtm, int port, int numberOfRequestedReadings, Date toDate) throws WaveFlowException {
+    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int port, int numberOfRequestedReadings, Date toDate) {
         super(propertySpecService, rtm);
         this.portMask = (int) Math.pow(2, port - 1);
         this.numberOfRequestedReadings = numberOfRequestedReadings;
         this.toDate = toDate;
     }
 
-    protected ExtendedDataloggingTable(RTM rtm, int portMask, int numberOfReadings) throws WaveFlowException {
+    protected ExtendedDataloggingTable(PropertySpecService propertySpecService, RTM rtm, int portMask, int numberOfReadings) {
         super(propertySpecService, rtm);
         this.portMask = portMask;
         this.numberOfRequestedReadings = numberOfReadings;

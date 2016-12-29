@@ -1,17 +1,19 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;
 
 public class LeakageDetectionPeriod extends AbstractParameter {
 
-    public LeakageDetectionPeriod(RTM rtm) {
-        super(rtm);
+    public LeakageDetectionPeriod(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public LeakageDetectionPeriod(RTM rtm, int thresholdType, int input) {
-        super(rtm);
+    public LeakageDetectionPeriod(PropertySpecService propertySpecService, RTM rtm, int thresholdType, int input) {
+        super(propertySpecService, rtm);
         this.thresholdType = thresholdType;
         this.input = input;
     }

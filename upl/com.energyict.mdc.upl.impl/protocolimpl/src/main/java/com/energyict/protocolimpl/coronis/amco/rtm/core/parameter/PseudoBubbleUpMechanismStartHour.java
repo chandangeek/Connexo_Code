@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;
@@ -10,8 +12,8 @@ public class PseudoBubbleUpMechanismStartHour extends AbstractParameter {
     private int minute;
     private int second;
 
-    PseudoBubbleUpMechanismStartHour(RTM rtm) {
-        super(rtm);
+    PseudoBubbleUpMechanismStartHour(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
     public int getHour() {

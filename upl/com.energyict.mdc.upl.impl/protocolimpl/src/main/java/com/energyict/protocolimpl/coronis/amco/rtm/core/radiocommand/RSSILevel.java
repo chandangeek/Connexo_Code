@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;
@@ -14,11 +16,11 @@ public class RSSILevel extends AbstractRadioCommand {
     private int rssiLevel;
     private static final double MAX = 0x20;
 
-    protected RSSILevel(RTM rtm) {
+    protected RSSILevel(PropertySpecService propertySpecService, RTM rtm) {
         super(propertySpecService, rtm);
     }
 
-    public RSSILevel(RTM rtm, int qos) {
+    public RSSILevel(PropertySpecService propertySpecService, RTM rtm, int qos) {
         super(propertySpecService, rtm);
         this.rssiLevel = qos;
     }

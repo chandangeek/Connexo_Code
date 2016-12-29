@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -14,8 +16,8 @@ public class PulseWeight extends RtmUnit {
     /**
      * This class is only used for the digital pulse model. (not for encoder model)
      */
-    public PulseWeight(RTM rtm, int inputChannel) {
-        super(rtm);
+    public PulseWeight(PropertySpecService propertySpecService, RTM rtm, int inputChannel) {
+        super(propertySpecService, rtm);
         this.inputChannel = inputChannel;
     }
 

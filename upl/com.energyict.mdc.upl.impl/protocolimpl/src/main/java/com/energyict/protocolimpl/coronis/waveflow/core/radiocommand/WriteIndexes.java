@@ -63,7 +63,7 @@ public class WriteIndexes extends AbstractRadioCommand {
     }
 
     @Override
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data) throws WaveFlowException {
         if ((data[0] & 0xFF) == 0xFF) {
             throw new WaveFlowException("Error writing the index");
         }

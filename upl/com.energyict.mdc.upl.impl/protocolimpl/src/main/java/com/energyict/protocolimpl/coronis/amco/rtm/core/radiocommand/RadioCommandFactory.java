@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ProfileType;
 
@@ -9,6 +11,7 @@ import java.util.Date;
 public class RadioCommandFactory {
 
     private final RTM rtm;
+    private final PropertySpecService propertySpecService;
     private RSSILevel rssiLevel = null;
 
     // Cached, only needs to be read out once.
@@ -17,8 +20,9 @@ public class RadioCommandFactory {
     private ExtendedDataloggingTable cachedExtendedDataloggingTable = null;
     private CurrentRegisterReading registerReading = null;
 
-    public RadioCommandFactory(RTM rtm) {
+    public RadioCommandFactory(RTM rtm, PropertySpecService propertySpecService) {
         this.rtm = rtm;
+        this.propertySpecService = propertySpecService;
     }
 
     public final FirmwareVersion readFirmwareVersion() throws IOException {
@@ -58,7 +62,7 @@ public class RadioCommandFactory {
 
     public void writeIndex(int value, int port) throws IOException {
         if (rtm.getParameterFactory().readProfileType().isPulse()) {
-            WriteIndexes writeIndexes = new WriteIndexes(rtm, port);
+            WriteIndexes writeIndexes = new WriteIndexes(rtm, port, this.propertySpecService);
             writeIndexes.setIndex(value);
             writeIndexes.set();
         }
@@ -101,7 +105,7 @@ public class RadioCommandFactory {
     }
 
     public void configureRoute() throws IOException {
-        RouteConfiguration routeConfiguration = new RouteConfiguration(rtm);
+        RouteConfiguration routeConfiguration = new RouteConfiguration(this.propertySpecService, rtm);
         routeConfiguration.setAlarmConfig(rtm.getParameterFactory().readAlarmConfiguration().getConfig());
         routeConfiguration.set();
     }
@@ -115,7 +119,7 @@ public class RadioCommandFactory {
     public boolean openWaterValve() throws IOException {
         ProfileType profileType = rtm.getParameterFactory().readProfileType();
         if (profileType.isValve()) {
-            OpenWaterValveCommand openWaterValveCommand = new OpenWaterValveCommand(rtm);
+            OpenWaterValveCommand openWaterValveCommand = new OpenWaterValveCommand(rtm, this.propertySpecService);
             openWaterValveCommand.set();
             return openWaterValveCommand.isSuccess();
         }
@@ -125,7 +129,7 @@ public class RadioCommandFactory {
     public boolean closeWaterValve() throws IOException {
         ProfileType profileType = rtm.getParameterFactory().readProfileType();
         if (profileType.isValve()) {
-            CloseWaterValveCommand closeWaterValveCommand = new CloseWaterValveCommand(rtm);
+            CloseWaterValveCommand closeWaterValveCommand = new CloseWaterValveCommand(rtm, this.propertySpecService);
             closeWaterValveCommand.set();
             return closeWaterValveCommand.isSuccess();
         }
@@ -143,7 +147,7 @@ public class RadioCommandFactory {
     }
 
     public ValveStatus readValveStatus() throws IOException {
-        ValveStatus status = new ValveStatus(rtm);
+        ValveStatus status = new ValveStatus(rtm, this.propertySpecService);
         status.set();
         return status;
     }

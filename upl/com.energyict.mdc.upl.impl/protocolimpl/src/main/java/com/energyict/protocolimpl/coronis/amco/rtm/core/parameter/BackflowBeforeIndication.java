@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -8,12 +10,12 @@ import java.io.IOException;
 
 public class BackflowBeforeIndication extends AbstractParameter {
 
-    public BackflowBeforeIndication(RTM rtm) {
-        super(rtm);
+    public BackflowBeforeIndication(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public BackflowBeforeIndication(RTM rtm, int input) {
-        super(rtm);
+    public BackflowBeforeIndication(PropertySpecService propertySpecService, RTM rtm, int input) {
+        super(propertySpecService, rtm);
         this.input = input;
     }
 

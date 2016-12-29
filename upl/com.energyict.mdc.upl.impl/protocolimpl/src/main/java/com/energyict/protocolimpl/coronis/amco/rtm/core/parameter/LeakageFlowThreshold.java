@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -7,12 +9,12 @@ import java.io.IOException;
 
 public class LeakageFlowThreshold extends AbstractParameter {
 
-    public LeakageFlowThreshold(RTM rtm) {
-        super(rtm);
+    public LeakageFlowThreshold(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public LeakageFlowThreshold(RTM rtm, int thresholdType, int input) {
-        super(rtm);
+    public LeakageFlowThreshold(PropertySpecService propertySpecService, RTM rtm, int thresholdType, int input) {
+        super(propertySpecService, rtm);
         this.thresholdType = thresholdType;
         this.input = input;
     }

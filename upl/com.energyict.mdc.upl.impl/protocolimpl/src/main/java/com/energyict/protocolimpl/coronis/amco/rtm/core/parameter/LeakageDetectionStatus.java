@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -19,8 +20,8 @@ import java.util.List;
  */
 public class LeakageDetectionStatus extends AbstractParameter {
 
-    LeakageDetectionStatus(RTM rtm) {
-        super(rtm);
+    LeakageDetectionStatus(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
     private int status;

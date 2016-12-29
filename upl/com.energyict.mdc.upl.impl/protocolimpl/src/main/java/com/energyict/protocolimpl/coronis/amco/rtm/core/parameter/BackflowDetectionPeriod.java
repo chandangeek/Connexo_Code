@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -8,12 +10,12 @@ import java.io.IOException;
 
 public class BackflowDetectionPeriod extends AbstractParameter {
 
-    public BackflowDetectionPeriod(RTM rtm) {
-        super(rtm);
+    public BackflowDetectionPeriod(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public BackflowDetectionPeriod(RTM rtm, int input) {
-        super(rtm);
+    public BackflowDetectionPeriod(PropertySpecService propertySpecService, RTM rtm, int input) {
+        super(propertySpecService, rtm);
         this.input = input;
     }
 

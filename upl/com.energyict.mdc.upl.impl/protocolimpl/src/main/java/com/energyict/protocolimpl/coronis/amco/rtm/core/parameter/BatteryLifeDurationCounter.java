@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
@@ -44,19 +45,19 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
     /**
      * The remaining battery life in 0..100 % knowing that the initial battery life count is 100 % and the getBatteryLifeCounter() is the remaining
      */
-    final public int remainingBatteryLife() throws IOException {
+    public final int remainingBatteryLife() throws IOException {
         return 100 - (((getInitialCount() * 100) - (getBatteryLifeCounter() * 100)) / getInitialCount());
     }
 
-    BatteryLifeDurationCounter(RTM rtm) throws IOException {
-        super(rtm);
+    BatteryLifeDurationCounter(PropertySpecService propertySpecService, RTM rtm) throws IOException {
+        super(propertySpecService, rtm);
         if (radioAddress == null) {
             radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
         }
     }
 
-    public BatteryLifeDurationCounter(RTM rtm, int batteryLifeCounter, byte[] radioAddress) throws IOException {
-        super(rtm);
+    public BatteryLifeDurationCounter(PropertySpecService propertySpecService, RTM rtm, int batteryLifeCounter, byte[] radioAddress) throws IOException {
+        super(propertySpecService, rtm);
         this.batteryLifeCounter = batteryLifeCounter;
         if (radioAddress == null) {
             this.radioAddress = rtm.getWaveFlowConnect().readRadioAddress();
@@ -71,11 +72,11 @@ public class BatteryLifeDurationCounter extends AbstractParameter {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws com.energyict.mdc.upl.ProtocolException {
         batteryLifeCounter = ProtocolUtils.getInt(data, 0, 3);
     }
 
-    protected byte[] prepare() throws IOException {
+    protected byte[] prepare() throws UnsupportedException {
         throw new UnsupportedException();
     }
 }

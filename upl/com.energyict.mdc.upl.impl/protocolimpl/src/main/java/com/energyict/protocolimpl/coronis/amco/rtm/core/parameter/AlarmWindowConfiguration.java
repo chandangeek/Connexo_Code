@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 
@@ -12,12 +14,12 @@ import java.io.IOException;
  */
 public class AlarmWindowConfiguration extends AbstractParameter {
 
-    AlarmWindowConfiguration(RTM rtm) {
-        super(rtm);
+    AlarmWindowConfiguration(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    AlarmWindowConfiguration(RTM rtm, int durationInSeconds, boolean mechanismActivation, int granularityInMinutes) {
-        super(rtm);
+    AlarmWindowConfiguration(PropertySpecService propertySpecService, RTM rtm, int durationInSeconds, boolean mechanismActivation, int granularityInMinutes) {
+        super(propertySpecService, rtm);
         switch (granularityInMinutes) {
             case 15:
                 granularity = 0;
@@ -49,7 +51,7 @@ public class AlarmWindowConfiguration extends AbstractParameter {
     public int getConfig() {
         return config;
     }
-    
+
     public int getActivation() {
         return activation;
     }

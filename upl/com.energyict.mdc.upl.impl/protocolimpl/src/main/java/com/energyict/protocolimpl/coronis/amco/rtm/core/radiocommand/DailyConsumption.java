@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.SamplingPeriod;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
@@ -19,8 +21,7 @@ import java.util.TimeZone;
  */
 public class DailyConsumption extends AbstractRadioCommand {
 
-
-    public DailyConsumption(RTM rtm) throws IOException {
+    public DailyConsumption(PropertySpecService propertySpecService, RTM rtm) {
         super(propertySpecService, rtm);
     }
 

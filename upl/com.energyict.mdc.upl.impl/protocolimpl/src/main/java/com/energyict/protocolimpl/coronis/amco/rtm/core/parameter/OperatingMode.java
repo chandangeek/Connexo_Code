@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -7,12 +9,12 @@ import java.io.IOException;
 
 public class OperatingMode extends AbstractParameter {
 
-    OperatingMode(RTM rtm) {
-        super(rtm);
+    OperatingMode(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public OperatingMode(RTM rtm, int opMode) {
-        super(rtm);
+    public OperatingMode(PropertySpecService propertySpecService, RTM rtm, int opMode) {
+        super(propertySpecService, rtm);
         this.operationMode = opMode;
         this.mask = 0;
     }
@@ -141,7 +143,7 @@ public class OperatingMode extends AbstractParameter {
     public int readValveCommunicationFaultDetection() {
         return (operationMode & 0x4000) >> 14;
     }
-    
+
     public int readNetworkConfiguration() {
         return (operationMode & 0x3000) >> 12;
     }

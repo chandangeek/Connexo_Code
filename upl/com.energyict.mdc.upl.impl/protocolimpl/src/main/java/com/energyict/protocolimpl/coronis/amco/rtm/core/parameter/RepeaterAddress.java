@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -7,15 +9,15 @@ import java.io.IOException;
 
 public class RepeaterAddress extends AbstractParameter {
 
-    String address;
-    int id;
+    private String address;
+    private int id;
 
-    RepeaterAddress(RTM rtm) {
-        super(rtm);
+    RepeaterAddress(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public RepeaterAddress(RTM rtm, int id) {
-        super(rtm);
+    public RepeaterAddress(PropertySpecService propertySpecService, RTM rtm, int id) {
+        super(propertySpecService, rtm);
         this.id = id;
     }
 

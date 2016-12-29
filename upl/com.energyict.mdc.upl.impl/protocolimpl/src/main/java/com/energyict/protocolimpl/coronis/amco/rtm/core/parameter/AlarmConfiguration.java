@@ -1,19 +1,21 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;
 
 public class AlarmConfiguration extends AbstractParameter {
 
-    int config;
+    private int config;
 
-    public AlarmConfiguration(RTM rtm) {
-        super(rtm);
+    public AlarmConfiguration(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public AlarmConfiguration(RTM rtm, int status) {
-        super(rtm);
+    public AlarmConfiguration(PropertySpecService propertySpecService, RTM rtm, int status) {
+        super(propertySpecService, rtm);
         this.config = status;
     }
 
@@ -51,7 +53,7 @@ public class AlarmConfiguration extends AbstractParameter {
     }
 
     public void setAlarmOnEncoderMisread(int enable) {
-        config = config & 0xEF;        
+        config = config & 0xEF;
         config = config | (0x10 * enable);
     }
 
@@ -66,7 +68,7 @@ public class AlarmConfiguration extends AbstractParameter {
     }
 
     public void setAlarmOnLowBattery(int enable) {
-        config = config & 0xFD;        
+        config = config & 0xFD;
         config = config | (0x02 * enable);
     }
 

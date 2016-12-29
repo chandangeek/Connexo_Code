@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm;
 
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
@@ -84,14 +85,14 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     public ParameterFactory getParameterFactory() {
         if (parameterFactory == null) {
-            parameterFactory = new ParameterFactory(this);
+            parameterFactory = new ParameterFactory(this, this.getPropertySpecService());
         }
         return parameterFactory;
     }
 
     public final RadioCommandFactory getRadioCommandFactory() {
         if (radioCommandFactory == null) {
-            radioCommandFactory = new RadioCommandFactory(this);
+            radioCommandFactory = new RadioCommandFactory(this, this.getPropertySpecService());
         }
         return radioCommandFactory;
     }
@@ -173,11 +174,11 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
                                         int protocolCompatible, Encryptor encryptor,
                                         HalfDuplexController halfDuplexController) throws IOException {
 
-        radioCommandFactory = new RadioCommandFactory(this);
+        radioCommandFactory = new RadioCommandFactory(this, this.getPropertySpecService());
         rtmConnect = new WaveFlowConnect(inputStream, outputStream, timeoutProperty, getLogger(), forcedDelay, getInfoTypeProtocolRetriesProperty());
         profileDataReader = new ProfileDataReader(this);
         obisCodeMapper = new ObisCodeMapper(this);
-        parameterFactory = new ParameterFactory(this);
+        parameterFactory = new ParameterFactory(this, this.getPropertySpecService());
         return rtmConnect;
     }
 
@@ -277,7 +278,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     @Override
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return waveLogMessages.getMessageCategories();
     }
 

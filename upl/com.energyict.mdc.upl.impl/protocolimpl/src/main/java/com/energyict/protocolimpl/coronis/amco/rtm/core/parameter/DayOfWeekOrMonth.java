@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
@@ -7,8 +9,8 @@ import java.io.IOException;
 
 public class DayOfWeekOrMonth extends AbstractParameter {
 
-    public DayOfWeekOrMonth(RTM rtm) {
-        super(rtm);
+    public DayOfWeekOrMonth(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
     /**

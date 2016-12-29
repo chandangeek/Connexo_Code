@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -17,9 +19,8 @@ public class ReadingErrorDetectionDate extends AbstractParameter {
     private int port;
     private Date date;
 
-
-    ReadingErrorDetectionDate(RTM rtm, int port) {
-        super(rtm);
+    ReadingErrorDetectionDate(PropertySpecService propertySpecService, RTM rtm, int port) {
+        super(propertySpecService, rtm);
         this.port = port;
     }
 

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.EncoderModel;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.EncoderUnit;
@@ -14,7 +16,7 @@ import java.io.IOException;
  */
 public class ReadEncoderInternalData extends AbstractRadioCommand {
 
-    protected ReadEncoderInternalData(RTM rtm) {
+    protected ReadEncoderInternalData(PropertySpecService propertySpecService, RTM rtm) {
         super(propertySpecService, rtm);
     }
 

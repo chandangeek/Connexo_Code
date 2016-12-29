@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -8,8 +10,8 @@ import java.io.IOException;
 
 public class SamplingPeriod extends AbstractParameter {
 
-    public SamplingPeriod(RTM rtm) {
-        super(rtm);
+    public SamplingPeriod(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
     enum TimeUnit {
@@ -22,7 +24,7 @@ public class SamplingPeriod extends AbstractParameter {
         int seconds;
         int id;
 
-        private TimeUnit(final int id, final int seconds) {
+        TimeUnit(final int id, final int seconds) {
             this.id = id;
             this.seconds = seconds;
         }

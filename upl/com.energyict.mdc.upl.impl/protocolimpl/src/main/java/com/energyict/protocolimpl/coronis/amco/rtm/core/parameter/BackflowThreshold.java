@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -8,12 +10,12 @@ import java.io.IOException;
 
 public class BackflowThreshold extends AbstractParameter {
 
-    public BackflowThreshold(RTM rtm) {
-        super(rtm);
+    public BackflowThreshold(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
-    public BackflowThreshold(RTM rtm, int input) {
-        super(rtm);
+    public BackflowThreshold(PropertySpecService propertySpecService, RTM rtm, int input) {
+        super(propertySpecService, rtm);
         this.input = input;
     }
 

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -16,8 +18,8 @@ public class ValveCommunicationErrorDetectionDate extends AbstractParameter {
 
     private Date date;
 
-    ValveCommunicationErrorDetectionDate(RTM rtm) {
-        super(rtm);
+    ValveCommunicationErrorDetectionDate(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
     public Date getDate() {

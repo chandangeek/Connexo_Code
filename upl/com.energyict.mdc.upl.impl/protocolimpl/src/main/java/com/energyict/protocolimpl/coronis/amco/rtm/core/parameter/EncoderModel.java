@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
@@ -13,8 +14,8 @@ import java.io.IOException;
  */
 public class EncoderModel extends AbstractParameter {
 
-    public EncoderModel(RTM rtm) {
-        super(rtm);
+    public EncoderModel(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
     private int port = 1;

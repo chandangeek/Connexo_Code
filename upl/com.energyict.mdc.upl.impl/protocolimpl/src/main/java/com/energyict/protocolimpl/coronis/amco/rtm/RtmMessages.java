@@ -1019,8 +1019,8 @@ public class RtmMessages implements MessageProtocol {
         }
     }
 
-    public List getMessageCategories() {
-        List theCategories = new ArrayList();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
 
         MessageCategorySpec cat1 = new MessageCategorySpec("RTM general messages");
         cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode", "SetOperatingMode", false));

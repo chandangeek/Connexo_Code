@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;
@@ -11,7 +13,7 @@ import java.io.IOException;
  */
 public class ValveStatus extends AbstractRadioCommand {
 
-    protected ValveStatus(RTM rtm) {
+    protected ValveStatus(RTM rtm, PropertySpecService propertySpecService) {
         super(propertySpecService, rtm);
     }
 

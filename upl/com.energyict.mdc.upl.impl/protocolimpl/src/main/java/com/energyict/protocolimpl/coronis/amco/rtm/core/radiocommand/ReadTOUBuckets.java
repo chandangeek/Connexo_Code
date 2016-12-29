@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -17,7 +19,7 @@ import java.util.TimeZone;
  */
 public class ReadTOUBuckets extends AbstractRadioCommand {
 
-    public ReadTOUBuckets(RTM rtm) {
+    public ReadTOUBuckets(PropertySpecService propertySpecService, RTM rtm) {
         super(propertySpecService, rtm);
     }
 

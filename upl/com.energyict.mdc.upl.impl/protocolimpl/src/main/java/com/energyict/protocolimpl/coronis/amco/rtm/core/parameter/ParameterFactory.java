@@ -1,15 +1,20 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.RouteConfiguration;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ParameterFactory {
 
-    private RTM rtm;
+    private final RTM rtm;
+    private final PropertySpecService propertySpecService;
 
     //Cached
     private ApplicationStatus applicationStatus = null;
@@ -28,8 +33,9 @@ public class ParameterFactory {
     private static final int WEEKLY_LOGGING = 2;
     private static final int MONTHLY_LOGGING = 3;
 
-    public ParameterFactory(final RTM rtm) {
+    public ParameterFactory(final RTM rtm, PropertySpecService propertySpecService) {
         this.rtm = rtm;
+        this.propertySpecService = propertySpecService;
     }
 
     public Date readTimeDateRTC() throws IOException {
@@ -247,7 +253,7 @@ public class ParameterFactory {
         samplingPeriod = new SamplingPeriod(rtm);
         samplingPeriod.setSamplingPeriodInSeconds(seconds);
         samplingPeriod.write();
-        writeSamplingIntervalMultiplier(1);     //So the sampling interval is equal to the profile data interval        
+        writeSamplingIntervalMultiplier(1);     //So the sampling interval is equal to the profile data interval
     }
 
     public void setLeakageDetectionPeriod(int residualOrExtreme, int inputChannel, int period) throws IOException {
@@ -551,7 +557,7 @@ public class ParameterFactory {
     }
 
     public int autoConfigAlarmRoute() throws IOException {
-        RouteConfiguration configuration = new RouteConfiguration(rtm);
+        RouteConfiguration configuration = new RouteConfiguration(this.propertySpecService, rtm);
         configuration.set();
         return configuration.getResponse();
     }

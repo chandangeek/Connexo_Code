@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -13,7 +15,7 @@ import java.io.IOException;
  */
 public class CurrentRegisterReading extends AbstractRadioCommand {
 
-    public CurrentRegisterReading(RTM rtm) {
+    public CurrentRegisterReading(PropertySpecService propertySpecService, RTM rtm) {
         super(propertySpecService, rtm);
     }
 

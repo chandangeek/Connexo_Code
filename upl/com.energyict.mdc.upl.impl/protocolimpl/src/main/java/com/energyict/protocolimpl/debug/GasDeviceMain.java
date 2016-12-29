@@ -34,7 +34,7 @@ public class GasDeviceMain extends AS220Main {
 
     public GasDevice getGasDevice() {
         if (gasDevice == null) {
-            gasDevice = new GasDevice(Services.tariffCalendarFinder(), Services.extractor());
+            gasDevice = new GasDevice(Services.propertySpecService(), Services.tariffCalendarFinder(), Services.extractor());
             log("Created new instance of " + gasDevice.getClass().getCanonicalName() + " [" + gasDevice.getProtocolVersion() + "]");
         }
         return gasDevice;

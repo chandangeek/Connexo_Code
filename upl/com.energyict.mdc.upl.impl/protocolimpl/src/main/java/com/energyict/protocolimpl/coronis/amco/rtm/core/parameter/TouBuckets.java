@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 
@@ -12,8 +14,8 @@ import java.io.IOException;
  */
 public class TouBuckets extends AbstractParameter {
 
-    TouBuckets(RTM rtm) {
-        super(rtm);
+    TouBuckets(PropertySpecService propertySpecService, RTM rtm) {
+        super(propertySpecService, rtm);
     }
 
     private int numberOfTouBuckets = 0;

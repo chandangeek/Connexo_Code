@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -8,7 +10,7 @@ import java.io.IOException;
 
 public class WriteIndexes extends AbstractRadioCommand {
 
-    WriteIndexes(RTM rtm, int input) {
+    WriteIndexes(RTM rtm, int input, PropertySpecService propertySpecService) {
         super(propertySpecService, rtm);
         writingType = (int) Math.pow(2, input - 1);             //A = 1, B = 2, C = 4, D = 8
     }
@@ -61,7 +63,7 @@ public class WriteIndexes extends AbstractRadioCommand {
     }
 
     @Override
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws WaveFlowException {
         if ((data[0] & 0xFF) == 0xFF) {
             throw new WaveFlowException("Error writing the index");
         }
