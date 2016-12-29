@@ -10,6 +10,7 @@ import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.nio.charset.Charset;
+import java.time.Instant;
 import java.time.LocalTime;
 import java.time.Year;
 import java.util.List;
@@ -101,6 +102,8 @@ public interface Extractor {
 
     Range<Year> range(TariffCalender calender);
 
+    Optional<CalendarSeasonSet> season(TariffCalender calender);
+
     List<CalendarDayType> dayTypes(TariffCalender calender);
 
     List<CalendarRule> rules(TariffCalender calender);
@@ -170,8 +173,26 @@ public interface Extractor {
         String text();
     }
 
+    interface CalendarSeasonSet {
+        String id();
+        String name();
+        List<CalendarSeason> seasons();
+    }
+
+    interface CalendarSeason {
+        String id();
+        String name();
+        List<CalendarSeasonTransition> transistions();
+    }
+
+    interface CalendarSeasonTransition {
+        String id();
+        Optional<Instant> start();
+    }
+
     interface CalendarDayType {
         String id();
+        String name();
         List<CalendarDayTypeSlice> slices();
     }
 
@@ -182,6 +203,7 @@ public interface Extractor {
 
     interface CalendarRule {
         String dayTypeId();
+        String dayTypeName();
         Optional<String> seasonId();
         int year();
         int month();
