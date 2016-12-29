@@ -19,5 +19,5 @@ public class CommandRuleInfo {
     public List<CommandInfo> commands = new ArrayList<>();
     public DualControlInfo dualControl;
     public EnumSet<AvailableActions> availableActions;
-
+    public List<CurrentCountInfo> currentCounts;
 }

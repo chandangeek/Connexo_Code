@@ -7,6 +7,7 @@ import com.elster.jupiter.rest.util.DualControlChangeInfo;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
+import com.energyict.mdc.device.command.CommandRuleService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -17,10 +18,12 @@ import java.util.stream.Collectors;
 
 public class CommandRuleInfoFactory {
     private final Thesaurus thesaurus;
+    private final CommandRuleService commandRuleService;
 
     @Inject
-    public CommandRuleInfoFactory(Thesaurus thesaurus) {
+    public CommandRuleInfoFactory(Thesaurus thesaurus, CommandRuleService commandRuleService) {
         this.thesaurus = thesaurus;
+        this.commandRuleService = commandRuleService;
     }
 
     public CommandRuleInfo from(CommandRule commandRule) {
@@ -43,6 +46,7 @@ public class CommandRuleInfoFactory {
         commandRuleInfo.availableActions = EnumSet.allOf(AvailableActions.class);
         if(commandRuleInfo.active) {
             commandRuleInfo.availableActions.remove(AvailableActions.ACTIVATE);
+            addCurrentCounts(commandRule, commandRuleInfo);
         } else {
             commandRuleInfo.availableActions.remove(AvailableActions.DEACTIVATE);
         }
@@ -63,6 +67,19 @@ public class CommandRuleInfoFactory {
         }
 
         return commandRuleInfo;
+    }
+
+    private void addCurrentCounts(CommandRule commandRule, CommandRuleInfo commandRuleInfo) {
+        commandRuleInfo.currentCounts = new ArrayList<>();
+        commandRuleService.getCurrentCounters(commandRule.getCounters())
+                .stream()
+                .forEach(counter -> {
+                    CurrentCountInfo info = new CurrentCountInfo();
+                    info.currentCount = counter.getCount();
+                    info.from = counter.getFrom();
+                    info.to = counter.getTo();
+                    info.type = counter.getCounterType().name();
+                });
     }
 
     public CommandRuleInfo createWithChanges(CommandRule commandRule) {
