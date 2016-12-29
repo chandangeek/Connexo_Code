@@ -117,6 +117,8 @@ public interface Extractor {
      */
     String id(NumberLookup numberLookup);
 
+    List<String> keys(NumberLookup numberLookup);
+
     /**
      * Extracts the unique identifier of a {@link LoadProfile}
      * and returns it as a String for easy formatting in XML based content.
