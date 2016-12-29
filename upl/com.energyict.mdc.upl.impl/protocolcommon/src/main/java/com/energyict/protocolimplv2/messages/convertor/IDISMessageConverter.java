@@ -9,7 +9,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -113,9 +113,9 @@ public class IDISMessageConverter extends AbstractMessageConverter {
             SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getDefault());  //Use system timezone
             return SIMPLE_DATE_FORMAT.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((TariffCalender) messageAttribute);
+            return convertCodeTableToXML((TariffCalendar) messageAttribute);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((TariffCalender) messageAttribute);
+            return convertSpecialDaysCodeTableToXML((TariffCalendar) messageAttribute);
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(configUserFileAttributeName)

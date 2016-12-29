@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.google.common.collect.Range;
 import org.apache.commons.logging.Log;
@@ -125,7 +125,7 @@ public class CodeTableXmlParsing {
                     activationTime, name);
     }
 
-    public static String parseActivityCalendarAndSpecialDayTable(TariffCalender calender, Extractor extractor, long activationTime, String name) throws ParserConfigurationException {
+    public static String parseActivityCalendarAndSpecialDayTable(TariffCalendar calender, Extractor extractor, long activationTime, String name) throws ParserConfigurationException {
         CodeTableParser ctp = new CodeTableParser(calender, extractor);
         try {
 
@@ -184,7 +184,7 @@ public class CodeTableXmlParsing {
      * @return the complete xml for the RTUMessage
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
-    public static String parseActivityCalendarAndSpecialDayTable(TariffCalender calender, Extractor extractor) throws ParserConfigurationException {
+    public static String parseActivityCalendarAndSpecialDayTable(TariffCalendar calender, Extractor extractor) throws ParserConfigurationException {
         CodeTableParser ctp = new CodeTableParser(calender, extractor);
         try {
 
@@ -455,7 +455,7 @@ public class CodeTableXmlParsing {
         return sDays;
     }
 
-    protected Optional<TariffCalender> getCalendar(String id) {
+    protected Optional<TariffCalendar> getCalendar(String id) {
         return this.finder.from(id);
     }
 

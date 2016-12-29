@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -60,7 +60,7 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            TariffCalender calender = (TariffCalender) messageAttribute;
+            TariffCalendar calender = (TariffCalendar) messageAttribute;
             return this.getExtractor().id(calender) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender); //The ID and the XML representation of the code table, separated by a |
         }
         return EMPTY_FORMAT;

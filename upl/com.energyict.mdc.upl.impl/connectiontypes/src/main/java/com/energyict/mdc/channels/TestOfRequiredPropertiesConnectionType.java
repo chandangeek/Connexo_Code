@@ -7,7 +7,7 @@ import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.cpo.MdwToUplPropertySpecAdapter;
 import com.energyict.cpo.PropertySpecFactory;
@@ -38,7 +38,7 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
     private static final PropertySpec TIME_DURATION_PROPERTY_SPEC = UPLPropertySpecFactory.temporalAmount("TimeDuration");
     private static final PropertySpec TIME_OF_DAY_PROPERTY_SPEC = UPLPropertySpecFactory.time("TimeOfDay");
     //references
-    private static final PropertySpec CODE_PROPERTY_SPEC = UPLPropertySpecFactory.reference("CodeTable", TariffCalender.class);
+    private static final PropertySpec CODE_PROPERTY_SPEC = UPLPropertySpecFactory.reference("CodeTable", TariffCalendar.class);
     private static final PropertySpec LOAD_PROFILE_PROPERTY_SPEC = UPLPropertySpecFactory.reference("LoadProfile", LoadProfile.class);
 //    private static final PropertySpec LOAD_PROFILE_TYPE_PROPERTY_SPEC = UPLPropertySpecFactory.loadProfileTypePropertySpecByList("LoadProfileType");
     private static final PropertySpec LOOKUP_PROPERTY_SPEC = UPLPropertySpecFactory.reference("Lookup", NumberLookup.class);

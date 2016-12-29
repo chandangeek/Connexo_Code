@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -138,7 +138,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateTimeFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((TariffCalender) messageAttribute);
+            return convertCodeTableToXML((TariffCalendar) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
             return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(normalThresholdAttributeName)

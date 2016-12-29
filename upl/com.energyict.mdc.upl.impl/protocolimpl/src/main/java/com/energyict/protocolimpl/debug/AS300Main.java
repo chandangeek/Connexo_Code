@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -118,7 +118,7 @@ public class AS300Main extends AbstractSmartDebuggingMain<AS300> {
 
     private static class Dummy implements TariffCalendarFinder {
         @Override
-        public Optional<TariffCalender> from(String identifier) {
+        public Optional<TariffCalendar> from(String identifier) {
             return Optional.empty();
         }
     }

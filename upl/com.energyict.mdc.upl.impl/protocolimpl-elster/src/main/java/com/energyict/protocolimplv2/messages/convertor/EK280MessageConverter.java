@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -99,7 +99,7 @@ public class EK280MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(newEncryptionKeyAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return messageAttribute instanceof TariffCalender ? CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalender) messageAttribute) : messageAttribute.toString();
+            return messageAttribute instanceof TariffCalendar ? CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute) : messageAttribute.toString();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {

@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -95,7 +95,7 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return this.getExtractor().id((DeviceMessageFile) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return this.getExtractor().id((TariffCalender) messageAttribute);
+            return this.getExtractor().id((TariffCalendar) messageAttribute);
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {

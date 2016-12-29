@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -86,7 +86,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      * It is up to the message entry creator to replace them with the values of the attributes
      */
-    protected String convertCodeTableToXML(TariffCalender messageAttribute) {
+    protected String convertCodeTableToXML(TariffCalendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 0, "0");
         } catch (ParserConfigurationException e) {
@@ -94,7 +94,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
         }
     }
 
-    protected String convertSpecialDaysCodeTableToXML(TariffCalender messageAttribute) {
+    protected String convertSpecialDaysCodeTableToXML(TariffCalendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 1, "");
         } catch (ParserConfigurationException e) {

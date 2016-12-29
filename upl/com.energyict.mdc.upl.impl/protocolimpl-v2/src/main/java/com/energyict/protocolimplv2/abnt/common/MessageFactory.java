@@ -14,7 +14,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cpo.PropertySpec;
@@ -290,8 +290,8 @@ public class MessageFactory implements DeviceMessageSupport {
             } else {
                 return dateFormatter.format(gmtCal.getTime());
             }
-        } else if (messageAttribute instanceof TariffCalender) {
-            return convertCodeTableToXML((TariffCalender) messageAttribute);
+        } else if (messageAttribute instanceof TariffCalendar) {
+            return convertCodeTableToXML((TariffCalendar) messageAttribute);
         } else {
             return messageAttribute.toString();
         }
@@ -302,7 +302,7 @@ public class MessageFactory implements DeviceMessageSupport {
         return "";
     }
 
-    private String convertCodeTableToXML(TariffCalender messageAttribute) {
+    private String convertCodeTableToXML(TariffCalendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {

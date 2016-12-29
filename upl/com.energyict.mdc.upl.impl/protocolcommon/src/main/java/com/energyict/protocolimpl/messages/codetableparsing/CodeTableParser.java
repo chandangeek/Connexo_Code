@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.energyict.mdc.upl.messages.legacy.Extractor;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,14 +10,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Converts a given {@link TariffCalender} to easily usable objects for XML parsing.
+ * Converts a given {@link TariffCalendar} to easily usable objects for XML parsing.
  */
 public class CodeTableParser {
 
     /**
      * The used CodeTable for this parser
      */
-    private final TariffCalender calender;
+    private final TariffCalendar calender;
     private final Extractor extractor;
 
     /**
@@ -47,7 +47,7 @@ public class CodeTableParser {
      */
     private List<SpecialDayDefinition> specialDays = new ArrayList<>();
 
-    public CodeTableParser(TariffCalender calender, Extractor extractor) {
+    public CodeTableParser(TariffCalendar calender, Extractor extractor) {
         this.calender = calender;
         this.extractor = extractor;
     }

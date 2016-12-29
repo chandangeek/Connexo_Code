@@ -9,7 +9,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -70,7 +70,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:
-                TariffCalender calender = (TariffCalender) messageAttribute;
+                TariffCalendar calender = (TariffCalendar) messageAttribute;
                 return this.getExtractor().id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
             default:
                 return messageAttribute.toString();
@@ -119,7 +119,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
      * Return an XML representation of the code table.
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      */
-    protected String encode(TariffCalender calender) {
+    protected String encode(TariffCalendar calender) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calender, this.getExtractor(), 0, "0");
         } catch (ParserConfigurationException e) {

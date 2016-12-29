@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -85,7 +85,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpecSupplier {
     protected PropertySpec tariffCalendarSpec(PropertySpecService service, String deviceMessageConstantKey) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, TRANSLATION);
         return service
-                .referenceSpec(TariffCalender.class.getName())
+                .referenceSpec(TariffCalendar.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

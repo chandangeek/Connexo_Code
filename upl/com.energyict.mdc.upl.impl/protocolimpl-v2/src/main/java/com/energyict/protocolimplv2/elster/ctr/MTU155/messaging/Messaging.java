@@ -15,7 +15,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
@@ -147,7 +147,7 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.passwordAttributeName:
                 return ((Password) messageAttribute).getValue();
             case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
-                return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalender) messageAttribute, this.extractor);
+                return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.extractor);
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:

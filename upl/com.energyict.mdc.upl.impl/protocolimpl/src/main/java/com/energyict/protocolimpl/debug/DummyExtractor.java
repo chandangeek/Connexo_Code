@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
@@ -56,52 +56,52 @@ final class DummyExtractor implements Extractor {
     }
 
     @Override
-    public String id(TariffCalender calender) {
+    public String id(TariffCalendar calender) {
         return "";
     }
 
     @Override
-    public String name(TariffCalender calender) {
+    public String name(TariffCalendar calender) {
         return "";
     }
 
     @Override
-    public String seasonSetId(TariffCalender calender) {
+    public String seasonSetId(TariffCalendar calender) {
         return "";
     }
 
     @Override
-    public TimeZone definitionTimeZone(TariffCalender calender) {
+    public TimeZone definitionTimeZone(TariffCalendar calender) {
         return TimeZone.getDefault();
     }
 
     @Override
-    public TimeZone destinationTimeZone(TariffCalender calender) {
+    public TimeZone destinationTimeZone(TariffCalendar calender) {
         return TimeZone.getDefault();
     }
 
     @Override
-    public int intervalInSeconds(TariffCalender calender) {
+    public int intervalInSeconds(TariffCalendar calender) {
         return 0;
     }
 
     @Override
-    public Range<Year> range(TariffCalender calender) {
+    public Range<Year> range(TariffCalendar calender) {
         return Range.singleton(Year.of(Year.MIN_VALUE));
     }
 
     @Override
-    public Optional<CalendarSeasonSet> season(TariffCalender calender) {
+    public Optional<CalendarSeasonSet> season(TariffCalendar calender) {
         return Optional.empty();
     }
 
     @Override
-    public List<CalendarDayType> dayTypes(TariffCalender calender) {
+    public List<CalendarDayType> dayTypes(TariffCalendar calender) {
         return Collections.emptyList();
     }
 
     @Override
-    public List<CalendarRule> rules(TariffCalender calender) {
+    public List<CalendarRule> rules(TariffCalendar calender) {
         return Collections.emptyList();
     }
 

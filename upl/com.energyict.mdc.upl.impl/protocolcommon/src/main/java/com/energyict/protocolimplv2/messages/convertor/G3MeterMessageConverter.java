@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -90,9 +90,9 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((TariffCalender) messageAttribute);
+            return convertCodeTableToXML((TariffCalendar) messageAttribute);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((TariffCalender) messageAttribute);
+            return convertSpecialDaysCodeTableToXML((TariffCalendar) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return this.getExtractor().contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)

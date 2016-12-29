@@ -7,7 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
@@ -146,12 +146,12 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
         }
 
         @Override
-        protected String convertCodeTableToXML(TariffCalender messageAttribute) {
+        protected String convertCodeTableToXML(TariffCalendar messageAttribute) {
             return xmlEncodedCodeTableWithEmptyName;
         }
 
         @Override
-        protected String convertSpecialDaysCodeTableToXML(TariffCalender messageAttribute) {
+        protected String convertSpecialDaysCodeTableToXML(TariffCalendar messageAttribute) {
             return xmlSpecialDays;
         }
     }
