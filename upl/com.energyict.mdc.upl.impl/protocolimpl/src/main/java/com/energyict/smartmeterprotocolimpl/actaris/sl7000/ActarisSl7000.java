@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -89,16 +90,18 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     private Messages messageProtocol;
     private final TariffCalendarFinder calendarFinder;
     private final Extractor extractor;
+    private final PropertySpecService propertySpecService;
 
-    public ActarisSl7000(TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public ActarisSl7000(TariffCalendarFinder calendarFinder, Extractor extractor, PropertySpecService propertySpecService) {
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
     protected SL7000Properties getProperties() {
         if (properties == null) {
-            properties = new SL7000Properties(propertySpecService);
+            properties = new SL7000Properties(this.propertySpecService);
         }
         return properties;
     }

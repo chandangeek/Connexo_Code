@@ -97,7 +97,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private final Converter converter;
 
     public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(collectedDataFactory, issueFactory);
+        super(propertySpecService, collectedDataFactory, issueFactory);
         this.extractor = extractor;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
@@ -299,7 +299,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     private Dsmr50LogBookFactory getDsmr50LogBookFactory() {
         if (dsmr50LogBookFactory == null) {
-            dsmr50LogBookFactory = new Dsmr50LogBookFactory(this, collectedDataFactory, issueFactory);
+            dsmr50LogBookFactory = new Dsmr50LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return dsmr50LogBookFactory;
     }
@@ -346,7 +346,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     private Dsmr50RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr50RegisterFactory(this, this.collectedDataFactory, this.issueFactory);
+            this.registerFactory = new Dsmr50RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }
@@ -355,7 +355,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if (this.am540Messaging == null) {
             this.am540Messaging =
                     new AM540Messaging(
-                            new AM540MessageExecutor(this, this.collectedDataFactory, this.issueFactory),
+                            new AM540MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()),
                             this.extractor,
                             this.propertySpecService,
                             this.nlsService,
@@ -399,7 +399,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     @Override
     public IDISMeterTopology getMeterTopology() {
         if (meterTopology == null) {
-            meterTopology = new IDISMeterTopology(this, collectedDataFactory);
+            meterTopology = new IDISMeterTopology(this, this.getCollectedDataFactory());
             meterTopology.searchForSlaveDevices();
         }
         return meterTopology;

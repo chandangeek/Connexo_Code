@@ -5,22 +5,36 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -65,9 +79,15 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     private Dsmr23LogBookFactory logBookFactory;
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr23RegisterFactory registerFactory;
+    private final Converter converter;
+    private final Extractor extractor;
+    private final NlsService nlsService;
 
-    public WebRTUKP(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
+    public WebRTUKP(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.extractor = extractor;
     }
 
     @Override
@@ -129,7 +149,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, collectedDataFactory, issueFactory);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return loadProfileBuilder;
     }
@@ -141,7 +161,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private Dsmr23LogBookFactory getDeviceLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new Dsmr23LogBookFactory(this, collectedDataFactory, issueFactory);
+            logBookFactory = new Dsmr23LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return logBookFactory;
     }
@@ -158,7 +178,10 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
-            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this), extractor, propertySpecService, nlsService, converter);
+            dsmr23Messaging =
+                    new Dsmr23Messaging(
+                            new Dsmr23MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()),
+                            this.extractor, this.getPropertySpecService(), this.nlsService, this.converter);
         }
         return dsmr23Messaging;
     }
@@ -187,14 +210,14 @@ public class WebRTUKP extends AbstractDlmsProtocol {
                     break;
                 default:
                     ObisCode source = Disconnector.getDefaultObisCode();
-                    result.setFailureInformation(ResultType.InCompatible, this.issueFactory
+                    result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory()
                             .createProblem(source, "issue.protocol.readingOfBreakerStateFailed", "received value '" + controlState.getValue() + "', expected either 0, 1 or 2."));
                     break;
             }
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
                 ObisCode source = Disconnector.getDefaultObisCode();
-                result.setFailureInformation(ResultType.InCompatible, this.issueFactory.createProblem(source, "issue.protocol.readingOfBreakerStateFailed", e.toString()));
+                result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory().createProblem(source, "issue.protocol.readingOfBreakerStateFailed", e.toString()));
             }
         }
         return result;
@@ -202,7 +225,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        CollectedFirmwareVersion result = this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
 
         ObisCode firmwareVersionObisCode = ObisCode.fromString("1.1.0.2.0.255");
         try {
@@ -211,7 +234,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
             result.setActiveMeterFirmwareVersion(fwVersion);
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.issueFactory.createProblem(firmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                Issue problem = this.getIssueFactory().createProblem(firmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }   //Else a communication exception is thrown
         }
@@ -225,7 +248,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
@@ -241,7 +264,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private Dsmr23RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr23RegisterFactory(this, collectedDataFactory, issueFactory);
+            this.registerFactory = new Dsmr23RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }
@@ -256,4 +279,13 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3) V2";
     }
 
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
 }

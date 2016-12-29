@@ -1,16 +1,25 @@
 package com.energyict.protocolimplv2.eict.gatewayz3;
 
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocol.LoadProfileReader;
@@ -28,8 +37,8 @@ import java.util.List;
 @Deprecated //The Cynet RF functionality is no longer supported in EIServer 9.x. This class is placeholder so the old devices can be migrated.
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
-    public GateWayZ3(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
+    public GateWayZ3(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
     }
 
     @Override
@@ -89,11 +98,11 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return null;  // nothing to do
+        return null;
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
@@ -120,5 +129,15 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
     @Override
     public String getVersion() {
         return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

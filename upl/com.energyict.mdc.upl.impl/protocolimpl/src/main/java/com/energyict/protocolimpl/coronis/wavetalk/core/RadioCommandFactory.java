@@ -4,12 +4,11 @@ import java.io.IOException;
 
 public class RadioCommandFactory {
 
-	
-	private AbstractWaveTalk waveFlow;
+	private final AbstractWaveTalk waveFlow;
 
 	// cached
 	private FirmwareVersion firmwareVersion=null;
-	
+
 	RadioCommandFactory(AbstractWaveTalk waveFlow) {
 		this.waveFlow = waveFlow;
 	}
@@ -27,5 +26,5 @@ public class RadioCommandFactory {
 		}
 		return firmwareVersion;
 	}
-	
+
 }

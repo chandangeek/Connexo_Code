@@ -1,17 +1,40 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType;
-import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.*;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.Read4DailySegmentsParameters;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadCountOfTransmission;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadCumulativeFlowDaily;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadCumulativeFlowVolume;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadCumulativeFlowVolumeParameters;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadCumulativeNoFlowTime;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadCurrentFlowRate;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadCustomerNumber;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadDataFeature;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadDateOfInstallation;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadOverSpeedParameters;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadOverspeedAlarmInfo;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadPeakFlowData;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadPeakFlowSettings;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.ReadTariffMode;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.Write4DailySegmentsParameters;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.WriteCumulativeFlowVolumeParameters;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.WriteCustomerNumber;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.WriteDataFeature;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.WriteDateOfInstallation;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.WriteOverSpeedParameters;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.WritePeakFlowSettings;
+import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210.WriteTariffMode;
 
 import java.io.IOException;
 import java.util.Date;
 
 public class RadioCommandFactory {
 
-
-    protected WaveFlow waveFlow;
+    protected final WaveFlow waveFlow;
 
     // cached
     private FirmwareVersion firmwareVersion = null;
@@ -40,7 +63,7 @@ public class RadioCommandFactory {
      * @return the current readings
      * @throws java.io.IOException when the communication failed
      */
-    final public GlobalIndexReading readCurrentReading() throws IOException {
+    public final GlobalIndexReading readCurrentReading() throws IOException {
         if (currentIndexes == null) {
             currentIndexes = new GlobalIndexReading(waveFlow);
             currentIndexes.set();
@@ -54,7 +77,7 @@ public class RadioCommandFactory {
         initializeAlarmRoute.set();
     }
 
-    final public ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate) throws IOException {
+    public final ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate) throws IOException {
         ExtendedDataloggingTable o = new ExtendedDataloggingTable(waveFlow, indexChannel, nrOfValues, toDate);
         o.set();
         return o;
@@ -95,7 +118,7 @@ public class RadioCommandFactory {
         return dataloggingTable;
     }
 
-    final public ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate, final long offset) throws IOException {
+    public final ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate, final long offset) throws IOException {
         ExtendedDataloggingTable o = new ExtendedDataloggingTable(waveFlow, indexChannel, nrOfValues, toDate, offset);
         o.set();
         return o;
@@ -144,13 +167,13 @@ public class RadioCommandFactory {
         return newestRecord;
     }
 
-    final public LeakageEventTable readLeakageEventTable() throws IOException {
+    public final LeakageEventTable readLeakageEventTable() throws IOException {
         LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow);
         leakageEventTable.set();
         return leakageEventTable;
     }
 
-    final public DailyConsumption readDailyConsumption() throws IOException {
+    public final DailyConsumption readDailyConsumption() throws IOException {
         if (dailyConsumption == null) {
             dailyConsumption = new DailyConsumption(waveFlow);
             dailyConsumption.setGenericHeaderLength(23);
@@ -167,13 +190,13 @@ public class RadioCommandFactory {
         return dailyConsumption;
     }
 
-    final public BackFlowEventTableByVolumeMeasuring readBackFlowEventTableByVolumeMeasuring() throws IOException {
+    public final BackFlowEventTableByVolumeMeasuring readBackFlowEventTableByVolumeMeasuring() throws IOException {
         BackFlowEventTableByVolumeMeasuring backFlowEventTable = new BackFlowEventTableByVolumeMeasuring(waveFlow);
         backFlowEventTable.set();
         return backFlowEventTable;
     }
 
-    final public BackFlowEventTableByFlowRate readBackFlowEventTableByFlowRate() throws IOException {
+    public final BackFlowEventTableByFlowRate readBackFlowEventTableByFlowRate() throws IOException {
         BackFlowEventTableByFlowRate backFlowEventTable = new BackFlowEventTableByFlowRate(waveFlow);
         backFlowEventTable.set();
         return backFlowEventTable;

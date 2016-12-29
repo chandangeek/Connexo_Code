@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import java.io.IOException;
 
 public class RadioCommandFactory {
 
-
-    private WaveFlow100mW waveFlow100mW;
+    private final WaveFlow100mW waveFlow100mW;
 
     // cached
     private FirmwareVersion firmwareVersion=null;
@@ -13,11 +14,12 @@ public class RadioCommandFactory {
     private VoltageRequest voltageRequest = null;
 
     private MBusInternalLogs[] mBusInternalLogs=new MBusInternalLogs[2];
+    private final PropertySpecService propertySpecService;
 
-    RadioCommandFactory(WaveFlow100mW waveFlow100mW) {
+    RadioCommandFactory(WaveFlow100mW waveFlow100mW, PropertySpecService propertySpecService) {
         this.waveFlow100mW = waveFlow100mW;
+        this.propertySpecService = propertySpecService;
     }
-
 
     final EncoderCurrentReading readEncoderCurrentReading() throws IOException {
         EncoderCurrentReading o = new EncoderCurrentReading(waveFlow100mW);
@@ -25,13 +27,13 @@ public class RadioCommandFactory {
         return o;
     }
 
-    final public EncoderDataloggingTable readEncoderDataloggingTable() throws IOException {
+    public final EncoderDataloggingTable readEncoderDataloggingTable() throws IOException {
         EncoderDataloggingTable o = new EncoderDataloggingTable(waveFlow100mW);
         o.invoke();
         return o;
     }
 
-    final public EncoderDataloggingTable readEncoderDataloggingTable(final boolean portA, final boolean portB, final int nrOfValues, final int offsetFromMostRecentValue) throws IOException {
+    public final EncoderDataloggingTable readEncoderDataloggingTable(final boolean portA, final boolean portB, final int nrOfValues, final int offsetFromMostRecentValue) throws IOException {
         EncoderDataloggingTable o = new EncoderDataloggingTable(waveFlow100mW,portA,portB,nrOfValues,offsetFromMostRecentValue);
         o.invoke();
         return o;
@@ -53,7 +55,7 @@ public class RadioCommandFactory {
         return internalDataCommand;
     }
 
-    final public MBusInternalLogs readMBusInternalLogs(int portId) throws IOException {
+    public final MBusInternalLogs readMBusInternalLogs(int portId) throws IOException {
         int pId = portId<=0?0:1;
         if (mBusInternalLogs[pId] == null) {
             mBusInternalLogs[pId] = new MBusInternalLogs(waveFlow100mW,portId);
@@ -63,13 +65,13 @@ public class RadioCommandFactory {
     }
 
 
-    final public LeakageEventTable readLeakageEventTable() throws IOException {
-        LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW, propertySpecService);
+    public final LeakageEventTable readLeakageEventTable() throws IOException {
+        LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow100mW, this.propertySpecService);
         leakageEventTable.invoke();
         return leakageEventTable;
     }
 
-    final public void startMeterDetection() throws IOException {
+    public final void startMeterDetection() throws IOException {
         MeterDetection o = new MeterDetection(waveFlow100mW);
         o.invoke();
     }

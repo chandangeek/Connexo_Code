@@ -6,10 +6,8 @@ import java.io.IOException;
 
 public class RadioCommandFactory {
 
-	
 	private final ProtocolLink protocolLink;
 
-	// cached objects
 	/**
 	 * firmware version
 	 */
@@ -18,7 +16,7 @@ public class RadioCommandFactory {
 	 * The RSSI level value between 0 and 32
 	 */
 	RSSILevel rssiLevel=null;
-	
+
 	RadioCommandFactory(ProtocolLink protocolLink) {
 		this.protocolLink = protocolLink;
 	}
@@ -40,12 +38,12 @@ public class RadioCommandFactory {
 	/**
 	 * Set the alarmconfiguration and implicit the alarm route path with the sender's address and path.
 	 * @param alarmConfiguration
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public final void setAlarmRoute(int alarmConfiguration) throws IOException {
 		AlarmRoute o = new AlarmRoute(protocolLink);
 		o.setAlarmConfiguration(alarmConfiguration);
 		o.invoke();
 	}
-	
+
 }

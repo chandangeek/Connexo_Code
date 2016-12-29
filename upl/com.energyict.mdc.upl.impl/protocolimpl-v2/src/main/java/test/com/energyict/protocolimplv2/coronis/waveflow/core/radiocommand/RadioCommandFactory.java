@@ -1,16 +1,39 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.ProfileType;
-import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.*;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.Read4DailySegmentsParameters;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadCountOfTransmission;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadCumulativeFlowDaily;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadCumulativeFlowVolume;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadCumulativeFlowVolumeParameters;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadCumulativeNoFlowTime;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadCurrentFlowRate;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadCustomerNumber;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadDataFeature;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadDateOfInstallation;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadOverSpeedParameters;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadOverspeedAlarmInfo;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadPeakFlowData;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadPeakFlowSettings;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.ReadTariffMode;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.Write4DailySegmentsParameters;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.WriteCumulativeFlowVolumeParameters;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.WriteCustomerNumber;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.WriteDataFeature;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.WriteDateOfInstallation;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.WriteOverSpeedParameters;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.WritePeakFlowSettings;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.WriteTariffMode;
 
 import java.util.Date;
 
 public class RadioCommandFactory {
 
-
-    protected WaveFlow waveFlow;
+    protected final WaveFlow waveFlow;
 
     // cached
     private FirmwareVersion firmwareVersion = null;
@@ -37,9 +60,8 @@ public class RadioCommandFactory {
      * Cache the results.
      *
      * @return the current readings
-     * @throws java.io.IOException when the communication failed
      */
-    final public GlobalIndexReading readCurrentReading() {
+    public final GlobalIndexReading readCurrentReading() {
         if (currentIndexes == null) {
             currentIndexes = new GlobalIndexReading(waveFlow);
             currentIndexes.set();
@@ -53,7 +75,7 @@ public class RadioCommandFactory {
         initializeAlarmRoute.set();
     }
 
-    final public ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate) {
+    public final ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate) {
         ExtendedDataloggingTable o = new ExtendedDataloggingTable(waveFlow, indexChannel, nrOfValues, toDate);
         o.set();
         return o;
@@ -94,7 +116,7 @@ public class RadioCommandFactory {
         return dataloggingTable;
     }
 
-    final public ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate, final long offset) {
+    public final ExtendedDataloggingTable readExtendedDataloggingTable(int indexChannel, final int nrOfValues, final Date toDate, final long offset) {
         ExtendedDataloggingTable o = new ExtendedDataloggingTable(waveFlow, indexChannel, nrOfValues, toDate, offset);
         o.set();
         return o;
@@ -143,13 +165,13 @@ public class RadioCommandFactory {
         return newestRecord;
     }
 
-    final public LeakageEventTable readLeakageEventTable() {
+    public final LeakageEventTable readLeakageEventTable() {
         LeakageEventTable leakageEventTable = new LeakageEventTable(waveFlow);
         leakageEventTable.set();
         return leakageEventTable;
     }
 
-    final public DailyConsumption readDailyConsumption() {
+    public final DailyConsumption readDailyConsumption() {
         if (dailyConsumption == null) {
             dailyConsumption = new DailyConsumption(waveFlow);
             dailyConsumption.setGenericHeaderLength(23);
@@ -166,13 +188,13 @@ public class RadioCommandFactory {
         return dailyConsumption;
     }
 
-    final public BackFlowEventTableByVolumeMeasuring readBackFlowEventTableByVolumeMeasuring() {
+    public final BackFlowEventTableByVolumeMeasuring readBackFlowEventTableByVolumeMeasuring() {
         BackFlowEventTableByVolumeMeasuring backFlowEventTable = new BackFlowEventTableByVolumeMeasuring(waveFlow);
         backFlowEventTable.set();
         return backFlowEventTable;
     }
 
-    final public BackFlowEventTableByFlowRate readBackFlowEventTableByFlowRate() {
+    public final BackFlowEventTableByFlowRate readBackFlowEventTableByFlowRate() {
         BackFlowEventTableByFlowRate backFlowEventTable = new BackFlowEventTableByFlowRate(waveFlow);
         backFlowEventTable.set();
         return backFlowEventTable;

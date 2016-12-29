@@ -1,7 +1,10 @@
 package com.energyict.protocolimplv2.edp;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 /**
@@ -12,8 +15,8 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
  */
 public class JanzB280 extends CX20009 {
 
-    public JanzB280(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(propertySpecService, collectedDataFactory, issueFactory);
+    public JanzB280(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
     }
 
     @Override
@@ -25,4 +28,5 @@ public class JanzB280 extends CX20009 {
     public String getProtocolDescription() {
         return "Janz B280 DLMS";
     }
+
 }

@@ -1,7 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
@@ -17,8 +22,8 @@ import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.profiledata.Mx382Profi
  */
 public class Mx382 extends AM130{
 
-    public Mx382(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
+    public Mx382(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
     }
 
     @Override
@@ -65,7 +70,7 @@ public class Mx382 extends AM130{
     @Override
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new Mx382Messaging(this);
+            idisMessaging = new Mx382Messaging(this, this.getExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
         }
         return idisMessaging;
     }

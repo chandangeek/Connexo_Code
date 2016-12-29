@@ -6,15 +6,17 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -22,12 +24,13 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LogBookReader;
@@ -44,6 +47,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,11 +62,15 @@ public class CX20009 extends AbstractDlmsProtocol {
     private RegisterReader registerReader;
     private EDPMessaging edpMessaging;
     private LoadProfileBuilder loadProfileBuilder;
-    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+    private final Extractor extractor;
 
-    public CX20009(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
-        this.propertySpecService = propertySpecService;
+    public CX20009(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.extractor = extractor;
     }
 
     @Override
@@ -78,7 +86,7 @@ public class CX20009 extends AbstractDlmsProtocol {
      */
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new EDPDlmsConfigurationSupport(propertySpecService);
+            dlmsConfigurationSupport = new EDPDlmsConfigurationSupport(this.getPropertySpecService());
         }
         return dlmsConfigurationSupport;
     }
@@ -160,7 +168,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override
@@ -175,7 +183,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, collectedDataFactory, issueFactory);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return loadProfileBuilder;
     }
@@ -201,12 +209,12 @@ public class CX20009 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
@@ -225,27 +233,43 @@ public class CX20009 extends AbstractDlmsProtocol {
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        return this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     private LogbookReader getLogbookReader() {
         if (logbookReader == null) {
-            logbookReader = new LogbookReader(this, collectedDataFactory, issueFactory);
+            logbookReader = new LogbookReader(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return logbookReader;
     }
 
     private EDPMessaging getMessaging() {
         if (edpMessaging == null) {
-            edpMessaging = new EDPMessaging(propertySpecService, nlsService, converter, new EDPMessageExecutor(this));
+            edpMessaging =
+                    new EDPMessaging(
+                            this.getPropertySpecService(),
+                            this.nlsService,
+                            this.converter,
+                            this.extractor,
+                            new EDPMessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()));
         }
         return edpMessaging;
     }
 
     public RegisterReader getRegisterReader() {
         if (registerReader == null) {
-            registerReader = new RegisterReader(this, collectedDataFactory, issueFactory);
+            registerReader = new RegisterReader(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerReader;
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

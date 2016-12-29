@@ -5,22 +5,31 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
@@ -53,13 +62,30 @@ public class AM130 extends AM500 {
     protected static final int IDIS2_CLIENT_PUBLIC            = 16;
     protected static final int IDIS2_CLIENT_PRE_ESTABLISHED   = 102;
 
-
     protected static final ObisCode FRAMECOUNTER_OBISCODE_MANAGEMENT = ObisCode.fromString("0.0.43.1.0.255");
 
     protected AM130RegisterFactory registerFactory;
+    private final NlsService nlsService;
+    private final Extractor extractor;
+    private final Converter converter;
 
-    public AM130(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
+    public AM130(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.extractor = extractor;
+    }
+
+    protected Extractor getExtractor() {
+        return extractor;
+    }
+
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
+    protected Converter getConverter() {
+        return converter;
     }
 
     /**
@@ -127,7 +153,7 @@ public class AM130 extends AM500 {
      * First read out the frame counter for the management client, using the public client.
      */
     protected void readFrameCounter(ComChannel comChannel, int timeout) {
-        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        TypedProperties clone = TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC));
         IDISProperties publicClientProperties = getNewInstanceOfProperties();
         publicClientProperties.addProperties(clone);
@@ -188,7 +214,7 @@ public class AM130 extends AM500 {
 
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new AM130Messaging(this);
+            idisMessaging = new AM130Messaging(this, this.extractor, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.nlsService, this.converter);
         }
         return idisMessaging;
     }
@@ -212,5 +238,25 @@ public class AM130 extends AM500 {
             this.registerFactory = new AM130RegisterFactory(this, collectedDataFactory, issueFactory);
         }
         return registerFactory;
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return messageAttribute.toString();
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
     }
 }

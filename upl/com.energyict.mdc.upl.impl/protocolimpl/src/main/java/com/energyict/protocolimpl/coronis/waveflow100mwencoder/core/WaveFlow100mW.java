@@ -187,7 +187,7 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
                                         HalfDuplexController halfDuplexController) throws IOException {
 
         parameterFactory = new ParameterFactory(this);
-        radioCommandFactory = new RadioCommandFactory(this);
+        radioCommandFactory = new RadioCommandFactory(this, propertySpecService);
         waveFlowConnect = new WaveFlowConnect(inputStream, outputStream, timeoutProperty, getLogger(), forcedDelay, getInfoTypeProtocolRetriesProperty());
         commonObisCodeMapper = new CommonObisCodeMapper(this);
 

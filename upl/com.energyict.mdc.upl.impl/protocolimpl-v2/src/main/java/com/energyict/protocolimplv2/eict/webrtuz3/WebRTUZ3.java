@@ -4,15 +4,17 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -20,17 +22,19 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.migration.MigrateFromV1Protocol;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.eict.webrtuz3.loadprofile.LoadProfileBuilder;
@@ -58,9 +62,15 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     private LogBookParser logBookParser;
     private WebRTUZ3RegisterFactory registerFactory;
     private WebRTUZ3Messaging webRTUZ3Messaging;
+    private final NlsService nlsService;
+    private final Converter converter;
+    private final Extractor extractor;
 
-    public WebRTUZ3(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
+    public WebRTUZ3(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.extractor = extractor;
     }
 
     @Override
@@ -85,7 +95,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     }
 
     @Override
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
             dlmsConfigurationSupport = new WebRTUZ3ConfigurationSupport();
         }
@@ -128,7 +138,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     public LogBookParser getLogBookParser() {
         if (this.logBookParser == null) {
-            this.logBookParser = new LogBookParser(this, collectedDataFactory, issueFactory);
+            this.logBookParser = new LogBookParser(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return this.logBookParser;
     }
@@ -149,18 +159,18 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     }
 
     @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
         return "";
     }
 
     private WebRTUZ3Messaging getMessaging() {
         if (webRTUZ3Messaging == null) {
-            webRTUZ3Messaging = new WebRTUZ3Messaging(this, propertySpecService, nlsService, converter);
+            webRTUZ3Messaging = new WebRTUZ3Messaging(this, this.extractor, this.getPropertySpecService(), this.nlsService, this.converter, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return webRTUZ3Messaging;
     }
@@ -168,7 +178,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     @Override
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
-            meterTopology = new WebRTUZ3MeterTopology(this, collectedDataFactory);
+            meterTopology = new WebRTUZ3MeterTopology(this, this.getCollectedDataFactory());
             meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
@@ -176,10 +186,9 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        ArrayList<DeviceProtocolDialect> dialects = new ArrayList<>();
-        dialects.add(new TcpDeviceProtocolDialect());
-        dialects.add(new SerialDeviceProtocolDialect());
-        return dialects;
+        return Arrays.asList(
+                    new TcpDeviceProtocolDialect(),
+                    new SerialDeviceProtocolDialect());
     }
 
     @Override
@@ -189,7 +198,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     private WebRTUZ3RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new WebRTUZ3RegisterFactory(this, collectedDataFactory, issueFactory);
+            registerFactory = new WebRTUZ3RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }
@@ -200,7 +209,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     }
 
     @Override
-    public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
+    public TypedProperties formatLegacyProperties(com.energyict.mdc.upl.properties.TypedProperties legacyProperties) {
         TypedProperties result = TypedProperties.empty();
 
         // Map 'ServerMacAddress' to 'ServerUpperMacAddress' and 'ServerLowerMacAddress'
@@ -227,5 +236,15 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

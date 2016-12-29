@@ -8,8 +8,7 @@ import java.util.Date;
 
 public class RadioCommandFactory {
 
-
-    private RTM rtm;
+    private final RTM rtm;
     private RSSILevel rssiLevel = null;
 
     // Cached, only needs to be read out once.
@@ -65,13 +64,13 @@ public class RadioCommandFactory {
         }
     }
 
-    final public ExtendedDataloggingTable readExtendedDataloggingTable(int portNr, final int nrOfValues, final Date toDate) throws IOException {
+    public final ExtendedDataloggingTable readExtendedDataloggingTable(int portNr, final int nrOfValues, final Date toDate) throws IOException {
         ExtendedDataloggingTable table = new ExtendedDataloggingTable(rtm, portNr, nrOfValues, toDate);
         table.set();
         return table;
     }
 
-    final public ExtendedDataloggingTable readExtendedDataloggingTable(int portNr, final int nrOfValues, final int offset) throws IOException {
+    public final ExtendedDataloggingTable readExtendedDataloggingTable(int portNr, final int nrOfValues, final int offset) throws IOException {
         ExtendedDataloggingTable table = new ExtendedDataloggingTable(rtm, portNr, nrOfValues, offset);
         table.set();
         return table;
@@ -85,7 +84,7 @@ public class RadioCommandFactory {
      * @return a table containing the requested profile data entries
      * @throws IOException timeout errors etc
      */
-    final public ExtendedDataloggingTable readExtendedDataloggingTable(int portMask, int numberOfReadings) throws IOException {
+    public final ExtendedDataloggingTable readExtendedDataloggingTable(int portMask, int numberOfReadings) throws IOException {
         cachedExtendedDataloggingTable = new ExtendedDataloggingTable(rtm, portMask, numberOfReadings);
         cachedExtendedDataloggingTable.set();
         return cachedExtendedDataloggingTable;
@@ -95,7 +94,7 @@ public class RadioCommandFactory {
         return cachedExtendedDataloggingTable;
     }
 
-    final public LeakageEventTable readLeakageEventTable() throws IOException {
+    public final LeakageEventTable readLeakageEventTable() throws IOException {
         LeakageEventTable leakageEventTable = new LeakageEventTable(rtm);
         leakageEventTable.set();
         return leakageEventTable;
@@ -107,12 +106,11 @@ public class RadioCommandFactory {
         routeConfiguration.set();
     }
 
-    final public DailyConsumption readDailyConsumption() throws IOException {
+    public final DailyConsumption readDailyConsumption() throws IOException {
         DailyConsumption dailyConsumption = new DailyConsumption(rtm);
         dailyConsumption.set();
         return dailyConsumption;
     }
-
 
     public boolean openWaterValve() throws IOException {
         ProfileType profileType = rtm.getParameterFactory().readProfileType();

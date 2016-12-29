@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -63,8 +64,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     protected DeviceProtocolSecurityCapabilities dlmsSecuritySupport;
     private ComposedMeterInfo meterInfo;
     private DlmsSession dlmsSession;
-    protected final CollectedDataFactory collectedDataFactory;
-    protected final IssueFactory issueFactory;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
 
     /**
      * Indicating if the meter has a breaker.
@@ -74,9 +76,22 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     private boolean hasBreaker = true;
     private Logger logger;
 
-    public AbstractDlmsProtocol(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AbstractDlmsProtocol(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
     }
 
     /**
@@ -135,7 +150,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
 
     protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DsmrSecuritySupport();
+            dlmsSecuritySupport = new DsmrSecuritySupport(this.propertySpecService);
         }
         return dlmsSecuritySupport;
     }

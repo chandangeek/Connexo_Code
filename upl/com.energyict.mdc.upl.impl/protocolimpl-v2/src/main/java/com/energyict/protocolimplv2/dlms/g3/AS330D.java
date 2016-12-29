@@ -2,14 +2,16 @@ package com.energyict.protocolimplv2.dlms.g3;
 
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -23,6 +25,7 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
@@ -57,7 +60,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,8 +85,8 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     private LogBookFactory logBookFactory;
     private ProfileDataFactory profileDataFactory;
 
-    public AS330D(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
+    public AS330D(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
     }
 
     @Override
@@ -144,7 +146,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {   //Physical slave
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override
@@ -184,7 +186,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     @Override
     protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new AS330DSecuritySupport();
+            dlmsSecuritySupport = new AS330DSecuritySupport(this.getPropertySpecService());
         }
         return dlmsSecuritySupport;
     }
@@ -194,7 +196,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        return this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     /**
@@ -310,7 +312,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     private ProfileDataFactory getProfileDataFactory() {
         if (profileDataFactory == null) {
-            profileDataFactory = new ProfileDataFactory(getDlmsSession(), getDeviceCache(), collectedDataFactory, issueFactory);
+            profileDataFactory = new ProfileDataFactory(getDlmsSession(), getDeviceCache(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return profileDataFactory;
     }
@@ -327,12 +329,12 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return this.collectedDataFactory.createEmptyCollectedMessageList();
+        return this.getCollectedDataFactory().createEmptyCollectedMessageList();
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return this.collectedDataFactory.createEmptyCollectedMessageList();
+        return this.getCollectedDataFactory().createEmptyCollectedMessageList();
     }
 
     @Override
@@ -347,7 +349,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect());   //Dialect properties are managed by the master protocol
+        return Collections.singletonList(new NoParamsDeviceProtocolDialect());   //Dialect properties are managed by the master protocol
     }
 
     @Override
@@ -357,14 +359,14 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     private LogBookFactory getLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new LogBookFactory(getDlmsSession(), collectedDataFactory, issueFactory);
+            logBookFactory = new LogBookFactory(getDlmsSession(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return logBookFactory;
     }
 
     private RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new RegisterFactory(getDlmsSession(), collectedDataFactory, issueFactory);
+            registerFactory = new RegisterFactory(getDlmsSession(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }
@@ -372,5 +374,15 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     @Override
     public String getVersion() {
         return "$Date: 2016-07-11 09:53:54 +0300 (Mon, 11 Jul 2016)$";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 }

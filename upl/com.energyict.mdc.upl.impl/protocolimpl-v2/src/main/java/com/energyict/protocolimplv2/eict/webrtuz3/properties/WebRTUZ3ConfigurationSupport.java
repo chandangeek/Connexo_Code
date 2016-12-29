@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.properties;
 
-import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -11,9 +12,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
-public class WebRTUZ3ConfigurationSupport implements ConfigurationSupport {
+public class WebRTUZ3ConfigurationSupport implements HasDynamicProperties {
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 

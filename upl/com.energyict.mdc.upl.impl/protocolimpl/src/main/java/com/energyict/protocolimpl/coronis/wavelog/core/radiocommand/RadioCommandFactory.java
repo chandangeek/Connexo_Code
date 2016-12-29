@@ -8,8 +8,7 @@ import java.util.Date;
 
 public class RadioCommandFactory {
 
-
-    private WaveLog waveLog;
+    private final WaveLog waveLog;
 
     // Cached, only needs to be read out once.
     private FirmwareVersion firmwareVersion = null;

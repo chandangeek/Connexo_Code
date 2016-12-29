@@ -18,6 +18,7 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
 import com.energyict.cpo.PropertySpec;
@@ -75,8 +76,8 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     private String serialNumber = null;
     private static final ObisCode LOGICAL_DEVICE_NAME_OBIS = ObisCode.fromString("0.0.42.0.0.255");
 
-    public AM500(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
+    public AM500(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
     }
 
     @Override

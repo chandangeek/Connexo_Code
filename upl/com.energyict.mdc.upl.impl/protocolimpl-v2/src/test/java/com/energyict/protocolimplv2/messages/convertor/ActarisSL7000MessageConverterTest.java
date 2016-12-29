@@ -80,7 +80,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ActarisSl7000(calendarFinder, extractor);
+        return new ActarisSl7000(calendarFinder, extractor, propertySpecService);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {

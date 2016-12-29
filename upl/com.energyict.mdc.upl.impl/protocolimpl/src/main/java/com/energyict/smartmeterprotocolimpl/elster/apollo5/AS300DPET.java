@@ -98,7 +98,7 @@ public class AS300DPET extends AS300 {
     @Override
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarFinder()));
+            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarFinder(), this.getExtractor()));
         }
         return messageProtocol;
     }

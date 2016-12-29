@@ -7,7 +7,6 @@ import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.protocol.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.security.SecuritySuite;
@@ -28,6 +27,7 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.migration.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -36,7 +36,6 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
-import com.energyict.cbo.ObservationTimestampPropertyImpl;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -81,13 +80,11 @@ import java.util.logging.Level;
  */
 public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
-    private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
 
-    public Beacon3100(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
-        super(collectedDataFactory, issueFactory);
-        this.propertySpecService = propertySpecService;
+    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
     }
@@ -202,7 +199,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     protected AdvancedDeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DlmsSecuritySuite1And2Support(propertySpecService);
+            dlmsSecuritySupport = new DlmsSecuritySuite1And2Support(this.getPropertySpecService());
         }
         return (AdvancedDeviceProtocolSecurityCapabilities) dlmsSecuritySupport;
     }
@@ -354,7 +351,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     private Beacon3100LogBookFactory getBeacon3100LogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new Beacon3100LogBookFactory(this, collectedDataFactory, issueFactory);
+            logBookFactory = new Beacon3100LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return logBookFactory;
     }
@@ -366,7 +363,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     private Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new Beacon3100Messaging(this, this.collectedDataFactory, this.propertySpecService, this.nlsService, this.converter);
+            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.nlsService, this.converter);
         }
         return beacon3100Messaging;
     }
@@ -408,14 +405,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     private RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new RegisterFactory(getDlmsSession(), collectedDataFactory, issueFactory);
+            registerFactory = new RegisterFactory(getDlmsSession(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
+        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         final Array nodeList;
@@ -454,12 +451,12 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     }
 
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);  //Using callHomeId as a general property
-                    CollectedTopology.ObservationTimestampProperty observationTimestampProperty = new ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
+                    CollectedTopology.ObservationTimestampProperty observationTimestampProperty = ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, observationTimestampProperty);
 
                     if (persistedGatewayLogicalDeviceId == null || !gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
-                                this.collectedDataFactory.createCollectedDeviceProtocolProperty(
+                                this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
                                         AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
                                         gatewayLogicalDeviceId
@@ -468,7 +465,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     }
                     if (persistedMirrorLogicalDeviceId == null || !mirrorLogicalDeviceId.equals(persistedMirrorLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
-                                this.collectedDataFactory.createCollectedDeviceProtocolProperty(
+                                this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
                                         AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
                                         mirrorLogicalDeviceId
@@ -477,7 +474,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     }
                     if (persistedLastSeenDate == null || !lastSeenDate.equals(persistedLastSeenDate)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
-                                this.collectedDataFactory.createCollectedDeviceProtocolProperty(
+                                this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                         slaveDeviceIdentifier,
                                         G3Properties.PROP_LASTSEENDATE,
                                         lastSeenDate
@@ -576,7 +573,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      */
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new Beacon3100ConfigurationSupport(propertySpecService);
+            dlmsConfigurationSupport = new Beacon3100ConfigurationSupport(this.getPropertySpecService());
         }
         return dlmsConfigurationSupport;
     }
@@ -589,7 +586,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      */
     @Override
     public DeviceProtocolSecurityCapabilities getPreviousSecuritySupport() {
-        return new DsmrSecuritySupport();
+        return new DsmrSecuritySupport(this.getPropertySpecService());
     }
 
     @Override

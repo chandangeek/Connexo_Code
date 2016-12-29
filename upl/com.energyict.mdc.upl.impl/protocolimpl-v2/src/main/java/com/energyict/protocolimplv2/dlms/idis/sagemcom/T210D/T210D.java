@@ -1,10 +1,15 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
@@ -20,8 +25,8 @@ import java.util.logging.Level;
  */
 public class T210D extends AM130 {
 
-    public T210D(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(collectedDataFactory, issueFactory);
+    public T210D(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
     }
 
     @Override
@@ -44,7 +49,7 @@ public class T210D extends AM130 {
     @Override
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new T210DMessaging(this);
+            idisMessaging = new T210DMessaging(this, this.getExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
         }
         return idisMessaging;
     }
