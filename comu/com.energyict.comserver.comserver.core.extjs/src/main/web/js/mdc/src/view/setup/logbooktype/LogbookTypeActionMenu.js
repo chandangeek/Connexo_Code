@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.logbook-type-action-menu',
     itemId: 'logbook-type-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

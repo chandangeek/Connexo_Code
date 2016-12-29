@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep5', {
         me.callParent(arguments);
     },
 
-    initialize: function(dataLoggerId, slaveId) {
+    initialize: function (dataLoggerId, slaveId) {
         var me = this;
         if (me.rendered) {
             me.doInitialize(dataLoggerId, slaveId);
@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep5', {
     },
 
 
-    doInitialize: function(dataLoggerId, slaveId) {
+    doInitialize: function (dataLoggerId, slaveId) {
         var me = this,
             labelField = me.down('#mdc-step5-info-label');
 

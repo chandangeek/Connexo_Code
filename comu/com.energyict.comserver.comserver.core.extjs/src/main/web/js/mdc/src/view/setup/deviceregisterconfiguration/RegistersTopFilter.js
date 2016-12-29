@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
         me.callParent(arguments);
     },
 
-    onRegisterGroupComboCollapse: function() {
+    onRegisterGroupComboCollapse: function () {
         var me = this,
             groupCombo = me.down('#mdc-register-group-filter'),
             registerCombo = me.down('#mdc-register-filter'),
@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
         });
     },
 
-    onRegisterGroupComboChange: function(combo) {
+    onRegisterGroupComboChange: function (combo) {
         if (combo.isExpanded) {
             return; // if expanded, the collapse trigger will do
         }
@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
 
         if (groupCombo.isExpanded) {
             groupCombo.collapse();
-            Ext.defer(function(){
+            Ext.defer(function () {
                 me.callParent(arguments);
             }, 250);
         } else {

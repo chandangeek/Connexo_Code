@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceLoadProfileChannelDataActionMenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'viewHistory',
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
     },
 
     listeners: {
-        beforeshow: function(menu) {
+        beforeshow: function (menu) {
             var validationResult = menu.record.get('validationResult'),
                 mainStatus = false,
                 bulkStatus = false;

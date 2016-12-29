@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
-                menu: { xtype: 'load-profile-configuration-action-menu' }
+                menu: {xtype: 'load-profile-configuration-action-menu'}
             }
         ];
 

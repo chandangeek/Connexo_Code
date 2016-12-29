@@ -1,7 +1,7 @@
 Ext.define('Mdc.timeofuse.view.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tou-devicetype-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'view-preview-tou',

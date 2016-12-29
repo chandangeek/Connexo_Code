@@ -1,4 +1,4 @@
-Ext.define('Mdc.store.UsedCommunicationSchedulesForDevice',{
+Ext.define('Mdc.store.UsedCommunicationSchedulesForDevice', {
     extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.CommunicationSchedule'

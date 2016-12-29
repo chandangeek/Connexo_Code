@@ -67,7 +67,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 endTime,
                                 versionsLink = '<a href="'
                                     + me.router.getRoute('usagepoints/usagepoint/history')
-                                        .buildUrl({usagePointId: encodeURIComponent(record.get('name'))},{historyTab: 'meterActivation'})
+                                        .buildUrl({usagePointId: encodeURIComponent(record.get('name'))}, {historyTab: 'meterActivation'})
                                     + '">Versions</a>';
 
                             if (value) {

@@ -51,8 +51,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
                     columns: 1,
                     vertical: true,
                     items: [
-                        { boxLabel: "Keep the old shared communication schedule and don't add the new one", name: 'rb', inputValue: 'keep' },
-                        { boxLabel: 'Remove the old shared communication schedule and add the new one', name: 'rb', inputValue: 'remove'}
+                        {boxLabel: "Keep the old shared communication schedule and don't add the new one", name: 'rb', inputValue: 'keep'},
+                        {boxLabel: 'Remove the old shared communication schedule and add the new one', name: 'rb', inputValue: 'remove'}
                     ]
                 }
             ]
@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.down('#displayTitle').setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
     },
 
-    isRemove: function() {
+    isRemove: function () {
         this.down('#strategyform').hide();
     },
 

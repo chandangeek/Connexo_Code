@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-communication-task-action-menu',
     itemId: 'device-communication-task-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('deviceCommunicationTask.runComTask', 'MDC', 'Run'),

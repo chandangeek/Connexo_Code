@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionsGrid', {
                 menuDisabled: true,
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.Communication.admin,
-                menu: { xtype: 'comtaskActionActionMenu' }
+                menu: {xtype: 'comtaskActionActionMenu'}
             }
         ];
 

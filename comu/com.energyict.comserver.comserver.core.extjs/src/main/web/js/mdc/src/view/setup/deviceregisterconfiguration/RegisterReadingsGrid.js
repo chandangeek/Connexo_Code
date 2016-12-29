@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                     dataIndex: 'dataloggerSlavemRID',
                     flex: 10,
                     header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
-                    renderer: function(value) {
+                    renderer: function (value) {
                         if (Ext.isEmpty(value)) {
                             return '-';
                         }
@@ -140,7 +140,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
         return Uni.DateTime.formatDateTimeShort(date) + icon;
     },
 
-    showOrHideBillingColumns: function(showThem) {
+    showOrHideBillingColumns: function (showThem) {
         var fromColumn = this.down('#mdc-readings-grid-from-column'),
             toColumn = this.down('#mdc-readings-grid-to-column');
 

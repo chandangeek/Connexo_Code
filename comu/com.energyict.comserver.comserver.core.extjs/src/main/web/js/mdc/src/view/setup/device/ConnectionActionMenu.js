@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
         }
     },
 
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.runNow', 'MDC', 'Run now'),
@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
             {
                 text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                 action: 'toggleActivation',
-                visible: function() {
+                visible: function () {
                     var record = this.record;
                     return record.get('connectionMethod') && record.get('connectionMethod').status === 'inactive'
                 },
@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
             {
                 text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
                 action: 'toggleActivation',
-                visible: function() {
+                visible: function () {
                     var record = this.record;
                     return record.get('connectionMethod') && record.get('connectionMethod').status === 'active'
                 },
@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
             {
                 text: Uni.I18n.translate('general.viewHistory', 'MDC', 'View history'),
                 action: 'viewHistory',
-                handler: function() {
+                handler: function () {
                     var me = this.parentMenu;
                     me.router.getRoute('devices/device/connectionmethods/history').forward({connectionMethodId: me.record.getId()});
                 },

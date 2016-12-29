@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceLoadProfilesActionMenu',
     itemId: 'deviceLoadProfilesActionMenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'viewSuspects',

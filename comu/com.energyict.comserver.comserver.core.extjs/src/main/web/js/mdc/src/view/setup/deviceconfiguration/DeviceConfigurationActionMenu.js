@@ -2,13 +2,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-configuration-action-menu',
     itemId: 'device-configuration-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                 itemId: 'activateDeviceconfigurationMenuItem',
                 action: 'activateDeviceConfiguration',
-                visible: function() {
+                visible: function () {
                     return !this.record.get('active')
                 },
                 section: this.SECTION_ACTION
@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationActionMenu', {
                 text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
                 itemId: 'deactivateDeviceconfigurationMenuItem',
                 action: 'deactivateDeviceConfiguration',
-                visible: function() {
+                visible: function () {
                     return !!this.record.get('active')
                 },
                 section: this.SECTION_ACTION

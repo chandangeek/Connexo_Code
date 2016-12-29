@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.register-group-action-menu',
     itemId: 'register-group-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

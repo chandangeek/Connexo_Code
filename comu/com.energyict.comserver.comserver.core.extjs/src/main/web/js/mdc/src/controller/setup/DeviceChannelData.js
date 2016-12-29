@@ -242,7 +242,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 if (channel.get('readingType').isGasRelated) {
                     var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
                     yearStartStore.on('load',
-                        function(store, records) {
+                        function (store, records) {
                             gasDayYearStart = records[0];
                             onDependenciesLoad();
                         },
@@ -345,7 +345,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     fromDate.add(gasDayYearStart.get('hours'), 'hours')
                         .add(gasDayYearStart.get('minutes'), 'minutes');
                 }
-                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( fromDate.toDate() );
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(fromDate.toDate());
             } else {
                 var fromDate = channel.get('lastReading');
                 if (!Ext.isEmpty(gasDayYearStart)) {
@@ -358,7 +358,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         fromDate = lastReadingDayAtGasDayOffset;
                     }
                 }
-                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart( fromDate );
+                filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart(fromDate);
             }
         }
         filter.duration = all.count + all.timeUnit;
@@ -615,6 +615,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
+
+
     estimateReading: function () {
         var me = this,
             propertyForm = me.getReadingEstimationWindow().down('#property-form'),
@@ -659,14 +661,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
         model.set('estimateBulk', estimateBulk);
         model.set('intervals', intervalsArray);
-        me.saveChannelDataEstimateModel(model, record);
+        me.saveChannelDataEstimateModelr(model, record);
     },
 
-    saveChannelDataEstimateModel: function (record, readings) {
+    saveChannelDataEstimateModelr: function (record, readings) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().setParams(router.arguments);
+        record.getProxy().setParams(encodeURIComponent(router.arguments.deviceId),router.arguments.channelId);
         me.getReadingEstimationWindow().setLoading();
         Ext.Ajax.suspendEvent('requestexception');
         record.save({

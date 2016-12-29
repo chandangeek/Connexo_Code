@@ -55,7 +55,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                     if (Ext.isArray(value)) {
                         Ext.Array.each(value, function (deviceChannel, index) {
                             var device = canViewDevices
-                                ? '<a href="'
+                                    ? '<a href="'
                                 + me.router.getRoute('devices/device').buildUrl({
                                     deviceId: deviceChannel.device
                                 })

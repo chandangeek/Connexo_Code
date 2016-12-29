@@ -75,7 +75,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                     }
             });
             me.getApplication().fireEvent('changecontentevent', widget);
-            me.getOverviewLink().setText(usagepoint.get('name'));
+                me.getOverviewLink().setText(usagepoint.get('name'));
 
             },
             failure: function (response) {

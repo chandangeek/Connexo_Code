@@ -612,7 +612,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         }
     },
 
-    editRegister: function(deviceId, registerIdAsString) {
+    editRegister: function (deviceId, registerIdAsString) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
@@ -779,7 +779,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         });
     },
 
-    showRegistersTab: function(panel) {
+    showRegistersTab: function (panel) {
         var me = this,
             registersTabName = 'registers',
             router = me.getController('Uni.controller.history.Router'),
@@ -803,18 +803,26 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
         var params = undefined;
         if (!Ext.isEmpty(otherTabsGroupCombo) && !Ext.isEmpty(otherTabsGroupCombo.getValue())) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.groups = otherTabsGroupCombo.getValue();
         } else if (!Ext.isEmpty(me.groupsFromQueryParam)) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.groups = Ext.clone(me.groupsFromQueryParam);
             me.groupsFromQueryParam = undefined;
         }
         if (!Ext.isEmpty(otherTabsRegisterCombo) && !Ext.isEmpty(otherTabsRegisterCombo.getValue())) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.registers = otherTabsRegisterCombo.getValue();
         } else if (!Ext.isEmpty(me.registersFromQueryParam)) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.registers = Ext.clone(me.registersFromQueryParam);
             me.registersFromQueryParam = undefined;
         }
@@ -835,7 +843,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         Ext.resumeLayouts(true);
     },
 
-    showReadingsTab: function(panel) {
+    showReadingsTab: function (panel) {
         var me = this,
             readingsTabName = 'readings',
             router = me.getController('Uni.controller.history.Router'),
@@ -848,32 +856,46 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         Uni.util.History.setParsePath(false);
         var params = undefined;
         if (!Ext.isEmpty(otherTabsGroupCombo) && !Ext.isEmpty(otherTabsGroupCombo.getValue())) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.groups = otherTabsGroupCombo.getValue();
         } else if (!Ext.isEmpty(me.groupsFromQueryParam)) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.groups = Ext.clone(me.groupsFromQueryParam);
             me.groupsFromQueryParam = undefined;
         }
         if (!Ext.isEmpty(otherTabsRegisterCombo) && !Ext.isEmpty(otherTabsRegisterCombo.getValue())) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.registers = otherTabsRegisterCombo.getValue();
         } else if (!Ext.isEmpty(me.registersFromQueryParam)) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.registers = Ext.clone(me.registersFromQueryParam);
             me.registersFromQueryParam = undefined;
         }
         if (!Ext.isEmpty(me.previousMeasurementTime)) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.measurementTime = me.previousMeasurementTime;
         }
         if (!Ext.isEmpty(me.previousToTime)) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.toTime = me.previousToTime;
         }
 
         if (Ext.isEmpty(params) || Ext.isEmpty(params.measurementTime)) {
-            if (Ext.isEmpty(params)) { params = {}; }
+            if (Ext.isEmpty(params)) {
+                params = {};
+            }
             params.measurementTime = moment().subtract(7, 'days').startOf('day').valueOf() + '-' + moment().valueOf();
         }
         router.getRoute('devices/device/registers/tab').forward({tab: readingsTabName}, params);
@@ -888,7 +910,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         Ext.resumeLayouts(true);
     },
 
-    loadRegisterReadingDetails: function(rowmodel, record) {
+    loadRegisterReadingDetails: function (rowmodel, record) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             previewContainer = me.getRegisterReadingsView().down('#mdc-registers-overview-previewContainer'),
@@ -897,14 +919,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         if (Ext.isEmpty(previewWidget)) { // required widget not available
             Ext.suspendLayouts();
             previewContainer.removeAll();
-            previewWidget = Ext.create('Mdc.view.setup.deviceregisterdata.'+record.get('type')+'.Preview', {
+            previewWidget = Ext.create('Mdc.view.setup.deviceregisterdata.' + record.get('type') + '.Preview', {
                 router: router,
                 mentionDataLoggerSlave: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
                 unitOfMeasureCollected: record.get('unit') // Only required for numerical
             });
-            previewWidget.on('afterlayout', function(panel) {
+            previewWidget.on('afterlayout', function (panel) {
                 panel.updateContent(record);
-            }, me, {single:true});
+            }, me, {single: true});
             previewContainer.add(previewWidget);
             Ext.resumeLayouts(true);
         } else { // required widget already available (from a previous selection/preview)
@@ -912,15 +934,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         }
     },
 
-    onRegisterReadingsTopFilterClearMeasurementTime: function() {
+    onRegisterReadingsTopFilterClearMeasurementTime: function () {
         this.previousMeasurementTime = undefined;
     },
 
-    onRegisterReadingsTopFilterClearToTime: function() {
+    onRegisterReadingsTopFilterClearToTime: function () {
         this.previousToTime = undefined;
     },
 
-    onRegisterReadingsTopFilterClearAll: function() {
+    onRegisterReadingsTopFilterClearAll: function () {
         this.onRegisterReadingsTopFilterClearMeasurementTime();
         this.onRegisterReadingsTopFilterClearToTime();
     }

@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
     mentionDataLoggerSlave: false,
 
     mixins: {
-        bindable: 'Ext.util.Bindable'        
+        bindable: 'Ext.util.Bindable'
     },
 
     items: [
@@ -23,8 +23,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             }
         }
     ],
-    
-    createTooltip: function (tooltip) {        
+
+    createTooltip: function (tooltip) {
         var me = this,
             html = '<b>' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
             point = tooltip.point,

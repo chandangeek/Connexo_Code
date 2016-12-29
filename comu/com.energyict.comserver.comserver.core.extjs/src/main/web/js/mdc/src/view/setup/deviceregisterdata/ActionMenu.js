@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceregisterdataactionmenu',
     itemId: 'deviceregisterdataactionmenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'confirm-value',
