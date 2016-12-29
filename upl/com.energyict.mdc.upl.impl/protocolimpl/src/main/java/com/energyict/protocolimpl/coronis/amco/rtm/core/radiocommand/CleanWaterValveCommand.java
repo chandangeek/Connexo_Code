@@ -14,7 +14,7 @@ public class CleanWaterValveCommand extends AbstractRadioCommand {
     private boolean success = false;
 
     protected CleanWaterValveCommand(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     public boolean isSuccess() {

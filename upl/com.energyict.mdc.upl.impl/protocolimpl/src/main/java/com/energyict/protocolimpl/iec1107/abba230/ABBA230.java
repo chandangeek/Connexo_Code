@@ -206,10 +206,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
      */
     private boolean instrumentationProfileMode;
 
-    public ABBA230() {
-        super(propertySpecService);
-    }
-
     @Override
     public String getSerialNumber() {
         try {

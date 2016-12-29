@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
@@ -14,7 +16,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-abstract public class AbstractRadioCommand {
+public abstract class AbstractRadioCommand {
 
     protected enum RadioCommandId {
 
@@ -65,18 +67,22 @@ abstract public class AbstractRadioCommand {
         }
     }
 
+    private final PropertySpecService propertySpecService;
     protected GenericHeader genericHeader = null;
+    private RTM rtm;
+    protected int operationMode = 0;
+
+    protected AbstractRadioCommand(PropertySpecService propertySpecService, RTM rtm) {
+        this.propertySpecService = propertySpecService;
+        this.rtm = rtm;
+    }
 
     public GenericHeader getGenericHeader() {
         if (genericHeader == null) {
-            genericHeader = new GenericHeader(getRTM(), propertySpecService);
+            genericHeader = new GenericHeader(getRTM(), this.propertySpecService);
         }
         return genericHeader;
     }
-
-    private RTM rtm;
-
-    protected int operationMode = 0;
 
     public int getOperationMode() {
         return operationMode;
@@ -106,10 +112,6 @@ abstract public class AbstractRadioCommand {
 
     protected final RTM getRTM() {
         return rtm;
-    }
-
-    protected AbstractRadioCommand(RTM rtm) {
-        this.rtm = rtm;
     }
 
     protected abstract void parse(byte[] data) throws IOException;
@@ -184,7 +186,7 @@ abstract public class AbstractRadioCommand {
     }
 
 
-    private final void parseResponse(byte[] data) throws IOException {
+    private void parseResponse(byte[] data) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));

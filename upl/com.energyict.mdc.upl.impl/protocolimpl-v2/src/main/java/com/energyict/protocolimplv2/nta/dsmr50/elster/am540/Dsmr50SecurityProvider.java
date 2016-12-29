@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;

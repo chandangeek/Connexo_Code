@@ -113,7 +113,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     @Override
-    public String getRegister(String name) throws UnsupportedException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 

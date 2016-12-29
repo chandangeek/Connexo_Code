@@ -4,6 +4,8 @@
 package com.energyict.protocolimpl.debug;
 
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityPolicy;
@@ -32,7 +34,7 @@ public class GasDeviceMain extends AS220Main {
 
     public GasDevice getGasDevice() {
         if (gasDevice == null) {
-            gasDevice = new GasDevice();
+            gasDevice = new GasDevice(Services.tariffCalendarFinder(), Services.extractor());
             log("Created new instance of " + gasDevice.getClass().getCanonicalName() + " [" + gasDevice.getProtocolVersion() + "]");
         }
         return gasDevice;

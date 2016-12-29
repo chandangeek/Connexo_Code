@@ -125,7 +125,7 @@ public class G3Properties extends DlmsProtocolProperties {
     @Override
     public G3SecurityProvider getSecurityProvider() {
         if (g3SecurityProvider == null) {
-            g3SecurityProvider = new G3SecurityProvider(this.getProtocolProperties());
+            g3SecurityProvider = new G3SecurityProvider(this.propertySpecService, this.getProtocolProperties());
         }
         return g3SecurityProvider;
     }

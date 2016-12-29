@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -44,8 +45,8 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
     protected static final ObisCode DISCONNECTOR_SCRIPT_MBUS_OBISCODE = ObisCode.fromString("0.1.10.0.106.255");
     protected static final ObisCode DISCONNECTOR_CONTROL_MBUS_OBISCODE = ObisCode.fromString("0.0.24.4.0.255");
 
-    public IDISMBusMessageHandler(IDISMBus idis, TariffCalendarFinder calendarFinder) {
-        super(idis, calendarFinder);
+    public IDISMBusMessageHandler(IDISMBus idis, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(idis, calendarFinder, extractor);
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {

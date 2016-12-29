@@ -12,7 +12,7 @@ import java.io.IOException;
 public class OpenWaterValveCommand extends AbstractRadioCommand {
 
     protected OpenWaterValveCommand(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     private boolean success = false;

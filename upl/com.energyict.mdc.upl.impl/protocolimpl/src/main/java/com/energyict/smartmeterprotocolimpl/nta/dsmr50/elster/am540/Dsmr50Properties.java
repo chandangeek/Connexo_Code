@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -29,6 +30,11 @@ public class Dsmr50Properties extends Dsmr40Properties {
     private static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
 
     private G3SecurityProvider g3SecurityProvider;
+    private final PropertySpecService propertySpecService;
+
+    public Dsmr50Properties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
@@ -47,7 +53,7 @@ public class Dsmr50Properties extends Dsmr40Properties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (g3SecurityProvider == null) {
-            g3SecurityProvider = new G3SecurityProvider(getProtocolProperties());
+            g3SecurityProvider = new G3SecurityProvider(this.propertySpecService, getProtocolProperties());
         }
         return g3SecurityProvider;
     }

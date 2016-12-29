@@ -9,7 +9,7 @@ import java.io.IOException;
 public class WriteIndexes extends AbstractRadioCommand {
 
     WriteIndexes(RTM rtm, int input) {
-        super(rtm);
+        super(propertySpecService, rtm);
         writingType = (int) Math.pow(2, input - 1);             //A = 1, B = 2, C = 4, D = 8
     }
 

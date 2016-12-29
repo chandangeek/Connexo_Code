@@ -23,7 +23,7 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  * Date: 20-jul-2011
  * Time: 13:29:29
  */
-class UkHubProperties extends DlmsProtocolProperties {
+public class UkHubProperties extends DlmsProtocolProperties {
 
     private static final String DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS = "64";
     private static final String DEFAULT_UK_HUB_LOGICAL_DEVICE_ADDRESS = "1";

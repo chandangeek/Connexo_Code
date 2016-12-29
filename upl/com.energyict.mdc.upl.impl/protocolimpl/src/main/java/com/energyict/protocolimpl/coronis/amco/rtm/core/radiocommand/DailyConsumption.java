@@ -7,7 +7,10 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -18,7 +21,7 @@ public class DailyConsumption extends AbstractRadioCommand {
 
 
     public DailyConsumption(RTM rtm) throws IOException {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     private int profileInterval;

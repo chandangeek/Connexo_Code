@@ -12,7 +12,7 @@ import java.io.IOException;
 public class RouteConfiguration extends AbstractRadioCommand {
 
     public RouteConfiguration(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     private int alarmConfig;

@@ -24,6 +24,10 @@ import java.util.List;
  */
 public class InHomeDisplay extends UkHub {
 
+    public InHomeDisplay() {
+        super(propertySpecService);
+    }
+
     @Override
     protected void initAfterConnect() throws ConnectionException {
         super.initAfterConnect();

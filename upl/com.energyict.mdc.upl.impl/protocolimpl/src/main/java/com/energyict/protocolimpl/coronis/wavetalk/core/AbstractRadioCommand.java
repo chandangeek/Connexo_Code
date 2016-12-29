@@ -5,12 +5,16 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-abstract public class AbstractRadioCommand {
-	
+public abstract class AbstractRadioCommand {
+
 	enum RadioCommandId {
-		
+
 		ReadParameterLegacy(0x10),
 		WriteParameterLegacy(0x11),
 		ReadParameter(0x18,true),
@@ -24,7 +28,7 @@ abstract public class AbstractRadioCommand {
 
 //		EncoderReadLeakageEventTable(0x04,true),
 		FirmwareVersion(0x28);
-		
+
 		private int commandId;
 		/**
 		 * Some of th eradio commands return the 1 byte operation moder and 1 byte application status
@@ -43,44 +47,44 @@ abstract public class AbstractRadioCommand {
 		final boolean isGenericHeader() {
 			return genericHeader;
 		}
-		
-		
+
+
 		final int getCommandId() {
 			return commandId;
 		}
 
-		
+
 		RadioCommandId(final int commandId) {
 			this(commandId,false);
 		}
-		
+
 		RadioCommandId(final int commandId, final boolean status) {
 			this(commandId,status,false);
 		}
-		
+
 		RadioCommandId(final int commandId, final boolean status, final boolean genericHeader) {
 			this.commandId=commandId;
 			this.status=status;
 			this.genericHeader=genericHeader;
 		}
-		
+
 	} // enum RadioCommandId
 
 	/**
 	 * The reference to the Waveflow protocol implementation class
 	 */
 	private AbstractWaveTalk waveFlow;
-	
+
 	/**
-	 * the 1 byte operation mode send together with some of the radio command responses 
+	 * the 1 byte operation mode send together with some of the radio command responses
 	 */
 	private int operationMode=-1;
-	
+
 	/**
 	 * the 1 byte application status send together with some of the radio command responses
 	 */
 	private int applicationStatus=-1;
-	
+
 	final int getOperationMode() {
 		return operationMode;
 	}
@@ -88,11 +92,11 @@ abstract public class AbstractRadioCommand {
 	final int getApplicationStatus() {
 		return applicationStatus;
 	}
-	
+
 	final AbstractWaveTalk getWaveFlow() {
 		return waveFlow;
 	}
-	
+
 	AbstractRadioCommand(AbstractWaveTalk waveFlow) {
 		this.waveFlow = waveFlow;
 	}
@@ -100,12 +104,12 @@ abstract public class AbstractRadioCommand {
 	abstract void parse(byte[] data) throws IOException;
 	abstract byte[] prepare() throws IOException;
 	abstract RadioCommandId getRadioCommandId();
-	
+
 	void invoke() throws IOException {
 		int retry=0;
 		while(true) {
 			ByteArrayOutputStream baos = null;
-			try {	
+			try {
 				baos = new ByteArrayOutputStream();
 				DataOutputStream daos = new DataOutputStream(baos);
 				daos.writeByte(getRadioCommandId().getCommandId());
@@ -113,7 +117,7 @@ abstract public class AbstractRadioCommand {
 				parseResponse(getWaveFlow().getWaveFlowConnect().sendData(baos.toByteArray()));
 				return;
 			}
-			catch(ConnectionException e) {
+			catch (ConnectionException e) {
 				if (retry++ >= getWaveFlow().getInfoTypeProtocolRetriesProperty()) {
 					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getWaveFlow().getInfoTypeProtocolRetriesProperty()+"] reties!");
 				}
@@ -121,14 +125,14 @@ abstract public class AbstractRadioCommand {
 					getWaveFlow().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
 				}
 			}
-			catch(WaveFlowDLMSException e) {
+			catch (WaveFlowDLMSException e) {
 				if (retry++ >= getWaveFlow().getInfoTypeProtocolRetriesProperty()) {
 					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getWaveFlow().getInfoTypeProtocolRetriesProperty()+"] reties!");
 				}
 				else {
 					getWaveFlow().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
 				}
-			}		
+			}
 			finally {
 				if (baos != null) {
 					try {
@@ -138,7 +142,7 @@ abstract public class AbstractRadioCommand {
 						getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 					}
 				}
-			}		
+			}
 		}
 	}
 
@@ -147,9 +151,9 @@ abstract public class AbstractRadioCommand {
 	 * @throws IOException
 	 */
 	void set() throws IOException {
-		
+
 		ByteArrayOutputStream baos = null;
-		try {	
+		try {
 			baos = new ByteArrayOutputStream();
 			DataOutputStream daos = new DataOutputStream(baos);
 			daos.writeByte(getRadioCommandId().getCommandId());
@@ -165,27 +169,27 @@ abstract public class AbstractRadioCommand {
 					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}			
+		}
 	}
-	
-	
-	private final void parseResponse(byte[] data) throws IOException {
+
+
+	private void parseResponse(byte[] data) throws IOException {
 		DataInputStream dais = null;
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
-			
+
 			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (commandIdAck != (0x80 | getRadioCommandId().getCommandId())) {
 				throw new WaveFlowException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
 			}
 			else {
-				
-				if ((commandIdAck == (0x80 | RadioCommandId.ExtendedDataloggingTable.getCommandId())) && 
-					(data.length == 2) && 
+
+				if ((commandIdAck == (0x80 | RadioCommandId.ExtendedDataloggingTable.getCommandId())) &&
+					(data.length == 2) &&
 					(WaveflowProtocolUtils.toInt(data[1]) == 0xff)) {
 					throw new WaveFlowException("Datalogging not yet available...");
 				}
-				
+
 				if (getRadioCommandId().isGenericHeader()) {
 					byte[] temp = new byte[23];
 					dais.read(temp);
@@ -194,7 +198,7 @@ abstract public class AbstractRadioCommand {
 					operationMode = WaveflowProtocolUtils.toInt(dais.readByte());
 					applicationStatus = WaveflowProtocolUtils.toInt(dais.readByte());
 				}
-				
+
 				byte[] temp = new byte[dais.available()];
 				dais.read(temp);
 				parse(temp);
@@ -209,9 +213,9 @@ abstract public class AbstractRadioCommand {
 					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}		
+		}
 	}
-	
 
-	
+
+
 }

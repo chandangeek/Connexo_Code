@@ -309,7 +309,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     @Override
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
-        AlarmFrameParser alarmFrame = new AlarmFrameParser(this, propertySpecService);
+        AlarmFrameParser alarmFrame = new AlarmFrameParser(this, this.getPropertySpecService());
         alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()));
         statusAndEvents.add(alarmFrame.getResponse());
         statusAndEvents.add(alarmFrame.getMeterEvents());
@@ -318,7 +318,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     @Override
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
-        return BubbleUpFrameParser.parse(data, this);
+        return BubbleUpFrameParser.parse(data, this, this.getPropertySpecService());
     }
 
     @Override

@@ -7,7 +7,7 @@ import test.com.energyict.protocolimplv2.coronis.common.WaveFlowException;
 import test.com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 
-abstract public class AbstractRadioCommand {
+public abstract class AbstractRadioCommand {
 
     public enum RadioCommandId {
 
@@ -159,7 +159,7 @@ abstract public class AbstractRadioCommand {
     }
 
 
-    private final void parseResponse(byte[] data) {
+    private void parseResponse(byte[] data) {
         int offset = 0;
         int commandIdAck = data[offset] & 0xFF;
         offset++;

@@ -36,7 +36,7 @@ public class Dsmr50MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AM540();
+        return new AM540(propertySpecService, extractor, calendarFinder);
     }
 
     @Override

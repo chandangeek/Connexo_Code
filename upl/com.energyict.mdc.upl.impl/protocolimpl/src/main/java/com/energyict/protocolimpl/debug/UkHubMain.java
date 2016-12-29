@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
@@ -19,7 +21,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
 
     public UkHub getMeterProtocol() {
         if (ukHub == null) {
-            ukHub = new UkHub();
+            ukHub = new UkHub(Services.propertySpecService());
             log("Created new instance of " + ukHub.getClass().getCanonicalName() + " [" + ukHub.getVersion() + "]");
         }
         return ukHub;

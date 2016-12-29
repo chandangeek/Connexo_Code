@@ -41,7 +41,7 @@ public class IDISMBus extends IDIS {
     private static final int MAX_MBUS_CHANNELS = 4;
 
     public IDISMBus(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder) {
-        super(propertySpecService, calendarFinder);
+        super(propertySpecService, calendarFinder, extractor);
     }
 
     @Override

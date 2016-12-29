@@ -15,11 +15,11 @@ public class RSSILevel extends AbstractRadioCommand {
     private static final double MAX = 0x20;
 
     protected RSSILevel(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     public RSSILevel(RTM rtm, int qos) {
-        super(rtm);
+        super(propertySpecService, rtm);
         this.rssiLevel = qos;
     }
 

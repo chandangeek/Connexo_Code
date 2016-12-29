@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -84,10 +85,12 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private static final String CONFIGURATION_USER_FILE = "Configuration user file";
     protected IDIS idis;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public IDISMessageHandler(IDIS idis, TariffCalendarFinder calendarFinder) {
+    public IDISMessageHandler(IDIS idis, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.idis = idis;
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     public void applyMessages(List messageEntries) throws IOException {
@@ -825,7 +828,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             Date actDate = new Date(Long.valueOf(activationDate));
             if (!codeId.isEmpty()) {
                 try {
-                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder, extractor).parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
+                    String xmlContent = new CodeTableXmlParsing(this.calendarFinder, this.extractor).parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
                     addChildTag(builder, RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException e) {
                     idis.getLogger().severe(e.getMessage());

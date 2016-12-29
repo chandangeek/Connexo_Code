@@ -12,7 +12,7 @@ import java.io.IOException;
 public class ValveStatus extends AbstractRadioCommand {
 
     protected ValveStatus(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     private int state;

@@ -4,9 +4,13 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-abstract public class AbstractRadioCommand {
+public abstract class AbstractRadioCommand {
 
     private static final int SERVICE_RESPONSE = 0x82;
 
@@ -59,7 +63,7 @@ abstract public class AbstractRadioCommand {
 
     private GenericHeader genericHeader;
 
-    final public GenericHeader getEncoderGenericHeader() {
+    public final GenericHeader getEncoderGenericHeader() {
         return genericHeader;
     }
 
@@ -104,7 +108,7 @@ abstract public class AbstractRadioCommand {
         }
     }
 
-    private final void parseRead(byte[] data) throws IOException {
+    private void parseRead(byte[] data) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));

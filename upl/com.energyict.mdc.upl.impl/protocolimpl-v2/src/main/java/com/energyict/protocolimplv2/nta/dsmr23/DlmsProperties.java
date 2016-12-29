@@ -86,7 +86,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     /** The default is non-pre-established associations. */
 	private static final boolean PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT = false;
 
-    private final TypedProperties properties;
+    private final com.energyict.protocolimpl.properties.TypedProperties properties;
     protected SecurityProvider securityProvider;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private String serialNumber = "";
@@ -102,7 +102,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     @Override
-    public TypedProperties getProperties() {
+    public com.energyict.protocolimpl.properties.TypedProperties getProperties() {
         return properties;
     }
 

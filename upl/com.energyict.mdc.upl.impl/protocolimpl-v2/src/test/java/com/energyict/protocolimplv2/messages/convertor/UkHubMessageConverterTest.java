@@ -133,7 +133,7 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new UkHub();
+        return new UkHub(propertySpecService);
     }
 
     @Override

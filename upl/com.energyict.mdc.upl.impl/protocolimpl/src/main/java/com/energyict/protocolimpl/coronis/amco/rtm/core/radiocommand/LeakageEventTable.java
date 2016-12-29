@@ -20,7 +20,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
     }
 
     LeakageEventTable(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     public List<MeterEvent> getMeterEvents() {

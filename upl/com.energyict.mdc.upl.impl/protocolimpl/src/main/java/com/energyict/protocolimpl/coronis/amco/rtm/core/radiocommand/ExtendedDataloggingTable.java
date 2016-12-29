@@ -8,7 +8,12 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -37,7 +42,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
     }
 
     public ExtendedDataloggingTable(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     public List<List<Integer[]>> getProfileDataForAllPorts() {
@@ -45,21 +50,21 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
     }
 
     protected ExtendedDataloggingTable(RTM rtm, int port, int numberOfRequestedReadings, int offset) {
-        super(rtm);
+        super(propertySpecService, rtm);
         this.portMask = (int) Math.pow(2, port - 1);
         this.numberOfRequestedReadings = numberOfRequestedReadings;
         this.offset = offset;
     }
 
     protected ExtendedDataloggingTable(RTM rtm, int port, int numberOfRequestedReadings, Date toDate) throws WaveFlowException {
-        super(rtm);
+        super(propertySpecService, rtm);
         this.portMask = (int) Math.pow(2, port - 1);
         this.numberOfRequestedReadings = numberOfRequestedReadings;
         this.toDate = toDate;
     }
 
     protected ExtendedDataloggingTable(RTM rtm, int portMask, int numberOfReadings) throws WaveFlowException {
-        super(rtm);
+        super(propertySpecService, rtm);
         this.portMask = portMask;
         this.numberOfRequestedReadings = numberOfReadings;
         this.offset = 0;

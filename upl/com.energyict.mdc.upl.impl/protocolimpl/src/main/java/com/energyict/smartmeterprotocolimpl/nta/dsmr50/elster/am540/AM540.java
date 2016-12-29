@@ -3,7 +3,10 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -39,9 +42,15 @@ import java.util.logging.Level;
 public class AM540 extends E350 {
 
     private static final String TIMEOUT = "timeout";
+    private final PropertySpecService propertySpecService;
+    private final Extractor extractor;
+    private final TariffCalendarFinder calendarFinder;
 
-    public AM540() {
+    public AM540(PropertySpecService propertySpecService, Extractor extractor, TariffCalendarFinder calendarFinder) {
         super();
+        this.propertySpecService = propertySpecService;
+        this.extractor = extractor;
+        this.calendarFinder = calendarFinder;
         setHasBreaker(false);
     }
 
@@ -183,7 +192,7 @@ public class AM540 extends E350 {
     @Override
     public Dsmr50Properties getProperties() {
         if (this.properties == null) {
-            this.properties = new Dsmr50Properties();
+            this.properties = new Dsmr50Properties(this.propertySpecService);
         }
         return (Dsmr50Properties) this.properties;
     }
@@ -224,7 +233,7 @@ public class AM540 extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new AM540Messaging(this);
+            messageProtocol = new AM540Messaging(this, this.calendarFinder, this.extractor);
         }
         return messageProtocol;
     }

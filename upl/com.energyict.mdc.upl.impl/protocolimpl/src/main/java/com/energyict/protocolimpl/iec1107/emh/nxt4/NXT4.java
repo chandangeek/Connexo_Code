@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
@@ -70,8 +71,10 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
         EXCEPTION_INFO_MAP.put("ERROR", "Request could not be executed!");
     }
 
-    public NXT4() {
-        super(propertySpecService);
+    private final PropertySpecService propertySpecService;
+
+    public NXT4(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -222,12 +225,12 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     }
 
     @Override
-    public Quantity getMeterReading(int channelId) throws IOException {
+    public Quantity getMeterReading(int channelId) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public Quantity getMeterReading(String name) throws IOException {
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -385,7 +388,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
 
     public NXT4Properties getProperties() {
         if (this.properties == null) {
-            this.properties = new NXT4Properties(this, propertySpecService);
+            this.properties = new NXT4Properties(this, this.propertySpecService);
         }
         return properties;
     }

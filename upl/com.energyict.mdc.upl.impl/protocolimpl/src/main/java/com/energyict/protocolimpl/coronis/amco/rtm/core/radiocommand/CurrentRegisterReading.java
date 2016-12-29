@@ -14,7 +14,7 @@ import java.io.IOException;
 public class CurrentRegisterReading extends AbstractRadioCommand {
 
     public CurrentRegisterReading(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     private int currentReadingA;

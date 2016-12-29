@@ -4,6 +4,7 @@ import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
@@ -82,10 +83,12 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     private ObisCodeMapper obisCodeMapper = null;
     private int limitMaxNrOfDays = 0;
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public IDIS(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder) {
+    public IDIS(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
         super(propertySpecService);
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
     }
 
     protected TariffCalendarFinder getCalendarFinder() {
@@ -105,7 +108,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
 
     protected IDISMessageHandler getMessageHandler() {
         if (messageHandler == null) {
-            messageHandler = new IDISMessageHandler(this, this.calendarFinder);
+            messageHandler = new IDISMessageHandler(this, this.calendarFinder, this.extractor);
         }
         return messageHandler;
     }

@@ -30,7 +30,7 @@ public class UkHubEventProfiles {
     }
 
     public List<MeterEvent> getEvents(Date from) throws IOException {
-        ArrayList<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         getLogger().log(Level.INFO, "Reading EVENTS from HUB with serial number " + getUkHub().getSerialNumber() + ".");
 
         if(from == null){
@@ -39,14 +39,14 @@ public class UkHubEventProfiles {
         Calendar fromCalendar = getFromCalendar(from);
 
         int logbookSelectorBitMask = ukHub.getProperties().getLogbookSelector();
-        meterEvents.addAll(((logbookSelectorBitMask &  0x01) == 0x01) ? getStandardEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x02) == 0x02) ? getFraudDetectionEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x04) == 0x04) ? getFirmwareEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x08) == 0x08) ? getHanManagementFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x10) == 0x10) ? getCommunicationsFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask &  0x20) == 0x20) ? getManufacturerLogbook(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x01) == 0x01) ? getStandardEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x02) == 0x02) ? getFraudDetectionEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x04) == 0x04) ? getFirmwareEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x08) == 0x08) ? getHanManagementFailureEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x10) == 0x10) ? getCommunicationsFailureEventLog(fromCalendar) : new ArrayList<>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x20) == 0x20) ? getManufacturerLogbook(fromCalendar) : new ArrayList<>());
         EventUtils.removeDuplicateEvents(meterEvents);
-        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
+        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());
         return meterEvents;
     }
 

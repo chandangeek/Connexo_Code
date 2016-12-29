@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import com.energyict.dialer.core.LinkException;
@@ -111,7 +112,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     public AS220 getMeterProtocol() {
         if (as220 == null) {
-            as220 = new AS220(new NoTariffCalendars(), new DummyExtractor());
+            as220 = new AS220(Services.propertySpecService(), new NoTariffCalendars(), new DummyExtractor());
             log("Created new instance of " + as220.getClass().getCanonicalName() + " [" + as220.getProtocolVersion() + "]");
         }
         return as220;

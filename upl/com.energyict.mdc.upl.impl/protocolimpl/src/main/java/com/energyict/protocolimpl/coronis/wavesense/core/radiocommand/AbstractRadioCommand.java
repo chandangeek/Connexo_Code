@@ -6,9 +6,13 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
 import com.energyict.protocolimpl.coronis.wavesense.WaveSense;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-abstract public class AbstractRadioCommand {
+public abstract class AbstractRadioCommand {
 
     protected enum RadioCommandId {
 
@@ -163,7 +167,7 @@ abstract public class AbstractRadioCommand {
     }
 
 
-    private final void parseResponse(byte[] data) throws IOException {
+    private void parseResponse(byte[] data) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));

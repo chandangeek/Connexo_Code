@@ -229,11 +229,11 @@ abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements
      *
      * @param rawRegisterId The raw register id (classId:obiscode:attributeNr) (see {@link com.energyict.dlms.DLMSAttribute#fromString(java.lang.String)})
      * @return The value of the requested register id as hex string (still ber encoded)
-     * @throws java.io.IOException
+     * @throws NoSuchRegisterException
      * @see com.energyict.dlms.DLMSAttribute#fromString(java.lang.String)
      */
     @Override
-    public String getRegister(final String rawRegisterId) throws IOException {
+    public String getRegister(final String rawRegisterId) throws NoSuchRegisterException {
         try {
             final DLMSAttribute dlmsAttribute = DLMSAttribute.fromString(rawRegisterId);
             final CosemObjectFactory cof = getSession().getCosemObjectFactory();

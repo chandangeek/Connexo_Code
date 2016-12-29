@@ -4,20 +4,24 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-abstract public class AbstractRadioCommand {
-	
+public abstract class AbstractRadioCommand {
+
 	enum RadioCommandId {
-		
+
 		RSSILevel(0x20),
 		FirmwareVersion(0x28),
 		WriteParameter(0x19),
 		AlarmRoute(0x0A),
 		ReadParameter(0x18);
-		
+
 		private int commandId;
-		
+
 		final int getCommandId() {
 			return commandId;
 		}
@@ -31,11 +35,11 @@ abstract public class AbstractRadioCommand {
 	 * The reference to the ProtocolLink protocol implementation class
 	 */
 	private ProtocolLink protocolLink;
-	
+
 	final ProtocolLink getProtocolLink() {
 		return protocolLink;
 	}
-	
+
 	AbstractRadioCommand(ProtocolLink protocolLink) {
 		this.protocolLink = protocolLink;
 	}
@@ -43,12 +47,12 @@ abstract public class AbstractRadioCommand {
 	abstract void parse(byte[] data) throws IOException;
 	abstract byte[] prepare() throws IOException;
 	abstract RadioCommandId getRadioCommandId();
-	
+
 	void invoke() throws IOException {
 		int retry=0;
 		while(true) {
 			ByteArrayOutputStream baos = null;
-			try {	
+			try {
 				baos = new ByteArrayOutputStream();
 				DataOutputStream daos = new DataOutputStream(baos);
 				daos.writeByte(getRadioCommandId().getCommandId());
@@ -56,7 +60,7 @@ abstract public class AbstractRadioCommand {
 				parseRead(getProtocolLink().getWaveFlowConnect().sendData(baos.toByteArray()));
 				return;
 			}
-			catch(ConnectionException e) {
+			catch (ConnectionException e) {
 				if (retry++ >= getProtocolLink().getInfoTypeProtocolRetriesProperty()) {
 					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getProtocolLink().getInfoTypeProtocolRetriesProperty()+"] reties!");
 				}
@@ -64,14 +68,14 @@ abstract public class AbstractRadioCommand {
 					getProtocolLink().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
 				}
 			}
-			catch(WaveFlowDLMSException e) {
+			catch (WaveFlowDLMSException e) {
 				if (retry++ >= getProtocolLink().getInfoTypeProtocolRetriesProperty()) {
 					throw new WaveFlowDLMSException(e.getMessage()+", gave up after ["+getProtocolLink().getInfoTypeProtocolRetriesProperty()+"] reties!");
 				}
 				else {
 					getProtocolLink().getLogger().warning(e.getMessage()+", retry ["+retry+"]");
 				}
-			}		
+			}
 			finally {
 				if (baos != null) {
 					try {
@@ -84,18 +88,18 @@ abstract public class AbstractRadioCommand {
 			}
 		}
 	}
-	
-	private final void parseRead(byte[] data) throws IOException {
+
+	private void parseRead(byte[] data) throws IOException {
 		DataInputStream dais = null;
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
-			
+
 			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (commandIdAck != (0x80 | getRadioCommandId().getCommandId())) {
 				throw new WaveFlowDLMSException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
 			}
 			else {
-				
+
 				byte[] temp = new byte[dais.available()];
 				dais.read(temp);
 				parse(temp);
@@ -110,6 +114,6 @@ abstract public class AbstractRadioCommand {
 					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}		
+		}
 	}
 }

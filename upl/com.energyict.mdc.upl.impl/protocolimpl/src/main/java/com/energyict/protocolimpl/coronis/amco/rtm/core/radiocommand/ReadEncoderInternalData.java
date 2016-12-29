@@ -15,7 +15,7 @@ import java.io.IOException;
 public class ReadEncoderInternalData extends AbstractRadioCommand {
 
     protected ReadEncoderInternalData(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     private EncoderModel encoderModelOnPortA;
@@ -130,7 +130,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
         encoderModelOnPortB = new EncoderModel(getRTM());
         encoderModelOnPortB.parse(ProtocolTools.getSubArray(data, offset, offset + 2));
         offset += 2;
-    
+
         lengthA = data[offset++] & 0xFF;
         lengthB = data[offset++] & 0xFF;
 
@@ -149,7 +149,7 @@ public class ReadEncoderInternalData extends AbstractRadioCommand {
             offset += 2;
             manufacturerAdapterCodeA = ProtocolTools.getUnsignedIntFromBytes(data, offset, 2);
             offset += 2;
-            
+
             offset += 2;      //Skip the error code
             offset += 2;      //Skip the checksum
             offset++;         //Skip the carriage return

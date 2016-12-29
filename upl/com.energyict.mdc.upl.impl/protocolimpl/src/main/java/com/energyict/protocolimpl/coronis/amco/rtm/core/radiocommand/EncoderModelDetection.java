@@ -12,7 +12,7 @@ import java.io.IOException;
 public class EncoderModelDetection extends AbstractRadioCommand {
 
     protected EncoderModelDetection(RTM rtm) {
-        super(rtm);
+        super(propertySpecService, rtm);
     }
 
     int statusOrNumberOfWheelsForEncoderA;

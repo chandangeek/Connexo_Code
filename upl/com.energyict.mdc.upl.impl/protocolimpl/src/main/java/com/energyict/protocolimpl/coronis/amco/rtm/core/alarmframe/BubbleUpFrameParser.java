@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -31,7 +33,7 @@ public class BubbleUpFrameParser {
 
     private static GenericHeader genericHeader;
 
-    public static BubbleUpObject parse(byte[] data, RTM rtm) throws IOException {
+    public static BubbleUpObject parse(byte[] data, RTM rtm, PropertySpecService propertySpecService) throws IOException {
         byte[] radioAddress = ProtocolTools.getSubArray(data, 0, 6);
         data = ProtocolTools.getSubArray(data, 6);
 
@@ -41,25 +43,25 @@ public class BubbleUpFrameParser {
 
         switch (type) {
             case 0x81:
-                return parseCurrentIndexes(data, rtm, radioAddress);
+                return parseCurrentIndexes(data, rtm, radioAddress, propertySpecService);
             case 0x83:
-                return parseDailyConsumption(data, rtm, radioAddress);
+                return parseDailyConsumption(data, rtm, radioAddress, propertySpecService);
             case 0x86:
-                return parseTouBucketsReading(data, rtm, radioAddress);
+                return parseTouBucketsReading(data, rtm, radioAddress, propertySpecService);
             case 0x87:
-                return parseDataloggingTable(data, rtm, radioAddress);
+                return parseDataloggingTable(data, rtm, radioAddress, propertySpecService);
             default:
                 throw new WaveFlowException("Unexpected bubble up frame. Expected type: 0x01, 0x03, 0x06 or 0x07");
         }
     }
 
-    private static BubbleUpObject parseDataloggingTable(byte[] data, RTM rtm, byte[] radioAddress) throws IOException {
+    private static BubbleUpObject parseDataloggingTable(byte[] data, RTM rtm, byte[] radioAddress, PropertySpecService propertySpecService) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
-        List<ProfileData> profileDatas = new ArrayList<ProfileData>();
+        List<ProfileData> profileDatas = new ArrayList<>();
         ExtendedDataloggingTable table = new ExtendedDataloggingTable(rtm);
 
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
-        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
+        List<RegisterValue> registerValues = new ArrayList<>();
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress, propertySpecService));
         result.setRegisterValues(registerValues);
 
         try {
@@ -69,7 +71,7 @@ public class BubbleUpFrameParser {
 
             int numberOfPorts = 0;
             for (List<Integer[]> values : rawValues) {
-                if (values.size() > 0) {
+                if (!values.isEmpty()) {
                     numberOfPorts++;
                 }
             }
@@ -87,12 +89,12 @@ public class BubbleUpFrameParser {
         return result;
     }
 
-    private static BubbleUpObject parseTouBucketsReading(byte[] data, RTM rtm, byte[] radioAddress) throws IOException {
+    private static BubbleUpObject parseTouBucketsReading(byte[] data, RTM rtm, byte[] radioAddress, PropertySpecService propertySpecService) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        List<RegisterValue> registerValues = new ArrayList<>();
         ReadTOUBuckets readTOUBuckets = new ReadTOUBuckets(rtm);
         readTOUBuckets.parse(data, radioAddress);
-        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress, propertySpecService));
 
         for (int port = 0; port < readTOUBuckets.getNumberOfPorts(); port++) {
             int value = readTOUBuckets.getListOfAllTotalizers().get(port).getCurrentReading();
@@ -111,11 +113,11 @@ public class BubbleUpFrameParser {
         return result;
     }
 
-    private static BubbleUpObject parseCurrentIndexes(byte[] data, RTM rtm, byte[] radioAddress) throws IOException {
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+    private static BubbleUpObject parseCurrentIndexes(byte[] data, RTM rtm, byte[] radioAddress, PropertySpecService propertySpecService) throws IOException {
+        List<RegisterValue> registerValues = new ArrayList<>();
         BubbleUpObject result = new BubbleUpObject();
 
-        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress, propertySpecService));
 
         CurrentRegisterReading currentRegisterReading = new CurrentRegisterReading(rtm);
         currentRegisterReading.parse(data, radioAddress);
@@ -134,10 +136,11 @@ public class BubbleUpFrameParser {
      *
      * @param data         the generic header
      * @param radioAddress indicates the RTM type, important to know the initial battery level
+     * @param propertySpecService The PropertySpecService
      * @return 4 registers
      */
-    private static List<RegisterValue> getGenericHeaderRegisters(RTM rtm, byte[] data, byte[] radioAddress) throws IOException {
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+    private static List<RegisterValue> getGenericHeaderRegisters(RTM rtm, byte[] data, byte[] radioAddress, PropertySpecService propertySpecService) throws IOException {
+        List<RegisterValue> registerValues = new ArrayList<>();
 
         genericHeader = new GenericHeader(rtm, radioAddress, propertySpecService);
         genericHeader.parse(data);
@@ -159,17 +162,17 @@ public class BubbleUpFrameParser {
         return registerValues;
     }
 
-    private static BubbleUpObject parseDailyConsumption(byte[] data, RTM rtm, byte[] radioAddress) throws IOException {
+    private static BubbleUpObject parseDailyConsumption(byte[] data, RTM rtm, byte[] radioAddress, PropertySpecService propertySpecService) throws IOException {
         BubbleUpObject result = new BubbleUpObject();
-        List<ProfileData> profileDatas = new ArrayList<ProfileData>();
+        List<ProfileData> profileDatas = new ArrayList<>();
         ProfileData profileData = new ProfileData();
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        List<RegisterValue> registerValues = new ArrayList<>();
 
         DailyConsumption dailyConsumption = new DailyConsumption(rtm);
         dailyConsumption.parse(data, radioAddress);
-        List<List<Integer[]>> rawValues = new ArrayList<List<Integer[]>>();
+        List<List<Integer[]>> rawValues = new ArrayList<>();
 
-        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress));
+        registerValues.addAll(getGenericHeaderRegisters(rtm, data, radioAddress, propertySpecService));
 
         for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
             int value = dailyConsumption.getCurrentIndexes()[port];
@@ -179,7 +182,7 @@ public class BubbleUpFrameParser {
         result.setRegisterValues(registerValues);
 
         for (int port = 0; port < dailyConsumption.getNumberOfPorts(); port++) {
-            List<Integer[]> resultPerPort = new ArrayList<Integer[]>();
+            List<Integer[]> resultPerPort = new ArrayList<>();
             for (Integer value : dailyConsumption.getDailyReadings(port)) {
                 resultPerPort.add(new Integer[]{value, genericHeader.getIntervalStatus(port), genericHeader.getApplicationStatus().getStatus()});
             }

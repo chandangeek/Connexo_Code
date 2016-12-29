@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -72,6 +73,11 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
+    private final PropertySpecService propertySpecService;
+
+    public UkHub(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     /**
      * Getter for the MessageProtocol implementation
@@ -93,7 +99,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     @Override
     public UkHubProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new UkHubProperties(propertySpecService);
+            this.properties = new UkHubProperties(this.propertySpecService);
         }
         return this.properties;
     }
