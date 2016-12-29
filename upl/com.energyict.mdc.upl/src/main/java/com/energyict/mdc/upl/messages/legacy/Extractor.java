@@ -4,7 +4,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.TariffCalender;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
@@ -82,31 +82,31 @@ public interface Extractor {
     String contents(DeviceMessageFile deviceMessageFile, Charset charset);
 
     /**
-     * Extracts the unique identifier of a {@link TariffCalender}
+     * Extracts the unique identifier of a {@link TariffCalendar}
      * and returns it as a String for easy formatting in XML based content.
      *
-     * @param calender The TariffCalender
-     * @return The String representation of the TariffCalender's identifier
+     * @param calender The TariffCalendar
+     * @return The String representation of the TariffCalendar's identifier
      */
-    String id(TariffCalender calender);
+    String id(TariffCalendar calender);
 
-    String name (TariffCalender calender);
+    String name (TariffCalendar calender);
 
-    String seasonSetId(TariffCalender calender);
+    String seasonSetId(TariffCalendar calender);
 
-    TimeZone definitionTimeZone(TariffCalender calender);
+    TimeZone definitionTimeZone(TariffCalendar calender);
 
-    TimeZone destinationTimeZone(TariffCalender calender);
+    TimeZone destinationTimeZone(TariffCalendar calender);
 
-    int intervalInSeconds(TariffCalender calender);
+    int intervalInSeconds(TariffCalendar calender);
 
-    Range<Year> range(TariffCalender calender);
+    Range<Year> range(TariffCalendar calender);
 
-    Optional<CalendarSeasonSet> season(TariffCalender calender);
+    Optional<CalendarSeasonSet> season(TariffCalendar calender);
 
-    List<CalendarDayType> dayTypes(TariffCalender calender);
+    List<CalendarDayType> dayTypes(TariffCalendar calender);
 
-    List<CalendarRule> rules(TariffCalender calender);
+    List<CalendarRule> rules(TariffCalendar calender);
 
     /**
      * Extracts the unique identifier of a {@link NumberLookup}
