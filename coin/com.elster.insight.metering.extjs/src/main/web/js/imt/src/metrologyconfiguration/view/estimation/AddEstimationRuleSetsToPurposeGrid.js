@@ -2,12 +2,12 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.AddEstimationRuleSetsToPu
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.add-estimation-rule-sets-to-purpose-grid',
     router: null,
-   
+
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural('estimationRuleSets.count.selected', count, 'IMT', 'No estimation rule sets selected',
             '{0} estimation rule set selected',
             '{0} estimation rule sets selected');
-    },   
+    },
 
     initComponent: function () {
         var me = this;

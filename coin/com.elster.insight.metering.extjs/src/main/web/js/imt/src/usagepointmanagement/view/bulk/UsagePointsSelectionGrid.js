@@ -32,7 +32,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.UsagePointsSelectionGrid', {
     columns: [
         {
             itemId: 'name',
-            header: Uni.I18n.translate('usagepoints.bulk.name', 'IMT', 'Name'),
+            header: Uni.I18n.translate('general.name', 'IMT', 'Name'),
             dataIndex: 'name',
             flex: 1,
             renderer: function (value) {

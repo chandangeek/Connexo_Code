@@ -6,7 +6,7 @@ Ext.define('Imt.usagepointmanagement.model.Purpose', {
         {name: 'required', type: 'boolean', useNull: true},
         {name: 'active', type: 'boolean', useNull: true},
         {name: 'status', type: 'auto', useNull: true},
-        'validationInfo'        
+        {name: 'validationInfo', defaultValue: null}
     ],
     proxy: {
         type: 'rest',
@@ -14,5 +14,25 @@ Ext.define('Imt.usagepointmanagement.model.Purpose', {
         reader: {
             type: 'json'
         }
+    },
+
+    triggerActivation: function (usagePoint, options) {
+        var me = this,
+            url = me.getProxy().url.replace('{usagePointId}', usagePoint.get('name'))
+                + '/' + me.getId()
+                + '/' + (me.get('active') ? 'deactivate' : 'activate');
+
+        Ext.Ajax.request(Ext.Object.merge(
+            {
+                url: url,
+                method: 'PUT',
+                jsonData: {
+                    parent: {
+                        id: usagePoint.get('id'),
+                        version: usagePoint.get('version')
+                    }
+                }
+            }
+            , options));
     }
 });

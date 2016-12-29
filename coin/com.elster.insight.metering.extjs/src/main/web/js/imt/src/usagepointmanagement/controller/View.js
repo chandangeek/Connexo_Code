@@ -23,11 +23,13 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.measurementunits.EstimationLoad',
         'Imt.usagepointmanagement.store.Purposes',
         'Imt.usagepointmanagement.store.DataCompletion',
-        'Imt.usagepointmanagement.store.Periods'
+        'Imt.usagepointmanagement.store.Periods',
+        'Imt.usagepointmanagement.store.UsagePointTransitions'
     ],
 
     models: [
-        'Imt.usagepointmanagement.model.UsagePoint'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.usagepointmanagement.model.UsagePointFavorite'
     ],
 
     views: [
@@ -68,19 +70,31 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
+            transitionsStore = me.getStore('Imt.usagepointmanagement.store.UsagePointTransitions'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
+        transitionsStore.getProxy().setParams(usagePointId);
         mainView.setLoading();
         me.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint, purposes) {
-                app.fireEvent('changecontentevent', Ext.widget('usage-point-management-setup', {
-                    itemId: 'usage-point-management-setup',
-                    meterActivationsStore: me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
-                    router: router,
-                    usagePoint: usagePoint,
-                    purposes: purposes
-                }));
-                mainView.setLoading(false);
+                transitionsStore.load(function () {
+                    app.fireEvent('changecontentevent', Ext.widget('usage-point-management-setup', {
+                        itemId: 'usage-point-management-setup',
+                        meterActivationsStore: me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
+                        router: router,
+                        usagePoint: usagePoint,
+                        purposes: purposes,
+                        favoriteRecord: Ext.create('Imt.usagepointmanagement.model.UsagePointFavorite', {
+                            id: usagePointId,
+                            parent: {
+                                id: usagePointId,
+                                version: usagePoint.get('version')
+                            }
+                        })
+                    }));
+                    mainView.down('usage-point-setup-action-menu').setActions(transitionsStore, router);
+                    mainView.setLoading(false);
+                });
             },
             failure: function () {
                 mainView.setLoading(false);

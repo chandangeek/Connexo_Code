@@ -9,6 +9,14 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'action', type: 'auto'},
         {name: 'validationResult', type: 'auto'},
         {name: 'validationRules', type: 'auto'},
+        {name: 'confirmedNotSaved', type: 'auto'},
+        {name: 'removedNotSaved', type: 'auto'},
+        {name: 'confirmed', type: 'auto'},
+        {name: 'calculatedValue', type: 'auto'},
+        {name: 'isConfirmed', type: 'auto'},
+        {name: 'modificationFlag', type: 'auto'},
+        {name: 'modificationDate', type: 'auto'},
+
         'plotband',
         {
             name: 'readingProperties',
@@ -31,6 +39,22 @@ Ext.define('Imt.purpose.model.Reading', {
                 }
                 
                 return result;                
+            }
+        },
+        {
+            name: 'modificationState',
+            persist: false,
+            mapping: function (data) {
+                var result = null;
+
+                if (data.modificationFlag && data.modificationDate) {
+                    result = {
+                        flag: data.modificationFlag,
+                        date: data.modificationDate,
+                        app: data.editedInApp
+                    }
+                }
+                return result;
             }
         },
         {

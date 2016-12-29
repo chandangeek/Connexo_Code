@@ -30,7 +30,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         }
     ],
 
-    init: function(){
+    init: function () {
         this.control({
             'usagepoints-wizard #nextButton': {
                 click: this.nextClick
@@ -50,7 +50,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         });
     },
 
-    showBulkAction: function(){
+    showBulkAction: function () {
         var me = this,
             search = me.getController('Imt.controller.Search'),
             searchResults = Ext.getStore('Uni.store.search.Results'),
@@ -124,7 +124,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 me.operation = currentCmp.down('#usagepointsactionselect').getValue().operation;
                 if (nextCmp.name == 'selectActionItems') {
                     if (me.operation == 'addCalendar') {
-                       //do nothing
+                        //do nothing
                     }
                 }
                 break;
@@ -132,12 +132,12 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 errorPanel = currentCmp.down('#step3-errors');
                 if (me.operation == 'addCalendar') {
                     me.addCalendarFormValues = currentCmp.down('form').getValues();
-                    if(Ext.isEmpty(me.addCalendarFormValues.calendar)){
+                    if (Ext.isEmpty(me.addCalendarFormValues.calendar)) {
                         me.validation = false;
                     } else {
                         me.validation = true;
                         me.calendarName = currentCmp.down('form').down('#calendar-combo').getDisplayValue();
-                        me.fromTime  = currentCmp.down('form').down('#activation-date-values').down('#activation-on').getValue().getTime()
+                        me.fromTime = currentCmp.down('form').down('#activation-date-values').down('#activation-on').getValue().getTime()
                     }
                 }
                 break;
@@ -148,9 +148,9 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
         if (me.validation) {
             switch (nextCmp.name) {
                 case 'confirmPage':
-                        nextCmp.showMessage(me.buildConfirmMessage());
-                        wizard.down('#confirmButton').enable()
-                        break;
+                    nextCmp.showMessage(me.buildConfirmMessage());
+                    wizard.down('#confirmButton').enable()
+                    break;
             }
             errorPanel && errorPanel.hide();
             errorContainer && errorContainer.hide();
@@ -361,7 +361,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                     "to {0} usage points"
                 );
                 finalMessage = Uni.I18n.translate('searchItems.bulk.addCalendarToAllDevices.baseSuccessMsg', 'IMT',
-                        "Successfully added calendar '{0}' {1}", [me.calendarName, message]);
+                    "Successfully added calendar '{0}' {1}", [me.calendarName, message]);
                 break;
         }
 
