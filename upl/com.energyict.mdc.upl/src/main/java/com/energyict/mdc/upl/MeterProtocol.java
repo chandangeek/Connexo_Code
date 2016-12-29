@@ -180,7 +180,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @throws IOException          Thrown in case of an exception
      * @throws UnsupportedException Thrown if method is not supported
      */
-    String getFirmwareVersion() throws IOException, UnsupportedException;
+    String getFirmwareVersion() throws IOException;
 
     /**
      * <p>
@@ -242,7 +242,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @throws IOException          <br>
      * @throws UnsupportedException if meter does not support a to date to request the profile data
      */
-    ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException;
+    ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException;
 
     /**
      * Fetches the meter reading for the specified logical device channel.
@@ -255,7 +255,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
     @Deprecated
-    Quantity getMeterReading(int channelId) throws UnsupportedException, IOException;
+    Quantity getMeterReading(int channelId) throws IOException;
 
     /**
      * Fetches the meterreading for the specified register, represented as a String
@@ -267,7 +267,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
     @Deprecated
-    Quantity getMeterReading(String name) throws UnsupportedException, IOException;
+    Quantity getMeterReading(String name) throws IOException;
 
     /**
      * <p></p>
@@ -277,7 +277,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @throws IOException          <br>
      * @throws UnsupportedException if the device does not support this operation
      */
-    int getNumberOfChannels() throws UnsupportedException, IOException;
+    int getNumberOfChannels() throws IOException;
 
     /**
      * <p></p>
@@ -287,7 +287,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @throws IOException          <br>
      * @throws UnsupportedException if the device does not support this operation
      */
-    int getProfileInterval() throws UnsupportedException, IOException;
+    int getProfileInterval() throws IOException;
 
     /**
      * <p></p>
@@ -309,7 +309,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @throws UnsupportedException    if the device does not support this operation
      * @throws NoSuchRegisterException if the device does not support the specified register
      */
-    String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException;
+    String getRegister(String name) throws IOException;
 
     /**
      * <p>
@@ -324,7 +324,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @throws UnsupportedException    if the device does not support this operation
      * @throws NoSuchRegisterException if the device does not support the specified register
      */
-    void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException;
+    void setRegister(String name, String value) throws IOException;
 
     /**
      * <p>
@@ -343,7 +343,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @throws IOException          <br>
      * @throws UnsupportedException if the device does not support this operation
      */
-    void initializeDevice() throws IOException, UnsupportedException;
+    void initializeDevice() throws IOException;
 
     /**
      * This method is called by the collection software before the disconnect()
