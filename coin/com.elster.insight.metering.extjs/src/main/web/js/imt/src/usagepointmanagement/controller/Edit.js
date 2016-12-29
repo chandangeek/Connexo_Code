@@ -201,7 +201,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 var response = options.response,
                     errors = Ext.decode(response.responseText, true);
 
-                if (errors && Ext.isArray(errors.errors)) {
+                if (errors && Ext.isArray(errors.errors) && !Ext.isEmpty(errors.errors)) {
                     wizard.markInvalid(errors.errors);
                 }
             }
