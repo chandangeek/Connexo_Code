@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandLimitationRulesOverview', {
                         itemId: 'mdc-empty-command-rules-grid',
                         title: Uni.I18n.translate('commandRules.empty.title', 'MDC', 'No command limitation rules found'),
                         reasons: [
-                            Uni.I18n.translate('commandRules.empty.list.item1', 'MDC', 'No command limitation rules have been added yet.')
+                            Uni.I18n.translate('commandRules.empty.list.item1', 'MDC', 'No command limitation rules have been defined yet.')
                         ],
                         stepItems: [
                             {
