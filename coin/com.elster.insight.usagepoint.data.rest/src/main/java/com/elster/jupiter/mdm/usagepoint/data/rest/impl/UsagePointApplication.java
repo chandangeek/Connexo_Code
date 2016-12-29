@@ -27,7 +27,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -36,11 +36,9 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -51,7 +49,6 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCyclePrivilege
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleTransitionInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -115,10 +112,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile MessageService messageService;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
-    private volatile UserService userService;
-    private volatile TaskService taskService;
-    private volatile UpgradeService upgradeService;
-    private volatile OrmService ormService;
+    private volatile PropertySpecService propertySpecService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -347,23 +341,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Reference
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
-    }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        this.ormService = ormService;
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     class HK2Binder extends AbstractBinder {
@@ -425,13 +404,10 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(BusinessProcessInfoFactory.class).to(BusinessProcessInfoFactory.class);
             bind(UsagePointLifeCyclePrivilegeInfoFactory.class).to(UsagePointLifeCyclePrivilegeInfoFactory.class);
             bind(MicroActionAndCheckInfoFactory.class).to(MicroActionAndCheckInfoFactory.class);
-            bind(userService).to(UserService.class);
-            bind(taskService).to(TaskService.class);
-            bind(upgradeService).to(UpgradeService.class);
-            bind(ormService).to(OrmService.class);
             bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
             bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
             bind(UsagePointTransitionInfoFactory.class).to(UsagePointTransitionInfoFactory.class);
+            bind(propertySpecService).to(PropertySpecService.class);
         }
     }
 

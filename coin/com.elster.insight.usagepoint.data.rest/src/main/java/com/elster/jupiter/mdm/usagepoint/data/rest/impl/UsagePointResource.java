@@ -55,6 +55,8 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
+import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
@@ -446,6 +448,8 @@ public class UsagePointResource {
                 }
                 info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
                         .validate(), clock).validate();
+            } else if (step.equals("metrologyConfigurationWithMetersInfo")) {
+                validateMetrologyConfiguration(info, validationBuilder);
             } else if (customPropertySetId > 0) {
                 RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                         .stream()
@@ -463,6 +467,7 @@ public class UsagePointResource {
         }
 
         UsagePoint usagePoint = createUsagePointAndActivateMeters(info, validationBuilder);
+
         return Response.status(Response.Status.CREATED)
                 .entity(usagePointInfoFactory.from(usagePoint))
                 .build();
@@ -834,15 +839,43 @@ public class UsagePointResource {
                 .isEmpty();
     }
 
-    private void performLifeCycleTransition(UsagePointTransitionInfo transitionToPerform, UsagePoint usagePoint) {
+    private void performLifeCycleTransition(UsagePointTransitionInfo transitionToPerform, UsagePoint usagePoint, RestValidationBuilder validationBuilder) {
         if (transitionToPerform != null) {
             UsagePointTransition transition = usagePointLifeCycleConfigurationService.findUsagePointTransition(transitionToPerform.id)
                     .get();
+            checkRequiredProperties(transitionToPerform, validationBuilder);
             Map<String, Object> propertiesMap = DecoratedStream.decorate(transition.getActions().stream())
                     .flatMap(microAction -> microAction.getPropertySpecs().stream())
                     .distinct(PropertySpec::getName)
                     .collect(Collectors.toMap(PropertySpec::getName, propertySpec -> this.propertyValueInfoService.findPropertyValue(propertySpec, transitionToPerform.properties)));
+
+            List<ExecutableMicroCheckViolation> violations = transition.getChecks().stream()
+                    .filter(check -> check instanceof ExecutableMicroCheck)
+                    .map(ExecutableMicroCheck.class::cast)
+                    .map(check -> check.execute(usagePoint, transitionToPerform.effectiveTimestamp))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+
+            if (!violations.isEmpty()) {
+                throw exceptionFactory.newException(MessageSeeds.MISSING_TRANSITION_REQUIREMENT, violations.get(0)
+                        .getLocalizedMessage());
+            }
             usagePointLifeCycleService.performTransition(usagePoint, transition, "INS", propertiesMap);
+        }
+    }
+
+    private void checkRequiredProperties(UsagePointTransitionInfo transitionInfo, RestValidationBuilder validationBuilder) {
+        Optional<PropertyInfo> optionalInfo = transitionInfo.properties.stream()
+                .filter(propertyInfo -> propertyInfo.required
+                        && (propertyInfo.getPropertyValueInfo() == null
+                        || propertyInfo.getPropertyValueInfo().getValue() == null
+                        || "".equals(propertyInfo.getPropertyValueInfo().getValue())))
+                .findFirst();
+        if (optionalInfo.isPresent()) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, optionalInfo
+                    .get().key));
+            validationBuilder.validate();
         }
     }
 
@@ -870,6 +903,21 @@ public class UsagePointResource {
         validateServiceKind(info.serviceCategory);
     }
 
+    private void validateMetrologyConfiguration(UsagePointInfo info, RestValidationBuilder validationBuilder) {
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
+        try (TransactionContext transaction = transactionService.getContext()) {
+            if (info.metrologyConfiguration != null) {
+                UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
+                info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+                checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getCreateDate(), validationBuilder);
+                usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService
+                        .findMetrologyConfiguration(info.metrologyConfiguration.id).orElse(null);
+                usagePoint.apply(usagePointMetrologyConfiguration);
+                resourceHelper.activateMeters(info, usagePoint);
+            }
+        }
+    }
+
     private UsagePoint createUsagePointAndActivateMeters(UsagePointInfo info, RestValidationBuilder validationBuilder) {
         UsagePoint usagePoint;
         try (TransactionContext transaction = transactionService.getContext()) {
@@ -880,7 +928,6 @@ public class UsagePointResource {
                 usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService
                         .findMetrologyConfiguration(info.metrologyConfiguration.id).orElse(null);
                 usagePoint.apply(usagePointMetrologyConfiguration);
-                checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getCreateDate(), validationBuilder);
             }
 
             for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
@@ -891,7 +938,7 @@ public class UsagePointResource {
             }
 
             resourceHelper.activateMeters(info, usagePoint);
-            performLifeCycleTransition(info.transitionToPerform, usagePoint);
+            performLifeCycleTransition(info.transitionToPerform, usagePoint, validationBuilder);
             transaction.commit();
         }
 
