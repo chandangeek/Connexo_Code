@@ -23,6 +23,10 @@ import java.util.List;
  */
 public class InHomeDisplay extends AM110R {
 
+    public InHomeDisplay() {
+        super(propertySpecService);
+    }
+
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {

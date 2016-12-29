@@ -6,7 +6,6 @@ import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -14,7 +13,7 @@ import java.util.List;
  */
 public class RegisterMappingFactory {
 
-    private List registerMappings = new ArrayList();
+    private List<RegisterMapping> registerMappings = new ArrayList<>();
 
     public static final String UNIGAS_SOFTWARE_REVISION_NUMBER = "UNIGAS software revision number";
     public static final String CI_SOFTWARE_REVISION_NUMBER = "CI software revision number";
@@ -204,69 +203,33 @@ public class RegisterMappingFactory {
 
     }
 
-    /**
-     * @param description
-     * @param register
-     * @param obis
-     */
     private void add(String description, String register, String obis) {
-        getRegisterMappings().add(new RegisterMapping(description, register, ObisCode.fromString(obis)));
+        registerMappings.add(new RegisterMapping(description, register, ObisCode.fromString(obis)));
     }
 
-    /**
-     * @return
-     */
-    public List getRegisterMappings() {
+    public List<RegisterMapping> getRegisterMappings() {
         return registerMappings;
     }
 
-    /**
-     * @param obisCode
-     * @return
-     * @throws IOException
-     */
-    public String findRegisterCode(ObisCode obisCode) throws IOException {
-        Iterator it = getRegisterMappings().iterator();
-        while (it.hasNext()) {
-            RegisterMapping rm = (RegisterMapping) it.next();
-            if (rm.getObisCode().equals(obisCode)) {
-                return rm.getRegisterCode();
-            }
-        }
-
-        throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+    public String findRegisterCode(ObisCode obisCode) throws NoSuchRegisterException {
+        return this.findRegisterMapping(obisCode).getRegisterCode();
     }
 
-    /**
-     * @param description
-     * @return
-     * @throws IOException
-     */
     public ObisCode findObisCode(String description) throws IOException {
-        Iterator it = getRegisterMappings().iterator();
-        while (it.hasNext()) {
-            RegisterMapping rm = (RegisterMapping) it.next();
-            if (rm.getDescription().equals(description)) {
-                return rm.getObisCode();
-            }
-        }
-        throw new IOException("Not found!!!");
+        return this.registerMappings
+                .stream()
+                .filter(registerMapping -> registerMapping.getDescription().equals(description))
+                .findAny()
+                .map(RegisterMapping::getObisCode)
+                .orElseThrow(() -> new IOException("Not found!!!"));
     }
 
-    /**
-     * @param obisCode
-     * @return
-     * @throws IOException
-     */
-    public RegisterMapping findRegisterMapping(ObisCode obisCode) throws IOException {
-        Iterator it = getRegisterMappings().iterator();
-        while (it.hasNext()) {
-            RegisterMapping rm = (RegisterMapping) it.next();
-            if (rm.getObisCode().equals(obisCode)) {
-                return rm;
-            }
-        }
-
-        throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+    public RegisterMapping findRegisterMapping(ObisCode obisCode) throws NoSuchRegisterException {
+        return this.registerMappings
+                .stream()
+                .filter(registerMapping -> registerMapping.getObisCode().equals(obisCode))
+                .findAny()
+                .orElseThrow(() -> new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!"));
     }
+
 }

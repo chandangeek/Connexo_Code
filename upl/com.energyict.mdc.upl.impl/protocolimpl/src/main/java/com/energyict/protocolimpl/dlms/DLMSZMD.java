@@ -4,6 +4,7 @@ import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
@@ -368,7 +369,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(this.integerSpec(PROPNAME_EVENT_ID_INDEX, false));
+        propertySpecs.add(this.integerSpec(PROPNAME_EVENT_ID_INDEX));
         return propertySpecs;
     }
 
@@ -422,7 +423,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     }
 
     @Override
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return this.messageProtocol.getMessageCategories();
     }
 

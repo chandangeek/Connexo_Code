@@ -3,6 +3,8 @@
  */
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
@@ -45,7 +47,7 @@ public class PPM1Main {
 
 	public static PPM getPPM() {
 		if (ppm == null) {
-			ppm = new PPM(propertySpecService);
+			ppm = new PPM(Services.propertySpecService());
 			log("Created new instance of " + ppm.getClass().getCanonicalName() + " [" + ppm.getProtocolVersion() + "]");
 		}
 		return ppm;
@@ -86,11 +88,6 @@ public class PPM1Main {
 		return properties;
 	}
 
-	/**
-	 * @param args
-	 * @throws IOException
-	 * @throws LinkException
-	 */
 	public static void main(String[] args) throws IOException, LinkException {
 
 		getDialer().init(COMPORT);

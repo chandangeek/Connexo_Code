@@ -38,8 +38,6 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
 public class DLMSEMO extends DLMSSN {
 
-    private static final byte DEBUG=0;
-
     protected String getDeviceID() {
         return "EMO";
     }
@@ -121,9 +119,11 @@ public class DLMSEMO extends DLMSSN {
            iField &= (EV_DST_ACTIVE^0xFFFFFFFF); // filter out DST flag
            for (int bit=0x1;bit!=0;bit<<=1) {
                if ((iField & bit) != 0) {
-                   profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                                       (int)mapLogCodes(bit),
-                                                       (int)bit));
+                   profileData.addEvent(
+                           new MeterEvent(
+                                   new Date(((Calendar)calendar.clone()).getTime().getTime()),
+                                   (int)mapLogCodes(bit),
+                                   bit));
                }
            } // for (int bit=0x1;bit!=0;bit<<=1)
 
@@ -166,7 +166,7 @@ public class DLMSEMO extends DLMSSN {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName(), false));
+        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName()));
         return propertySpecs;
     }
 

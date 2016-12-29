@@ -3,10 +3,12 @@ package com.energyict.smartmeterprotocolimpl.eict.AM110R;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -37,7 +39,7 @@ import com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.AM110RMessageE
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.AM110RMessaging;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -79,6 +81,11 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
      * Boolean indicating whether the AM11R should reboot at the end of the communication session or not
      */
     private boolean reboot = false;
+    private final PropertySpecService propertySpecService;
+
+    public AM110R(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     protected void initAfterConnect() throws ConnectionException {
@@ -103,6 +110,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         getLogger().info("TimeSet not applied, meter is synchronized by the E-meter.");
     }
 
+    @Override
     public String getMeterSerialNumber()  {
             if (getProperties().isFirmwareUpdateSession()) {
                 getLogger().severe("Using firmware update client. Skipping serial number check!");
@@ -126,6 +134,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         }
     }
 
+    @Override
     public String getFirmwareVersion() throws IOException {
         if (getProperties().isFirmwareUpdateSession()) {
             getLogger().severe("Using firmware update client. Skipping firmware version readout!");
@@ -141,56 +150,61 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         }
     }
 
-    //---------- REGISTERS ----------//
     public RegisterInfo translateRegister(Register register) throws IOException {
         return getRegisterFactory().translateRegister(register);
     }
 
+    @Override
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         return getRegisterFactory().readRegisters(registers);
     }
 
-    //---------- EVENTS ----------//
+    @Override
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
         return getEventProfiles().getEvents(lastLogbookDate);
     }
 
-    //---------- LOAD PROFILES ----------//
+    @Override
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
         // AM110R has no loadProfiles
-        return new ArrayList<LoadProfileConfiguration>();
+        return Collections.emptyList();
     }
 
+    @Override
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         // AM110R has no loadProfiles
-        return new ArrayList<ProfileData>();
+        return Collections.emptyList();
     }
 
-    //---------- MESSAGING ----------//
+    @Override
     public void applyMessages(List messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 
+    @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return getMessageProtocol().queryMessage(messageEntry);
     }
 
-    public List getMessageCategories() {
+    @Override
+    public List<MessageCategorySpec> getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
 
+    @Override
     public String writeMessage(Message msg) {
         return getMessageProtocol().writeMessage(msg);
     }
 
+    @Override
     public String writeTag(MessageTag tag) {
         return getMessageProtocol().writeTag(tag);
     }
 
+    @Override
     public String writeValue(MessageValue value) {
         return getMessageProtocol().writeValue(value);
     }
-    //---------- END OF MESSAGING ----------//
 
     public DLMSMeterConfig getMeterConfig() {
         return getDlmsSession().getMeterConfig();
@@ -231,14 +245,12 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
     @Override
     public AM110RProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new AM110RProperties();
+            this.properties = new AM110RProperties(this.propertySpecService);
         }
         return this.properties;
     }
 
-    /**
-     * The protocol version
-     */
+    @Override
     public String getVersion() {
         return "$Date: 2016-03-25 14:54:31 +0200 (Fri, 25 Mar 2016)$";
     }
@@ -247,10 +259,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         super.disconnect();
     }
 
-    /**
-     * Disconnect from the physical device.
-     * Close the association and check if we need to close the underlying connection
-     */
+    @Override
     public void disconnect() throws IOException {
         if (reboot) {
             getCosemObjectFactory().getGenericInvoke(AM110RRegisterFactory.REBOOT_OBISCODE, DLMSClassId.SCRIPT_TABLE.getClassId(), 1).invoke();
@@ -263,7 +272,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         this.reboot = reboot;
     }
 
-
+    @Override
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
         //This method is not used anymore
         return true;
@@ -287,4 +296,5 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
     public List<PropertySpec> getPropertySpecs() {
         return getProperties().getPropertySpecs();
     }
+
 }

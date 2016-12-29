@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.NotFoundException;
@@ -83,6 +84,8 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  * </p>
  */
 public class SimpleDLMSProtocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, CacheMechanism, SerialNumberSupport {
+
+    private final PropertySpecService propertySpecService;
 
     /**
      * The {@link com.energyict.dlms.aso.ConformanceBlock} used
@@ -179,15 +182,13 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
 
     private static final int CONNECTION_MODE_HDLC = 0;
     private static final int CONNECTION_MODE_TCPIP = 1;
-    private static final int CONNECTION_MODE_COSEM_PDU = 2;
-    private static final int CONNECTION_MODE_LLC = 3;
 
     private static final int MAX_PDU_SIZE = 200;
     private static final int PROPOSED_QOS = -1;
     private static final int PROPOSED_DLMS_VERSION = 6;
 
-    public SimpleDLMSProtocol() {
-        super(propertySpecService);
+    public SimpleDLMSProtocol(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -381,8 +382,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             }
 
         } catch (DLMSConnectionException e) {
-            IOException exception = new IOException(e.getMessage(), e);
-            throw exception;
+            throw new IOException(e.getMessage(), e);
         }
     }
 
@@ -555,12 +555,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     @Override
-    public int getNumberOfChannels() throws IOException {
+    public int getNumberOfChannels() {
         return 0;
     }
 
     @Override
-    public int getProfileInterval() throws IOException {
+    public int getProfileInterval() {
         return 900;
     }
 
@@ -648,12 +648,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     @Override
-    public void setTime() throws IOException {
+    public void setTime() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public void initializeDevice() throws IOException {
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 

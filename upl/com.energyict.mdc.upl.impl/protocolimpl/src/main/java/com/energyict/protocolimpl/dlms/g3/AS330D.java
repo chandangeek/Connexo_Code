@@ -5,12 +5,14 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
@@ -55,13 +57,25 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     private G3Messaging messaging;
     private G3Cache cache = new G3Cache();
     private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
+    private final PropertySpecService propertySpecService;
 
-    public AS330D(TariffCalendarFinder calendarFinder) {
+    public AS330D(TariffCalendarFinder calendarFinder, Extractor extractor, PropertySpecService propertySpecService) {
         this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
+        this.propertySpecService = propertySpecService;
     }
 
     protected TariffCalendarFinder getCalendarFinder() {
         return calendarFinder;
+    }
+
+    protected Extractor getExtractor() {
+        return extractor;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     @Override

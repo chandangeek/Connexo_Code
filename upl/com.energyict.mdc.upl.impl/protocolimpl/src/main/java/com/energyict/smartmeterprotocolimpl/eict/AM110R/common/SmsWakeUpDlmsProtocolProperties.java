@@ -154,15 +154,15 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
         return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name, boolean required) {
+    protected PropertySpec stringSpec(String name, boolean required) {
         return this.spec(name, required, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec hexStringSpec(String name, boolean required) {
+    protected PropertySpec hexStringSpec(String name, boolean required) {
         return this.spec(name, required, this.propertySpecService::hexStringSpec);
     }
 
-    private PropertySpec integerSpec(String name, boolean required) {
+    protected PropertySpec integerSpec(String name, boolean required) {
         return this.spec(name, required, this.propertySpecService::integerSpec);
     }
 

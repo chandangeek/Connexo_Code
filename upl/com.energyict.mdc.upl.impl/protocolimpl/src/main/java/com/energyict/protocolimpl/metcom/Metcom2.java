@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.metcom;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
@@ -46,6 +47,10 @@ public class Metcom2 extends Metcom {
     private static int iNROfChannels=-1;
     private static int iMeterProfileInterval=-1;
     private static int digitsPerDecade=-1;
+
+    public Metcom2(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     private int getDigitsPerDecade() throws IOException {
         if (digitsPerDecade == -1) {

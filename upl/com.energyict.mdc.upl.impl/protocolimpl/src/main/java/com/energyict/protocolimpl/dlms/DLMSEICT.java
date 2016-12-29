@@ -15,8 +15,6 @@
 
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -35,12 +33,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
 public class DLMSEICT extends DLMSSN {
-    private static final byte DEBUG = 0;
 
     // Interval List
     private static final byte IL_CAPUTURETIME = 0;
@@ -135,7 +131,7 @@ public class DLMSEICT extends DLMSSN {
                 if ((iField & bit) != 0) {
                     profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
                             (int) mapLogCodes(bit),
-                            (int) bit));
+                            bit));
                 }
             } // for (int bit=0x1;bit!=0;bit<<=1)
 
@@ -185,16 +181,8 @@ public class DLMSEICT extends DLMSSN {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName(), false));
+        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName()));
         return propertySpecs;
-    }
-
-    protected void doSetProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        this.setRequestTimeZone(Integer.parseInt(properties.getProperty("RequestTimeZone", "1").trim()));
-        this.setSecurityLevelProperty(Integer.parseInt(properties.getProperty(SECURITYLEVEL.getName(), "1").trim()));
-        this.setClientMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32").trim()));
-        this.setServerUpperMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1").trim()));
-        this.setServerLowerMacAddress(Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
     }
 
 }

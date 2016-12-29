@@ -750,7 +750,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
         return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
     }
 
-    private PropertySpec integerSpec(String name) {
+    protected PropertySpec integerSpec(String name) {
         return this.spec(name, this.propertySpecService::integerSpec);
     }
 

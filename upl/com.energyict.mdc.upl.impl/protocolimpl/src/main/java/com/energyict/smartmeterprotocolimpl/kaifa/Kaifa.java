@@ -25,6 +25,10 @@ public class Kaifa extends AM110R {
      */
     private KaifaLoadProfileBuilder loadProfileBuilder;
 
+    public Kaifa() {
+        super(propertySpecService);
+    }
+
     @Override
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);

@@ -133,7 +133,7 @@ public class AM110RMessageConverterTest extends AbstractMessageConverterTest{
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AM110R();
+        return new AM110R(propertySpecService);
     }
 
     @Override

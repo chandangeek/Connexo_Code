@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -23,7 +25,7 @@ public class Unigas300Main extends AbstractDebuggingMain<Unigas300> {
     @Override
     Unigas300 getMeterProtocol() {
         if (unigas300 == null) {
-            unigas300 = new Unigas300(propertySpecService);
+            unigas300 = new Unigas300(Services.propertySpecService());
             log("Created new instance of " + unigas300.getClass().getCanonicalName() + " [" + unigas300.getProtocolVersion() + "]");
         }
         return unigas300;

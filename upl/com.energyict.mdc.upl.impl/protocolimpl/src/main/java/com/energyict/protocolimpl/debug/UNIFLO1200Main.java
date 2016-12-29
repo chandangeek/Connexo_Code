@@ -3,6 +3,8 @@
  */
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
@@ -47,7 +49,7 @@ public class UNIFLO1200Main {
 
 	public static UNIFLO1200 getUniflo1200() {
 		if (uniflo1200 == null) {
-			uniflo1200 = new UNIFLO1200();
+			uniflo1200 = new UNIFLO1200(Services.propertySpecService());
 			log("Created new instance of " + uniflo1200.getClass().getCanonicalName() + " [" + uniflo1200.getProtocolVersion() + "]");
 		}
 		return uniflo1200;

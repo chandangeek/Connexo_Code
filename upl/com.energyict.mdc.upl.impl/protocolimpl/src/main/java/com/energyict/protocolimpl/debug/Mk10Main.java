@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -33,7 +35,7 @@ public class Mk10Main {
 
     public static MK10 getMk10() {
 		if (mk10 == null) {
-			mk10 = new MK10();
+			mk10 = new MK10(Services.propertySpecService());
 		}
 		return mk10;
 	}
@@ -41,12 +43,8 @@ public class Mk10Main {
 	public static Dialer getDialer() throws LinkException, IOException {
 		if (dialer == null) {
             DebuggingObserver debuggingObserver = new DebuggingObserver(OBSERVER_FILENAME, false);
-			if (PHONE_NUMBER != null) {
-                dialer = DebugUtils.getConnectedModemDialer(PHONE_NUMBER, COMPORT, MODEM_INIT, debuggingObserver);
-			} else {
-				dialer = DebugUtils.getConnectedDirectDialer(COMPORT, BAUDRATE, DATABITS, PARITY, STOPBITS, debuggingObserver);
-			}
-		}
+            dialer = DebugUtils.getConnectedModemDialer(PHONE_NUMBER, COMPORT, MODEM_INIT, debuggingObserver);
+        }
 		return dialer;
 	}
 

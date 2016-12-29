@@ -199,7 +199,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         return this.spec(name, this.propertySpecService::stringSpec);
     }
 
-    private PropertySpec integerSpec(String name) {
+    protected PropertySpec integerSpec(String name) {
         return this.spec(name, this.propertySpecService::integerSpec);
     }
 

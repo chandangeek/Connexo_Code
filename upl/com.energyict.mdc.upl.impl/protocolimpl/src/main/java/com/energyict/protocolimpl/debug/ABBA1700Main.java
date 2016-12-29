@@ -3,6 +3,8 @@
  */
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
@@ -24,7 +26,7 @@ public class ABBA1700Main extends AbstractDebuggingMain<ABBA1700> {
     @Override
     public ABBA1700 getMeterProtocol() {
         if (abba1700 == null) {
-            abba1700 = new ABBA1700();
+            abba1700 = new ABBA1700(Services.propertySpecService());
             log("Created new instance of " + abba1700.getClass().getCanonicalName() + " [" + abba1700.getProtocolVersion() + "]");
         }
         return abba1700;
@@ -49,12 +51,7 @@ public class ABBA1700Main extends AbstractDebuggingMain<ABBA1700> {
         return properties;
     }
 
-    /**
-     * @param args
-     * @throws IOException
-     * @throws LinkException
-     */
-    public static void main(String[] args) throws IOException, LinkException {
+    public static void main(String[] args) {
         ABBA1700Main main = new ABBA1700Main();
 
         main.setBaudRate(9600);

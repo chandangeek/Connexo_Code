@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 /**
  * Copyrights EnergyICT
  * Date: 18/12/12
@@ -10,7 +12,7 @@ class SagemComG3Properties extends G3Properties {
 
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "0";
 
-    SagemComG3Properties() {
+    SagemComG3Properties(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 

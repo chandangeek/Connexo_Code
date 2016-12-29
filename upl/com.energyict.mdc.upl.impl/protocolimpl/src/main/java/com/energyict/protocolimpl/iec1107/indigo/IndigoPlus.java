@@ -63,8 +63,6 @@ KV|15122005|Test if protocol retrieved new interval data, intervals retrieved be
  */
 public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberSupport {
 
-    private static final int DEBUG=0;
-
     private LogicalAddressFactory logicalAddressFactory;
     private IndigoProfile indigoProfile;
     private int statusFlagChannel,readCurrentDay;
@@ -222,9 +220,9 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(this.integerSpec("StatusFlagChannel", false));
-        propertySpecs.add(this.integerSpec("ReadCurrentDay", false));
-        propertySpecs.add(this.integerSpec("EmptyNodeAddress", false));
+        propertySpecs.add(this.integerSpec("StatusFlagChannel"));
+        propertySpecs.add(this.integerSpec("ReadCurrentDay"));
+        propertySpecs.add(this.integerSpec("EmptyNodeAddress"));
         return propertySpecs;
     }
 
