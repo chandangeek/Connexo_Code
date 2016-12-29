@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface CommandRule extends ServerCommandRule {
 
-    List<CommandRuleCounter> getCounters();
+    List<ICommandRuleCounter> getCounters();
 
     Optional<CommandRulePendingUpdate> getCommandRulePendingUpdate();
 

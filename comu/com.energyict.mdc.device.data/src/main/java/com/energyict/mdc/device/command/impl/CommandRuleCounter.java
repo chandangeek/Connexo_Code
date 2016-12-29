@@ -4,13 +4,14 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.command.CommandRule;
+import com.energyict.mdc.device.command.ICommandRuleCounter;
 
 import com.google.inject.Inject;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-public class CommandRuleCounter {
+public class CommandRuleCounter implements ICommandRuleCounter {
 
     public enum Fields {
 
@@ -61,10 +62,12 @@ public class CommandRuleCounter {
         save();
     }
 
+    @Override
     public Instant getTo() {
         return to;
     }
 
+    @Override
     public Instant getFrom() {
         return from;
     }
@@ -73,6 +76,7 @@ public class CommandRuleCounter {
         return commandRule.get();
     }
 
+    @Override
     public long getCount() {
         return this.count;
     }
@@ -93,6 +97,7 @@ public class CommandRuleCounter {
         Save.UPDATE.save(dataModel, this);
     }
 
+    @Override
     public CounterType getCounterType() {
         long differenceInMillis = getTo().toEpochMilli() - getFrom().toEpochMilli();
         if (differenceInMillis <= TimeUnit.DAYS.toMillis(1)) {
@@ -104,10 +109,6 @@ public class CommandRuleCounter {
         }
     }
 
-    public enum CounterType {
-        DAY,
-        WEEK,
-        MONTH
-    }
+
 
 }

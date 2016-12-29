@@ -13,6 +13,7 @@ import static com.elster.jupiter.orm.Version.version;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
+import com.energyict.mdc.device.command.ICommandRuleCounter;
 
 /**
  * Models the database tables that hold the data of the
@@ -136,7 +137,7 @@ public enum TableSpecs {
     CLR_COMMAND_RULE_COUNTER {
         @Override
         void addTo(DataModel dataModel,Encrypter encrypter) {
-            Table<CommandRuleCounter> table = dataModel.addTable(name(), CommandRuleCounter.class);
+            Table<ICommandRuleCounter> table = dataModel.addTable(name(), ICommandRuleCounter.class);
             table.since(version(10,3));
             table.map(CommandRuleCounter.class);
 

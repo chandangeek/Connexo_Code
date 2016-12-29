@@ -16,9 +16,11 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.DayMonthTime;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
+import com.energyict.mdc.device.command.ICommandRuleCounter;
 import com.energyict.mdc.device.command.ServerCommandRule;
 import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
 import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandRuleStatsException;
@@ -47,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -309,6 +312,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         ExceededCommandRule exceededCommandRule = new ExceededCommandRule(commandRule.getName());
         commandRule.getCounters()
                 .stream()
+                .map(CommandRuleCounter.class::cast)
                 .filter(commandRuleCounter -> Range.closedOpen(commandRuleCounter.getFrom(), commandRuleCounter.getTo()).contains(releaseDate))
                 .forEach(commandRuleCounter -> this.wouldExceedCounter(commandRuleCounter, oldReleaseDate, exceededCommandRule));
 
@@ -387,6 +391,12 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
         }
     }
 
+    @Override
+    public List<ICommandRuleCounter> getCurrentCounters(List<ICommandRuleCounter> commandRuleCounters) {
+        Instant now = Instant.now(clock);
+        return getApplicableCountersFor(commandRuleCounters, now).stream().map(ICommandRuleCounter.class::cast).collect(Collectors.toList());
+    }
+
     private void createNewCounters(CommandRule commandRule, Instant releaseDate, List<CommandRuleCounter> applicableCounters) {
         boolean dayCounterExists = false;
         boolean weekCounterExists = false;
@@ -431,9 +441,13 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     private List<CommandRuleCounter> getApplicableCounters(CommandRule commandRule, Instant releaseDate) {
-        return commandRule.getCounters()
-                .stream()
-                .filter(commandRuleCounter -> Range.closedOpen(commandRuleCounter.getFrom(), commandRuleCounter.getTo()).contains(releaseDate))
+        return getApplicableCountersFor(commandRule.getCounters(), releaseDate);
+    }
+
+    private List<CommandRuleCounter> getApplicableCountersFor(List<ICommandRuleCounter> counters, Instant instant) {
+        return counters.stream()
+                .map(CommandRuleCounter.class::cast)
+                .filter(commandRuleCounter -> Range.closedOpen(commandRuleCounter.getFrom(), commandRuleCounter.getTo()).contains(instant))
                 .collect(Collectors.toList());
     }
 

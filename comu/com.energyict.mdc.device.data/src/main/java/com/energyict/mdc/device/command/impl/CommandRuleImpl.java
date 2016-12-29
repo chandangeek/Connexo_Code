@@ -13,6 +13,7 @@ import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.CommandRuleService;
+import com.energyict.mdc.device.command.ICommandRuleCounter;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasUniqueCommands;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
 import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
@@ -87,7 +88,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_COMMAND_REQUIRED + "}")
     @Valid
     private List<CommandInRule> commands = new ArrayList<>();
-    private List<CommandRuleCounter> counters = new ArrayList<>();
+    private List<ICommandRuleCounter> counters = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -135,7 +136,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     }
 
     @Override
-    public List<CommandRuleCounter> getCounters() {
+    public List<ICommandRuleCounter> getCounters() {
         return counters;
     }
 
@@ -233,6 +234,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     public long cleanUpCounters(Instant before) {
         List<CommandRuleCounter> countersToCleanUp = counters.stream()
+                .map(CommandRuleCounter.class::cast)
                 .filter(counter -> counter.getTo().isBefore(before) || counter.getTo().equals(before))
                 .collect(Collectors.toList());
 

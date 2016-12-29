@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.command;
 
 
+import com.energyict.mdc.device.command.impl.CommandRuleCounter;
 import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
@@ -46,6 +47,8 @@ public interface CommandRuleService {
     void commandUpdated(DeviceMessage deviceMessage, Instant oldReleaseDate);
 
     void commandDeleted(DeviceMessage deviceMessage);
+
+    List<ICommandRuleCounter> getCurrentCounters(List<ICommandRuleCounter> commandRuleCounter);
 
 
     @ProviderType
