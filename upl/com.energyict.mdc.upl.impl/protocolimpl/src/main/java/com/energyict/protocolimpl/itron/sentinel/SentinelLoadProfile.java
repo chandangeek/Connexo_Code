@@ -319,9 +319,9 @@ public class SentinelLoadProfile {
 
         List<List<LoadProfileBlockData>> filtered = new ArrayList<List<LoadProfileBlockData>>();
 
-        Calendar lastReadingCal = Calendar.getInstance();
+        Calendar lastReadingCal = Calendar.getInstance(sentinel.getTimeZone());
         lastReadingCal.setTime(lastReading);
-        Calendar currentCal = Calendar.getInstance();
+        Calendar currentCal = Calendar.getInstance(sentinel.getTimeZone());
         currentCal.setTime(sentinel.getTime());
 
         // Filter out any that are outside of the required range

@@ -369,7 +369,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2016-03-16 16:41:11 +0100 (Wed, 16 Mar 2016)$";
+        return "$Date: 2016-12-29 12:41:11 +0100 (Th, 29 Dec 2016)$";
     }
 
     public String getFirmwareVersion() throws IOException {
