@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dialer.connection.ConnectionException;
@@ -27,7 +28,7 @@ import java.util.List;
  */
 public class AS300DPET extends AS300 {
 
-    public AS300DPET(TariffCalendarFinder calendarFinder) {
+    public AS300DPET(TariffCalendarFinder calendarFinder, Extractor extractor) {
         super(calendarFinder, extractor);
     }
 

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
@@ -26,7 +27,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
 
     private static final ObisCode PET_SETUP = ObisCode.fromString("0.128.0.2.0.255");
 
-    public AS300DPETMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder) {
+    public AS300DPETMessageExecutor(AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
         super(protocol, calendarFinder, extractor);
     }
 
@@ -54,7 +55,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
      *
      * @param messageEntry
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
     protected MessageResult setPublicKeysOfAggregationGroup(MessageEntry messageEntry) throws IOException {
 
@@ -109,7 +110,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
      * Read the own public key pair. The result is key_x and key_y, comma separated. Each part is 32 bytes long.
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
     private String getOwnPublicKeyPair() throws IOException {
         PrivacyEnhancingDataAggregation privacyEnhancingDataAggregation = getPETSetup();
