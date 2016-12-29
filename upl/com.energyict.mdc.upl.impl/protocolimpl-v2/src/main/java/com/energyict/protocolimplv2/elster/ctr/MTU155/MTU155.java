@@ -138,7 +138,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.getMTU155Properties().getPropertySpecs();
+        return this.getMTU155Properties().getPropertySpecs(this.propertySpecService);
     }
 
     @Override

@@ -225,7 +225,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case specialDaysCodeTableAttributeName:
                 return parseSpecialDays(((Code) messageAttribute));
             case loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
             case fromDateAttributeName:
             case toDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());

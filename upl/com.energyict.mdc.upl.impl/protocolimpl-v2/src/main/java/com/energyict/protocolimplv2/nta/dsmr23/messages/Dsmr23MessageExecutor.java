@@ -291,24 +291,24 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         mbusClient.setVersion(getVersion(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientVersion)));
     }
 
-    private Unsigned16 getManufacturerId(String manufacturerId) throws IOException {
+    private Unsigned16 getManufacturerId(String manufacturerId) {
         char[] chars = manufacturerId.toCharArray();
         int id =  Integer.parseInt("" + ((chars[2]-64) + (chars[1]-64)*32 + (chars[0]-64)*32*32));
         return new Unsigned16(id);
     }
 
-    private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) throws IOException {
+    private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) {
         if(fixMbusHexShortId)
             return new Unsigned32(Integer.parseInt(indentificationNumber));
         else
             return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
     }
 
-    private Unsigned8 getVersion(String version) throws IOException {
+    private Unsigned8 getVersion(String version) {
         return new Unsigned8(Integer.parseInt(version));
     }
 
-    private Unsigned8 getDeviceType(String deviceType) throws IOException {
+    private Unsigned8 getDeviceType(String deviceType) {
         return new Unsigned8(Integer.parseInt(deviceType, 16));
     }
     /**
@@ -335,7 +335,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         Date fromDate = new Date(Long.valueOf(fromDateEpoch));
         try {
             LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
+            builder = (LegacyLoadProfileRegisterMessageBuilder) LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -415,7 +415,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             Date toDate = new Date(Long.valueOf(toDateEpoch));
 
             LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
+            builder = (LegacyLoadProfileRegisterMessageBuilder) LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
@@ -719,13 +719,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     protected AbstractMessageExecutor getMbusMessageExecutor() {
         if (this.mbusMessageExecutor == null) {
-            this.mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory());
+            this.mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return this.mbusMessageExecutor;
     }
 
 
-    private int getMBusPhysicalAddress(int installChannel) throws ProtocolException {
+    private int getMBusPhysicalAddress(int installChannel) {
         int physicalAddress;
         if(installChannel == 0){
             physicalAddress = (byte)this.getProtocol().getMeterTopology().searchNextFreePhysicalAddress();

@@ -111,6 +111,11 @@ final class DummyExtractor implements Extractor {
     }
 
     @Override
+    public List<String> keys(NumberLookup numberLookup) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public String id(LoadProfile loadProfile) {
         return "";
     }

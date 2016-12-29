@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -71,44 +71,50 @@ public class MTU155Properties {
         this.typedProperties = typedProperties;
     }
 
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
         return Arrays.asList(
-                this.timeZonePropertySpec(),
-                this.debugPropertySpec(),
-                this.channelBacklogPropertySpec(),
-                this.extractInstallationDatePropertySpec(),
-                this.removeDayProfileOffsetPropertySpec(),
-                this.callHomeIdPropertySpec());
+                this.timeZonePropertySpec(propertySpecService),
+                this.debugPropertySpec(propertySpecService),
+                this.channelBacklogPropertySpec(propertySpecService),
+                this.extractInstallationDatePropertySpec(propertySpecService),
+                this.removeDayProfileOffsetPropertySpec(propertySpecService),
+                this.callHomeIdPropertySpec(propertySpecService));
     }
 
-    private PropertySpec<TimeZone> timeZonePropertySpec() {
-        return Services
-                .propertySpecService()
-                .timeZoneSpec()
-                .named(TIMEZONE_PROPERTY_NAME, TIMEZONE_PROPERTY_NAME)
-                .describedAs("Description for " + TIMEZONE_PROPERTY_NAME)
-                .markRequired()
-                .finish();
+    private PropertySpec timeZonePropertySpec(PropertySpecService propertySpecService) {
+        return UPLPropertySpecFactory
+                    .specBuilder(TIMEZONE_PROPERTY_NAME, true, propertySpecService::timeZoneSpec)
+                    .finish();
     }
 
-    private PropertySpec<Boolean> debugPropertySpec() {
-        return UPLPropertySpecFactory.booleanValue(DEBUG_PROPERTY_NAME, false);
+    private PropertySpec debugPropertySpec(PropertySpecService propertySpecService) {
+        return UPLPropertySpecFactory
+                    .specBuilder(DEBUG_PROPERTY_NAME, false, propertySpecService::booleanSpec)
+                    .finish();
     }
 
-    private PropertySpec channelBacklogPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(CHANNEL_BACKLOG_PROPERTY_NAME, false);
+    private PropertySpec channelBacklogPropertySpec(PropertySpecService propertySpecService) {
+        return UPLPropertySpecFactory
+                    .specBuilder(CHANNEL_BACKLOG_PROPERTY_NAME, false, propertySpecService::bigDecimalSpec)
+                    .finish();
     }
 
-    private PropertySpec extractInstallationDatePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME, false);
+    private PropertySpec extractInstallationDatePropertySpec(PropertySpecService propertySpecService) {
+        return UPLPropertySpecFactory
+                    .specBuilder(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME, false, propertySpecService::bigDecimalSpec)
+                    .finish();
     }
 
-    private PropertySpec removeDayProfileOffsetPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, false);
+    private PropertySpec removeDayProfileOffsetPropertySpec(PropertySpecService propertySpecService) {
+        return UPLPropertySpecFactory
+                    .specBuilder(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, false, propertySpecService::bigDecimalSpec)
+                    .finish();
     }
 
-    protected PropertySpec callHomeIdPropertySpec() {
-        return  UPLPropertySpecFactory.string(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false);
+    protected PropertySpec callHomeIdPropertySpec(PropertySpecService propertySpecService) {
+        return UPLPropertySpecFactory
+                    .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, propertySpecService::stringSpec)
+                    .finish();
     }
 
     public TimeZone getTimeZone() {

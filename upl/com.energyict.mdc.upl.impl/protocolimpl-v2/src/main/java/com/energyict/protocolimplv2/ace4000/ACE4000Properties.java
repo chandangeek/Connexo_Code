@@ -17,7 +17,7 @@ import java.util.Properties;
  * Date: 29-sep-2010
  * Time: 15:58:56
  */
-class ACE4000Properties {
+public class ACE4000Properties {
 
     public static final String TIMEOUT = DeviceProtocol.Property.TIMEOUT.getName();
     public static final String RETRIES = DeviceProtocol.Property.RETRIES.getName();

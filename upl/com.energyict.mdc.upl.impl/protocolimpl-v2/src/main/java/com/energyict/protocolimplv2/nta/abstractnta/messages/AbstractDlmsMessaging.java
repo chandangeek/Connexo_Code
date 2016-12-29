@@ -1,16 +1,13 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
 import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.properties.NumberLookup;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -19,7 +16,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -47,15 +44,15 @@ public class AbstractDlmsMessaging {
         return extractor;
     }
 
-    protected String convertCodeTableToXML(Code messageAttribute) {
+    protected String convertCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar calendar) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calendar, this.extractor, 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }
     }
 
-    protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
+    protected String convertSpecialDaysCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 1, "");
         } catch (ParserConfigurationException e) {
@@ -78,17 +75,16 @@ public class AbstractDlmsMessaging {
     /**
      * Parse the special days of the given code table into the proper AXDR array.
      */
-    protected String parseSpecialDays(Code codeTable) {
-        List<CodeCalendar> calendars = codeTable.getCalendars();
+    protected String parseSpecialDays(com.energyict.mdc.upl.properties.TariffCalendar calendar) {
         Array result = new Array();
         int dayIndex = 1;
-        for (CodeCalendar codeCalendar : calendars) {
-            if (codeCalendar.getSeason() == 0) {
-                byte[] timeStampBytes = {(byte) ((codeCalendar.getYear() == -1) ? 0xff : ((codeCalendar.getYear() >> 8) & 0xFF)), (byte) ((codeCalendar.getYear() == -1) ? 0xff : (codeCalendar.getYear()) & 0xFF),
-                        (byte) ((codeCalendar.getMonth() == -1) ? 0xFF : codeCalendar.getMonth()), (byte) ((codeCalendar.getDay() == -1) ? 0xFF : codeCalendar.getDay()),
-                        (byte) ((codeCalendar.getDayOfWeek() == -1) ? 0xFF : codeCalendar.getDayOfWeek())};
+        for (Extractor.CalendarRule rule : extractor.rules(calendar)) {
+            if (!rule.seasonId().isPresent()) {
+                byte[] timeStampBytes = {(byte) ((rule.year() == -1) ? 0xff : ((rule.year() >> 8) & 0xFF)), (byte) ((rule.year() == -1) ? 0xff : (rule.year()) & 0xFF),
+                        (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
+                        (byte) ((rule.dayOfWeek() == -1) ? 0xFF : rule.dayOfWeek())};
                 OctetString timeStamp = OctetString.fromByteArray(timeStampBytes, timeStampBytes.length);
-                Unsigned8 dayType = new Unsigned8(Integer.parseInt(codeCalendar.getDayType().getName()));
+                Unsigned8 dayType = new Unsigned8(Integer.parseInt(rule.dayTypeName()));
                 Structure specialDayStructure = new Structure();
                 specialDayStructure.addDataType(new Unsigned16(dayIndex));
                 specialDayStructure.addDataType(timeStamp);
@@ -100,14 +96,8 @@ public class AbstractDlmsMessaging {
         return ProtocolTools.getHexStringFromBytes(result.getBEREncodedByteArray(), "");
     }
 
-    protected String convertLookupTable(Lookup messageAttribute) {
-        StringBuilder result = new StringBuilder();
-        for (LookupEntry entry : messageAttribute.getEntries()) {
-            if (result.length() > 0) {
-                result.append(SEPARATOR);
-            }
-            result.append(entry.getKey());
-        }
-        return result.toString();
+    protected String convertLookupTable(NumberLookup messageAttribute) {
+        return extractor.keys(messageAttribute).stream().collect(Collectors.joining(SEPARATOR));
     }
+
 }
