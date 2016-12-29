@@ -712,50 +712,46 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(NODEID.getName(), false),
-                this.stringSpecOfMaxLength(ADDRESS.getName(), false, 16),
-                this.stringSpec(PASSWORD.getName(), false),
-                this.stringSpec(SERIALNUMBER.getName(), false),
-                this.integerSpec(TIMEOUT.getName(), false),
-                this.integerSpec(RETRIES.getName(), false),
-                this.integerSpec(PROPNAME_DELAY_AFTERFAIL, false),
-                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE, false),
-                this.integerSpec(PROPNAME_REQUEST_CLOCK_OBJECT, false),
-                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, false),
-                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
-                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
-                this.integerSpec(PROPNAME_EXTENDED_LOGGING, false),
-                this.integerSpec(PROPNAME_ADDRESSING_MODE, false),
-                this.integerSpec(PROPNAME_CONNECTION, false),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
+                this.stringSpec(PASSWORD.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(PROPNAME_DELAY_AFTERFAIL),
+                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE),
+                this.integerSpec(PROPNAME_REQUEST_CLOCK_OBJECT),
+                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(PROPNAME_EXTENDED_LOGGING),
+                this.integerSpec(PROPNAME_ADDRESSING_MODE),
+                this.integerSpec(PROPNAME_CONNECTION),
                 ProtocolChannelMap.propertySpec(PROPNAME_CHANNEL_MAP, false),
-                this.stringSpec(SECURITYLEVEL.getName(), false),
-                this.integerSpec(PROPNAME_IIAP_INVOKE_ID, false),
-                this.integerSpec(PROPNAME_IIAP_PRIORITY, false),
-                this.integerSpec(PROPNAME_IIAP_SERVICE_CLASS, false),
-                this.integerSpec(PROPNAME_CIPHERING_TYPE, false),
-                this.integerSpec(PROPNAME_MAX_PDU_SIZE, false),
-                this.integerSpec(PROPNAME_IFORCEDELAY_BEFORE_SEND, false));
+                this.stringSpec(SECURITYLEVEL.getName()),
+                this.integerSpec(PROPNAME_IIAP_INVOKE_ID),
+                this.integerSpec(PROPNAME_IIAP_PRIORITY),
+                this.integerSpec(PROPNAME_IIAP_SERVICE_CLASS),
+                this.integerSpec(PROPNAME_CIPHERING_TYPE),
+                this.integerSpec(PROPNAME_MAX_PDU_SIZE),
+                this.integerSpec(PROPNAME_IFORCEDELAY_BEFORE_SEND));
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec stringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpecOfMaxLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
     }
 
-    protected PropertySpec stringSpecOfMaxLength(String name, boolean required, int length) {
-        return this.spec(name, required, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
-    }
-
-    protected PropertySpec integerSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

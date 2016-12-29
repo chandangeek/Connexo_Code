@@ -766,23 +766,23 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                 this.integerSpec(ROUNDTRIPCORRECTION.getName()));
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected PropertySpec stringSpec(String name) {
+    private PropertySpec stringSpec(String name) {
         return this.spec(name, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec stringSpecOfExactLength(String name, int length) {
+    private PropertySpec stringSpecOfExactLength(String name, int length) {
         return this.spec(name, () -> this.propertySpecService.stringSpecOfExactLength(length));
     }
 
-    protected PropertySpec integerSpec(String name) {
+    private PropertySpec integerSpec(String name) {
         return this.spec(name, this.propertySpecService::integerSpec);
     }
 
-    protected PropertySpec integerSpec(String name, Integer... validValues) {
+    private PropertySpec integerSpec(String name, Integer... validValues) {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, this.propertySpecService::integerSpec)
                 .addValues(validValues)

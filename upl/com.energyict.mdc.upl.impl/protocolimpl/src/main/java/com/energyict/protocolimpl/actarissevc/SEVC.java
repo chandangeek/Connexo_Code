@@ -296,30 +296,26 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName(), false),
-                this.stringSpec(PASSWORD.getName(), false),
-                this.integerSpec(TIMEOUT.getName(), false),
-                this.integerSpec(RETRIES.getName(), false),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
-                this.stringSpec(NODEID.getName(), false),
-                this.stringSpec(SERIALNUMBER.getName(), false),
-                this.integerSpec("ForcedDelay", false));
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.integerSpec("ForcedDelay"));
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec stringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::stringSpec);
-    }
-
-    protected PropertySpec integerSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

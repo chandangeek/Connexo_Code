@@ -98,22 +98,18 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     private final PropertySpecService propertySpecService;
 
     public AbstractIEC1107Protocol(PropertySpecService propertySpecService) {
-        super(propertySpecService);
         this(false, propertySpecService);
     }
 
     public AbstractIEC1107Protocol(boolean requestDataReadout, PropertySpecService propertySpecService) {
-        super(propertySpecService);
         this(requestDataReadout, null, propertySpecService);
     }
 
     public AbstractIEC1107Protocol(Encryptor encryptor, PropertySpecService propertySpecService) {
-        super(propertySpecService);
         this(false, encryptor, propertySpecService);
     }
 
     public AbstractIEC1107Protocol(boolean requestDataReadout, Encryptor encryptor, PropertySpecService propertySpecService) {
-        super(propertySpecService);
         this.requestDataReadout = requestDataReadout;
         this.encryptor = encryptor;
         this.propertySpecService = propertySpecService;
@@ -176,39 +172,35 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(ADDRESS.getName(), false),
-                this.stringSpec(PASSWORD.getName(), false),
-                this.integerSpec(TIMEOUT.getName(), false),
-                this.integerSpec(RETRIES.getName(), false),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
-                this.integerSpec(SECURITYLEVEL.getName(), false),
-                this.stringSpec(NODEID.getName(), false),
-                this.integerSpec("EchoCancelling", false),
-                this.integerSpec("IEC1107Compatible", false),
-                this.integerSpec("ExtendedLogging", false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                this.stringSpec(ADDRESS.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(TIMEOUT.getName()),
+                this.integerSpec(RETRIES.getName()),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(SECURITYLEVEL.getName()),
+                this.stringSpec(NODEID.getName()),
+                this.integerSpec("EchoCancelling"),
+                this.integerSpec("IEC1107Compatible"),
+                this.integerSpec("ExtendedLogging"),
+                this.stringSpec(SERIALNUMBER.getName()),
                 ProtocolChannelMap.propertySpec("ChannelMap", false),
-                this.integerSpec(PROFILEINTERVAL.getName(), false),
-                this.integerSpec("RequestHeader", false),
-                this.integerSpec("Scaler", false),
-                this.integerSpec("ForcedDelay", false),
-                this.stringSpec("Software7E1", false));
+                this.integerSpec(PROFILEINTERVAL.getName()),
+                this.integerSpec("RequestHeader"),
+                this.integerSpec("Scaler"),
+                this.integerSpec("ForcedDelay"),
+                this.stringSpec("Software7E1"));
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec stringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::stringSpec);
-    }
-
-    protected PropertySpec integerSpec(String name, boolean required) {
-        return this.integerSpec(name, required);
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

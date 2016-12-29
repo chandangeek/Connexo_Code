@@ -1,12 +1,10 @@
 package com.energyict.protocolimpl.dlms.edp;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.google.common.base.Supplier;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,17 +48,17 @@ class EDPProperties {
 
     protected List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.spec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, this.propertySpecService::stringSpec),
-                this.spec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, this.propertySpecService::stringSpec),
-                this.spec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, this.propertySpecService::stringSpec),
-                this.spec(DlmsProtocolProperties.CONNECTION, this.propertySpecService::stringSpec),
-                this.spec(DlmsProtocolProperties.PK_TIMEOUT, this.propertySpecService::stringSpec),
-                this.spec(DlmsProtocolProperties.PK_RETRIES, this.propertySpecService::stringSpec),
-                this.spec(READCACHE_PROPERTY, this.propertySpecService::stringSpec));
+                this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS),
+                this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS),
+                this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS),
+                this.stringSpec(DlmsProtocolProperties.CONNECTION),
+                this.stringSpec(DlmsProtocolProperties.PK_TIMEOUT),
+                this.stringSpec(DlmsProtocolProperties.PK_RETRIES),
+                this.stringSpec(READCACHE_PROPERTY));
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    private PropertySpec stringSpec(String name) {
+        return UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::stringSpec).finish();
     }
 
     boolean isFirmwareClient() {

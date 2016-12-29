@@ -236,15 +236,15 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                 this.integerSpec("RequestTimeZone"));
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected PropertySpec stringSpec(String name) {
+    private PropertySpec stringSpec(String name) {
         return this.spec(name, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec integerSpec(String name) {
+    private PropertySpec integerSpec(String name) {
         return this.spec(name, this.propertySpecService::integerSpec);
     }
 

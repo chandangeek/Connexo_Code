@@ -1338,43 +1338,39 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.stringSpecOfMaxLength(ADDRESS.getName(), false, 16),
-                this.stringSpec(PASSWORD.getName(), false),
-                this.integerSpec(PK_TIMEOUT, false),
-                this.integerSpec(PK_RETRIES, false),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName(), false),
-                this.integerSpec(PK_SECURITYLEVEL, false),
-                this.integerSpec("RequestTimeZone", false),
-                this.integerSpec("ClientMacAddress", false),
-                this.integerSpec("ServerUpperMacAddress", false),
-                this.integerSpec("ServerLowerMacAddress", false),
-                this.stringSpec("FirmwareVersion", false),
-                this.stringSpec(NODEID.getName(), false),
-                this.stringSpec(SERIALNUMBER.getName(), false),
-                this.stringSpec(PK_EXTENDED_LOGGING, false),
-                this.stringSpec("AddressingMode", false),
-                this.stringSpec("Connection", false),
-                this.stringSpec("StatusFlagChannel", false));
+                this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(PK_TIMEOUT),
+                this.integerSpec(PK_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName()),
+                this.integerSpec(PK_SECURITYLEVEL),
+                this.integerSpec("RequestTimeZone"),
+                this.integerSpec("ClientMacAddress"),
+                this.integerSpec("ServerUpperMacAddress"),
+                this.integerSpec("ServerLowerMacAddress"),
+                this.stringSpec("FirmwareVersion"),
+                this.stringSpec(NODEID.getName()),
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.stringSpec(PK_EXTENDED_LOGGING),
+                this.stringSpec("AddressingMode"),
+                this.stringSpec("Connection"),
+                this.stringSpec("StatusFlagChannel"));
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec stringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpecOfMaxLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
     }
 
-    protected PropertySpec stringSpecOfMaxLength(String name, boolean required, int length) {
-        return this.spec(name, required, () -> this.propertySpecService.stringSpecOfMaximumLength(length));
-    }
-
-    protected PropertySpec integerSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override

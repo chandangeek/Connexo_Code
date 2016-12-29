@@ -48,26 +48,26 @@ class A1800Properties extends DlmsProtocolProperties implements DlmsSessionPrope
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(SECURITY_LEVEL, false),
-                this.integerSpec(CLIENT_MAC_ADDRESS, false),
-                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, false),
-                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, false),
-                this.integerSpec(READ_SERIAL_NUMBER, false),
-                this.integerSpec(PROPNAME_SEND_PREFIX, false),
+                this.integerSpec(SECURITY_LEVEL),
+                this.integerSpec(CLIENT_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(READ_SERIAL_NUMBER),
+                this.integerSpec(PROPNAME_SEND_PREFIX),
                 new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false),
-                this.integerSpec(PROPNAME_APPLY_TRANSFORMER_RATIOS, false));
+                this.integerSpec(PROPNAME_APPLY_TRANSFORMER_RATIOS));
     }
 
-    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected PropertySpec stringSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::stringSpec);
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec integerSpec(String name, boolean required) {
-        return this.spec(name, required, this.propertySpecService::integerSpec);
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     public DLMSReference getReference() {

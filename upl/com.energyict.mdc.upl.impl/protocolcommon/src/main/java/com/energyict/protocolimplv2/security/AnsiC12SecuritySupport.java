@@ -34,6 +34,10 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         this.propertySpecService = propertySpecService;
     }
 
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(

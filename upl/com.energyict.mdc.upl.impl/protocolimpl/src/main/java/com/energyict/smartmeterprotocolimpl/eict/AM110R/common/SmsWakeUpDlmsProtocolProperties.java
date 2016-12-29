@@ -146,27 +146,27 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
                 this.stringSpec(WAKEUP_POLLING_FREQUENCY, required));
     }
 
-    protected  <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    protected  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+    private  <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
     }
 
-    protected PropertySpec stringSpec(String name, boolean required) {
+    private PropertySpec stringSpec(String name, boolean required) {
         return this.spec(name, required, this.propertySpecService::stringSpec);
     }
 
-    protected PropertySpec hexStringSpec(String name, boolean required) {
+    private PropertySpec hexStringSpec(String name, boolean required) {
         return this.spec(name, required, this.propertySpecService::hexStringSpec);
     }
 
-    protected PropertySpec integerSpec(String name, boolean required) {
+    private PropertySpec integerSpec(String name, boolean required) {
         return this.spec(name, required, this.propertySpecService::integerSpec);
     }
 
-    protected PropertySpec longSpec(String name, boolean required) {
+    private PropertySpec longSpec(String name, boolean required) {
         return this.spec(name, required, this.propertySpecService::longSpec);
     }
 
