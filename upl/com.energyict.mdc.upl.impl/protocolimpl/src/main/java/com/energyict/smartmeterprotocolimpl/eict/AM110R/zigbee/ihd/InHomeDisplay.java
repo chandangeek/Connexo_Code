@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -14,7 +15,6 @@ import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110R;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd.messaging.InHomeDisplayMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd.messaging.InHomeDisplayMessaging;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class InHomeDisplay extends AM110R {
 
-    public InHomeDisplay() {
+    public InHomeDisplay(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
@@ -41,27 +41,27 @@ public class InHomeDisplay extends AM110R {
     }
 
     @Override
-    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
+    public List<RegisterValue> readRegisters(List<Register> registers) throws UnsupportedException {
         throw new UnsupportedException("InHomeDisplay, readRegisters(List<Register> registers) not supported.");
     }
 
     @Override
-    public RegisterInfo translateRegister(Register register) throws IOException {
+    public RegisterInfo translateRegister(Register register) throws UnsupportedException {
         throw new UnsupportedException("InHomeDisplay, translateRegister(Register register) not supported.");
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
+    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws UnsupportedException {
         throw new UnsupportedException("InHomeDisplay, getMeterEvents(Date lastLogbookDate) not supported.");
     }
 
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws UnsupportedException {
         throw new UnsupportedException("InHomeDisplay, fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) not supported.");
     }
 
     @Override
-    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
+    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws UnsupportedException {
         throw new UnsupportedException("InHomeDisplay, getLoadProfileData(List<LoadProfileReader> loadProfiles) not supported.");
     }
 }

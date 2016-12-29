@@ -48,10 +48,8 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     private GenericRegisters genericRegisters;
     private String billingTimeStampId = BILLINGPOINT_TIMESTAMP_ID_DEFAULT;
 
-    private final PropertySpecService propertySpecService;
-
     public EKM(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
         genericRegisters = new GenericRegisters(this);
     }
 
@@ -63,7 +61,7 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     }
 
     private PropertySpec stringSpec(String name) {
-        return UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(name, false, this.getPropertySpecService()::stringSpec).finish();
     }
 
     @Override

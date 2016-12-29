@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 import com.energyict.protocolimpl.properties.TypedProperties;
@@ -29,7 +31,7 @@ public class DLMSZMDMain {
 
     public static DLMSZMD getZmd() {
 		if (dlmsZmd == null) {
-			dlmsZmd = new DLMSZMD(new NoTariffCalendars(), new DummyExtractor());
+			dlmsZmd = new DLMSZMD(Services.propertySpecService(), new NoTariffCalendars(), new DummyExtractor());
 			log("Created new instance of " + dlmsZmd.getClass().getCanonicalName() + " [" + dlmsZmd.getProtocolVersion() + "]");
 		}
 		return dlmsZmd;

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
@@ -22,7 +24,7 @@ public class CewePrometerMain extends AbstractDebuggingMain<CewePrometer> {
     @Override
     CewePrometer getMeterProtocol() {
         if (cewePrometer == null) {
-            cewePrometer = new CewePrometer();
+            cewePrometer = new CewePrometer(Services.propertySpecService());
             log("Created new instance of " + cewePrometer.getClass().getCanonicalName() + " [" + cewePrometer.getProtocolVersion() + "]");
         }
         return cewePrometer;

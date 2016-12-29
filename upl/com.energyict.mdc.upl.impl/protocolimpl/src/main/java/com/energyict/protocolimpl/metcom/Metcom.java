@@ -104,6 +104,10 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
         this.propertySpecService = propertySpecService;
     }
 
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
     public abstract String getDefaultChannelMap();
 
     public abstract String buildDefaultChannelMap() throws IOException;

@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.sctm.enermete70x;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -35,7 +37,8 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
     private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
     private GenericRegisters genericRegisters;
 
-    public EnermetE70x() {
+    public EnermetE70x(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         genericRegisters = new GenericRegisters(this);
     }
 

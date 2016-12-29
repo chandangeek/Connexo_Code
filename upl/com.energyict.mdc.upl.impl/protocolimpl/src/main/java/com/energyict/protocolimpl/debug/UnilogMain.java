@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.iec1107.unilog.Unilog;
@@ -22,7 +24,7 @@ public class UnilogMain extends AbstractDebuggingMain<Unilog> {
     @Override
     Unilog getMeterProtocol() {
         if (unilog == null) {
-            unilog = new Unilog(propertySpecService);
+            unilog = new Unilog(Services.propertySpecService());
             log("Created new instance of " + unilog.getClass().getCanonicalName() + " [" + unilog.getProtocolVersion() + "]");
         }
         return unilog;

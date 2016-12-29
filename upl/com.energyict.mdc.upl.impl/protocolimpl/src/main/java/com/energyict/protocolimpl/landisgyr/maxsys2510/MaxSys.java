@@ -104,7 +104,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     private static final int PD_TIMEOUT = 10000;
     private static final int PD_RETRIES = 5;
     private static final int PD_ROUNDTRIP_CORRECTION = 0;
-    private static final int PD_SECURITY_LEVEL = 2;
     private static final String PD_EXTENDED_LOGGING = "0";
     private static final int PD_FORCE_DELAY = 250;
     private final PropertySpecService propertySpecService;
@@ -446,12 +445,12 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     }
 
     @Override
-    public Quantity getMeterReading(int channelId) throws IOException {
+    public Quantity getMeterReading(int channelId) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public Quantity getMeterReading(String name) throws IOException {
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -484,7 +483,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
         XCommand xCommand = commandFactory.createX(nextCrn(), 0x00, 0x0d);
         xCommand.setArgumnt(new byte[]{0, 0, b2, b1});
         linkLayer.send(xCommand);
-
     }
 
     @Override
@@ -541,7 +539,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     Firmware getFirmware() {
         return firmware;
     }
-
 
     private int nextCrn() {
         crn = crn + 1;

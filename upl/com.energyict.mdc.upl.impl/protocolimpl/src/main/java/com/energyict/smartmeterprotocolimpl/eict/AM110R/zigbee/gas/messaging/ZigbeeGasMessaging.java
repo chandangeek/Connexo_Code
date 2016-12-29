@@ -16,7 +16,7 @@ import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -40,15 +40,13 @@ public class ZigbeeGasMessaging extends GenericMessaging implements MessageProto
         return this.messageExecutor.executeMessageEntry(messageEntry);
     }
 
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<>();
-
-        categories.add(getTariffMessageCategorySpec());
-        categories.add(getPricingInformationMessageCategorySpec());
-        categories.add(getCoTSMessageCategorySpec());
-        categories.add(getGasConversionMessageCategorySpec());
-        categories.add(getFirmwareUpgradeMessageCategorySpec());
-        return categories;
+    public List<MessageCategorySpec> getMessageCategories() {
+        return Arrays.asList(
+                    getTariffMessageCategorySpec(),
+                    getPricingInformationMessageCategorySpec(),
+                    getCoTSMessageCategorySpec(),
+                    getGasConversionMessageCategorySpec(),
+                    getFirmwareUpgradeMessageCategorySpec());
     }
 
     private MessageCategorySpec getTariffMessageCategorySpec() {

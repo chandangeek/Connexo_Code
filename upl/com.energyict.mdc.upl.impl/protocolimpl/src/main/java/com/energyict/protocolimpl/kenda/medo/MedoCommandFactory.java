@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import java.io.IOException;
 
 public class MedoCommandFactory {
@@ -14,11 +16,15 @@ public class MedoCommandFactory {
 	private Parsers command;
 	private boolean flag=false;
 	private boolean type=true;
+	private final PropertySpecService propertySpecService;
 
-	MedoCommandFactory(){};
+	MedoCommandFactory(PropertySpecService propertySpecService){
+        this.propertySpecService = propertySpecService;
+    };
 
-	MedoCommandFactory(ComStruc s, Parsers command) throws IOException{
-		process(s,command);
+	MedoCommandFactory(ComStruc s, Parsers command, PropertySpecService propertySpecService) throws IOException {
+        this(propertySpecService);
+        process(s,command);
 	}
 
 	private Parsers process(ComStruc s, Parsers command) throws IOException{

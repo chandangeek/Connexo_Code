@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.IntervalData;
@@ -26,7 +28,7 @@ public class PrometerMain extends AbstractDebuggingMain<Prometer> {
     @Override
     Prometer getMeterProtocol() {
         if (prometer == null) {
-            prometer = new Prometer();
+            prometer = new Prometer(Services.propertySpecService());
             log("Created new instance of " + prometer.getClass().getCanonicalName() + " [" + prometer.getProtocolVersion() + "]");
         }
         return prometer;

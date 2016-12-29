@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.mdc.upl.Services;
+
 import com.energyict.dialer.core.LinkException;
 import com.energyict.protocolimpl.iec1107.abba1140.ABBA1140;
 
@@ -18,7 +20,7 @@ public class ABBA1140Main extends AbstractDebuggingMain<ABBA1140> {
     @Override
     ABBA1140 getMeterProtocol() {
         if (abba1140 == null) {
-            abba1140 = new ABBA1140();
+            abba1140 = new ABBA1140(Services.propertySpecService());
             log("Created new instance of " + abba1140.getClass().getCanonicalName() + " [" + abba1140.getProtocolVersion() + "]");
         }
         return abba1140;

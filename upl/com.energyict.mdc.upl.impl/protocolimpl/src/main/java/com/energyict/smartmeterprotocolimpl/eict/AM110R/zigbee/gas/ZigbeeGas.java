@@ -2,10 +2,12 @@ package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas;
 
 import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -70,6 +72,11 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
      * The used {@link ZigbeeGasMessaging} for messaging
      */
     private ZigbeeGasMessaging zigbeeGasMessaging;
+    private final PropertySpecService propertySpecService;
+
+    public ZigbeeGas(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     protected void initAfterConnect() throws ConnectionException {
@@ -164,7 +171,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
         return getMessageProtocol().queryMessage(messageEntry);
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
 
@@ -220,7 +227,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
     @Override
     public ZigbeeGasProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new ZigbeeGasProperties();
+            this.properties = new ZigbeeGasProperties(this.propertySpecService);
         }
         return this.properties;
     }

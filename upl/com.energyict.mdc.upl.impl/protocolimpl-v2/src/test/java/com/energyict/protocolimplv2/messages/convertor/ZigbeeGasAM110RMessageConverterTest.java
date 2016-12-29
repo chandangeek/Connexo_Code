@@ -101,7 +101,7 @@ public class ZigbeeGasAM110RMessageConverterTest extends AbstractMessageConverte
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ZigbeeGas();
+        return new ZigbeeGas(propertySpecService);
     }
 
     @Override
