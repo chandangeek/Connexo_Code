@@ -269,7 +269,7 @@ public class MetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId) {
-        MetrologyContract metrologyContract = resourceHelper.findContractOnMetrologyConfiguration(contractId);
+        MetrologyContract metrologyContract = resourceHelper.findContractByIdOrThrowException(contractId);
         List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
@@ -294,10 +294,11 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/contracts")
     @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response editMetrologyContracts(@PathParam("contractId") long contractId, @QueryParam("action") String action, MetrologyContractInfos metrologyContractInfos) {
+    public Response reorderEstimationRuleSetsOnContracts(@PathParam("contractId") long contractId, @QueryParam("action") String action, MetrologyContractInfos metrologyContractInfos) {
         for (MetrologyContractInfo contract : metrologyContractInfos.contracts) {
-            MetrologyContract metrologyContract = resourceHelper.findContractOnMetrologyConfiguration(contract.id);
+            MetrologyContract metrologyContract = resourceHelper.findContractByIdOrThrowException(contract.id);
             usagePointConfigurationService.reorderEstimationRuleSets(metrologyContract, contract.estimationRuleSets.stream()
                     .map(estimationRuleSetInfo -> estimationService.getEstimationRuleSet(estimationRuleSetInfo.id))
                     .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList()));

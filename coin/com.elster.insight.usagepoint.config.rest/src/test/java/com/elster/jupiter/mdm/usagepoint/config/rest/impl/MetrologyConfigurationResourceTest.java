@@ -354,7 +354,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         metrologyContractInfo.validationRuleSets = Collections.emptyList();
         metrologyContractInfo.estimationRuleSets = Arrays.asList(new EstimationRuleSetInfo(ers),new EstimationRuleSetInfo(ers2),new EstimationRuleSetInfo(ers3));
         infos.total = 1;
-        infos.contracts = new ArrayList<>(Collections.singletonList(metrologyContractInfo));
+        infos.contracts = Collections.singletonList(metrologyContractInfo);
         Entity<MetrologyContractInfos> json = Entity.json(infos);
         Response response = target("/metrologyconfigurations/1/contracts").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

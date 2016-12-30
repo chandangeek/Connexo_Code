@@ -78,7 +78,7 @@ public class ResourceHelper {
                 .supplier());
     }
 
-    MetrologyContract findContractOnMetrologyConfiguration(long contractId) {
+    MetrologyContract findContractByIdOrThrowException(long contractId) {
         return metrologyConfigurationService.findMetrologyContract(contractId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
