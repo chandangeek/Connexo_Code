@@ -32,26 +32,20 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulePreviewForm', {
                     {
                         itemId: 'mdc-command-rule-preview-panel-dayLimit-field',
                         fieldLabel: Uni.I18n.translate('general.dayLimit', 'MDC', 'Day limit'),
-                        name: 'dayLimit',
-                        renderer: function(value) {
-                            return value===0 ? Uni.I18n.translate('general.none', 'MDC', 'None') : value;
-                        }
+                        name: 'dayLimitWithMessage',
+                        htmlEncode: false
                     },
                     {
                         itemId: 'mdc-command-rule-preview-panel-weekLimit-field',
                         fieldLabel: Uni.I18n.translate('general.weekLimit', 'MDC', 'Week limit'),
-                        name: 'weekLimit',
-                        renderer: function(value) {
-                            return value===0 ? Uni.I18n.translate('general.none', 'MDC', 'None') : value;
-                        }
+                        name: 'weekLimitWithMessage',
+                        htmlEncode: false
                     },
                     {
                         itemId: 'mdc-command-rule-preview-panel-monthLimit-field',
                         fieldLabel: Uni.I18n.translate('general.monthLimit', 'MDC', 'Month limit'),
-                        name: 'monthLimit',
-                        renderer: function(value) {
-                            return value===0 ? Uni.I18n.translate('general.none', 'MDC', 'None') : value;
-                        }
+                        name: 'monthLimitWithMessage',
+                        htmlEncode: false
                     }
                 ]
             },
