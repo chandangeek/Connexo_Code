@@ -125,6 +125,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+    private boolean calledByConnectionTask;
 
     /**
      * ExecutionPriority can be overruled by the Minimize ConnectionTask.
@@ -553,7 +554,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         if(this.nextExecutionTimestamp != null ) {
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
-            this.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this));
+            this.getConnectionTask().ifPresent(ct -> {
+                if(calledByConnectionTask) {
+                    calledByConnectionTask = false;
+                } else {
+                    ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this);
+                    calledByConnectionTask = false;
+                }
+            });
         }
 
     }
@@ -1529,8 +1537,15 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
+        public ComTaskExecutionUpdater calledByComTaskExecution() {
+            this.comTaskExecution.calledByConnectionTask = true;
+            return this;
+        }
+
+        @Override
         @SuppressWarnings("unchecked")
         public ComTaskExecutionImpl update() {
+            //hier
             this.comTaskExecution.update();
             if (this.connectionTaskSchedulingMayHaveChanged) {
                 this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this.comTaskExecution));

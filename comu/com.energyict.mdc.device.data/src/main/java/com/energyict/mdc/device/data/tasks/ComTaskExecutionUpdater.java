@@ -49,6 +49,8 @@ public interface ComTaskExecutionUpdater {
 
     ComTaskExecutionUpdater forceLastExecutionStartTimestamp(Instant lastExecutionStartTimestamp);
 
+    ComTaskExecutionUpdater calledByComTaskExecution();
+
     /**
      * Updates the actual ComTaskExecution with the objects set in this builder
      *

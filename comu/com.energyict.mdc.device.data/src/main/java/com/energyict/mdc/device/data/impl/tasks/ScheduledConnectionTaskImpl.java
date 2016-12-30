@@ -288,6 +288,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            comTaskExecutionUpdater.calledByComTaskExecution();
             comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
             comTaskExecutionUpdater.updateFields(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
                     ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName(),
