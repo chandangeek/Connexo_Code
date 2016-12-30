@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.messages.nls;
 
 import com.energyict.mdc.upl.nls.TranslationKey;
 
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
+
 /**
  * Provides an implementatin for the {@link TranslationKey} interface.
  *

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.properties;
 
 import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
@@ -32,6 +33,22 @@ public final class UPLPropertySpecFactory {
 
     public static void addLongValues(PropertySpecBuilder<Long> builder, Range<Long> range) {
         builder.addValues(toLongStream(range).collect(Collectors.toList()));
+    }
+
+    public static <T> PropertySpecBuilder<T> specBuilder(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        PropertySpecBuilder<T> builder = optionsSupplier.get().named(name, name).describedAs("Description for " + name);
+        if (required) {
+            builder.markRequired();
+        }
+        return builder;
+    }
+
+    public static <T> PropertySpecBuilder<T> specBuilder(String name, boolean required, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        PropertySpecBuilder<T> builder = optionsSupplier.get().named(name, translationKey).describedAs(new DescriptionTranslationKey(translationKey));
+        if (required) {
+            builder.markRequired();
+        }
+        return builder;
     }
 
     public static PropertySpec integer(String name, boolean required) {
@@ -205,14 +222,6 @@ public final class UPLPropertySpecFactory {
         } else {
             return range.lowerEndpoint();
         }
-    }
-
-    public static <T> PropertySpecBuilder<T> specBuilder(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        PropertySpecBuilder<T> builder = optionsSupplier.get().named(name, name).describedAs("Description for " + name);
-        if (required) {
-            builder.markRequired();
-        }
-        return builder;
     }
 
     public static PropertySpec duration(String name, boolean required, Duration defaultValue) {
