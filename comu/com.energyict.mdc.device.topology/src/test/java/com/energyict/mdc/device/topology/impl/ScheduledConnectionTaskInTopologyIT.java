@@ -214,13 +214,13 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         freezeClock(2013, Calendar.FEBRUARY, 17, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
 
         ScheduledConnectionTaskImpl theOneThatMinimizesConnections = this.createMinimizeWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", new TemporalExpression(EVERY_HOUR));
-        Instant nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
         ConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
 
         ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
 
         // Business method
         connectionTaskService.setDefaultConnectionTask(theOneThatMinimizesConnections);
+        Instant nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
         ScheduledConnectionTask reloaded = connectionTaskService.findScheduledConnectionTask(theOneThatMinimizesConnections.getId()).get();
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device, comTaskExecution);
 
