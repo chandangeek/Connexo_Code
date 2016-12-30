@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
@@ -10,13 +10,12 @@ import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author sva
  * @since 18/06/2014 - 10:54
  */
-class SecuritySupport implements DeviceProtocolSecurityCapabilities {
+class SecuritySupport {
 
     private static final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel.0";
     private static final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel.1";
@@ -32,10 +31,6 @@ class SecuritySupport implements DeviceProtocolSecurityCapabilities {
         AuthenticationAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
-
-        private int getAccessLevel() {
-            return this.accessLevel;
-        }
     }
 
     /**
@@ -49,45 +44,33 @@ class SecuritySupport implements DeviceProtocolSecurityCapabilities {
         EncryptionAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
-
-        private int getAccessLevel() {
-            return this.accessLevel;
-        }
     }
 
-    @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public List<PropertySpec> getSecurityProperties(PropertySpecService propertySpecService) {
         return Arrays.asList(
-                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(),
-                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec()
+                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService)
         );
     }
 
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.singletonList((AuthenticationDeviceAccessLevel) new NoAuthentication());
     }
 
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Collections.singletonList((EncryptionDeviceAccessLevel) new MessageEncryption());
-    }
-
-    @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityProperties()) {
-            if (securityProperty.getName().equals(name)) {
-                return Optional.of(securityProperty);
-            }
-        }
-        return Optional.empty();
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels(PropertySpecService propertySpecService) {
+        return Collections.singletonList((EncryptionDeviceAccessLevel) new MessageEncryption(propertySpecService));
     }
 
     /**
      * An encryption level where the data of the frame is encrypted using
      * the manufacturer or the customer key
      */
-    private class MessageEncryption implements EncryptionDeviceAccessLevel {
+    private static class MessageEncryption implements EncryptionDeviceAccessLevel {
+        private final PropertySpecService propertySpecService;
+
+        private MessageEncryption(PropertySpecService propertySpecService) {
+            this.propertySpecService = propertySpecService;
+        }
 
         @Override
         public int getId() {
@@ -102,8 +85,8 @@ class SecuritySupport implements DeviceProtocolSecurityCapabilities {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(this.propertySpecService),
+                    DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(this.propertySpecService));
         }
     }
 

@@ -29,6 +29,7 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -50,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author sva
@@ -66,12 +66,18 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ConcentratorMessaging messaging;
+    private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public GarnetConcentrator(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public GarnetConcentrator(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     @Override
@@ -238,7 +244,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return getSecuritySupport().getSecurityProperties();
+        return getSecuritySupport().getSecurityProperties(this.propertySpecService);
     }
 
     @Override
@@ -248,12 +254,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return getSecuritySupport().getEncryptionAccessLevels();
-    }
-
-    @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        return getSecuritySupport().getSecurityPropertySpec(name);
+        return getSecuritySupport().getEncryptionAccessLevels(this.getPropertySpecService());
     }
 
     @Override

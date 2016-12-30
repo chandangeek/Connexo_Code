@@ -37,7 +37,7 @@ public class A100C extends AbstractMbusDevice {
     private final Converter converter;
 
     public A100C(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(new GarnetConcentrator(collectedDataFactory, issueFactory));
+        super(new GarnetConcentrator(propertySpecService, collectedDataFactory, issueFactory));
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
