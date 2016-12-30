@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -61,6 +62,8 @@ public interface Extractor {
      */
     String id(DeviceMessageFile deviceMessageFile);
 
+    String name (DeviceMessageFile deviceMessageFile);
+
     /**
      * Extracts the entire contents of the {@link DeviceMessageFile}
      * and returns it as a String for easy formatting in XML based content.
@@ -70,6 +73,28 @@ public interface Extractor {
      * @return The entire contents of the DeviceMessageFile
      */
     String contents(DeviceMessageFile deviceMessageFile);
+
+    /**
+     * Extracts the entire contents of the {@link DeviceMessageFile}
+     * and returns it as a String for easy formatting in XML based content.
+     * Note that calling this may consume a lot of memory if the file is big.
+     *
+     * @param deviceMessageFile The DeviceMessageFile
+     * @return The entire contents of the DeviceMessageFile
+     */
+    byte[] binaryContents(DeviceMessageFile deviceMessageFile);
+
+    /**
+     * Extracts the entire contents of the {@link DeviceMessageFile}
+     * and returns it as a String for easy formatting in XML based content.
+     * Note that calling this may consume a lot of memory if the file is big.
+     *
+     * @param deviceMessageFile The DeviceMessageFile
+     * @param charSetName The name of the CharSet that should be used to convert bytes to String
+     * @return The entire contents of the DeviceMessageFile
+     * @throws UnsupportedEncodingException Thrown when the charSetName is not supported
+     */
+    String contents(DeviceMessageFile deviceMessageFile, String charSetName) throws UnsupportedEncodingException;
 
     /**
      * Extracts the entire contents of the {@link DeviceMessageFile}
