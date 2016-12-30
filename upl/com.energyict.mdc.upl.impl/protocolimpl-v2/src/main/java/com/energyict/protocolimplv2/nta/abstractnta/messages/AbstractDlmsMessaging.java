@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.properties.NumberLookup;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -75,7 +76,7 @@ public class AbstractDlmsMessaging {
     /**
      * Parse the special days of the given code table into the proper AXDR array.
      */
-    protected String parseSpecialDays(com.energyict.mdc.upl.properties.TariffCalendar calendar) {
+    protected String parseSpecialDays(TariffCalendar calendar) {
         Array result = new Array();
         int dayIndex = 1;
         for (Extractor.CalendarRule rule : extractor.rules(calendar)) {

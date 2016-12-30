@@ -4,8 +4,10 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
 import com.energyict.mdw.core.LogBookTypeFactory;
@@ -27,6 +29,12 @@ import java.util.logging.Logger;
 public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtocol {
 
     private InboundDiscoveryContext context;
+    private final CollectedDataFactory collectedDataFactory;
+
+    public ACE4000Inbound(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
+        super(propertySpecService);
+        this.collectedDataFactory = collectedDataFactory;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
@@ -103,7 +111,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this, collectedDataFactory);
+            objectFactory = new ObjectFactory(this, this.collectedDataFactory);
             objectFactory.setInbound(true);  //Important to store the parsed data in the list of collecteddatas
         }
         return objectFactory;

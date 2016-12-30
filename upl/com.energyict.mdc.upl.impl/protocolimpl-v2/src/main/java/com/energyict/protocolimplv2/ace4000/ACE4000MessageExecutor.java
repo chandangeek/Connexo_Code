@@ -14,7 +14,6 @@ import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.mdw.core.LogBookTypeFactory;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.ace4000.requests.ConfigureConsumptionLimitationsSettings;
@@ -143,8 +142,8 @@ public class ACE4000MessageExecutor {
         String fromDateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.fromDateAttributeName).getValue();
         String toDateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.toDateAttributeName).getValue();
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        Date fromDate = null;
-        Date toDate = null;
+        Date fromDate;
+        Date toDate;
 
         try {
             fromDate = formatter.parse(fromDateString);
@@ -171,7 +170,7 @@ public class ACE4000MessageExecutor {
         }
 
         //Make a new loadProfileReader with the proper from and to date
-        LoadProfileReader loadProfileReader = new LoadProfileReader(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE, fromDate, toDate, 0, ace4000.getConfiguredSerialNumber(), new ArrayList<ChannelInfo>());
+        LoadProfileReader loadProfileReader = new LoadProfileReader(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE, fromDate, toDate, 0, ace4000.getConfiguredSerialNumber(), new ArrayList<>());
 
         ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(ace4000, issueFactory);
         CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, readLoadProfileRequest.request(loadProfileReader).get(0));

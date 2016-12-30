@@ -2,9 +2,10 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
@@ -16,7 +17,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * Has common methods and fields for the inbound and the outbound ACE4000 protocol class
+ * Has common methods and fields for the inbound and the outbound ACE4000 protocol class.
  * <p/>
  * Copyrights EnergyICT
  * Date: 6/11/12
@@ -41,7 +42,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
      */
     private List<ObisCode> receivedRegisterObisCodeList = new ArrayList<>();
 
-    public ACE4000() {
+    public ACE4000(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
@@ -89,7 +90,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     public List<CollectedRegister> getCollectedRegisters() {
 
         //Master registers
-        List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
+        List<CollectedRegister> collectedRegisters = new ArrayList<>();
         collectedRegisters.addAll(getCollectedBillingRegisters());
         collectedRegisters.addAll(getCollectedCurrentRegisters());
         collectedRegisters.addAll(getCollectedInstantRegisters());
@@ -106,42 +107,42 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
      */
     public List<CollectedRegister> getCollectedBillingRegisters() {
         if (collectedBillingRegisters == null) {
-            collectedBillingRegisters = new ArrayList<CollectedRegister>();
+            collectedBillingRegisters = new ArrayList<>();
         }
         return collectedBillingRegisters;
     }
 
     public List<CollectedRegister> getCollectedMBusBillingRegisters() {
         if (collectedMBusBillingRegisters == null) {
-            collectedMBusBillingRegisters = new ArrayList<CollectedRegister>();
+            collectedMBusBillingRegisters = new ArrayList<>();
         }
         return collectedMBusBillingRegisters;
     }
 
     public List<CollectedRegister> getCollectedInstantRegisters() {
         if (collectedInstantRegisters == null) {
-            collectedInstantRegisters = new ArrayList<CollectedRegister>();
+            collectedInstantRegisters = new ArrayList<>();
         }
         return collectedInstantRegisters;
     }
 
     public List<CollectedRegister> getCollectedMaxDemandRegisters() {
         if (collectedMaxDemandRegisters == null) {
-            collectedMaxDemandRegisters = new ArrayList<CollectedRegister>();
+            collectedMaxDemandRegisters = new ArrayList<>();
         }
         return collectedMaxDemandRegisters;
     }
 
     public List<CollectedRegister> getCollectedCurrentRegisters() {
         if (collectedCurrentRegisters == null) {
-            collectedCurrentRegisters = new ArrayList<CollectedRegister>();
+            collectedCurrentRegisters = new ArrayList<>();
         }
         return collectedCurrentRegisters;
     }
 
     public List<CollectedRegister> getCollectedMBusCurrentRegisters() {
         if (collectedMBusCurrentRegisters == null) {
-            collectedMBusCurrentRegisters = new ArrayList<CollectedRegister>();
+            collectedMBusCurrentRegisters = new ArrayList<>();
         }
         return collectedMBusCurrentRegisters;
     }

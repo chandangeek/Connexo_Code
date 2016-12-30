@@ -15,7 +15,6 @@ import com.energyict.protocol.exceptions.CommunicationException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -94,9 +93,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
             if (collectedLogBook.getCollectedMeterEvents() != null) {
                 logMessage.append("].  Message: '");
-                Iterator<MeterProtocolEvent> iterator = collectedLogBook.getCollectedMeterEvents().iterator();
-                while (iterator.hasNext()) {
-                    MeterProtocolEvent collectedEvent = iterator.next();
+                for (MeterProtocolEvent collectedEvent : collectedLogBook.getCollectedMeterEvents()) {
                     if (collectedEvent != null) {
                         logMessage.append(collectedEvent.getMessage());
                         logMessage.append("', protocol code: '");
@@ -146,7 +143,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     protected EventPushNotificationParser getEventPushNotificationParser() {
         if (parser == null) {
-            parser = new EventPushNotificationParser(comChannel, getContext(), collectedDataFactory);
+            parser = new EventPushNotificationParser(comChannel, getContext());
         }
         return parser;
     }

@@ -14,11 +14,11 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
@@ -245,7 +245,7 @@ public class DataPushNotificationParser {
         securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
 
         DummyComChannel dummyComChannel = new DummyComChannel();    //Dummy channel, no bytes will be read/written
-        TypedProperties comChannelProperties = TypedProperties.empty();
+        TypedProperties comChannelProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         comChannelProperties.setProperty(ComChannelType.TYPE, ComChannelType.SocketComChannel.getType());
         dummyComChannel.addProperties(comChannelProperties);
 

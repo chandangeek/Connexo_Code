@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dialer.core.Link;
 import com.energyict.mdc.protocol.ComChannel;
+
+import com.energyict.dialer.core.Link;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
@@ -492,7 +493,7 @@ public class GprsRequestFactory implements RequestFactory {
         }
 
         List<AbstractCTRObject> objects = queryRegisters(new AttributeType(0x03), objectID);
-        if ((objects != null) && (objects.size() > 0)) {
+        if ((objects != null) && (!objects.isEmpty())) {
             return objects.get(0);
         } else {
             return null;
@@ -518,7 +519,7 @@ public class GprsRequestFactory implements RequestFactory {
         RegisterQueryResponseStructure registerResponse;
         if (response.getData() instanceof RegisterQueryResponseStructure) {
             registerResponse = (RegisterQueryResponseStructure) response.getData();
-            List<AbstractCTRObject> objects = new ArrayList<AbstractCTRObject>();
+            List<AbstractCTRObject> objects = new ArrayList<>();
             objects.addAll(Arrays.asList(registerResponse.getObjects()));
             CTRObjectID[] remainingObjectIDs = validateRegisterResponse(objects, objectId);
             if (!recursive && remainingObjectIDs.length > 0) {
@@ -532,7 +533,7 @@ public class GprsRequestFactory implements RequestFactory {
         } else if (response.getData() instanceof NackStructure) {
             NackStructure nackStructure = (NackStructure) response.getData();
             if (nackStructure.getReason().getReason() == 0x45) {    // Response to the Query (Overflow): More data items have been requested than the permitted number
-                List<AbstractCTRObject> objects = new ArrayList<AbstractCTRObject>();
+                List<AbstractCTRObject> objects = new ArrayList<>();
                 // Split the query in 2 smaller queries and try again.
                 objects.addAll(queryRegisters(attributeType, false, getSubArray(objectId, 0, Math.abs(objectId.length / 2))));
                 objects.addAll(queryRegisters(attributeType, false, getSubArray(objectId, Math.abs(objectId.length / 2), objectId.length)));
@@ -546,7 +547,7 @@ public class GprsRequestFactory implements RequestFactory {
     }
 
     private CTRObjectID[] validateRegisterResponse(List<AbstractCTRObject> objects, CTRObjectID[] objectId) throws CTRException {
-        List<CTRObjectID> remainingObjectIdList = new ArrayList<CTRObjectID>();
+        List<CTRObjectID> remainingObjectIdList = new ArrayList<>();
         for (int i = 0; i < objectId.length; i++) {
             CTRObjectID requestedId = objectId[i];
             if (objects.size() > i) {
@@ -586,11 +587,6 @@ public class GprsRequestFactory implements RequestFactory {
         return subArray;
     }
 
-    /**
-     * @param array
-     * @param index
-     * @return
-     */
     public static boolean isArrayIndexInRange(final CTRObjectID[] array, final int index) {
         return (array != null) && (index >= 0) && (array.length > index);
     }
@@ -650,8 +646,7 @@ public class GprsRequestFactory implements RequestFactory {
      * In FASE 2 [code transfer step] the actual firmware code will be sent.
      */
     private GPRSFrame getInitDownloadParametersRequest(Identify newSoftwareIdentifier, CIA cia, VF vf, Calendar activationDate, int size, boolean useLongFrameFormat) throws CTRException {
-        Identify identify = newSoftwareIdentifier;
-        identify.setIdentify(identify.getIdentify());
+        newSoftwareIdentifier.setIdentify(newSoftwareIdentifier.getIdentify());
         Group group_s, group_c;
         if (isEK155Protocol) {
             group_s = new Group(0);
@@ -682,7 +677,7 @@ public class GprsRequestFactory implements RequestFactory {
         byte[] downloadRequest = ProtocolTools.concatByteArrays(
                 ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD).getBytes(),
                 WriteDataBlock.getRandomWDB().getBytes(),
-                identify.getBytes(),
+                newSoftwareIdentifier.getBytes(),
                 group_s.getBytes(),
                 group_c.getBytes(),
                 segment.getBytes(),
@@ -784,7 +779,7 @@ public class GprsRequestFactory implements RequestFactory {
         //Check the response: should be Ack or Nack
         Data executeResponse;
         if (response.getData() instanceof AckStructure) {
-            executeResponse = (AckStructure) response.getData();
+            executeResponse = response.getData();
         } else if (response.getData() instanceof NackStructure) {
             throw new CTRNackException((NackStructure) response.getData());
         } else {
@@ -806,7 +801,7 @@ public class GprsRequestFactory implements RequestFactory {
         Data writeRegisterResponse;
         response.doParse();
         if (response.getData() instanceof AckStructure) {
-            writeRegisterResponse = (AckStructure) response.getData();
+            writeRegisterResponse = response.getData();
         } else if (response.getData() instanceof NackStructure) {
             throw new CTRNackException((NackStructure) response.getData());
         } else {
@@ -832,7 +827,7 @@ public class GprsRequestFactory implements RequestFactory {
         Data writeRegisterResponse;
         response.doParse();
         if (response.getData() instanceof AckStructure) {
-            writeRegisterResponse = (AckStructure) response.getData();
+            writeRegisterResponse = response.getData();
         } else if (response.getData() instanceof NackStructure) {
             throw new CTRNackException((NackStructure) response.getData());
         } else {
@@ -996,10 +991,6 @@ public class GprsRequestFactory implements RequestFactory {
         return identificationStructure;
     }
 
-    private Link getLink() {
-        return link;
-    }
-
     public String getIPAddress() {
         getLogger().severe("SmsRequestFactory - getIPAddress method is not supported.");
         return "Unknown";
@@ -1070,7 +1061,7 @@ public class GprsRequestFactory implements RequestFactory {
             }
         }
 
-        if (objectIDsToQuery.size() != 0) { // We have to query specific for these registers
+        if (!objectIDsToQuery.isEmpty()) { // We have to query specific for these registers
             try {
                 for (int y = 0; y < objectIDsToQuery.size(); y += 10) {  // Do not request more than 10 objects each time.
                     CTRObjectID[] objectsToQuery = new CTRObjectID[0];
@@ -1158,24 +1149,6 @@ public class GprsRequestFactory implements RequestFactory {
     protected AbstractCTRObject getObjectFromDECTable(CTRObjectID objectId) throws CTRException {
         if (TableDECQueryResponseStructure.containsObjectId(objectId)) {
             for (AbstractCTRObject ctrObject : getTableDEC().getObjects()) {
-                if (ctrObject.getId().toString().equals(objectId.toString())) {
-                    return ctrObject;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Check if the requested object is in the GasQuality object, and read it if it is
-     *
-     * @param objectId: the id of the requested CTR Object
-     * @return the matching CTR Object, if it is in the dec table
-     * @throws CTRException
-     */
-    protected AbstractCTRObject getObjectFromGasQuality(CTRObjectID objectId) throws CTRException {
-        if (GasQuality.containsObjectId(objectId)) {
-            for (AbstractCTRObject ctrObject : getGasQuality().getObjects()) {
                 if (ctrObject.getId().toString().equals(objectId.toString())) {
                     return ctrObject;
                 }

@@ -7,15 +7,14 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -37,6 +36,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,7 +76,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
  * Author: khe
  */
 public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
-
 
     private final AbstractMessageExecutor messageExecutor;
     private final PropertySpecService propertySpecService;
@@ -201,10 +200,11 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case UserFileConfigAttributeName:
-            case firmwareUpdateUserFileAttributeName:
-                return ProtocolTools.getHexStringFromBytes(((UserFile) messageAttribute).loadFileInByteArray(), "");
+            case firmwareUpdateUserFileAttributeName: {
+                return ProtocolTools.getHexStringFromBytes(this.getExtractor().binaryContents((DeviceMessageFile) messageAttribute), "");
+            }
             case activityCalendarCodeTableAttributeName:
-                return convertCodeTableToXML((Code) messageAttribute);
+                return convertCodeTableToXML((TariffCalendar) messageAttribute);
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
             case emergencyProfileGroupIdListAttributeName:
@@ -212,7 +212,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case encryptionLevelAttributeName:
                 return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
             case overThresholdDurationAttributeName:
-                return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+                return String.valueOf(((Duration) messageAttribute).getSeconds());
             case newEncryptionKeyAttributeName:
             case newWrappedEncryptionKeyAttributeName:
             case newPasswordAttributeName:
@@ -223,7 +223,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case specialDaysCodeTableAttributeName:
-                return parseSpecialDays(((Code) messageAttribute));
+                return parseSpecialDays(((TariffCalendar) messageAttribute));
             case loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
             case fromDateAttributeName:

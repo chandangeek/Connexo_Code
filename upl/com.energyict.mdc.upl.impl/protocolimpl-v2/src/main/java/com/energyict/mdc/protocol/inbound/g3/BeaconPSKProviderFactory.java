@@ -21,7 +21,7 @@ public class BeaconPSKProviderFactory {
     /**
      * A list of PSK providers mapped to unique identifier strings.
      */
-    private Map<String, BeaconPSKProvider> providers = new HashMap<>();
+    private Map<DeviceIdentifier, BeaconPSKProvider> providers = new HashMap<>();
 
     private BeaconPSKProviderFactory(boolean provideProtocolJavaClasName) {
         this.provideProtocolJavaClasName = provideProtocolJavaClasName;
@@ -39,9 +39,9 @@ public class BeaconPSKProviderFactory {
      * This is to avoid troubles when 2 threads simultaneously would trigger the creation of a new PSK provider twice.
      */
     public synchronized BeaconPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context) {
-        if (!providers.containsKey(deviceIdentifier.getIdentifier())) {
-            providers.put(deviceIdentifier.getIdentifier(), new BeaconPSKProvider(deviceIdentifier, context, provideProtocolJavaClasName, propertySpecService));
+        if (!providers.containsKey(deviceIdentifier)) {
+            providers.put(deviceIdentifier, new BeaconPSKProvider(deviceIdentifier, context, provideProtocolJavaClasName));
         }
-        return providers.get(deviceIdentifier.getIdentifier());
+        return providers.get(deviceIdentifier);
     }
 }

@@ -40,7 +40,7 @@ public class CTRRegisterMapping {
     }
 
     public CTRRegisterMapping(ObisCode obisCode, CTRObjectID objectId) {
-        this(obisCode, objectId, obisCode.getDescription(), 0);
+        this(obisCode, objectId, obisCode.toString(), 0);
     }
 
     public ObisCode getObisCode() {

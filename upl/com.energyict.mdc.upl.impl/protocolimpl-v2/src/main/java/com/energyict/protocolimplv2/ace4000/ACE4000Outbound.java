@@ -28,20 +28,23 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.properties.Temporals;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.ace4000.messages.ACE4000Messaging;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.ace4000.requests.ReadFirmwareVersion;
@@ -77,8 +80,13 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private ACE4000Messaging messageProtocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public ACE4000Outbound(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public ACE4000Outbound(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService);
+        this.nlsService = nlsService;
+        this.converter = converter;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
     }
@@ -249,9 +257,10 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME));
-        return optionalProperties;
+        return Collections.singletonList(
+                    UPLPropertySpecFactory
+                        .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, this.getPropertySpecService()::stringSpec)
+                        .finish());
     }
 
     @Override
@@ -405,7 +414,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     public ACE4000Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new ACE4000Messaging(this, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter);
+            this.messageProtocol = new ACE4000Messaging(this, collectedDataFactory, issueFactory, this.getPropertySpecService(), this.nlsService, this.converter);
         }
         return messageProtocol;
     }

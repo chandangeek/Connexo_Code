@@ -4,19 +4,18 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.cbo.HexString;
-import com.energyict.cbo.TimePeriod;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -36,6 +35,7 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.google.common.collect.Range;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,6 +65,10 @@ public class G3GatewayPSKProvider {
     public G3GatewayPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context) {
         this.deviceIdentifier = deviceIdentifier;
         this.context = context;
+    }
+
+    public InboundDiscoveryContext getContext() {
+        return context;
     }
 
     protected DeviceIdentifier getDeviceIdentifier() {
@@ -184,20 +188,20 @@ public class G3GatewayPSKProvider {
     protected DeviceProtocol initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
         DeviceProtocol gatewayProtocol = newGatewayProtocol();
         final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-        TypedProperties protocolProperties = deviceProtocolProperties == null ? TypedProperties.empty() : deviceProtocolProperties;
+        TypedProperties protocolProperties = deviceProtocolProperties == null ? com.energyict.protocolimpl.properties.TypedProperties.empty() : deviceProtocolProperties;
         protocolProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
         TypedProperties dialectProperties = context.getInboundDAO().getDeviceDialectProperties(getDeviceIdentifier(), context.getComPort());
         if (dialectProperties == null) {
-            dialectProperties = TypedProperties.empty();
+            dialectProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         }
         addDefaultValuesIfNecessary(gatewayProtocol, dialectProperties);
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         OfflineDevice offlineDevice = context.getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
         createTcpComChannel();
-        context.logOnAllLoggerHandlers("Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
+        context.logOnAllLoggerHandlers("Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().toString() + "', to provide the PSK key(s)", Level.INFO);
         gatewayProtocol.setDeviceCache(dummyCache);
-        gatewayProtocol.addProperties(protocolProperties);
+        gatewayProtocol.setProperties(protocolProperties);
         gatewayProtocol.addDeviceProtocolDialectProperties(dialectProperties);
         gatewayProtocol.setSecurityPropertySet(securityPropertySet);
         gatewayProtocol.init(offlineDevice, tcpComChannel);
@@ -206,7 +210,7 @@ public class G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol() {
-        return new RtuPlusServer(collectedDataFactory, issueFactory);
+        return new RtuPlusServer(this.context.getCollectedDataFactory(), this.context.getIssueFactory());
     }
 
     /**
@@ -231,9 +235,9 @@ public class G3GatewayPSKProvider {
         TypedProperties connectionProperties = context.getInboundDAO().getOutboundConnectionTypeProperties(getDeviceIdentifier());
         if (connectionProperties.getProperty(TLSConnectionType.TLS_VERSION_PROPERTY_NAME) != null) {
             tlsConnection = true;
-            context.logOnAllLoggerHandlers("Setting up a new TLS connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
+            context.logOnAllLoggerHandlers("Setting up a new TLS connection to Beacon device '" + getDeviceIdentifier().toString() + "', to provide the PSK key(s)", Level.INFO);
         }
-        context.logOnAllLoggerHandlers("Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
+        context.logOnAllLoggerHandlers("Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().toString() + "', to provide the PSK key(s)", Level.INFO);
         List<ConnectionTaskProperty> connectionTaskProperties = toPropertySpecs(new Date(), connectionProperties);
 
         try {
@@ -336,7 +340,7 @@ public class G3GatewayPSKProvider {
     private List<ConnectionTaskProperty> toPropertySpecs(Date now, TypedProperties typedProperties) {
         List<ConnectionTaskProperty> properties = new ArrayList<>();
         for (String propertyName : typedProperties.propertyNames()) {
-            properties.add(new ConnectionTaskPropertyPlaceHolder(propertyName, typedProperties.getProperty(propertyName), new TimePeriod(now, null)));
+            properties.add(new ConnectionTaskPropertyPlaceHolder(propertyName, typedProperties.getProperty(propertyName), Range.atLeast(now.toInstant())));
         }
         return properties;
     }
