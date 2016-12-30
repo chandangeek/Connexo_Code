@@ -224,9 +224,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     }
 
     @Override
-    public void createCounterFor(Range<Instant> range) {
-        CommandRuleCounter counter = this.dataModel.getInstance(CommandRuleCounter.class);
-        counter.initialize(range.lowerEndpoint(), range.upperEndpoint(), 1L, this);
+    public void addCounter(CommandRuleCounter counter) {
         counters.add(counter);
         this.save();
         ((CommandRuleServiceImpl) commandRuleService).counterCreated();

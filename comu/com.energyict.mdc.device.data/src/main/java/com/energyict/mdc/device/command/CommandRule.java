@@ -26,5 +26,5 @@ public interface CommandRule extends ServerCommandRule {
 
     void update(String name, long dayLimit, long weekLimit, long monthLimit, List<String> commands);
 
-    void createCounterFor(Range<Instant> range);
+    void addCounter(CommandRuleCounter counter);
 }

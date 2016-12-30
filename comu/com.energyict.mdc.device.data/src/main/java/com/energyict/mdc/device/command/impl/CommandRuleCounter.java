@@ -44,12 +44,16 @@ public class CommandRuleCounter implements ICommandRuleCounter {
         this.dataModel = dataModel;
     }
 
-    public CommandRuleCounter initialize(Instant from, Instant to, Long count, CommandRule commandRule) {
+    public CommandRuleCounter initialize(Instant from, Instant to, Long count) {
         this.from = from;
         this.to = to;
         this.count = count;
-        this.commandRule.set(commandRule);
         return this;
+    }
+
+    public CommandRuleCounter initialize(Instant from, Instant to, Long count, CommandRule commandRule) {
+        this.commandRule.set(commandRule);
+        return initialize(from, to, count);
     }
 
     public void increaseCount() {
@@ -82,7 +86,7 @@ public class CommandRuleCounter implements ICommandRuleCounter {
     }
 
     private void save() {
-        if(this.id > 0) {
+        if (this.id > 0) {
             doUpdate();
         } else {
             doSave();
@@ -108,7 +112,6 @@ public class CommandRuleCounter implements ICommandRuleCounter {
             return CounterType.MONTH;
         }
     }
-
 
 
 }

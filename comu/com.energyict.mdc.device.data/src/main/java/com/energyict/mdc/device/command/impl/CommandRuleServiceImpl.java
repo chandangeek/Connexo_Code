@@ -45,6 +45,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -383,7 +384,7 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
             throw new IllegalArgumentException("Illegal situation: too many counters for given release date");
         } else {
             applicableCounters.forEach(CommandRuleCounter::increaseCount);
-            createNewCounters(commandRule, releaseDate, applicableCounters);
+            createNewCounters(commandRule, releaseDate, applicableCounters, 1L).stream().forEach(commandRule::addCounter);
         }
         long numberOfCountersRemoved = ((CommandRuleImpl) commandRule).cleanUpCounters(getDayFor(Instant.now(clock)).lowerEndpoint());
         if (numberOfCountersRemoved > 0) {
@@ -392,16 +393,19 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
     }
 
     @Override
-    public List<ICommandRuleCounter> getCurrentCounters(List<ICommandRuleCounter> commandRuleCounters) {
+    public List<ICommandRuleCounter> getCurrentCounters(CommandRule commandRule) {
         Instant now = Instant.now(clock);
-        return getApplicableCountersFor(commandRuleCounters, now).stream().map(ICommandRuleCounter.class::cast).collect(Collectors.toList());
+        List<CommandRuleCounter> currentCounters = getApplicableCountersFor(commandRule.getCounters(), now).stream().collect(Collectors.toList());
+        List<ICommandRuleCounter> counters = createNewCounters(commandRule, now, currentCounters, 0).stream().map(ICommandRuleCounter.class::cast).collect(Collectors.toList());
+        counters.addAll(currentCounters);
+        return counters;
     }
 
-    private void createNewCounters(CommandRule commandRule, Instant releaseDate, List<CommandRuleCounter> applicableCounters) {
+    private List<CommandRuleCounter> createNewCounters(CommandRule commandRule, Instant releaseDate, List<CommandRuleCounter> applicableCounters, long count) {
         boolean dayCounterExists = false;
         boolean weekCounterExists = false;
         boolean monthCounterExists = false;
-
+        List<CommandRuleCounter> commandRuleCounters = new ArrayList<>();
         for (CommandRuleCounter counter : applicableCounters) {
             switch (counter.getCounterType()) {
                 case DAY:
@@ -416,14 +420,21 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
             }
         }
         if (!dayCounterExists && commandRule.getDayLimit() > 0) {
-            commandRule.createCounterFor(getDayFor(releaseDate));
+            commandRuleCounters.add(createCounter(getDayFor(releaseDate), commandRule, count));
         }
         if (!weekCounterExists && commandRule.getWeekLimit() > 0) {
-            commandRule.createCounterFor(getWeekFor(releaseDate));
+            commandRuleCounters.add(createCounter(getWeekFor(releaseDate), commandRule, count));
         }
         if (!monthCounterExists && commandRule.getMonthLimit() > 0) {
-            commandRule.createCounterFor(getMonthFor(releaseDate));
+            commandRuleCounters.add(createCounter(getMonthFor(releaseDate), commandRule, count));
         }
+
+        return commandRuleCounters;
+    }
+
+    private CommandRuleCounter createCounter(Range<Instant> range, CommandRule commandRule, long count) {
+        CommandRuleCounter counter = this.dataModel.getInstance(CommandRuleCounter.class);
+        return counter.initialize(range.lowerEndpoint(), range.upperEndpoint(), count, commandRule);
     }
 
     private void decreaseExistingCounters(DeviceMessage deviceMessage, Instant oldReleaseDate) {

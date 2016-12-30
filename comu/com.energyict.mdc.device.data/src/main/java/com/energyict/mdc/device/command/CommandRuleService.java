@@ -48,7 +48,7 @@ public interface CommandRuleService {
 
     void commandDeleted(DeviceMessage deviceMessage);
 
-    List<ICommandRuleCounter> getCurrentCounters(List<ICommandRuleCounter> commandRuleCounter);
+    List<ICommandRuleCounter> getCurrentCounters(CommandRule commandRule);
 
 
     @ProviderType
