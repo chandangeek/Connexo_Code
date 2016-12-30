@@ -210,7 +210,7 @@ public class G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol() {
-        return new RtuPlusServer(this.context.getCollectedDataFactory(), this.context.getIssueFactory());
+        return new RtuPlusServer(this.context.getCollectedDataFactory(), this.context.getIssueFactory(), this.context.getPropertySpecService(), this.context.getNlsService(), this.context.getConverter());
     }
 
     /**

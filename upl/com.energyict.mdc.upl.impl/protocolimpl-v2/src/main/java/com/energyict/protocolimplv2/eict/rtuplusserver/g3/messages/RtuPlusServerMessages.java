@@ -665,7 +665,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             for (BusinessObject businessObject : group.getMembers()) {
                 if (businessObject instanceof Device) {
                     Device device = (Device) businessObject;
-                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+                    String callHomeId = device.getProtocolProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
                     if (!callHomeId.isEmpty()) {
                         if (macAddresses.length() != 0) {
                             macAddresses.append(";");

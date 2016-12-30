@@ -29,9 +29,12 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -100,10 +103,16 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     private Logger logger;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public RtuPlusServer(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public RtuPlusServer(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
@@ -346,7 +355,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DsmrSecuritySupport();
+            dlmsSecuritySupport = new DsmrSecuritySupport(this.propertySpecService);
         }
         return dlmsSecuritySupport;
     }
