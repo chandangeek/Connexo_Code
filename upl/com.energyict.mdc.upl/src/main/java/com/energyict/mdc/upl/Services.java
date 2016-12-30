@@ -2,8 +2,13 @@ package com.energyict.mdc.upl;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -27,7 +32,12 @@ public class Services {
     private static AtomicReference<NlsService> NLS_SERVICE = new AtomicReference<>();
     private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
-    private static AtomicReference<Extractor> EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<DeviceExtractor> DEVICE_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<RegisterExtractor> REGISTER_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<LoadProfileExtractor> LOAD_PROFILE_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<NumberLookupExtractor> NUMBER_LOOKUP_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<DeviceMessageFileExtractor> DEVICE_MESSAGE_FILE_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<TariffCalendarExtractor> TARIFF_CALENDAR_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<TariffCalendarFinder> TARIFF_CALENDAR_FINDER = new AtomicReference<>();
     private static AtomicReference<DeviceMessageFileFinder> DEVICE_MESSAGE_FINDER = new AtomicReference<>();
     private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
@@ -43,8 +53,16 @@ public class Services {
             return securityService();
         } else if (Converter.class.equals(serviceType)) {
             return converter();
-        } else if (Extractor.class.equals(serviceType)) {
-            return extractor();
+        } else if (NumberLookupExtractor.class.equals(serviceType)) {
+            return numberLookupExtractor();
+        } else if (LoadProfileExtractor.class.equals(serviceType)) {
+            return loadProfileExtractor();
+        } else if (DeviceExtractor.class.equals(serviceType)) {
+            return deviceExtractor();
+        } else if (DeviceMessageFileExtractor.class.equals(serviceType)) {
+            return deviceMessageFileExtractor();
+        } else if (TariffCalendarExtractor.class.equals(serviceType)) {
+            return tariffCalendarExtractor();
         } else if (TariffCalendarFinder.class.equals(serviceType)) {
             return tariffCalendarFinder();
         } else if (DeviceMessageFileFinder.class.equals(serviceType)) {
@@ -92,12 +110,52 @@ public class Services {
         CONVERTER.set(converter);
     }
 
-    public static Extractor extractor() {
-        return EXTRACTOR.get();
+    public static RegisterExtractor registerExtractor() {
+        return REGISTER_EXTRACTOR.get();
     }
 
-    public static void extractor(Extractor extractor) {
-        EXTRACTOR.set(extractor);
+    public static void registerExtractor(RegisterExtractor extractor) {
+        REGISTER_EXTRACTOR.set(extractor);
+    }
+
+    public static LoadProfileExtractor loadProfileExtractor() {
+        return LOAD_PROFILE_EXTRACTOR.get();
+    }
+
+    public static void loadProfileExtractor(LoadProfileExtractor extractor) {
+        LOAD_PROFILE_EXTRACTOR.set(extractor);
+    }
+
+    public static NumberLookupExtractor numberLookupExtractor() {
+        return NUMBER_LOOKUP_EXTRACTOR.get();
+    }
+
+    public static void numberLookupExtractor(NumberLookupExtractor extractor) {
+        NUMBER_LOOKUP_EXTRACTOR.set(extractor);
+    }
+
+    public static DeviceExtractor deviceExtractor() {
+        return DEVICE_EXTRACTOR.get();
+    }
+
+    public static void deviceExtractor(DeviceExtractor extractor) {
+        DEVICE_EXTRACTOR.set(extractor);
+    }
+
+    public static DeviceMessageFileExtractor deviceMessageFileExtractor() {
+        return DEVICE_MESSAGE_FILE_EXTRACTOR.get();
+    }
+
+    public static void deviceMessageFileExtractor(DeviceMessageFileExtractor extractor) {
+        DEVICE_MESSAGE_FILE_EXTRACTOR.set(extractor);
+    }
+
+    public static TariffCalendarExtractor tariffCalendarExtractor() {
+        return TARIFF_CALENDAR_EXTRACTOR.get();
+    }
+
+    public static void tariffCalendarExtractor(TariffCalendarExtractor extractor) {
+        TARIFF_CALENDAR_EXTRACTOR.set(extractor);
     }
 
     public static TariffCalendarFinder tariffCalendarFinder() {
