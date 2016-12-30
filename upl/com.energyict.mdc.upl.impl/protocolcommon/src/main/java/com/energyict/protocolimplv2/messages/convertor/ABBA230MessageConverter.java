@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -40,14 +42,14 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
     private static final String UPGRADE_METER_FIRMWARE = "UpgradeMeterFirmware";
     private static final String UPGRADE_METER_SCHEME = "UpgradeMeterScheme";
 
-    public ABBA230MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+    public ABBA230MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
+            return this.getDeviceMessageFileExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
         } else {
             return messageAttribute.toString();
         }

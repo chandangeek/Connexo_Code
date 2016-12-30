@@ -19,7 +19,7 @@ public class WebRTUKPMain extends AbstractSmartDebuggingMain<WebRTUKP> {
 
     public WebRTUKP getMeterProtocol() {
         if (webRtuKP == null) {
-            webRtuKP = new WebRTUKP(new NoTariffCalendars(), new DummyExtractor());
+            webRtuKP = new WebRTUKP(new NoTariffCalendars(), new DummyNumberLookupExtractor());
             log("Created new instance of " + webRtuKP.getClass().getCanonicalName() + " [" + webRtuKP.getVersion() + "]");
         }
         return webRtuKP;

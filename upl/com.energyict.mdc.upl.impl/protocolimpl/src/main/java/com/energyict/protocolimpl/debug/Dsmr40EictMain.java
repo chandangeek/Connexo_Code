@@ -30,7 +30,7 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
 
     public Dsmr40Protocol getMeterProtocol() {
         if (dsmr40Eict == null) {
-            dsmr40Eict = new Dsmr40Protocol(new NoTariffCalendars(), new NoDeviceMessageFiles(), new DummyExtractor());
+            dsmr40Eict = new Dsmr40Protocol(new NoTariffCalendars(), new NoDeviceMessageFiles(), new DummyNumberLookupExtractor());
             log("Created new instance of " + dsmr40Eict.getClass().getCanonicalName() + " [" + dsmr40Eict.getVersion() + "]");
         }
         return dsmr40Eict;

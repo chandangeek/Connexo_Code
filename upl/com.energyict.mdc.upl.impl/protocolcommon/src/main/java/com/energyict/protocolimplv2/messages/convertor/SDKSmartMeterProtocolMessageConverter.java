@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -104,8 +107,17 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConverter {
 
-    public SDKSmartMeterProtocolMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final TariffCalendarExtractor tariffCalendarExtractor;
+    private final NumberLookupExtractor numberLookupExtractor;
+    private final LoadProfileExtractor loadProfileExtractor;
+
+    protected SDKSmartMeterProtocolMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.tariffCalendarExtractor = tariffCalendarExtractor;
+        this.numberLookupExtractor = numberLookupExtractor;
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     @Override
@@ -127,9 +139,9 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.getExtractor().id((DeviceMessageFile) messageAttribute);
+            return this.deviceMessageFileExtractor.id((DeviceMessageFile) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return this.getExtractor().id((TariffCalendar) messageAttribute);
+            return this.tariffCalendarExtractor.id((TariffCalendar) messageAttribute);
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
@@ -140,12 +152,12 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
                 propertySpec.getName().equals(passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
-            return this.getExtractor().id((NumberLookup) messageAttribute);
+            return this.numberLookupExtractor.id((NumberLookup) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
             return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
+            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);

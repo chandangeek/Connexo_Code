@@ -26,7 +26,7 @@ public class ABBA1700MessageConverter extends AbstractMessageConverter {
     private static final String DEMAND_RESET = "DemandReset";
 
     public ABBA1700MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
     }
 
     @Override

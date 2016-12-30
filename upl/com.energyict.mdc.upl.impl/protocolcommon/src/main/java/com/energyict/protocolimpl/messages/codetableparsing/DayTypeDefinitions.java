@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 /**
  * Describes 1 CalendarDayType definition.
@@ -13,7 +13,7 @@ class DayTypeDefinitions {
     final int minute;
     final int seconds;
 
-    DayTypeDefinitions(Extractor.CalendarDayTypeSlice slice) {
+    DayTypeDefinitions(TariffCalendarExtractor.CalendarDayTypeSlice slice) {
         this.tariffcode = Integer.parseInt(slice.tariffCode());
         this.hour = slice.start().getHour();
         this.minute = slice.start().getMinute();

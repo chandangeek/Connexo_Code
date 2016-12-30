@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 /**
  * Describes 1 SpecialDay.
@@ -13,7 +13,7 @@ class SpecialDayDefinition {
     private final int day;
     private final int dayTypeId;
 
-    SpecialDayDefinition(CodeTableParser codeTableParser, Extractor.CalendarRule rule) {
+    SpecialDayDefinition(CodeTableParser codeTableParser, TariffCalendarExtractor.CalendarRule rule) {
         this.dayTypeId = codeTableParser.getDayIDValue(rule.dayTypeId());
         this.year = rule.year();
         this.month = rule.month();

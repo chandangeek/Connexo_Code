@@ -31,7 +31,7 @@ public class DLMSZMDMain {
 
     public static DLMSZMD getZmd() {
 		if (dlmsZmd == null) {
-			dlmsZmd = new DLMSZMD(Services.propertySpecService(), new NoTariffCalendars(), new NoDeviceMessageFiles(), new DefaultDateFormatter(), new DummyExtractor());
+			dlmsZmd = new DLMSZMD(Services.propertySpecService(), new NoTariffCalendars(), new NoDeviceMessageFiles(), new DefaultDateFormatter(), new DummyNumberLookupExtractor());
 			log("Created new instance of " + dlmsZmd.getClass().getCanonicalName() + " [" + dlmsZmd.getProtocolVersion() + "]");
 		}
 		return dlmsZmd;

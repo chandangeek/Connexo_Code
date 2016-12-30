@@ -1,9 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -27,8 +33,8 @@ import java.util.Map;
  */
 public class IHDMessageConverter extends AbstractMessageConverter {
 
-    public IHDMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+    protected IHDMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor, DeviceExtractor deviceExtractor, RegisterExtractor registerExtractor, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
     }
 
     @Override
@@ -37,7 +43,7 @@ public class IHDMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                return this.getExtractor().id((DeviceMessageFile) messageAttribute);
+                return this.getDeviceMessageFileExtractor().id((DeviceMessageFile) messageAttribute);
             default:
                 return messageAttribute.toString();
         }

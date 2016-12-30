@@ -40,7 +40,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Displ
 public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
 
     public AS220IEC1107MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
     }
 
     @Override

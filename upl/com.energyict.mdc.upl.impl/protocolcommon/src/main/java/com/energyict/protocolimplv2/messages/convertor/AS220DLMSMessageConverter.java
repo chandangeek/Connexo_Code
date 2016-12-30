@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -84,6 +85,9 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overT
  */
 public class AS220DLMSMessageConverter extends AbstractMessageConverter {
 
+    private final TariffCalendarExtractor tariffCalendarExtractor;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+
     private static String[] getChannelFrequencyTags() {
         return new String[]{
                 "CHANNEL1_FS",
@@ -128,17 +132,18 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
                 "CHANNEL6_CREDITWEIGHT"};
     }
 
-    public AS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+    public AS220DLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.tariffCalendarExtractor = tariffCalendarExtractor;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateTimeFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((TariffCalendar) messageAttribute);
+            return convertCodeTableToXML((TariffCalendar) messageAttribute, this.tariffCalendarExtractor);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
             return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(normalThresholdAttributeName)
@@ -183,7 +188,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(RawDataAttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.getExtractor().contents((DeviceMessageFile) messageAttribute);
+            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute);
         }
         return EMPTY_FORMAT;
     }

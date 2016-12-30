@@ -37,7 +37,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readF
 public class DLMSZ3MessagingMessageConverter extends AbstractMessageConverter {
 
     public DLMSZ3MessagingMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
     }
 
     @Override

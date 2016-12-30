@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.UserFile;
@@ -15,6 +16,7 @@ import java.nio.charset.Charset;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
@@ -30,6 +32,11 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ABBA1350MessageConverterTest extends AbstractMessageConverterTest {
+
+    @Mock
+    private Messaging deviceMessageFileExtractor;
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Test
     public void testMessageConversion() {
@@ -47,12 +54,12 @@ public class ABBA1350MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ABBA1350();
+        return new ABBA1350(propertySpecService);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new ABBA1350MessageConverter();
+        return new ABBA1350MessageConverter(null, propertySpecService, deviceMessageFileExtractor);
     }
 
     @Override

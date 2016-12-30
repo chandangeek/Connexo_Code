@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 
 import org.w3c.dom.Document;
@@ -123,7 +123,7 @@ public class LoadProfileMessageUtils {
      * @param loadProfile the LoadProfile to format
      * @return the formatted loadProfile
      */
-    public static String formatLoadProfile(final LoadProfile loadProfile, final Extractor extractor) {
+    public static String formatLoadProfile(final LoadProfile loadProfile, final LoadProfileExtractor extractor) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
@@ -148,9 +148,9 @@ public class LoadProfileMessageUtils {
         }
     }
 
-    private static Node convertToRegisterElements(List<Extractor.Register> allRegisters, Document document) {
+    private static Node convertToRegisterElements(List<LoadProfileExtractor.Register> allRegisters, Document document) {
         Element registers = document.createElement(RtuRegistersTag);
-        for (Extractor.Register register : allRegisters) {
+        for (LoadProfileExtractor.Register register : allRegisters) {
             Element registerElement = document.createElement(RegisterTag);
             registerElement.setAttribute(RegisterObiscodeTag, register.obisCode().toString());
             registerElement.setAttribute(RtuRegisterSerialNumber, register.deviceSerialNumber());
@@ -159,10 +159,10 @@ public class LoadProfileMessageUtils {
         return registers;
     }
 
-    private static Node convertToChannelsElement(List<Extractor.Channel> allChannels, Document document) {
+    private static Node convertToChannelsElement(List<LoadProfileExtractor.Channel> allChannels, Document document) {
         Element channels = document.createElement(ChannelInfosTag);
         int counter = 0;
-        for (Extractor.Channel channel : allChannels) {
+        for (LoadProfileExtractor.Channel channel : allChannels) {
             Element channelElement = document.createElement(ChannelTag);
             channelElement.setAttribute(ChannelIdTag, String.valueOf(counter++));
             channelElement.setAttribute(ChannelNametag, channel.obisCode());

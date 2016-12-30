@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -74,6 +75,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.under
 public class IDISMessageConverter extends AbstractMessageConverter {
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd/mm/yyyy hh:mm");
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final TariffCalendarExtractor calendarExtractor;
 
     private static String[] getLimiterAttributes() {
         String[] result = new String[10];
@@ -90,8 +93,10 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         return result;
     }
 
-    public IDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+    protected IDISMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor calendarExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.calendarExtractor = calendarExtractor;
     }
 
     @Override
@@ -113,14 +118,14 @@ public class IDISMessageConverter extends AbstractMessageConverter {
             SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getDefault());  //Use system timezone
             return SIMPLE_DATE_FORMAT.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((TariffCalendar) messageAttribute);
+            return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((TariffCalendar) messageAttribute);
+            return convertSpecialDaysCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(configUserFileAttributeName)
                 || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.getExtractor().contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
+            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute);  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(monitoredValueAttributeName)) {
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {

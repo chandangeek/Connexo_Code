@@ -2,11 +2,11 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -39,18 +39,12 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
-    private final Extractor extractor;
 
-    protected AbstractMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
+    protected AbstractMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.messagingProtocol = messagingProtocol;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
-    }
-
-    protected Extractor getExtractor() {
-        return extractor;
     }
 
     /**
@@ -86,17 +80,17 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      * It is up to the message entry creator to replace them with the values of the attributes
      */
-    protected String convertCodeTableToXML(TariffCalendar messageAttribute) {
+    protected String convertCodeTableToXML(TariffCalendar messageAttribute, TariffCalendarExtractor extractor) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, extractor, 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }
     }
 
-    protected String convertSpecialDaysCodeTableToXML(TariffCalendar messageAttribute) {
+    protected String convertSpecialDaysCodeTableToXML(TariffCalendar messageAttribute, TariffCalendarExtractor extractor) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 1, "");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, extractor, 1, "");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

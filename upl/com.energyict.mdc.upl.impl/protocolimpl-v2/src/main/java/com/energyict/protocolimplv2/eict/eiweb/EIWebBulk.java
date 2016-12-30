@@ -82,7 +82,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
         this.response.setContentType("text/html");
         try {
             this.responseWriter = new ResponseWriter(this.response);
-            this.protocolHandler = new ProtocolHandler(this.responseWriter, this.context);
+            this.protocolHandler = new ProtocolHandler(this.responseWriter, this.context, deviceMessageFileExtractor, tariffCalendarExtractor);
             try {
                 this.protocolHandler.handle(this.request, this.context.getLogger());
             } catch (RuntimeException e) {

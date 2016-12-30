@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -30,15 +30,17 @@ public class ABBA1350MessageConverter extends AbstractMessageConverter {
 
     private static final String UploadSwitchPointClock = "SPC_DATA";
     private static final String UploadSwitchPointClockUpdate = "SPCU_DATA";
+    private final DeviceMessageFileExtractor extractor;
 
-    public ABBA1350MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+    public ABBA1350MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.extractor = deviceMessageFileExtractor;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.SwitchPointClockSettings) || propertySpec.getName().equals(DeviceMessageConstants.SwitchPointClockUpdateSettings)) {
-            return this.getExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
+            return this.extractor.contents((DeviceMessageFile) messageAttribute, Charset.forName(CHARSET));
         } else {
             return messageAttribute.toString();
         }

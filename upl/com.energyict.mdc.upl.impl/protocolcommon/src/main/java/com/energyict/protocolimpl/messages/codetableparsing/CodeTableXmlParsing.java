@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
@@ -93,14 +93,14 @@ public class CodeTableXmlParsing {
 
     protected static final Log logger = LogFactory.getLog(CodeTableXmlParsing.class);
     private final TariffCalendarFinder finder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor extractor;
 
-    public CodeTableXmlParsing(TariffCalendarFinder finder, Extractor extractor) {
+    public CodeTableXmlParsing(TariffCalendarFinder finder, TariffCalendarExtractor extractor) {
         this.finder = finder;
         this.extractor = extractor;
     }
 
-    protected Extractor getExtractor() {
+    protected TariffCalendarExtractor getExtractor() {
         return extractor;
     }
 
@@ -125,7 +125,7 @@ public class CodeTableXmlParsing {
                     activationTime, name);
     }
 
-    public static String parseActivityCalendarAndSpecialDayTable(TariffCalendar calender, Extractor extractor, long activationTime, String name) throws ParserConfigurationException {
+    public static String parseActivityCalendarAndSpecialDayTable(TariffCalendar calender, TariffCalendarExtractor extractor, long activationTime, String name) throws ParserConfigurationException {
         CodeTableParser ctp = new CodeTableParser(calender, extractor);
         try {
 
@@ -184,7 +184,7 @@ public class CodeTableXmlParsing {
      * @return the complete xml for the RTUMessage
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
-    public static String parseActivityCalendarAndSpecialDayTable(TariffCalendar calender, Extractor extractor) throws ParserConfigurationException {
+    public static String parseActivityCalendarAndSpecialDayTable(TariffCalendar calender, TariffCalendarExtractor extractor) throws ParserConfigurationException {
         CodeTableParser ctp = new CodeTableParser(calender, extractor);
         try {
 

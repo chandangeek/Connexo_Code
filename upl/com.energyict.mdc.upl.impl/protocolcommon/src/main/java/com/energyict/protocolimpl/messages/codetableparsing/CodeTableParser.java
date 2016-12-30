@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class CodeTableParser {
      * The used CodeTable for this parser
      */
     private final TariffCalendar calender;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor extractor;
 
     /**
      * Defines a relation between the CalendarDayType Database ID and the ID that will be used in the xml file
@@ -47,7 +47,7 @@ public class CodeTableParser {
      */
     private List<SpecialDayDefinition> specialDays = new ArrayList<>();
 
-    public CodeTableParser(TariffCalendar calender, Extractor extractor) {
+    public CodeTableParser(TariffCalendar calender, TariffCalendarExtractor extractor) {
         this.calender = calender;
         this.extractor = extractor;
     }
@@ -79,7 +79,7 @@ public class CodeTableParser {
      */
     private void createTempDayIDMap() {
         int counter = 0;
-        for (Extractor.CalendarDayType dayType : this.extractor.dayTypes(this.calender)) {
+        for (TariffCalendarExtractor.CalendarDayType dayType : this.extractor.dayTypes(this.calender)) {
             tempDayIDMap.put(dayType.id(), counter++);
         }
     }
@@ -124,7 +124,7 @@ public class CodeTableParser {
      * @param dayType the CodeDayType to get the startDates from
      * @return the created list
      */
-    private List<DayTypeDefinitions> getDayTypeStartsFromCodeDayType(Extractor.CalendarDayType dayType) {
+    private List<DayTypeDefinitions> getDayTypeStartsFromCodeDayType(TariffCalendarExtractor.CalendarDayType dayType) {
         return dayType.slices().stream().map(DayTypeDefinitions::new).collect(Collectors.toList());
     }
 

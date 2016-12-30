@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -72,9 +73,9 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         try {
             for (Object member : group.members()) {
                 Device device = (Device) member;
-                Optional<Register> register = this.getExtractor().register(device, PUBLIC_KEYS_OBISCODE);
+                Optional<Register> register = this.getDeviceExtractor().register(device, PUBLIC_KEYS_OBISCODE);
                 if (register.isPresent()) {
-                    Optional<Extractor.RegisterReading> lastReading = this.getExtractor().lastReading(register.get());
+                    Optional<RegisterExtractor.RegisterReading> lastReading = this.getRegisterExtractor().lastReading(register.get());
                     if (lastReading.isPresent()) {
                         String keyPair = lastReading.get().text();
                         builder.append("<" + KEY).append(String.valueOf(index)).append(">");
@@ -82,11 +83,11 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
                         builder.append("</" + KEY).append(String.valueOf(index)).append(">");
                         index++;
                     } else {
-                        String serialNumber = this.getExtractor().serialNumber(device);
+                        String serialNumber = this.getDeviceExtractor().serialNumber(device);
                         throw DataParseException.generalParseException(new IllegalArgumentException("Device with serial number " + serialNumber + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!"));
                     }
                 } else {
-                    String serialNumber = this.getExtractor().serialNumber(device);
+                    String serialNumber = this.getDeviceExtractor().serialNumber(device);
                     throw DataParseException.generalParseException(new IllegalArgumentException("Rtu with serial number " + serialNumber + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!"));
                 }
             }

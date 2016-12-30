@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 /**
  * Describes 1 WeekDayDefinition
@@ -11,7 +11,7 @@ class WeekDayDefinitions {
     private final int dayOfWeek;
     private final int dayTypeId;
 
-    WeekDayDefinitions(CodeTableParser parser, Extractor.CalendarRule rule) {
+    WeekDayDefinitions(CodeTableParser parser, TariffCalendarExtractor.CalendarRule rule) {
         this.dayOfWeek = rule.dayOfWeek();
         this.dayTypeId = parser.getDayIDValue(rule.dayTypeId());
     }

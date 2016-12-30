@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -76,8 +77,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
 
-    public WebRTUZ3MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final TariffCalendarExtractor tariffCalendarExtractor;
+
+    protected WebRTUZ3MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 
     @Override
@@ -93,9 +99,9 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.getExtractor().id((DeviceMessageFile) messageAttribute);
+            return this.deviceMessageFileExtractor.id((DeviceMessageFile) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return this.getExtractor().id((TariffCalendar) messageAttribute);
+            return this.tariffCalendarExtractor.id((TariffCalendar) messageAttribute);
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {

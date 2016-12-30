@@ -32,7 +32,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trans
 public class GasDeviceDLMSMessageConverter extends AbstractMessageConverter {
 
     public GasDeviceDLMSMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
     }
 
     @Override
