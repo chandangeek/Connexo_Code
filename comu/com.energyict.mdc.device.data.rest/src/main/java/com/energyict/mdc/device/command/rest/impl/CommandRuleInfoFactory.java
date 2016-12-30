@@ -71,7 +71,7 @@ public class CommandRuleInfoFactory {
 
     private void addCurrentCounts(CommandRule commandRule, CommandRuleInfo commandRuleInfo) {
         commandRuleInfo.currentCounts = new ArrayList<>();
-        commandRuleService.getCurrentCounters(commandRule.getCounters())
+        commandRuleService.getCurrentCounters(commandRule)
                 .stream()
                 .forEach(counter -> {
                     CurrentCountInfo info = new CurrentCountInfo();
