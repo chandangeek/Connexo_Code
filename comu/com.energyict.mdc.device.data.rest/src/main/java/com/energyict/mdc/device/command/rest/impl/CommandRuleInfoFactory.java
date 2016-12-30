@@ -79,6 +79,7 @@ public class CommandRuleInfoFactory {
                     info.from = counter.getFrom();
                     info.to = counter.getTo();
                     info.type = counter.getCounterType().name();
+                    commandRuleInfo.currentCounts.add(info);
                 });
     }
 
