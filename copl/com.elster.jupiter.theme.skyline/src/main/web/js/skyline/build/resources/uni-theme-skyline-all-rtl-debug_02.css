@@ -1,3 +1,8 @@
+/* line 390, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-rtl.x-panel-header-light-framed-collapsed-right-tl, .x-rtl.x-panel-header-light-framed-collapsed-right-ml, .x-rtl.x-panel-header-light-framed-collapsed-right-bl, .x-rtl.x-panel-header-light-framed-collapsed-right-tr, .x-rtl.x-panel-header-light-framed-collapsed-right-mr, .x-rtl.x-panel-header-light-framed-collapsed-right-br {
+  background-image: url(images/panel-header/panel-header-light-framed-collapsed-right-corners-rtl.gif);
+}
+
 /* line 418, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-light-framed-collapsed-right-ml,
 .x-panel-header-light-framed-collapsed-right-mr {

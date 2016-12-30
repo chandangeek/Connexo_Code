@@ -1,3 +1,18 @@
+/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-bl {
+  background-position: 0 -40px;
+}
+
+/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-br {
+  background-position: right -50px;
+}
+
+/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-ml {
+  background-position: 0 right;
+}
+
 /* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-form-error-framed-collapsed-right-mr {
   background-position: right right;

@@ -1,3 +1,18 @@
+/* line 662, ../../sass/src/fonts/Icomoon.scss */
+.icon-folder-upload:before {
+  content: "\e9d3";
+}
+
+/* line 665, ../../sass/src/fonts/Icomoon.scss */
+.icon-folder-plus:before {
+  content: "\e9d4";
+}
+
+/* line 668, ../../sass/src/fonts/Icomoon.scss */
+.icon-folder-plus2:before {
+  content: "\e9d5";
+}
+
 /* line 671, ../../sass/src/fonts/Icomoon.scss */
 .icon-folder-minus:before {
   content: "\e9d6";
@@ -16842,13 +16857,4 @@ a:hover, a.x-btn:hover {
 .x-btn-action-toolbar-large-icon-text-left .x-btn-inner {
   line-height: 32px;
   padding-left: 37px;
-}
-/* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el {
-  width: 32px;
-  right: auto;
-}
-/* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-ie6 .x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el {
-  height: 32px;
 }
