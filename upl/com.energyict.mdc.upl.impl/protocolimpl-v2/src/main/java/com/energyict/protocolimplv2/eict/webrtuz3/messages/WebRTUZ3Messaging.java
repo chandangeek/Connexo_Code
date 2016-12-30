@@ -144,7 +144,7 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return ProtocolTools.getHexStringFromBytes(((UserFile) messageAttribute).loadFileInByteArray(), "");
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            ActivityCalendarMessage parser = new ActivityCalendarMessage((Code) messageAttribute, null);
+            ActivityCalendarMessage parser = new ActivityCalendarMessage((Code) messageAttribute, extractor, null);
             return convertCodeTableToAXDR(parser);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return parseSpecialDays((Code) messageAttribute);

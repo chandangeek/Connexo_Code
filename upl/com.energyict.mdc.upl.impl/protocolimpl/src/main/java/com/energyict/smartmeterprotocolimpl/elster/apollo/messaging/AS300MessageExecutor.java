@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
@@ -93,13 +95,17 @@ public class AS300MessageExecutor extends MessageParser {
     protected final AbstractSmartDlmsProtocol protocol;
     private final TariffCalendarFinder calendarFinder;
     private final Extractor extractor;
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DateFormatter dateFormatter;
 
     protected boolean success;
 
-    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
+        this.messageFileFinder = messageFileFinder;
+        this.dateFormatter = dateFormatter;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -616,26 +622,26 @@ public class AS300MessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, extractor);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.messageFileFinder, this.dateFormatter, extractor);
         ActivityCalendarController activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
         try {
             builder.initFromXml(content);
 
-            if (!builder.getCodeId().isEmpty()) { // codeTable implementation
+            if (!builder.getCalendarId().isEmpty()) { // codeTable implementation
                 log(Level.FINEST, "Parsing the content of the CodeTable.");
                 activityCalendarController.parseContent(content);
                 log(Level.FINEST, "Setting the new Passive Calendar Name.");
                 activityCalendarController.writeCalendarName("");
                 log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                 activityCalendarController.writeCalendar();
-            } else if (builder.getUserFile() != null) { // userFile implementation
+            } else if (builder.getDeviceMessageFile() != null) { // userFile implementation
                 log(Level.FINEST, "Getting UserFile from message");
-                final byte[] userFileData = builder.getUserFile().loadFileInByteArray();
-                if (userFileData.length > 0) {
+                String userFileData = this.extractor.contents(builder.getDeviceMessageFile(), "US-ASCII");
+                if (!userFileData.isEmpty()) {
                     log(Level.FINEST, "Sending out the new Passive Calendar objects.");
-                    handleXmlToDlms(new String(userFileData, "US-ASCII"));
+                    handleXmlToDlms(userFileData);
                 } else {
-                    log(Level.WARNING, "Length of the ActivityCalendar UserFile is not valid [" + userFileData.length + " bytes], failing message.");
+                    log(Level.WARNING, "Length of the ActivityCalendar UserFile is not valid [" + userFileData.length() + " bytes], failing message.");
                     success = false;
                 }
             }

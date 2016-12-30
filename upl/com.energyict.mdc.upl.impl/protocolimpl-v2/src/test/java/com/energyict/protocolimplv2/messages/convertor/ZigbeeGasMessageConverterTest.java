@@ -1,13 +1,20 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -25,6 +32,7 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
@@ -48,6 +56,23 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
     private String ExpectedActivityCalendarMessageContent;
     private Date activityCalendarActivationDate;
 
+    @Mock
+    private TariffCalendarFinder tariffCalendarFinder;
+    @Mock
+    private Extractor extractor;
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Converter converter;
+    @Mock
+    private TariffCalendarFinder calendarFinder;
+    @Mock
+    private DeviceMessageFileFinder messageFileFinder;
+
+    private DateFormatter dateFormatter = new DefaultDateFormatter();
+
     @Test
     public void testMessageConversion() {
 
@@ -60,77 +85,77 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeOfSupplier);
+        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeOfSupplier.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Change_Of_Supplier Change_Of_Supplier_Name=\"Name\" Change_Of_Supplier_ID=\"1\" Change_Of_Supplier_ActivationDate=\"28/10/2013 10:00:00\"> </Change_Of_Supplier>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeOfTenancy);
+        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeOfTenancy.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Change_Of_Tenant Change_Of_Tenant_ActivationDate=\"28/10/2013 10:00:00\"> </Change_Of_Tenant>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN);
+        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<RemoteConnect> </RemoteConnect>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE);
+        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<RemoteDisconnect> </RemoteDisconnect>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetCalorificValueAndActivationDate);
+        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetCalorificValueAndActivationDate.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetCalorificValueAndActivationDate Calorific value=\"1\" Activation date (dd/mm/yyyy hh:mm:ss) (optional)=\"28/10/2013 10:00:00\"> </SetCalorificValueAndActivationDate>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetConversionFactorAndActivationDate);
+        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetConversionFactorAndActivationDate.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetConversionFactorAndActivationDate Conversion factor=\"1\" Activation date (dd/mm/yyyy hh:mm:ss) (optional)=\"28/10/2013 10:00:00\"> </SetConversionFactorAndActivationDate>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(DisplayDeviceMessage.SET_DISPLAY_MESSAGE_WITH_OPTIONS);
+        offlineDeviceMessage = createMessage(DisplayDeviceMessage.SET_DISPLAY_MESSAGE_WITH_OPTIONS.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<TextToDisplay Message=\"Message\" Duration of message=\"1\" Activation date (dd/mm/yyyy hh:mm:ss) (optional)=\"28/10/2013 10:00:00\"> </TextToDisplay>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
+        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpgrade UserFileID=\"1\"> </FirmwareUpgrade>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE);
+        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<FirmwareUpgrade UserFileID=\"1\" Activation_date=\"28/10/2013 10:00:00\"> </FirmwareUpgrade>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PricingInformationMessage.ReadPricingInformation);
+        offlineDeviceMessage = createMessage(PricingInformationMessage.ReadPricingInformation.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ReadPricePerUnit> </ReadPricePerUnit>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PricingInformationMessage.SetPricingInformation);
+        offlineDeviceMessage = createMessage(PricingInformationMessage.SetPricingInformation.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetPricePerUnit><IncludedFile>Content</IncludedFile><ActivationDate>28/10/2013 10:00:00</ActivationDate></SetPricePerUnit>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PricingInformationMessage.SetStandingChargeAndActivationDate);
+        offlineDeviceMessage = createMessage(PricingInformationMessage.SetStandingChargeAndActivationDate.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetStandingChargeAndActivationDate Standing charge=\"1\" Activation date (dd/mm/yyyy hh:mm:ss) (optional)=\"28/10/2013 10:00:00\"> </SetStandingChargeAndActivationDate>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(PricingInformationMessage.UpdatePricingInformation);
+        offlineDeviceMessage = createMessage(PricingInformationMessage.UpdatePricingInformation.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Update_Pricing_Information><IncludedFile>Content</IncludedFile></Update_Pricing_Information>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(AdvancedTestMessage.USERFILE_CONFIG);
+        offlineDeviceMessage = createMessage(AdvancedTestMessage.USERFILE_CONFIG.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Test_Message Test_File=\"10\"> </Test_Message>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         Assert.assertEquals(ExpectedActivityCalendarMessageContent, messageEntry.getContent());
     }
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ZigbeeGas(calendarFinder, extractor);
+        return new ZigbeeGas(this.calendarFinder, this.messageFileFinder, this.extractor, this.dateFormatter);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        ZigbeeGasMessageConverter messageConverter = spy(new ZigbeeGasMessageConverter());
+        ZigbeeGasMessageConverter messageConverter = spy(new ZigbeeGasMessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
-        doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(Code.class));
+        doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;
     }
 
@@ -149,16 +174,16 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
                 case DeviceMessageConstants.DisplayMessageTimeDurationAttributeName:
                     return "1";
                 case DeviceMessageConstants.PricingInformationUserFileAttributeName:
-                    UserFile mockedUserFile = mock(UserFile.class);
-                    when(mockedUserFile.loadFileInByteArray()).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
+                    DeviceMessageFile mockedUserFile = mock(DeviceMessageFile.class);
+                    when(this.extractor.binaryContents(mockedUserFile)).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
                     return mockedUserFile;
                 case DeviceMessageConstants.UserFileConfigAttributeName:
-                    mockedUserFile = mock(UserFile.class);
-                    when(mockedUserFile.getId()).thenReturn(10);
+                    mockedUserFile = mock(DeviceMessageFile.class);
+                    when(this.extractor.id(mockedUserFile)).thenReturn("10");
                     return mockedUserFile;
                 case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                    mockedUserFile = mock(UserFile.class);
-                    when(mockedUserFile.getId()).thenReturn(1);
+                    mockedUserFile = mock(DeviceMessageFile.class);
+                    when(this.extractor.id(mockedUserFile)).thenReturn("1");
                     return mockedUserFile;
                 case DeviceMessageConstants.DisplayMessageActivationDate:
                 case DeviceMessageConstants.ConfigurationChangeActivationDate:
@@ -168,8 +193,8 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
                 case DeviceMessageConstants.activityCalendarNameAttributeName:
                     return "MyActivityCal";
                 case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
-                    Code code = mock(Code.class);
-                    when(code.getId()).thenReturn(8);
+                    TariffCalendar code = mock(TariffCalendar.class);
+                    when(this.extractor.id(code)).thenReturn("8");
                     return code;
                 case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                     return activityCalendarActivationDate;
@@ -180,4 +205,12 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
             return "";
         }
     }
+
+    private static class DefaultDateFormatter implements DateFormatter {
+        @Override
+        public String format(Date date) {
+            return date.toString();
+        }
+    }
+
 }

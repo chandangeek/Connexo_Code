@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
@@ -25,13 +27,18 @@ import java.util.List;
  */
 public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
-    public WebRTUKP() {
+    private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
+
+    public WebRTUKP(TariffCalendarFinder calendarFinder, Extractor extractor) {
+        this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
         setLoadProfileBuilder(new WebRTUKPLoadProfileBuilder(this));
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, calendarFinder, extractor));
     }
 
     /**

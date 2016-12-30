@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -28,11 +30,15 @@ public class ZmdMessages extends ProtocolMessages {
     private final DLMSZMD protocol;
     private final TariffCalendarFinder calendarFinder;
     private final Extractor extractor;
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DateFormatter dateFormatter;
 
-    public ZmdMessages(final DLMSZMD protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public ZmdMessages(final DLMSZMD protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
+        this.messageFileFinder = messageFileFinder;
+        this.dateFormatter = dateFormatter;
     }
 
     /**
@@ -84,10 +90,10 @@ public class ZmdMessages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder, this.extractor);
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder, this.messageFileFinder, this.dateFormatter, this.extractor);
         ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
-        if (!builder.getCodeId().isEmpty()) { // codeTable implementation
+        if (!builder.getCalendarId().isEmpty()) { // codeTable implementation
             infoLog("Parsing the content of the CodeTable.");
             activityCalendarController.parseContent(messageEntry.getContent());
             infoLog("Setting the new Passive Calendar Name.");

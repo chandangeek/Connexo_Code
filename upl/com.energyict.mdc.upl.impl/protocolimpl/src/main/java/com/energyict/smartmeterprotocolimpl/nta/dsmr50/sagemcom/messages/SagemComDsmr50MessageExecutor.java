@@ -1,11 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
-import com.energyict.mdw.core.Code;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor;
@@ -25,21 +29,20 @@ import java.util.List;
  */
 public class SagemComDsmr50MessageExecutor extends Dsmr50MessageExecutor {
 
-    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+        super(protocol, calendarFinder, messageFileFinder, extractor);
     }
 
     @Override
-    protected ActivityCalendarMessage getActivityCalendarParser(Code ct) {
-        return new SagemComDsmr50ActivityCalendarParser(ct, getMeterConfig());
+    protected ActivityCalendarMessage getActivityCalendarParser(TariffCalendar calendar) {
+        return new SagemComDsmr50ActivityCalendarParser(calendar, this.getExtractor(), getMeterConfig());
     }
 
     /**
      * Sort special days chronologically
      */
     protected Array sort(Array specialDays) {
-
-        List<Date> startDates = new ArrayList<Date>();
+        List<Date> startDates = new ArrayList<>();
         for (AbstractDataType specialDay : specialDays) {
             Structure structure = (Structure) specialDay;
             startDates.add(parseDate(structure.getDataType(1).getOctetString()));

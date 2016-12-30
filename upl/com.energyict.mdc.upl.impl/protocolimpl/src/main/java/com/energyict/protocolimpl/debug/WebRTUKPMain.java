@@ -16,11 +16,10 @@ public class WebRTUKPMain extends AbstractSmartDebuggingMain<WebRTUKP> {
 
     private static WebRTUKP webRtuKP = null;
     public static final String MASTER_SERIAL_NUMBER = "1000827";
-    public static final String MBUS_SERIAL_NUMBER = "SIM1000827006301";
 
     public WebRTUKP getMeterProtocol() {
         if (webRtuKP == null) {
-            webRtuKP = new WebRTUKP();
+            webRtuKP = new WebRTUKP(new NoTariffCalendars(), new DummyExtractor());
             log("Created new instance of " + webRtuKP.getClass().getCanonicalName() + " [" + webRtuKP.getVersion() + "]");
         }
         return webRtuKP;

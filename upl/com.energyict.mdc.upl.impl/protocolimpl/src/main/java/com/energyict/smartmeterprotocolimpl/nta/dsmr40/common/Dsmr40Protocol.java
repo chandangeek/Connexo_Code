@@ -1,5 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
@@ -24,9 +28,19 @@ import java.util.logging.Level;
 @Deprecated //Never released, technical class
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
+    private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
+    private final DeviceMessageFileFinder messageFileFinder;
+
+    public Dsmr40Protocol(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+        this.calendarFinder = calendarFinder;
+        this.messageFileFinder = messageFileFinder;
+        this.extractor = extractor;
+    }
+
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.extractor, this.messageFileFinder));
     }
 
     /**

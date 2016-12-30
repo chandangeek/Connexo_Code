@@ -1,9 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.core.Code;
@@ -19,6 +26,7 @@ import java.util.Date;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
@@ -42,6 +50,24 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
     private String ExpectedActivityCalendarMessageContent;
     private Date activityCalendarActivationDate;
 
+    @Mock
+    private TariffCalendarFinder calendarFinder;
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Converter converter;
+    @Mock
+    private Extractor extractor;
+    @Mock
+    private DeviceMessageFileFinder messageFileFinder;
+    @Mock
+    private DateFormatter dateFormatter;
+
+    public ActarisSL7000MessageConverterTest() {
+    }
+
     @Test
     public void testMessageConversion() {
         try {
@@ -53,38 +79,38 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ProgramBatteryExpiryDate);
+        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ProgramBatteryExpiryDate.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<BatteryExpiry Date (dd/MM/yyyy)=\"01/01/2050\"> </BatteryExpiry>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ClockDeviceMessage.EnableOrDisableDST);
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.EnableOrDisableDST.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<EnableDST>1</EnableDST>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetEndOfDST);
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetEndOfDST.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<EndOfDST Month=\"1\" Day of month=\"2\" Day of week=\"3\" Hour=\"4\"> </EndOfDST>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetStartOfDST);
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetStartOfDST.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<StartOfDST Month=\"1\" Day of month=\"2\" Day of week=\"3\" Hour=\"4\"> </StartOfDST>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(DeviceActionMessage.BILLING_RESET);
+        offlineDeviceMessage = createMessage(DeviceActionMessage.BILLING_RESET.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<DemandReset/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals(ExpectedActivityCalendarMessageContent, messageEntry.getContent());
     }
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ActarisSl7000(calendarFinder, extractor, propertySpecService);
+        return new ActarisSl7000(calendarFinder, extractor, propertySpecService, messageFileFinder, dateFormatter);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter());
+        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(Code.class));
         return messageConverter;
@@ -99,7 +125,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
                 case DeviceMessageConstants.ConfigurationChangeDate:
                     return dateFormat.parse("01/01/2050");
                 case DeviceMessageConstants.enableDSTAttributeName:
-                    return new Boolean(true);
+                    return Boolean.TRUE;
                 case DeviceMessageConstants.month:
                     return 1;
                 case DeviceMessageConstants.dayOfMonth:

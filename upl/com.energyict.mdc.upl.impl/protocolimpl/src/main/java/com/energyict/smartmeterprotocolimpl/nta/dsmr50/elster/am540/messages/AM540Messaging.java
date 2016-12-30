@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -71,15 +72,21 @@ public class AM540Messaging extends G3Messaging {
     };
 
     protected final AM540 protocol;
+    private final DeviceMessageFileFinder messageFileFinder;
     private Dsmr40Messaging dsmr40Messaging;
 
-    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
-        this(protocol, calendarFinder, extractor, ANNOTATED_MESSAGES);
+    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
+        this(protocol, calendarFinder, extractor, messageFileFinder, ANNOTATED_MESSAGES);
     }
 
-    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor, Class<? extends AnnotatedMessage>[] messages) {
+    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder, Class<? extends AnnotatedMessage>[] messages) {
         super(protocol.getDlmsSession(), calendarFinder, extractor, messages);
         this.protocol = protocol;
+        this.messageFileFinder = messageFileFinder;
+    }
+
+    public DeviceMessageFileFinder getMessageFileFinder() {
+        return messageFileFinder;
     }
 
     @Override
@@ -152,7 +159,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new Dsmr50MessageExecutor(protocol);
+        return new Dsmr50MessageExecutor(protocol, this.getCalendarFinder(), this.messageFileFinder, this.getExtractor());
     }
 
     @Override

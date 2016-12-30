@@ -1,7 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
@@ -45,7 +48,6 @@ import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
 import com.energyict.protocolimpl.generic.csvhandling.TestObject;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -80,9 +82,13 @@ public class UkHubMessageExecutor extends MessageParser {
     private final AbstractSmartDlmsProtocol protocol;
 
     private boolean success;
+    private final Extractor extractor;
+    private final DeviceMessageFileFinder messageFileFinder;
 
-    public UkHubMessageExecutor(final AbstractSmartDlmsProtocol protocol) {
+    public UkHubMessageExecutor(final AbstractSmartDlmsProtocol protocol, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
         this.protocol = protocol;
+        this.extractor = extractor;
+        this.messageFileFinder = messageFileFinder;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -147,7 +153,7 @@ public class UkHubMessageExecutor extends MessageParser {
             } else if (readZigBeeStatus) {
                 readZigBeeStatus();
             } else if (modemPingSetup) {
-                modemPingSetup(messageHandler, content);
+                modemPingSetup(messageHandler);
             } else if (firmwareUpdate) {
                 firmwareUpdate(messageHandler, content, trackingId);
             } else if (zigbeeNCPFirmwareUpgrade) {
@@ -155,7 +161,7 @@ public class UkHubMessageExecutor extends MessageParser {
             } else if (testMessage) {
                 testMessage(messageHandler);
             } else if (xmlCOnfig) {
-                xmlConfigMessage(messageHandler, content);
+                xmlConfigMessage(content);
             } else if (enableWebserver) {
                 enableWebserver();
             } else if (disableWebserver) {
@@ -170,20 +176,9 @@ public class UkHubMessageExecutor extends MessageParser {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
             }
-        } catch (IOException e) {
+        } catch (IOException | BusinessException | SQLException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
-        } catch (BusinessException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (SQLException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (InterruptedException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-            Thread.currentThread().interrupt();
-            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
 
         if (success) {
@@ -194,7 +189,7 @@ public class UkHubMessageExecutor extends MessageParser {
         }
     }
 
-    private void xmlConfigMessage(MessageHandler messageHandler, String fullContent) throws IOException {
+    private void xmlConfigMessage(String fullContent) throws IOException {
 
         String firstTag = "<XMLConfig>";
         String lastTag = "</XMLConfig>";
@@ -214,7 +209,7 @@ public class UkHubMessageExecutor extends MessageParser {
 
     }
 
-    private void reboot() throws IOException {
+    private void reboot() {
         getLogger().info("Executing Reboot message.");
         getLogger().info("Warning: Device will reboot at the end of the communication session.");
         ((UkHub) protocol).setReboot(true);
@@ -238,7 +233,7 @@ public class UkHubMessageExecutor extends MessageParser {
         ((UkHub) protocol).setReboot(true);
     }
 
-    private void modemPingSetup(MessageHandler messageHandler, String content) throws IOException {
+    private void modemPingSetup(MessageHandler messageHandler) throws IOException {
         getLogger().info("Executing GPRS Modem Ping Setup message");
 
         int pingInterval = messageHandler.getPingInterval();
@@ -260,7 +255,7 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "GPRS Modem Ping Setup message successful");
     }
 
-    private void firmwareUpdate(MessageHandler messageHandler, String content, String trackingId) throws IOException, InterruptedException {
+    private void firmwareUpdate(MessageHandler messageHandler, String content, String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
@@ -273,11 +268,7 @@ public class UkHubMessageExecutor extends MessageParser {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof UserFile)) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
+        DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
 
         String[] parts = content.split("=");
         Date date = null;
@@ -296,7 +287,7 @@ public class UkHubMessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
+        byte[] imageData = new Base64EncoderDecoder().decode(this.extractor.binaryContents(deviceMessageFile));
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
         if (resume) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -353,12 +344,6 @@ public class UkHubMessageExecutor extends MessageParser {
         } else {
             it.imageActivation();
         }
-    }
-
-    private String getIncludedContent(final String content) {
-        int begin = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG) + GenericMessaging.INCLUDED_USERFILE_TAG.length() + 1;
-        int end = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG, begin) - 2;
-        return content.substring(begin, end);
     }
 
     private void changeHanSAS(MessageHandler messageHandler) throws IOException {
@@ -788,7 +773,7 @@ public class UkHubMessageExecutor extends MessageParser {
                 UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
-                    CSVParser csvParser = new CSVParser();
+                    CSVParser csvParser = new CSVParser(this.extractor);
                     csvParser.parse(data);
                     boolean hasWritten;
                     TestObject to = new TestObject("");

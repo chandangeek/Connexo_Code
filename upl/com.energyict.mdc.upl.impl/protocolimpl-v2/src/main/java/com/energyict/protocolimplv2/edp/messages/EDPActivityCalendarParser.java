@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.edp.messages;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeDayType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Map;
@@ -20,17 +21,8 @@ import java.util.Map;
  */
 public class EDPActivityCalendarParser extends ActivityCalendarMessage {
 
-    public EDPActivityCalendarParser(Code ct) {
-        super(ct, null);
-    }
-
-    @Override
-    protected int getDayTypeName(CodeDayType cdt) {
-        try {
-            return Integer.parseInt(cdt.getName());  //Day type name should be "1", "2", etc.
-        } catch (NumberFormatException e) {
-            return super.getDayTypeName(cdt);
-        }
+    public EDPActivityCalendarParser(TariffCalendar calendar, Extractor extractor) {
+        super(calendar, extractor, null);
     }
 
     /**
@@ -38,10 +30,8 @@ public class EDPActivityCalendarParser extends ActivityCalendarMessage {
      * This index number is used to create the AXDR arrays representing season profiles
      */
     @Override
-    protected Integer getSeasonProfileName(Map.Entry entry) {
-        Integer value = (Integer) entry.getValue();
-        Map<Integer, Integer> seasonIds = (Map<Integer, Integer>) super.seasonIds;
-        return (Integer) seasonIds.get(value);
+    protected String getSeasonProfileName(Map.Entry<OctetString, String> entry) {
+        return Integer.toString(super.seasonIds.get(entry.getValue()));
     }
 
     @Override
@@ -51,7 +41,7 @@ public class EDPActivityCalendarParser extends ActivityCalendarMessage {
     }
 
     @Override
-    protected int getSeasonIdFromSeasonProfile(SeasonProfiles sp) {
-        return ProtocolTools.getIntFromBytes(sp.getSeasonProfileName().toByteArray());
+    protected String getSeasonIdFromSeasonProfile(SeasonProfiles sp) {
+        return Integer.toString(ProtocolTools.getIntFromBytes(sp.getSeasonProfileName().toByteArray()));
     }
 }

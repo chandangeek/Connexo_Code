@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.MessageProtocol;
@@ -11,8 +13,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging.XemexWatc
  */
 public class MbusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice {
 
-    public MbusDevice(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(propertySpecService, calendarFinder, extractor);
     }
 
     @Override

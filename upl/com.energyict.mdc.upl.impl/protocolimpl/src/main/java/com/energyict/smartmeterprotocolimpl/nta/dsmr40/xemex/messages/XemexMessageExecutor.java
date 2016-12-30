@@ -1,7 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.Unsigned32;
@@ -27,8 +30,8 @@ public class XemexMessageExecutor extends Dsmr40MessageExecutor {
     private static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
     private final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
 
-    public XemexMessageExecutor(final AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public XemexMessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+        super(protocol, calendarFinder, extractor, messageFileFinder);
     }
 
     @Override

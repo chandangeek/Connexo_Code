@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 /**
@@ -13,8 +15,8 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
-    public MBusDevice(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    protected MBusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(propertySpecService, calendarFinder, extractor);
     }
 
     @Override

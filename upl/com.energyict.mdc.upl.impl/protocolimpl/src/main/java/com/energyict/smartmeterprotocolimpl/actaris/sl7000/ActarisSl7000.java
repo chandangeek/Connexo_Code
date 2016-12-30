@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -91,11 +93,15 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     private final TariffCalendarFinder calendarFinder;
     private final Extractor extractor;
     private final PropertySpecService propertySpecService;
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DateFormatter dateFormatter;
 
-    public ActarisSl7000(TariffCalendarFinder calendarFinder, Extractor extractor, PropertySpecService propertySpecService) {
+    public ActarisSl7000(TariffCalendarFinder calendarFinder, Extractor extractor, PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter) {
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
         this.propertySpecService = propertySpecService;
+        this.messageFileFinder = messageFileFinder;
+        this.dateFormatter = dateFormatter;
     }
 
     @Override
@@ -298,7 +304,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
      public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this, this.calendarFinder, this.extractor);
+            messageProtocol = new Messages(this, this.calendarFinder, this.extractor, this.messageFileFinder, this.dateFormatter);
         }
         return messageProtocol;
     }

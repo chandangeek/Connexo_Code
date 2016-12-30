@@ -2,7 +2,10 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
@@ -57,8 +60,6 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.LookupEntry;
@@ -119,10 +120,22 @@ public class Dsmr23MessageExecutor extends MessageParser {
     protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
+    private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
 
-    public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol) {
+    public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.protocol = protocol;
+        this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
         this.dlmsSession = this.protocol.getDlmsSession();
+    }
+
+    protected TariffCalendarFinder getCalendarFinder() {
+        return calendarFinder;
+    }
+
+    protected Extractor getExtractor() {
+        return extractor;
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
@@ -703,7 +716,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
-                    CSVParser csvParser = new CSVParser();
+                    CSVParser csvParser = new CSVParser(this.extractor);
                     csvParser.parse(data);
                     boolean hasWritten;
                     TestObject to = new TestObject("");
@@ -729,7 +742,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                                     break;
                                     case 2: { // ACTION
                                         GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                        if (to.getData().equalsIgnoreCase("")) {
+                                        if ("".equalsIgnoreCase(to.getData())) {
                                             gi.invoke();
                                         } else {
                                             gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
@@ -780,14 +793,14 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
                             } catch (Exception e) {
                                 if (!hasWritten) {
-                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
+                                    if ((to.getExpected() != null) && (e.getMessage().contains(to.getExpected()))) {
                                         to.setResult(e.getMessage());
                                         log(Level.INFO, "Test " + i + " has successfully finished.");
                                         hasWritten = true;
                                     } else {
                                         log(Level.INFO, "Test " + i + " has failed.");
                                         String eMessage;
-                                        if (e.getMessage().indexOf("\r\n") != -1) {
+                                        if (e.getMessage().contains("\r\n")) {
                                             eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
                                         } else {
                                             eMessage = e.getMessage();
@@ -912,40 +925,32 @@ public class Dsmr23MessageExecutor extends MessageParser {
         if (codeTable == null) {
             throw new IOException("CodeTable-ID can not be empty.");
         } else {
-
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-            } else {
-
-                List calendars = ct.getCalendars();
-                Array sdArray = new Array();
-
-                SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-
-                for (int i = 0; i < calendars.size(); i++) {
-                    CodeCalendar cc = (CodeCalendar) calendars.get(i);
-                    if (cc.getSeason() == 0) {
-                        OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
-                                (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                                (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
-                        Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
-                        Structure struct = new Structure();
-                        AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((cc.getYear() == -1) ? 0x07 : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xB2 : (cc.getYear()) & 0xFF),
-                                (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                                (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
-                        long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
-                        struct.addDataType(new Unsigned16((int) days));
-                        struct.addDataType(os);
-                        struct.addDataType(dayType);
+            TariffCalendar tariffCalendar = this.calendarFinder.from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
+            Array sdArray = new Array();
+            SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+            List<Extractor.CalendarRule> rules = this.extractor.rules(tariffCalendar);
+            for (int i = 0; i < rules.size(); i++) {
+                Extractor.CalendarRule rule = rules.get(i);
+                if (!rule.seasonId().isPresent()) {
+                    OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((rule.year() == -1) ? 0xff : ((rule.year() >> 8) & 0xFF)), (byte) ((rule.year() == -1) ? 0xff : (rule.year()) & 0xFF),
+                            (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
+                            (byte) ((rule.dayOfWeek() == -1) ? 0xFF : rule.dayOfWeek())});
+                    Unsigned8 dayType = new Unsigned8(Integer.parseInt(rule.dayTypeId()));
+                    Structure struct = new Structure();
+                    AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((rule.year() == -1) ? 0x07 : ((rule.year() >> 8) & 0xFF)), (byte) ((rule.year() == -1) ? 0xB2 : (rule.year()) & 0xFF),
+                            (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
+                            (byte) ((rule.dayOfWeek() == -1) ? 0xFF : rule.dayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
+                    long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
+                    struct.addDataType(new Unsigned16((int) days));
+                    struct.addDataType(os);
+                    struct.addDataType(dayType);
 //								sdt.insert(struct);
-                        sdArray.addDataType(struct);
-                    }
+                    sdArray.addDataType(struct);
                 }
+            }
 
-                if (sdArray.nrOfDataTypes() != 0) {
-                    sdt.writeSpecialDays(sdArray);
-                }
+            if (sdArray.nrOfDataTypes() != 0) {
+                sdt.writeSpecialDays(sdArray);
             }
         }
     }
@@ -959,36 +964,30 @@ public class Dsmr23MessageExecutor extends MessageParser {
         String userFile = messageHandler.getTOUUserFile();
 
         if ((codeTable == null) && (userFile == null)) {
-            throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+            throw new IllegalArgumentException("CodeTable-ID AND UserFile-ID can not be both empty.");
         } else if ((codeTable != null) && (userFile != null)) {
-            throw new IOException("CodeTable-ID AND UserFile-ID can not be both filled in.");
+            throw new IllegalArgumentException("CodeTable-ID AND UserFile-ID can not be both filled in.");
         }
 
         if (codeTable != null) {
+            TariffCalendar tariffCalendar = this.calendarFinder.from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
+            ActivityCalendarMessage acm = new ActivityCalendarMessage(tariffCalendar, extractor, getMeterConfig());
+            acm.parse();
 
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-            } else {
+            ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
+            ac.writeSeasonProfilePassive(acm.getSeasonProfile());
+            ac.writeWeekProfileTablePassive(acm.getWeekProfile());
+            ac.writeDayProfileTablePassive(acm.getDayProfile());
 
-                ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
-                acm.parse();
-
-                ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
-                ac.writeSeasonProfilePassive(acm.getSeasonProfile());
-                ac.writeWeekProfileTablePassive(acm.getWeekProfile());
-                ac.writeDayProfileTablePassive(acm.getDayProfile());
-
-                if (name != null) {
-                    if (name.length() > 8) {
-                        name = name.substring(0, 8);
-                    }
-                    ac.writeCalendarNamePassive(OctetString.fromString(name));
+            if (name != null) {
+                if (name.length() > 8) {
+                    name = name.substring(0, 8);
                 }
-                if (activateDate != null) {
+                ac.writeCalendarNamePassive(OctetString.fromString(name));
+            }
+            if (activateDate != null) {
 //							ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
-                    ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
-                }
+                ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
             }
         } else if (userFile != null) {
             throw new IOException("ActivityCalendar by userfile is not supported yet.");

@@ -1,10 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -12,19 +16,34 @@ import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.MockSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * Copyrights EnergyICT
  * Date: 4-mrt-2011
  * Time: 15:02:13
  */
+@RunWith(MockitoJUnitRunner.class)
 public class MeterTopologyTest {
+
+    @Mock
+    private TariffCalendarFinder calendarFinder;
+    @Mock
+    private DeviceMessageFileFinder messageFileFinder;
+    @Mock
+    private Extractor extractor;
+
 
     private static DummyDLMSConnection connection = new DummyDLMSConnection();
 
@@ -32,7 +51,7 @@ public class MeterTopologyTest {
     public void getSerialNumberTest() {
         TypedProperties props = new TypedProperties();
         props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
-        WebRTUZ3 meterProtocol = new WebRTUZ3();
+        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
         meterProtocol.addProperties(props);
         MeterTopology mt = new MeterTopology(meterProtocol);
         assertNotNull(mt.getSerialNumber(ObisCode.fromString("1.0.1.8.0.255")));
@@ -55,7 +74,7 @@ public class MeterTopologyTest {
     public void getPhysicalAddressTest() {
         TypedProperties props = new TypedProperties();
         props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
-        WebRTUZ3 meterProtocol = new WebRTUZ3();
+        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
         meterProtocol.addProperties(props);
         MeterTopology mt = new MeterTopology(meterProtocol);
         assertNotNull(mt.getPhysicalAddress("MasterSerialNumber"));
@@ -78,7 +97,7 @@ public class MeterTopologyTest {
     public void constructDiscoveryComposedCosemObjectTest() {
         TypedProperties props = new TypedProperties();
         props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
-        WebRTUZ3 meterProtocol = new WebRTUZ3();
+        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
         meterProtocol.addProperties(props);
         try {
             meterProtocol.getDlmsSession().init();
@@ -106,7 +125,7 @@ public class MeterTopologyTest {
         TypedProperties props = new TypedProperties();
         props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
         props.setProperty(DlmsProtocolProperties.BULK_REQUEST, "1");
-        WebRTUZ3 meterProtocol = new WebRTUZ3();
+        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
         meterProtocol.addProperties(props);
 
         // Test the EmeterMapper

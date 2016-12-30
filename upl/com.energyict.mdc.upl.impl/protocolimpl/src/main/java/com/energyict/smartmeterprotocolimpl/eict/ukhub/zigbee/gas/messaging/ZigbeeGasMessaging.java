@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 
-import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
@@ -30,9 +29,6 @@ public class ZigbeeGasMessaging extends GenericMessaging {
     private static final String SET_CALORIFIC_VALUE = "SetCalorificValueAndActivationDate";
     private static final String SET_CONVERSION_FACTOR = "SetConversionFactorAndActivationDate";
     private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
-    private static final String TARIFF_LABEL_TAG = "TariffLabel";
-    private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
-    private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final String STANDING_CHARGE = "Standing charge";
     private static final String CALORIFIC_VALUE = "Calorific value";
@@ -50,18 +46,16 @@ public class ZigbeeGasMessaging extends GenericMessaging {
         this.messageExecutor = messageExecutor;
     }
 
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List messageEntries) {
         // Nothing to do here
     }
-
-    private TimeOfUseMessageBuilder messageBuilder = null;
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         return this.messageExecutor.executeMessageEntry(messageEntry);
     }
 
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<>();
         MessageCategorySpec pricingInformationCategory = ProtocolMessageCategories.getPricingInformationCategory();
         pricingInformationCategory.addMessageSpec(addMsgWithValuesAndRequiredValue("Set price per unit (p/kWh)", SET_PRICE_PER_UNIT, false, ID_OF_USER_FILE, ACTIVATION_DATE));
         pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Set standing charge", SET_STANDING_CHARGE, false, ACTIVATION_DATE, STANDING_CHARGE));
@@ -131,21 +125,4 @@ public class ZigbeeGasMessaging extends GenericMessaging {
         return super.writeTag(msgTag);
     }
 
-    /**
-     * Adds a child tag to the given {@link StringBuffer}.
-     *
-     * @param buf     The string builder to whose contents the child tag needs to be added.
-     * @param tagName The name of the child tag to add.
-     * @param value   The contents (value) of the tag.
-     */
-    protected void addChildTag(StringBuilder buf, String tagName, Object value) {
-        buf.append(System.getProperty("line.separator"));
-        buf.append("<");
-        buf.append(tagName);
-        buf.append(">");
-        buf.append(value);
-        buf.append("</");
-        buf.append(tagName);
-        buf.append(">");
-    }
 }

@@ -1,16 +1,26 @@
 package com.energyict.protocolimpl.generic.csvhandling;
 
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+
 import com.energyict.mdw.shadow.UserFileShadow;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class CSVParser {
-	
+
+	private final Extractor extractor;
 	private String rawText;
-	private List lines = new ArrayList();
+	private List<TestObject> lines = new ArrayList<>();
+
+	public CSVParser(Extractor extractor) {
+		this.extractor = extractor;
+	}
 
 	public void parse(byte[] rawBytes){
 		this.rawText = new String(rawBytes);
@@ -22,25 +32,25 @@ public class CSVParser {
 			endOffset = this.rawText.indexOf(new String(new byte[]{0x0D, 0x0A}), beginOffset+1);
 		}
 	}
-	
+
 	public TestObject getTestObject(int index){
-		return (TestObject)this.lines.get(index);
+		return this.lines.get(index);
 	}
-	
+
 	public int size(){
 		return this.lines.size();
 	}
-	
+
 	public int getValidSize(){
 		int count = 0;
 		for(int i = 0; i < size(); i++){
-			if(isValidLine((TestObject)this.lines.get(i))){
+			if(isValidLine(this.lines.get(i))){
 				count++;
 			}
 		}
 		return count;
-	}	
-	
+	}
+
 	public boolean isValidLine(TestObject to){
 		if(to.size() == 0){
 			return false;
@@ -69,31 +79,10 @@ public class CSVParser {
 		}
 		}
 	}
-	
-	public static void main(String args[])throws IOException {
-		try {
-//			Utilities.createEnvironment();
-//			MeteringWarehouse.createBatchContext(false);
-			MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-			int id = 460;
-			UserFile uf = mw.getUserFileFactory().find(id);
-			
-			CSVParser csvParser = new CSVParser();
-			csvParser.parse(uf.loadFileInByteArray());
-			System.out.println(csvParser.rawText);
-			System.out.println(((TestObject)csvParser.lines.get(1)).getObisCode());
-			System.out.println(((TestObject)csvParser.lines.get(2)).getData());
-			System.out.println(((TestObject)csvParser.lines.get(3)).getData());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
 
-	public UserFileShadow convertResultToUserFile(UserFile uf, int folderId) throws IOException {
+	public UserFileShadow convertResultToUserFile(DeviceMessageFile deviceMessageFile, int folderId) throws IOException {
 		UserFileShadow ufs = new UserFileShadow();
-		ufs.setName(createFileName(uf.getName()));
+		ufs.setName(createFileName(extractor.name(deviceMessageFile)));
 		ufs.setExtension("csv");
 		ufs.setFolderId(folderId);
 		File file = File.createTempFile("Tempfile", ".csv");
@@ -104,38 +93,36 @@ public class CSVParser {
         ufs.setFile(file);
         return ufs;
 	}
-	
+
 	private String createFileName(String ufName){
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(System.currentTimeMillis());
-		
-		String name = "Result - " + ufName + " "
+
+		return "Result - " + ufName + " "
 			+ cal.get(Calendar.YEAR) + "-"
 			+ (cal.get(Calendar.MONTH)+1)+ "-"
 			+ cal.get(Calendar.DAY_OF_MONTH) + " "
 			+ cal.get(Calendar.HOUR_OF_DAY) + "h"
 			+ cal.get(Calendar.MINUTE) + "m"
 			+ cal.get(Calendar.SECOND) + "s";
-		return name;
 	}
-	
-	
+
+
 	private byte[] convertToByteArray(){
-		int offset = 0;
-		StringBuffer strBuffer = new StringBuffer();
+		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < this.lines.size(); i++){
-			TestObject to = (TestObject)this.lines.get(i);
-			if(!to.getString(0).equalsIgnoreCase("")){
+			TestObject to = this.lines.get(i);
+			if(!"".equalsIgnoreCase(to.getString(0))){
 				for(int j = 0; j < to.size(); j++){
-					strBuffer.append(to.getString(j));
+					builder.append(to.getString(j));
 					if(j != to.size()){
-						strBuffer.append(";");
+						builder.append(";");
 					}
 				}
-				strBuffer.append(new String(new byte[]{0x0D, 0x0A}));
+				builder.append(new String(new byte[]{0x0D, 0x0A}));
 			}
 		}
-		return strBuffer.toString().getBytes();
+		return builder.toString().getBytes();
 	}
 
 	public void addLine(String string) {

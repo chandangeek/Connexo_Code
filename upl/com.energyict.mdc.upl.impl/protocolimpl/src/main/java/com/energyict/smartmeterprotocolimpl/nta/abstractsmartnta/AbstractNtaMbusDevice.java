@@ -2,11 +2,13 @@ package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -56,9 +58,9 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     public abstract MessageProtocol getMessageProtocol();
 
-    protected AbstractNtaMbusDevice(PropertySpecService propertySpecService) {
+    protected AbstractNtaMbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
         this.propertySpecService = propertySpecService;
-        this.meterProtocol = new WebRTUKP();
+        this.meterProtocol = new WebRTUKP(calendarFinder, extractor);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }

@@ -1,7 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -20,8 +25,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.ParseUtils;
@@ -46,9 +49,15 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private static final ObisCode OBISCODE_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
+    private final DeviceMessageFileFinder messageFileFinder;
 
-    public Dsmr40MessageExecutor(final AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public Dsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
+        super(protocol, calendarFinder, extractor);
+        this.messageFileFinder = messageFileFinder;
+    }
+
+    public DeviceMessageFileFinder getMessageFileFinder() {
+        return messageFileFinder;
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
@@ -80,13 +89,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (uf == null) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
-
-        byte[] imageData = uf.loadFileInByteArray();
+        DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
+        byte[] imageData = this.getExtractor().binaryContents(deviceMessageFile);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(messageEntry)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -101,12 +105,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
         String imageIdentifier = messageHandler.getImageIdentifier();
-        if (imageIdentifier != null && imageIdentifier.length() > 0) {
+        if (imageIdentifier != null && !imageIdentifier.isEmpty()) {
             it.upgrade(imageData, false, imageIdentifier, false);
         } else {
             it.upgrade(imageData, false);
         }
-        if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+        if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             try {
                 it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
                 log(Level.INFO, "Activating the image");
@@ -129,7 +133,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 //					sas.writeExecutionTime(dateArray);
 
 
-        } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+        } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             String strDate = messageHandler.getActivationDate();
             Array dateArray = convertActivationDateUnixToDateTimeArray(strDate);
@@ -165,7 +169,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     @Override
     protected void setWakeUpWhiteList(MessageHandler messageHandler) throws IOException {
-        List<Structure> senders = new ArrayList<Structure>();
+        List<Structure> senders = new ArrayList<>();
         senders.add(createSenderAndAction(messageHandler.getNr1()));
         senders.add(createSenderAndAction(messageHandler.getNr2()));
         senders.add(createSenderAndAction(messageHandler.getNr3()));
@@ -224,42 +228,36 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         }
 
         if (codeTable != null) {
+            TariffCalendar calendar = this.getCalendarFinder().from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
+            ActivityCalendarMessage acm = getActivityCalendarParser(calendar);
+            acm.parse();
 
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+            ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
+            ac.writeDayProfileTablePassive(acm.getDayProfile());
+            ac.writeWeekProfileTablePassive(acm.getWeekProfile());
+            ac.writeSeasonProfilePassive(acm.getSeasonProfile());
+
+            if (name != null) {
+                if (name.length() > 8) {
+                    name = name.substring(0, 8);
+                }
+                ac.writeCalendarNamePassive(OctetString.fromString(name));
+            }
+            if ((activateDate != null) && (!activateDate.isEmpty())) {
+                ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToDateTime(activateDate, getTimeZone()).getBEREncodedByteArray(), 0));
             } else {
-
-                ActivityCalendarMessage acm = getActivityCalendarParser(ct);
-                acm.parse();
-
-                ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
-                ac.writeDayProfileTablePassive(acm.getDayProfile());
-                ac.writeWeekProfileTablePassive(acm.getWeekProfile());
-                ac.writeSeasonProfilePassive(acm.getSeasonProfile());
-
-                if (name != null) {
-                    if (name.length() > 8) {
-                        name = name.substring(0, 8);
-                    }
-                    ac.writeCalendarNamePassive(OctetString.fromString(name));
-                }
-                if ((activateDate != null) && (activateDate.length() != 0)) {
-                    ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToDateTime(activateDate, getTimeZone()).getBEREncodedByteArray(), 0));
-                } else {
-                    ac.activateNow();
-                }
+                ac.activateNow();
             }
         } else if (userFile != null) {
-            throw new IOException("ActivityCalendar by userfile is not supported yet.");
+            throw new IllegalArgumentException("ActivityCalendar by userfile is not supported yet.");
         } else {
             // should never get here
-            throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+            throw new IllegalArgumentException("CodeTable-ID AND UserFile-ID can not be both empty.");
         }
     }
 
-    protected ActivityCalendarMessage getActivityCalendarParser(Code ct) {
-        return new ActivityCalendarMessage(ct, getMeterConfig());
+    protected ActivityCalendarMessage getActivityCalendarParser(TariffCalendar calendar) {
+        return new ActivityCalendarMessage(calendar, this.getExtractor(), getMeterConfig());
     }
 
     @Override

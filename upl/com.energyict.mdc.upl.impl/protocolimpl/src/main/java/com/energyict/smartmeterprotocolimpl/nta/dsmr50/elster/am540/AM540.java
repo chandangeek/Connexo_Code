@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -43,14 +44,10 @@ public class AM540 extends E350 {
 
     private static final String TIMEOUT = "timeout";
     private final PropertySpecService propertySpecService;
-    private final Extractor extractor;
-    private final TariffCalendarFinder calendarFinder;
 
-    public AM540(PropertySpecService propertySpecService, Extractor extractor, TariffCalendarFinder calendarFinder) {
-        super();
+    public AM540(PropertySpecService propertySpecService, Extractor extractor, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder) {
+        super(calendarFinder, messageFileFinder, extractor);
         this.propertySpecService = propertySpecService;
-        this.extractor = extractor;
-        this.calendarFinder = calendarFinder;
         setHasBreaker(false);
     }
 
@@ -233,7 +230,7 @@ public class AM540 extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new AM540Messaging(this, this.calendarFinder, this.extractor);
+            messageProtocol = new AM540Messaging(this, this.getCalendarFinder(), this.getExtractor(), this.getMessageFileFinder());
         }
         return messageProtocol;
     }

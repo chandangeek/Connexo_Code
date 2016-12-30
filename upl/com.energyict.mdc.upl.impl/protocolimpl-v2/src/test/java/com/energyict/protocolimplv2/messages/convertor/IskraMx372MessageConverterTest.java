@@ -1,9 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
@@ -19,6 +26,9 @@ import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import java.text.ParseException;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -29,7 +39,23 @@ import static junit.framework.Assert.assertEquals;
  * @author sva
  * @since 25/10/13 - 10:12
  */
+@RunWith(MockitoJUnitRunner.class)
 public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest {
+
+    @Mock
+    private TariffCalendarFinder calendarFinder;
+    @Mock
+    private Extractor extractor;
+    @Mock
+    private DeviceMessageFileFinder messageFileFinder;
+    @Mock
+    private DateFormatter dateFormatter;
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Converter converter;
 
     @Test
     public void testMessageConversion() {
@@ -37,83 +63,83 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
         OfflineDeviceMessage offlineDeviceMessage;
 
 
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_LLS_SECRET_HEX);
+        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_LLS_SECRET_HEX.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Change_LLS_Secret LLSSecret'=\"FF00AA\"> </Change_LLS_Secret>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS);
+        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GPRS_modem_credentials Username=\"user\" Password=\"pass\"> </GPRS_modem_credentials>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
+        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GPRS_modem_setup><APN>apn</APN><Username>user</Username><Password>pass</Password></GPRS_modem_setup>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
+        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Mode>1</Mode>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE);
+        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<connectLoad> </connectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN);
+        offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<disconnectLoad> </disconnectLoad>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND);
+        offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<UserFile ID of tariff program>1</UserFile ID of tariff program>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.ENABLE_LOAD_LIMITING_FOR_GROUP);
+        offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.ENABLE_LOAD_LIMITING_FOR_GROUP.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ApplyLoadLimiting><Threshold GroupId *>1</Threshold GroupId *><StartDate (dd/mm/yyyy HH:MM:SS)>01/10/2013 00:00:00</StartDate (dd/mm/yyyy HH:MM:SS)><EndDate (dd/mm/yyyy HH:MM:SS)>01/11/2013 00:00:00</EndDate (dd/mm/yyyy HH:MM:SS)></ApplyLoadLimiting>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP);
+        offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Clear threshold - groupID>1</Clear threshold - groupID>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP);
+        offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ConfigureLoadLimitingParameters><Parameter GroupId *>1</Parameter GroupId *><Threshold PowerLimit (W)>1</Threshold PowerLimit (W)><Contractual PowerLimit (W)>1</Contractual PowerLimit (W)></ConfigureLoadLimitingParameters>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Commission);
+        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Commission.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Mbus_Install/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.DataReadout);
+        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.DataReadout.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Mbus_DataReadout/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Decommission);
+        offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Decommission.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Mbus_Remove/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM);
+        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Activate_the_wakeup_mechanism/>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST);
+        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Phonenumbers_to_add><ManagedPhonenumber1>number1</ManagedPhonenumber1><ManagedPhonenumber2>number2</ManagedPhonenumber2></Phonenumbers_to_add>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST);
+        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Phonenumbers_to_add><Phonenumber1>number1</Phonenumber1><Phonenumber2>number2</Phonenumber2></Phonenumbers_to_add>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_INACTIVITY_TIMEOUT);
+        offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_INACTIVITY_TIMEOUT.get(this.propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Inactivity_timeout>1</Inactivity_timeout>", messageEntry.getContent());
     }
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new IskraMx372(propertySpecService);
+        return new IskraMx372(propertySpecService, calendarFinder, extractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMx372MessageConverter();
+        return new IskraMx372MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor);
     }
 
     @Override

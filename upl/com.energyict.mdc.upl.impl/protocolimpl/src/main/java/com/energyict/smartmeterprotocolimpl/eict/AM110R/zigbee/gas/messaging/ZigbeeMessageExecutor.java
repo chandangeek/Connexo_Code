@@ -50,8 +50,8 @@ import java.util.logging.Logger;
  */
 public class ZigbeeMessageExecutor extends MessageParser {
 
-    private static final List<ObisCode> allowedTimeOfUseObjects = new ArrayList<ObisCode>();
-    private static final List<ObisCode> allowedPriceMatrixObjects = new ArrayList<ObisCode>();
+    private static final List<ObisCode> allowedTimeOfUseObjects = new ArrayList<>();
+    private static final List<ObisCode> allowedPriceMatrixObjects = new ArrayList<>();
 
     static {
         allowedTimeOfUseObjects.add(ObisCodeProvider.ActivityCalendarObisCode);

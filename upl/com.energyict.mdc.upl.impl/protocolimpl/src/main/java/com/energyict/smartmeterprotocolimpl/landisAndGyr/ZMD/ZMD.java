@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -85,8 +87,8 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
 
     private final ZMDMessages messageProtocol;
 
-    public ZMD(TariffCalendarFinder calendarFinder, Extractor extractor) {
-        this.messageProtocol = new ZMDMessages(this, calendarFinder, extractor);
+    public ZMD(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, Extractor extractor) {
+        this.messageProtocol = new ZMDMessages(this, calendarFinder, extractor, dateFormatter, messageFileFinder);
     }
 
     @Override

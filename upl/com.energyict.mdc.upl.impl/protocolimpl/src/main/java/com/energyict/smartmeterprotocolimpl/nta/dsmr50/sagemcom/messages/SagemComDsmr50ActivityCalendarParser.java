@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
-import com.energyict.mdw.core.Code;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50ActivityCalendarParser;
 
 import java.util.ArrayList;
@@ -20,8 +22,8 @@ import java.util.List;
  */
 public class SagemComDsmr50ActivityCalendarParser extends Dsmr50ActivityCalendarParser {
 
-    public SagemComDsmr50ActivityCalendarParser(Code ct, DLMSMeterConfig meterConfig) {
-        super(ct, meterConfig);
+    public SagemComDsmr50ActivityCalendarParser(TariffCalendar calendar, Extractor extractor, DLMSMeterConfig meterConfig) {
+        super(calendar, extractor, meterConfig);
     }
 
     /**
@@ -29,8 +31,7 @@ public class SagemComDsmr50ActivityCalendarParser extends Dsmr50ActivityCalendar
      */
     @Override
     protected Array sort(Array seasonArray) {
-
-        List<Date> startDates = new ArrayList<Date>();
+        List<Date> startDates = new ArrayList<>();
         for (AbstractDataType season : seasonArray) {
             SeasonProfiles seasonProfile = (SeasonProfiles) season;
             startDates.add(seasonProfile.getSeasonStartDate());

@@ -1,5 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
@@ -23,6 +27,10 @@ import java.io.IOException;
 public class REMIDatalogger extends E350 {
 
     private XemexLoadProfileBuilder loadProfileBuilder;
+
+    public REMIDatalogger(TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
+        super(calendarFinder, messageFileFinder, extractor);
+    }
 
     @Override
     public DlmsProtocolProperties getProperties() {
@@ -74,7 +82,7 @@ public class REMIDatalogger extends E350 {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new XemexMessaging(new XemexMessageExecutor(this));
+        return new XemexMessaging(new XemexMessageExecutor(this, this.getCalendarFinder(), this.getMessageFileFinder(), this.getExtractor()));
     }
 
     @Override

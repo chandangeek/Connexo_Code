@@ -1,5 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.obis.ObisCode;
@@ -7,20 +11,34 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.SmartMeterProtocol;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * Copyrights EnergyICT
  * Date: 1-mrt-2011
  * Time: 11:24:36
  */
+@RunWith(MockitoJUnitRunner.class)
 public class WebRTUZ3RegisterFactoryTest {
+
+    @Mock
+    private TariffCalendarFinder calendarFinder;
+    @Mock
+    private DeviceMessageFileFinder messageFileFinder;
+    @Mock
+    private Extractor extractor;
 
     Log logger = LogFactory.getLog(this.getClass());
 
@@ -29,7 +47,7 @@ public class WebRTUZ3RegisterFactoryTest {
         try {
             TypedProperties props = new TypedProperties();
             props.setProperty(SmartMeterProtocol.SERIALNUMBER, "Master");
-            WebRTUZ3 meterProtocol = new WebRTUZ3();
+            WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
             meterProtocol.addProperties(props);
             meterProtocol.getDlmsSession().init();
             WebRTUZ3RegisterFactory registerFactory = new WebRTUZ3RegisterFactory(meterProtocol);

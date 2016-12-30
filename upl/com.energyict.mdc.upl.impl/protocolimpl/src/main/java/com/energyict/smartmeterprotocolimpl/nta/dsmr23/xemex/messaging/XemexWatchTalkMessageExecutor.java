@@ -1,6 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -10,8 +13,6 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
@@ -32,8 +33,8 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
 
     private static final String NORESUME = "noresume";
 
-    public XemexWatchTalkMessageExecutor(AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public XemexWatchTalkMessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder tariffCalendarFinder, Extractor extractor) {
+        super(protocol, tariffCalendarFinder, extractor);
     }
 
     @Override
@@ -51,42 +52,37 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
         String userFile = messageHandler.getTOUUserFile();
 
         if ((codeTable == null) && (userFile == null)) {
-            throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+            throw new IllegalArgumentException("CodeTable-ID AND UserFile-ID can not be both empty.");
         } else if ((codeTable != null) && (userFile != null)) {
-            throw new IOException("CodeTable-ID AND UserFile-ID can not be both filled in.");
+            throw new IllegalArgumentException("CodeTable-ID AND UserFile-ID can not be both filled in.");
         }
 
         if (codeTable != null) {
+            TariffCalendar tariffCalendar = this.getCalendarFinder().from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
+            XemexActivityCalendarParser activityCalendarParser = new XemexActivityCalendarParser(tariffCalendar, this.getExtractor());
+            activityCalendarParser.parse();
 
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+            ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
+            ac.writeDayProfileTablePassive(activityCalendarParser.getDayProfile());
+            ac.writeWeekProfileTablePassive(activityCalendarParser.getWeekProfile());
+            ac.writeSeasonProfilePassive(activityCalendarParser.getSeasonProfile());
+
+            if (name != null) {
+                if (name.length() > 8) {
+                    name = name.substring(0, 8);
+                }
+                ac.writeCalendarNamePassive(OctetString.fromString(name));
+            }
+            if (activateDate != null) {
+                ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
             } else {
-                XemexActivityCalendarParser activityCalendarParser = new XemexActivityCalendarParser(ct);
-                activityCalendarParser.parse();
-
-                ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
-                ac.writeDayProfileTablePassive(activityCalendarParser.getDayProfile());
-                ac.writeWeekProfileTablePassive(activityCalendarParser.getWeekProfile());
-                ac.writeSeasonProfilePassive(activityCalendarParser.getSeasonProfile());
-
-                if (name != null) {
-                    if (name.length() > 8) {
-                        name = name.substring(0, 8);
-                    }
-                    ac.writeCalendarNamePassive(OctetString.fromString(name));
-                }
-                if (activateDate != null) {
-                    ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
-                } else {
-                    ac.activateNow();
-                }
+                ac.activateNow();
             }
         } else if (userFile != null) {
-            throw new IOException("ActivityCalendar by userfile is not supported yet.");
+            throw new IllegalArgumentException("ActivityCalendar by userfile is not supported yet.");
         } else {
             // should never get here
-            throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+            throw new IllegalArgumentException("CodeTable-ID AND UserFile-ID can not be both empty.");
         }
     }
 
@@ -98,37 +94,32 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
         if (codeTable == null) {
             throw new IOException("CodeTable-ID can not be empty.");
         } else {
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-            } else {
-                List calendars = ct.getCalendars();
-                Array sdArray = new Array();
+            TariffCalendar tariffCalendar = this.getCalendarFinder().from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
+            Array sdArray = new Array();
+            SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+            List<Extractor.CalendarRule> rules = this.getExtractor().rules(tariffCalendar);
+            XemexActivityCalendarParser activityCalendarParser = new XemexActivityCalendarParser(tariffCalendar, this.getExtractor());
+            activityCalendarParser.parse();
 
-                SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-                XemexActivityCalendarParser activityCalendarParser = new XemexActivityCalendarParser(ct);
-                activityCalendarParser.parse();
-
-                int dayIndex = 1;
-                for (int i = 0; i < calendars.size(); i++) {
-                    CodeCalendar cc = (CodeCalendar) calendars.get(i);
-                    if (cc.getSeason() == 0) {
-                        OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
-                                (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                                (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
-                        Unsigned8 dayType = new Unsigned8(activityCalendarParser.getDayTypeName(cc.getDayType())); // Re-use the day type name of ActivityCalendarParser
-                        Structure struct = new Structure();
-                        struct.addDataType(new Unsigned16(dayIndex));
-                        struct.addDataType(os);
-                        struct.addDataType(dayType);
-                        sdArray.addDataType(struct);
-                        dayIndex++;
-                    }
+            int dayIndex = 1;
+            for (int i = 0; i < rules.size(); i++) {
+                Extractor.CalendarRule cc = rules.get(i);
+                if (!cc.seasonId().isPresent()) {
+                    OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.year() == -1) ? 0xff : ((cc.year() >> 8) & 0xFF)), (byte) ((cc.year() == -1) ? 0xff : (cc.year()) & 0xFF),
+                            (byte) ((cc.month() == -1) ? 0xFF : cc.month()), (byte) ((cc.day() == -1) ? 0xFF : cc.day()),
+                            (byte) ((cc.dayOfWeek() == -1) ? 0xFF : cc.dayOfWeek())});
+                    Unsigned8 dayType = new Unsigned8(Integer.parseInt(cc.dayTypeId()));
+                    Structure struct = new Structure();
+                    struct.addDataType(new Unsigned16(dayIndex));
+                    struct.addDataType(os);
+                    struct.addDataType(dayType);
+                    sdArray.addDataType(struct);
+                    dayIndex++;
                 }
+            }
 
-                if (sdArray.nrOfDataTypes() != 0) {
-                    sdt.writeSpecialDays(sdArray);
-                }
+            if (sdArray.nrOfDataTypes() != 0) {
+                sdt.writeSpecialDays(sdArray);
             }
         }
     }

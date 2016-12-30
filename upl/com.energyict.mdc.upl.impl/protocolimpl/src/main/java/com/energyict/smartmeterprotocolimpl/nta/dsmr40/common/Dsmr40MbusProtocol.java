@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
@@ -12,8 +14,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
 @Deprecated //Never released, technical class
 public class Dsmr40MbusProtocol extends MbusDevice {
 
-    public Dsmr40MbusProtocol(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Dsmr40MbusProtocol(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(propertySpecService, calendarFinder, extractor);
     }
 
     @Override

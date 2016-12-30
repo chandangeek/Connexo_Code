@@ -1,6 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
@@ -30,8 +33,8 @@ public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor {
         return 0x01;
     }
 
-    public KaifaDsmr40MessageExecutor(final AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public KaifaDsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+        super(protocol, calendarFinder, extractor, messageFileFinder);
     }
 
     protected void resetMbusClient(MessageHandler messageHandler) throws IOException {

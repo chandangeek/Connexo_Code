@@ -1,32 +1,57 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.profiles;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.MeterTopology;
-import org.junit.Test;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Copyrights EnergyICT
  * Date: 4-mrt-2011
  * Time: 16:33:12
  */
+@RunWith(MockitoJUnitRunner.class)
 public class LoadProfileBuilderTest {
+
+    @Mock
+    private TariffCalendarFinder calendarFinder;
+    @Mock
+    private DeviceMessageFileFinder messageFileFinder;
+    @Mock
+    private Extractor extractor;
+
 
     @Test
     public void isDataObisCodeTest() {
         TypedProperties props = new TypedProperties();
         props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
-        WebRTUZ3 meterProtocol = new WebRTUZ3();
+        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
         meterProtocol.addProperties(props);
         LoadProfileBuilder lpb = new LoadProfileBuilder(meterProtocol);
         assertNotNull(lpb.isDataObisCode(ObisCode.fromString("1.0.1.8.0.255"), "MasterSerialNumber"));
@@ -43,7 +68,7 @@ public class LoadProfileBuilderTest {
     public void constructLoadProfileConfigComposedCosemObjectTest() {
         TypedProperties props = new TypedProperties();
         props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
-        WebRTUZ3 meterProtocol = new WebRTUZ3();
+        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
         meterProtocol.addProperties(props);
         try {
             meterProtocol.getDlmsSession().init();

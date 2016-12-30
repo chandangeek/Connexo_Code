@@ -1,17 +1,15 @@
 package com.energyict.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.HtmlEnabledBusinessException;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.User;
-import com.energyict.mdw.core.UserFile;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -50,21 +48,23 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     private static final String TAG_USERFILE = "UserFileId";
 
     private final TariffCalendarFinder calendarFinder;
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DateFormatter dateFormatter;
+    private final Extractor extractor;
     private String name;
     private Date activationDate;
-    private String codeId = "";
-    private int userFileId = 0;
-    private SimpleDateFormat formatter;
+    private String calendarId = "";
+    private String deviceMessageFileId = "";
 
-    private Code code;
-    private UserFile userFile;
+    private TariffCalendar calendar;
+    private DeviceMessageFile deviceMessageFile;
 
     /**
-     * Indicates whether to inline the {@link com.energyict.mdw.core.UserFile} or not.
+     * Indicates whether to inline the {@link DeviceMessageFile} or not.
      */
     private boolean inlineUserFiles;
     /**
-     * Indicates whether to inline the {@link com.energyict.mdw.core.Code} or not.
+     * Indicates whether to inline the {@link TariffCalendar} or not.
      */
     private boolean inlineCodeTables;
 
@@ -78,8 +78,11 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     private boolean encodeB64;
 
-    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder) {
+    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, Extractor extractor) {
         this.calendarFinder = calendarFinder;
+        this.messageFileFinder = messageFileFinder;
+        this.dateFormatter = dateFormatter;
+        this.extractor = extractor;
     }
 
     protected  TariffCalendarFinder getCalendarFinder() {
@@ -127,23 +130,23 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     /**
      * Set the codetable to be used as content for this time of use schedule
      *
-     * @param code The code to be set
+     * @param calendar The code to be set
      */
-    public void setCode(Code code) {
-        if (code != null) {
-            this.codeId = Integer.toString(code.getId());
+    public void setCalendar(TariffCalendar calendar) {
+        if (calendar != null) {
+            this.calendarId = extractor.id(calendar);
         } else {
-            this.codeId = "";
+            this.calendarId = "";
         }
     }
 
     /**
      * Set the id of the codetable to be used as content for this time of use schedule
      *
-     * @param codeId The id of the codetable to be set
+     * @param calendarId The id of the codetable to be set
      */
-    public void setCodeId(int codeId) {
-        this.codeId = Integer.toString(codeId);
+    public void setCalendarId(int calendarId) {
+        this.calendarId = Integer.toString(calendarId);
     }
 
     /**
@@ -151,34 +154,34 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      *
      * @return the codetable to be used as content for this time of use schedule
      */
-    public Code getCode() {
-        if (code == null) {
-            code = MeteringWarehouse.getCurrent().getCodeFactory().find(Integer.parseInt(codeId));
+    public TariffCalendar getCalendar() {
+        if (calendar == null) {
+            calendar = calendarFinder.from(calendarId).orElse(null);
         }
-        return code;
+        return calendar;
     }
 
     /**
      * Set the userfile to be used as content for this time of use schedule
      *
-     * @param userFile The userFile to be set
+     * @param deviceMessageFile The userFile to be set
      */
-    public void setUserFile(UserFile userFile) {
-        if (userFile != null) {
-            this.userFileId = userFile.getId();
-            this.userFile = userFile;
+    public void setDeviceMessageFile(DeviceMessageFile deviceMessageFile) {
+        if (deviceMessageFile != null) {
+            this.deviceMessageFileId = extractor.id(deviceMessageFile);
+            this.deviceMessageFile = deviceMessageFile;
         } else {
-            this.userFileId = 0;
+            this.deviceMessageFileId = "";
         }
     }
 
     /**
      * Set the id of the userfile to be used as content for this time of use schedule
      *
-     * @param userFileId The id of the userFile to be set
+     * @param deviceMessageFileId The id of the userFile to be set
      */
-    public void setUserFileId(int userFileId) {
-        this.userFileId = userFileId;
+    public void setDeviceMessageFileId(String deviceMessageFileId) {
+        this.deviceMessageFileId = deviceMessageFileId;
     }
 
     /**
@@ -186,11 +189,11 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      *
      * @return the userfile to be used as content for this time of use schedule
      */
-    public UserFile getUserFile() {
-        if (userFile == null) {
-            userFile = MeteringWarehouse.getCurrent().getUserFileFactory().find(userFileId);
+    public DeviceMessageFile getDeviceMessageFile() {
+        if (deviceMessageFile == null) {
+            deviceMessageFile = messageFileFinder.from(deviceMessageFileId).orElse(null);
         }
-        return userFile;
+        return deviceMessageFile;
     }
 
     public static String getMessageNodeTag() {
@@ -198,13 +201,9 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     }
 
     @Override
-    protected String getMessageContent() throws BusinessException {
-        if ((codeId.isEmpty()) && (userFileId == 0)) {
-            throw new HtmlEnabledBusinessException() {
-                public String getHtmlMessage() {
-                    return "<html>Code or user file needed</html>";
-                }
-            };
+    protected String getMessageContent() {
+        if ((calendarId.isEmpty()) && (deviceMessageFileId.isEmpty())) {
+            throw new IllegalArgumentException("Device message file or calendar needed");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -216,15 +215,15 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
             addAttribute(builder, ATTRIBUTE_ACTIVATIONDATE, activationDate.getTime() / 1000);
         }
         builder.append(">");
-        if (!codeId.isEmpty()) {
-            addChildTag(builder, TAG_CODE, codeId);
+        if (!calendarId.isEmpty()) {
+            addChildTag(builder, TAG_CODE, calendarId);
         }
-        if (userFileId > 0) {
+        if (!deviceMessageFileId.isEmpty()) {
             if (this.inlineUserFiles) {
                 builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
 
                 // This will generate a message that will make the RtuMessageContentParser inline the file.
-                builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(this.userFileId).append("\"");
+                builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(this.deviceMessageFileId).append("\"");
                 if (isZipMessageContent()) {
                     builder.append(" ").append(CREATEZIP_ATTRIBUTE_TAG).append("=\"true\"");
                 } else if (isEncodeB64()) {
@@ -234,7 +233,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
                 builder.append("</").append(INCLUDED_USERFILE_TAG).append(">");
             } else {
-                addChildTag(builder, TAG_USERFILE, userFileId);
+                addChildTag(builder, TAG_USERFILE, deviceMessageFileId);
             }
         }
         builder.append("</");
@@ -245,21 +244,17 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
     @Override
     public String getDescription() {
-        User user = MeteringWarehouse.getCurrentUser();
-        formatter = new SimpleDateFormat(user.getDateFormat() + " " + user.getLongTimeFormat());
-        formatter.setTimeZone(MeteringWarehouse.getCurrent().getSystemTimeZone());
-
         StringBuilder builder = new StringBuilder(MESSAGETAG);
         builder.append(" ");
         builder.append("Name='").append(name).append("', ");
         if (activationDate != null) {
-            builder.append("ActivationDate='").append(formatter.format(activationDate)).append("', ");
+            builder.append("ActivationDate='").append(dateFormatter.format(activationDate)).append("', ");
         }
-        if (!codeId.isEmpty()) {
-            builder.append("Code='").append(getCode().getName()).append("', ");
+        if (!calendarId.isEmpty()) {
+            builder.append("Code='").append(extractor.name(getCalendar())).append("', ");
         }
-        if (userFileId > 0) {
-            builder.append("UserFile='").append(getUserFile().getName()).append("'");
+        if (!deviceMessageFileId.isEmpty()) {
+            builder.append("UserFile='").append(extractor.name(this.getDeviceMessageFile())).append("'");
         }
 
         return builder.toString();
@@ -312,31 +307,30 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
                 String codeId = (String) getCurrentValue();
                 if (codeId != null) {
                     int id = Integer.parseInt(codeId);
-                    msgBuilder.setCodeId(id);
+                    msgBuilder.setCalendarId(id);
                 }
             }
             if (TAG_USERFILE.equals(localName)) {
                 String userFileId = (String) getCurrentValue();
                 if (userFileId != null) {
-                    int id = Integer.parseInt(userFileId);
-                    msgBuilder.setUserFileId(id);
+                    msgBuilder.setDeviceMessageFileId(userFileId);
                 }
             }
 
             // We have an included file...
             if (INCLUDED_USERFILE_TAG.equals(localName)) {
-                this.msgBuilder.setUserFile(new IncludedUserFile((String) this.getCurrentValue()));
+                this.msgBuilder.setDeviceMessageFile(new IncludedUserFile((String) this.getCurrentValue()));
             }
         }
 
     }
 
-    public String getCodeId() {
-        return codeId;
+    public String getCalendarId() {
+        return calendarId;
     }
 
-    public int getUserFileId() {
-        return userFileId;
+    public String getDeviceMessageFileId() {
+        return deviceMessageFileId;
     }
 
     public static String getAttributeName() {

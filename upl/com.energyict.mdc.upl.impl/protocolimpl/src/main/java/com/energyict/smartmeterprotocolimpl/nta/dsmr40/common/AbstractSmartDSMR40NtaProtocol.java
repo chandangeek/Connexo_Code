@@ -1,5 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -20,10 +24,31 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.DSMR40EventProfile}
      */
     protected DSMR40EventProfile eventProfile;
+    private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
+    private final DeviceMessageFileFinder messageFileFinder;
+
+    protected AbstractSmartDSMR40NtaProtocol(TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
+        this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
+        this.messageFileFinder = messageFileFinder;
+    }
+
+    public TariffCalendarFinder getCalendarFinder() {
+        return calendarFinder;
+    }
+
+    public DeviceMessageFileFinder getMessageFileFinder() {
+        return messageFileFinder;
+    }
+
+    public Extractor getExtractor() {
+        return extractor;
+    }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.extractor, this.messageFileFinder));
     }
 
     /**

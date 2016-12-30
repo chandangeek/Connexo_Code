@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -98,9 +100,9 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     private final MessageProtocol messageProtocol;
     private int eventIdIndex;
 
-    public DLMSZMD(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public DLMSZMD(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, Extractor extractor) {
         super(propertySpecService);
-        this.messageProtocol = new ZmdMessages(this, calendarFinder, extractor);
+        this.messageProtocol = new ZmdMessages(this, calendarFinder, extractor, messageFileFinder, dateFormatter);
     }
 
     @Override

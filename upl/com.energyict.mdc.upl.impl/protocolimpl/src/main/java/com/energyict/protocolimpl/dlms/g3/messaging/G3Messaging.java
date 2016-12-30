@@ -178,6 +178,14 @@ public class G3Messaging extends AnnotatedMessaging {
         this.extractor = extractor;
     }
 
+    protected TariffCalendarFinder getCalendarFinder() {
+        return calendarFinder;
+    }
+
+    protected Extractor getExtractor() {
+        return extractor;
+    }
+
     @Override
     public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> messageCategories = getAnnotatedMessageCategories();

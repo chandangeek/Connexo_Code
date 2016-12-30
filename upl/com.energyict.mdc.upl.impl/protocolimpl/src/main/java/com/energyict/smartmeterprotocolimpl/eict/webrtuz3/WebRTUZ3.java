@@ -1,10 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
@@ -82,9 +85,15 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      */
     private LoadProfileBuilder loadProfileBuilder;
 
-    private WebRTUZ3Messaging messageProtocol = new WebRTUZ3Messaging(new WebRTUZ3MessageExecutor(this));
+    private final TariffCalendarFinder calendarFinder;
+    private final WebRTUZ3Messaging messageProtocol;
 
     private static final int ObisCodeBFieldIndex = 1;
+
+    public WebRTUZ3(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+        this.calendarFinder = calendarFinder;
+        this.messageProtocol = new WebRTUZ3Messaging(new WebRTUZ3MessageExecutor(this, calendarFinder, messageFileFinder, extractor));
+    }
 
 //    /**
 //     * Contains a Map of all the requested objects in this communicationSession

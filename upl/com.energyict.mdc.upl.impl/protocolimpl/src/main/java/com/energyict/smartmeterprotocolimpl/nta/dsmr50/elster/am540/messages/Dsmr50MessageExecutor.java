@@ -1,6 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -12,10 +17,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.CodeDayType;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
@@ -45,8 +46,8 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";
 
-    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+        super(protocol, calendarFinder, extractor, messageFileFinder);
     }
 
     @Override
@@ -54,8 +55,8 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         return (messageEntry.getTrackingId() != null) && (messageEntry.getTrackingId().toLowerCase().contains(RESUME));
     }
 
-    protected ActivityCalendarMessage getActivityCalendarParser(Code ct) {
-        return new Dsmr50ActivityCalendarParser(ct, getMeterConfig());
+    protected ActivityCalendarMessage getActivityCalendarParser(TariffCalendar calendar) {
+        return new Dsmr50ActivityCalendarParser(calendar, this.getExtractor(), getMeterConfig());
     }
 
     @Override
@@ -68,48 +69,41 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
             throw new IOException("CodeTable-ID can not be empty.");
         } else {
 
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-            } else {
-
-                List calendars = ct.getCalendars();
-                Array sdArray = new Array();
-
-                SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-
-                //Create day type IDs (incremental 0-based)
-                Map<Integer, Integer> dayTypeIds = new HashMap<Integer, Integer>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
-                List<CodeDayType> dayTypes = ct.getDayTypes();
-                for (int dayTypeIndex = 0; dayTypeIndex < dayTypes.size(); dayTypeIndex++) {
-                    CodeDayType dayType = dayTypes.get(dayTypeIndex);
-                    if (!dayTypeIds.containsKey(dayType.getId())) {
-                        dayTypeIds.put(dayType.getId(), dayTypeIndex);
-                    }
+            TariffCalendar tariffCalendar = this.getCalendarFinder().from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
+            List<Extractor.CalendarRule> rules = this.getExtractor().rules(tariffCalendar);
+            Array sdArray = new Array();
+            SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+            //Create day type IDs (incremental 0-based)
+            Map<String, Integer> dayTypeIds = new HashMap<>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
+            List<Extractor.CalendarDayType> dayTypes = this.getExtractor().dayTypes(tariffCalendar);
+            for (int dayTypeIndex = 0; dayTypeIndex < dayTypes.size(); dayTypeIndex++) {
+                Extractor.CalendarDayType dayType = dayTypes.get(dayTypeIndex);
+                if (!dayTypeIds.containsKey(dayType.id())) {
+                    dayTypeIds.put(dayType.id(), dayTypeIndex);
                 }
+            }
 
-                int dayIndex = 0;
-                for (Object calendar : calendars) {
-                    CodeCalendar codeCalendar = (CodeCalendar) calendar;
-                    if (codeCalendar.getSeason() == 0) {
-                        OctetString timeStamp = OctetString.fromByteArray(new byte[]{(byte) ((codeCalendar.getYear() == -1) ? 0xff : ((codeCalendar.getYear() >> 8) & 0xFF)), (byte) ((codeCalendar.getYear() == -1) ? 0xff : (codeCalendar.getYear()) & 0xFF),
-                                (byte) ((codeCalendar.getMonth() == -1) ? 0xFF : codeCalendar.getMonth()), (byte) ((codeCalendar.getDay() == -1) ? 0xFF : codeCalendar.getDay()),
-                                (byte) ((codeCalendar.getDayOfWeek() == -1) ? 0xFF : codeCalendar.getDayOfWeek())});
-                        Unsigned8 dayType = new Unsigned8(dayTypeIds.get(codeCalendar.getDayType().getId()));
-                        Structure specialDayStructure = new Structure();
-                        specialDayStructure.addDataType(new Unsigned16(dayIndex));
-                        specialDayStructure.addDataType(timeStamp);
-                        specialDayStructure.addDataType(dayType);
-                        sdArray.addDataType(specialDayStructure);
-                        dayIndex++;
-                    }
+            int dayIndex = 0;
+            for (Extractor.CalendarRule calendar : rules) {
+                if (!calendar.seasonId().isPresent()) {
+                    OctetString timeStamp = OctetString.fromByteArray(new byte[]{(byte) ((calendar.year() == -1) ? 0xff : ((calendar.year() >> 8) & 0xFF)), (byte) ((calendar.year() == -1) ? 0xff : (calendar
+                            .year()) & 0xFF),
+                            (byte) ((calendar.month() == -1) ? 0xFF : calendar.month()), (byte) ((calendar.day() == -1) ? 0xFF : calendar.day()),
+                            (byte) ((calendar.dayOfWeek() == -1) ? 0xFF : calendar.dayOfWeek())});
+                    Unsigned8 dayType = new Unsigned8(dayTypeIds.get(calendar.dayTypeId()));
+                    Structure specialDayStructure = new Structure();
+                    specialDayStructure.addDataType(new Unsigned16(dayIndex));
+                    specialDayStructure.addDataType(timeStamp);
+                    specialDayStructure.addDataType(dayType);
+                    sdArray.addDataType(specialDayStructure);
+                    dayIndex++;
                 }
+            }
 
-                sdArray = sort(sdArray);
+            sdArray = sort(sdArray);
 
-                if (sdArray.nrOfDataTypes() != 0) {
-                    specialDaysTable.writeSpecialDays(sdArray);
-                }
+            if (sdArray.nrOfDataTypes() != 0) {
+                specialDaysTable.writeSpecialDays(sdArray);
             }
         }
     }
@@ -201,13 +195,8 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (uf == null) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
-
-        byte[] imageData = uf.loadFileInByteArray();
+        DeviceMessageFile deviceMessageFile = this.getMessageFileFinder().from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
+        byte[] imageData = this.getExtractor().binaryContents(deviceMessageFile);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(messageEntry)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -223,12 +212,12 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         it.setDelayBeforeSendingBlocks(5000);
         it.setCheckNumberOfBlocksInPreviousSession(((Dsmr50Properties)getProtocol().getProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
         String imageIdentifier = messageHandler.getImageIdentifier();
-        if (imageIdentifier != null && imageIdentifier.length() > 0) {
+        if (imageIdentifier != null && !imageIdentifier.isEmpty()) {
             it.upgrade(imageData, false, imageIdentifier, false);
         } else {
             it.upgrade(imageData, false);
         }
-        if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+        if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             try {
                 it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
                 log(Level.INFO, "Activating the image");
@@ -240,7 +229,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
                     throw e;
                 }
             }
-        } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+        } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             String strDate = messageHandler.getActivationDate();
             Array dateArray = convertActivationDateUnixToDateTimeArray(strDate);

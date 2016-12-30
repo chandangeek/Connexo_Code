@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -18,8 +20,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessag
  */
 public class MBusDevice extends AbstractNtaMbusDevice {
 
-    public MBusDevice(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    protected MBusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        super(propertySpecService, calendarFinder, extractor);
     }
 
     public MBusDevice(AbstractSmartNtaProtocol meterProtocol, PropertySpecService propertySpecService, final String serialNumber, final int physicalAddress) {

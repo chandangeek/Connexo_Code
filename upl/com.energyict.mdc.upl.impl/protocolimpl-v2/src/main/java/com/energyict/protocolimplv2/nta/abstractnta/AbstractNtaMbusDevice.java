@@ -65,6 +65,10 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
 
     private final String serialNumber;
     private final int physicalAddress;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+    private final Extractor extractor;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
@@ -72,6 +76,26 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
         this.meterProtocol = new WebRTUKP(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
+        this.extractor = extractor;
+    }
+
+    public Extractor getExtractor() {
+        return extractor;
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    public NlsService getNlsService() {
+        return nlsService;
+    }
+
+    public Converter getConverter() {
+        return converter;
     }
 
     @Override

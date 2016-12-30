@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -34,17 +36,17 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     public Device mbus;
     private Logger logger;
 
-    public MbusDevice(PropertySpecService propertySpecService) {
-        this(propertySpecService, true);
+    public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+        this(propertySpecService, calendarFinder, extractor, true);
     }
 
-    public MbusDevice(PropertySpecService propertySpecService, boolean hasBreaker) {
-        super(propertySpecService);
+    public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor, boolean hasBreaker) {
+        super(propertySpecService, calendarFinder, extractor);
         this.hasBreaker = hasBreaker;
     }
 
-    public MbusDevice(PropertySpecService propertySpecService, int mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, IskraMx372 protocol) {
-        this(propertySpecService, protocol.hasBreaker());
+    public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor, int mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, IskraMx372 protocol) {
+        this(propertySpecService, calendarFinder, extractor, protocol.hasBreaker());
         this.mbusAddress = mbusAddress;
         this.physicalAddress = phyAddress;
         this.customerID = serial;

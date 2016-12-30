@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
@@ -15,11 +16,12 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsm
  */
 public class SagemComMessaging extends AM540Messaging {
 
-    public SagemComMessaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
-        super(protocol, calendarFinder, extractor);
+    public SagemComMessaging(AM540 protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+        super(protocol, calendarFinder, extractor, messageFileFinder);
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new SagemComDsmr50MessageExecutor(protocol);
+        return new SagemComDsmr50MessageExecutor(protocol, this.getCalendarFinder(), this.getMessageFileFinder(), this.getExtractor());
     }
+
 }

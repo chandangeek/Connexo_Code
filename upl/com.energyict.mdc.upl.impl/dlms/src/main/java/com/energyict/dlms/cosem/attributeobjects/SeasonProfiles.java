@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * A seasonProfile is defined by their starting date and a specific weekProfile to be executed
+ * A seasonProfile is defined by their starting date and a specific weekProfile to be executed.
  */
 public class SeasonProfiles extends Structure implements Comparable {
 
@@ -49,7 +49,7 @@ public class SeasonProfiles extends Structure implements Comparable {
 	 * @throws IllegalArgumentException when not all necessary seasonProfile fields are written
 	 */
 	protected byte[] doGetBEREncodedByteArray() {
-        
+
 		if ((getSeasonProfileName() == null) || (getSeasonStart() == null) || (getWeekName() == null)) {
 			throw new IllegalArgumentException("Some of the seasonProfile fields are empty.");
 		}
@@ -67,8 +67,8 @@ public class SeasonProfiles extends Structure implements Comparable {
 		return seasonProfileName;
 	}
 
-	public int getSeasonId(){
-		return Integer.parseInt(new String(getSeasonProfileName().getOctetStr()));
+	public String getSeasonId(){
+		return new String(getSeasonProfileName().getOctetStr());
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -16,13 +17,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemCo
  */
 public class CX20009 extends AM540 {
 
-    private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
-
-    public CX20009(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
-        super(propertySpecService, extractor, calendarFinder);
-        this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+    public CX20009(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+        super(propertySpecService, extractor, calendarFinder, messageFileFinder);
     }
 
     @Override
@@ -33,7 +29,7 @@ public class CX20009 extends AM540 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new SagemComMessaging(this, this.calendarFinder, this.extractor);
+            messageProtocol = new SagemComMessaging(this, this.getCalendarFinder(), this.getMessageFileFinder(),  this.getExtractor());
         }
         return messageProtocol;
     }

@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
@@ -20,8 +22,8 @@ public class TimeOfUseMessageBuilder extends com.energyict.messaging.TimeOfUseMe
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
     private final Extractor extractor;
 
-    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, Extractor extractor) {
-        super(calendarFinder);
+    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, Extractor extractor) {
+        super(calendarFinder, messageFileFinder, dateFormatter, extractor);
         this.extractor = extractor;
     }
 
@@ -30,7 +32,7 @@ public class TimeOfUseMessageBuilder extends com.energyict.messaging.TimeOfUseMe
      */
     @Override
     protected String getMessageContent() {
-        if ((getCodeId().isEmpty()) && (getUserFileId() == 0)) {
+        if ((getCalendarId().isEmpty()) && (getDeviceMessageFileId().isEmpty())) {
             throw new IllegalArgumentException("Code or userFile needed");
         }
         StringBuilder builder = new StringBuilder();
@@ -43,10 +45,10 @@ public class TimeOfUseMessageBuilder extends com.energyict.messaging.TimeOfUseMe
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (!getCodeId().isEmpty()) {
+        if (!getCalendarId().isEmpty()) {
             try {
-                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), this.extractor).parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
-                addChildTag(builder, getTagCode(), getCodeId());
+                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), this.extractor).parseActivityCalendarAndSpecialDayTable(getCalendarId(), getActivationDate().getTime(), getName());
+                addChildTag(builder, getTagCode(), getCalendarId());
                 addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
             } catch (ParserConfigurationException | IOException e) {
                 throw new IllegalArgumentException(e.getMessage());

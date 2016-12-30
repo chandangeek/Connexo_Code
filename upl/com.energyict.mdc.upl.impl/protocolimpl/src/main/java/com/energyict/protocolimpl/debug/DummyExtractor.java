@@ -46,7 +46,22 @@ final class DummyExtractor implements Extractor {
     }
 
     @Override
+    public String name(DeviceMessageFile deviceMessageFile) {
+        return "";
+    }
+
+    @Override
     public String contents(DeviceMessageFile deviceMessageFile) {
+        return "";
+    }
+
+    @Override
+    public byte[] binaryContents(DeviceMessageFile deviceMessageFile) {
+        return new byte[0];
+    }
+
+    @Override
+    public String contents(DeviceMessageFile deviceMessageFile, String charSetName) {
         return "";
     }
 

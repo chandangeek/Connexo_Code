@@ -29,7 +29,7 @@ public class UkHubTestTool extends AbstractSmartDebuggingMain<UkHub> {
 
     public UkHub getMeterProtocol() {
         if (ukHub == null) {
-            ukHub = new UkHub(Services.propertySpecService());
+            ukHub = new UkHub(Services.propertySpecService(), new NoDeviceMessageFiles(), new DummyExtractor());
             log("Created new instance of " + ukHub.getClass().getCanonicalName() + " [" + ukHub.getVersion() + "]");
         }
         return ukHub;

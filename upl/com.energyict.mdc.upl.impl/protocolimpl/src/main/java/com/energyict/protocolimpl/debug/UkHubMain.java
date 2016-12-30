@@ -21,7 +21,7 @@ public class UkHubMain extends AbstractSmartDebuggingMain<UkHub> {
 
     public UkHub getMeterProtocol() {
         if (ukHub == null) {
-            ukHub = new UkHub(Services.propertySpecService());
+            ukHub = new UkHub(Services.propertySpecService(), Services.deviceMessageFileFinder(), Services.extractor());
             log("Created new instance of " + ukHub.getClass().getCanonicalName() + " [" + ukHub.getVersion() + "]");
         }
         return ukHub;

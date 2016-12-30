@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.DLMSCache;
@@ -20,7 +22,11 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.profiles.WatchTalkL
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -32,10 +38,19 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
 
     private Dsmr40LoadProfileBuilder loadProfileBuilder;
     private Dsmr23Messaging messageProtocol;
+    private final TariffCalendarFinder calendarFinder;
+    private final Extractor extractor;
+
+    public WatchTalk(TariffCalendarFinder calendarFinder, Extractor extractor) {
+        this.calendarFinder = calendarFinder;
+        this.extractor = extractor;
+    }
 
     @Override
     protected void checkCacheObjects() throws IOException {
-        if (getCache() == null) setCache(new DLMSCache());
+        if (getCache() == null) {
+            setCache(new DLMSCache());
+        }
         if ((((DLMSCache) getCache()).getObjectList() == null) || ((WatchTalkProperties) getProperties()).getForcedToReadCache()) {
             getLogger().info(((WatchTalkProperties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
             requestConfiguration();
@@ -55,7 +70,7 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
      * @return the object list, without dummy objects
      */
     private UniversalObject[] removeInvalidReferencesFromObjectList(UniversalObject[] instantiatedObjectList) {
-        List<UniversalObject> result = new ArrayList(instantiatedObjectList.length);
+        List<UniversalObject> result = new ArrayList<>(instantiatedObjectList.length);
 
         for (UniversalObject object : instantiatedObjectList) {
             if (object.getClassID() == 255 && object.getObisCode().equals(ObisCode.fromString("255.255.255.255.255.255"))) {
@@ -78,7 +93,7 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new XemexWatchTalkMessaging(new XemexWatchTalkMessageExecutor(this));
+            messageProtocol = new XemexWatchTalkMessaging(new XemexWatchTalkMessageExecutor(this, this.calendarFinder, this.extractor));
         }
         return messageProtocol;
     }
@@ -115,12 +130,10 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
         return convertUnixToDateTime(time, TimeZone.getTimeZone("GMT"));
     }
 
-    private AXDRDateTime convertUnixToDateTime(Date time, TimeZone timeZone) throws IOException {
-        AXDRDateTime dateTime = null;
+    private AXDRDateTime convertUnixToDateTime(Date time, TimeZone timeZone) {
         Calendar cal = Calendar.getInstance(timeZone);
         cal.setTimeInMillis(time.getTime());
-        dateTime = new AXDRDateTime(cal.getTime(), timeZone);
-        return dateTime;
+        return new AXDRDateTime(cal.getTime(), timeZone);
     }
 
     @Override

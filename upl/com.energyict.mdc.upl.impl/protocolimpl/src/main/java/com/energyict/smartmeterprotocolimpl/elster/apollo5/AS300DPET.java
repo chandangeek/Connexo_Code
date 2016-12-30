@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
@@ -28,8 +30,13 @@ import java.util.List;
  */
 public class AS300DPET extends AS300 {
 
-    public AS300DPET(TariffCalendarFinder calendarFinder, Extractor extractor) {
-        super(calendarFinder, extractor);
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DateFormatter dateFormatter;
+
+    public AS300DPET(TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter) {
+        super(calendarFinder, extractor, dateFormatter, messageFileFinder);
+        this.messageFileFinder = messageFileFinder;
+        this.dateFormatter = dateFormatter;
     }
 
     @Override
@@ -98,7 +105,7 @@ public class AS300DPET extends AS300 {
     @Override
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarFinder(), this.getExtractor()));
+            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarFinder(), this.getExtractor(), this.messageFileFinder, this.dateFormatter));
         }
         return messageProtocol;
     }

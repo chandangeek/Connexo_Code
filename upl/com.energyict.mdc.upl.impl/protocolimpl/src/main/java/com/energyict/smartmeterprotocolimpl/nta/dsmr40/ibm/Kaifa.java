@@ -1,5 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
@@ -26,6 +29,10 @@ public class Kaifa extends E350 {
 
     private Dsmr40Messaging messageProtocol = null;
 
+    public Kaifa(TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
+        super(calendarFinder, messageFileFinder, extractor);
+    }
+
     @Override
     public String getVersion() {
         return "$Date: 2015-01-07 15:53:48 +0100 (Wed, 07 Jan 2015) $";
@@ -37,7 +44,7 @@ public class Kaifa extends E350 {
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        HHUSignOn hhuSignOn = (HHUSignOn) new KaifaHHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = new KaifaHHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -47,7 +54,7 @@ public class Kaifa extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new KaifaDsmr40Messaging(new KaifaDsmr40MessageExecutor(this));
+            messageProtocol = new KaifaDsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getCalendarFinder(), this.getMessageFileFinder(), this.getExtractor()));
         }
         return messageProtocol;
     }

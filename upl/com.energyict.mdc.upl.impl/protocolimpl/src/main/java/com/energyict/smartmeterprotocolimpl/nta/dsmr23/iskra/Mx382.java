@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
@@ -22,9 +24,17 @@ import java.util.List;
  */
 public class Mx382 extends AbstractSmartNtaProtocol {
 
+    private final TariffCalendarFinder tariffCalendarFinder;
+    private final Extractor extractor;
+
+    public Mx382(TariffCalendarFinder tariffCalendarFinder, Extractor extractor) {
+        this.tariffCalendarFinder = tariffCalendarFinder;
+        this.extractor = extractor;
+    }
+
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, tariffCalendarFinder, extractor));
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {

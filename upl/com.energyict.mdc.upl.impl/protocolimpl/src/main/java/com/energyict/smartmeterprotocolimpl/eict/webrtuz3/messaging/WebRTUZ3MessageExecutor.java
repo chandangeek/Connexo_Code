@@ -1,6 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
@@ -46,13 +51,10 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.MessageParser;
@@ -86,9 +88,15 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private static final ObisCode RF_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
     private final WebRTUZ3 protocol;
+    private final TariffCalendarFinder calendarFinder;
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final Extractor extractor;
 
-    public WebRTUZ3MessageExecutor(final WebRTUZ3 protocol) {
+    public WebRTUZ3MessageExecutor(final WebRTUZ3 protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
         this.protocol = protocol;
+        this.calendarFinder = calendarFinder;
+        this.messageFileFinder = messageFileFinder;
+        this.extractor = extractor;
     }
 
     @Override
@@ -159,13 +167,9 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         String str = "Not a valid entry for the current meter message (" + content + ").";
                         throw new IOException(str);
                     }
-                    UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-                    if (!(uf instanceof UserFile)) {
-                        String str = "Not a valid entry for the userfileID " + userFileID;
-                        throw new IOException(str);
-                    }
+                    DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
 
-                    byte[] imageData = uf.loadFileInByteArray();
+                    byte[] imageData = this.extractor.binaryContents(deviceMessageFile);
                     ImageTransfer it = getCosemObjectFactory().getImageTransfer();
                     it.upgrade(imageData);
                     if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
@@ -199,13 +203,8 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         String str = "Not a valid entry for the current meter message (" + content + ").";
                         throw new IOException(str);
                     }
-                    UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-                    if (!(uf instanceof UserFile)) {
-                        String str = "Not a valid entry for the userfileID " + userFileID;
-                        throw new IOException(str);
-                    }
-
-                    byte[] imageData = uf.loadFileInByteArray();
+                    DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
+                    byte[] imageData = this.extractor.binaryContents(deviceMessageFile);
                     ImageTransfer it = getCosemObjectFactory().getImageTransfer(RF_FIRMWARE_OBISCODE);
                     it.upgrade(imageData);
 
@@ -482,35 +481,27 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     }
 
                     if (codeTable != null) {
+                        TariffCalendar tariffCalendar = this.calendarFinder.from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
+                        ActivityCalendarMessage acm = new ActivityCalendarMessage(tariffCalendar, this.extractor, getMeterConfig());
+                        acm.parse();
 
-                        Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-                        if (ct == null) {
-                            throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-                        } else {
+                        ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
+                        ac.writeSeasonProfilePassive(acm.getSeasonProfile());
+                        ac.writeWeekProfileTablePassive(acm.getWeekProfile());
+                        ac.writeDayProfileTablePassive(acm.getDayProfile());
 
-                            ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
-                            acm.parse();
-
-                            ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
-                            ac.writeSeasonProfilePassive(acm.getSeasonProfile());
-                            ac.writeWeekProfileTablePassive(acm.getWeekProfile());
-                            ac.writeDayProfileTablePassive(acm.getDayProfile());
-
-                            if (name != null) {
-                                if (name.length() > 8) {
-                                    name = name.substring(0, 8);
-                                }
-                                ac.writeCalendarNamePassive(OctetString.fromString(name));
+                        if (name != null) {
+                            if (name.length() > 8) {
+                                name = name.substring(0, 8);
                             }
-
-                            if (activateNow) {
-                                ac.activateNow();
-                            } else if (activateDate != null) {
-                                ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
-                            }
-
+                            ac.writeCalendarNamePassive(OctetString.fromString(name));
                         }
 
+                        if (activateNow) {
+                            ac.activateNow();
+                        } else if (activateDate != null) {
+                            ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
+                        }
                     } else if (userFile != null) {
                         throw new IOException("ActivityCalendar by userfile is not supported yet.");
                     } else {
@@ -529,43 +520,35 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     if (codeTable == null) {
                         throw new IOException("CodeTable-ID can not be empty.");
                     } else {
-
-                        Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-                        if (ct == null) {
-                            throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-                        } else {
-
-                            List calendars = ct.getCalendars();
-                            Array sdArray = new Array();
-
-                            SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-
-                            for (int i = 0; i < calendars.size(); i++) {
-                                CodeCalendar cc = (CodeCalendar) calendars.get(i);
-                                if (cc.getSeason() == 0) {
-                                    OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
-                                            (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                                            (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
-                                    Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
-                                    Structure struct = new Structure();
-                                    AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((cc.getYear() == -1) ? 0x07 : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xB2 : (cc.getYear()) & 0xFF),
-                                            (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                                            (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
-                                    long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
-                                    struct.addDataType(new Unsigned16((int) days));
-                                    struct.addDataType(os);
-                                    struct.addDataType(dayType);
+                        TariffCalendar tariffCalendar = this.calendarFinder.from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
+                        Array sdArray = new Array();
+                        SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+                        List<Extractor.CalendarRule> rules = this.extractor.rules(tariffCalendar);
+                        for (int i = 0; i < rules.size(); i++) {
+                            Extractor.CalendarRule rule = rules.get(i);
+                            if (!rule.seasonId().isPresent()) {
+                                OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((rule.year() == -1) ? 0xff : ((rule.year() >> 8) & 0xFF)), (byte) ((rule.year() == -1) ? 0xff : (rule.year()) & 0xFF),
+                                        (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
+                                        (byte) ((rule.dayOfWeek() == -1) ? 0xFF : rule.dayOfWeek())});
+                                Unsigned8 dayType = new Unsigned8(Integer.parseInt(rule.dayTypeId()));
+                                Structure struct = new Structure();
+                                AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((rule.year() == -1) ? 0x07 : ((rule.year() >> 8) & 0xFF)), (byte) ((rule.year() == -1) ? 0xB2 : (rule.year()) & 0xFF),
+                                        (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
+                                        (byte) ((rule.dayOfWeek() == -1) ? 0xFF : rule.dayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
+                                long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
+                                struct.addDataType(new Unsigned16((int) days));
+                                struct.addDataType(os);
+                                struct.addDataType(dayType);
 //								sdt.insert(struct);
-                                    sdArray.addDataType(struct);
-                                }
+                                sdArray.addDataType(struct);
                             }
-
-                            if (sdArray.nrOfDataTypes() != 0) {
-                                sdt.writeSpecialDays(sdArray);
-                            }
-
-                            success = true;
                         }
+
+                        if (sdArray.nrOfDataTypes() != 0) {
+                            sdt.writeSpecialDays(sdArray);
+                        }
+
+                        success = true;
                     }
                 } else if (specialDelEntry) {
                     try {
@@ -643,123 +626,119 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     Date currentTime;
                     if (!userFileId.equalsIgnoreCase("")) {
                         if (ParseUtils.isInteger(userFileId)) {
-                            UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
-                            if (uf != null) {
-                                byte[] data = uf.loadFileInByteArray();
-                                CSVParser csvParser = new CSVParser();
-                                csvParser.parse(data);
-                                boolean hasWritten;
-                                TestObject to = new TestObject("");
-                                for (int i = 0; i < csvParser.size(); i++) {
-                                    to = csvParser.getTestObject(i);
-                                    if (csvParser.isValidLine(to)) {
-                                        currentTime = new Date(System.currentTimeMillis());
-                                        hasWritten = false;
-                                        try {
-                                            switch (to.getType()) {
-                                                case 0: { // GET
-                                                    GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
-                                                    to.setResult("0x" + ParseUtils.decimalByteToString(gr.getResponseData()));
-                                                    hasWritten = true;
+                            DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileId).orElseThrow(() -> new IllegalArgumentException("Userfile with ID " + userFileId + " does not exist."));
+                            byte[] data = this.extractor.binaryContents(deviceMessageFile);
+                            CSVParser csvParser = new CSVParser(this.extractor);
+                            csvParser.parse(data);
+                            boolean hasWritten;
+                            TestObject to = new TestObject("");
+                            for (int i = 0; i < csvParser.size(); i++) {
+                                to = csvParser.getTestObject(i);
+                                if (csvParser.isValidLine(to)) {
+                                    currentTime = new Date(System.currentTimeMillis());
+                                    hasWritten = false;
+                                    try {
+                                        switch (to.getType()) {
+                                            case 0: { // GET
+                                                GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
+                                                to.setResult("0x" + ParseUtils.decimalByteToString(gr.getResponseData()));
+                                                hasWritten = true;
+                                            }
+                                            break;
+                                            case 1: { // SET
+                                                GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
+                                                gw.write(ParseUtils.hexStringToByteArray(to.getData()));
+                                                to.setResult("OK");
+                                                hasWritten = true;
+                                            }
+                                            break;
+                                            case 2: { // ACTION
+                                                GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
+                                                if ("".equalsIgnoreCase(to.getData())) {
+                                                    gi.invoke();
+                                                } else {
+                                                    gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
                                                 }
-                                                break;
-                                                case 1: { // SET
-                                                    GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
-                                                    gw.write(ParseUtils.hexStringToByteArray(to.getData()));
-                                                    to.setResult("OK");
-                                                    hasWritten = true;
+                                                to.setResult("OK");
+                                                hasWritten = true;
+                                            }
+                                            break;
+                                            case 3: { // MESSAGE
+                                                //Do nothing, no longer supported
+                                                //OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+                                                //rms.setContents(csvParser.getTestObject(i).getData());
+                                                //rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
+                                                //OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+                                                //doMessage(rm);
+                                                //if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+                                                //    to.setResult("OK");
+                                                //} else {
+                                                //    to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+                                                //}
+                                                //hasWritten = true;
+                                            }
+                                            break;
+                                            case 4: { // WAIT
+                                                waitCyclus(Integer.parseInt(to.getData()));
+                                                to.setResult("OK");
+                                                hasWritten = true;
+                                            }
+                                            break;
+                                            case 5: {
+                                                // do nothing, it's no valid line
+                                            }
+                                            break;
+                                            default: {
+                                                throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
+                                            }
+                                        }
+                                        to.setTime(currentTime.getTime());
+
+                                        // Check if the expected value is the same as the result
+                                        if ((to.getExpected() == null) || (!to.getExpected().equalsIgnoreCase(to.getResult()))) {
+                                            to.setResult("Failed - " + to.getResult());
+                                            failures++;
+                                            getLogger().log(Level.INFO, "Test " + i + " has successfully finished, but the result didn't match the expected value.");
+                                        } else {
+                                            getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
+                                        }
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        if (!hasWritten) {
+                                            if ((to.getExpected() != null) && (e.getMessage().contains(to.getExpected()))) {
+                                                to.setResult(e.getMessage());
+                                                getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
+                                                hasWritten = true;
+                                            } else {
+                                                getLogger().log(Level.INFO, "Test " + i + " has failed.");
+                                                String eMessage;
+                                                if (e.getMessage().contains("\r\n")) {
+                                                    eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
+                                                } else {
+                                                    eMessage = e.getMessage();
                                                 }
-                                                break;
-                                                case 2: { // ACTION
-                                                    GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                                    if (to.getData().equalsIgnoreCase("")) {
-                                                        gi.invoke();
-                                                    } else {
-                                                        gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
-                                                    }
-                                                    to.setResult("OK");
-                                                    hasWritten = true;
-                                                }
-                                                break;
-                                                case 3: { // MESSAGE
-                                                    //Do nothing, no longer supported
-                                                    //OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                                    //rms.setContents(csvParser.getTestObject(i).getData());
-                                                    //rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
-                                                    //OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                                    //doMessage(rm);
-                                                    //if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                                    //    to.setResult("OK");
-                                                    //} else {
-                                                    //    to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                                    //}
-                                                    //hasWritten = true;
-                                                }
-                                                break;
-                                                case 4: { // WAIT
-                                                    waitCyclus(Integer.parseInt(to.getData()));
-                                                    to.setResult("OK");
-                                                    hasWritten = true;
-                                                }
-                                                break;
-                                                case 5: {
-                                                    // do nothing, it's no valid line
-                                                }
-                                                break;
-                                                default: {
-                                                    throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
-                                                }
+                                                to.setResult("Failed. " + eMessage);
+                                                hasWritten = true;
+                                                failures++;
                                             }
                                             to.setTime(currentTime.getTime());
-
-                                            // Check if the expected value is the same as the result
-                                            if ((to.getExpected() == null) || (!to.getExpected().equalsIgnoreCase(to.getResult()))) {
-                                                to.setResult("Failed - " + to.getResult());
-                                                failures++;
-                                                getLogger().log(Level.INFO, "Test " + i + " has successfully finished, but the result didn't match the expected value.");
-                                            } else {
-                                                getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
-                                            }
-
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            if (!hasWritten) {
-                                                if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
-                                                    to.setResult(e.getMessage());
-                                                    getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
-                                                    hasWritten = true;
-                                                } else {
-                                                    getLogger().log(Level.INFO, "Test " + i + " has failed.");
-                                                    String eMessage;
-                                                    if (e.getMessage().indexOf("\r\n") != -1) {
-                                                        eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
-                                                    } else {
-                                                        eMessage = e.getMessage();
-                                                    }
-                                                    to.setResult("Failed. " + eMessage);
-                                                    hasWritten = true;
-                                                    failures++;
-                                                }
-                                                to.setTime(currentTime.getTime());
-                                            }
-                                        } finally {
-                                            if (!hasWritten) {
-                                                to.setResult("Failed - Unknow exception ...");
-                                                failures++;
-                                                to.setTime(currentTime.getTime());
-                                            }
+                                        }
+                                    } finally {
+                                        if (!hasWritten) {
+                                            to.setResult("Failed - Unknow exception ...");
+                                            failures++;
+                                            to.setTime(currentTime.getTime());
                                         }
                                     }
                                 }
-                                if (failures == 0) {
-                                    csvParser.addLine("All the tests are successfully finished.");
-                                } else {
-                                    csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
-                                }
-                                mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
-                            } else {
-                                throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                             }
+                            if (failures == 0) {
+                                csvParser.addLine("All the tests are successfully finished.");
+                            } else {
+                                csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
+                            }
+                            mw().getUserFileFactory().create(csvParser.convertResultToUserFile(deviceMessageFile, getRtuFromDatabaseBySerialNumber().getFolderId()));
                         } else {
                             throw new IOException("UserFileId is not a valid number");
                         }
@@ -844,13 +823,9 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     success = false;
                 }
 
-            } catch (BusinessException e) {
+            } catch (BusinessException | ConnectionException e) {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
-            } catch (ConnectionException e) {
-                log(Level.INFO, "Message has failed. " + e.getMessage());
-            } catch (IOException e) {
-                log(Level.INFO, "Message has failed. " + e.getMessage());
-            } catch (SQLException e) {
+            } catch (IOException | SQLException e) {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
             }
             if (success) {
@@ -916,7 +891,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private int validateAndGetOutputId(String outputId) throws IOException {
         try {
             int id;
-            if ((outputId != null) && (!outputId.trim().equals(""))) {
+            if ((outputId != null) && (!"".equals(outputId.trim()))) {
                 id = Integer.valueOf(outputId);
             } else {
                 id = 0;
@@ -977,7 +952,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     return new NullData();
                 }
                 case BOOLEAN: {
-                    return new BooleanObject(value.equalsIgnoreCase("1"));
+                    return new BooleanObject("1".equalsIgnoreCase(value));
                 }
                 case BIT_STRING: {
                     return new BitString(Integer.parseInt(value));
@@ -1029,7 +1004,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
         Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal1.setTime(startTime);
         cal1.getTime();
-        if (type.equalsIgnoreCase("15")) {
+        if ("15".equalsIgnoreCase(type)) {
             if (cal1.get(Calendar.MINUTE) < 15) {
                 cal1.set(Calendar.MINUTE, 14);
                 cal1.set(Calendar.SECOND, 40);
@@ -1044,12 +1019,12 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                 cal1.set(Calendar.SECOND, 40);
             }
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("day")) {
+        } else if ("day".equalsIgnoreCase(type)) {
             cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
             cal1.set(Calendar.MINUTE, 59);
             cal1.set(Calendar.SECOND, 40);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("month")) {
+        } else if ("month".equalsIgnoreCase(type)) {
             cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
             cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
             cal1.set(Calendar.MINUTE, 59);
@@ -1080,17 +1055,17 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private Date setBeforeNextInterval(Date startTime, String type, TimeZone timeZone) throws IOException {
         Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal1.setTime(startTime);
-        int zoneOffset = 0;
-        if (type.equalsIgnoreCase("15")) {
+        int zoneOffset;
+        if ("15".equalsIgnoreCase(type)) {
             cal1.add(Calendar.MINUTE, 15);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("day")) {
+        } else if ("day".equalsIgnoreCase(type)) {
             zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
             cal1.add(Calendar.DAY_OF_MONTH, 1);
             zoneOffset = zoneOffset - (timeZone.getOffset(cal1.getTimeInMillis()) / 3600000);
             cal1.add(Calendar.HOUR_OF_DAY, zoneOffset);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("month")) {
+        } else if ("month".equalsIgnoreCase(type)) {
             zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
             cal1.add(Calendar.MONTH, 1);
             cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));

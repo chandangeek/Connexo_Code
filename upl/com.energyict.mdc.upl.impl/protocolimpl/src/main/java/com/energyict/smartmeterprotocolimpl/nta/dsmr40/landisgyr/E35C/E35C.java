@@ -1,5 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -28,6 +31,10 @@ public class E35C extends E350 {
     private E35CMeterInfo meterInfo;
     protected E35CProperties properties;
     private E35CMeterTopology meterTopology;
+
+    public E35C(TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
+        super(calendarFinder, messageFileFinder, extractor);
+    }
 
     public ComposedMeterInfo getMeterInfo() {
         if (meterInfo == null) {

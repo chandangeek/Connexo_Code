@@ -7,10 +7,11 @@ package com.energyict.protocolimpl.dlms.siemenszmd;
  * Time: 15:32
  */
 
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -26,8 +27,8 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
     private final Extractor extractor;
 
-    public ZMDTimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, Extractor extractor) {
-        super(calendarFinder);
+    public ZMDTimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, Extractor extractor) {
+        super(calendarFinder, messageFileFinder, dateFormatter, extractor);
         this.extractor = extractor;
     }
 
@@ -35,8 +36,8 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
      * We override this because we can't convert the CodeTable content in a proper manner ...
      */
     @Override
-    protected String getMessageContent() throws BusinessException {
-        if ((getCodeId().isEmpty()) && (getUserFileId() == 0)) {
+    protected String getMessageContent() {
+        if ((getCalendarId().isEmpty()) && (getDeviceMessageFileId().isEmpty())) {
             throw new IllegalArgumentException("Tariff calendar or userFile needed");
         }
         StringBuilder builder = new StringBuilder();
@@ -49,13 +50,13 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (!getCodeId().isEmpty()) {
+        if (!getCalendarId().isEmpty()) {
             try {
-                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), this.extractor).parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
-                addChildTag(builder, getTagCode(), getCodeId());
+                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), this.extractor).parseActivityCalendarAndSpecialDayTable(getCalendarId(), getActivationDate().getTime(), getName());
+                addChildTag(builder, getTagCode(), getCalendarId());
                 addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
             } catch (ParserConfigurationException | IOException e) {
-                throw new BusinessException(e.getMessage());
+                throw new IllegalArgumentException(e.getMessage());
             }
         }
         builder.append("</");
