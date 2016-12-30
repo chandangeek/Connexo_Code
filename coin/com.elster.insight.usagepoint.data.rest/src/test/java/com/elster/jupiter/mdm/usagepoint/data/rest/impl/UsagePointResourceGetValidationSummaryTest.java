@@ -177,7 +177,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     public void testGetValidationSummaryForToday() throws IOException {
         mockUsagePointMetrologyConfiguration();
         mockMetrologyContract(4);
-        when(usagePointDataService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
+        when(usagePointDataCompletionService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
                 .thenReturn(ImmutableMap.of(
                         readingTypeDeliverable2, summary2,
                         readingTypeDeliverable1, summary1
@@ -204,8 +204,8 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 4).queryParam("periodId", 5).request().get();
 
         // Asserts
-        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.openClosed(NOW.withMinute(0).toInstant(), NOW.toInstant()));
-        verifyNoMoreInteractions(usagePointDataService);
+        verify(usagePointDataCompletionService).getValidationSummary(effectiveMC, metrologyContract, Range.openClosed(NOW.withMinute(0).toInstant(), NOW.toInstant()));
+        verifyNoMoreInteractions(usagePointDataCompletionService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
@@ -228,7 +228,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockMetrologyContract(5);
         Instant meterActivated = NOW.minusDays(1).withHour(4).toInstant();
         when(meterActivation.getRange()).thenReturn(Range.closedOpen(meterActivated, NOW.toInstant()));
-        when(usagePointDataService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
+        when(usagePointDataCompletionService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
                 .thenReturn(ImmutableMap.of(
                         readingTypeDeliverable1, summary1
                 ));
@@ -241,8 +241,8 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
-        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.closed(meterActivated, NOW.withMinute(0).toInstant()));
-        verifyNoMoreInteractions(usagePointDataService);
+        verify(usagePointDataCompletionService).getValidationSummary(effectiveMC, metrologyContract, Range.closed(meterActivated, NOW.withMinute(0).toInstant()));
+        verifyNoMoreInteractions(usagePointDataCompletionService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
@@ -259,7 +259,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockMetrologyContract(5);
         Range<Instant> emptyInterval = Range.openClosed(NOW.toInstant(), NOW.toInstant());
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
-        when(usagePointDataService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), eq(emptyInterval)))
+        when(usagePointDataCompletionService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), eq(emptyInterval)))
                 .thenReturn(ImmutableMap.of(
                         readingTypeDeliverable1, summary1
                 ));
@@ -272,8 +272,8 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
-        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, emptyInterval);
-        verifyNoMoreInteractions(usagePointDataService);
+        verify(usagePointDataCompletionService).getValidationSummary(effectiveMC, metrologyContract, emptyInterval);
+        verifyNoMoreInteractions(usagePointDataCompletionService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
@@ -288,15 +288,15 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     public void testGetValidationSummaryNoDeliverables() throws IOException {
         mockUsagePointMetrologyConfiguration();
         mockMetrologyContract(5);
-        when(usagePointDataService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
+        when(usagePointDataCompletionService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
                 .thenReturn(Collections.emptyMap());
 
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
-        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, YESTERDAY.getOpenClosedInterval(NOW));
-        verifyNoMoreInteractions(usagePointDataService);
+        verify(usagePointDataCompletionService).getValidationSummary(effectiveMC, metrologyContract, YESTERDAY.getOpenClosedInterval(NOW));
+        verifyNoMoreInteractions(usagePointDataCompletionService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);

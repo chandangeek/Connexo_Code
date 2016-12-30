@@ -42,12 +42,18 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_METROLOGY_PURPOSE(41, Keys.NO_SUCH_METROLOGY_PURPOSE, "No such metrology purpose with ID {0}"),
     CANNOT_ACTIVATE_METROLOGY_PURPOSE(42, Keys.CANNOT_ACTIVATE_METROLOGY_PURPOSE, "Can''t activate metrology purpose with ID {0}"),
     UNSATISFIED_READING_TYPE_REQUIREMENTS(43, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don''t provide reading types specified in the metrology contract."),
-    NO_SUCH_CALENDAR(44, "NoSuchCalendar", "No such calendar."),
-    NO_APPSERVER(45, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
-    NO_SUCH_MESSAGE_QUEUE(46, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    INVALID_ESTIMATOR_PROPERTY_VALUE(44, "invalidEstimatorPropertyValue", "Invalid property value"),
+    ESTIMATOR_REQUIRED(45, "EstimatorRequired", "Please select an estimator"),
+    ESTIMATOR_NOT_FOUND(46, "EstimatorNotValid", "Provided estimator is not valid"),
     BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}"),
-    INVALID_ACTIVATION_TIME_OF_METER_ROLE(48, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point"),
-    MISSING_TRANSITION_REQUIREMENT(49, "missing.transition.requirements", "Pre-transition check failed: {0}");
+    NO_SUCH_CALENDAR(48, "NoSuchCalendar", "No such calendar."),
+    NO_APPSERVER(49, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
+    FLAG_AS_FAVORITE_CONFLICT_TITLE(50, "FlagAsFavoriteConflictTitle", "Failed to flag ''{0}'' as favorite"),
+    REMOVE_FROM_FAVORITES_CONFLICT_TITLE(51, "RemoveFromFavoritesConflictTitle", "Failed to remove ''{0}'' from the favorites"),
+    INTERVAL_END_BEFORE_START(52, "intervalEndBeforeStart", "End time before start time"),
+    NO_SUCH_MESSAGE_QUEUE(53, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    INVALID_ACTIVATION_TIME_OF_METER_ROLE(54, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point"),
+    MISSING_TRANSITION_REQUIREMENT(55, "missing.transition.requirements", "Pre-transition check failed: {0}");
 
     private final int number;
     private final String key;

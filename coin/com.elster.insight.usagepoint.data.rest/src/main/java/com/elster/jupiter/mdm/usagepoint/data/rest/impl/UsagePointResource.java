@@ -8,7 +8,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
@@ -155,7 +155,7 @@ public class UsagePointResource {
     private final ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory;
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
-    private final UsagePointDataService usagePointDataService;
+    private final UsagePointDataCompletionService usagePointDataCompletionService;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
     private final TransactionService transactionService;
@@ -177,7 +177,7 @@ public class UsagePointResource {
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
                               MetrologyConfigurationService metrologyConfigurationService,
-                              UsagePointDataService usagePointDataService,
+                              UsagePointDataCompletionService usagePointDataCompletionService,
                               Provider<GoingOnResource> goingOnResourceProvider,
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
@@ -206,7 +206,7 @@ public class UsagePointResource {
         this.resourceHelper = resourceHelper;
         this.goingOnResourceProvider = goingOnResourceProvider;
         this.metrologyConfigurationService = metrologyConfigurationService;
-        this.usagePointDataService = usagePointDataService;
+        this.usagePointDataCompletionService = usagePointDataCompletionService;
         this.usagePointOutputResourceProvider = usagePointOutputResourceProvider;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
@@ -246,7 +246,7 @@ public class UsagePointResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.MANAGE_USAGE_POINT_ATTRIBUTES})
     @Transactional
     public UsagePointInfo updateUsagePoint(UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
@@ -270,8 +270,7 @@ public class UsagePointResource {
                 .forEach(customPropertySetInfo -> {
                     UsagePointPropertySet propertySet = extension.getPropertySet(customPropertySetInfo.id);
                     propertySet.setValues(customPropertySetInfoFactory
-                            .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet()
-                                    .getPropertySpecs()));
+                            .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet().getPropertySpecs()));
                 });
 
         return usagePointInfoFactory.fullInfoFrom(usagePoint);
@@ -380,8 +379,7 @@ public class UsagePointResource {
                     .filter(metrologyContract -> info.purposes.stream()
                             .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
                     .filter(metrologyContract -> !metrologyContract.isMandatory())
-                    .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, effectiveMC
-                            .getStart()));
+                    .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, effectiveMC.getStart()));
         }
 
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
@@ -520,9 +518,7 @@ public class UsagePointResource {
         if (editLocation.properties != null) {
             List<PropertyInfo> propertyInfos = Arrays.asList(editLocation.properties);
             for (PropertyInfo propertyInfo : propertyInfos) {
-                if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value
-                        .toString()
-                        .isEmpty()))) {
+                if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value.toString().isEmpty()))) {
                     validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "properties." + propertyInfo.key));
                 }
             }
@@ -673,9 +669,8 @@ public class UsagePointResource {
         if (interval.isConnected(upToNow)) {
             interval = interval.intersection(upToNow); // find out interval in past, or else throw an exception
             if (!interval.isEmpty()) {
-                interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval)
-                        .orElse(Range.openClosed(now, now));
-                List<ChannelDataValidationSummaryInfo> result = usagePointDataService
+                interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval).orElse(Range.openClosed(now, now));
+                List<ChannelDataValidationSummaryInfo> result = usagePointDataCompletionService
                         .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
                         .collect(Collectors.toList());
@@ -731,14 +726,8 @@ public class UsagePointResource {
                     int cmp = Long.compare(getIntervalLengthDifference(rp1, targetIntervalLength, now), getIntervalLengthDifference(rp2, targetIntervalLength, now));
                     if (cmp == 0) {
                         return Long.compare(
-                                Math.abs(rp1.getOpenClosedZonedInterval(now)
-                                        .upperEndpoint()
-                                        .toInstant()
-                                        .toEpochMilli() - now.toInstant().toEpochMilli()),
-                                Math.abs(rp2.getOpenClosedZonedInterval(now)
-                                        .upperEndpoint()
-                                        .toInstant()
-                                        .toEpochMilli() - now.toInstant().toEpochMilli()));
+                                Math.abs(rp1.getOpenClosedZonedInterval(now).upperEndpoint().toInstant().toEpochMilli() - now.toInstant().toEpochMilli()),
+                                Math.abs(rp2.getOpenClosedZonedInterval(now).upperEndpoint().toInstant().toEpochMilli() - now.toInstant().toEpochMilli()));
                     } else {
                         return cmp;
                     }
@@ -747,9 +736,8 @@ public class UsagePointResource {
     }
 
     private List<? extends RelativePeriod> fetchRelativePeriods() {
-        return timeService.getRelativePeriodQuery()
-                .select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
-                        .isEqualTo(DefaultTranslationKey.RELATIVE_PERIOD_CATEGORY_USAGE_POINT_VALIDATION_OVERVIEW.getKey()));
+        return timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
+                .isEqualTo(DefaultTranslationKey.RELATIVE_PERIOD_CATEGORY_USAGE_POINT_VALIDATION_OVERVIEW.getKey()));
     }
 
     private Optional<TemporalAmount> getValidationOverviewIntervalLength(TemporalAmount intervalLength) {
@@ -771,9 +759,7 @@ public class UsagePointResource {
     }
 
     private long getIntervalLength(Range<ZonedDateTime> interval) {
-        return interval.upperEndpoint().toInstant().toEpochMilli() - interval.lowerEndpoint()
-                .toInstant()
-                .toEpochMilli();
+        return interval.upperEndpoint().toInstant().toEpochMilli() - interval.lowerEndpoint().toInstant().toEpochMilli();
     }
 
     @Path("/{name}/purposes")
@@ -792,9 +778,7 @@ public class UsagePointResource {
                 .getMetrologyConfiguration()
                 .getContracts()
                 .stream()
-                .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                        .flatMap(emc -> emc.getChannelsContainer(mc, clock.instant()))
-                        .isPresent())
+                .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
                 .map(readingTypeDeliverableFactory::asInfo)

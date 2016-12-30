@@ -13,7 +13,10 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
+import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoritesResource;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -88,7 +91,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
-    private volatile UsagePointDataService usagePointDataService;
+    private volatile UsagePointDataCompletionService usagePointDataCompletionService;
+    private volatile FavoritesService favoritesService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile ServiceCallInfoFactory serviceCallInfoFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -123,12 +127,15 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointOutputResource.class,
                 GoingOnResource.class,
                 RestValidationExceptionMapper.class,
+                UsagePointGroupResource.class,
+                EstimationErrorExceptionMapper.class,
+                EstimatorPropertiesExceptionMapper.class,
                 UsagePointCalendarResource.class,
                 UsagePointCalendarHistoryResource.class,
                 BulkScheduleResource.class,
                 UsagePointGroupResource.class,
-                FieldResource.class
-        );
+                FieldResource.class,
+                FavoritesResource.class);
     }
 
     @Override
@@ -145,7 +152,7 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST))
                 .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(UsagePointDataModelService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(com.elster.jupiter.rest.util.impl.MessageSeeds.COMPONENT_NAME, Layer.REST))
         ;
@@ -221,8 +228,13 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
-    public void setUsagePointDataService(UsagePointDataService usagePointDataService) {
-        this.usagePointDataService = usagePointDataService;
+    public void setUsagePointDataCompletionService(UsagePointDataCompletionService usagePointDataCompletionService) {
+        this.usagePointDataCompletionService = usagePointDataCompletionService;
+    }
+
+    @Reference
+    public void setFavoritesService(FavoritesService favoritesService) {
+        this.favoritesService = favoritesService;
     }
 
     @Reference
@@ -361,7 +373,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(usagePointConfigurationService).to(UsagePointConfigurationService.class);
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);
-            bind(usagePointDataService).to(UsagePointDataService.class);
+            bind(usagePointDataCompletionService).to(UsagePointDataCompletionService.class);
+            bind(favoritesService).to(FavoritesService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(dataAggregationService).to(DataAggregationService.class);
@@ -373,6 +386,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(licenseService).to(LicenseService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(EstimationHelper.class).to(EstimationHelper.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
