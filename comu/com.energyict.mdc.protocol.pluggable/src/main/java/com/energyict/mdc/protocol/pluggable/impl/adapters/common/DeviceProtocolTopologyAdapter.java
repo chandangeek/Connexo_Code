@@ -8,9 +8,9 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.tasks.Issue;
 
 /**
  * Adapter between a {@link MeterProtocol MeterProtocol} or
@@ -34,7 +34,7 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
 
     /**
      * Collect the actual Topology from a Device. If for some reason the Topology could not be fetched,
-     * a proper {@link ResultType} <b>and</b> {@link com.energyict.mdc.upl.tasks.Issue}
+     * a proper {@link ResultType} <b>and</b> {@link com.energyict.mdc.upl.issue.Issue}
      * should be set so proper logging of this action can be performed.
      *
      * @return the current Topology

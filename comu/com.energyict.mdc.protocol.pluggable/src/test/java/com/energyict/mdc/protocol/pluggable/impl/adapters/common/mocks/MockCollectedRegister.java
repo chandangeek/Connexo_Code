@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.upl.tasks.Issue;
 
 import java.util.ArrayList;
 import java.util.Date;

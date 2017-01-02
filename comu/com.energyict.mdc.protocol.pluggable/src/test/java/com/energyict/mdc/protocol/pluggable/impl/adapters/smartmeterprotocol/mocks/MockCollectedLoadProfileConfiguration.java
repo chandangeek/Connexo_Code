@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.TestSerialNumberDeviceIdentifier;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 

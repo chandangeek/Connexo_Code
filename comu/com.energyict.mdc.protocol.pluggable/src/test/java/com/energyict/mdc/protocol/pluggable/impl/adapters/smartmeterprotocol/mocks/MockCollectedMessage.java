@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.upl.tasks.Issue;
 
 import java.time.Instant;
 import java.util.ArrayList;

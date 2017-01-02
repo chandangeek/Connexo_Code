@@ -9,10 +9,10 @@ import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
@@ -132,7 +132,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
      * or null, then all channels from the corresponding LoadProfile should be fetched
      * <p>
      * If for a certain <code>LoadProfile</code> not all data since {@link LoadProfileReader#getStartReadingTime() lastReading}
-     * can be returned, then a proper {@link ResultType} <b>and</b> {@link com.energyict.mdc.upl.tasks.Issue issue}
+     * can be returned, then a proper {@link ResultType} <b>and</b> {@link com.energyict.mdc.upl.issue.Issue issue}
      * should be set so proper logging of this action can be performed.
      * <p>
      * In essence, the size of the returned <code>List</code> should be the same as the size of the given argument <code>List</code>.

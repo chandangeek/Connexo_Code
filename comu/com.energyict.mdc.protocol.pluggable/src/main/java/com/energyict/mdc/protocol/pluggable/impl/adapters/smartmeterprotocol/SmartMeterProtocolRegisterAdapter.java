@@ -45,7 +45,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
     /**
      * Collect the values of the given <code>Registers</code>.
      * If for some reason the <code>Register</code> is not supported, a proper {@link ResultType}
-     * <b>and</b> {@link com.energyict.mdc.upl.tasks.Issue issue} should be returned so proper logging of this action can be performed.
+     * <b>and</b> {@link com.energyict.mdc.upl.issue.Issue issue} should be returned so proper logging of this action can be performed.
      *
      * @param offlineRegisters The Registers for which to request a value
      * @return a <code>List</code> of collected register values
