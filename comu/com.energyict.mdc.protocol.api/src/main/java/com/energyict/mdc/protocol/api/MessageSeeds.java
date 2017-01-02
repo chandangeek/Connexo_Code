@@ -6,7 +6,7 @@ import java.util.logging.Level;
 
 /**
  * Provides {@link MessageSeed}s ready to be used by {@link DeviceProtocol}
- * implementation classes to report {@link com.energyict.mdc.upl.tasks.Issue}s.
+ * implementation classes to report {@link com.energyict.mdc.upl.issue.Issue}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-02-10 (08:57)
