@@ -1393,7 +1393,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                     .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
                             .getDeviceProtocol().getSupportedMessages().stream().forEach(
                                     deviceMessageSpec -> {
-                                        DeviceMessageEnablementBuilder deviceMessageEnablement = underConstruction.createDeviceMessageEnablement(DeviceMessageId.havingId(deviceMessageSpec.getMessageId()));
+                                        DeviceMessageEnablementBuilder deviceMessageEnablement = underConstruction.createDeviceMessageEnablement(DeviceMessageId.havingId(deviceMessageSpec.getId()));
                                         deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
                                         deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2);
                                         deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);

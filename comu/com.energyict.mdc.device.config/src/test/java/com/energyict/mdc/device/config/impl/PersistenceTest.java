@@ -71,13 +71,13 @@ public abstract class PersistenceTest {
     public void initializeMocks() {
         deviceMessageIds = new ArrayList<>();
         DeviceMessageSpec deviceMessageSpec1 = mock(DeviceMessageSpec.class);
-        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
         deviceMessageIds.add(deviceMessageSpec1);
         DeviceMessageSpec deviceMessageSpec2 = mock(DeviceMessageSpec.class);
-        when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
         deviceMessageIds.add(deviceMessageSpec2);
         DeviceMessageSpec deviceMessageSpec3 = mock(DeviceMessageSpec.class);
-        when(deviceMessageSpec3.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+        when(deviceMessageSpec3.getId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
         deviceMessageIds.add(deviceMessageSpec3);
 
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);

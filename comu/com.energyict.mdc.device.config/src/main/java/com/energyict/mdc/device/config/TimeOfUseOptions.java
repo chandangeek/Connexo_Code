@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
-
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.util.Set;
 

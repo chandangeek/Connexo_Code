@@ -1279,7 +1279,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = this.getDeviceType().getDeviceProtocolPluggableClass();
                 if ((deviceProtocolPluggableClass.isPresent()
                         && deviceProtocolPluggableClass.get().getDeviceProtocol().getSupportedMessages().stream()
-                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                         .collect(Collectors.toList())
                         .contains(deviceMessageId.dbValue()))) {
                     return getAllProtocolMessagesUserActions().stream()
@@ -1316,7 +1316,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category) {
         List<Long> ids = this.getDeviceType().getDeviceProtocolPluggableClass()
                 .map(pluggableClass -> pluggableClass.getDeviceProtocol().getSupportedMessages().stream()
-                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
