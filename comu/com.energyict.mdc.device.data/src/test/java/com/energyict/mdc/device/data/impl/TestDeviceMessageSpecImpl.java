@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -39,11 +38,6 @@ public class TestDeviceMessageSpecImpl implements DeviceMessageSpec {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return null;
     }
 
