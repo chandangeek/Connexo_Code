@@ -1,15 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
-import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -52,8 +46,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmw
  */
 public class PrimeMeterMessageConverter extends AbstractMessageConverter {
 
-    protected PrimeMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor, DeviceExtractor deviceExtractor, RegisterExtractor registerExtractor, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+
+    protected PrimeMeterMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 
     @Override
@@ -89,7 +86,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(contractsXmlUserFileAttributeName)) {
-            return this.getDeviceMessageFileExtractor().contents((DeviceMessageFile) messageAttribute);   //String = XML content in the userfile
+            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute);   //String = XML content in the userfile
         } else if (propertySpec.getName().equals(activationDatedAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(MulticastAddress1AttributeName)
@@ -97,7 +94,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            return this.getDeviceMessageFileExtractor().contents((DeviceMessageFile) messageAttribute);
+            return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newReadingClientPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newFirmwareClientPasswordAttributeName)) {

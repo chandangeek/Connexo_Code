@@ -5,21 +5,23 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -52,7 +54,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class EIWebPlusMessageConverterTest {
 
-    private static final int DEVICE_MESSAGE_ID = 1;
+    private static final long DEVICE_MESSAGE_ID = 1L;
 
     @Mock
     private OfflineDeviceMessage absoluteDOSwitchRuleMessage;
@@ -74,22 +76,32 @@ public class EIWebPlusMessageConverterTest {
     private OfflineDeviceMessage IDISWhitelistConfiguration;
     @Mock
     private OfflineDeviceMessage IDISRunAlarmDiscoveryCallNow;
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Converter uplConverter;
+    @Mock
+    private DeviceMessageFileExtractor deviceMessageFileConverter;
+    @Mock
+    private CollectedDataFactory collectedDataFactory;
 
     private ExtendedEIWebPlusMessageConverter converter;
 
     @Before
     public void mockMessages() {
         mockProviders();
-        absoluteDOSwitchRuleMessage = createMessage(OutputConfigurationMessage.AbsoluteDOSwitchRule);
-        rtuPlusServerEnterMaintenanceModeMessage = createMessage(DeviceActionMessage.RtuPlusServerEnterMaintenanceMode);
-        forceMessageToFailedMessage = createMessage(DeviceActionMessage.ForceMessageToFailed);
-        ftionUpgradeWithNewEIServerURLMessage = createMessage(DeviceActionMessage.FTIONUpgradeWithNewEIServerURL);
-        upgradeBootloaderMessage = createMessage(FirmwareDeviceMessage.UpgradeBootloader);
-        idisDiscoveryConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISDiscoveryConfiguration);
-        idisRepeaterCallConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISRepeaterCallConfiguration);
-        IDISPhyConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISPhyConfiguration);
-        IDISWhitelistConfiguration = createMessage(PLCConfigurationDeviceMessage.IDISWhitelistConfiguration);
-        IDISRunAlarmDiscoveryCallNow = createMessage(PLCConfigurationDeviceMessage.IDISRunAlarmDiscoveryCallNow);
+        absoluteDOSwitchRuleMessage = createMessage(OutputConfigurationMessage.AbsoluteDOSwitchRule.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        rtuPlusServerEnterMaintenanceModeMessage = createMessage(DeviceActionMessage.RtuPlusServerEnterMaintenanceMode.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        forceMessageToFailedMessage = createMessage(DeviceActionMessage.ForceMessageToFailed.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        ftionUpgradeWithNewEIServerURLMessage = createMessage(DeviceActionMessage.FTIONUpgradeWithNewEIServerURL.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        upgradeBootloaderMessage = createMessage(FirmwareDeviceMessage.UpgradeBootloader.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        idisDiscoveryConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISDiscoveryConfiguration.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        idisRepeaterCallConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISRepeaterCallConfiguration.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        IDISPhyConfigurationMessage = createMessage(PLCConfigurationDeviceMessage.IDISPhyConfiguration.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        IDISWhitelistConfiguration = createMessage(PLCConfigurationDeviceMessage.IDISWhitelistConfiguration.get(this.propertySpecService, this.nlsService, this.uplConverter));
+        IDISRunAlarmDiscoveryCallNow = createMessage(PLCConfigurationDeviceMessage.IDISRunAlarmDiscoveryCallNow.get(this.propertySpecService, this.nlsService, this.uplConverter));
     }
 
     @Test
@@ -131,7 +143,7 @@ public class EIWebPlusMessageConverterTest {
 
     private ExtendedEIWebPlusMessageConverter getConverter() {
         if (converter == null) {
-            converter = new ExtendedEIWebPlusMessageConverter();
+            converter = new ExtendedEIWebPlusMessageConverter(null, this.propertySpecService, this.nlsService, this.uplConverter, this.deviceMessageFileConverter);
         }
         return converter;
     }
@@ -152,13 +164,13 @@ public class EIWebPlusMessageConverterTest {
         OfflineDeviceMessage message = getEmptyMessageMock();
         List<OfflineDeviceMessageAttribute> attributes = new ArrayList<>();
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
-        when(deviceMessage.getId()).thenReturn(DEVICE_MESSAGE_ID);
+        when(deviceMessage.getMessageId()).thenReturn(DEVICE_MESSAGE_ID);
 
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             propertyStorage.setProperty(propertySpec.getName(), "1");
-            attributes.add(new OfflineDeviceMessageAttributeImpl(offlineDevice, message, new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new RtuServer(collectedDataFactory, propertySpecService, nlsService, converter)));
+            attributes.add(new OfflineDeviceMessageAttributeImpl(offlineDevice, message, new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new RtuServer(this.collectedDataFactory, propertySpecService, nlsService, converter)));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);
         when(message.getSpecification()).thenReturn(messageSpec);
@@ -175,8 +187,8 @@ public class EIWebPlusMessageConverterTest {
      * Make the registry of this converter public, only for test usage
      */
     private class ExtendedEIWebPlusMessageConverter extends EIWebPlusMessageConverter {
-        private ExtendedEIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-            super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+        protected ExtendedEIWebPlusMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+            super(messagingProtocol, propertySpecService, nlsService, converter, deviceMessageFileExtractor);
         }
 
         @Override
