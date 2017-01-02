@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -57,11 +56,6 @@ public class ConnexoDeviceMessageSpecAdapter implements com.energyict.mdc.upl.me
                 return cxoDeviceMessageSpec.getName();
             }
         };
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return cxoDeviceMessageSpec::getName;
     }
 
     @Override
