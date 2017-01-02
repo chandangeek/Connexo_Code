@@ -21,8 +21,8 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -240,7 +240,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         if (deviceType.isPresent() && deviceType.get().getDeviceProtocolPluggableClass().isPresent() && getFirmwareManagementOption() != null) {
             return deviceType.get().getDeviceProtocolPluggableClass()
                     .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
-                            .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                            .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                             .map(DeviceMessageId::havingId)
                             .collect(Collectors.toList())).orElse(Collections.emptyList())
                     .stream()

@@ -5,7 +5,7 @@ import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.time.Instant;
 import java.util.List;

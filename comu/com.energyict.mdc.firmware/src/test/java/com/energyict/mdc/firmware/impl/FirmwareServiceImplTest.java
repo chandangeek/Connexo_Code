@@ -3,9 +3,9 @@ package com.energyict.mdc.firmware.impl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -143,7 +143,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> result = new ArrayList<>();
         for (DeviceMessageId deviceMessageId : deviceMessageIds) {
             com.energyict.mdc.upl.messages.DeviceMessageSpec spec = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-            when(spec.getMessageId()).thenReturn(deviceMessageId.dbValue());
+            when(spec.getId()).thenReturn(deviceMessageId.dbValue());
             result.add(spec);
         }
         return result;
