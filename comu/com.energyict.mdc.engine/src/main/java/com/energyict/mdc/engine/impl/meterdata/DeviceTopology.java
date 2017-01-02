@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Implementation of a DeviceTopology, collected from a Device. If no data could be collected or the feature is not supported,
- * the a proper {@link com.energyict.mdc.upl.tasks.Issue} and {@link com.energyict.mdc.upl.meterdata.ResultType} should be returned.
+ * the a proper {@link com.energyict.mdc.upl.issue.Issue} and {@link com.energyict.mdc.upl.meterdata.ResultType} should be returned.
  *
  * @author gna
  * @since 5/04/12 - 11:57

@@ -12,10 +12,10 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.upl.tasks.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 
 import java.util.ArrayList;
 import java.util.HashSet;

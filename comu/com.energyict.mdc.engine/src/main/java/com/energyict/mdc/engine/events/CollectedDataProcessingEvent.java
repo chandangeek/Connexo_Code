@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.events;
 
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.List;
 

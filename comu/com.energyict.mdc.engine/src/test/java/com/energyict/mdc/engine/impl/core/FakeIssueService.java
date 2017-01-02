@@ -3,13 +3,12 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.upl.tasks.Problem;
-import com.energyict.mdc.upl.tasks.Warning;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
+import org.mockito.ArgumentCaptor;
 
 import java.time.Instant;
 import java.util.Optional;
-
-import org.mockito.ArgumentCaptor;
 
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;

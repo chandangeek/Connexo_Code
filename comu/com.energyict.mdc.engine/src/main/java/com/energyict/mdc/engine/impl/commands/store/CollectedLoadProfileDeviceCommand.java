@@ -9,8 +9,8 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.tasks.Issue;
 import com.energyict.protocol.ChannelInfo;
 
 import java.time.Instant;

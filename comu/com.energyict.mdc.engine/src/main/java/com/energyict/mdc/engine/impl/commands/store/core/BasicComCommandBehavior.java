@@ -17,7 +17,7 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.logging.ComCommandLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 
 import java.text.SimpleDateFormat;

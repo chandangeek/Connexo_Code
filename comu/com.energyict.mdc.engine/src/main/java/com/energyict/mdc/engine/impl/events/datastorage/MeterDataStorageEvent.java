@@ -6,8 +6,8 @@ import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.tasks.Warning;
 import org.json.JSONException;
 import org.json.JSONWriter;
 

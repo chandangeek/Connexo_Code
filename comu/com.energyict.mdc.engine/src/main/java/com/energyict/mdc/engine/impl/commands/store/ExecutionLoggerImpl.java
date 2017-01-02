@@ -8,7 +8,7 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.time.Clock;
 import java.util.Optional;

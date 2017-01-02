@@ -30,8 +30,6 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.upl.tasks.Problem;
-import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -40,8 +38,14 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
-
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
 import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -51,12 +55,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -226,8 +224,7 @@ public abstract class AbstractRescheduleBehaviorTest {
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         DeviceCommandExecutor deviceCommandExecutor = mock(DeviceCommandExecutor.class);
-        ScheduledComTaskExecutionGroup comTaskExecutionGroup = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, ((ScheduledConnectionTask) connectionTask), jobExecServiceProvider);
-        ;
+        ScheduledComTaskExecutionGroup comTaskExecutionGroup = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, jobExecServiceProvider);
         comTaskExecutionGroup.createExecutionContext();
         ExecutionContext executionContext = comTaskExecutionGroup.getExecutionContext();
         executionContext.setLogger(logger);

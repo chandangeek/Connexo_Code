@@ -8,8 +8,8 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.upl.tasks.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.upl.issue.Problem;
 
 /**
  * A Daisy chained SignOn command

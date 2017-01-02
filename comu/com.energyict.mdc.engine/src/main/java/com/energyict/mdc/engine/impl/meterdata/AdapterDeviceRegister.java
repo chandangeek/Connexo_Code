@@ -12,8 +12,8 @@ import java.time.Instant;
  * If data is collected, then a proper collected data <b>AND</b> {@link #readTime} should be set by
  * {@link #setCollectedData(Quantity, String)} and {@link #setReadTime(Instant)}.
  * <p>
- * If no data could be collected, then a proper {@link com.energyict.mdc.upl.tasks.Issue} and {@link com.energyict.mdc.upl.meterdata.ResultType}
- * should be returned by calling the {@link #setFailureInformation(com.energyict.mdc.upl.meterdata.ResultType, com.energyict.mdc.upl.tasks.Issue)}.
+ * If no data could be collected, then a proper {@link com.energyict.mdc.upl.issue.Issue} and {@link com.energyict.mdc.upl.meterdata.ResultType}
+ * should be returned by calling the {@link #setFailureInformation(com.energyict.mdc.upl.meterdata.ResultType, com.energyict.mdc.upl.issue.Issue)}.
  *
  * @author gna
  * @since 4/04/12 - 15:05

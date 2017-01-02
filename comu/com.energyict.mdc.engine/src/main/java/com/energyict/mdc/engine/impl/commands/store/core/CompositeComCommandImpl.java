@@ -6,13 +6,17 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.upl.tasks.Issue;
-import com.energyict.mdc.upl.tasks.Problem;
-import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

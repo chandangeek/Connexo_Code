@@ -8,10 +8,10 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceMessageEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.tasks.Issue;
 
 import java.time.Instant;
 import java.util.List;

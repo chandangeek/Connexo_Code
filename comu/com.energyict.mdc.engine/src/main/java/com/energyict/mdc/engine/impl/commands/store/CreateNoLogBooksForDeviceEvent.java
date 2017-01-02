@@ -8,7 +8,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.NoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedNoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.List;
 import java.util.Optional;

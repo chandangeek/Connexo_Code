@@ -4,7 +4,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.issue.Problem;
 
 /**
  * Stores the processed data in the database.

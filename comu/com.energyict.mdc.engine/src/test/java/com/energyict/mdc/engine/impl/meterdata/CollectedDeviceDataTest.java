@@ -2,10 +2,10 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.tasks.Issue;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

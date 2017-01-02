@@ -17,8 +17,8 @@ import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInforma
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.tasks.Issue;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -6,8 +6,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.StoreConfigurationEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.tasks.Issue;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;

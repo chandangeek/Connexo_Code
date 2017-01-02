@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.tools.StackTracePrinter;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

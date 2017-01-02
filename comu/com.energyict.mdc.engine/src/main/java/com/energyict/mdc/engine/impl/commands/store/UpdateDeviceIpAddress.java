@@ -7,8 +7,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceIpAddressEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.tasks.Issue;
 
 import java.util.List;
 import java.util.Optional;

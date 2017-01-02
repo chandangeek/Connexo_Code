@@ -13,7 +13,7 @@ import java.util.Date;
 /**
  * Implementation of a Register, collected from a Device.
  * If no data could be collected,
- * then a proper {@link com.energyict.mdc.upl.tasks.Issue}
+ * then a proper {@link com.energyict.mdc.upl.issue.Issue}
  * and {@link com.energyict.mdc.upl.meterdata.ResultType}
  * should be returned.
  *

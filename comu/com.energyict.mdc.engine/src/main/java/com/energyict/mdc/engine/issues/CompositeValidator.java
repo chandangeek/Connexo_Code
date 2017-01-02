@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.issues;
 
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.ArrayList;
 import java.util.Collections;

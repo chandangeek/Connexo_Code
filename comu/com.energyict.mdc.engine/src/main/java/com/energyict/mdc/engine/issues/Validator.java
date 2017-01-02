@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.issues;
 
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.Set;
 
@@ -24,6 +24,6 @@ public interface Validator<T> {
      * @param target the object to validate
      * @return a Set of Issues, never null.
      */
-    public Set<Issue> validate (T target);
+    Set<Issue> validate(T target);
 
 }

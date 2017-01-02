@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * Implementation of a LogBook, collected from the Device.
- * If no data could be collected, then a proper {@link com.energyict.mdc.upl.tasks.Issue}
+ * If no data could be collected, then a proper {@link com.energyict.mdc.upl.issue.Issue}
  * and {@link com.energyict.mdc.upl.meterdata.ResultType} will be returned.
  *
  * @author gna

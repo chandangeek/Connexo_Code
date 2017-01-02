@@ -1,22 +1,22 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.upl.tasks.Issue;
-import com.energyict.mdc.upl.tasks.Problem;
-import com.energyict.mdc.upl.tasks.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -29,8 +29,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link VerifyLoadProfilesCommandImpl} component.
