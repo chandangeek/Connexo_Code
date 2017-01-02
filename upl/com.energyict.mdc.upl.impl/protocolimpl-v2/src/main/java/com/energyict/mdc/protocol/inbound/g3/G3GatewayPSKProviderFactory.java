@@ -19,7 +19,7 @@ public class G3GatewayPSKProviderFactory {
     /**
      * A list of PSK providers mapped to unique identifier strings.
      */
-    private Map<String, G3GatewayPSKProvider> providers = new HashMap<>();
+    private Map<DeviceIdentifier, G3GatewayPSKProvider> providers = new HashMap<>();
 
     private G3GatewayPSKProviderFactory() {
     }
@@ -36,9 +36,9 @@ public class G3GatewayPSKProviderFactory {
      * This is to avoid troubles when 2 threads simultaneously would trigger the creation of a new PSK provider twice.
      */
     public synchronized G3GatewayPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context) {
-        if (!providers.containsKey(deviceIdentifier.getIdentifier())) {
-            providers.put(deviceIdentifier.getIdentifier(), new G3GatewayPSKProvider(deviceIdentifier, context));
+        if (!providers.containsKey(deviceIdentifier)) {
+            providers.put(deviceIdentifier, new G3GatewayPSKProvider(deviceIdentifier, context));
         }
-        return providers.get(deviceIdentifier.getIdentifier());
+        return providers.get(deviceIdentifier);
     }
 }

@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles;
 
 import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -33,13 +35,8 @@ import java.util.logging.Level;
  */
 public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
 
-    /**
-     * Default constructor
-     *
-     * @param meterProtocol the {@link #meterProtocol}
-     */
-    public LGLoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
-        super(meterProtocol);
+    public LGLoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(meterProtocol, collectedDataFactory, issueFactory);
     }
 
     /**

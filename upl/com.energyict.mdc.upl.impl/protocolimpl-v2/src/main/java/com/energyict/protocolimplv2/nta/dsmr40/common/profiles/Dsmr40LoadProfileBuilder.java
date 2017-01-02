@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr40.common.profiles;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
@@ -32,7 +35,7 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
      *
      * @param meterProtocol the {@link #meterProtocol}
      */
-    public Dsmr40LoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
+    public Dsmr40LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(meterProtocol, collectedDataFactory, issueFactory);
     }
 

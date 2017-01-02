@@ -295,7 +295,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new AM540LoadProfileBuilder(this);
+            this.loadProfileBuilder = new AM540LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
             ((Dsmr40LoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(getDlmsSessionProperties().isCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;

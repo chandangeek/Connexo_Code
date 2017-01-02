@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540;
@@ -21,13 +24,8 @@ public class AM540LoadProfileBuilder extends LGLoadProfileBuilder {
 
     private IDISProfileDataReader idisProfileDataReader;
 
-    /**
-     * Default constructor
-     *
-     * @param meterProtocol the {@link #meterProtocol}
-     */
-    public AM540LoadProfileBuilder(AM540 meterProtocol) {
-        super(meterProtocol);
+    public AM540LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(meterProtocol, collectedDataFactory, issueFactory);
     }
 
     @Override
