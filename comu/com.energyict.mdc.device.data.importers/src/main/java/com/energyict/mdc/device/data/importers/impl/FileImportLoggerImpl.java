@@ -4,7 +4,7 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ImportException;
-import com.energyict.mdc.upl.tasks.Warning;
+import com.energyict.mdc.upl.issue.Warning;
 
 public abstract class FileImportLoggerImpl<T extends FileImportRecord> implements FileImportLogger<T> {
 
