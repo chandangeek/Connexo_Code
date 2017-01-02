@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -38,7 +37,7 @@ public class A1WriteClockConfigurationMessage extends AbstractDlmsMessage
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         try
         {
@@ -54,7 +53,7 @@ public class A1WriteClockConfigurationMessage extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to set clock configuration: " + e.getMessage());
+            throw new IOException("Unable to set clock configuration: " + e.getMessage(), e);
         }
 
     }

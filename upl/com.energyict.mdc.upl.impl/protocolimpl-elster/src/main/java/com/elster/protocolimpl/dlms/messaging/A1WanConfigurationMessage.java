@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -47,11 +46,9 @@ public class A1WanConfigurationMessage extends AbstractDlmsMessage
      * Send the message to the meter.
      *
      * @param messageEntry: the message containing the new keys
-     * @throws com.energyict.cbo.BusinessException:
-     *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         String dest1 = MessagingTools.getContentOfAttribute(messageEntry, ATTR_DESTINATION1);
         String dest2 = MessagingTools.getContentOfAttribute(messageEntry, ATTR_DESTINATION2);
@@ -62,14 +59,12 @@ public class A1WanConfigurationMessage extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to set wan configuration data: " + e.getMessage());
+            throw new IOException("Unable to set wan configuration data: " + e.getMessage(), e);
         }
-
     }
 
     private void write(String dest1, String dest2) throws IOException
     {
-
         CosemApplicationLayer layer = getExecutor().getDlms().getCosemApplicationLayer();
         ObjectPool pool = getExecutor().getDlms().getObjectPool();
         int a1Version = getExecutor().getDlms().getSoftwareVersion();
@@ -86,10 +81,8 @@ public class A1WanConfigurationMessage extends AbstractDlmsMessage
                 });
     }
 
-
-    private void validateMessageData(String dest1, String dest2) throws BusinessException
+    private void validateMessageData(String dest1, String dest2)
     {
-
         checkDestination(dest1, "WAN configuration destination 1");
         if ((dest2 != null) && (dest2.length() > 0))
         {
@@ -97,13 +90,12 @@ public class A1WanConfigurationMessage extends AbstractDlmsMessage
         }
     }
 
-    public void checkDestination(String dest, String name) throws BusinessException
+    public void checkDestination(String dest, String name)
     {
-
         Pattern pattern = Pattern.compile(ValidIpAddressRegex + OptionalPort + "$");
         if (!pattern.matcher(dest).matches())
         {
-            throw new BusinessException(name + ": error in definition");
+            throw new IllegalArgumentException(name + ": error in definition");
         }
     }
 
@@ -125,9 +117,9 @@ public class A1WanConfigurationMessage extends AbstractDlmsMessage
         private final String ip;
         private final int port;
 
-        public DestinationData(final String data)
+        private DestinationData(final String data)
         {
-            if ((data != null) && (data.length() > 0))
+            if ((data != null) && (!data.isEmpty()))
             {
                 String[] s = data.split(":");
                 ip = s[0];
@@ -141,7 +133,7 @@ public class A1WanConfigurationMessage extends AbstractDlmsMessage
 
         public boolean isEmpty()
         {
-            return ip.length() == 0;
+            return ip.isEmpty();
         }
 
         public String getIp()

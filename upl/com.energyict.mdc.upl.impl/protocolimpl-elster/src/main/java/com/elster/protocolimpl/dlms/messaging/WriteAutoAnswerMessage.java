@@ -12,7 +12,6 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleAutoAnswerObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.types.basic.DlmsDateTime;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class WriteAutoAnswerMessage extends AbstractDlmsMessage {
      *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
 
         String autoAnswerId = MessagingTools.getContentOfAttribute(messageEntry, ATTR_AUTOANSWER_ID);
         String autoAnswerStart = MessagingTools.getContentOfAttribute(messageEntry, ATTR_AUTOANSWER_START);
@@ -62,12 +61,12 @@ public class WriteAutoAnswerMessage extends AbstractDlmsMessage {
         try {
             write(autoAnswerId, autoAnswerStart, autoAnswerEnd);
         } catch (IOException e) {
-            throw new BusinessException("Unable to set auto answer data: " + e.getMessage());
+            throw new IOException("Unable to set auto answer data: " + e.getMessage(), e);
         }
 
     }
 
-    private void write(String autoAnswerId, String autoAnswerStart, String autoAnswerEnd) throws BusinessException, IOException {
+    private void write(String autoAnswerId, String autoAnswerStart, String autoAnswerEnd) throws IOException {
 
         SimpleCosemObjectManager objectManager = getExecutor().getDlms().getObjectManager();
 
@@ -85,7 +84,7 @@ public class WriteAutoAnswerMessage extends AbstractDlmsMessage {
     }
 
 
-    private void validateMessageData(String autoAnswerId, String autoAnswerStart, String autoAnswerEnd) throws BusinessException {
+    private void validateMessageData(String autoAnswerId, String autoAnswerStart, String autoAnswerEnd) {
         checkInt(autoAnswerId, "autoAnswer id", 1, 6);
         checkRepetitiveDate(autoAnswerStart, "AutoAnswer start");
         checkRepetitiveDate(autoAnswerEnd, "AutoAnswer end");

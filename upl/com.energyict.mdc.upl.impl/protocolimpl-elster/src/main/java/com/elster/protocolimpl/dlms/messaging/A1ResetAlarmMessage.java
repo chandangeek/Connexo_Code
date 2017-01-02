@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 
 import java.io.IOException;
 
@@ -30,7 +29,7 @@ public class A1ResetAlarmMessage extends AbstractDlmsMessage
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         try
         {
@@ -39,7 +38,7 @@ public class A1ResetAlarmMessage extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to reset alarms! " + e.getMessage());
+            throw new IOException("Unable to reset alarms! " + e.getMessage(), e);
         }
 
     }

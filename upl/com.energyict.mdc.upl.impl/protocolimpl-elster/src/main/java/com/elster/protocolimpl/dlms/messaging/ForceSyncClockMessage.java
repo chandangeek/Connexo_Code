@@ -9,7 +9,6 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleClockObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.types.basic.DlmsDateTime;
-import com.energyict.cbo.BusinessException;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -36,13 +35,13 @@ public class ForceSyncClockMessage extends AbstractDlmsMessage {
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         try {
             Date currentTime = Calendar.getInstance(getExecutor().getDlms().getTimeZone()).getTime();
             getLogger().severe("Received [" + MESSAGE_TAG + "] message. Writing system time to device: " + currentTime);
             writeTime(currentTime);
         } catch (IOException e) {
-            throw new BusinessException("Unable to set the device time! " + e.getMessage());
+            throw new IOException("Unable to set the device time! " + e.getMessage(), e);
         }
     }
 

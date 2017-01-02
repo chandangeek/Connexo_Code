@@ -12,7 +12,6 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleAutoConnectObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.types.basic.DlmsDateTime;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class WriteAutoConnectMessage extends AbstractDlmsMessage {
      *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
 
         String autoConnectId = MessagingTools.getContentOfAttribute(messageEntry, ATTR_AUTOCONNECT_ID);
         String autoConnectMode = MessagingTools.getContentOfAttribute(messageEntry, ATTR_AUTOCONNECT_MODE);
@@ -74,14 +73,14 @@ public class WriteAutoConnectMessage extends AbstractDlmsMessage {
         try {
             write(autoConnectId, autoConnectMode, autoConnectStart, autoConnectEnd, autoConnectDest1, autoConnectDest2);
         } catch (IOException e) {
-            throw new BusinessException("Unable to set auto connect data: " + e.getMessage());
+            throw new IOException("Unable to set auto connect data: " + e.getMessage(), e);
         }
 
     }
 
     private void write(String autoConnectId, String autoConnectMode,
                        String autoConnectStart, String autoConnectEnd,
-                       String autoConnectDest1, String autoConnectDest2) throws BusinessException, IOException {
+                       String autoConnectDest1, String autoConnectDest2) throws IOException {
 
         SimpleCosemObjectManager objectManager = getExecutor().getDlms().getObjectManager();
 
@@ -116,7 +115,7 @@ public class WriteAutoConnectMessage extends AbstractDlmsMessage {
 
     private void validateMessageData(String autoConnectId, String autoConnectMode,
                                      String autoConnectStart, String autoConnectEnd,
-                                     String autoConnectDest1, String autoConnectDest2) throws BusinessException {
+                                     String autoConnectDest1, String autoConnectDest2) {
         checkInt(autoConnectId, "AutoConnect id", 1, 2);
         checkInt(autoConnectMode, "AutoConnect mode", 1, 2);
         checkRepetitiveDate(autoConnectStart, "AutoConnect start");
@@ -129,11 +128,11 @@ public class WriteAutoConnectMessage extends AbstractDlmsMessage {
         }
     }
 
-    public void checkDestination(String dest, String name) throws BusinessException {
+    public void checkDestination(String dest, String name) {
 
         Pattern pattern = Pattern.compile("^(" + ValidIpAddressRegex + "|" + ValidHostnameRegex + ")" + OptionalPort + "$");
         if (!pattern.matcher(dest).matches()) {
-            throw new BusinessException(name + ": error in definition");
+            throw new IllegalArgumentException(name + ": error in definition");
         }
     }
 

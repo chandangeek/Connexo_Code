@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -44,12 +43,9 @@ public class A1ConfigureCyclicMode extends AbstractDlmsMessage
 
     /**
      * Send the message to the meter.
-     *
-     * @throws com.energyict.cbo.BusinessException:
-     *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         String callDistance = MessagingTools.getContentOfAttribute(messageEntry, ATTR_CALLDISTANCE);
         validateMessageData(callDistance);
@@ -59,7 +55,7 @@ public class A1ConfigureCyclicMode extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to set cyclic mode data: " + e.getMessage());
+            throw new IOException("Unable to set cyclic mode data: " + e.getMessage(), e);
         }
     }
 
@@ -100,12 +96,12 @@ public class A1ConfigureCyclicMode extends AbstractDlmsMessage
         return result;
     }
 
-    protected void validateMessageData(String callDistance) throws BusinessException
+    protected void validateMessageData(String callDistance)
     {
         Pattern pattern = Pattern.compile(DistancePattern);
         if (!pattern.matcher(callDistance).matches())
         {
-            throw new BusinessException(ATTR_CALLDISTANCE + ": error in definition");
+            throw new IllegalArgumentException(ATTR_CALLDISTANCE + ": error in definition");
         }
     }
 

@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -40,7 +39,7 @@ public class A1WriteStartOfGasDayMessage extends AbstractDlmsMessage
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         try
         {
@@ -56,18 +55,18 @@ public class A1WriteStartOfGasDayMessage extends AbstractDlmsMessage
             {
                 msg += " (" + e.getMessage() + ")";
             }
-            throw new BusinessException(msg);
+            throw new IOException(msg, e);
         }
     }
 
 
-    private Integer[] validateData(String data) throws BusinessException
+    private Integer[] validateData(String data)
     {
         if ((data != null) && (!data.isEmpty()))
         {
             return processTimeString(data);
         }
-        throw new BusinessException("Wrong parameter:" + data);
+        throw new IllegalArgumentException("Wrong parameter:" + data);
     }
 
     protected void write(Integer[] data) throws IOException
@@ -95,13 +94,13 @@ public class A1WriteStartOfGasDayMessage extends AbstractDlmsMessage
         return msgSpec;
     }
 
-    public static Integer[] processTimeString(String data) throws BusinessException
+    public static Integer[] processTimeString(String data)
     {
         Pattern pattern = Pattern.compile(TIME_PATTERN);
         Matcher match = pattern.matcher(data.toUpperCase());
         if (!match.matches())
         {
-            throw new BusinessException(MESSAGE_DESCRIPTION + ": error in definition");
+            throw new IllegalArgumentException(MESSAGE_DESCRIPTION + ": error in definition");
         }
 
         Integer[] result = new Integer[] { 0x0, 0x0, 0x0, 0xFF};

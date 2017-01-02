@@ -36,7 +36,7 @@ public abstract class FirmwareUpdateMessage extends AbstractDlmsMessage {
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
 
         int start = messageEntry.getContent().indexOf("<" + ATTR_CODE_FIRMWAREFILE + ">");
         int end = messageEntry.getContent().indexOf("</" + ATTR_CODE_FIRMWAREFILE + ">");

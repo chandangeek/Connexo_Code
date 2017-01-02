@@ -12,7 +12,6 @@ import com.elster.protocolimpl.dlms.messaging.utils.SaxUtils;
 import com.elster.protocolimpl.dlms.messaging.utils.SpecialDayList;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -42,7 +41,7 @@ public class A1WriteSpecialDaysTableMessage extends AbstractDlmsMessage
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         String data = MessagingTools.getContentOfAttribute(messageEntry, ATTR_SPT_FILE);
         try
@@ -54,7 +53,7 @@ public class A1WriteSpecialDaysTableMessage extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to set billing period length: " + e.getMessage());
+            throw new IOException("Unable to set billing period length: " + e.getMessage(), e);
         }
 
     }

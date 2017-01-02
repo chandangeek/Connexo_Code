@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -41,10 +40,8 @@ public class A1SetPeriodLengthMessage extends AbstractDlmsMessage
      * Send the message to the meter.
      *
      * @param messageEntry: the message containing the data
-     * @throws com.energyict.cbo.BusinessException:
-     *          when a parameter is null or too long
      */
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         String data = MessagingTools.getContentOfAttribute(messageEntry, ATTR_BILLING_PERIOD_LENGTH);
         validateMessage(data);
@@ -52,7 +49,7 @@ public class A1SetPeriodLengthMessage extends AbstractDlmsMessage
         try {
             write(length);
         } catch (IOException e) {
-            throw new BusinessException("Unable to set billing period length: " + e.getMessage());
+            throw new IOException("Unable to set billing period length: " + e.getMessage(), e);
         }
     }
 
@@ -72,18 +69,18 @@ public class A1SetPeriodLengthMessage extends AbstractDlmsMessage
 
 
     @SuppressWarnings({"unused"})
-    protected void validateMessage(String data) throws BusinessException
+    protected void validateMessage(String data)
     {
         if ((data == null) || ("".equals(data)))
         {
-            throw new BusinessException("Parameter billing period length was 'null' or empty.");
+            throw new IllegalArgumentException("Parameter billing period length was 'null' or empty.");
         }
         try
         {
             final int i = parseInt(data);
         } catch (NumberFormatException ex)
         {
-            throw new BusinessException("Parameter billing period length: " + ex.getMessage());
+            throw new IllegalArgumentException("Parameter billing period length: " + ex.getMessage(), ex);
         }
     }
 

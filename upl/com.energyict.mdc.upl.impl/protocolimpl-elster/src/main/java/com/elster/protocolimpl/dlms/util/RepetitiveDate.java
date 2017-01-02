@@ -1,7 +1,8 @@
 package com.elster.protocolimpl.dlms.util;
 
-import com.elster.dlms.types.basic.*;
-import com.energyict.cbo.BusinessException;
+import com.elster.dlms.types.basic.DlmsDate;
+import com.elster.dlms.types.basic.DlmsDateTime;
+import com.elster.dlms.types.basic.DlmsTime;
 
 /**
  * User: heuckeg
@@ -11,27 +12,27 @@ import com.energyict.cbo.BusinessException;
 @SuppressWarnings({"unused"})
 public class RepetitiveDate {
 
-    private final static String[] weekdays = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
+    private static final String[] weekdays = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
 
-    public static void checkRepetitiveDate(String dateString, String name) throws BusinessException {
+    public static void checkRepetitiveDate(String dateString, String name) {
 
         try {
             dateStringToDlmsDateTime(dateString);
         } catch (Exception e) {
-            throw new BusinessException(name + ": " + e.getMessage());
+            throw new IllegalArgumentException(name + ": " + e.getMessage(), e);
         }
     }
 
 
-    public static DlmsDateTime dateStringToDlmsDateTime(String dateString) throws BusinessException {
+    public static DlmsDateTime dateStringToDlmsDateTime(String dateString) {
 
-        if ((dateString == null) || (dateString.length() == 0)) {
-            throw new BusinessException(" is 'null' or empty.");
+        if ((dateString == null) || (dateString.isEmpty())) {
+            throw new IllegalArgumentException(" is 'null' or empty.");
         }
 
         String[] part = dateString.split(" ");
         if (part.length != 2) {
-            throw new BusinessException(" missing date or time part.");
+            throw new IllegalArgumentException(" missing date or time part.");
         }
         DlmsDate date = dateStringToDlmsDate(part[0]);
         DlmsTime time = dateStringToDlmsTime(part[1]);
@@ -39,7 +40,7 @@ public class RepetitiveDate {
 
     }
 
-    public static DlmsDate dateStringToDlmsDate(String dateString) throws BusinessException {
+    public static DlmsDate dateStringToDlmsDate(String dateString) {
 
         DlmsDate result;
         try {
@@ -50,28 +51,28 @@ public class RepetitiveDate {
 
             String[] dateParts = d.split("-");
             if (dateParts.length != 3) {
-                throw new BusinessException("date format error");
+                throw new IllegalArgumentException("date format error");
             }
 
             int year = DlmsDate.YEAR_NOT_SPECIFIED;
-            if (!dateParts[0].trim().equals("*")) {
+            if (!"*".equals(dateParts[0].trim())) {
                 year = Integer.parseInt(dateParts[0].trim());
             }
 
             int month = DlmsDate.MONTH_NOT_SPECIFIED;
-            if (!dateParts[1].trim().equals("*")) {
+            if (!"*".equals(dateParts[1].trim())) {
                 month = Integer.parseInt(dateParts[1].trim());
             }
 
             int day = DlmsDate.DAY_OF_MONTH_NOT_SPECIFIED;
-            if (!dateParts[2].trim().equals("*")) {
+            if (!"*".equals(dateParts[2].trim())) {
                 day = Integer.parseInt(dateParts[2].trim());
             }
 
             result = new DlmsDate(year, month, day);
 
         } catch (Exception e) {
-            throw new BusinessException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return result;
     }
@@ -92,17 +93,17 @@ public class RepetitiveDate {
         return 0;
     }
 
-    public static DlmsTime dateStringToDlmsTime(String timeString) throws BusinessException {
+    public static DlmsTime dateStringToDlmsTime(String timeString) {
 
         DlmsTime result;
         try {
             String[] timeParts = timeString.trim().split(":");
             if (timeParts.length < 2) {
-                throw new BusinessException("time format error");
+                throw new IllegalArgumentException("time format error");
             }
 
             int hour = DlmsTime.NOT_SPECIFIED;
-            if (!timeParts[0].trim().equals("*")) {
+            if (!"*".equals(timeParts[0].trim())) {
                 hour = Integer.parseInt(timeParts[0].trim());
             }
 
@@ -115,7 +116,7 @@ public class RepetitiveDate {
             result = new DlmsTime(hour, minute, second, DlmsTime.NOT_SPECIFIED);
 
         } catch (Exception e) {
-            throw new BusinessException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return result;
     }

@@ -14,7 +14,6 @@ import com.elster.protocolimpl.dlms.messaging.utils.SaxUtils;
 import com.elster.protocolimpl.dlms.messaging.utils.TariffCalendar;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -22,6 +21,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,7 +56,7 @@ public class A1WritePassiveCalendarMessage extends AbstractDlmsMessage
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         try
         {
@@ -70,7 +70,7 @@ public class A1WritePassiveCalendarMessage extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to set new tariff calendar: " + e.getMessage());
+            throw new IOException("Unable to set new tariff calendar: " + e.getMessage(), e);
         }
 
     }
@@ -87,9 +87,11 @@ public class A1WritePassiveCalendarMessage extends AbstractDlmsMessage
             throw new IOException("This A1 doesn't support function '" + function + "'");
         }
 
+        List<DayProfile> dayProfiles = tc.getDayProfiles();
+        List<WeekProfile> weekProfiles = tc.getWeekProfiles();
         Object[] data = new Object[] {tc.getName(), activationDate,
-                tc.getDayProfiles().toArray(new DayProfile[0]),
-                tc.getWeekProfiles().toArray(new WeekProfile[0])};
+                dayProfiles.toArray(new DayProfile[dayProfiles.size()]),
+                weekProfiles.toArray(new WeekProfile[weekProfiles.size()])};
         rwObject.write(layer, data);
     }
 
@@ -107,13 +109,13 @@ public class A1WritePassiveCalendarMessage extends AbstractDlmsMessage
         }
     }
 
-    protected static Date validateActivationDate(String dateString) throws BusinessException
+    protected static Date validateActivationDate(String dateString)
     {
         int[] time = new int[] {0, 0, 0, 0, 0, 0};
         Matcher match = datePattern.matcher(dateString);
         if (!match.matches())
         {
-            throw new BusinessException("invalid date/time string: " + dateString);
+            throw new IllegalArgumentException("invalid date/time string: " + dateString);
         }
 
         String s;

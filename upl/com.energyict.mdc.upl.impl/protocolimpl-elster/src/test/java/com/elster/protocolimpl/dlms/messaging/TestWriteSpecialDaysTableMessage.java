@@ -1,7 +1,6 @@
 package com.elster.protocolimpl.dlms.messaging;
 
 import com.elster.dlms.cosem.classes.class11.SpecialDayEntry;
-import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -20,6 +19,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class TestWriteSpecialDaysTableMessage extends A1WriteSpecialDaysTableMessage
 {
-    private final static String testData = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" +
+    private static final String testData = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" +
             "<special_days_table>\n" +
             "    <entries>\n" +
             "        <entry>\n" +
@@ -129,8 +130,9 @@ public class TestWriteSpecialDaysTableMessage extends A1WriteSpecialDaysTableMes
  */
     private void printNodes(Element element, Integer ins)
     {
-        for (int i = 0; i < ins; i++)
+        for (int i = 0; i < ins; i++) {
             System.out.print(" ");
+        }
 
         System.out.print(element.getNodeName());
         ins += 2;
@@ -187,19 +189,7 @@ public class TestWriteSpecialDaysTableMessage extends A1WriteSpecialDaysTableMes
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(new InputSource(new StringReader(xml)));
         }
-        catch (ParserConfigurationException e)
-        {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
-        }
-        catch (SAXException e)
-        {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
-        }
-        catch (IOException e)
-        {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
-        }
-        catch (DOMException e)
+        catch (ParserConfigurationException | SAXException | IOException | DOMException e)
         {
             throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
         }

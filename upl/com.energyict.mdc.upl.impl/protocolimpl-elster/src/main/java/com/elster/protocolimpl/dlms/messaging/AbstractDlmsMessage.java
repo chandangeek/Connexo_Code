@@ -2,8 +2,7 @@ package com.elster.protocolimpl.dlms.messaging;
 
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
-import com.energyict.cbo.BusinessException;
-
+import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -18,7 +17,7 @@ public abstract class AbstractDlmsMessage {
 
     public abstract boolean canExecuteThisMessage(MessageEntry messageEntry);
 
-    public abstract void executeMessage(MessageEntry messageEntry) throws BusinessException;
+    public abstract void executeMessage(MessageEntry messageEntry) throws IOException;
 
     public AbstractDlmsMessage(DlmsMessageExecutor executor) {
         this.executor = executor;
@@ -36,15 +35,15 @@ public abstract class AbstractDlmsMessage {
         return getExecutor().getLogger();
     }
 
-    private void checkString(String stringToCheck, String name) throws BusinessException {
-        if ((stringToCheck == null) || (stringToCheck.length() == 0)) {
-            throw new BusinessException("Parameter " + name + " is 'null' or empty.");
+    private void checkString(String stringToCheck, String name) {
+        if ((stringToCheck == null) || (stringToCheck.isEmpty())) {
+            throw new IllegalArgumentException("Parameter " + name + " is 'null' or empty.");
         }
     }
 
-    protected void checkInt(String stringToCheck, String name, int min, int max) throws BusinessException {
-        if ((stringToCheck == null) || (stringToCheck.length() == 0)) {
-            throw new BusinessException("Parameter " + name + " is 'null' or empty.");
+    protected void checkInt(String stringToCheck, String name, int min, int max) {
+        if ((stringToCheck == null) || (stringToCheck.isEmpty())) {
+            throw new IllegalArgumentException("Parameter " + name + " is 'null' or empty.");
         }
         try {
             int i = Integer.parseInt(stringToCheck);
@@ -52,7 +51,7 @@ public abstract class AbstractDlmsMessage {
                 throw new NumberFormatException("Out of range (" + min + "-" + max + ")");
             }
         } catch (NumberFormatException e) {
-            throw new BusinessException("Error in client id: " + e.getMessage());
+            throw new IllegalArgumentException("Error in client id: " + e.getMessage());
         }
     }
 }

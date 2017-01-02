@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -38,7 +37,7 @@ public class A1WritePDRMessage extends AbstractDlmsMessage {
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         String pdr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_PDR);
         validatePdr(pdr);
         try {
@@ -49,7 +48,7 @@ public class A1WritePDRMessage extends AbstractDlmsMessage {
             {
                 msg += " (" + e.getMessage() + ")";
             }
-            throw new BusinessException(msg);
+            throw new IOException(msg, e);
         }
     }
 
@@ -70,18 +69,18 @@ public class A1WritePDRMessage extends AbstractDlmsMessage {
                 });
     }
 
-    private void validatePdr(String pdr) throws BusinessException {
+    private void validatePdr(String pdr) {
         if (pdr == null) {
-            throw new BusinessException("Unable to write pdr. PDR value was 'null'");
+            throw new IllegalArgumentException("Unable to write pdr. PDR value was 'null'");
         }
         if (pdr.length() != 14) {
-            throw new BusinessException("Unable to write pdr. PDR should be 14 digits but was [" + pdr.length() + "] [" + pdr + "]");
+            throw new IllegalArgumentException("Unable to write pdr. PDR should be 14 digits but was [" + pdr.length() + "] [" + pdr + "]");
         }
         if (!ProtocolTools.isNumber(pdr)) {
-            throw new BusinessException("Unable to write pdr. PDR should only contain numbers but was [" + pdr + "]");
+            throw new IllegalArgumentException("Unable to write pdr. PDR should only contain numbers but was [" + pdr + "]");
         }
         if ("00000000000000".equalsIgnoreCase(pdr)) {
-            throw new BusinessException("Unable to write pdr. PDR with a value of '00000000000000' is not allowed!]");
+            throw new IllegalArgumentException("Unable to write pdr. PDR with a value of '00000000000000' is not allowed!]");
         }
     }
 

@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleDataObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -42,7 +41,7 @@ public class WriteMeterMasterDataMessage extends AbstractDlmsMessage {
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         String meterTypeAttr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_METER_TYPE);
         String meterCaliberAttr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_METER_CALIBER);
         String meterSerialAttr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_METER_SERIAL);
@@ -56,7 +55,7 @@ public class WriteMeterMasterDataMessage extends AbstractDlmsMessage {
         try {
             writeMeterMasterData(meterType, caliber, serial);
         } catch (IOException e) {
-            throw new BusinessException("Unable to write meter master data: " + e.getMessage());
+            throw new IOException("Unable to write meter master data: " + e.getMessage(), e);
         }
     }
 
@@ -78,49 +77,49 @@ public class WriteMeterMasterDataMessage extends AbstractDlmsMessage {
         dataObject.setStringValue(serial);
     }
 
-    private int validateAndGetCaliber(String meterCaliberAttr) throws BusinessException {
+    private int validateAndGetCaliber(String meterCaliberAttr) {
         if (meterCaliberAttr == null) {
-            throw new BusinessException("Meter caliber cannot be 'null'");
+            throw new IllegalArgumentException("Meter caliber cannot be 'null'");
         }
         if ("".equals(meterCaliberAttr)) {
-            throw new BusinessException("Meter caliber cannot be empty");
+            throw new IllegalArgumentException("Meter caliber cannot be empty");
         }
         if (!ProtocolTools.isNumber(meterCaliberAttr)) {
-            throw new BusinessException("Meter caliber should only contain digits (0-9), but [" + meterCaliberAttr + "] contains other characters.");
+            throw new IllegalArgumentException("Meter caliber should only contain digits (0-9), but [" + meterCaliberAttr + "] contains other characters.");
         }
         try {
             int caliber = Integer.valueOf(meterCaliberAttr);
             if (caliber > MAX_CALIBER) {
-                throw new BusinessException("Meter caliber has a max value of [" + MAX_CALIBER + "] but was [" + caliber + "]");
+                throw new IllegalArgumentException("Meter caliber has a max value of [" + MAX_CALIBER + "] but was [" + caliber + "]");
             }
             return caliber;
         } catch (NumberFormatException e) {
-            throw new BusinessException("Invalid caliber [" + meterCaliberAttr + "]. " + e.getMessage());
+            throw new IllegalArgumentException("Invalid caliber [" + meterCaliberAttr + "]. " + e.getMessage(), e);
         }
     }
 
-    private String validateAndGetSerial(String meterSerialAttr) throws BusinessException {
+    private String validateAndGetSerial(String meterSerialAttr) {
         if (meterSerialAttr == null) {
-            throw new BusinessException("Meter serial cannot be 'null'");
+            throw new IllegalArgumentException("Meter serial cannot be 'null'");
         }
         if ("".equals(meterSerialAttr)) {
-            throw new BusinessException("Meter serial cannot be empty");
+            throw new IllegalArgumentException("Meter serial cannot be empty");
         }
         if (meterSerialAttr.length() > SERIAL_MAX_LENGTH) {
-            throw new BusinessException("Serial max length is [" + SERIAL_MAX_LENGTH + "] characters, but [" + meterSerialAttr + "] has [" + meterSerialAttr.length() + "] characters.");
+            throw new IllegalArgumentException("Serial max length is [" + SERIAL_MAX_LENGTH + "] characters, but [" + meterSerialAttr + "] has [" + meterSerialAttr.length() + "] characters.");
         }
         return meterSerialAttr;
     }
 
-    private String validateAndGetType(String meterTypeAttr) throws BusinessException {
+    private String validateAndGetType(String meterTypeAttr) {
         if (meterTypeAttr == null) {
-            throw new BusinessException("Meter type cannot be 'null'");
+            throw new IllegalArgumentException("Meter type cannot be 'null'");
         }
         if ("".equals(meterTypeAttr)) {
-            throw new BusinessException("Meter type cannot be empty");
+            throw new IllegalArgumentException("Meter type cannot be empty");
         }
         if (meterTypeAttr.length() != TYPE_LENGTH) {
-            throw new BusinessException("Meter type should have " + TYPE_LENGTH + " characters, but [" + meterTypeAttr + "] has [" + meterTypeAttr.length() + "] characters");
+            throw new IllegalArgumentException("Meter type should have " + TYPE_LENGTH + " characters, but [" + meterTypeAttr + "] has [" + meterTypeAttr.length() + "] characters");
         }
 
         return meterTypeAttr;
