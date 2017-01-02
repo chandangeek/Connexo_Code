@@ -7,7 +7,7 @@ import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class DevicePrivileges {
-    private DevicePrivileges() {}
-
     public static final String DEVICES_WIDGET_ISSUES = "devices.widget.issues";
     public static final String DEVICES_WIDGET_VALIDATION = "devices.widget.validation";
     public static final String DEVICES_WIDGET_COMMUNICATION_TOPOLOGY = "devices.widget.communication.topology";
@@ -45,12 +43,13 @@ public final class DevicePrivileges {
     public static final String DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION = "devices.actions.change.device.configuration";
     public static final String DEVICES_PAGES_COMMUNICATION_PLANNING = "devices.pages.communication.planning";
     public static final String DEVICES_TIME_OF_USE_ALLOWED = "devices.pages.timeofuseallowed";
-
     private static Map<ProtocolSupportedCalendarOptions, String> option2Privilege = createAllPrivilegesMap();
 
-    public static List<String> getPrivilegesFor(Device device, User user){
-        List<String> privileges = PrivilegesBasedOnDeviceState.get(device.getState()).getPrivileges(user);
-        return privileges;
+    private DevicePrivileges() {
+    }
+
+    public static List<String> getPrivilegesFor(Device device, User user) {
+        return PrivilegesBasedOnDeviceState.get(device.getState()).getPrivileges(user);
     }
 
     public static List<String> getTimeOfUsePrivilegesFor(Device device, DeviceConfigurationService deviceConfigurationService) {
@@ -59,23 +58,23 @@ public final class DevicePrivileges {
         List<String> privileges = new ArrayList<>();
         Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections
                 .emptySet());
-        if(allowedOptions.size() > 0) {
-            if(supportedCalendarOptions.contains(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR)) {
+        if (allowedOptions.size() > 0) {
+            if (supportedCalendarOptions.contains(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR)) {
                 allowedOptions.add(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
             }
 
             if (allowedOptions.contains(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF) || allowedOptions
                     .contains(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR)) {
-                    privileges.add("devices.timeofuse.supportspassive");
+                privileges.add("devices.timeofuse.supportspassive");
 
             }
             if (containsSendOption(allowedOptions)) {
                 privileges.add("devices.timeofuse.supportssend");
             }
             privileges.addAll(getTimeOfUsePrivileges(allowedOptions));
-            return privileges ;
+            return privileges;
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -87,7 +86,7 @@ public final class DevicePrivileges {
     }
 
     private static List<String> getTimeOfUsePrivileges(Set<ProtocolSupportedCalendarOptions> allowedOptions) {
-        List<String> list =  allowedOptions.stream()
+        List<String> list = allowedOptions.stream()
                 .map(option -> option2Privilege.get(option))
                 .collect(Collectors.toList());
         list.add(DEVICES_TIME_OF_USE_ALLOWED);
@@ -119,7 +118,7 @@ public final class DevicePrivileges {
 
     private enum PrivilegesBasedOnDeviceState {
         DEFAULT(null),
-        DECOMMISSIONED(Collections.singletonList(DefaultState.DECOMMISSIONED)){
+        DECOMMISSIONED(Collections.singletonList(DefaultState.DECOMMISSIONED)) {
             @Override
             List<String> getPrivileges(User user) {
                 List<String> privileges = new ArrayList<>();
@@ -129,7 +128,7 @@ public final class DevicePrivileges {
                 return privileges;
             }
         },
-        IN_STOCK(Collections.singletonList(DefaultState.IN_STOCK)){
+        IN_STOCK(Collections.singletonList(DefaultState.IN_STOCK)) {
             @Override
             List<String> getPrivileges(User user) {
                 List<String> privileges = new ArrayList<>(super.getPrivileges(user));
@@ -139,8 +138,7 @@ public final class DevicePrivileges {
                 privileges.remove(DEVICES_ACTIONS_ESTIMATION);
                 return privileges;
             }
-        },
-        ;
+        },;
 
         private List<DefaultState> matchedStates;
 
@@ -148,7 +146,19 @@ public final class DevicePrivileges {
             this.matchedStates = matchedStates;
         }
 
-        List<String> getPrivileges(User user){
+        static PrivilegesBasedOnDeviceState get(State deviceState) {
+            Optional<DefaultState> defaultStateRef = DefaultState.from(deviceState);
+            if (defaultStateRef.isPresent()) {
+                return EnumSet.complementOf(EnumSet.of(DEFAULT))
+                        .stream()
+                        .filter(privilegeState -> privilegeState.matchedStates.contains(defaultStateRef.get()))
+                        .findFirst()
+                        .orElse(DEFAULT);
+            }
+            return DEFAULT;
+        }
+
+        List<String> getPrivileges(User user) {
             return Arrays.asList(
                     DevicePrivileges.DEVICES_WIDGET_ISSUES,
                     DevicePrivileges.DEVICES_WIDGET_VALIDATION,
@@ -172,18 +182,6 @@ public final class DevicePrivileges {
                     DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                     DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
             );
-        }
-
-        static PrivilegesBasedOnDeviceState get(State deviceState){
-            Optional<DefaultState> defaultStateRef = DefaultState.from(deviceState);
-            if (defaultStateRef.isPresent()) {
-                return EnumSet.complementOf(EnumSet.of(DEFAULT))
-                        .stream()
-                        .filter(privilegeState -> privilegeState.matchedStates.contains(defaultStateRef.get()))
-                        .findFirst()
-                        .orElse(DEFAULT);
-            }
-            return DEFAULT;
         }
     }
 }

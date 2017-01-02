@@ -499,7 +499,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> result = new ArrayList<>();
         for (DeviceMessageId deviceMessageId : deviceMessageIds) {
             com.energyict.mdc.upl.messages.DeviceMessageSpec spec = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-            when(spec.getMessageId()).thenReturn(deviceMessageId.dbValue());
+            when(spec.getId()).thenReturn(deviceMessageId.dbValue());
             result.add(spec);
         }
         return result;

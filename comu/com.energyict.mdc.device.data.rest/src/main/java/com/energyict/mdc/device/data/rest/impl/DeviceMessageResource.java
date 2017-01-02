@@ -158,7 +158,7 @@ public class DeviceMessageResource {
     private boolean hasCommandsWithPrivileges (Device device) {
         List<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
-                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                         .map(DeviceMessageId::havingId)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());

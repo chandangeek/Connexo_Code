@@ -192,22 +192,22 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
             deviceMessageIds = new ArrayList<>();
             com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec0 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-            when(deviceMessageSpec0.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+            when(deviceMessageSpec0.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
             deviceMessageIds.add(deviceMessageSpec0);
             com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-            when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+            when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
             deviceMessageIds.add(deviceMessageSpec1);
             com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-            when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+            when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
             deviceMessageIds.add(deviceMessageSpec2);
             com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-            when(deviceMessageSpec3.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
+            when(deviceMessageSpec3.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
             deviceMessageIds.add(deviceMessageSpec3);
             com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-            when(deviceMessageSpec4.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+            when(deviceMessageSpec4.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
             deviceMessageIds.add(deviceMessageSpec4);
             com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-            when(deviceMessageSpec5.getMessageId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
+            when(deviceMessageSpec5.getId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
             deviceMessageIds.add(deviceMessageSpec5);
 
             when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
