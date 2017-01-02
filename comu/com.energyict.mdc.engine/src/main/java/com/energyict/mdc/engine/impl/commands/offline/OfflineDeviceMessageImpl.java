@@ -47,7 +47,6 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private Instant creationDate;
     private Device device;
     private String preparedContext;
-    private String deviceMessageSpecPrimaryKey;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -71,7 +70,6 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
         this.deviceMessageId = this.deviceMessage.getDeviceMessageId();
         this.specification = new ConnexoDeviceMessageSpecAdapter(this.deviceMessage.getSpecification());
-        this.deviceMessageSpecPrimaryKey = specification.getPrimaryKey().getValue();
         this.deviceId = device.getId();
         this.deviceSerialNumber = device.getSerialNumber();
         this.releaseDate = this.deviceMessage.getReleaseDate();
@@ -157,11 +155,6 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
-    }
-
-    @Override
-    public String getDeviceMessageSpecPrimaryKey() {
-        return deviceMessageSpecPrimaryKey;
     }
 
     @Override
