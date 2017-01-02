@@ -35,7 +35,7 @@ public interface DeviceProtocolPluggableClass extends PluggableClass {
         return this.getDeviceProtocol()
                 .getSupportedMessages()
                 .stream()
-                .map(DeviceMessageSpec::getMessageId)
+                .map(DeviceMessageSpec::getId)
                 .anyMatch(fileMessages::contains);
     }
 }

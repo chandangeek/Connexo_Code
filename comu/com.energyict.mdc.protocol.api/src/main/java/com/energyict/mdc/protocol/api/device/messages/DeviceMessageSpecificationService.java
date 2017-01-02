@@ -1,10 +1,9 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.util.List;
 import java.util.Optional;

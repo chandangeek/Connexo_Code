@@ -11,6 +11,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-02-10 (08:57)
  */
+//TODO delete this class, use 9.1 protocol code instead?
 public enum MessageSeeds implements MessageSeed {
 
     LOADPROFILE_NOT_SUPPORTED(100, "issue.loadProfileXnotsupported", "Load profile with OBIS code '{0}' is not supported by the device"),
@@ -48,7 +49,6 @@ public enum MessageSeeds implements MessageSeed {
     CIPHERING_EXCEPTION(132, "issue.protocol.ciphering", "Encountered an exception related to the ciphering of data: {0}"),
     CONNECTION_DISCONNECT_ERROR(133, "connectionDisconnectError", "Disconnect of connection failed: {0}"),
     COULD_NOT_READ_BREAKER_STATE(134, "issue.protocol.readingOfBreakerStateFailed", "Could not correctly read the breaker state: {0}"),
-    //TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
     ;
 
     private final int number;

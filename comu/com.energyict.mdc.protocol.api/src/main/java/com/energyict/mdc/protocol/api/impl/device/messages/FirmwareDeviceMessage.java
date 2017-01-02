@@ -5,8 +5,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -248,7 +248,7 @@ enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
 
     protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
-    };
+    }
 
     public abstract Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption();
 

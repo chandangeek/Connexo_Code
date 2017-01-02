@@ -5,8 +5,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -341,7 +341,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
     protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
-    };
+    }
 
     public abstract Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption();
 
