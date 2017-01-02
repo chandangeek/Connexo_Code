@@ -54,7 +54,7 @@ public class Mx382 extends AM130{
 
     protected IDISLogBookFactory getIDISLogBookFactory() {
         if (idisLogBookFactory == null) {
-            idisLogBookFactory = new Mx382LogBookFactory(this);
+            idisLogBookFactory = new Mx382LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return idisLogBookFactory;
     }
