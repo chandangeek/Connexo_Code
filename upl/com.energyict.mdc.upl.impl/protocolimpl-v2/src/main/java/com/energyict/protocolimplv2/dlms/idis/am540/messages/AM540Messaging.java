@@ -32,7 +32,7 @@ public class AM540Messaging extends AM130Messaging {
 
     protected IDISMessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            this.messageExecutor = new AM540MessageExecutor(getProtocol());
+            this.messageExecutor = new AM540MessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return messageExecutor;
     }

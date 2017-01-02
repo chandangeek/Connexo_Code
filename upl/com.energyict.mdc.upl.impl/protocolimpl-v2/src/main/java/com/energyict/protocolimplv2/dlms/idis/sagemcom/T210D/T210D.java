@@ -57,7 +57,7 @@ public class T210D extends AM130 {
     @Override
     protected AM130RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new T210DRegisterFactory(this);
+            this.registerFactory = new T210DRegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }

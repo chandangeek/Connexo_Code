@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -22,8 +22,8 @@ import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.profiledata.Mx382Profi
  */
 public class Mx382 extends AM130{
 
-    public Mx382(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
+    public Mx382(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class Mx382 extends AM130{
     @Override
     public IDISProfileDataReader getIDISProfileDataReader() {
         if (idisProfileDataReader == null) {
-            idisProfileDataReader = new Mx382ProfileDataReader(this, getDlmsSessionProperties().getLimitMaxNrOfDays());
+            idisProfileDataReader = new Mx382ProfileDataReader(this, this.getCollectedDataFactory(), this.getIssueFactory(), getDlmsSessionProperties().getLimitMaxNrOfDays());
         }
         return idisProfileDataReader;
     }
@@ -70,7 +70,7 @@ public class Mx382 extends AM130{
     @Override
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new Mx382Messaging(this, this.getCalendarExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
+            idisMessaging = new Mx382Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor());
         }
         return idisMessaging;
     }

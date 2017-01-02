@@ -419,9 +419,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * @param userFile The user file to write to the temp.
      * @return The {@link File} that was written.
      */
-    private final File writeToTempDirectory(final UserFile userFile) {
+    private File writeToTempDirectory(final UserFile userFile) {
         final File tempDirectory = new File(System.getProperty(TEMP_DIR));
-        final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
+        final String fileName = "beacon-3100-firmware-" + userFile.getId();
 
         try {
             FIRMWARE_FILE_LOCK.lock();

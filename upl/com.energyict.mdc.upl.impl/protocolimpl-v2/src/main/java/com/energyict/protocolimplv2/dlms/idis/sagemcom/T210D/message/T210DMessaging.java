@@ -31,7 +31,7 @@ public class T210DMessaging extends AM540Messaging {
 
     protected IDISMessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            this.messageExecutor = new T210DMessageExecutor(getProtocol());
+            this.messageExecutor = new T210DMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return messageExecutor;
     }
