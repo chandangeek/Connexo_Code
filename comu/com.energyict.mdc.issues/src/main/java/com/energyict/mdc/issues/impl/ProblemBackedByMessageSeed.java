@@ -1,9 +1,8 @@
 package com.energyict.mdc.issues.impl;
 
-import com.energyict.mdc.upl.tasks.Problem;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.upl.issue.Problem;
 
 import java.time.Instant;
 

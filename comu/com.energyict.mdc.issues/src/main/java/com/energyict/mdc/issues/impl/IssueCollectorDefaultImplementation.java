@@ -3,14 +3,12 @@ package com.energyict.mdc.issues.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issues.IssueCollector;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
 
 import java.time.Clock;
-
-import com.energyict.mdc.upl.tasks.Issue;
-import com.energyict.mdc.issues.IssueCollector;
-import com.energyict.mdc.upl.tasks.Problem;
-import com.energyict.mdc.upl.tasks.Warning;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

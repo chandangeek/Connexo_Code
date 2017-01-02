@@ -2,7 +2,7 @@ package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.time.Instant;
 import java.util.Optional;

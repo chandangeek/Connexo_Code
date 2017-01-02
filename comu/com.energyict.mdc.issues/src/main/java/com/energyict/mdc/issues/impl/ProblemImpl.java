@@ -1,12 +1,12 @@
 package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.upl.tasks.Problem;
+import com.energyict.mdc.upl.issue.Problem;
 
 import java.time.Instant;
 
 /**
- * Models an {@link com.energyict.mdc.upl.tasks.Issue Issue} that cannot be worked around
+ * Models an {@link com.energyict.mdc.upl.issue.Issue Issue} that cannot be worked around
  * without making changes to the information that caused the problem.
  *
  * @author Rudi Vankeirsbilck (rudi)

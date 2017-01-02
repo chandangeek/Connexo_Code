@@ -1,7 +1,7 @@
 package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.upl.tasks.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.text.MessageFormat;
 import java.time.Instant;

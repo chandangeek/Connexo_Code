@@ -1,11 +1,10 @@
 package com.energyict.mdc.issues;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.upl.tasks.Issue;
-import com.energyict.mdc.upl.tasks.Problem;
-import com.energyict.mdc.upl.tasks.Warning;
-
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
 
 import java.util.Collection;
 
@@ -58,7 +57,7 @@ public interface IssueCollector {
      *
      * if translation is needed, use addProblem(MessageSeed)
      */
-    public Issue addProblem (String description);
+    Issue addProblem(String description);
 
     Issue addProblem (MessageSeed descriptionSeed);
 
@@ -82,7 +81,7 @@ public interface IssueCollector {
      *
      * @return A flag that indicates if Issues were reported
      */
-    public boolean hasIssues ();
+    boolean hasIssues();
 
     /**
      * Tests if {@link Issue}s were reported to this IssueCollector
@@ -91,14 +90,14 @@ public interface IssueCollector {
      * @param source The source object
      * @return A flag that indicates if Issues were reported
      */
-    public boolean hasIssues (Object source);
+    boolean hasIssues(Object source);
 
     /**
      * Tests if {@link Warning}s were reported to this IssueCollector.
      *
      * @return A flag that indicates if Warnings were reported
      */
-    public boolean hasWarnings ();
+    boolean hasWarnings();
 
     /**
      * Tests if {@link Warning}s were reported to this WarningCollector
@@ -107,14 +106,14 @@ public interface IssueCollector {
      * @param source The source object
      * @return A flag that indicates if Warnings were reported
      */
-    public boolean hasWarnings (Object source);
+    boolean hasWarnings(Object source);
 
     /**
      * Tests if {@link Problem}s were reported to this IssueCollector.
      *
      * @return A flag that indicates if Problems were reported
      */
-    public boolean hasProblems ();
+    boolean hasProblems();
 
     /**
      * Tests if {@link Problem}s were reported to this ProblemCollector
@@ -123,14 +122,14 @@ public interface IssueCollector {
      * @param source The source object
      * @return A flag that indicates if Problems were reported
      */
-    public boolean hasProblems (Object source);
+    boolean hasProblems(Object source);
 
     /**
      * Gets the List of {@link Issue}s that were collected.
      *
      * @return The List of Issue objects that were collected
      */
-    public Collection<? extends Issue> getIssues ();
+    Collection<? extends Issue> getIssues();
 
     /**
      * Gets the List of {@link Issue}s that were collected
@@ -139,14 +138,14 @@ public interface IssueCollector {
      * @param source The source object
      * @return The List of Issue objects that were collected
      */
-    public Collection<? extends Issue> getIssues (Object source);
+    Collection<? extends Issue> getIssues(Object source);
 
     /**
      * Gets the List of {@link Warning}s that were collected.
      *
      * @return The List of Warning objects that were collected
      */
-    public Collection<? extends Warning> getWarnings ();
+    Collection<? extends Warning> getWarnings();
 
     /**
      * Gets the List of {@link Warning}s that were collected
@@ -155,14 +154,14 @@ public interface IssueCollector {
      * @param source The source object
      * @return The List of Warning objects that were collected
      */
-    public Collection<? extends Warning> getWarnings (Object source);
+    Collection<? extends Warning> getWarnings(Object source);
 
     /**
      * Gets the List of {@link Problem}s that were collected.
      *
      * @return The List of Problem objects that were collected
      */
-    public Collection<? extends Problem> getProblems ();
+    Collection<? extends Problem> getProblems();
 
     /**
      * Gets the List of {@link Problem}s that were collected
@@ -171,6 +170,6 @@ public interface IssueCollector {
      * @param source The source object
      * @return The List of Problem objects that were collected
      */
-    public Collection<? extends Problem> getProblems (Object source);
+    Collection<? extends Problem> getProblems(Object source);
 
 }
