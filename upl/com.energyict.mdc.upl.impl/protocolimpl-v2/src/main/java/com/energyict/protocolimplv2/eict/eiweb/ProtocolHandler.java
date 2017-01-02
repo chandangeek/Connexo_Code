@@ -4,10 +4,7 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -63,15 +60,12 @@ public class ProtocolHandler {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
-    private final Extractor extractor;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
-    private final TariffCalendarExtractor tariffCalendarExtractor;
 
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext context, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
-        this(responseWriter, context.getInboundDAO(), context.getCryptographer(), context.getCollectedDataFactory(), context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getExtractor(), deviceMessageFileExtractor, tariffCalendarExtractor);
+    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext context) {
+        this(responseWriter, context.getInboundDAO(), context.getCryptographer(), context.getCollectedDataFactory(), context.getPropertySpecService(), context.getNlsService(), context.getConverter());
     }
 
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDAO inboundDAO, Cryptographer cryptographer, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+    public ProtocolHandler(ResponseWriter responseWriter, InboundDAO inboundDAO, Cryptographer cryptographer, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super();
         this.responseWriter = responseWriter;
         this.inboundDAO = inboundDAO;
@@ -80,9 +74,6 @@ public class ProtocolHandler {
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
-        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
-        this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 
     private void setContentType(HttpServletRequest request) {
@@ -226,7 +217,7 @@ public class ProtocolHandler {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebMessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor, this.deviceMessageFileExtractor, this.tariffCalendarExtractor);
+            messageConverter = new EIWebMessageConverter(null, this.propertySpecService, this.nlsService, this.converter);
         }
         return messageConverter;
     }

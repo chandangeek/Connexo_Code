@@ -267,7 +267,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     protected GprsObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            obisCodeMapper = new GprsObisCodeMapper(this);
+            obisCodeMapper = new GprsObisCodeMapper(this, this.collectedDataFactory, this.issueFactory);
         }
         return obisCodeMapper;
     }
