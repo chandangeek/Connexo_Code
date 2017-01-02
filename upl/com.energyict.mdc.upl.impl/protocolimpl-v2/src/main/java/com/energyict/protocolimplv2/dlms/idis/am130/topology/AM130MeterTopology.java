@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.topology;
 
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 
 /**
- * Extension of the IDISMeterTopology, supports discovery of 6 MBus channels
+ * Extension of the IDISMeterTopology, supports discovery of 6 MBus channels.
  * <p/>
  * Copyrights EnergyICT
  *
@@ -15,7 +17,7 @@ public class AM130MeterTopology extends IDISMeterTopology {
 
     private static final int MAX_MBUS_CHANNELS = 6;
 
-    public AM130MeterTopology(AbstractDlmsProtocol protocol) {
+    public AM130MeterTopology(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory) {
         super(protocol, collectedDataFactory);
     }
 

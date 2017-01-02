@@ -17,7 +17,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -83,7 +83,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
 
     private OfflineDevice offlineDevice;
     private RequestFactory requestFactory;
@@ -93,13 +93,13 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
     private MessageFactory messageFactory;
     private DeviceProtocolSecurityCapabilities securitySupport;
 
-    public A1055(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
+    public A1055(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
     }
 
     @Override
@@ -154,7 +154,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect(propertySpecService), new AbntTransparentTCPDeviceProtocolDialect());
+        return Arrays.asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect(propertySpecService), new AbntTransparentTCPDeviceProtocolDialect(propertySpecService));
     }
 
     @Override
@@ -344,7 +344,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     public MessageFactory getMessageFactory() {
         if (this.messageFactory == null) {
-            this.messageFactory = new MessageFactory(this, collectedDataFactory, issueFactory, this.propertySpecService, this.nlsService, this.converter, extractor);
+            this.messageFactory = new MessageFactory(this, collectedDataFactory, issueFactory, this.propertySpecService, this.nlsService, this.converter, this.calendarExtractor);
         }
         return this.messageFactory;
     }

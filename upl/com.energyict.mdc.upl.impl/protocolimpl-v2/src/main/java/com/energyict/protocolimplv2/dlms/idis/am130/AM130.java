@@ -207,7 +207,7 @@ public class AM130 extends AM500 {
 
     protected IDISLogBookFactory getIDISLogBookFactory() {
         if (idisLogBookFactory == null) {
-            idisLogBookFactory = new AM130LogBookFactory(this);
+            idisLogBookFactory = new AM130LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return idisLogBookFactory;
     }
@@ -222,7 +222,7 @@ public class AM130 extends AM500 {
     @Override
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
-            meterTopology = new AM130MeterTopology(this);
+            meterTopology = new AM130MeterTopology(this, this.getCollectedDataFactory());
             meterTopology.searchForSlaveDevices();
         }
         return meterTopology;

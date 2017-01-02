@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.am130;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -32,8 +32,8 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
     private final AbstractDlmsProtocol masterProtocol;
     private final IDISMBusMessaging idisMBusMessaging;
 
-    private MBusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        this.masterProtocol = new AM130(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
+    private MBusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
+        this.masterProtocol = new AM130(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor);
         this.idisMBusMessaging = new IDISMBusMessaging(masterProtocol, propertySpecService, nlsService, converter);
     }
 
