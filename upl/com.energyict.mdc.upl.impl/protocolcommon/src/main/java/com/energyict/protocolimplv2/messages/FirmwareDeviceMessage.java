@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceGroup;
@@ -8,7 +9,6 @@ import com.energyict.mdc.upl.properties.FirmwareVersion;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
@@ -98,7 +99,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resum
 
 /**
  * Provides a summary of all <i>Firmware</i> related messages.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:10
@@ -110,6 +111,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, firmwareUpdateUserFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation));
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
+        }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(5002, "Firmware upgrade via user file with resume option") {
         @Override
@@ -118,6 +124,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.firmwareVersionSpec(service, firmwareUpdateUserFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, Boolean.TRUE)
             );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(5003, "Firmware upgrade via user file with resume option and type") {
@@ -129,11 +140,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.booleanSpec(service, plcTypeFirmwareUpdateAttributeName, plcTypeFirmwareUpdateAttributeDefaultTranslation)
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
     },
     UPGRADE_FIRMWARE_ACTIVATE(5004, "Active last uploaded firmware") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation));
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
         }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(5005, "Firmware upgrade via user file with activation date") {
@@ -143,6 +164,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.firmwareVersionSpec(service, firmwareUpdateUserFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation)
             );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(5006, "Firmware upgrade via user file with version and activation date") {
@@ -154,11 +180,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, firmwareUpdateVersionNumberAttributeName, firmwareUpdateVersionNumberAttributeDefaultTranslation)
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
     },
     UPGRADE_FIRMWARE_URL(5007, "Firwmare upgrade via url") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, firmwareUpdateURLAttributeName, firmwareUpdateURLAttributeDefaultTranslation));
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     UPGRADE_FIRMWARE_URL_AND_ACTIVATE(5008, "Firwmare upgrade via url with activation date") {
@@ -169,11 +205,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation)
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_IMMEDIATE(5009, "Upload firmware and activate immediately") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, firmwareUpdateUserFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation));
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     UpgradeWaveCard(5010, "Upgrade the Wavecard firmware") {
@@ -181,11 +227,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, DeviceMessageConstants.waveCardFirmware, DeviceMessageConstants.waveCardFirmwareDefaultTranslation));
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
     },
     PLCPrimeSetFirmwareUpgradeFile(5011, "Upload the firmware file") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateUserFileAttributeDefaultTranslation));
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     PLCPrimeStartFirmwareUpgradeNodeList(5012, "Start the firmware upgrade for nodes") {
@@ -193,11 +249,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, DeviceMessageConstants.nodeListUserFile, DeviceMessageConstants.nodeListUserFileDefaultTranslation));
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
     },
     FTIONUpgradeRFMeshFirmware(5013, "Upgrade the RF mesh firmware") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     RFMeshUpgradeURL(5014, "Change the update URL for RF mesh") {
@@ -205,11 +271,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetUpgradeUrlAttributeName, DeviceMessageConstants.SetUpgradeUrlAttributeDefaultTranslation));
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
     },
     UpgradeBootloader(5015, "Upgrade the boot loader") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationUserFileAttributeDefaultTranslation));
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(5016, "Upgrade firmware with user file, activation date and image identifier") {
@@ -221,6 +297,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation)
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(5017, "Upgrade firmware with user file and image identifier") {
         @Override
@@ -229,6 +310,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.firmwareVersionSpec(service, firmwareUpdateUserFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation)
             );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     BroadcastFirmwareUpgrade(5018, "Broadcast firmware upgrade") {
@@ -240,7 +326,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, broadcastClientMacAddressAttributeName, broadcastClientMacAddressAttributeDefaultTranslation, BigDecimal.valueOf(102)),
                     this.bigDecimalSpec(service, broadcastGroupIdAttributeName, broadcastGroupIdAttributeDefaultTranslation, BigDecimal.ONE),   //Default group 1 is broadcast (to all devices)
                     this.bigDecimalSpec(service, broadcastNumberOfBlocksInCycleAttributeName, broadcastNumberOfBlocksInCycleAttributeDefaultTranslation, BigDecimal.valueOf(100)),
-                    this.durationSpec(service, broadcastInitialTimeBetweenBlocksAttributeName, broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation, Duration.ofSeconds(1)), //TODO check if this is a good default value??
+                    this.durationSpec(service, broadcastInitialTimeBetweenBlocksAttributeName, broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation, Duration.ofSeconds(1)),
                     this.firmwareVersionSpec(service, firmwareUpdateUserFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
                     this.passwordSpec(service, broadcastEncryptionKeyAttributeName, broadcastEncryptionKeyAttributeDefaultTranslation),
@@ -251,11 +337,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                             DlmsEncryptionLevelMessageValues.getNames())
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
+        }
     },
     VerifyAndActivateFirmware(5019, "Verify and activate firmware") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
         }
     },
     DataConcentratorMulticastFirmwareUpgrade(5020, "Multicast firmware upgrade (Data concentrator mode)") {
@@ -283,11 +379,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.booleanSpec(service, UseTransferredBlockStatus, UseTransferredBlockStatusDefaultTranslation, Boolean.TRUE)
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
+        }
     },
     ReadMulticastProgress(5021, "Read DC multicast progress") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
         }
     },
     FirmwareUpgradeWithUrlJarJadFileSize(5022, "Firmware upgrade with URL") {
@@ -299,6 +405,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.JAD_FILE_SIZE, DeviceMessageConstants.JAD_FILE_SIZE_DEFAULT_TRANSLATION)
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER(5023, "Download and verify firmware") {
         @Override
@@ -309,11 +420,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, Boolean.TRUE)
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
     },
     ENABLE_IMAGE_TRANSFER(5024, "Enable image transfer") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
         }
     },
     TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR(5025, "Transfer slave firmware file") {
@@ -322,6 +443,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     this.firmwareVersionSpec(service, firmwareUpdateUserFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(5026, "Configure multicast block transfer") {
@@ -341,11 +467,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.durationSpec(service, DelayBetweenBlockSentFast, DelayBetweenBlockSentFastDefaultTranslation, Duration.ofMillis(20))
             );
         }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
+        }
     },
     START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(5027, "Start multicast block transfer") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
     };
 
@@ -502,5 +638,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);
     }
+
+    public abstract Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption();
 
 }
