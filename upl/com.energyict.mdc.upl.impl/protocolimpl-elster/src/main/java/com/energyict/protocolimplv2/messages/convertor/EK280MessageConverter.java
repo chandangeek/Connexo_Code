@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -47,9 +49,15 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usern
 public class EK280MessageConverter extends AbstractMessageConverter {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final TariffCalendarExtractor calendarExtractor;
+    private final TariffCalendarFinder calendarFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public EK280MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
+    public EK280MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.calendarFinder = calendarFinder;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
@@ -81,7 +89,7 @@ public class EK280MessageConverter extends AbstractMessageConverter {
 
                 // Activity calendar
                 .put(messageSpec(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF), new OneTagMessageEntry("ClearPassiveTariff"))
-                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE), new EK280ActivityCalendarMessageEntry())
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE), new EK280ActivityCalendarMessageEntry(calendarFinder, calendarExtractor))
 
                 // Security messages
                 .put(messageSpec(SecurityMessage.CHANGE_SECURITY_KEYS), new MultipleAttributeMessageEntry("ChangeKeys", "ClientId", "WrapperKey", "NewAuthenticationKey", "NewEncryptionKey"))
@@ -99,12 +107,12 @@ public class EK280MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(newEncryptionKeyAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return messageAttribute instanceof TariffCalendar ? CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute) : messageAttribute.toString();
+            return messageAttribute instanceof TariffCalendar ? CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.calendarExtractor) : messageAttribute.toString();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
-            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+            return this.messageFileExtractor.contents(userFile);  //Bytes of the userFile, as a string
         } else {
             return messageAttribute.toString();
         }

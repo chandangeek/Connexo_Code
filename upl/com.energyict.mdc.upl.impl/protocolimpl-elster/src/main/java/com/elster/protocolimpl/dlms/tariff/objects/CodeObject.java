@@ -1,10 +1,16 @@
 package com.elster.protocolimpl.dlms.tariff.objects;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.*;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
+import com.google.common.collect.Range;
 
 import java.io.Serializable;
-import java.util.*;
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -13,6 +19,8 @@ import java.util.*;
  */
 public class CodeObject implements Serializable {
 
+    private static final int MIN_START_YEAR = 2000;
+    private static final int MAX_START_YEAR = 2099;
     private int id;
     private String name;
     private String externalName;
@@ -25,38 +33,36 @@ public class CodeObject implements Serializable {
     private TimeZone definitionTimeZone;
     private SeasonSetObject seasonSet;
 
-    private List<CodeDayTypeObject> dayTypes = new ArrayList<CodeDayTypeObject>();
-    private List<CodeCalendarObject> calendars = new ArrayList<CodeCalendarObject>();
+    private List<CodeDayTypeObject> dayTypes = new ArrayList<>();
+    private List<CodeCalendarObject> calendars = new ArrayList<>();
 
     public CodeObject() {
     }
 
-    public static CodeObject fromCode(Code code) {
+    public static CodeObject fromCode(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         CodeObject co = new CodeObject();
-        co.setId(code.getId());
-        co.setName(code.getName());
-        co.setExternalName(code.getExternalName());
-        co.setYearFrom(code.getYearFrom());
-        co.setYearTo(code.getYearTo());
-        co.setInterval(code.getIntervalInSeconds());
-        co.setVerified(code.getVerified());
-        co.setRebuilt(code.getRebuilt());
-        co.setDestinationTimeZone(code.getDestinationTimeZone());
-        co.setDefinitionTimeZone(code.getDefinitionTimeZone());
-        co.setSeasonSet(SeasonSetObject.fromSeasonSet(code.getSeasonSet()));
-
-        co.setDayTypes(new ArrayList<CodeDayTypeObject>());
-        List<CodeDayType> dt = code.getDayTypes();
-        for (CodeDayType codeDayType : dt) {
-            co.getDayTypes().add(CodeDayTypeObject.fromCodeDayType(codeDayType));
+        co.setId(Integer.parseInt(extractor.id(calendar)));
+        co.setName(extractor.name(calendar));
+        co.setExternalName(null);
+        Range<Year> range = extractor.range(calendar);
+        if (range.hasLowerBound()) {
+            co.setYearFrom(range.lowerEndpoint().getValue());
+        } else {
+            co.setYearFrom(MIN_START_YEAR);
         }
-
-        co.setCalendars(new ArrayList<CodeCalendarObject>());
-        List<CodeCalendar> cal = code.getCalendars();
-        for (CodeCalendar codeCalendar : cal) {
-            co.getCalendars().add(CodeCalendarObject.fromCodeCalendar(codeCalendar));
+        if (range.hasUpperBound()) {
+            co.setYearTo(range.upperEndpoint().getValue());
+        } else {
+            co.setYearTo(MAX_START_YEAR);
         }
-
+        co.setInterval(extractor.intervalInSeconds(calendar));
+        co.setVerified(true);
+        co.setRebuilt(false);
+        co.setDestinationTimeZone(extractor.destinationTimeZone(calendar));
+        co.setDefinitionTimeZone(extractor.definitionTimeZone(calendar));
+        extractor.season(calendar).map(SeasonSetObject::fromSeasonSet).ifPresent(co::setSeasonSet);
+        co.setDayTypes(extractor.dayTypes(calendar).stream().map(CodeDayTypeObject::fromCodeDayType).collect(Collectors.toList()));
+        co.setCalendars(extractor.rules(calendar).stream().map(CodeCalendarObject::fromCodeCalendar).collect(Collectors.toList()));
         return co;
     }
 
@@ -65,7 +71,7 @@ public class CodeObject implements Serializable {
     }
 
     public List<CodeCalendarObject> getHolidayCalendars() {
-        List<CodeCalendarObject> holidays = new ArrayList<CodeCalendarObject>();
+        List<CodeCalendarObject> holidays = new ArrayList<>();
         for (CodeCalendarObject co : calendars) {
             if (co.isHoliday() && !holidays.contains(co)) {
                 holidays.add(co);
@@ -75,7 +81,7 @@ public class CodeObject implements Serializable {
     }
 
     public List<CodeCalendarObject> getCustomDayCalendars() {
-        List<CodeCalendarObject> customDays = new ArrayList<CodeCalendarObject>();
+        List<CodeCalendarObject> customDays = new ArrayList<>();
         for (CodeCalendarObject co : calendars) {
             if (co.isCustomDay() && !customDays.contains(co)) {
                 customDays.add(co);
@@ -85,7 +91,7 @@ public class CodeObject implements Serializable {
     }
 
     public List<CodeCalendarObject> getSpecialDayCalendars() {
-        List<CodeCalendarObject> specialDays = new ArrayList<CodeCalendarObject>();
+        List<CodeCalendarObject> specialDays = new ArrayList<>();
         for (CodeCalendarObject co : calendars) {
             if (co.isSpecialDay() && !specialDays.contains(co)) {
                 specialDays.add(co);
@@ -102,31 +108,31 @@ public class CodeObject implements Serializable {
         return dayTypes;
     }
 
-    public CodeDayTypeObject getWeekday(int period) throws BusinessException {
+    public CodeDayTypeObject getWeekday(int period) {
         for (CodeDayTypeObject dayType : dayTypes) {
             if (dayType.isWeekday() && dayType.isPeriod(period)) {
                 return dayType;
             }
         }
-        throw new BusinessException("No weekday found for period [" + period + "]!");
+        throw new IllegalArgumentException("No weekday found for period [" + period + "]!");
     }
 
-    public CodeDayTypeObject getSaturday(int period) throws BusinessException {
+    public CodeDayTypeObject getSaturday(int period) throws IllegalArgumentException {
         for (CodeDayTypeObject dayType : dayTypes) {
             if (dayType.isSaturday() && dayType.isPeriod(period)) {
                 return dayType;
             }
         }
-        throw new BusinessException("No saturday found for period [" + period + "]!");
+        throw new IllegalArgumentException("No saturday found for period [" + period + "]!");
     }
 
-    public CodeDayTypeObject getHoliday(int period) throws BusinessException {
+    public CodeDayTypeObject getHoliday(int period) throws IllegalArgumentException {
         for (CodeDayTypeObject dayType : dayTypes) {
             if (dayType.isHoliday() && dayType.isPeriod(period)) {
                 return dayType;
             }
         }
-        throw new BusinessException("No holiday found for period [" + period + "]!");
+        throw new IllegalArgumentException("No holiday found for period [" + period + "]!");
     }
 
     public void setDayTypes(List<CodeDayTypeObject> dayTypes) {
@@ -237,41 +243,40 @@ public class CodeObject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CodeObject");
-        sb.append("{calendars=").append(calendars);
-        sb.append(", id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", externalName='").append(externalName).append('\'');
-        sb.append(", yearFrom=").append(yearFrom);
-        sb.append(", yearTo=").append(yearTo);
-        sb.append(", interval=").append(interval);
-        sb.append(", verified=").append(verified);
-        sb.append(", rebuilt=").append(rebuilt);
-        sb.append(", destinationTimeZone=").append(destinationTimeZone);
-        sb.append(", definitionTimeZone=").append(definitionTimeZone);
-        sb.append(", seasonSet=").append(seasonSet);
-        sb.append(", dayTypes=").append(dayTypes);
-        sb.append('}');
-        return sb.toString();
+        String sb = "CodeObject" +
+                "{calendars=" + calendars +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", externalName='" + externalName + '\'' +
+                ", yearFrom=" + yearFrom +
+                ", yearTo=" + yearTo +
+                ", interval=" + interval +
+                ", verified=" + verified +
+                ", rebuilt=" + rebuilt +
+                ", destinationTimeZone=" + destinationTimeZone +
+                ", definitionTimeZone=" + definitionTimeZone +
+                ", seasonSet=" + seasonSet +
+                ", dayTypes=" + dayTypes +
+                '}';
+        return sb;
     }
 
-    public int getDefaultBand() throws BusinessException {
+    public int getDefaultBand() {
         CodeDayTypeObject defaultDay = getDefaultDayType();
         List<CodeDayTypeDefObject> dayTypeDefs = defaultDay.getDayTypeDefs();
         if (!dayTypeDefs.isEmpty()) {
             CodeDayTypeDefObject defaultBand = dayTypeDefs.get(0);
             return defaultBand.getCodeValue();
         }
-        throw new BusinessException("No default tariff found!");
+        throw new IllegalArgumentException("No default tariff found!");
     }
 
-    private CodeDayTypeObject getDefaultDayType() throws BusinessException {
+    private CodeDayTypeObject getDefaultDayType() {
         for (CodeDayTypeObject dayType : dayTypes) {
             if (dayType.isDefault()) {
                 return dayType;
             }
         }
-        throw new BusinessException("No default dayType found!");
+        throw new IllegalArgumentException("No default dayType found!");
     }
 }

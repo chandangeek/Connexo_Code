@@ -2,17 +2,20 @@ package com.elster.protocolimpl.dlms.messaging;
 
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageElement;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.core.UserFileFactory;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,8 +25,16 @@ import java.util.List;
  */
 public class XmlMessageWriter implements Messaging {
 
-    public List getMessageCategories() {
-        return new ArrayList();
+    private final TariffCalendarFinder finder;
+    private final TariffCalendarExtractor extractor;
+
+    public XmlMessageWriter(TariffCalendarFinder finder, TariffCalendarExtractor extractor) {
+        this.finder = finder;
+        this.extractor = extractor;
+    }
+
+    public List<MessageCategorySpec> getMessageCategories() {
+        return Collections.emptyList();
     }
 
     public String writeMessage(Message msg) {
@@ -104,7 +115,7 @@ public class XmlMessageWriter implements Messaging {
             if (specName.equals(TariffUploadPassiveMessage.ATTR_CODE_TABLE_ID)) {
                 if ((ma.getValue() != null) && (!ma.getValue().isEmpty())) {
                     codeTableId = Integer.valueOf(ma.getValue());
-                    String base64 = CodeTableBase64Builder.getXmlStringFromCodeTable(codeTableId);
+                    String base64 = CodeTableBase64Builder.getXmlStringFromCodeTable(codeTableId, this.finder, this.extractor);
                     builder.append(" ").append(specName);
                     builder.append("=").append('"').append(base64).append('"');
                 }

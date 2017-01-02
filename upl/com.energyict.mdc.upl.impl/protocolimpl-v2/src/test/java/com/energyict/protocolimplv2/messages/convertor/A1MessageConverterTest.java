@@ -5,6 +5,8 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -43,11 +45,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class A1MessageConverterTest extends AbstractMessageConverterTest {
 
-    private static String USER_FILE_XML = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?><Calendar></Calendar>";
-    private static String TARIFF_CODE_EXPECTED_CONTENT = "<SetPassiveCalendar TARIFF_ACTIVATION_DATE=\"2015-08-01 00:00:00\" TARIFF_CALENDAR_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetPassiveCalendar>";
-    private static String SPECIAL_DAYS_EXPECTED_CONTENT = "<SetSpecialDaysTable SPECIAL_DAYS_TABLE_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetSpecialDaysTable>";
+    private static final String USER_FILE_XML = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?><Calendar></Calendar>";
+    private static final String TARIFF_CODE_EXPECTED_CONTENT = "<SetPassiveCalendar TARIFF_ACTIVATION_DATE=\"2015-08-01 00:00:00\" TARIFF_CALENDAR_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetPassiveCalendar>";
+    private static final String SPECIAL_DAYS_EXPECTED_CONTENT = "<SetSpecialDaysTable SPECIAL_DAYS_TABLE_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetSpecialDaysTable>";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    @Mock
+    private TariffCalendarFinder calendarFinder;
+    @Mock
+    private TariffCalendarExtractor calendarExtractor;
     @Mock
     private DeviceMessageFileExtractor messageFileExtractor;
     @Mock
@@ -197,7 +203,7 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new A1();
+        return new A1(this.calendarFinder, this.calendarExtractor);
     }
 
     @Override

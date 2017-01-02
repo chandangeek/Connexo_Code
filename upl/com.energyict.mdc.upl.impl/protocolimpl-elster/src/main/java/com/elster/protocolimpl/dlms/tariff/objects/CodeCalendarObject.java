@@ -1,7 +1,8 @@
 package com.elster.protocolimpl.dlms.tariff.objects;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+
 import com.elster.protocolimpl.dlms.tariff.Holidays;
-import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.Serializable;
@@ -38,15 +39,14 @@ public class CodeCalendarObject implements Serializable {
             ProtocolTools.createCalendar(2000, 12, 26)
     };
 
-    public static CodeCalendarObject fromCodeCalendar(CodeCalendar codeCalendar) {
+    public static CodeCalendarObject fromCodeCalendar(TariffCalendarExtractor.CalendarRule rule) {
         CodeCalendarObject cc = new CodeCalendarObject();
-        cc.setCodeId(codeCalendar.getCode().getId());
-        cc.setDayTypeName(codeCalendar.getDayType().getName());
-        cc.setYear(codeCalendar.getYear());
-        cc.setMonth(codeCalendar.getMonth());
-        cc.setDay(codeCalendar.getDay());
-        cc.setDayOfWeek(codeCalendar.getDayOfWeek());
-        cc.setSeasonId(codeCalendar.getSeason());
+        cc.setDayTypeName(rule.dayTypeName());
+        cc.setYear(rule.year());
+        cc.setMonth(rule.month());
+        cc.setDay(rule.day());
+        cc.setDayOfWeek(rule.dayOfWeek());
+        cc.setSeasonId(Integer.parseInt(rule.seasonId().orElse("0")));
         return cc;
     }
 

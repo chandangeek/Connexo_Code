@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.elster.protocolimpl.dlms.messaging.XmlMessageWriter;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -18,10 +20,17 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
  */
 public class EK280ActivityCalendarMessageEntry implements MessageEntryCreator {
 
-    private final String messageTag = "UploadPassiveTariff";
-    private final String codeTableAttributeTag = "CodeTableId";
-    private final String activationTimeAttributeTag = "ActivationTime";
-    private final String defaultTariffCodeAttributeTag = "DefaultTariff";
+    private static final String messageTag = "UploadPassiveTariff";
+    private static final String codeTableAttributeTag = "CodeTableId";
+    private static final String activationTimeAttributeTag = "ActivationTime";
+    private static final String defaultTariffCodeAttributeTag = "DefaultTariff";
+    private final TariffCalendarFinder calendarFinder;
+    private final TariffCalendarExtractor calendarExtractor;
+
+    public EK280ActivityCalendarMessageEntry(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
+        this.calendarFinder = calendarFinder;
+        this.calendarExtractor = calendarExtractor;
+    }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
@@ -41,6 +50,6 @@ public class EK280ActivityCalendarMessageEntry implements MessageEntryCreator {
     }
 
     private XmlMessageWriter getXmlMessageWriter() {
-        return new XmlMessageWriter();
+        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor);
     }
 }

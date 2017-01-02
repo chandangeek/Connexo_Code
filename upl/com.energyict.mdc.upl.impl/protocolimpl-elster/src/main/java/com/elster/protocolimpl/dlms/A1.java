@@ -1,6 +1,8 @@
 package com.elster.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -91,8 +93,8 @@ public class A1 extends Dlms {
     private String globalScaler = null;
     private BillingProfileReader billingProfileReader = null;
 
-    public A1() {
-        super();
+    public A1(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
+        super(calendarFinder, calendarExtractor);
         objectPool = new A1ObjectPool();
         ocIntervalProfile = OBISCODE_60MPROFILE;
         ocLogProfile = LOG_OC;
