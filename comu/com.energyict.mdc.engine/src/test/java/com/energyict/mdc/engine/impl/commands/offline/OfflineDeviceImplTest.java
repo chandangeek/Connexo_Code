@@ -40,7 +40,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageAttributes;
@@ -448,7 +447,7 @@ public class OfflineDeviceImplTest {
         when(calendar.getName()).thenReturn(CALENDAR_NAME);
         Device device = createMockDevice();
         when(device.getDeviceType().getAllowedCalendars()).thenReturn(Collections.emptyList());
-        DeviceMessageSpec sendCalendarSpec = this.getDeviceMessageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getId());
+        DeviceMessageSpec sendCalendarSpec = this.getDeviceMessageSpec(1);
         List<PropertySpec> propertySpecs = sendCalendarSpec.getPropertySpecs();
         DeviceMessage sendCalendar = mock(DeviceMessage.class);
         when(sendCalendar.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
@@ -658,7 +657,11 @@ public class OfflineDeviceImplTest {
     }
 
     private DeviceMessageSpec getDeviceMessageSpec(DeviceMessageId deviceMessageId) {
-        return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + deviceMessageId));
+        return getDeviceMessageSpec(deviceMessageId.dbValue());
+    }
+
+    private DeviceMessageSpec getDeviceMessageSpec(long id) {
+        return this.deviceMessageSpecificationService.findMessageSpecById(id).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + id));
     }
 
     @Test
