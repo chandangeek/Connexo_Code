@@ -48,7 +48,7 @@ public class TestDeviceMessageSpecImpl implements DeviceMessageSpec {
     }
 
     @Override
-    public long getMessageId() {
+    public long getId() {
         return id;
     }
 }

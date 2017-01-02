@@ -157,10 +157,10 @@ public class MultisenseHeadEndInterfaceTest {
 
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
         deviceMessageIds.add(deviceMessageSpec1);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
         deviceMessageIds.add(deviceMessageSpec2);
 
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);

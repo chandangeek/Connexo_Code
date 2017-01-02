@@ -140,7 +140,7 @@ public class EndDeviceCommandImplTest {
 
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
         deviceMessageIds.add(deviceMessageSpec1);
 
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);

@@ -102,7 +102,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     private boolean multiSenseDeviceHasSupportForEndDeviceControlType(EndDevice endDevice, EndDeviceControlTypeMapping endDeviceControlTypeMapping) {
         List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
-                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                         .map(DeviceMessageId::havingId)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
 

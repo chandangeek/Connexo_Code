@@ -93,7 +93,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
         return findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()
                         .stream()
-                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getMessageId)
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                         .map(DeviceMessageId::havingId)
                         .collect(Collectors.toList())
                         .contains(deviceMessageId))

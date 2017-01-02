@@ -149,7 +149,7 @@ public class EndDeviceCommandFactoryImplTest {
 
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
         deviceMessageIds.add(deviceMessageSpec1);
 
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
@@ -180,7 +180,7 @@ public class EndDeviceCommandFactoryImplTest {
 
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
         deviceMessageIds.add(deviceMessageSpec1);
 
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
