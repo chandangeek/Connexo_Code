@@ -5,8 +5,7 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
-
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
