@@ -7,7 +7,7 @@ package com.energyict.protocolimpl.messages.codetableparsing;
  * Time: 10:30
  */
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
@@ -27,7 +27,7 @@ import java.time.Year;
  */
 public class CodeTableXml extends CodeTableXmlParsing {
 
-    public CodeTableXml(TariffCalendarFinder finder, Extractor extractor) {
+    public CodeTableXml(TariffCalendarFinder finder, TariffCalendarExtractor extractor) {
         super(finder, extractor);
     }
 
@@ -47,7 +47,7 @@ public class CodeTableXml extends CodeTableXmlParsing {
     public String parseActivityCalendarAndSpecialDayTable(String id, long activationTime) throws ParserConfigurationException {
         TariffCalendar calendar = getCalendar(id).orElseThrow(() -> new IllegalArgumentException("Tariff calendar with id " + id + " not found!"));
 
-        Extractor extractor = this.getExtractor();
+        TariffCalendarExtractor extractor = this.getExtractor();
         CodeTableParser ctp = new CodeTableParser(calendar, extractor);
         try {
             ctp.parse();

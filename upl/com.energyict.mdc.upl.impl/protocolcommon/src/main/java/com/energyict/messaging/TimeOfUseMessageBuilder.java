@@ -1,8 +1,9 @@
 package com.energyict.messaging;
 
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.TariffCalendar;
@@ -50,7 +51,8 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     private final TariffCalendarFinder calendarFinder;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DateFormatter dateFormatter;
-    private final Extractor extractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final TariffCalendarExtractor calendarExtractor;
     private String name;
     private Date activationDate;
     private String calendarId = "";
@@ -78,15 +80,24 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     private boolean encodeB64;
 
-    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, Extractor extractor) {
+    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
         this.calendarFinder = calendarFinder;
         this.messageFileFinder = messageFileFinder;
         this.dateFormatter = dateFormatter;
-        this.extractor = extractor;
+        this.messageFileExtractor = messageFileExtractor;
+        this.calendarExtractor = calendarExtractor;
     }
 
     protected  TariffCalendarFinder getCalendarFinder() {
         return calendarFinder;
+    }
+
+    protected TariffCalendarExtractor getCalendarExtractor() {
+        return calendarExtractor;
+    }
+
+    protected DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
     }
 
     /**
@@ -134,7 +145,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     public void setCalendar(TariffCalendar calendar) {
         if (calendar != null) {
-            this.calendarId = extractor.id(calendar);
+            this.calendarId = calendarExtractor.id(calendar);
         } else {
             this.calendarId = "";
         }
@@ -168,7 +179,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     public void setDeviceMessageFile(DeviceMessageFile deviceMessageFile) {
         if (deviceMessageFile != null) {
-            this.deviceMessageFileId = extractor.id(deviceMessageFile);
+            this.deviceMessageFileId = messageFileExtractor.id(deviceMessageFile);
             this.deviceMessageFile = deviceMessageFile;
         } else {
             this.deviceMessageFileId = "";
@@ -251,10 +262,10 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
             builder.append("ActivationDate='").append(dateFormatter.format(activationDate)).append("', ");
         }
         if (!calendarId.isEmpty()) {
-            builder.append("Code='").append(extractor.name(getCalendar())).append("', ");
+            builder.append("Code='").append(calendarExtractor.name(getCalendar())).append("', ");
         }
         if (!deviceMessageFileId.isEmpty()) {
-            builder.append("UserFile='").append(extractor.name(this.getDeviceMessageFile())).append("'");
+            builder.append("UserFile='").append(messageFileExtractor.name(this.getDeviceMessageFile())).append("'");
         }
 
         return builder.toString();

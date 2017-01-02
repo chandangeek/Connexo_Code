@@ -1,9 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.DLMSUtils;
@@ -32,20 +33,22 @@ public class AS300MessageExecutorTest {
     @Mock
     private TariffCalendarFinder calendarFinder;
     @Mock
-    private Extractor extractor;
+    private TariffCalendarExtractor calendarExtractor;
     @Mock
     private DeviceMessageFileFinder messageFileFinder;
+    @Mock
+    private DeviceMessageFileExtractor messageFileExtractor;
     @Mock
     private DateFormatter dateFormatter;
 
     @Test
     public void testExecuteMessageEntry() throws Exception {
         MessageEntry msgEntry = MessageEntry.fromContent(new String(xmlContentBytes, "US-ASCII")).trackingId("TrackingId").serialNumber("SerialNumber").finish();
-        AS300 protocol = new AS300(calendarFinder, extractor, dateFormatter, messageFileFinder);
+        AS300 protocol = new AS300(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter);
         DummyDLMSConnection connection = new DummyDLMSConnection();
         connection.setResponseByte(DLMSUtils.hexStringToByteArray(expectedResponse));
         protocol.getDlmsSession().setDlmsConnection(connection);
-        AS300MessageExecutor mExecutor = new AS300MessageExecutor(protocol, calendarFinder, extractor, messageFileFinder, dateFormatter);
+        AS300MessageExecutor mExecutor = new AS300MessageExecutor(protocol, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter);
         MessageResult result = mExecutor.executeMessageEntry(msgEntry);
         assertTrue(result.isSuccess());
     }

@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -91,16 +92,18 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
     private Messages messageProtocol;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor tariffCalendarExtractor;
     private final PropertySpecService propertySpecService;
     private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final DateFormatter dateFormatter;
 
-    public ActarisSl7000(TariffCalendarFinder calendarFinder, Extractor extractor, PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter) {
+    public ActarisSl7000(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, DateFormatter dateFormatter) {
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
         this.propertySpecService = propertySpecService;
+        this.tariffCalendarExtractor = tariffCalendarExtractor;
         this.messageFileFinder = messageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.dateFormatter = dateFormatter;
     }
 
@@ -304,7 +307,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
      public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this, this.calendarFinder, this.extractor, this.messageFileFinder, this.dateFormatter);
+            messageProtocol = new Messages(this, this.calendarFinder, this.tariffCalendarExtractor, this.messageFileFinder, this.deviceMessageFileExtractor, this.dateFormatter);
         }
         return messageProtocol;
     }

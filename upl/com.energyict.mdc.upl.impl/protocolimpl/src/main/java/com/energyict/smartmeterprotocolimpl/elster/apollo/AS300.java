@@ -1,10 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -53,15 +57,37 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DateFormatter dateFormatter;
 
-    public AS300(TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public AS300(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileFinder = messageFileFinder;
+        this.messageFileExtractor = messageFileExtractor;
+        this.dateFormatter = dateFormatter;
     }
 
     protected TariffCalendarFinder getCalendarFinder() {
         return calendarFinder;
+    }
+
+    protected TariffCalendarExtractor getCalendarExtractor() {
+        return calendarExtractor;
+    }
+
+    protected DeviceMessageFileFinder getMessageFileFinder() {
+        return messageFileFinder;
+    }
+
+    protected DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
+    }
+
+    protected DateFormatter getDateFormatter() {
+        return dateFormatter;
     }
 
     @Override
@@ -199,7 +225,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarFinder, extractor));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.dateFormatter));
         }
         return messageProtocol;
     }
@@ -228,7 +254,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return getMessageProtocol().queryMessage(messageEntry);
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
 

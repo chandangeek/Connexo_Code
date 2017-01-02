@@ -2,11 +2,12 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -57,9 +58,11 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
     @Mock
     private TariffCalendarFinder calendarFinder;
     @Mock
-    private Extractor extractor;
+    private TariffCalendarExtractor calendarExtractor;
     @Mock
     private DeviceMessageFileFinder messageFileFinder;
+    @Mock
+    private DeviceMessageFileExtractor messageFileExtractor;
     @Mock
     private DateFormatter dateFormatter;
     @Mock
@@ -68,6 +71,38 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
     private NlsService nlsService;
     @Mock
     private Converter converter;
+
+    protected TariffCalendarFinder getCalendarFinder() {
+        return calendarFinder;
+    }
+
+    protected TariffCalendarExtractor getCalendarExtractor() {
+        return calendarExtractor;
+    }
+
+    protected DeviceMessageFileFinder getMessageFileFinder() {
+        return messageFileFinder;
+    }
+
+    protected DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
+    }
+
+    protected DateFormatter getDateFormatter() {
+        return dateFormatter;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected NlsService getNlsService() {
+        return nlsService;
+    }
+
+    protected Converter getConverter() {
+        return converter;
+    }
 
     @Test
     public void testMessageConversion() {
@@ -139,12 +174,12 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS300(calendarFinder, extractor, dateFormatter, messageFileFinder);
+        return new AS300(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        AS300MessageConverter messageConverter = spy(new AS300MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor));
+        AS300MessageConverter messageConverter = spy(new AS300MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.calendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;
@@ -164,11 +199,11 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
                     return "1";
                 case DeviceMessageConstants.PricingInformationUserFileAttributeName:
                     DeviceMessageFile mockedUserFile = mock(DeviceMessageFile.class);
-                    when(this.extractor.contents(mockedUserFile)).thenReturn("Content");
+                    when(this.calendarExtractor.contents(mockedUserFile)).thenReturn("Content");
                     return mockedUserFile;
                 case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                     mockedUserFile = mock(DeviceMessageFile.class);
-                    when(this.extractor.id(mockedUserFile)).thenReturn("1");
+                    when(this.calendarExtractor.id(mockedUserFile)).thenReturn("1");
                     return mockedUserFile;
                 case DeviceMessageConstants.DisplayMessageActivationDate:
                 case DeviceMessageConstants.ConfigurationChangeActivationDate:
@@ -179,7 +214,7 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
                     return "MyActivityCal";
                 case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
                     TariffCalendar tariffCalendar = mock(TariffCalendar.class);
-                    when(this.extractor.id(tariffCalendar)).thenReturn("8");
+                    when(this.calendarExtractor.id(tariffCalendar)).thenReturn("8");
                     return tariffCalendar;
                 case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                     return activityCalendarActivationDate;

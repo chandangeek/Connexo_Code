@@ -2,11 +2,12 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -57,10 +58,6 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
     private Date activityCalendarActivationDate;
 
     @Mock
-    private TariffCalendarFinder tariffCalendarFinder;
-    @Mock
-    private Extractor extractor;
-    @Mock
     private PropertySpecService propertySpecService;
     @Mock
     private NlsService nlsService;
@@ -69,7 +66,11 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
     @Mock
     private TariffCalendarFinder calendarFinder;
     @Mock
+    private TariffCalendarExtractor calendarExtractor;
+    @Mock
     private DeviceMessageFileFinder messageFileFinder;
+    @Mock
+    private DeviceMessageFileExtractor messageFileExtractor;
 
     private DateFormatter dateFormatter = new DefaultDateFormatter();
 
@@ -148,12 +149,12 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ZigbeeGas(this.calendarFinder, this.messageFileFinder, this.extractor, this.dateFormatter);
+        return new ZigbeeGas(this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.dateFormatter);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        ZigbeeGasMessageConverter messageConverter = spy(new ZigbeeGasMessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor));
+        ZigbeeGasMessageConverter messageConverter = spy(new ZigbeeGasMessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.messageFileExtractor, this.calendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(TariffCalendar.class));
         return messageConverter;
@@ -175,15 +176,15 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
                     return "1";
                 case DeviceMessageConstants.PricingInformationUserFileAttributeName:
                     DeviceMessageFile mockedUserFile = mock(DeviceMessageFile.class);
-                    when(this.extractor.binaryContents(mockedUserFile)).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
+                    when(this.messageFileExtractor.binaryContents(mockedUserFile)).thenReturn("Content".getBytes(Charset.forName("UTF-8")));
                     return mockedUserFile;
                 case DeviceMessageConstants.UserFileConfigAttributeName:
                     mockedUserFile = mock(DeviceMessageFile.class);
-                    when(this.extractor.id(mockedUserFile)).thenReturn("10");
+                    when(this.messageFileExtractor.id(mockedUserFile)).thenReturn("10");
                     return mockedUserFile;
                 case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                     mockedUserFile = mock(DeviceMessageFile.class);
-                    when(this.extractor.id(mockedUserFile)).thenReturn("1");
+                    when(this.messageFileExtractor.id(mockedUserFile)).thenReturn("1");
                     return mockedUserFile;
                 case DeviceMessageConstants.DisplayMessageActivationDate:
                 case DeviceMessageConstants.ConfigurationChangeActivationDate:
@@ -194,7 +195,7 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
                     return "MyActivityCal";
                 case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
                     TariffCalendar code = mock(TariffCalendar.class);
-                    when(this.extractor.id(code)).thenReturn("8");
+                    when(this.calendarExtractor.id(code)).thenReturn("8");
                     return code;
                 case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                     return activityCalendarActivationDate;

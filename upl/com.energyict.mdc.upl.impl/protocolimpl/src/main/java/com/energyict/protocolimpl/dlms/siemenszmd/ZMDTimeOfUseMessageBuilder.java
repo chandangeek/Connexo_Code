@@ -8,8 +8,9 @@ package com.energyict.protocolimpl.dlms.siemenszmd;
  */
 
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.messaging.TimeOfUseMessageBuilder;
@@ -25,11 +26,9 @@ import java.io.IOException;
 public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
-    private final Extractor extractor;
 
-    public ZMDTimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, Extractor extractor) {
-        super(calendarFinder, messageFileFinder, dateFormatter, extractor);
-        this.extractor = extractor;
+    public ZMDTimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, DateFormatter dateFormatter) {
+        super(calendarFinder, tariffCalendarExtractor, messageFileFinder, deviceMessageFileExtractor, dateFormatter);
     }
 
     /**
@@ -52,7 +51,7 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
         builder.append(">");
         if (!getCalendarId().isEmpty()) {
             try {
-                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), this.extractor).parseActivityCalendarAndSpecialDayTable(getCalendarId(), getActivationDate().getTime(), getName());
+                String xmlContent = new CodeTableXmlParsing(this.getCalendarFinder(), this.getCalendarExtractor()).parseActivityCalendarAndSpecialDayTable(getCalendarId(), getActivationDate().getTime(), getName());
                 addChildTag(builder, getTagCode(), getCalendarId());
                 addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
             } catch (ParserConfigurationException | IOException e) {

@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdw.amr.Register;
@@ -21,6 +23,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
@@ -40,32 +43,37 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
 
+    @Mock
+    private RegisterExtractor registerExtractor;
+    @Mock
+    private DeviceExtractor deviceExtractor;
+
     @Test
     public void testAllianderPETMessageConversion() {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(SecurityMessage.GENERATE_NEW_PUBLIC_KEY);
+        offlineDeviceMessage = createMessage(SecurityMessage.GENERATE_NEW_PUBLIC_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GenerateNewPublicKey> </GenerateNewPublicKey>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM);
+        offlineDeviceMessage = createMessage(SecurityMessage.GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GenerateNewPublicKey Random 32 bytes (optional)=\"random\"> </GenerateNewPublicKey>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(SecurityMessage.SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP);
+        offlineDeviceMessage = createMessage(SecurityMessage.SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetPublicKeysOfAggregationGroup><Key1>KeyPair1</Key1></SetPublicKeysOfAggregationGroup>", messageEntry.getContent());
     }
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS300DPET();
+        return new AS300DPET(this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), getDateFormatter());
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        AS300DPETMessageConverter messageConverter = spy(new AS300DPETMessageConverter());
+        AS300DPETMessageConverter messageConverter = spy(new AS300DPETMessageConverter(null, getPropertySpecService(), getNlsService(), this.getConverter(), this.getMessageFileExtractor(), this.getCalendarExtractor(), this.deviceExtractor, this.registerExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(Code.class));
         return messageConverter;

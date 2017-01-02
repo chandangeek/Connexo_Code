@@ -2,9 +2,10 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
@@ -97,18 +98,19 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private final AbstractSmartDlmsProtocol protocol;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
     private final DateFormatter dateFormatter;
-
     private ActivityCalendarController activityCalendarController;
     private boolean success;
 
-    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter) {
+    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
+        this.messageFileExtractor = messageFileExtractor;
         this.dateFormatter = dateFormatter;
     }
 
@@ -550,7 +552,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(this.extractor.binaryContents(deviceMessageFile));
+        byte[] imageData = new Base64EncoderDecoder().decode(this.messageFileExtractor.binaryContents(deviceMessageFile));
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
         if (resume) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -576,7 +578,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.messageFileFinder, this.dateFormatter, this.extractor);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.dateFormatter);
 
         try {
             builder.initFromXml(content);
@@ -590,7 +592,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                 getActivityCalendarController().writeCalendar();
             } else if (builder.getDeviceMessageFile() != null) { // userFile implementation
                 log(Level.FINEST, "Getting UserFile from message");
-                String userFileData = extractor.contents(builder.getDeviceMessageFile(), "US-ASCII");
+                String userFileData = this.messageFileExtractor.contents(builder.getDeviceMessageFile(), "US-ASCII");
                 if (!userFileData.isEmpty()) {
                     log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                     handleXmlToDlms(userFileData);
@@ -707,8 +709,8 @@ public class ZigbeeMessageExecutor extends MessageParser {
         if (!"".equalsIgnoreCase(userFileId)) {
             if (com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileId)) {
                 DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileId).orElseThrow(() -> new IllegalArgumentException("Userfile with ID " + userFileId + " does not exist."));
-                byte[] data = this.extractor.binaryContents(deviceMessageFile);
-                CSVParser csvParser = new CSVParser(this.extractor);
+                byte[] data = this.messageFileExtractor.binaryContents(deviceMessageFile);
+                CSVParser csvParser = new CSVParser(this.messageFileExtractor);
                 csvParser.parse(data);
                 boolean hasWritten;
                 TestObject to = new TestObject("");

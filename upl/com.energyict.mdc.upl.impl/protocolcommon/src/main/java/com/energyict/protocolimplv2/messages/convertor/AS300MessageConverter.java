@@ -1,12 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -52,28 +49,32 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activ
 public class AS300MessageConverter extends AbstractMessageConverter {
 
     private static final String ActivationDate = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final TariffCalendarExtractor tariffCalendarExtractor;
 
-    public AS300MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor, DeviceExtractor deviceExtractor, RegisterExtractor registerExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
+    protected AS300MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.tariffCalendarExtractor = tariffCalendarExtractor;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.PricingInformationUserFileAttributeName:
-                return this.getDeviceMessageFileExtractor().contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
+                return this.deviceMessageFileExtractor.contents((DeviceMessageFile) messageAttribute, Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
             case DeviceMessageConstants.DisplayMessageActivationDate:
             case DeviceMessageConstants.ConfigurationChangeActivationDate:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
             case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                return this.getDeviceMessageFileExtractor().id((DeviceMessageFile) messageAttribute);
+                return this.deviceMessageFileExtractor.id((DeviceMessageFile) messageAttribute);
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:
                 TariffCalendar calender = (TariffCalendar) messageAttribute;
-                return this.getTariffCalendarExtractor().id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
+                return this.tariffCalendarExtractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + encode(calender); //The ID and the XML representation of the code table, separated by a |
             default:
                 return messageAttribute.toString();
         }
@@ -120,7 +121,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
      */
     protected String encode(TariffCalendar messageAttribute) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.getTariffCalendarExtractor(), 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.tariffCalendarExtractor, 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

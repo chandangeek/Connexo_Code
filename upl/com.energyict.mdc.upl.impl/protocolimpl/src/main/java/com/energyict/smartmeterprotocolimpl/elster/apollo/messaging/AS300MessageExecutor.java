@@ -2,9 +2,10 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
@@ -94,17 +95,19 @@ public class AS300MessageExecutor extends MessageParser {
 
     protected final AbstractSmartDlmsProtocol protocol;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
     private final DateFormatter dateFormatter;
 
     protected boolean success;
 
-    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter) {
+    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
+        this.messageFileExtractor = messageFileExtractor;
         this.dateFormatter = dateFormatter;
     }
 
@@ -622,7 +625,7 @@ public class AS300MessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.messageFileFinder, this.dateFormatter, extractor);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.dateFormatter);
         ActivityCalendarController activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
         try {
             builder.initFromXml(content);
@@ -636,7 +639,7 @@ public class AS300MessageExecutor extends MessageParser {
                 activityCalendarController.writeCalendar();
             } else if (builder.getDeviceMessageFile() != null) { // userFile implementation
                 log(Level.FINEST, "Getting UserFile from message");
-                String userFileData = this.extractor.contents(builder.getDeviceMessageFile(), "US-ASCII");
+                String userFileData = this.messageFileExtractor.contents(builder.getDeviceMessageFile(), "US-ASCII");
                 if (!userFileData.isEmpty()) {
                     log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                     handleXmlToDlms(userFileData);

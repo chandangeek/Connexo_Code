@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.generic.csvhandling;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
 import com.energyict.mdw.shadow.UserFileShadow;
@@ -14,12 +14,12 @@ import java.util.List;
 
 public class CSVParser {
 
-	private final Extractor extractor;
+	private final DeviceMessageFileExtractor messageFileExtractor;
 	private String rawText;
 	private List<TestObject> lines = new ArrayList<>();
 
-	public CSVParser(Extractor extractor) {
-		this.extractor = extractor;
+	public CSVParser(DeviceMessageFileExtractor messageFileExtractor) {
+		this.messageFileExtractor = messageFileExtractor;
 	}
 
 	public void parse(byte[] rawBytes){
@@ -82,7 +82,7 @@ public class CSVParser {
 
 	public UserFileShadow convertResultToUserFile(DeviceMessageFile deviceMessageFile, int folderId) throws IOException {
 		UserFileShadow ufs = new UserFileShadow();
-		ufs.setName(createFileName(extractor.name(deviceMessageFile)));
+		ufs.setName(createFileName(this.messageFileExtractor.name(deviceMessageFile)));
 		ufs.setExtension("csv");
 		ufs.setFolderId(folderId);
 		File file = File.createTempFile("Tempfile", ".csv");

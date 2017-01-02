@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -36,9 +38,13 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
 
     private static final String KEY = "Key";
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
+    private final DeviceExtractor deviceExtractor;
+    private final RegisterExtractor registerExtractor;
 
-    public AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor);
+    protected AS300DPETMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor, DeviceExtractor deviceExtractor, RegisterExtractor registerExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter, deviceMessageFileExtractor, tariffCalendarExtractor);
+        this.deviceExtractor = deviceExtractor;
+        this.registerExtractor = registerExtractor;
     }
 
     @Override
@@ -73,9 +79,9 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         try {
             for (Object member : group.members()) {
                 Device device = (Device) member;
-                Optional<Register> register = this.getDeviceExtractor().register(device, PUBLIC_KEYS_OBISCODE);
+                Optional<Register> register = this.deviceExtractor.register(device, PUBLIC_KEYS_OBISCODE);
                 if (register.isPresent()) {
-                    Optional<RegisterExtractor.RegisterReading> lastReading = this.getRegisterExtractor().lastReading(register.get());
+                    Optional<RegisterExtractor.RegisterReading> lastReading = this.registerExtractor.lastReading(register.get());
                     if (lastReading.isPresent()) {
                         String keyPair = lastReading.get().text();
                         builder.append("<" + KEY).append(String.valueOf(index)).append(">");
@@ -83,11 +89,11 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
                         builder.append("</" + KEY).append(String.valueOf(index)).append(">");
                         index++;
                     } else {
-                        String serialNumber = this.getDeviceExtractor().serialNumber(device);
+                        String serialNumber = this.deviceExtractor.serialNumber(device);
                         throw DataParseException.generalParseException(new IllegalArgumentException("Device with serial number " + serialNumber + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!"));
                     }
                 } else {
-                    String serialNumber = this.getDeviceExtractor().serialNumber(device);
+                    String serialNumber = this.deviceExtractor.serialNumber(device);
                     throw DataParseException.generalParseException(new IllegalArgumentException("Rtu with serial number " + serialNumber + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!"));
                 }
             }

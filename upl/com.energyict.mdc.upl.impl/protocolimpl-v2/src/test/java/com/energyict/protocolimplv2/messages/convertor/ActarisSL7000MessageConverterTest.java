@@ -2,11 +2,12 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -59,11 +60,13 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
     @Mock
     private Converter converter;
     @Mock
-    private Extractor extractor;
-    @Mock
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
     private DateFormatter dateFormatter;
+    @Mock
+    private DeviceMessageFileExtractor deviceMessageFileExtractor;
+    @Mock
+    private TariffCalendarExtractor tariffCalendarExtractor;
 
     public ActarisSL7000MessageConverterTest() {
     }
@@ -106,11 +109,11 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ActarisSl7000(calendarFinder, extractor, propertySpecService, messageFileFinder, dateFormatter);
+        return new ActarisSl7000(propertySpecService, calendarFinder, this.tariffCalendarExtractor, messageFileFinder, this.deviceMessageFileExtractor, dateFormatter);
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor));
+        ActarisSL7000MessageConverter messageConverter = spy(new ActarisSL7000MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.tariffCalendarExtractor));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(Code.class));
         return messageConverter;
