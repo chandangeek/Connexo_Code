@@ -8,14 +8,20 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceGroupExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -42,9 +48,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Group;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
@@ -77,7 +80,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
@@ -100,8 +105,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     private final NlsService nlsService;
     private final Converter converter;
     private final IssueFactory issueFactory;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DeviceGroupExtractor deviceGroupExtractor;
+    private final DeviceExtractor deviceExtractor;
 
-    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor) {
         this.session = session;
         this.offlineDevice = offlineDevice;
         this.collectedDataFactory = collectedDataFactory;
@@ -109,6 +117,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.nlsService = nlsService;
         this.converter = converter;
         this.issueFactory = issueFactory;
+        this.messageFileExtractor = messageFileExtractor;
+        this.deviceGroupExtractor = deviceGroupExtractor;
+        this.deviceExtractor = deviceExtractor;
     }
 
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -651,32 +662,21 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         if (propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(Temporals.toSeconds((TemporalAmount) messageAttribute));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.configUserFileAttributeName)) {
-            return ProtocolTools.getHexStringFromBytes(((UserFile) propertySpec).loadFileInByteArray(), "");
+            return ProtocolTools.getHexStringFromBytes(this.messageFileExtractor.binaryContents((DeviceMessageFile) propertySpec), "");
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
-            final byte[] data = ((UserFile) messageAttribute).loadFileInByteArray();
+            final byte[] data = (this.messageFileExtractor.binaryContents((DeviceMessageFile) messageAttribute));
             return new Base64EncoderDecoder().encode(data);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceGroupAttributeName)) {
-            Group group = (Group) messageAttribute;
-            StringBuilder macAddresses = new StringBuilder();
-            for (BusinessObject businessObject : group.getMembers()) {
-                if (businessObject instanceof Device) {
-                    Device device = (Device) businessObject;
-                    String callHomeId = device.getProtocolProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
-                    if (!callHomeId.isEmpty()) {
-                        if (macAddresses.length() != 0) {
-                            macAddresses.append(";");
-                        }
-                        macAddresses.append(callHomeId);
-                    }
-                } else {
-                    //TODO throw proper exception
-                }
-            }
-            return macAddresses.toString();
+            return this.deviceGroupExtractor
+                            .members((DeviceGroup) messageAttribute)
+                            .stream()
+                            .map(this::callHomeId)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining(";"));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
@@ -684,6 +684,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string propertyspecs
         }
+    }
+
+    private String callHomeId(Device device) {
+        return this.deviceExtractor.protocolProperty(device, LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, null);
     }
 
     @Override
