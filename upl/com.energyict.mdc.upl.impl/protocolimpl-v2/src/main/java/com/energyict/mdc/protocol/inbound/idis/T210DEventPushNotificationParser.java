@@ -4,7 +4,6 @@ import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -107,8 +106,8 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private byte[] storedBlockDataFromPreviousResponse;
     private List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
 
-    public T210DEventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, CollectedDataFactory collectedDataFactory) {
-        super(comChannel, context, collectedDataFactory);
+    public T210DEventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
+        super(comChannel, context);
     }
 
     public void parseInboundFrame() {

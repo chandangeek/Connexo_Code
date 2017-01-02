@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.events;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
@@ -27,7 +30,7 @@ public class AM130LogBookFactory extends IDISLogBookFactory {
 
     private static ObisCode COMMUNICATION_LOG = ObisCode.fromString("0.0.99.98.5.255");
 
-    public AM130LogBookFactory(AM130 protocol) {
+    public AM130LogBookFactory(AM130 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
         supportedLogBooks.add(COMMUNICATION_LOG);
     }

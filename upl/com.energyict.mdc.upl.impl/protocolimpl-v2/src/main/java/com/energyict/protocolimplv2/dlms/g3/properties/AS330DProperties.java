@@ -1,15 +1,12 @@
 package com.energyict.protocolimplv2.dlms.g3.properties;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 
 /**
  * Copyrights EnergyICT
@@ -58,8 +55,8 @@ public class AS330DProperties extends DlmsProperties {
      * The AS330D protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
      */
     @Override
-    public TimeDuration getPollingDelay() {
-        return new TimeDuration(0);
+    public Duration getPollingDelay() {
+        return Duration.ofSeconds(0);
     }
 
     /**

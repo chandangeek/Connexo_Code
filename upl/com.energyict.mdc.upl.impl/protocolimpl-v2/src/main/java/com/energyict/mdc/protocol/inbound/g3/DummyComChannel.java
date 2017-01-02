@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.protocol.ComChannel;
 
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.io.IOException;
 
@@ -63,7 +63,11 @@ public class DummyComChannel implements ComChannel {
     }
 
     @Override
-    public void addProperties(TypedProperties typedProperties) {
+    public void addProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
+        this.setProperties(TypedProperties.copyOf(typedProperties));
+    }
+
+    private void setProperties(TypedProperties typedProperties) {
         this.typedProperties.setAllProperties(typedProperties);
     }
 

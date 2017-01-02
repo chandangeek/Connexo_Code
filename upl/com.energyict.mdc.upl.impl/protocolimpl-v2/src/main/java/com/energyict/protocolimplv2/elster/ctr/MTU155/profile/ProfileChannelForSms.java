@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.profile;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -14,7 +17,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.CTRObjectInfo;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -30,11 +33,15 @@ public class ProfileChannelForSms {
     private Trace_CQueryResponseStructure response;
     private StartOfGasDayParser startOfGasDayParser;
     private boolean fetchTotals;
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
 
-    public ProfileChannelForSms(String deviceSerialNumber, MTU155Properties properties, Trace_CQueryResponseStructure queryResponseStructure) {
+    public ProfileChannelForSms(String deviceSerialNumber, MTU155Properties properties, Trace_CQueryResponseStructure queryResponseStructure, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.deviceSerialNumber = deviceSerialNumber;
         this.properties = properties;
         this.response = queryResponseStructure;
+        this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
         int startHourOfDay = response.getEndOfDayTime().getIntValue();
 
         if (properties instanceof EK155Properties) {
@@ -68,7 +75,7 @@ public class ProfileChannelForSms {
         if (ctrRegisterMapping != null) {
             ObisCode obisCode = ctrRegisterMapping.getObisCode();
             Unit unit = CTRObjectInfo.getUnit(objectId.toString());
-            return Arrays.asList(new ChannelInfo(0, obisCode.toString(), unit, getDeviceSerialNumber()));
+            return Collections.singletonList(new ChannelInfo(0, obisCode.toString(), unit, getDeviceSerialNumber()));
         }
         throw new CTRException("SMS contained profile data, but failed to map the data to a device load profile channel");
     }
@@ -86,7 +93,7 @@ public class ProfileChannelForSms {
     }
 
     private SmsObisCodeMapper getSmsObisCodeMapper() {
-        return new SmsObisCodeMapper(null);
+        return new SmsObisCodeMapper(null, this.collectedDataFactory, this.issueFactory);
     }
 
     public Trace_CQueryResponseStructure getResponse() {
