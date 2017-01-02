@@ -32,8 +32,6 @@ public class PoregMeterMessageConverter extends AbstractMessageConverter {
         super(messagingProtocol, propertySpecService, nlsService, converter);
     }
 
-}
-
     @Override
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
         return ImmutableMap

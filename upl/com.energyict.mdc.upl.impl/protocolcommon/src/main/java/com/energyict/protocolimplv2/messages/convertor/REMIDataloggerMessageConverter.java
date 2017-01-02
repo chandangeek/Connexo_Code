@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -45,8 +46,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usern
  */
 public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
 
-    protected REMIDataloggerMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final LoadProfileExtractor loadProfileExtractor;
+
+    protected REMIDataloggerMessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     @Override
@@ -75,7 +79,7 @@ public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.enableDSTAttributeName:
                 return ((Boolean) messageAttribute) ? "1" : "0";
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getLoadProfileExtractor());
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
