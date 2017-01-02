@@ -40,7 +40,7 @@ public class ConnexoDeviceMessageSpecAdapter implements com.energyict.mdc.upl.me
     }
 
     @Override
-    public long getMessageId() {
+    public long getId() {
         return cxoDeviceMessageSpec.getId().dbValue();
     }
 

@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -44,12 +43,7 @@ public class TestDeviceMessageSpecImpl implements DeviceMessageSpec {
     }
 
     @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return null;
-    }
-
-    @Override
-    public long getMessageId() {
+    public long getId() {
         return id;
     }
 }
