@@ -16,7 +16,7 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -64,13 +64,13 @@ public class CX20009 extends AbstractDlmsProtocol {
     private LoadProfileBuilder loadProfileBuilder;
     private final NlsService nlsService;
     private final Converter converter;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
 
-    public CX20009(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+    public CX20009(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
     }
 
     @Override
@@ -220,7 +220,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(), new TcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.getPropertySpecService()), new TcpDeviceProtocolDialect());
     }
 
     @Override
@@ -250,8 +250,7 @@ public class CX20009 extends AbstractDlmsProtocol {
                             this.getPropertySpecService(),
                             this.nlsService,
                             this.converter,
-                            this.extractor,
-                            new EDPMessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()));
+                            new EDPMessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()), this.calendarExtractor);
         }
         return edpMessaging;
     }

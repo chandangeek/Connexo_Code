@@ -14,7 +14,8 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -64,13 +65,15 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     private WebRTUZ3Messaging webRTUZ3Messaging;
     private final NlsService nlsService;
     private final Converter converter;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final NumberLookupExtractor numberLookupExtractor;
 
-    public WebRTUZ3(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+    public WebRTUZ3(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     @Override
@@ -170,7 +173,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     private WebRTUZ3Messaging getMessaging() {
         if (webRTUZ3Messaging == null) {
-            webRTUZ3Messaging = new WebRTUZ3Messaging(this, this.extractor, this.getPropertySpecService(), this.nlsService, this.converter, this.getCollectedDataFactory(), this.getIssueFactory());
+            webRTUZ3Messaging = new WebRTUZ3Messaging(this, this.getPropertySpecService(), this.nlsService, this.converter, this.getCollectedDataFactory(), this.getIssueFactory(), calendarExtractor, numberLookupExtractor);
         }
         return webRTUZ3Messaging;
     }
@@ -188,7 +191,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.asList(
                     new TcpDeviceProtocolDialect(),
-                    new SerialDeviceProtocolDialect());
+                    new SerialDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override

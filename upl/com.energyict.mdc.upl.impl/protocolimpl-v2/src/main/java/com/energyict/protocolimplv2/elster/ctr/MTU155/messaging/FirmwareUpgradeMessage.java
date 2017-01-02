@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -49,7 +51,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
     private SealConfig sealConfig;
 
-    public FirmwareUpgradeMessage(Messaging messaging) {
+    public FirmwareUpgradeMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
         sealConfig = new SealConfig(getFactory());
     }
@@ -57,7 +59,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE.id();
     }
 
     @Override
@@ -324,7 +326,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
     }
 
     private void updateDeviceCache(OfflineDeviceMessage message) {
-        ((CTRDeviceProtocolCache) getProtocol().getDeviceCache()).setPendingFirmwareMessageID(message.getDeviceMessageId());
+        ((CTRDeviceProtocolCache) getProtocol().getDeviceCache()).setPendingFirmwareMessageID((int) message.getDeviceMessageId());
     }
 
     private boolean useLongFrameFormat() {

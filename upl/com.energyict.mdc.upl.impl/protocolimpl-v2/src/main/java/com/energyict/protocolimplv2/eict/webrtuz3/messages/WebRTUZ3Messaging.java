@@ -3,7 +3,8 @@ package com.energyict.protocolimplv2.eict.webrtuz3.messages;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -70,14 +71,18 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
     private final Converter converter;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final NumberLookupExtractor numberLookupExtractor;
 
-    public WebRTUZ3Messaging(AbstractDlmsProtocol protocol, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(protocol, extractor);
+    public WebRTUZ3Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor) {
+        super(protocol);
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.calendarExtractor = calendarExtractor;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     protected WebRTUZ3MessageExecutor getMessageExecutor() {
@@ -144,10 +149,10 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return ProtocolTools.getHexStringFromBytes(((UserFile) messageAttribute).loadFileInByteArray(), "");
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            ActivityCalendarMessage parser = new ActivityCalendarMessage((Code) messageAttribute, extractor, null);
+            ActivityCalendarMessage parser = new ActivityCalendarMessage((Code) messageAttribute, this.calendarExtractor, null);
             return convertCodeTableToAXDR(parser);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return parseSpecialDays((Code) messageAttribute);
+            return parseSpecialDays((Code) messageAttribute, this.calendarExtractor);
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
@@ -160,7 +165,7 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
-            return convertLookupTable((Lookup) messageAttribute);
+            return convertLookupTable((Lookup) messageAttribute, this.numberLookupExtractor);
         }
 
         return messageAttribute.toString();

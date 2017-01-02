@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -14,7 +16,7 @@ import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -27,13 +29,13 @@ import java.util.List;
 public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
 
-    public ReadPartialProfileDataMessage(Messaging messaging) {
+    public ReadPartialProfileDataMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.id();
     }
 
     @Override
@@ -47,14 +49,13 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     private CollectedMessage readPartialProfileData(OfflineDeviceMessage message, String loadProfileXML, Date fromDate, Date toDate) throws CTRException {
         try {
-            LegacyPartialLoadProfileMessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder();
-            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(loadProfileXML);
+            LegacyPartialLoadProfileMessageBuilder builder = (LegacyPartialLoadProfileMessageBuilder) LegacyPartialLoadProfileMessageBuilder.fromXml(loadProfileXML);
             builder.setStartReadingTime(fromDate);
             builder.setEndReadingTime(toDate);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
-            getProtocol().fetchLoadProfileConfiguration(Arrays.asList(lpr));
-            List<CollectedLoadProfile> collectedLoadProfiles = getProtocol().getLoadProfileData(Arrays.asList(lpr));
+            getProtocol().fetchLoadProfileConfiguration(Collections.singletonList(lpr));
+            List<CollectedLoadProfile> collectedLoadProfiles = getProtocol().getLoadProfileData(Collections.singletonList(lpr));
             if (!collectedLoadProfiles.isEmpty()) {
                 CollectedLoadProfile collectedLoadProfile = collectedLoadProfiles.get(0);
                 if (collectedLoadProfile.getResultType().ordinal() != ResultType.Supported.ordinal()) {

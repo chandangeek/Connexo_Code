@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -41,12 +41,14 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final LoadProfileExtractor loadProfileExtractor;
 
-    public Dsmr23MbusMessaging(AbstractNtaMbusDevice mbusProtocol, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(mbusProtocol.getMeterProtocol(), extractor);
+    public Dsmr23MbusMessaging(AbstractNtaMbusDevice mbusProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+        super(mbusProtocol.getMeterProtocol());
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     private DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
@@ -73,7 +75,7 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
             case DeviceMessageConstants.openKeyAttributeName:
             case DeviceMessageConstants.transferKeyAttributeName:
                 return ((Password) messageAttribute).getValue();

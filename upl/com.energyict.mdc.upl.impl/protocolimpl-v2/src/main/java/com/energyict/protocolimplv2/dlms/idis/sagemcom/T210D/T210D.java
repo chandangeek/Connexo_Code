@@ -49,7 +49,7 @@ public class T210D extends AM130 {
     @Override
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new T210DMessaging(this, this.getExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
+            idisMessaging = new T210DMessaging(this, this.getCalendarExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
         }
         return idisMessaging;
     }

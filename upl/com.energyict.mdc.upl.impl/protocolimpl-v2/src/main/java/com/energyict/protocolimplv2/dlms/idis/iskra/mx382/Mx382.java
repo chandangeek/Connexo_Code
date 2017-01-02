@@ -70,7 +70,7 @@ public class Mx382 extends AM130{
     @Override
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new Mx382Messaging(this, this.getExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
+            idisMessaging = new Mx382Messaging(this, this.getCalendarExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
         }
         return idisMessaging;
     }

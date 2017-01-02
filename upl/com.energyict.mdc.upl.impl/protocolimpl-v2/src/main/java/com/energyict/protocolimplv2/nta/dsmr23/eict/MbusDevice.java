@@ -3,7 +3,10 @@ package com.energyict.protocolimplv2.nta.dsmr23.eict;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -26,15 +29,17 @@ import java.util.List;
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
+    private final LoadProfileExtractor loadProfileExtractor;
 
-    protected MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
+    public MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor);
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     @Override
     public DeviceMessageSupport getDeviceMessageSupport() {
         if (dsmr23MbusMessaging == null) {
-            dsmr23MbusMessaging = new Dsmr23MbusMessaging(this, this.getExtractor(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
+            dsmr23MbusMessaging = new Dsmr23MbusMessaging(this, this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.loadProfileExtractor);
         }
         return dsmr23MbusMessaging;
     }

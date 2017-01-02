@@ -9,10 +9,16 @@ import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -35,6 +41,11 @@ import java.util.Optional;
 public class TransparentGateway extends AbstractGateway {
 
     private DeviceProtocolSecurityCapabilities securitySupport;
+    private final PropertySpecService propertySpecService;
+
+    public TransparentGateway(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -62,7 +73,7 @@ public class TransparentGateway extends AbstractGateway {
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
                 new NoParamsDeviceProtocolDialect(),
-                new SerialDeviceProtocolDialect(),
+                new SerialDeviceProtocolDialect(this.propertySpecService),
                 new TcpDeviceProtocolDialect()
         );
     }
@@ -127,5 +138,30 @@ public class TransparentGateway extends AbstractGateway {
             this.securitySupport = new NoSecuritySupport();
         }
         return this.securitySupport;
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return null;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return null;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return null;
     }
 }

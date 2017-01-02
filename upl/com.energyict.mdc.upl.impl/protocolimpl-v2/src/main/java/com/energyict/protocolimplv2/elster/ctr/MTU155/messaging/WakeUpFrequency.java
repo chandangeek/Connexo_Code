@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -21,13 +23,13 @@ public class WakeUpFrequency extends AbstractMTU155Message {
 
     public static final String OBJECT_ID = "E.7.0";
 
-    public WakeUpFrequency(Messaging messaging) {
+    public WakeUpFrequency(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_WAKEUP_FREQUENCY.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == NetworkConnectivityMessage.CHANGE_WAKEUP_FREQUENCY.id();
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -30,13 +32,13 @@ public class IPSetupMessage extends AbstractMTU155Message {
     private byte[] ipAddressBytes = new byte[4];
     private byte[] tcpPortBytes = new byte[2];
 
-    public IPSetupMessage(Messaging messaging) {
+    public IPSetupMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT.id();
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -33,13 +35,13 @@ public class WriteGasParametersMessage extends AbstractMTU155Message {
     protected static final int KMOLT = 5;
     protected static final String MAX_VALUE = "167.77215";
 
-    public WriteGasParametersMessage(Messaging messaging) {
+    public WriteGasParametersMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.ConfigureGasParameters.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == ConfigurationChangeDeviceMessage.ConfigureGasParameters.id();
     }
 
     @Override

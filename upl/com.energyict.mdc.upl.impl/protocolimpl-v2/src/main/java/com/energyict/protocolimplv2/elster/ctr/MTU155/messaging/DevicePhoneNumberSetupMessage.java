@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -30,13 +32,13 @@ public class DevicePhoneNumberSetupMessage extends AbstractMTU155Message {
     private static final int PHONE_NUMBER_MAX_LENGTH = 14;
     private static final String ALLOWED_CHARS = "1234567890+";
 
-    public DevicePhoneNumberSetupMessage(Messaging messaging) {
+    public DevicePhoneNumberSetupMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_DEVICE_PHONENUMBER.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == NetworkConnectivityMessage.CHANGE_DEVICE_PHONENUMBER.id();
     }
 
     @Override

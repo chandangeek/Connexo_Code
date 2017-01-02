@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.am500;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -31,10 +31,12 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     private final AbstractDlmsProtocol masterProtocol;
     private final IDISMBusMessaging idisMBusMessaging;
+    private final TariffCalendarExtractor calendarExtractor;
 
-    private MBusDevice(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor, NlsService nlsService, Converter converter) {
-        masterProtocol = new AM500(propertySpecService, collectedDataFactory, issueFactory, extractor, nlsService, converter);
-        idisMBusMessaging = new IDISMBusMessaging(masterProtocol, extractor, propertySpecService, nlsService, converter);
+    private MBusDevice(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor) {
+        this.calendarExtractor = calendarExtractor;
+        masterProtocol = new AM500(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, this.calendarExtractor);
+        idisMBusMessaging = new IDISMBusMessaging(masterProtocol, propertySpecService, nlsService, converter);
     }
 
     @Override

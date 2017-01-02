@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -18,14 +20,14 @@ public class TemporaryBreakSealMessage extends AbstractMTU155Message {
     private final SealConfig sealConfig;
     private static final int MAX_BREAK_TIME = 255;
 
-    public TemporaryBreakSealMessage(Messaging messaging) {
+    public TemporaryBreakSealMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
         sealConfig = new SealConfig(messaging.getProtocol().getRequestFactory());
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.TEMPORARY_BREAK_SEALS.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == SecurityMessage.TEMPORARY_BREAK_SEALS.id();
     }
 
     @Override

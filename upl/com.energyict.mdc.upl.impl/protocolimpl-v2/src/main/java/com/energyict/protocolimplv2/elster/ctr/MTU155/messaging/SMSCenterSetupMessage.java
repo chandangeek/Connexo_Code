@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -30,13 +32,13 @@ public class SMSCenterSetupMessage extends AbstractMTU155Message {
 
     protected CTRObjectID smsc_Object_ID = new CTRObjectID("E.3.1");
 
-    public SMSCenterSetupMessage(Messaging messaging) {
+    public SMSCenterSetupMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_SMS_CENTER_NUMBER.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == NetworkConnectivityMessage.CHANGE_SMS_CENTER_NUMBER.id();
     }
 
     @Override
@@ -82,8 +84,7 @@ public class SMSCenterSetupMessage extends AbstractMTU155Message {
         byte[] rawData = getObjectBytes(smscNumber);
 
         CTRObjectFactory objectFactory = new CTRObjectFactory();
-        AbstractCTRObject object = null;
-        object = objectFactory.parse(rawData, 0, attributeType);
+        AbstractCTRObject object = objectFactory.parse(rawData, 0, attributeType);
         getFactory().writeRegister(validityDate, wdb, p_session, attributeType, object);
     }
 

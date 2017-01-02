@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -21,13 +23,13 @@ public class ChangeDSTMessage extends AbstractMTU155Message {
 
     private static final String OBJECT_ID = "8.2.0";
 
-    public ChangeDSTMessage(Messaging messaging) {
+    public ChangeDSTMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ClockDeviceMessage.EnableOrDisableDST.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == ClockDeviceMessage.EnableOrDisableDST.id();
     }
 
     @Override

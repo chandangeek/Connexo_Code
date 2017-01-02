@@ -44,7 +44,7 @@ public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
             throw new CTRException(msg);
         }
 
-        if (fullLengthKey.equalsIgnoreCase("FFFFFFFFFFFFFFFF") || fullLengthKey.equalsIgnoreCase("0000000000000000")) {
+        if ("FFFFFFFFFFFFFFFF".equalsIgnoreCase(fullLengthKey) || "0000000000000000".equalsIgnoreCase(fullLengthKey)) {
             String msg = "Unable to use [" + fullLengthKey + "] as key. This value is reserved.";
             throw new CTRException(msg);
         }

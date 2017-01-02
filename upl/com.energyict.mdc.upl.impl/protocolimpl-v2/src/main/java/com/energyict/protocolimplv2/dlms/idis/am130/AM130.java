@@ -12,7 +12,7 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -66,18 +66,18 @@ public class AM130 extends AM500 {
 
     protected AM130RegisterFactory registerFactory;
     private final NlsService nlsService;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
     private final Converter converter;
 
-    public AM130(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        super(propertySpecService, collectedDataFactory, issueFactory, extractor, nlsService, converter);
+    public AM130(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, calendarExtractor);
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
     }
 
-    protected Extractor getExtractor() {
-        return extractor;
+    protected TariffCalendarExtractor getCalendarExtractor() {
+        return calendarExtractor;
     }
 
     protected NlsService getNlsService() {
@@ -214,7 +214,7 @@ public class AM130 extends AM500 {
 
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new AM130Messaging(this, this.extractor, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.nlsService, this.converter);
+            idisMessaging = new AM130Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.nlsService, this.converter, this.calendarExtractor);
         }
         return idisMessaging;
     }

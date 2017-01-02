@@ -15,7 +15,7 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -91,8 +91,8 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     private AM540Cache am540Cache;
 
-    public AM540(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
+    public AM540(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor);
     }
 
     @Override
@@ -204,7 +204,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList((DeviceProtocolDialect) new SerialDeviceProtocolDialect());
+        return Collections.singletonList((DeviceProtocolDialect) new SerialDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override
@@ -537,7 +537,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new AM540Messaging(this, this.getExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
+            idisMessaging = new AM540Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor());
         }
         return idisMessaging;
     }

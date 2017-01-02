@@ -1,10 +1,7 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.messages.emeter;
 
-import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -38,8 +35,8 @@ public class WebRTUZ3EMeterMessaging extends AbstractDlmsMessaging implements De
 
     protected WebRTUZ3MessageExecutor messageExecutor;
 
-    public WebRTUZ3EMeterMessaging(AbstractDlmsProtocol protocol, Extractor extractor, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(protocol, extractor);
+    public WebRTUZ3EMeterMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(protocol);
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;

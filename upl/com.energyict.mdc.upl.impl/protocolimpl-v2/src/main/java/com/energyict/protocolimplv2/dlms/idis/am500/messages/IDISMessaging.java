@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -63,14 +63,16 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final TariffCalendarExtractor calendarExtractor;
 
-    public IDISMessaging(AbstractDlmsProtocol protocol, Extractor extractor, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(protocol, extractor);
+    public IDISMessaging(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor) {
+        super(protocol);
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.calendarExtractor = calendarExtractor;
     }
 
     protected CollectedDataFactory getCollectedDataFactory() {
@@ -142,9 +144,9 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());     //Epoch
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((Code) messageAttribute);
+            return convertCodeTableToXML((Code) messageAttribute, this.calendarExtractor);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
+            return convertSpecialDaysCodeTableToXML((Code) messageAttribute, this.calendarExtractor);
         } else if (propertySpec.getName().equals(configUserFileAttributeName)
                 || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             UserFile userFile = (UserFile) messageAttribute;

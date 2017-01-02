@@ -28,7 +28,7 @@ public class AM100 extends WebRTUKP {
     private AM100DlmsProperties dlmsProperties;
 
     public AM100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor);
     }
 
     @Override

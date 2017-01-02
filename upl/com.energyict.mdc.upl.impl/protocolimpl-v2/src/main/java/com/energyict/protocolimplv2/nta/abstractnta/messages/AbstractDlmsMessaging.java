@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
@@ -28,34 +29,28 @@ import java.util.stream.Collectors;
 public class AbstractDlmsMessaging {
 
     private final AbstractDlmsProtocol protocol;
-    private final Extractor extractor;
 
     public static final String SEPARATOR = ";";
 
-    public AbstractDlmsMessaging(AbstractDlmsProtocol protocol, Extractor extractor) {
+    public AbstractDlmsMessaging(AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
-        this.extractor = extractor;
     }
 
     public AbstractDlmsProtocol getProtocol() {
         return protocol;
     }
 
-    protected Extractor getExtractor() {
-        return extractor;
-    }
-
-    protected String convertCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar calendar) {
+    protected String convertCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar calendar, TariffCalendarExtractor extractor) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calendar, this.extractor, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calendar, extractor, 0, "0");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }
     }
 
-    protected String convertSpecialDaysCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar messageAttribute) {
+    protected String convertSpecialDaysCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar messageAttribute, TariffCalendarExtractor extractor) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, this.extractor, 1, "");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, extractor, 1, "");
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }
@@ -76,10 +71,10 @@ public class AbstractDlmsMessaging {
     /**
      * Parse the special days of the given code table into the proper AXDR array.
      */
-    protected String parseSpecialDays(TariffCalendar calendar) {
+    protected String parseSpecialDays(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         Array result = new Array();
         int dayIndex = 1;
-        for (Extractor.CalendarRule rule : extractor.rules(calendar)) {
+        for (TariffCalendarExtractor.CalendarRule rule : extractor.rules(calendar)) {
             if (!rule.seasonId().isPresent()) {
                 byte[] timeStampBytes = {(byte) ((rule.year() == -1) ? 0xff : ((rule.year() >> 8) & 0xFF)), (byte) ((rule.year() == -1) ? 0xff : (rule.year()) & 0xFF),
                         (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
@@ -97,7 +92,7 @@ public class AbstractDlmsMessaging {
         return ProtocolTools.getHexStringFromBytes(result.getBEREncodedByteArray(), "");
     }
 
-    protected String convertLookupTable(NumberLookup messageAttribute) {
+    protected String convertLookupTable(NumberLookup messageAttribute, NumberLookupExtractor extractor) {
         return extractor.keys(messageAttribute).stream().collect(Collectors.joining(SEPARATOR));
     }
 
