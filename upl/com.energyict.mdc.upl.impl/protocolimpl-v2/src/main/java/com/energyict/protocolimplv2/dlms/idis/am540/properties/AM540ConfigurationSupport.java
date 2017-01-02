@@ -40,6 +40,10 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
     public static final Duration DEFAULT_NOT_USED_AARQ_TIMEOUT = Duration.ofSeconds(0);
 
+    public AM540ConfigurationSupport() {
+        super(propertySpecService);
+    }
+
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
         return Arrays.asList(

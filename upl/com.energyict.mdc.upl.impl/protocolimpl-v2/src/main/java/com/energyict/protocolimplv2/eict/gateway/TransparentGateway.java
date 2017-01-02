@@ -74,7 +74,7 @@ public class TransparentGateway extends AbstractGateway {
         return Arrays.<DeviceProtocolDialect>asList(
                 new NoParamsDeviceProtocolDialect(),
                 new SerialDeviceProtocolDialect(this.propertySpecService),
-                new TcpDeviceProtocolDialect()
+                new TcpDeviceProtocolDialect(this.propertySpecService)
         );
     }
 

@@ -46,7 +46,7 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -97,7 +97,7 @@ public class AM130 extends AM500 {
     }
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
-        return new AM130ConfigurationSupport();
+        return new AM130ConfigurationSupport(this.getPropertySpecService());
     }
 
     protected IDISProperties getNewInstanceOfProperties() {
@@ -134,7 +134,7 @@ public class AM130 extends AM500 {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
+        return Collections.singletonList(new TcpDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override

@@ -220,7 +220,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.getPropertySpecService()), new TcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.getPropertySpecService()), new TcpDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override

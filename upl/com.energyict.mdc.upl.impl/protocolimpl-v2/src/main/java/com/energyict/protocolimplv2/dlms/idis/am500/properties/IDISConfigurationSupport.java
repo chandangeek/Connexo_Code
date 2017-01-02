@@ -23,6 +23,10 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
     public static final String USE_LOGICAL_DEVICE_NAME_AS_SERIAL = "UseLogicalDeviceNameAsSerialNumber";
     public static final String USE_UNDEFINED_AS_TIME_DEVIATION = "UseUndefinedAsTimeDeviation";
 
+    public IDISConfigurationSupport() {
+        super(propertySpecService);
+    }
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> result = new ArrayList<>(super.getPropertySpecs());
