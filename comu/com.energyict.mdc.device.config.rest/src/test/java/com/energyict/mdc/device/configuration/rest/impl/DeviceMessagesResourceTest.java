@@ -69,19 +69,19 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
 
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec1.getMessageId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME.dbValue());
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME.dbValue());
         deviceMessageIds.add(deviceMessageSpec1);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec2.getMessageId()).thenReturn(DeviceMessageId.CLOCK_SET_DST.dbValue());
+        when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.CLOCK_SET_DST.dbValue());
         deviceMessageIds.add(deviceMessageSpec2);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec3.getMessageId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE.dbValue());
+        when(deviceMessageSpec3.getId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE.dbValue());
         deviceMessageIds.add(deviceMessageSpec3);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec4.getMessageId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
+        when(deviceMessageSpec4.getId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
         deviceMessageIds.add(deviceMessageSpec4);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec5.getMessageId()).thenReturn(DeviceMessageId.SECURITY_CHANGE_CLIENT_PASSWORDS.dbValue());
+        when(deviceMessageSpec5.getId()).thenReturn(DeviceMessageId.SECURITY_CHANGE_CLIENT_PASSWORDS.dbValue());
         deviceMessageIds.add(deviceMessageSpec5);
 
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));

@@ -2,7 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.util.logging.Level;
 
