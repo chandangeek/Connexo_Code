@@ -2,8 +2,7 @@ package com.energyict.dlms.protocolimplv2;
 
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cbo.TimeDuration;
-
+import java.time.Duration;
 import java.util.Properties;
 
 /**
@@ -113,7 +112,7 @@ public interface CommunicationSessionProperties {
      * Polling: check inputstream.available periodically, read number of bytes if available.
      * Non polling: use blocking read calls on the inputstream without checking periodically.
      */
-    TimeDuration getPollingDelay();
+    Duration getPollingDelay();
 
     /**
      * Indicate if a timeout error means that the connection should be considered as 'broken'.

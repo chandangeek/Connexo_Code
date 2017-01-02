@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
+import com.energyict.mdc.upl.properties.PrivateKeyAlias;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.cbo.CertificateWrapperId;
-import com.energyict.cbo.PrivateKeyAlias;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
@@ -17,7 +18,11 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.security.PrivateKey;
 import java.security.SecureRandom;
-import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
