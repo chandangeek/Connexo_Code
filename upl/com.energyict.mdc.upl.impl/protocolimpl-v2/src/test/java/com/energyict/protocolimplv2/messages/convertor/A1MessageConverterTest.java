@@ -1,9 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.elster.protocolimpl.dlms.A1;
 import com.energyict.cbo.Password;
@@ -25,6 +29,7 @@ import java.time.LocalTime;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
@@ -43,140 +48,149 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
     private static String SPECIAL_DAYS_EXPECTED_CONTENT = "<SetSpecialDaysTable SPECIAL_DAYS_TABLE_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetSpecialDaysTable>";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    @Mock
+    private DeviceMessageFileExtractor messageFileExtractor;
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Converter converter;
+
     @Test
     public void testMessageConversion_ChangeCredentials() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GPRS_modem_setup APN=\"MyTestAPN\" Username=\"MyTestUserName\" Password=\"MyTestPassword\"> </GPRS_modem_setup>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_WriteNewPdrNumber() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.WriteNewPDRNumber);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.WriteNewPDRNumber.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WritePDR PdrToWrite=\"PDR\"> </WritePDR>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ClearPassiveTariff() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ClearPassiveTariff/>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ChangeSecurityKeys() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_SECURITY_KEYS);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_SECURITY_KEYS.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ChangeKeys ClientId=\"1\" WrapperKey=\"MASTER_Key\" NewAuthenticationKey=\"AUTH_Key\" NewEncryptionKey=\"ENCR_Key\"> </ChangeKeys>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ChangeSessionTimeout() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ChangeSessionTimeout);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.ChangeSessionTimeout.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SessionTimeout SessionTimeout[ms]=\"10\"> </SessionTimeout>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_SetCyclicMode() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.SetCyclicMode);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.SetCyclicMode.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<CyclicMode CallDistance=\"1 02:30:00\"> </CyclicMode>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_SetPreferredDateMode() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.SetPreferredDateMode);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.SetPreferredDateMode.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<PreferredDateMode PreferredDate=\"1 02:30:00\"> </PreferredDateMode>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_SetWANConfiguration() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.SetWANConfiguration);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(NetworkConnectivityMessage.SetWANConfiguration.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WanConfiguration Destination1=\"10.0.1.50:4059\" Destination2=\"11.1.2.20\"> </WanConfiguration>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ConfigureBillingPeriodStartDate() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureBillingPeriodStartDate);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureBillingPeriodStartDate.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<BillingPeriodStart BILLING_PERIOD_START_DATE=\"2015-08-01 SU\"> </BillingPeriodStart>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ConfigureBillingPeriodLength() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureBillingPeriodLength);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureBillingPeriodLength.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<BillingPeriod BILLING_PERIOD_LENGTH=\"30\"> </BillingPeriod>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_SetOnDemandBillingDate() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.WriteNewOnDemandBillingDate);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.WriteNewOnDemandBillingDate.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<OnDemandSnapshotTime DATE=\"2015-08-01 00:00:00\" REASON=\"1\"> </OnDemandSnapshotTime>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ChangeUnitStatus() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeUnitStatus);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ChangeUnitStatus.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<UnitsStatus UNITS_Status=\"Maintenance\"> </UnitsStatus>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_AlarmRegisterReset() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(DeviceActionMessage.ALARM_REGISTER_RESET);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(DeviceActionMessage.ALARM_REGISTER_RESET.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ResetAlarms/>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ResetEventLog() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(DeviceActionMessage.EVENT_LOG_RESET);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(DeviceActionMessage.EVENT_LOG_RESET.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ResetUNITSLog/>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ConfigureClock() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ClockDeviceMessage.ConfigureClock);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ClockDeviceMessage.ConfigureClock.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<SetClockConfiguration TIMEZONE_OFFSET=\"120\" DST_ENABLED=\"1\" DST_DEVIATION=\"60\"> </SetClockConfiguration>", messageEntry.getContent());
     }
     @Test
     public void testMessageConversion_ConfigureStartOfGasDayDSTSettings() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureStartOfGasDaySettings);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureStartOfGasDaySettings.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<GasDayConfiguration GDC_FLAG=\"0\"> </GasDayConfiguration>", messageEntry.getContent());
     }
     @Test
     public void testMessageConversion_ConfigureStartOfGasDay() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureStartOfGasDay);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureStartOfGasDay.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<StartOfGasDay SGD_TIME=\"06:30:00\"> </StartOfGasDay>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ConfigureRSSIMultipleSampling() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureRSSIMultipleSampling);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureRSSIMultipleSampling.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<RSSIMultipleSampling RSSIMS_ACTION=\"1\"> </RSSIMultipleSampling>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_SpecialDayCalendarSendFromXMLUserFile() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals(SPECIAL_DAYS_EXPECTED_CONTENT, messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ActivityCalendarSendFromXMLUserFile() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE.get(this.propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals(TARIFF_CODE_EXPECTED_CONTENT, messageEntry.getContent());
     }
@@ -188,7 +202,7 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new A1MessageConverter();
+        return new A1MessageConverter(null, this.propertySpecService, this.nlsService, this.converter,  this.messageFileExtractor);
     }
 
     @Override
