@@ -250,7 +250,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
      */
     private IDISConfigurationSupport getMeterConfigurationSupport() {
         if (meterConfigurationSupport == null) {
-            meterConfigurationSupport = new IDISConfigurationSupport();
+            meterConfigurationSupport = new IDISConfigurationSupport(this.propertySpecService);
         }
         return meterConfigurationSupport;
     }

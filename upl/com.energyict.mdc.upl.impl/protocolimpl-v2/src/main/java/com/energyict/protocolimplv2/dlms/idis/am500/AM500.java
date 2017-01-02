@@ -107,7 +107,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     }
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
-        return new IDISConfigurationSupport();
+        return new IDISConfigurationSupport(this.getPropertySpecService());
     }
 
     public IDISProperties getDlmsSessionProperties() {

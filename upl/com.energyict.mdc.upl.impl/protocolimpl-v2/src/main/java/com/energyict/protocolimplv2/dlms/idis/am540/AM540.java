@@ -213,7 +213,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     }
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
-        return new AM540ConfigurationSupport();
+        return new AM540ConfigurationSupport(this.getPropertySpecService());
     }
 
     /**
