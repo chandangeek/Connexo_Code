@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -21,7 +21,7 @@ public class SeasonObject implements Serializable {
     public SeasonObject() {
     }
 
-    public static SeasonObject fromSeason(Extractor.CalendarSeason uplSeason) {
+    public static SeasonObject fromSeason(TariffCalendarExtractor.CalendarSeason uplSeason) {
         SeasonObject season = new SeasonObject();
         season.setId(uplSeason.id());
         season.setName(uplSeason.name());

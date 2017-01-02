@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.cbo.ApplicationException;
@@ -19,11 +19,11 @@ import java.util.zip.GZIPOutputStream;
  */
 public class CodeTableBase64Builder {
 
-    public static String getXmlStringFromCodeTable(TariffCalendar calendar, Extractor extractor) {
+    public static String getXmlStringFromCodeTable(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         return new String(getBase64FromCodeTable(calendar, extractor)).replaceFirst("<[?]*(.*)[?]>", "");
     }
 
-    public static byte[] getBase64FromCodeTable(TariffCalendar calendar, Extractor extractor) {
+    public static byte[] getBase64FromCodeTable(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         try {
             if (calendar == null) {
                 throw new ApplicationException("Code table not found: null");

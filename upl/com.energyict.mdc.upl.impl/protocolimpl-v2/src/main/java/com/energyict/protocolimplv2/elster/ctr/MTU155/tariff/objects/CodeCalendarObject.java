@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.Holidays;
@@ -37,7 +37,7 @@ public class CodeCalendarObject implements Serializable {
             ProtocolTools.createCalendar(2000, 12, 26)
     };
 
-    public static CodeCalendarObject fromCodeCalendar(Extractor.CalendarRule rule) {
+    public static CodeCalendarObject fromCodeCalendar(TariffCalendarExtractor.CalendarRule rule) {
         CodeCalendarObject cc = new CodeCalendarObject();
         cc.setDayTypeName(rule.dayTypeName());
         cc.setYear(rule.year());

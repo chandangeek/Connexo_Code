@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import java.io.Serializable;
 import java.time.LocalTime;
@@ -15,7 +15,7 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
     private int from;
     private int codeValue;
 
-    public static CodeDayTypeDefObject fromCodeDayTypeDef(Extractor.CalendarDayTypeSlice slice) {
+    public static CodeDayTypeDefObject fromCodeDayTypeDef(TariffCalendarExtractor.CalendarDayTypeSlice slice) {
         CodeDayTypeDefObject dtd = new CodeDayTypeDefObject();
         dtd.setCodeValue(slice.tariffCode());
         dtd.setFrom(slice.start());

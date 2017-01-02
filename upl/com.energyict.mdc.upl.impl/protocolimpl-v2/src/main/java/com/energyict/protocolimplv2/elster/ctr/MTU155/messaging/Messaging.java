@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -49,16 +51,20 @@ public class Messaging implements DeviceMessageSupport {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final LoadProfileExtractor loadProfileExtractor;
 
-    public Messaging(MTU155 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
+    public Messaging(MTU155 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, LoadProfileExtractor loadProfileExtractor) {
         this.protocol = protocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     @Override
@@ -147,12 +153,12 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.passwordAttributeName:
                 return ((Password) messageAttribute).getValue();
             case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
-                return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.extractor);
+                return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.calendarExtractor);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.extractor);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 DeviceMessageFile messageFile = (DeviceMessageFile) messageAttribute;
-                return this.extractor.contents(messageFile);
+                return this.messageFileExtractor.contents(messageFile);
             default:
                 return messageAttribute.toString();
         }
@@ -167,36 +173,36 @@ public class Messaging implements DeviceMessageSupport {
         return new AbstractMTU155Message[]{
                 // Device configuration group
                 new WriteConverterMasterDataMessage(this, this.collectedDataFactory, this.issueFactory),
-                new WriteMeterMasterDataMessage(this),
-                new WriteGasParametersMessage(this),
-                new ChangeDSTMessage(this),
-                new WritePDRMessage(this),
+                new WriteMeterMasterDataMessage(this, this.collectedDataFactory, this.issueFactory),
+                new WriteGasParametersMessage(this, this.collectedDataFactory, this.issueFactory),
+                new ChangeDSTMessage(this, this.collectedDataFactory, this.issueFactory),
+                new WritePDRMessage(this, this.collectedDataFactory, this.issueFactory),
 
                 // Connectivity setup group
-                new DevicePhoneNumberSetupMessage(this),
+                new DevicePhoneNumberSetupMessage(this, this.collectedDataFactory, this.issueFactory),
                 new ApnSetupMessage(this, collectedDataFactory, issueFactory),
-                new SMSCenterSetupMessage(this),
-                new IPSetupMessage(this),
-                new WakeUpFrequency(this),
+                new SMSCenterSetupMessage(this, this.collectedDataFactory, this.issueFactory),
+                new IPSetupMessage(this, this.collectedDataFactory, this.issueFactory),
+                new WakeUpFrequency(this, this.collectedDataFactory, this.issueFactory),
 
                 // Key management
                 new ActivateTemporaryKeyMessage(this, this.collectedDataFactory, this.issueFactory),
-                new ChangeExecutionKeyMessage(this),
-                new ChangeTemporaryKeyMessage(this),
+                new ChangeExecutionKeyMessage(this, this.collectedDataFactory, this.issueFactory),
+                new ChangeTemporaryKeyMessage(this, this.collectedDataFactory, this.issueFactory),
 
                 // Seals management group
-                new TemporaryBreakSealMessage(this),
-                new ChangeSealStatusMessage(this),
+                new TemporaryBreakSealMessage(this, this.collectedDataFactory, this.issueFactory),
+                new ChangeSealStatusMessage(this, this.collectedDataFactory, this.issueFactory),
 
                 // Tariff management
                 new TariffUploadPassiveMessage(this, this.collectedDataFactory, this.issueFactory),
-                new TariffDisablePassiveMessage(this),
+                new TariffDisablePassiveMessage(this, this.collectedDataFactory, this.issueFactory),
 
                 // LoadProfile group
-                new ReadPartialProfileDataMessage(this),
+                new ReadPartialProfileDataMessage(this, this.collectedDataFactory, this.issueFactory),
 
                 // Firmware Upgrade
-                new FirmwareUpgradeMessage(this)
+                new FirmwareUpgradeMessage(this, this.collectedDataFactory, this.issueFactory)
         };
     }
 

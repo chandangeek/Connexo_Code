@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import com.energyict.cbo.BusinessException;
 
@@ -22,7 +22,7 @@ public class SeasonSetObject implements Serializable {
     public SeasonSetObject() {
     }
 
-    public static SeasonSetObject fromSeasonSet(Extractor.CalendarSeasonSet uplSeasonSet) {
+    public static SeasonSetObject fromSeasonSet(TariffCalendarExtractor.CalendarSeasonSet uplSeasonSet) {
         SeasonSetObject seasonSet = new SeasonSetObject();
         seasonSet.setId(uplSeasonSet.id());
         seasonSet.setName(uplSeasonSet.name());

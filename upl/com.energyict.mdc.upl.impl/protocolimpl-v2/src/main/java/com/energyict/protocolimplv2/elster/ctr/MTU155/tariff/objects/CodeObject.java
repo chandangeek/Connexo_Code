@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeObjectValidator;
@@ -35,7 +35,7 @@ public class CodeObject implements Serializable {
     public CodeObject() {
     }
 
-    public static CodeObject fromCode(TariffCalendar calendar, Extractor extractor) {
+    public static CodeObject fromCode(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         CodeObject co = new CodeObject();
         co.setId(extractor.id(calendar));
         co.setName(extractor.name(calendar));
