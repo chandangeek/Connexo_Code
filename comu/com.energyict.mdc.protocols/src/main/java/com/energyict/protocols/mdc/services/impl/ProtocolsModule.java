@@ -14,6 +14,8 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecificationServiceImpl;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -24,7 +26,6 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -66,6 +67,7 @@ public class ProtocolsModule extends AbstractModule {
         bind(InboundDeviceProtocolService.class).to(InboundDeviceProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(LicensedProtocolService.class).to(LicensedProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceCacheMarshallingService.class).to(DeviceCacheMarshallingServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DeviceMessageSpecificationService.class).to(DeviceMessageSpecificationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

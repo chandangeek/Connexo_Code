@@ -2,8 +2,8 @@ package com.energyict.protocols.messaging;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
 import org.junit.Test;

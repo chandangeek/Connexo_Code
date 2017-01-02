@@ -11,11 +11,8 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -23,12 +20,16 @@ import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -48,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -77,31 +77,16 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     private final com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private final Injector injector;
 
-    public static Services adapt(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
-        return new Services(deviceProtocol);
-    }
-
-    public static final class Services {
-        private final com.energyict.mdc.upl.DeviceProtocol deviceProtocol;
-
-        public Services(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
-            this.deviceProtocol = deviceProtocol;
-        }
-
-        UPLDeviceProtocolAdapter with(
-                Thesaurus thesaurus,
-                com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
-                com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService) {
-            return new UPLDeviceProtocolAdapter(this.deviceProtocol, thesaurus, mdcPropertySpecService, jupiterPropertySpecService);
-        }
-    }
-
     private UPLDeviceProtocolAdapter(com.energyict.mdc.upl.DeviceProtocol deviceProtocol, Thesaurus thesaurus, PropertySpecService mdcPropertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
         this.deviceProtocol = deviceProtocol;
         this.thesaurus = thesaurus;
         this.mdcPropertySpecService = mdcPropertySpecService;
         this.jupiterPropertySpecService = jupiterPropertySpecService;
         this.injector = Guice.createInjector(this.getModule());
+    }
+
+    public static Services adapt(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
+        return new Services(deviceProtocol);
     }
 
     private Module getModule() {
@@ -226,8 +211,8 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     }
 
     @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
-        return null;
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return deviceProtocol.getSupportedMessages();
     }
 
     @Override
@@ -241,8 +226,13 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return null;
+    public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return deviceProtocol.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return deviceProtocol.prepareMessageContext(offlineDevice, deviceMessage);
     }
 
     @Override
@@ -264,9 +254,9 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         this.ensureCustomPropertySetNameMappingLoaded();
         return Optional
-                    .ofNullable(customPropertySetNameDetective.customPropertySetClassNameFor(this.deviceProtocol.getClass()))
-                    .flatMap(this::loadClass)
-                    .map(this::toCustomPropertySet);
+                .ofNullable(customPropertySetNameDetective.customPropertySetClassNameFor(this.deviceProtocol.getClass()))
+                .flatMap(this::loadClass)
+                .map(this::toCustomPropertySet);
     }
 
     private CustomPropertySet toCustomPropertySet(Class cpsClass) {
@@ -327,12 +317,28 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        //TODO how to solve this clashing? Same for supported messages, it's on the CXO interface and on the UPL one ?????
         return null;
     }
 
     @Override
     public boolean supportsCommunicationFirmwareVersion() {
         return deviceProtocol.supportsCommunicationFirmwareVersion();
+    }
+
+    public static final class Services {
+        private final com.energyict.mdc.upl.DeviceProtocol deviceProtocol;
+
+        public Services(com.energyict.mdc.upl.DeviceProtocol deviceProtocol) {
+            this.deviceProtocol = deviceProtocol;
+        }
+
+        UPLDeviceProtocolAdapter with(
+                Thesaurus thesaurus,
+                com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
+                com.energyict.mdc.dynamic.PropertySpecService mdcPropertySpecService) {
+            return new UPLDeviceProtocolAdapter(this.deviceProtocol, thesaurus, mdcPropertySpecService, jupiterPropertySpecService);
+        }
     }
 
     private static class CustomPropertySetNameDetective {
