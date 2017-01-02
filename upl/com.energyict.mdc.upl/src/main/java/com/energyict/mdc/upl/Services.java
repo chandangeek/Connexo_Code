@@ -3,6 +3,7 @@ package com.energyict.mdc.upl;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceGroupExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
@@ -33,6 +34,7 @@ public class Services {
     private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
     private static AtomicReference<DeviceExtractor> DEVICE_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<DeviceGroupExtractor> DEVICE_GROUP_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<RegisterExtractor> REGISTER_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<LoadProfileExtractor> LOAD_PROFILE_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<NumberLookupExtractor> NUMBER_LOOKUP_EXTRACTOR = new AtomicReference<>();
@@ -59,6 +61,8 @@ public class Services {
             return loadProfileExtractor();
         } else if (DeviceExtractor.class.equals(serviceType)) {
             return deviceExtractor();
+        } else if (DeviceGroupExtractor.class.equals(serviceType)) {
+            return deviceGroupExtractor();
         } else if (DeviceMessageFileExtractor.class.equals(serviceType)) {
             return deviceMessageFileExtractor();
         } else if (TariffCalendarExtractor.class.equals(serviceType)) {
@@ -140,6 +144,14 @@ public class Services {
 
     public static void deviceExtractor(DeviceExtractor extractor) {
         DEVICE_EXTRACTOR.set(extractor);
+    }
+
+    public static DeviceGroupExtractor deviceGroupExtractor() {
+        return DEVICE_GROUP_EXTRACTOR.get();
+    }
+
+    public static void deviceGroupExtractor(DeviceGroupExtractor extractor) {
+        DEVICE_GROUP_EXTRACTOR.set(extractor);
     }
 
     public static DeviceMessageFileExtractor deviceMessageFileExtractor() {

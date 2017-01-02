@@ -25,6 +25,16 @@ public interface DeviceExtractor {
     String serialNumber(Device device);
 
     /**
+     * Gets the value of the protocol property with the specified name.
+     *
+     * @param propertyName The name of the property
+     * @param defaultValue The default value that will be returned in no value is specified on the Device
+     * @param <T> The type of the property
+     * @return The value of the property
+     */
+    <T> T protocolProperty(Device device, String propertyName, T defaultValue);
+
+    /**
      * Extracts the {@link com.energyict.mdc.upl.meterdata.Register} with the specified {@link ObisCode}
      * from the {@link Device}.
      *
