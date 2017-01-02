@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.TypedProperties;
@@ -53,9 +54,11 @@ public class BroadcastUpgrade {
 
     private static final ObisCode AM540_BROADCAST_FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
     private final Beacon3100Messaging beacon3100Messaging;
+    private final PropertySpecService propertySpecService;
 
-    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging) {
+    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging, PropertySpecService propertySpecService) {
         this.beacon3100Messaging = beacon3100Messaging;
+        this.propertySpecService = propertySpecService;
     }
 
     //TODO fully test parsing & format, use NTA sim & eiserver
@@ -150,7 +153,7 @@ public class BroadcastUpgrade {
         }
 
         //Create an unconfirmed dlms session to an AM540 device, to generate the action requests (APDU) for the block transfer.
-        final AM540Properties blockTransferProperties = new AM540Properties();
+        final AM540Properties blockTransferProperties = new AM540Properties(this.propertySpecService);
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
@@ -268,7 +271,7 @@ public class BroadcastUpgrade {
     }
 
     private DlmsSession createUnicastSessionToSlave(DeviceInfo slaveDeviceInfo) {
-        final AM540Properties am540Properties = new AM540Properties();
+        final AM540Properties am540Properties = new AM540Properties(this.propertySpecService);
         am540Properties.addProperties(slaveDeviceInfo.getGeneralProperties());
         am540Properties.addProperties(slaveDeviceInfo.getDialectProperties());
         final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(slaveDeviceInfo.getSecurityProperties());

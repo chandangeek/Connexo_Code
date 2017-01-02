@@ -353,7 +353,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
-        final AM540Properties publicClientProperties = new AM540Properties();
+        final AM540Properties publicClientProperties = new AM540Properties(this.getPropertySpecService());
         publicClientProperties.addProperties(publicProperties);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, publicProperties));    //SecurityLevel 0:0
 
@@ -482,7 +482,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     protected AM540Properties getNewInstanceOfProperties() {
-        return new AM540Properties();
+        return new AM540Properties(this.getPropertySpecService());
     }
 
     @Override

@@ -114,14 +114,14 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
 
     public AbstractMessageExecutor getDsmr50MessageExecutor() {
         if (dsmr50MessageExecutor == null) {
-            dsmr50MessageExecutor = new Dsmr50MessageExecutor(getProtocol());
+            dsmr50MessageExecutor = new Dsmr50MessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return dsmr50MessageExecutor;
     }
 
     public AbstractMessageExecutor getMbusMessageExecutor() {
         if (mbusMessageExecutor == null) {
-            mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory());
+            mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return mbusMessageExecutor;
     }

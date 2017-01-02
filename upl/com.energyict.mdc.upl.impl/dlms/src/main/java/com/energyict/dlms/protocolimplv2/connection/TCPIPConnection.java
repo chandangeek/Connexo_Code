@@ -78,7 +78,7 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
         this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
         this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
         this.incrementFrameCounterForRetries = properties.incrementFrameCounterForRetries();
-        this.pollingDelay = properties.getPollingDelay().getMilliSeconds();
+        this.pollingDelay = properties.getPollingDelay().toMillis();
         this.timeoutMeansBrokenConnection = properties.timeoutMeansBrokenConnection();
         this.comChannel.setTimeout(this.timeout);
     }

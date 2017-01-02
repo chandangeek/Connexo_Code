@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -66,13 +67,15 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     private final NlsService nlsService;
     private final Converter converter;
     private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
 
-    public WebRTUZ3(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor) {
+    public WebRTUZ3(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
         this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
     }
 
@@ -129,7 +132,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return this.loadProfileBuilder;
     }
@@ -173,7 +176,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     private WebRTUZ3Messaging getMessaging() {
         if (webRTUZ3Messaging == null) {
-            webRTUZ3Messaging = new WebRTUZ3Messaging(this, this.getPropertySpecService(), this.nlsService, this.converter, this.getCollectedDataFactory(), this.getIssueFactory(), calendarExtractor, numberLookupExtractor);
+            webRTUZ3Messaging = new WebRTUZ3Messaging(this, this.getPropertySpecService(), this.nlsService, this.converter, this.getCollectedDataFactory(), this.getIssueFactory(), calendarExtractor, messageFileExtractor, numberLookupExtractor);
         }
         return webRTUZ3Messaging;
     }

@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ConformanceBlock;
@@ -15,6 +15,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
 import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
@@ -26,6 +27,11 @@ import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOC
 public class AM540Properties extends IDISProperties {
 
     private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
+    private final PropertySpecService propertySpecService;
+
+    public AM540Properties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public SecurityProvider getSecurityProvider() {
@@ -61,8 +67,8 @@ public class AM540Properties extends IDISProperties {
      * The AM540 protocol will also run embedded in the Beacon3100, so by default: avoid polling on the inputstream
      */
     @Override
-    public TimeDuration getPollingDelay() {
-        return getProperties().getTypedProperty(AM540ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
+    public Duration getPollingDelay() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.POLLING_DELAY, Duration.ofSeconds(0));
     }
 
     @Override
@@ -122,7 +128,7 @@ public class AM540Properties extends IDISProperties {
         if (dialectName == null) {
             return false;
         }
-        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect(propertySpecService);
+        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect(this.propertySpecService);
         // for compatibility with ProtocolTester - here the protocol dialect is the "display name"
         return dialect.getDeviceProtocolDialectDisplayName().equals(dialectName) || dialect.getDeviceProtocolDialectName().equals(dialectName);
     }
