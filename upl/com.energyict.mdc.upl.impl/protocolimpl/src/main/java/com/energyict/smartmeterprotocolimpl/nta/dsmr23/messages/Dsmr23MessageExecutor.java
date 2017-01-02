@@ -2,8 +2,9 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
@@ -121,12 +122,14 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
         this.dlmsSession = this.protocol.getDlmsSession();
     }
 
@@ -134,8 +137,12 @@ public class Dsmr23MessageExecutor extends MessageParser {
         return calendarFinder;
     }
 
-    protected Extractor getExtractor() {
-        return extractor;
+    protected TariffCalendarExtractor getCalendarExtractor() {
+        return calendarExtractor;
+    }
+
+    protected DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
@@ -716,7 +723,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
-                    CSVParser csvParser = new CSVParser(this.extractor);
+                    CSVParser csvParser = new CSVParser(this.messageFileExtractor);
                     csvParser.parse(data);
                     boolean hasWritten;
                     TestObject to = new TestObject("");
@@ -928,9 +935,9 @@ public class Dsmr23MessageExecutor extends MessageParser {
             TariffCalendar tariffCalendar = this.calendarFinder.from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
             Array sdArray = new Array();
             SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-            List<Extractor.CalendarRule> rules = this.extractor.rules(tariffCalendar);
+            List<TariffCalendarExtractor.CalendarRule> rules = this.calendarExtractor.rules(tariffCalendar);
             for (int i = 0; i < rules.size(); i++) {
-                Extractor.CalendarRule rule = rules.get(i);
+                TariffCalendarExtractor.CalendarRule rule = rules.get(i);
                 if (!rule.seasonId().isPresent()) {
                     OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((rule.year() == -1) ? 0xff : ((rule.year() >> 8) & 0xFF)), (byte) ((rule.year() == -1) ? 0xff : (rule.year()) & 0xFF),
                             (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
@@ -971,7 +978,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
         if (codeTable != null) {
             TariffCalendar tariffCalendar = this.calendarFinder.from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
-            ActivityCalendarMessage acm = new ActivityCalendarMessage(tariffCalendar, extractor, getMeterConfig());
+            ActivityCalendarMessage acm = new ActivityCalendarMessage(tariffCalendar, calendarExtractor, getMeterConfig());
             acm.parse();
 
             ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());

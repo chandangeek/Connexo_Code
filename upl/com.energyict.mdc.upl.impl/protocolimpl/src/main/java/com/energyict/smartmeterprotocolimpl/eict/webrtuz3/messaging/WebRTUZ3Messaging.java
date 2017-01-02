@@ -37,8 +37,8 @@ public class WebRTUZ3Messaging extends GenericMessaging implements MessageProtoc
      * Abstract method to define your message categories *
      */
     @Override
-    public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<>();
 
         categories.add(getAuthEncryptCategory());
         categories.add(getFirmwareCategory());

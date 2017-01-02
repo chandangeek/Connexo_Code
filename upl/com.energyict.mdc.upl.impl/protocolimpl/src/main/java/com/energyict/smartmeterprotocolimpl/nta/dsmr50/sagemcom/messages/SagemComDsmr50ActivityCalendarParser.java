@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dlms.DLMSMeterConfig;
@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class SagemComDsmr50ActivityCalendarParser extends Dsmr50ActivityCalendarParser {
 
-    public SagemComDsmr50ActivityCalendarParser(TariffCalendar calendar, Extractor extractor, DLMSMeterConfig meterConfig) {
+    public SagemComDsmr50ActivityCalendarParser(TariffCalendar calendar, TariffCalendarExtractor extractor, DLMSMeterConfig meterConfig) {
         super(calendar, extractor, meterConfig);
     }
 

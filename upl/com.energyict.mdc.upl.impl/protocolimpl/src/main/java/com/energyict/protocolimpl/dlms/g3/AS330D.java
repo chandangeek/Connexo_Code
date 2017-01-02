@@ -5,12 +5,12 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -57,12 +57,12 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     private G3Messaging messaging;
     private G3Cache cache = new G3Cache();
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
     private final PropertySpecService propertySpecService;
 
-    public AS330D(TariffCalendarFinder calendarFinder, Extractor extractor, PropertySpecService propertySpecService) {
+    public AS330D(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService) {
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
         this.propertySpecService = propertySpecService;
     }
 
@@ -70,8 +70,8 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
         return calendarFinder;
     }
 
-    protected Extractor getExtractor() {
-        return extractor;
+    protected TariffCalendarExtractor getCalendarExtractor() {
+        return calendarExtractor;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -162,7 +162,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     }
 
     protected void initMessaging() {
-        setMessaging(new G3Messaging(getSession(), getProperties(), this.calendarFinder, extractor));
+        setMessaging(new G3Messaging(getSession(), getProperties(), this.calendarFinder, calendarExtractor));
     }
 
     @Override
@@ -221,7 +221,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
 
     public G3Messaging getMessaging() {
         if (this.messaging == null) {
-            this.messaging = new G3Messaging(getSession(), getProperties(), calendarFinder, extractor);
+            this.messaging = new G3Messaging(getSession(), getProperties(), calendarFinder, calendarExtractor);
         }
         return messaging;
     }

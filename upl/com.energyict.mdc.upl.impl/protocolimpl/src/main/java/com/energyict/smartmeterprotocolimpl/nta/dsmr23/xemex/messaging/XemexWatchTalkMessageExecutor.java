@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
@@ -33,8 +34,8 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
 
     private static final String NORESUME = "noresume";
 
-    public XemexWatchTalkMessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder tariffCalendarFinder, Extractor extractor) {
-        super(protocol, tariffCalendarFinder, extractor);
+    public XemexWatchTalkMessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder tariffCalendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+        super(protocol, tariffCalendarFinder, tariffCalendarExtractor, messageFileExtractor);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
 
         if (codeTable != null) {
             TariffCalendar tariffCalendar = this.getCalendarFinder().from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
-            XemexActivityCalendarParser activityCalendarParser = new XemexActivityCalendarParser(tariffCalendar, this.getExtractor());
+            XemexActivityCalendarParser activityCalendarParser = new XemexActivityCalendarParser(tariffCalendar, this.getCalendarExtractor());
             activityCalendarParser.parse();
 
             ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
@@ -97,13 +98,13 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
             TariffCalendar tariffCalendar = this.getCalendarFinder().from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
             Array sdArray = new Array();
             SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-            List<Extractor.CalendarRule> rules = this.getExtractor().rules(tariffCalendar);
-            XemexActivityCalendarParser activityCalendarParser = new XemexActivityCalendarParser(tariffCalendar, this.getExtractor());
+            List<TariffCalendarExtractor.CalendarRule> rules = this.getCalendarExtractor().rules(tariffCalendar);
+            XemexActivityCalendarParser activityCalendarParser = new XemexActivityCalendarParser(tariffCalendar, this.getCalendarExtractor());
             activityCalendarParser.parse();
 
             int dayIndex = 1;
             for (int i = 0; i < rules.size(); i++) {
-                Extractor.CalendarRule cc = rules.get(i);
+                TariffCalendarExtractor.CalendarRule cc = rules.get(i);
                 if (!cc.seasonId().isPresent()) {
                     OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.year() == -1) ? 0xff : ((cc.year() >> 8) & 0xFF)), (byte) ((cc.year() == -1) ? 0xff : (cc.year()) & 0xFF),
                             (byte) ((cc.month() == -1) ? 0xFF : cc.month()), (byte) ((cc.day() == -1) ? 0xFF : cc.day()),

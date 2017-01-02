@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.DlmsSession;
@@ -14,8 +14,8 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
  */
 public class G3MessagingSagemCom extends G3Messaging {
 
-    public G3MessagingSagemCom(final DlmsSession session, G3Properties properties, TariffCalendarFinder calendarFinder, Extractor extractor) {
-        super(session, properties, calendarFinder, extractor);
+    public G3MessagingSagemCom(DlmsSession session, G3Properties properties, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
+        super(session, properties, calendarFinder, calendarExtractor);
     }
 
     @Override

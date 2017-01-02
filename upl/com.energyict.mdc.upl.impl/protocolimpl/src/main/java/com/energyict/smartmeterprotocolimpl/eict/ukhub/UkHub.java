@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
@@ -74,9 +76,13 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
     private final PropertySpecService propertySpecService;
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public UkHub(PropertySpecService propertySpecService) {
+    public UkHub(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
         this.propertySpecService = propertySpecService;
+        this.messageFileFinder = messageFileFinder;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     /**
@@ -86,7 +92,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this));
+            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.messageFileFinder, this.messageFileExtractor));
         }
         return messageProtocol;
     }

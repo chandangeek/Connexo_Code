@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -24,17 +25,19 @@ import java.util.List;
  */
 public class Mx382 extends AbstractSmartNtaProtocol {
 
-    private final TariffCalendarFinder tariffCalendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarFinder calendarFinder;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public Mx382(TariffCalendarFinder tariffCalendarFinder, Extractor extractor) {
-        this.tariffCalendarFinder = tariffCalendarFinder;
-        this.extractor = extractor;
+    public Mx382(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+        this.calendarFinder = calendarFinder;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, tariffCalendarFinder, extractor));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, calendarFinder, calendarExtractor, messageFileExtractor));
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {

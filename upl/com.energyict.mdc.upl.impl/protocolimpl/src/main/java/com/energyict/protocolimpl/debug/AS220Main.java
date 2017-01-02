@@ -112,7 +112,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     public AS220 getMeterProtocol() {
         if (as220 == null) {
-            as220 = new AS220(Services.propertySpecService(), new NoTariffCalendars(), new DummyNumberLookupExtractor());
+            as220 = new AS220(Services.propertySpecService(), new NoTariffCalendars(), new DummyTariffCalendarExtractor());
             log("Created new instance of " + as220.getClass().getCanonicalName() + " [" + as220.getProtocolVersion() + "]");
         }
         return as220;

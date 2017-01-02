@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -11,6 +10,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -85,9 +85,9 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private static final String CONFIGURATION_USER_FILE = "Configuration user file";
     protected IDIS idis;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor extractor;
 
-    public IDISMessageHandler(IDIS idis, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public IDISMessageHandler(IDIS idis, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
         this.idis = idis;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;

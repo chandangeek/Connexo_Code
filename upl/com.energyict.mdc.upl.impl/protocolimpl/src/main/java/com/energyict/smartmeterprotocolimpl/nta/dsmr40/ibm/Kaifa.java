@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -29,8 +30,8 @@ public class Kaifa extends E350 {
 
     private Dsmr40Messaging messageProtocol = null;
 
-    public Kaifa(TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
-        super(calendarFinder, messageFileFinder, extractor);
+    public Kaifa(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class Kaifa extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new KaifaDsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getCalendarFinder(), this.getMessageFileFinder(), this.getExtractor()));
+            messageProtocol = new KaifaDsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor()));
         }
         return messageProtocol;
     }

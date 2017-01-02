@@ -1,15 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
@@ -89,14 +89,16 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
     private final WebRTUZ3 protocol;
     private final TariffCalendarFinder calendarFinder;
+    private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
-    private final Extractor extractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public WebRTUZ3MessageExecutor(final WebRTUZ3 protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+    public WebRTUZ3MessageExecutor(final WebRTUZ3 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
         this.messageFileFinder = messageFileFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
@@ -169,10 +171,10 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     }
                     DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
 
-                    byte[] imageData = this.extractor.binaryContents(deviceMessageFile);
+                    byte[] imageData = this.messageFileExtractor.binaryContents(deviceMessageFile);
                     ImageTransfer it = getCosemObjectFactory().getImageTransfer();
                     it.upgrade(imageData);
-                    if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+                    if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
                         it.imageActivation();
 
                         //Below is a solution for not immediately activating the image so the current connection isn't lost
@@ -184,7 +186,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 //
 //					sas.writeExecutionTime(dateArray);
 
-                    } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+                    } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
                         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
                         String strDate = messageHandler.getActivationDate();
                         Array dateArray = convertUnixToDateTimeArray(strDate);
@@ -204,11 +206,11 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         throw new IOException(str);
                     }
                     DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
-                    byte[] imageData = this.extractor.binaryContents(deviceMessageFile);
+                    byte[] imageData = this.messageFileExtractor.binaryContents(deviceMessageFile);
                     ImageTransfer it = getCosemObjectFactory().getImageTransfer(RF_FIRMWARE_OBISCODE);
                     it.upgrade(imageData);
 
-                    if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+                    if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
 
                         it.imageActivation();
 
@@ -221,7 +223,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 //
 //					sas.writeExecutionTime(dateArray);
 
-                    } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+                    } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
                         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
                         String strDate = messageHandler.getActivationDate();
                         Array dateArray = convertUnixToDateTimeArray(strDate);
@@ -253,7 +255,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     log(Level.INFO, "Handling message: Connect");
 
-                    if (!messageHandler.getConnectDate().equals("")) {    // use the disconnectControlScheduler
+                    if (!"".equals(messageHandler.getConnectDate())) {    // use the disconnectControlScheduler
                         Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
                         SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getDisconnectControlScheduleObis(messageHandler.getOutputId()));
 
@@ -276,7 +278,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     log(Level.INFO, "Handling message: Disconnect");
 
-                    if (!messageHandler.getDisconnectDate().equals("")) { // use the disconnectControlScheduler
+                    if (!"".equals(messageHandler.getDisconnectDate())) { // use the disconnectControlScheduler
 
                         Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
                         SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getDisconnectControlScheduleObis(messageHandler.getOutputId()));
@@ -339,7 +341,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
                     } catch (IOException e) {
                         e.printStackTrace();
-                        if (e.getMessage().indexOf("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched") != -1) { // do it oure way
+                        if (e.getMessage().contains("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched")) { // do it oure way
                             emptyStruct = new Structure();
                             emptyStruct.addDataType(new NullData());
                             emptyStruct.addDataType(new NullData());
@@ -472,7 +474,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     String codeTable = messageHandler.getTOUCodeTable();
                     String userFile = messageHandler.getTOUUserFile();
 
-                    boolean activateNow = (activateDate != null) && (activateDate.equalsIgnoreCase("0"));
+                    boolean activateNow = (activateDate != null) && ("0".equalsIgnoreCase(activateDate));
 
                     if ((codeTable == null) && (userFile == null)) {
                         throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
@@ -482,7 +484,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     if (codeTable != null) {
                         TariffCalendar tariffCalendar = this.calendarFinder.from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
-                        ActivityCalendarMessage acm = new ActivityCalendarMessage(tariffCalendar, this.extractor, getMeterConfig());
+                        ActivityCalendarMessage acm = new ActivityCalendarMessage(tariffCalendar, this.calendarExtractor, getMeterConfig());
                         acm.parse();
 
                         ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
@@ -523,9 +525,9 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         TariffCalendar tariffCalendar = this.calendarFinder.from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
                         Array sdArray = new Array();
                         SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-                        List<Extractor.CalendarRule> rules = this.extractor.rules(tariffCalendar);
+                        List<TariffCalendarExtractor.CalendarRule> rules = this.calendarExtractor.rules(tariffCalendar);
                         for (int i = 0; i < rules.size(); i++) {
-                            Extractor.CalendarRule rule = rules.get(i);
+                            TariffCalendarExtractor.CalendarRule rule = rules.get(i);
                             if (!rule.seasonId().isPresent()) {
                                 OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((rule.year() == -1) ? 0xff : ((rule.year() >> 8) & 0xFF)), (byte) ((rule.year() == -1) ? 0xff : (rule.year()) & 0xFF),
                                         (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
@@ -624,11 +626,11 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     int failures = 0;
                     String userFileId = messageHandler.getTestUserFileId();
                     Date currentTime;
-                    if (!userFileId.equalsIgnoreCase("")) {
+                    if (!"".equalsIgnoreCase(userFileId)) {
                         if (ParseUtils.isInteger(userFileId)) {
                             DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileId).orElseThrow(() -> new IllegalArgumentException("Userfile with ID " + userFileId + " does not exist."));
-                            byte[] data = this.extractor.binaryContents(deviceMessageFile);
-                            CSVParser csvParser = new CSVParser(this.extractor);
+                            byte[] data = this.messageFileExtractor.binaryContents(deviceMessageFile);
+                            CSVParser csvParser = new CSVParser(this.messageFileExtractor);
                             csvParser.parse(data);
                             boolean hasWritten;
                             TestObject to = new TestObject("");
@@ -823,9 +825,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     success = false;
                 }
 
-            } catch (BusinessException | ConnectionException e) {
-                log(Level.INFO, "Message has failed. " + e.getMessage());
-            } catch (IOException | SQLException e) {
+            } catch (BusinessException | IOException | SQLException e) {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
             }
             if (success) {

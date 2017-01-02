@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -36,7 +39,13 @@ public class CryptoDsmr23MessageConverterTest extends AbstractMessageConverterTe
     @Mock
     private TariffCalendarFinder tariffCalendarFinder;
     @Mock
-    private Extractor extractor;
+    private TariffCalendarExtractor tariffCalendarExtractor;
+    @Mock
+    private DeviceMessageFileExtractor deviceMessageFileExtractor;
+    @Mock
+    private NumberLookupExtractor numberLookupExtractor;
+    @Mock
+    private LoadProfileExtractor loadProfileExtractor;
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
@@ -64,12 +73,12 @@ public class CryptoDsmr23MessageConverterTest extends AbstractMessageConverterTe
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new WebRTUKP(tariffCalendarFinder, extractor);
+        return new WebRTUKP(tariffCalendarFinder, tariffCalendarExtractor, deviceMessageFileExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new CryptoDsmr23MessageConverter(null, propertySpecService, nlsService, converter, extractor);
+        return new CryptoDsmr23MessageConverter(null, propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
     }
 
     @Override

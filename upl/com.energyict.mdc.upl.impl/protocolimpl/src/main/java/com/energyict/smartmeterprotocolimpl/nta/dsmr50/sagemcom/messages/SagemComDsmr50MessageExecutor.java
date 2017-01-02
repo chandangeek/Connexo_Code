@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
@@ -29,13 +30,13 @@ import java.util.List;
  */
 public class SagemComDsmr50MessageExecutor extends Dsmr50MessageExecutor {
 
-    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
-        super(protocol, calendarFinder, messageFileFinder, extractor);
+    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        super(protocol, calendarFinder, extractor, messageFileFinder, messageFileExtractor);
     }
 
     @Override
     protected ActivityCalendarMessage getActivityCalendarParser(TariffCalendar calendar) {
-        return new SagemComDsmr50ActivityCalendarParser(calendar, this.getExtractor(), getMeterConfig());
+        return new SagemComDsmr50ActivityCalendarParser(calendar, this.getCalendarExtractor(), getMeterConfig());
     }
 
     /**

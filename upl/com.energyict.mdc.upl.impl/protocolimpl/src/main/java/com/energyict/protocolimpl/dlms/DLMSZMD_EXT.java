@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -28,8 +29,8 @@ public class DLMSZMD_EXT extends DLMSZMD {
 
 	private int profileInterval;
 
-    public DLMSZMD_EXT(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, Extractor extractor) {
-        super(propertySpecService, calendarFinder, messageFileFinder, dateFormatter, extractor);
+    public DLMSZMD_EXT(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, DateFormatter dateFormatter) {
+        super(propertySpecService, calendarFinder, tariffCalendarExtractor, messageFileFinder, deviceMessageFileExtractor, dateFormatter);
     }
 
     @Override

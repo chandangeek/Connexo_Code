@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -9,6 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.cosem.MBusClient;
@@ -71,9 +71,9 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
 
     private final AS220 as220;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor extractor;
 
-    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
         this.as220 = as220;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;

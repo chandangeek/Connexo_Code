@@ -3,8 +3,9 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -45,8 +46,8 @@ public class AM540 extends E350 {
     private static final String TIMEOUT = "timeout";
     private final PropertySpecService propertySpecService;
 
-    public AM540(PropertySpecService propertySpecService, Extractor extractor, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder) {
-        super(calendarFinder, messageFileFinder, extractor);
+    protected AM540(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
         this.propertySpecService = propertySpecService;
         setHasBreaker(false);
     }
@@ -230,7 +231,7 @@ public class AM540 extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new AM540Messaging(this, this.getCalendarFinder(), this.getExtractor(), this.getMessageFileFinder());
+            messageProtocol = new AM540Messaging(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor());
         }
         return messageProtocol;
     }

@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.protocol.BulkRegisterProtocol;
@@ -25,30 +26,36 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
      */
     protected DSMR40EventProfile eventProfile;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    protected AbstractSmartDSMR40NtaProtocol(TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
+    protected AbstractSmartDSMR40NtaProtocol(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     public TariffCalendarFinder getCalendarFinder() {
         return calendarFinder;
     }
 
+    public TariffCalendarExtractor getCalendarExtractor() {
+        return calendarExtractor;
+    }
+
     public DeviceMessageFileFinder getMessageFileFinder() {
         return messageFileFinder;
     }
 
-    public Extractor getExtractor() {
-        return extractor;
+    public DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.extractor, this.messageFileFinder));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.calendarExtractor, messageFileFinder, this.messageFileExtractor));
     }
 
     /**

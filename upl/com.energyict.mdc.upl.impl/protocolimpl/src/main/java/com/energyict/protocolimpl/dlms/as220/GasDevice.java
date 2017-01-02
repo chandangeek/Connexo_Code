@@ -4,12 +4,12 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
@@ -60,7 +60,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
     private GMeterMessaging messaging;
     private int dif = -1;
 
-	public GasDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+	public GasDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
 		super(propertySpecService, calendarFinder, extractor);
 	}
 

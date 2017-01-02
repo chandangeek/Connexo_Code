@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
@@ -16,12 +17,12 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsm
  */
 public class SagemComMessaging extends AM540Messaging {
 
-    public SagemComMessaging(AM540 protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
-        super(protocol, calendarFinder, extractor, messageFileFinder);
+    public SagemComMessaging(AM540 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        super(protocol, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new SagemComDsmr50MessageExecutor(protocol, this.getCalendarFinder(), this.getMessageFileFinder(), this.getExtractor());
+        return new SagemComDsmr50MessageExecutor(protocol, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor());
     }
 
 }

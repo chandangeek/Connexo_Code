@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -41,7 +41,7 @@ public class IDISMBus extends IDIS {
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final int MAX_MBUS_CHANNELS = 4;
 
-    public IDISMBus(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public IDISMBus(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
         super(propertySpecService, calendarFinder, extractor);
     }
 

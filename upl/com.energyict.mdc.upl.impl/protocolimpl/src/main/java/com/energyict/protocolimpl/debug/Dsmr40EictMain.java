@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.debug;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -30,7 +29,7 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
 
     public Dsmr40Protocol getMeterProtocol() {
         if (dsmr40Eict == null) {
-            dsmr40Eict = new Dsmr40Protocol(new NoTariffCalendars(), new NoDeviceMessageFiles(), new DummyNumberLookupExtractor());
+            dsmr40Eict = new Dsmr40Protocol(new NoTariffCalendars(), new DummyTariffCalendarExtractor(), new NoDeviceMessageFiles(), new DummyDeviceMessageFileExtractor());
             log("Created new instance of " + dsmr40Eict.getClass().getCanonicalName() + " [" + dsmr40Eict.getVersion() + "]");
         }
         return dsmr40Eict;
@@ -62,10 +61,8 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
     }
 
     public void doDebug() throws LinkException, IOException {
-        CosemObjectFactory cof = getMeterProtocol().getDlmsSession().getCosemObjectFactory();
-
         objectList();
-        List<LoadProfileReader> loadProfileReaders = new ArrayList<LoadProfileReader>();
+        List<LoadProfileReader> loadProfileReaders = new ArrayList<>();
 
         LoadProfileReader profileReader = getMbusProfileReader();
 
@@ -81,7 +78,7 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
     }
 
     private LoadProfileReader getMbusProfileReader() {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         channelInfos.add(new ChannelInfo(0, "1.x.1.8.1.255", Unit.getUndefined(), MASTER_SERIAL_NUMBER));
         channelInfos.add(new ChannelInfo(1, "1.x.2.8.1.255", Unit.getUndefined(), MASTER_SERIAL_NUMBER));
         channelInfos.add(new ChannelInfo(2, "0.x.24.2.1.255", Unit.get("m3"), MBUS_SERIAL_NUMBER));

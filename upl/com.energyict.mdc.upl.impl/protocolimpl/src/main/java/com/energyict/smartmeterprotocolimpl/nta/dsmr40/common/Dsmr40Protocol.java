@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.DLMSCache;
@@ -29,18 +30,20 @@ import java.util.logging.Level;
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public Dsmr40Protocol(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+    public Dsmr40Protocol(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
         this.calendarFinder = calendarFinder;
         this.messageFileFinder = messageFileFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.extractor, this.messageFileFinder));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor));
     }
 
     /**

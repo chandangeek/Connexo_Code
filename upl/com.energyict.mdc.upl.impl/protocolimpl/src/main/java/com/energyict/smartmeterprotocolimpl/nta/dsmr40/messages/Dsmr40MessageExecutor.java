@@ -1,9 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.TariffCalendar;
@@ -51,12 +52,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
     private final DeviceMessageFileFinder messageFileFinder;
 
-    public Dsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
-        super(protocol, calendarFinder, extractor);
+    public Dsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        super(protocol, calendarFinder, extractor, messageFileExtractor);
         this.messageFileFinder = messageFileFinder;
     }
 
-    public DeviceMessageFileFinder getMessageFileFinder() {
+    protected DeviceMessageFileFinder getMessageFileFinder() {
         return messageFileFinder;
     }
 
@@ -90,7 +91,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             throw new IOException(str);
         }
         DeviceMessageFile deviceMessageFile = this.messageFileFinder.from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
-        byte[] imageData = this.getExtractor().binaryContents(deviceMessageFile);
+        byte[] imageData = this.getMessageFileExtractor().binaryContents(deviceMessageFile);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(messageEntry)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -257,7 +258,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     }
 
     protected ActivityCalendarMessage getActivityCalendarParser(TariffCalendar calendar) {
-        return new ActivityCalendarMessage(calendar, this.getExtractor(), getMeterConfig());
+        return new ActivityCalendarMessage(calendar, this.getCalendarExtractor(), getMeterConfig());
     }
 
     @Override

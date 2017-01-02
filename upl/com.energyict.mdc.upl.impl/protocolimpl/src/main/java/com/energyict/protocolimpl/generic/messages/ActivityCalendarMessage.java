@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.generic.messages;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dlms.DLMSMeterConfig;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class ActivityCalendarMessage {
 
     private final TariffCalendar calendar;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor extractor;
     private final DLMSMeterConfig meterConfig;
     private Array dayArray;
     private Array seasonArray;
@@ -33,7 +33,7 @@ public class ActivityCalendarMessage {
     protected Map<String, Integer> seasonIds = new HashMap<>();  //Map the DB id's of the seasons to a proper 0-based index that can be used in the AXDR array
     protected Map<String, Integer> dayTypeIds = new HashMap<>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
 
-    public ActivityCalendarMessage(TariffCalendar calendar, Extractor extractor, DLMSMeterConfig meterConfig) {
+    public ActivityCalendarMessage(TariffCalendar calendar, TariffCalendarExtractor extractor, DLMSMeterConfig meterConfig) {
         this.calendar = calendar;
         this.extractor = extractor;
         this.meterConfig = meterConfig;
@@ -48,13 +48,13 @@ public class ActivityCalendarMessage {
      * Parsing of the codeTable to season-, week- and dayProfiles
      */
     public void parse() throws NotInObjectListException {
-        List<Extractor.CalendarRule> rules = extractor.rules(calendar);
+        List<TariffCalendarExtractor.CalendarRule> rules = extractor.rules(calendar);
         Map<OctetString, String> seasonsProfile = new HashMap<>();
 
-        Iterator<Extractor.CalendarRule> itr = rules.iterator();
+        Iterator<TariffCalendarExtractor.CalendarRule> itr = rules.iterator();
         int index = 0;
         while (itr.hasNext()) {
-            Extractor.CalendarRule cc = itr.next();
+            TariffCalendarExtractor.CalendarRule cc = itr.next();
             String seasonId = cc.seasonId().orElse("");
             if (cc.seasonId().isPresent()) {
                 OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.year() == -1) ? 0xff : ((cc.year() >> 8) & 0xFF)), (byte) ((cc.year() == -1) ? 0xff : (cc.year()) & 0xFF),
@@ -68,9 +68,9 @@ public class ActivityCalendarMessage {
         }
 
         //Create day type IDs (incremental 0-based)
-        List<Extractor.CalendarDayType> calendarDayTypes = extractor.dayTypes(calendar);
+        List<TariffCalendarExtractor.CalendarDayType> calendarDayTypes = extractor.dayTypes(calendar);
         for (int dayTypeIndex = 0; dayTypeIndex < calendarDayTypes.size(); dayTypeIndex++) {
-            Extractor.CalendarDayType dayType = calendarDayTypes.get(dayTypeIndex);
+            TariffCalendarExtractor.CalendarDayType dayType = calendarDayTypes.get(dayTypeIndex);
             if (!dayTypeIds.containsKey(dayType.id())) {
                 dayTypeIds.put(dayType.id(), dayTypeIndex);
             }
@@ -90,11 +90,11 @@ public class ActivityCalendarMessage {
                 seasonArray.addDataType(seasonProfiles);
                 if (!weekArrayExists(weekProfileName, weekArray)) {
                     WeekProfiles wp = new WeekProfiles();
-                    Iterator<Extractor.CalendarRule> sIt = rules.iterator();
+                    Iterator<TariffCalendarExtractor.CalendarRule> sIt = rules.iterator();
                     String dayTypeIds[] = {null, null, null, null, null, null, null};
                     String any = null;
                     while (sIt.hasNext()) {
-                        Extractor.CalendarRule rule = sIt.next();
+                        TariffCalendarExtractor.CalendarRule rule = sIt.next();
                         if (rule.seasonId().orElse("").equals(entry.getValue())) {
                             switch (rule.dayOfWeek()) {
                                 case 1: {
@@ -201,11 +201,11 @@ public class ActivityCalendarMessage {
 
         seasonArray = sort(seasonArray);
 
-        for (Extractor.CalendarDayType codeDayType : extractor.dayTypes(calendar)) {
+        for (TariffCalendarExtractor.CalendarDayType codeDayType : extractor.dayTypes(calendar)) {
             DayProfiles dayProfile = new DayProfiles();
-            List<Extractor.CalendarDayTypeSlice> slices = codeDayType.slices();
+            List<TariffCalendarExtractor.CalendarDayTypeSlice> slices = codeDayType.slices();
             Array daySchedules = new Array();
-            for (Extractor.CalendarDayTypeSlice slice : slices) {
+            for (TariffCalendarExtractor.CalendarDayTypeSlice slice : slices) {
                 DayProfileActions dayProfileActions = new DayProfileActions();
                 LocalTime start = slice.start();
                 int hour = start.getHour() / 10000;

@@ -2,11 +2,13 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -45,7 +47,9 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
     @Mock
     private TariffCalendarFinder calendarFinder;
     @Mock
-    private Extractor extractor;
+    private TariffCalendarExtractor extractor;
+    @Mock
+    private LoadProfileExtractor loadProfileExtractor;
     @Mock
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
@@ -56,6 +60,8 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
     private NlsService nlsService;
     @Mock
     private Converter converter;
+    @Mock
+    private DeviceMessageFileExtractor messageFileExtractor;
 
     @Test
     public void testMessageConversion() {
@@ -134,12 +140,12 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new IskraMx372(propertySpecService, calendarFinder, extractor);
+        return new IskraMx372(propertySpecService, calendarFinder, extractor, messageFileExtractor);
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMx372MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.extractor);
+        return new IskraMx372MessageConverter(null, this.propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor);
     }
 
     @Override

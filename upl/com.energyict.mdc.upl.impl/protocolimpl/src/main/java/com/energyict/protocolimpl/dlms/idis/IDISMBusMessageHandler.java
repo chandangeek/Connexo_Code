@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.axrdencoding.Array;
@@ -45,7 +45,7 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
     protected static final ObisCode DISCONNECTOR_SCRIPT_MBUS_OBISCODE = ObisCode.fromString("0.1.10.0.106.255");
     protected static final ObisCode DISCONNECTOR_CONTROL_MBUS_OBISCODE = ObisCode.fromString("0.0.24.4.0.255");
 
-    public IDISMBusMessageHandler(IDISMBus idis, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public IDISMBusMessageHandler(IDISMBus idis, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
         super(idis, calendarFinder, extractor);
     }
 

@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -39,11 +40,13 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
     private Dsmr40LoadProfileBuilder loadProfileBuilder;
     private Dsmr23Messaging messageProtocol;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public WatchTalk(TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public WatchTalk(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
@@ -93,7 +96,7 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new XemexWatchTalkMessaging(new XemexWatchTalkMessageExecutor(this, this.calendarFinder, this.extractor));
+            messageProtocol = new XemexWatchTalkMessaging(new XemexWatchTalkMessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileExtractor));
         }
         return messageProtocol;
     }
@@ -124,9 +127,8 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
      *
      * @param time  the {@link java.util.Date} to convert
      * @return the AXDRDateTime of the given time
-     * @throws java.io.IOException when the entered time could not be parsed to a long value
      */
-    private AXDRDateTime convertDateToGMTDateTime(Date time) throws IOException {
+    private AXDRDateTime convertDateToGMTDateTime(Date time) {
         return convertUnixToDateTime(time, TimeZone.getTimeZone("GMT"));
     }
 

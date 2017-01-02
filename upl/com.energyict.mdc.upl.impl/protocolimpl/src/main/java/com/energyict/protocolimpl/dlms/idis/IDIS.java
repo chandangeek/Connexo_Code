@@ -4,11 +4,11 @@ import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -83,9 +83,9 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     private ObisCodeMapper obisCodeMapper = null;
     private int limitMaxNrOfDays = 0;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor extractor;
 
-    public IDIS(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public IDIS(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
         super(propertySpecService);
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
@@ -95,7 +95,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         return calendarFinder;
     }
 
-    protected Extractor getExtractor() {
+    protected TariffCalendarExtractor getExtractor() {
         return extractor;
     }
 

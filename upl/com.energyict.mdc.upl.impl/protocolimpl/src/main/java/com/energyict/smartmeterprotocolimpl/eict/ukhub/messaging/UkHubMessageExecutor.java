@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
@@ -82,12 +82,12 @@ public class UkHubMessageExecutor extends MessageParser {
     private final AbstractSmartDlmsProtocol protocol;
 
     private boolean success;
-    private final Extractor extractor;
     private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public UkHubMessageExecutor(final AbstractSmartDlmsProtocol protocol, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
+    public UkHubMessageExecutor(final AbstractSmartDlmsProtocol protocol, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
         this.protocol = protocol;
-        this.extractor = extractor;
+        this.messageFileExtractor = messageFileExtractor;
         this.messageFileFinder = messageFileFinder;
     }
 
@@ -287,7 +287,7 @@ public class UkHubMessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(this.extractor.binaryContents(deviceMessageFile));
+        byte[] imageData = new Base64EncoderDecoder().decode(this.messageFileExtractor.binaryContents(deviceMessageFile));
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
         if (resume) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -773,7 +773,7 @@ public class UkHubMessageExecutor extends MessageParser {
                 UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
-                    CSVParser csvParser = new CSVParser(this.extractor);
+                    CSVParser csvParser = new CSVParser(this.messageFileExtractor);
                     csvParser.parse(data);
                     boolean hasWritten;
                     TestObject to = new TestObject("");

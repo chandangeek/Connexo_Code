@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class XemexActivityCalendarParser extends ActivityCalendarMessage {
 
-    public XemexActivityCalendarParser(TariffCalendar calendar, Extractor extractor) {
+    public XemexActivityCalendarParser(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         super(calendar, extractor, null);
     }
 

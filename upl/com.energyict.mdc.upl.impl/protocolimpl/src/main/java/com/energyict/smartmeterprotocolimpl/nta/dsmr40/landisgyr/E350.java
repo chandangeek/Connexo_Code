@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -34,14 +35,14 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     protected LoadProfileBuilder loadProfileBuilder;
     protected MessageProtocol messageProtocol;
 
-    public E350(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
-        super(calendarFinder, extractor, messageFileFinder);
+    protected E350(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getCalendarFinder(), this.getExtractor(), this.getMessageFileFinder()));
+            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor()));
         }
         return messageProtocol;
     }
@@ -74,7 +75,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);

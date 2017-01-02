@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -82,12 +83,14 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private boolean hasBreaker = true;
     private final PropertySpecService propertySpecService;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor extractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public IskraMx372(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public IskraMx372(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileExtractor messageFileExtractor) {
         this.propertySpecService = propertySpecService;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     /**
@@ -433,7 +436,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new IskraMx372Messaging(this, propertySpecService, calendarFinder, extractor);
+            messageProtocol = new IskraMx372Messaging(this, propertySpecService, calendarFinder, extractor, messageFileExtractor);
         }
         return messageProtocol;
     }

@@ -1,8 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.TariffCalendar;
@@ -46,8 +47,8 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";
 
-    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
-        super(protocol, calendarFinder, extractor, messageFileFinder);
+    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        super(protocol, calendarFinder, extractor, messageFileFinder, messageFileExtractor);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
     }
 
     protected ActivityCalendarMessage getActivityCalendarParser(TariffCalendar calendar) {
-        return new Dsmr50ActivityCalendarParser(calendar, this.getExtractor(), getMeterConfig());
+        return new Dsmr50ActivityCalendarParser(calendar, this.getCalendarExtractor(), getMeterConfig());
     }
 
     @Override
@@ -70,21 +71,21 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         } else {
 
             TariffCalendar tariffCalendar = this.getCalendarFinder().from(codeTable).orElseThrow(() -> new IllegalArgumentException("No CodeTable defined with id '" + codeTable + "'"));
-            List<Extractor.CalendarRule> rules = this.getExtractor().rules(tariffCalendar);
+            List<TariffCalendarExtractor.CalendarRule> rules = this.getCalendarExtractor().rules(tariffCalendar);
             Array sdArray = new Array();
             SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
             //Create day type IDs (incremental 0-based)
             Map<String, Integer> dayTypeIds = new HashMap<>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
-            List<Extractor.CalendarDayType> dayTypes = this.getExtractor().dayTypes(tariffCalendar);
+            List<TariffCalendarExtractor.CalendarDayType> dayTypes = this.getCalendarExtractor().dayTypes(tariffCalendar);
             for (int dayTypeIndex = 0; dayTypeIndex < dayTypes.size(); dayTypeIndex++) {
-                Extractor.CalendarDayType dayType = dayTypes.get(dayTypeIndex);
+                TariffCalendarExtractor.CalendarDayType dayType = dayTypes.get(dayTypeIndex);
                 if (!dayTypeIds.containsKey(dayType.id())) {
                     dayTypeIds.put(dayType.id(), dayTypeIndex);
                 }
             }
 
             int dayIndex = 0;
-            for (Extractor.CalendarRule calendar : rules) {
+            for (TariffCalendarExtractor.CalendarRule calendar : rules) {
                 if (!calendar.seasonId().isPresent()) {
                     OctetString timeStamp = OctetString.fromByteArray(new byte[]{(byte) ((calendar.year() == -1) ? 0xff : ((calendar.year() >> 8) & 0xFF)), (byte) ((calendar.year() == -1) ? 0xff : (calendar
                             .year()) & 0xFF),
@@ -196,7 +197,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
             throw new IOException(str);
         }
         DeviceMessageFile deviceMessageFile = this.getMessageFileFinder().from(userFileID).orElseThrow(() -> new IllegalArgumentException("Not a valid entry for the userfileID " + userFileID));
-        byte[] imageData = this.getExtractor().binaryContents(deviceMessageFile);
+        byte[] imageData = this.getMessageFileExtractor().binaryContents(deviceMessageFile);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(messageEntry)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();

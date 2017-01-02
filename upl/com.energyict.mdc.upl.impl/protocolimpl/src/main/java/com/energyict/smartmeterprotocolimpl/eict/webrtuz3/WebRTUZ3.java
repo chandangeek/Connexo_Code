@@ -1,12 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -90,9 +92,9 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
 
     private static final int ObisCodeBFieldIndex = 1;
 
-    public WebRTUZ3(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+    public WebRTUZ3(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
         this.calendarFinder = calendarFinder;
-        this.messageProtocol = new WebRTUZ3Messaging(new WebRTUZ3MessageExecutor(this, calendarFinder, messageFileFinder, extractor));
+        this.messageProtocol = new WebRTUZ3Messaging(new WebRTUZ3MessageExecutor(this, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor));
     }
 
 //    /**
@@ -166,7 +168,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
             StringBuilder firmware = new StringBuilder();
             firmware.append(getMeterInfo().getFirmwareVersion());
             String rfFirmware = getRFFirmwareVersion();
-            if (!rfFirmware.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(rfFirmware)) {
                 firmware.append(" - RF-FirmwareVersion : ");
                 firmware.append(rfFirmware);
             }
@@ -283,7 +285,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      * @return A list of meterEvents
      */
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         EMeterEventProfile eventProfile = new EMeterEventProfile(this, getDlmsSession());
         meterEvents.addAll(eventProfile.getEvents(lastLogbookDate));
 
@@ -439,7 +441,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
         return this.messageProtocol.queryMessage(messageEntry);
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return this.messageProtocol.getMessageCategories();
     }
 

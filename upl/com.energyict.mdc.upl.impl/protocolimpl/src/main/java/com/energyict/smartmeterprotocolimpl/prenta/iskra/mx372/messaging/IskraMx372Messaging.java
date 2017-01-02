@@ -1,12 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -136,14 +137,16 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     private static final int maxNumbersManagedWhiteList = 8;
     private final PropertySpecService propertySpecService;
     private final TariffCalendarFinder calendarFinder;
-    private final Extractor extractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public IskraMx372Messaging(IskraMx372 protocol, PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, Extractor extractor) {
+    public IskraMx372Messaging(IskraMx372 protocol, PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         this.protocol = protocol;
 //        this.properties = (IskraMX372Properties) protocol.getDlmsSession().getProperties();
         this.propertySpecService = propertySpecService;
         this.calendarFinder = calendarFinder;
-        this.extractor = extractor;
+        this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     public List<MessageCategorySpec> getMessageCategories() {
@@ -911,7 +914,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
                         int mMedium = (int) protocol.getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
                         Device mbusRtu = findOrCreateNewMbusDevice(mSerial);
                         if (mbusRtu != null) {
-                            mbusDevices[i] = new MbusDevice(this.propertySpecService, this.calendarFinder, this.extractor, mbusAddress, i, mSerial, mMedium, mbusRtu, mUnit, protocol);
+                            mbusDevices[i] = new MbusDevice(this.propertySpecService, this.calendarFinder, this.calendarExtractor, this.messageFileExtractor, mbusAddress, i, mSerial, mMedium, mbusRtu, mUnit, protocol);
                         } else {
                             mbusDevices[i] = null;
                         }

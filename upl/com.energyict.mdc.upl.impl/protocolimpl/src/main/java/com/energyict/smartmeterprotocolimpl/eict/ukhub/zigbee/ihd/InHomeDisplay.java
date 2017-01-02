@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class InHomeDisplay extends UkHub {
 
-    public InHomeDisplay(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, Extractor extractor) {
+    public InHomeDisplay(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor extractor) {
         super(propertySpecService, messageFileFinder, extractor);
     }
 

@@ -1,12 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.protocol.MessageResult;
@@ -73,20 +74,26 @@ public class AM540Messaging extends G3Messaging {
 
     protected final AM540 protocol;
     private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
     private Dsmr40Messaging dsmr40Messaging;
 
-    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder) {
-        this(protocol, calendarFinder, extractor, messageFileFinder, ANNOTATED_MESSAGES);
+    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        this(protocol, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, ANNOTATED_MESSAGES);
     }
 
-    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, Extractor extractor, DeviceMessageFileFinder messageFileFinder, Class<? extends AnnotatedMessage>[] messages) {
+    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Class<? extends AnnotatedMessage>[] messages) {
         super(protocol.getDlmsSession(), calendarFinder, extractor, messages);
         this.protocol = protocol;
         this.messageFileFinder = messageFileFinder;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     public DeviceMessageFileFinder getMessageFileFinder() {
         return messageFileFinder;
+    }
+
+    public DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
     }
 
     @Override
@@ -159,7 +166,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new Dsmr50MessageExecutor(protocol, this.getCalendarFinder(), this.messageFileFinder, this.getExtractor());
+        return new Dsmr50MessageExecutor(protocol, this.getCalendarFinder(), this.getCalendarExtractor(), this.messageFileFinder, this.messageFileExtractor);
     }
 
     @Override
