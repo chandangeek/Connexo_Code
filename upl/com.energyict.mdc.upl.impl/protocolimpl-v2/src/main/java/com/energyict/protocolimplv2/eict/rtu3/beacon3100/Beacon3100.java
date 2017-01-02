@@ -395,7 +395,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      */
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new MirrorTcpDeviceProtocolDialect(), new GatewayTcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new MirrorTcpDeviceProtocolDialect(propertySpecService), new GatewayTcpDeviceProtocolDialect());
     }
 
     @Override

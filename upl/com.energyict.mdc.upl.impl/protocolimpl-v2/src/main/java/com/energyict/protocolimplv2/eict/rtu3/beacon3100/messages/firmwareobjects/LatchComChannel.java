@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
+
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -80,7 +81,11 @@ public class LatchComChannel implements ComChannel {
     }
 
     @Override
-    public void addProperties(TypedProperties typedProperties) {
+    public void addProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
+        this.setProperties(TypedProperties.copyOf(typedProperties));
+    }
+
+    private void setProperties(TypedProperties typedProperties) {
         this.properties.setAllProperties(typedProperties);
     }
 

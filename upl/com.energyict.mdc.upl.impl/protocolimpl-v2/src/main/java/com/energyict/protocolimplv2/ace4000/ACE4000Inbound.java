@@ -7,10 +7,12 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 
-import com.energyict.mdw.core.LogBookTypeFactory;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
@@ -27,6 +29,8 @@ import java.util.logging.Logger;
  * Author: khe
  */
 public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtocol {
+
+    private ObisCode GENERIC_LOGBOOK_TYPE_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
 
     private InboundDiscoveryContext context;
     private final CollectedDataFactory collectedDataFactory;
@@ -83,7 +87,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         }
 
         if (!getObjectFactory().getAllMeterEvents().isEmpty()) {
-            CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), GENERIC_LOGBOOK_TYPE_OBISCODE));
             collectedDatas.add(deviceLogBook);
         }
 
@@ -139,4 +143,14 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     public String getConfiguredSerialNumber() {
         return serialNumber;
     }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return super.getRequiredProperties();
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+    }
+
 }

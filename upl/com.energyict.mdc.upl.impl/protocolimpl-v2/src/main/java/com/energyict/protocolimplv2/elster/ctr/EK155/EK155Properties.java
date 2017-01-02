@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.EK155;
 
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 
 /**

@@ -122,7 +122,7 @@ public class AM540Properties extends IDISProperties {
         if (dialectName == null) {
             return false;
         }
-        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect();
+        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect(propertySpecService);
         // for compatibility with ProtocolTester - here the protocol dialect is the "display name"
         return dialect.getDeviceProtocolDialectDisplayName().equals(dialectName) || dialect.getDeviceProtocolDialectName().equals(dialectName);
     }

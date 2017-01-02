@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -12,7 +14,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
  */
 public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
 
-    public AbstractChangeKeyMessage(Messaging messaging) {
+    public AbstractChangeKeyMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 

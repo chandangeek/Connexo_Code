@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -21,13 +23,13 @@ public class TariffDisablePassiveMessage extends AbstractMTU155Message {
     private static final String OBJECT_ID = "11.0.B";
     private static final String OBJECT_ID_FUTURE = "17.0.1";
 
-    public TariffDisablePassiveMessage(Messaging messaging) {
+    public TariffDisablePassiveMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF.id();
     }
 
     @Override

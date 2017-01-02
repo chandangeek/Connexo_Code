@@ -1,15 +1,15 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_ROUND_TRIP_CORRECTION;
@@ -26,8 +26,14 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
  */
 public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
-    public static final int DEFAULT_TCP_TIMEOUT = 30;
+    public static final Duration DEFAULT_TCP_TIMEOUT = Duration.ofSeconds(30);
     public static final String BEACON_DC_MIRROR_TCP_DLMS = "Beacon DC Mirror TCP DLMS";
+
+    private final PropertySpecService propertySpecService;
+
+    public MirrorTcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -40,12 +46,7 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.timeoutPropertySpec(),
                 this.retriesPropertySpec(),
@@ -62,28 +63,24 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
      * This is because this retry has the same frame counter as the original request!
      */
     protected PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES, BigDecimal.ZERO);
+        return UPLPropertySpecFactory
+                .specBuilder(RETRIES, false, this.propertySpecService::bigDecimalSpec)
+                .setDefaultValue(BigDecimal.ZERO)
+                .finish();
     }
 
     protected PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT, new TimeDuration(DEFAULT_TCP_TIMEOUT));
+        return UPLPropertySpecFactory
+                .specBuilder(TIMEOUT, false, this.propertySpecService::durationSpec)
+                .setDefaultValue(DEFAULT_TCP_TIMEOUT)
+                .finish();
     }
 
     protected PropertySpec roundTripCorrectionPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
+        return UPLPropertySpecFactory
+                .specBuilder(ROUND_TRIP_CORRECTION, false, this.propertySpecService::bigDecimalSpec)
+                .setDefaultValue(DEFAULT_ROUND_TRIP_CORRECTION)
+                .finish();
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case DlmsProtocolProperties.RETRIES:
-                return this.retriesPropertySpec();
-            case DlmsProtocolProperties.TIMEOUT:
-                return this.timeoutPropertySpec();
-            case DlmsProtocolProperties.ROUND_TRIP_CORRECTION:
-                return this.roundTripCorrectionPropertySpec();
-            default:
-                return null;
-        }
-    }
 }
