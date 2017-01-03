@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>third-party.bom</artifactId>
-    <version>1.2.0${revision}</version>
+    <version>1.3.0${revision}</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.third-party.bom</name>
 
@@ -24,7 +24,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>drools-integration</artifactId>
-                <version>1.2.0${revision}</version>
+                <version>1.2.0</version>
                 <type>pom</type>
             </dependency>
             <dependency>
