@@ -15,8 +15,10 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
     private final static String NAME = "topology.graphLayer.Nodes.deviceInfo";
 
     public enum PropertyNames implements TranslationKey {
-        DEVICE_NAME("topology.graphLayer.Nodes.deviceInfo.deviceType", "name"),
-        DEVICE_TYPE("topology.graphLayer.Nodes.deviceInfo.deviceType", "deviceType");
+        DEVICE_NAME("topology.graphLayer.Nodes.deviceInfo.name", "Name"),
+        DEVICE_SERIAL("topology.graphLayer.Nodes.deviceInfo.serialNumber", "Serial number"),
+        DEVICE_TYPE("topology.graphLayer.Nodes.deviceInfo.deviceType", "Device type"),
+        DEVICE_CONFIGURATION("topology.graphLayer.Nodes.deviceInfo.deviceConfiguration", "Device configuration");
 
         private String key;
         private String defaultFormat;
@@ -42,7 +44,9 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
     public DeviceInfoLayer(Device device){
         super();
         this.setDeviceName(device.getName());
+        this.setSerialNumber(device.getSerialNumber());
         this.setDeviceType(device.getDeviceType().getName());
+        this.setDeviceConfiguration(device.getDeviceConfiguration().getName());
     }
 
     @Override
@@ -62,4 +66,13 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
     public void setDeviceType(String deviceTypeName){
         setProperty(PropertyNames.DEVICE_TYPE.getDefaultFormat(), deviceTypeName);
     }
+
+    public void setSerialNumber(String serialNumber){
+        setProperty(PropertyNames.DEVICE_SERIAL.getDefaultFormat(), serialNumber);
+    }
+
+    public void setDeviceConfiguration(String deviceConfigurationName){
+        setProperty(PropertyNames.DEVICE_CONFIGURATION.getDefaultFormat(), deviceConfigurationName);
+    }
+
 }
