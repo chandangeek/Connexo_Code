@@ -94,14 +94,14 @@ public abstract class CommandWithTransaction {
         threadPrincipalService.clear();
     }
 
-    private Principal getPrincipal() {
+    protected Principal getPrincipal() {
         if (user == null) {
             user = createSuperUser();
         }
         return user;
     }
 
-    private User createSuperUser() {
+    protected User createSuperUser() {
         return userService.findUser("root").orElseGet(() ->
         {
             threadPrincipalService.set(() -> "console");
