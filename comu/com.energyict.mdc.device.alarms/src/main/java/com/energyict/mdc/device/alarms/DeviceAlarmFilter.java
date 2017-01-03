@@ -81,7 +81,7 @@ public class DeviceAlarmFilter {
     }
 
     public void setAlarmId(String alarmId) {
-        this.alarmId = alarmId;
+        this.alarmId = alarmId.trim();
     }
 
     public List<WorkGroup> getWorkGroupAssignees() {

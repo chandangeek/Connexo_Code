@@ -282,9 +282,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         if (filter.getAlarmId() != null) {
             String[] alarmIdPart = filter.getAlarmId().split("-");
             if (alarmIdPart.length == 2) {
+                if(alarmIdPart[0].toLowerCase().equals("alm"))
                 condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(alarmIdPart[1])));
-            } else {
-                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(filter.getAlarmId())));
             }
         }
         //filter by user assignee
