@@ -2,6 +2,7 @@ Ext.define('Uni.override.panel.Header', {
     override: 'Ext.panel.Header',
 
     htmlEncode: true,
+    titleIsShrinked: false,
 
     initComponent: function() {
         var me = this;
@@ -18,6 +19,10 @@ Ext.define('Uni.override.panel.Header', {
         ];
 
         this.callParent(arguments);
+        if (me.titleIsShrinked) {
+            me.titleCmp.flex = undefined;
+            me.titleCmp.style += ' margin-right: 10px'
+        }
         me.titleCmp.childEls.push("subTextEl");
     },
 
