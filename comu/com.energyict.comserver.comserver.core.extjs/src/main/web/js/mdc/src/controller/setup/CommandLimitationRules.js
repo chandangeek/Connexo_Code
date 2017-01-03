@@ -622,12 +622,15 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     performApproveOrReject: function(action) {
         var me = this,
-            commandRuleId = me.commandRuleBeingEdited.get('id');
+            commandRuleId = me.commandRuleBeingEdited.get('id'),
+            data = me.commandRuleBeingEdited.getData();
+
+        data.currentCounts = [];
 
         Ext.Ajax.request({
             url: '/api/crr/commandrules/' + commandRuleId + '/' + action,
             method: 'POST',
-            jsonData: me.commandRuleBeingEdited.getData(),
+            jsonData: data,
             success: function (response) {
                 var jsonResponse = Ext.decode(response.responseText, true);
                 if (action === 'reject') { // This was a reject

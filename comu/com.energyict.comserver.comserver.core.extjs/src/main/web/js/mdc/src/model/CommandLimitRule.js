@@ -16,7 +16,7 @@ Ext.define('Mdc.model.CommandLimitRule', {
         {name: 'commands', persist: false},
         {name: 'statusMessage', type: 'string', useNull: true},
         {name: 'availableActions', type: 'auto', persist: false},
-        {name: 'currentCounts', type: 'auto', persist: false},
+        {name: 'currentCounts', type: 'auto', persist: false, useNull: true},
 
         {
             name: 'statusWithMessage',
@@ -36,7 +36,10 @@ Ext.define('Mdc.model.CommandLimitRule', {
             mapping: function (data) {
                 if (data.dayLimit === 0) {
                     return Uni.I18n.translate('general.none', 'MDC', 'None');
-                } else {
+                } else if (!data.currentCounts) {
+                    return data.dayLimit;
+                }
+                else {
                     var count = data.dayLimit,
                         icon,
                         text,
@@ -56,7 +59,9 @@ Ext.define('Mdc.model.CommandLimitRule', {
             mapping: function (data) {
                 if (data.weekLimit === 0) {
                     return Uni.I18n.translate('general.none', 'MDC', 'None');
-                } else {
+                } else if (!data.currentCounts) {
+                    return data.weekLimit;
+                }else {
                     var count = data.weekLimit,
                         icon,
                         text,
@@ -76,6 +81,8 @@ Ext.define('Mdc.model.CommandLimitRule', {
             mapping: function (data) {
                 if (data.monthLimit === 0) {
                     return Uni.I18n.translate('general.none', 'MDC', 'None');
+                } else if (!data.currentCounts) {
+                    return data.montLimit;
                 } else {
                     var count = data.monthLimit,
                         icon,
