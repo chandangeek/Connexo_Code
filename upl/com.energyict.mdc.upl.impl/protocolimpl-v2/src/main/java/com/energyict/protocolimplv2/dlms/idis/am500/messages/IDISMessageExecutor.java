@@ -85,6 +85,14 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                } catch (Exception e){
+                    //in case we get an exception and we did not managed to put the collected message to failed, we will do it here
+                    if(!collectedMessage.getNewDeviceMessageStatus().equals(DeviceMessageStatus.FAILED)) {
+                        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                        collectedMessage.setDeviceProtocolInformation(e.getMessage());
+                        collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                    }
+                    throw e;
                 }
             }
             result.addCollectedMessage(collectedMessage);
