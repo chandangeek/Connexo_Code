@@ -10,7 +10,9 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.rest.info.LinkQualityLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayerService;
+import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -34,6 +36,7 @@ public class TopologyGraphApplication extends Application implements Translation
 
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
+    private volatile GraphLayerService graphLayerService;
     private volatile Clock clock;
 
     private volatile NlsService nlsService;
@@ -62,6 +65,11 @@ public class TopologyGraphApplication extends Application implements Translation
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setGraphLayerService(GraphLayerService graphLayerService) {
+        this.graphLayerService = graphLayerService;
     }
 
     @Reference
@@ -107,6 +115,7 @@ public class TopologyGraphApplication extends Application implements Translation
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(deviceService).to(DeviceService.class);
+            bind(graphLayerService).to(GraphLayerService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(clock).to(Clock.class);
         }

@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.topology.rest.info;
+package com.energyict.mdc.device.topology.rest.layer;
 
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 

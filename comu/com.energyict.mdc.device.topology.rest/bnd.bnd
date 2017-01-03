@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Export-Package: com.energyict.mdc.device.topology.rest.info
+Export-Package: com.energyict.mdc.device.topology.rest.info, com.energyict.mdc.device.topology.rest.layer
 Private-Package: com.energyict.mdc.device.topology.rest, com.energyict.mdc.device.topology.rest.impl.*

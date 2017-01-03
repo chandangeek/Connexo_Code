@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology.rest.info;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.layer.DeviceInfoLayer;
+import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Represents a Device node in a network.
+ * Represents a (Device) node in a network.
  * Date: 20/12/2016
  * Time: 16:57
  */
@@ -27,7 +29,7 @@ public class NodeInfo {
     @JsonIgnore
     private List<GraphLayer> layers = new ArrayList<>();
     @JsonIgnore
-    private Optional<GraphLayer> activeLayer;
+    private Optional<GraphLayer> activeLayer = Optional.empty();
 
     private NodeInfo parent;
     private List<NodeInfo> children = new ArrayList<>();
@@ -36,7 +38,7 @@ public class NodeInfo {
         this.id = device.getId();
         DeviceInfoLayer deviceInfoLayer = new DeviceInfoLayer(device);
         this.addLayer(deviceInfoLayer);
-        this.setActiveLayer(deviceInfoLayer);
+       // this.setActiveLayer(deviceInfoLayer);
     }
 
     public boolean addLayer(GraphLayer graphLayer){
@@ -97,10 +99,13 @@ public class NodeInfo {
 
     @JsonAnyGetter
     public Map<String, Object> getProperties(){
+        Map<String, Object> allProperties =  new HashMap<>();
         if (activeLayer.isPresent()){
             return activeLayer.get().getProperties();
+        }else{
+            layers.stream().forEach(layer -> allProperties.putAll(layer.getProperties()));
         }
-        return new HashMap<>();
+        return allProperties;
     }
 
     public boolean isGateWay() {

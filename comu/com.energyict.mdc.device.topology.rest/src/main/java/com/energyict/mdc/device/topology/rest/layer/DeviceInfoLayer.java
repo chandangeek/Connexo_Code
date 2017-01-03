@@ -1,8 +1,9 @@
-package com.energyict.mdc.device.topology.rest.info;
+package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
+import com.energyict.mdc.device.topology.rest.layer.AbstractGraphLayer;
 
 /**
  * GraphLayer - Device Info

@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.impl.DefaultConnectionTaskCreateEventHandler;
 import com.energyict.mdc.device.topology.rest.GraphFactory;
+import com.energyict.mdc.device.topology.rest.GraphLayerService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -30,16 +31,19 @@ public class TopologyGraphResource {
 
     private final DeviceService deviceService;
     private final TopologyService topologyService;
+    private final GraphLayerService graphLayerService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
 
     @Inject
     public TopologyGraphResource(DeviceService deviceService,
                                  TopologyService topologyService,
+                                 GraphLayerService graphLayerService,
                                  ExceptionFactory exceptionFactory,
                                  Clock clock) {
         this.deviceService = deviceService;
         this.topologyService = topologyService;
+        this.graphLayerService = graphLayerService;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
     }
@@ -50,7 +54,7 @@ public class TopologyGraphResource {
    // @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getTopologyGraphById(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParams) {
         Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
-        return Response.ok(new DefaultGraphFactory(this.topologyService, this.clock).from(device)).build();
+        return Response.ok(new DefaultGraphFactory(this.topologyService, this.graphLayerService, this.clock).from(device)).build();
     }
 
 }
