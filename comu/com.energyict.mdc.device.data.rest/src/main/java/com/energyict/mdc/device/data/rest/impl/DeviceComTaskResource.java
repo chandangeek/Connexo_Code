@@ -417,13 +417,15 @@ public class DeviceComTaskResource {
 
     private Consumer<? super ComTaskEnablement> runComTaskFromEnablement(Device device) {
         return comTaskEnablement -> {
-            createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).scheduleNow().add();
+            ComTaskExecution comTaskExecution = createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add();
+            comTaskExecution.scheduleNow();
         };
     }
 
     private Consumer<? super ComTaskEnablement> runComTaskFromEnablementNow(Device device) {
         return comTaskEnablement -> {
-            createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).runNow().add();
+            ComTaskExecution comTaskExecution = createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add();
+            comTaskExecution.runNow();
         };
     }
 
