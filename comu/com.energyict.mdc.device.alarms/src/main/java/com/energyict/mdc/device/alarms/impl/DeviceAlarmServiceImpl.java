@@ -282,16 +282,23 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         if (filter.getAlarmId() != null) {
             String[] alarmIdPart = filter.getAlarmId().split("-");
             if (alarmIdPart.length == 2) {
-                if(alarmIdPart[0].toLowerCase().equals("alm"))
-                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(alarmIdPart[1])));
+                if(alarmIdPart[0].toLowerCase().equals("alm")) {
+                    condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(alarmIdPart[1])));
+                } else{
+                    condition = condition.and(where("id").isEqualTo(0));
+                }
+            } else{
+                condition = condition.and(where("id").isEqualTo(0));
             }
         }
         //filter by user assignee
         if (!filter.getUserAssignee().isEmpty()) {
-            condition = condition.and(where("baseIssue.user").in(filter.getUserAssignee()));
+            Condition userCondition = Condition.TRUE;
+            userCondition = userCondition.and(where("baseIssue.user").in(filter.getUserAssignee()));
             if (filter.isUnassignedOnly()) {
-                condition = condition.or(where("baseIssue.user").isNull());
+                userCondition = userCondition.or(where("baseIssue.user").isNull());
             }
+            condition = condition.and(userCondition);
         }
         if (filter.getUserAssignee().isEmpty() && filter.isUnassignedOnly()) {
             condition = condition.and(where("baseIssue.user").isNull());
