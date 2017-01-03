@@ -2,6 +2,8 @@ package com.elster.jupiter.properties.rest.impl;
 
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.AssignPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
@@ -21,6 +23,9 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
 
     @Override
     public PropertyType getPropertyType(PropertySpec propertySpec) {
+        if ((ValueFactory) propertySpec.getValueFactory() instanceof AssignPropertyFactory) {
+            return SimplePropertyType.ASSIGN;
+        }
         return SimplePropertyType.IDWITHNAME;
     }
 
