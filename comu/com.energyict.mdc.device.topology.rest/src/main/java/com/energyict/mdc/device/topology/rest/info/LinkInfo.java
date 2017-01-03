@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,8 +29,6 @@ public class LinkInfo {
     @JsonIgnore
     private Optional<GraphLayer> activeLayer;
 
-    public LinkInfo(){}
-
     LinkInfo(long source, long target){
        this.source = source;
        this.target = target;
@@ -48,6 +44,7 @@ public class LinkInfo {
         }
         activeLayer = Optional.of(graphLayer);
     }
+
     @JsonGetter
     public long getSource() {
         return source;

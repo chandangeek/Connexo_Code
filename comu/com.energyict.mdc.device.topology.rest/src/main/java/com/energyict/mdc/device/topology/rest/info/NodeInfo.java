@@ -1,14 +1,18 @@
 package com.energyict.mdc.device.topology.rest.info;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.DeviceTopology;
+import com.energyict.mdc.device.topology.rest.GraphLayer;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a Device node in a network.
@@ -19,19 +23,31 @@ import java.util.List;
 public class NodeInfo {
 
     private long id;
-    private String name;
-    private String deviceType;
+
+    @JsonIgnore
+    private List<GraphLayer> layers = new ArrayList<>();
+    @JsonIgnore
+    private Optional<GraphLayer> activeLayer;
 
     private NodeInfo parent;
     private List<NodeInfo> children = new ArrayList<>();
 
-    public NodeInfo() {
-    }
-
     public NodeInfo(Device device) {
         this.id = device.getId();
-        this.name = device.getName();
-        this.deviceType = device.getDeviceType().getName();
+        DeviceInfoLayer deviceInfoLayer = new DeviceInfoLayer(device);
+        this.addLayer(deviceInfoLayer);
+        this.setActiveLayer(deviceInfoLayer);
+    }
+
+    public boolean addLayer(GraphLayer graphLayer){
+        return this.layers.add(graphLayer);
+    }
+
+    public void setActiveLayer(GraphLayer graphLayer ){
+        if (!layers.contains(graphLayer)) {
+            throw new IllegalArgumentException("GraphLayer not added to List of layers");
+        }
+        activeLayer = Optional.of(graphLayer);
     }
 
     @JsonIgnore
@@ -79,20 +95,12 @@ public class NodeInfo {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDeviceType() {
-        return deviceType;
-    }
-
-    public void setDeviceType(String deviceType) {
-        this.deviceType = deviceType;
+    @JsonAnyGetter
+    public Map<String, Object> getProperties(){
+        if (activeLayer.isPresent()){
+            return activeLayer.get().getProperties();
+        }
+        return new HashMap<>();
     }
 
     public boolean isGateWay() {

@@ -3,7 +3,7 @@ package com.energyict.mdc.device.topology.rest;
 import java.util.Map;
 
 /**
- * Represents a 'GraphLayer' on a Graph where particular properties of devices or links will be shown.
+ * GraphLayer represents the data used by a layer on a Graph where particular properties of devices or links will be shown.
  * The GraphLayerType specifies wether the properties will be used as properties of the NODE, either as properties of the LINKS
  * Copyrights EnergyICT
  * Date: 3/01/2017
