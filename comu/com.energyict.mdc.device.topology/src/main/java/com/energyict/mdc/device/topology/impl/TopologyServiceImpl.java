@@ -793,7 +793,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         G3CommunicationPathImpl communicationPath = new G3CommunicationPathImpl(source, target);
         DataMapper<G3CommunicationPathSegment> mapper = this.dataModel.mapper(G3CommunicationPathSegment.class);
         SqlBuilder sqlBuilder = mapper.builder("cps");
-        sqlBuilder.append("where cps.discriminator = ");
+        sqlBuilder.append(" where cps.discriminator = ");
         sqlBuilder.addObject(CommunicationPathSegmentImpl.G3_DISCRIMINATOR);
         sqlBuilder.append("start with (cps.srcdevice = ");
         sqlBuilder.addLong(source.getId());
