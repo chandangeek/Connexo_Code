@@ -72,7 +72,8 @@ public class IssueResourceHelper {
     }
 
     public List<IssueActionTypeInfo> getListOfAvailableIssueActions(Issue issue) {
-        return getListOfAvailableIssueActionsTypes(issue).stream().map(actionInfoFactory::asInfo).collect(Collectors.toList());
+        return getListOfAvailableIssueActionsTypes(issue).stream().map(actionType -> actionInfoFactory.asInfo(issue, actionType)).collect(Collectors.toList());
+        //return getListOfAvailableIssueActionsTypes(issue).stream().map(k -> new actionInfoFactory::asInfo(issue, k)).collect(Collectors.toList());
     }
 
     public List<IssueActionType> getListOfAvailableIssueActionsTypes(Issue issue) {
@@ -94,13 +95,17 @@ public class IssueResourceHelper {
     }
 
     public IssueActionTypeInfo getIssueActionById(long actionId) {
+        return getIssueActionById(null, actionId);
+    }
+
+    public IssueActionTypeInfo getIssueActionById(Issue issue, long actionId) {
         IssueActionType actionType = issueActionService.findActionType(actionId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return actionInfoFactory.asInfo(actionType);
+        return actionInfoFactory.asInfo(issue, actionType);
     }
 
     public IssueActionResult performIssueAction(Issue issue, PerformActionRequest request) {
         IssueActionType action = issueActionService.findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        List<PropertySpec> propertySpecs = action.createIssueAction().get().getPropertySpecs();
+        List<PropertySpec> propertySpecs = action.createIssueAction().get().setIssue(issue).getPropertySpecs();
         Map<String, Object> properties = new HashMap<>();
         if(propertySpecs!=null && !propertySpecs.isEmpty()){
             for (PropertySpec propertySpec : propertySpecs) {
