@@ -149,7 +149,7 @@ public class GrantPrivilegeIT {
                     .findAny()
                     .get();
 
-            Group admins = userService.findGroup(UserService.DEFAULT_ADMIN_ROLE).get();
+            Group admins = userService.findGroup(UserService.USER_ADMIN_ROLE).get();
             naughty.join(admins);
 
 
