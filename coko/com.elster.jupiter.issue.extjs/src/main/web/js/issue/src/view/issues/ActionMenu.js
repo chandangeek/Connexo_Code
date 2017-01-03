@@ -14,11 +14,21 @@ Ext.define('Isu.view.issues.ActionMenu', {
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
+    currentUserId: -1,
     predefinedItems: [
         {
-            text: Uni.I18n.translate('issues.actionMenu.assignIssue', 'ISU', 'Assign issue'),
+            text: Uni.I18n.translate('issues.actionMenu.assignToMe', 'ISU', 'Assign to me'),
             privileges: Isu.privileges.Issue.Assign,
-            action: 'assignIssue'
+            action: 'assignIssueToMe',
+            itemId: 'assign-to-me',
+            hidden: true
+        },
+        {
+            text: Uni.I18n.translate('issues.actionMenu.unassign', 'ISU', 'Unassign'),
+            privileges: Isu.privileges.Issue.Assign,
+            action: 'unassign',
+            itemId: 'unassign',
+            hidden: true
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
@@ -58,6 +68,14 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
         me.bindStore(me.store || 'ext-empty-store', true);
 
+        // load current user
+        Ext.Ajax.request({
+            url: '/api/usr/currentuser',
+            success: function (response) {
+                var currentUser = Ext.decode(response.responseText, true);
+                me.currentUserId = currentUser.id;
+            }
+        });
         this.callParent(arguments);
     },
 
@@ -74,7 +92,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         item = (e.type === 'click') ? me.getItemFromEvent(e) : me.activeItem;
         if (item && item.isMenuItem) {
             if (!item.menu || !me.ignoreParentClicks) {
-                //item.onClick(e);
+                item.onClick(e);
             } else {
                 e.stopEvent();
             }
@@ -124,6 +142,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
             var menuItem = {
                 text: record.get('name'),
+                section: this.SECTION_ACTION,
                 privileges: privileges
             };
 
@@ -143,6 +162,19 @@ Ext.define('Isu.view.issues.ActionMenu', {
             }
             me.add(menuItem);
         });
+
+        // show/hide 'Assign to me and' and 'Unassign' menu items
+        var assignIssueToMe = me.predefinedItems.filter(function (menu) {
+            return menu.action === 'assignIssueToMe';
+        })[0];
+        assignIssueToMe.hidden = (me.record.get('userId') == me.currentUserId);
+        assignIssueToMe.record = me.record;
+
+        var unassign = me.predefinedItems.filter(function (menu) {
+            return menu.action === 'unassign';
+        })[0];
+        unassign.hidden = (me.record.get('userId') != me.currentUserId);
+        unassign.record = me.record;
 
         // add predefined actions
         if (me.predefinedItems && me.predefinedItems.length) {

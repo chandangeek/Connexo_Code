@@ -34,6 +34,12 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             'assign-issue #issue-assign-action-apply': {
                 click: this.assignAction
             },
+            'issues-action-menu #assign-to-me': {
+                click: this.assignToMe
+            },
+            'issues-action-menu #unassign': {
+                click: this.unassign
+            }
         });
     },
 
@@ -243,5 +249,61 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 }
             });
         }
+    },
+
+    assignToMe: function (menuItem) {
+        this.assign(menuItem, 'assigntome');
+    },
+
+    unassign: function (menuItem) {
+        this.assign(menuItem, 'unassign');
+    },
+
+    assign: function (menuItem, assign) {
+        var me = this,
+            record = menuItem.record,
+            issueId = record.get('id');
+
+        Ext.Ajax.request({
+            url: '/api/isu/issues/' + assign + '/' + issueId,
+            method: 'PUT',
+            success: function (response) {
+                var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+
+                if (decoded.data.success) {
+                    me.getApplication().fireEvent('acknowledge', decoded.data.success[0].title);
+                }
+
+                var mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+                if (mainView && mainView.down('issues-grid')) {
+                    var grid = mainView.down('issues-grid');
+                    grid.getStore().load();
+                }
+                else {
+                    var detail = Ext.ComponentQuery.query('issue-detail-top')[0];
+                    if (detail) {
+                        var router = me.getController('Uni.controller.history.Router'),
+                            issueType = router.queryParams.issueType,
+                            issueModel;
+
+                        if (issueType == 'datacollection') {
+                            issueModel = me.getModel('Idc.model.Issue');
+                        } else if (issueType == 'datavalidation') {
+                            issueModel = me.getModel('Idv.model.Issue');
+                        }
+                        Ext.ModelManager.getModel(issueModel).load(issueId, {
+                            success: function (issue) {
+                                if (issueType == 'datacollection') {
+                                    Ext.ComponentQuery.query('#data-collection-issue-detail-container')[0].down('form').loadRecord(issue);
+                                    Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
+                                } else if (issueType == 'datavalidation') {
+
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        });
     }
 });

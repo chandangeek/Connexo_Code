@@ -78,8 +78,11 @@ Ext.define('Isu.controller.IssueDetail', {
                         me.getIssueDetailForm().loadRecord(record);
                     }
                     Ext.resumeLayouts(true);
-                    if (me.getActionMenu()) {
+                    if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
                         me.getActionMenu().record = record;
+                    }
+                    else if (widget.down('#issue-detail-action-menu')) {
+                        widget.down('#issue-detail-action-menu').record = record;
                     }
                     me.loadComments(record, issueType);
                 }
