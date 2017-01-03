@@ -40,8 +40,18 @@ Ext.define('Idv.controller.Detail', {
         {
             ref: 'noEstimatedDataGrid',
             selector: '#validation-no-estimated-data-grid'
+        },
+        {
+            ref: 'issueDetailForm',
+            selector: 'data-validation-issue-detail #issue-detail-form'
+        },
+        {
+            ref: 'actionMenu',
+            selector: 'data-validation-issue-detail #issues-action-menu'
         }
     ],
+
+    itemUrl: '/api/isu/issues/',
 
     init: function () {
         this.control({
