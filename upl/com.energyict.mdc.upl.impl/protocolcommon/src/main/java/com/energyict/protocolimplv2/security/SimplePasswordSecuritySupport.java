@@ -114,6 +114,11 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Password authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }

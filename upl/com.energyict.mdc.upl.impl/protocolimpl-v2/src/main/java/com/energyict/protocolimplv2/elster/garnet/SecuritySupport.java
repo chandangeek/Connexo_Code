@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 
 import java.util.Arrays;
@@ -19,6 +18,21 @@ class SecuritySupport {
 
     private static final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel.0";
     private static final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel.1";
+
+    public List<PropertySpec> getSecurityProperties(PropertySpecService propertySpecService) {
+        return Arrays.asList(
+                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService)
+        );
+    }
+
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return Collections.singletonList((AuthenticationDeviceAccessLevel) new NoAuthentication());
+    }
+
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels(PropertySpecService propertySpecService) {
+        return Collections.singletonList((EncryptionDeviceAccessLevel) new MessageEncryption(propertySpecService));
+    }
 
     /**
      * Summarizes the used ID for the AuthenticationLevels.
@@ -46,21 +60,6 @@ class SecuritySupport {
         }
     }
 
-    public List<PropertySpec> getSecurityProperties(PropertySpecService propertySpecService) {
-        return Arrays.asList(
-                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService)
-        );
-    }
-
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Collections.singletonList((AuthenticationDeviceAccessLevel) new NoAuthentication());
-    }
-
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels(PropertySpecService propertySpecService) {
-        return Collections.singletonList((EncryptionDeviceAccessLevel) new MessageEncryption(propertySpecService));
-    }
-
     /**
      * An encryption level where the data of the frame is encrypted using
      * the manufacturer or the customer key
@@ -80,6 +79,11 @@ class SecuritySupport {
         @Override
         public String getTranslationKey() {
             return encryptionTranslationKeyConstant;
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Message encryption";
         }
 
         @Override
@@ -104,6 +108,11 @@ class SecuritySupport {
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant;
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "No authentication";
         }
 
         @Override

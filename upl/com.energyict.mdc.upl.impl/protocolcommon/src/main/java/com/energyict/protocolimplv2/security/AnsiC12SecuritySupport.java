@@ -101,9 +101,9 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
 
         if (authenticationDeviceAccessLevelProperty == null) {
-            securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.BINARY_PASSWORD.name(), 0);
-            securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.name(), "");
-            securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER_ID.name(), 0);
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.BINARY_PASSWORD.toString(), 0);
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.toString(), "");
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), 0);
         } else {
             securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationDeviceAccessLevel, getAuthenticationAccessLevels()));
         }
@@ -143,6 +143,11 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Unrestricted authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
                     DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService),
@@ -164,6 +169,11 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Restricted authentication";
         }
 
         @Override
@@ -190,6 +200,11 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Read only authentication";
         }
 
         @Override

@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.math.BigDecimal;
@@ -21,7 +20,7 @@ import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for a DLMS protocol.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 10/01/13
  * Time: 16:39
@@ -318,6 +317,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "No message encryption";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.singletonList(getClientMacAddressPropertySpec(propertySpecService));
         }
@@ -337,6 +341,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public String getTranslationKey() {
             return encryptionTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Message encryption";
         }
 
         @Override
@@ -366,6 +375,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Message authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
@@ -389,6 +403,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public String getTranslationKey() {
             return encryptionTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Message encryption and authentication";
         }
 
         @Override
@@ -418,6 +437,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "No authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.singletonList(getClientMacAddressPropertySpec(propertySpecService));
         }
@@ -440,6 +464,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Low level authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
@@ -451,7 +480,7 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     /**
      * An authentication level which indicates that a manufacturer specific
      * algorithm has to be used to authenticate with the device
-     * <p/>
+     * <p>
      * If this level should be used by your protocol, then make sure the provide the necessary properties.
      * As this is a manufacturer specific level, we can not <b>guess</b> what properties will be required.
      */
@@ -465,6 +494,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Manufacturer specific authentication";
         }
 
         @Override
@@ -488,6 +522,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "High level authentication using MD5";
         }
 
         @Override
@@ -517,6 +556,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "High level authentication using SHA1";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec(propertySpecService));
@@ -540,6 +584,11 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "High level authentication using GMAC";
         }
 
         @Override

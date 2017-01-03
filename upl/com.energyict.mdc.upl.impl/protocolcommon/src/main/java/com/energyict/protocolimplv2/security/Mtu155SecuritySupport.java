@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
@@ -36,25 +35,6 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
 
     public Mtu155SecuritySupport(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
-    }
-
-    /**
-     * Summarizes the used ID for the Encryption- and AuthenticationLevels.
-     */
-    protected enum AccessLevelIds {
-        KEYT(0),
-        KEYC(1),
-        KEYF(2);
-
-        private final int accessLevel;
-
-        AccessLevelIds(int accessLevel) {
-            this.accessLevel = accessLevel;
-        }
-
-        int getAccessLevel() {
-            return this.accessLevel;
-        }
     }
 
     @Override
@@ -223,6 +203,25 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     }
 
     /**
+     * Summarizes the used ID for the Encryption- and AuthenticationLevels.
+     */
+    protected enum AccessLevelIds {
+        KEYT(0),
+        KEYC(1),
+        KEYF(2);
+
+        private final int accessLevel;
+
+        AccessLevelIds(int accessLevel) {
+            this.accessLevel = accessLevel;
+        }
+
+        int getAccessLevel() {
+            return this.accessLevel;
+        }
+    }
+
+    /**
      * A simple authentication level that requires a single password
      */
     protected class SimpleAuthentication implements AuthenticationDeviceAccessLevel {
@@ -235,6 +234,11 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
         @Override
         public String getTranslationKey() {
             return AUTHENTICATION_TRANSLATION_KEY_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Default authentication";
         }
 
         @Override
@@ -256,6 +260,11 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "KeyC encryption";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.singletonList(getEncryptionKeyCPropertySpec());
         }
@@ -274,6 +283,11 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "KeyT encryption";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.singletonList(getEncryptionKeyTPropertySpec());
         }
@@ -289,6 +303,11 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
         @Override
         public String getTranslationKey() {
             return ENCRYPTION_TRANSLATION_KEY_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "KeyF encryption";
         }
 
         @Override

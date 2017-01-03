@@ -111,6 +111,11 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "No Encryption";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
@@ -129,6 +134,11 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         @Override
         public String getTranslationKey() {
             return encryptionTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Clear text with authentication";
         }
 
         @Override
@@ -152,6 +162,11 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         @Override
         public String getTranslationKey() {
             return encryptionTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Cipher text with authentication";
         }
 
         @Override

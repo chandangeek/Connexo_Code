@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
@@ -18,7 +17,7 @@ import java.util.List;
 
 /**
  * Provides general security <b>capabilities</b> for an IEC1107 protocol.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 21/01/13
  * Time: 11:10
@@ -37,26 +36,6 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
     @Override
     public List<String> getLegacySecurityProperties() {
         return Collections.singletonList(SECURITY_LEVEL_PROPERTY_NAME);
-    }
-
-    /**
-     * Summarizes the used ID for the AuthenticationLevels.
-     */
-    protected enum AccessLevelIds {
-        NO_AUTHENTICATION(0),
-        LEVEL_ONE(1),
-        LEVEL_TWO(2),
-        LEVEL_THREE(3);
-
-        private final int accessLevel;
-
-        AccessLevelIds(int accessLevel) {
-            this.accessLevel = accessLevel;
-        }
-
-        int getAccessLevel() {
-            return accessLevel;
-        }
     }
 
     @Override
@@ -124,6 +103,26 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
     }
 
     /**
+     * Summarizes the used ID for the AuthenticationLevels.
+     */
+    protected enum AccessLevelIds {
+        NO_AUTHENTICATION(0),
+        LEVEL_ONE(1),
+        LEVEL_TWO(2),
+        LEVEL_THREE(3);
+
+        private final int accessLevel;
+
+        AccessLevelIds(int accessLevel) {
+            this.accessLevel = accessLevel;
+        }
+
+        int getAccessLevel() {
+            return accessLevel;
+        }
+    }
+
+    /**
      * An authentication level which indicate that no authentication is required
      * for communication with the device.
      */
@@ -137,6 +136,11 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public String getTranslationKey() {
             return translationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "No authentication";
         }
 
         @Override
@@ -161,6 +165,11 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Level 1 authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
@@ -182,6 +191,11 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Level 2 authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
@@ -200,6 +214,11 @@ public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public String getTranslationKey() {
             return translationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Level 3 authentication";
         }
 
         @Override

@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
@@ -20,7 +19,7 @@ import java.util.List;
  * that use a single password and a UserIdentification to do authentication/encryption.<br/>
  * Be aware that the UserIdentification is validated as a string, but can also just
  * contain a numerical value.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 14/01/13
  * Time: 9:28
@@ -100,11 +99,18 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
 
     private void overrideDeviceAccessIdentifierPropertyIfAbsent(TypedProperties typedProperties) {
         Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName());
-        if(deviceAccessIdentifier == null){
-            deviceAccessIdentifier =typedProperties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
+        if (deviceAccessIdentifier == null) {
+            deviceAccessIdentifier = typedProperties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         }
-        if (deviceAccessIdentifier!=null) {
+        if (deviceAccessIdentifier != null) {
             typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName(), deviceAccessIdentifier);
+        }
+    }
+
+    private static class EmptyPassword implements Password {
+        @Override
+        public String getValue() {
+            return "";
         }
     }
 
@@ -121,6 +127,11 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         @Override
         public String getTranslationKey() {
             return "PasswordWithUserIdentificationSecuritySupport.accesslevel.10";
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Standard authentication";
         }
 
         @Override
@@ -148,17 +159,15 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Standard encryption";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
                     DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
                     DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
-        }
-    }
-
-    private static class EmptyPassword implements Password {
-        @Override
-        public String getValue() {
-            return "";
         }
     }
 

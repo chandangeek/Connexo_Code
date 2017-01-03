@@ -178,6 +178,11 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Defined by property";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return CryptoDlmsSecuritySupport.this.getSecurityProperties();
         }

@@ -203,6 +203,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "DLMS security suite 0";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return new ArrayList<>();   //Not used for security suite implementations
         }
@@ -255,6 +260,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "DLMS security suite 1";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return new ArrayList<>();   //Not used for security suite implementations
         }
@@ -299,6 +309,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "DLMS security suite 2";
+        }
+
+        @Override
         public String getTranslationKey() {
             return SECURITY_SUITE_TRANSLATION_KEY_CONSTANT + getId();
         }
@@ -314,6 +329,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "No security for requests";
         }
 
         @Override
@@ -335,6 +355,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Requests authenticated";
         }
 
         @Override
@@ -362,6 +387,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Requests encrypted";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
@@ -383,6 +413,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Requests authenticated and encrypted";
         }
 
         @Override
@@ -410,6 +445,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Requests signed";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
@@ -428,6 +468,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Requests authenticated and signed";
         }
 
         @Override
@@ -455,6 +500,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Requests encrypted and signed";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
@@ -476,6 +526,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return REQUEST_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Requests authenticated, encrypted and signed";
         }
 
         @Override
@@ -503,6 +558,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "No security for responses";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
@@ -520,6 +580,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Responses authenticated";
         }
 
         @Override
@@ -547,6 +612,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Responses encrypted";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
@@ -568,6 +638,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Responses authenticated and encrypted";
         }
 
         @Override
@@ -595,6 +670,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Responses signed";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
@@ -613,6 +693,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Responses authenticated and signed";
         }
 
         @Override
@@ -640,6 +725,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Responses encrypted and signed";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
@@ -661,6 +751,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return RESPONSE_SECURITY_TRANSLATION_CONSTANT + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Responses authenticated, encrypted and signed";
         }
 
         @Override
@@ -693,6 +788,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "High level authentication using SHA256";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
@@ -720,6 +820,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "High level authentication using ECDSA";
         }
 
         @Override

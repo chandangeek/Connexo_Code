@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
@@ -19,10 +18,10 @@ import java.util.List;
 /**
  * Provides general security <b>capabilities</b> for device that have either:
  * <ul>
- *     <li>No password</li>
- *     <li>A password</li>
+ * <li>No password</li>
+ * <li>A password</li>
  * </ul>
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 21/01/13
  * Time: 14:41
@@ -106,6 +105,13 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
         };
     }
 
+    private static class EmptyPassword implements Password {
+        @Override
+        public String getValue() {
+            return "";
+        }
+    }
+
     /**
      * No authentication level that requires nothing
      */
@@ -119,6 +125,11 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "No authentication";
         }
 
         @Override
@@ -143,15 +154,13 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Password authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
-        }
-    }
-
-    private static class EmptyPassword implements Password {
-        @Override
-        public String getValue() {
-            return "";
         }
     }
 

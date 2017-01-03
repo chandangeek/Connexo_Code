@@ -99,8 +99,8 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
         if (authenticationDeviceAccessLevelProperty != null) {
             securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationDeviceAccessLevel, getAuthenticationAccessLevels()));
         } else {
-            securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.PASSWORD.name(), "");
-            securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ENCRYPTION_KEY.name(), "");
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "");
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), "");
         }
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
 
@@ -138,6 +138,11 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getDefaultTranslation() {
+            return "Standard Wavenis authentication";
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
                     DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
@@ -158,6 +163,11 @@ public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapab
         @Override
         public String getTranslationKey() {
             return encryptionTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "Standard Wavenis encryption";
         }
 
         @Override

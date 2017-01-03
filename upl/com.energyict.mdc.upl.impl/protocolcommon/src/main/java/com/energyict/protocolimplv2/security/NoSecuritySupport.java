@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Collections;
@@ -82,6 +81,11 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
         @Override
         public String getTranslationKey() {
             return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public String getDefaultTranslation() {
+            return "No authentication";
         }
 
         @Override

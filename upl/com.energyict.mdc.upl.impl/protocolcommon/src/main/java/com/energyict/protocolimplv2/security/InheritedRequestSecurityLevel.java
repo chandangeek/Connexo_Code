@@ -29,6 +29,11 @@ public class InheritedRequestSecurityLevel implements RequestSecurityLevel {
     }
 
     @Override
+    public String getDefaultTranslation() {
+        return "Inherited from master device";
+    }
+
+    @Override
     public List<PropertySpec> getSecurityProperties() {
         return Collections.emptyList();
     }

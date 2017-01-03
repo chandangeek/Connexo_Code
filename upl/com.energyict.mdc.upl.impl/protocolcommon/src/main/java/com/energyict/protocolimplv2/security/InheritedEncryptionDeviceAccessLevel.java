@@ -34,6 +34,11 @@ public class InheritedEncryptionDeviceAccessLevel implements EncryptionDeviceAcc
     }
 
     @Override
+    public String getDefaultTranslation() {
+        return "Inherited from master device";
+    }
+
+    @Override
     public List<PropertySpec> getSecurityProperties() {
         return Collections.emptyList();
     }
