@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.topology.rest.info;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.DeviceTopology;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
@@ -54,7 +55,11 @@ public class NodeInfo {
 
     public LinkInfo asLinkInfo(){
         if (!isRoot()) {
-            return new LinkInfo(parent.getId(), this.getId(), 0);
+            LinkInfo linkInfo = new LinkInfo(parent.getId(), this.getId());
+            LinkQualityLayer linkQualityLayer = new LinkQualityLayer(0);
+            linkInfo.addLayer(linkQualityLayer);
+            linkInfo.setActiveLayer(linkQualityLayer);
+            return linkInfo;
         }
         return null;
     }

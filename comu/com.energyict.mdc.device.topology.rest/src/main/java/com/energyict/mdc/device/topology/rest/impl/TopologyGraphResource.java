@@ -18,6 +18,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
 
 /**
  * Copyrights EnergyICT
@@ -30,23 +31,26 @@ public class TopologyGraphResource {
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final ExceptionFactory exceptionFactory;
+    private final Clock clock;
 
     @Inject
     public TopologyGraphResource(DeviceService deviceService,
                                  TopologyService topologyService,
-                                 ExceptionFactory exceptionFactory) {
+                                 ExceptionFactory exceptionFactory,
+                                 Clock clock) {
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.exceptionFactory = exceptionFactory;
+        this.clock = clock;
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
    // @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
-    public Response getTopologyGraphById(@PathParam("id") Long id, @BeanParam JsonQueryParameters queryParams) {
-        Device device = deviceService.findDeviceById(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, id));
-        return Response.ok(new DefaultGraphFactory(this.topologyService).from(device)).build();
+    public Response getTopologyGraphById(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParams) {
+        Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
+        return Response.ok(new DefaultGraphFactory(this.topologyService, this.clock).from(device)).build();
     }
 
 }
