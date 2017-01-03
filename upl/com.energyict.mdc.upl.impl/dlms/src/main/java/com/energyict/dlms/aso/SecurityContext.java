@@ -2,6 +2,7 @@ package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.attributeobjects.dataprotection.ProtectionType;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
@@ -233,53 +234,11 @@ public class SecurityContext {
             if (securityPolicy.isRequestPlain()) {
                 return plainText;
             } else if (securityPolicy.isRequestAuthenticatedOnly()) {
-                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
-
-                /*
-                 * The additional associatedData (AAD) is a concatenation of:
-                 * - the securityControlByte
-                 * - the authenticationKey
-                 * - (the general ciphering header)
-                 * - the plainText
-                 */
-                byte[] associatedData = ProtocolTools.concatByteArrays(
-                        new byte[]{getRequestSecurityControlByte()},
-                        getSecurityProvider().getAuthenticationKey(),
-                        (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0],
-                        plainText
-                );
-
-                aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
-                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
-                aesGcm.encrypt();
-                return createSecuredApdu(plainText, aesGcm.getTag().getValue());
+                return getAuthenticatedRequestBytes(plainText);
             } else if (securityPolicy.isRequestEncryptedOnly()) {
-                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
-
-                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
-                aesGcm.setPlainText(new BitVector(plainText));
-                aesGcm.encrypt();
-                return createSecuredApdu(aesGcm.getCipherText().getValue(), null);
+                return getEncryptedRequestBytes(plainText);
             } else if (securityPolicy.isRequestAuthenticatedAndEncrypted()) {
-                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
-
-                /*
-                 * The additional associatedData (AAD) is a concatenation of:
-                 * - the securityControlByte
-                 * - the authenticationKey
-                 * - (the general ciphering header)
-                 */
-                byte[] associatedData = ProtocolTools.concatByteArrays(
-                        new byte[]{getRequestSecurityControlByte()},
-                        getSecurityProvider().getAuthenticationKey(),
-                        (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0]
-                );
-
-                aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
-                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
-                aesGcm.setPlainText(new BitVector(plainText));
-                aesGcm.encrypt();
-                return createSecuredApdu(aesGcm.getCipherText().getValue(), aesGcm.getTag().getValue());
+                return getAuthenticatedAndEncryptedRequestBytes(plainText);
             } else {
                 throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy.getDataTransportSecurityLevel());
             }
@@ -288,6 +247,60 @@ public class SecurityContext {
                 incFrameCounter();
             }
         }
+    }
+
+    private byte[] getAuthenticatedAndEncryptedRequestBytes(byte[] plainText) {
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+
+                /*
+                 * The additional associatedData (AAD) is a concatenation of:
+                 * - the securityControlByte
+                 * - the authenticationKey
+                 * - (the general ciphering header)
+                 */
+        byte[] associatedData = ProtocolTools.concatByteArrays(
+                new byte[]{getRequestSecurityControlByte()},
+                getSecurityProvider().getAuthenticationKey(),
+                (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0]
+        );
+
+        aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+        aesGcm.setPlainText(new BitVector(plainText));
+        aesGcm.encrypt();
+        return createSecuredApdu(aesGcm.getCipherText().getValue(), aesGcm.getTag().getValue());
+    }
+
+    private byte[] getEncryptedRequestBytes(byte[] plainText) {
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+
+        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+        aesGcm.setPlainText(new BitVector(plainText));
+        aesGcm.encrypt();
+        return createSecuredApdu(aesGcm.getCipherText().getValue(), null);
+    }
+
+    private byte[] getAuthenticatedRequestBytes(byte[] plainText) {
+        AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+
+                /*
+                 * The additional associatedData (AAD) is a concatenation of:
+                 * - the securityControlByte
+                 * - the authenticationKey
+                 * - (the general ciphering header)
+                 * - the plainText
+                 */
+        byte[] associatedData = ProtocolTools.concatByteArrays(
+                new byte[]{getRequestSecurityControlByte()},
+                getSecurityProvider().getAuthenticationKey(),
+                (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0],
+                plainText
+        );
+
+        aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+        aesGcm.encrypt();
+        return createSecuredApdu(plainText, aesGcm.getTag().getValue());
     }
 
     private byte[] getEncryptionKey() {
@@ -338,8 +351,8 @@ public class SecurityContext {
      * - ciphered APDU
      *
      * @param plainText - the text to encrypt
-     * @return the cipherText
-     */
+    * @return the cipherText
+    */
     public byte[] dataTransportGeneralGloOrDedEncryption(byte[] plainText) throws IOException {
         ByteArrayOutputStream securedRequestStream = new ByteArrayOutputStream();
         securedRequestStream.write(getSystemTitle().length);
@@ -353,7 +366,20 @@ public class SecurityContext {
      * The signature is either 64 bytes or 96 bytes based on the suite that is used.
      */
     public byte[] applyGeneralSigning(byte[] securedRequest) throws UnsupportedException {
-        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
+        return applyGeneralSigning(securedRequest, null);
+    }
+
+    /**
+     * Wrap the given APDU (can already by secured) in a new general-signing APDU.
+     * The signature is either 64 bytes or 96 bytes based on the suite that is used.
+     */
+    public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve) throws UnsupportedException {
+        ECDSASignatureImpl ecdsaSignature;
+        if(eccCurve == null){
+            ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
+        } else {
+            ecdsaSignature = new ECDSASignatureImpl(eccCurve);
+        }
         byte[] generalCipheringHeader = createGeneralCipheringHeader();
         PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
 
@@ -408,112 +434,119 @@ public class SecurityContext {
      */
     public byte[] dataTransportGeneralEncryption(byte[] plainText) throws IOException {
 
-        //Reset it, so our next request will have a newly generated transactionId.
-        //It is used in the header of the general-ciphering APDU and the calculation of the authentication tag.
-        resetTransactionId();
+            //Reset it, so our next request will have a newly generated transactionId.
+            //It is used in the header of the general-ciphering APDU and the calculation of the authentication tag.
+            resetTransactionId();
 
-        switch (this.generalCipheringKeyType) {
-            case IDENTIFIED_KEY: {
-                return ProtocolTools.concatByteArrays(
-                        createGeneralCipheringHeader(),
-                        new byte[]{(byte) 0x01},    //Yes, key info is present
-                        new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
-                        new byte[]{(byte) GeneralCipheringKeyType.IdentifiedKeyTypes.GLOBAL_UNICAST_ENCRYPTION_KEY.getId()},
-                        dataTransportEncryption(plainText)
-                );
-            }
-
-            case WRAPPED_KEY: {
-                if (includeGeneralCipheringKeyInformation) {
-                    byte[] sessionKey = getGeneralCipheringSecurityProvider().getSessionKey();
-
-                    //This is a newly generated session key, so reset our frame counter
-                    setFrameCounter(1);
-
-                    byte[] masterKey = getSecurityProvider().getMasterKey();
-                    byte[] wrappedKey = ProtocolTools.aesWrap(sessionKey, masterKey);
-
-                    //Only include the wrapped key information the first request
-                    includeGeneralCipheringKeyInformation = false;
-
+            switch (this.generalCipheringKeyType) {
+                case IDENTIFIED_KEY: {
                     return ProtocolTools.concatByteArrays(
                             createGeneralCipheringHeader(),
                             new byte[]{(byte) 0x01},    //Yes, key info is present
                             new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
-                            new byte[]{(byte) GeneralCipheringKeyType.WrappedKeyTypes.MASTER_KEY.getId()},
-                            new byte[]{(byte) wrappedKey.length},
-                            wrappedKey,
-                            dataTransportEncryption(plainText)
-                    );
-                } else {
-                    //Do not include the wrapped key information any more for the next requests
-                    return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(),
-                            new byte[]{(byte) 0x00},    //Key info is not present
+                            new byte[]{(byte) GeneralCipheringKeyType.IdentifiedKeyTypes.GLOBAL_UNICAST_ENCRYPTION_KEY.getId()},
                             dataTransportEncryption(plainText)
                     );
                 }
-            }
 
-            case AGREED_KEY: {
-                if (includeGeneralCipheringKeyInformation) {
+                case WRAPPED_KEY: {
+                    if (includeGeneralCipheringKeyInformation) {
 
-                    //One-Pass Diffie-Hellman C(1e, 1s, ECC CDH):
-                    //We are party U (sender), the meter is party V (receiver).
-                    //This means we generate an ephemeral keypair and use its private key combined with
-                    //the public static key agreement key of the server to derive a shared secret.
-                    //The server side will do the same, using its static key agreement private key and our ephemeral public key.
+                        byte[] wrappedKey = getWrappedKey(true);
 
-                    KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve());
-                    Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
-                    if (serverKeyAgreementCertificate == null) {
-                        throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+                        //Only include the wrapped key information the first request
+                        includeGeneralCipheringKeyInformation = false;
+
+                        return ProtocolTools.concatByteArrays(
+                                createGeneralCipheringHeader(),
+                                new byte[]{(byte) 0x01},    //Yes, key info is present
+                                new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
+                                new byte[]{(byte) GeneralCipheringKeyType.WrappedKeyTypes.MASTER_KEY.getId()},
+                                new byte[]{(byte) wrappedKey.length},
+                                wrappedKey,
+                                dataTransportEncryption(plainText)
+                        );
+                    } else {
+                        //Do not include the wrapped key information any more for the next requests
+                        return ProtocolTools.concatByteArrays(
+                                createGeneralCipheringHeader(),
+                                new byte[]{(byte) 0x00},    //Key info is not present
+                                dataTransportEncryption(plainText)
+                        );
                     }
-
-                    byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
-                    byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
-                    byte[] partyVInfo = getResponseSystemTitle();   //Party V is the receiver, the server, the meter
-                    byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), sharedSecretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
-                    getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
-
-                    PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
-                    byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(getECCCurve(), ephemeralPublicKey);
-
-                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
-                    PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
-
-                    byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
-
-                    //This is a newly generated session key, so reset our frame counter
-                    setFrameCounter(1);
-
-                    //Only include the key information the first request
-                    includeGeneralCipheringKeyInformation = false;
-
-                    return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(),
-                            new byte[]{(byte) 0x01},    //Yes, key info is present
-                            new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
-                            new byte[]{(byte) 0x01},    //Length of the AgreedKeyTypes byte is 1
-                            new byte[]{(byte) GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId()},
-                            DLMSUtils.getAXDRLengthEncoding(ephemeralPublicKeyBytes.length + signature.length),
-                            ephemeralPublicKeyBytes,
-                            signature,
-                            dataTransportEncryption(plainText)
-                    );
-                } else {
-                    //Do not include the key information any more for the next requests
-                    return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(),
-                            new byte[]{(byte) 0x00},    //Key info is not present
-                            dataTransportEncryption(plainText)
-                    );
                 }
-            }
 
-            default:
-                throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
+                case AGREED_KEY: {
+                    if (includeGeneralCipheringKeyInformation) {
+
+                        //One-Pass Diffie-Hellman C(1e, 1s, ECC CDH):
+                        //We are party U (sender), the meter is party V (receiver).
+                        //This means we generate an ephemeral keypair and use its private key combined with
+                        //the public static key agreement key of the server to derive a shared secret.
+                        //The server side will do the same, using its static key agreement private key and our ephemeral public key.
+
+                        KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve());
+                        Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
+                        if (serverKeyAgreementCertificate == null) {
+                            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+                        }
+
+                        byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
+                        byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
+                        byte[] partyVInfo = getResponseSystemTitle();   //Party V is the receiver, the server, the meter
+                        byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), sharedSecretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
+                        getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
+
+                        PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
+                        byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(getECCCurve(), ephemeralPublicKey);
+
+                        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
+                        PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
+
+                        byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
+
+                        //This is a newly generated session key, so reset our frame counter
+                        setFrameCounter(1);
+
+                        //Only include the key information the first request
+                        includeGeneralCipheringKeyInformation = false;
+
+                        return ProtocolTools.concatByteArrays(
+                                createGeneralCipheringHeader(),
+                                new byte[]{(byte) 0x01},    //Yes, key info is present
+                                new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
+                                new byte[]{(byte) 0x01},    //Length of the AgreedKeyTypes byte is 1
+                                new byte[]{(byte) GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId()},
+                                DLMSUtils.getAXDRLengthEncoding(ephemeralPublicKeyBytes.length + signature.length),
+                                ephemeralPublicKeyBytes,
+                                signature,
+                                dataTransportEncryption(plainText)
+                        );
+                    } else {
+                        //Do not include the key information any more for the next requests
+                        return ProtocolTools.concatByteArrays(
+                                createGeneralCipheringHeader(),
+                                new byte[]{(byte) 0x00},    //Key info is not present
+                                dataTransportEncryption(plainText)
+                        );
+                    }
+                }
+
+                default:
+                    throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
+            }
+    }
+
+    public byte[] getWrappedKey(boolean resetFC) {
+        byte[] sessionKey = getGeneralCipheringSecurityProvider().getSessionKey();
+
+        if(resetFC){
+            //This is a newly generated session key, so reset our frame counter
+            setFrameCounter(1);
         }
+
+        byte[] masterKey = getSecurityProvider().getMasterKey();
+        return ProtocolTools.aesWrap(sessionKey, masterKey);
     }
 
     private GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
@@ -541,7 +574,7 @@ public class SecurityContext {
         );
     }
 
-    private byte[] getTransactionId() {
+    public byte[] getTransactionId() {
         if (transactionId == null) {
             transactionId = ProtocolTools.getBytesFromLong(System.currentTimeMillis(), TRANSACTION_ID_LENGTH);
         }
@@ -550,6 +583,10 @@ public class SecurityContext {
 
     private void resetTransactionId() {
         this.transactionId = null;
+    }
+
+    public void setTransactionId(byte[] transactionId) {
+        this.transactionId = transactionId;
     }
 
     /**
@@ -1270,6 +1307,34 @@ public class SecurityContext {
      */
     public boolean isDedicatedCiphering() {
         return this.cipheringType == CipheringType.DEDICATED.getType() || this.cipheringType == CipheringType.GENERAL_DEDICATED.getType();
+    }
+
+    /**
+     * Used for encrypt DataProtection -> invoke_protected_method -> protected_method_invocation_parameters
+     * @param plainText
+     * @param protectionType
+     * @return
+     * @throws UnsupportedException
+     */
+    public byte[] encryptProtectedMethodInvocationParameters(byte[] plainText, ProtectionType protectionType) throws UnsupportedException {
+        try {
+            switch (protectionType) {
+                case AUTHENTICATION_AND_ENCRYPTION:
+                    return getAuthenticatedAndEncryptedRequestBytes(plainText);
+                case AUTHENTICATION:
+                    return getAuthenticatedRequestBytes(plainText);
+                case DIGITAL_SIGNATURE:
+                    return ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, applyGeneralSigning(plainText, ECCCurve.P256_SHA256));
+                case ENCRYPTION:
+                    return getEncryptedRequestBytes(plainText);
+                case NO_PROTECTION:
+                    return plainText;
+            }
+        } finally {
+            //TODO: see if we should increase FC
+//            incFrameCounter();
+        }
+        return new byte[]{};
     }
 
 }

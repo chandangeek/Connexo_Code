@@ -767,6 +767,7 @@ public class DeviceMessageConstants {
     public static final String DropUnencryptedMeterNotifications = "DLMSGatewayMessage.DropUnencryptedMeterNotifications";
 
     public static final String setupObjectAttributeName = "NetworkConnectivityMessage.setupObjectAttributeName";
-
+    public static final String generalCipheringKeyTypeId = "DataProtection.generalCipheringKeyTypeId";
+    public static final String requiredProtection = "DataProtection.requiredProtection";
 
 }

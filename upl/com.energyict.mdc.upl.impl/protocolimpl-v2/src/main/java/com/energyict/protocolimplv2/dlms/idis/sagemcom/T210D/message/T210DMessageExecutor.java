@@ -1,8 +1,13 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message;
 
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityPolicy;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.dlms.cosem.attributeobjects.dataprotection.DataProtectionFactory;
+import com.energyict.dlms.cosem.attributeobjects.dataprotection.ProtectionType;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
@@ -11,6 +16,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor;
@@ -40,6 +46,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private static final ObisCode WIRELESS_MBUS_SEARCH_RESULT = ObisCode.fromString("0.1.96.70.0.255");
     private static final ObisCode WIRED_MBUS_PORT_REFERENCE = ObisCode.fromString("0.0.24.6.0.255");
     private static final ObisCode WIRELESS_MBUS_PORT_REFERENCE = ObisCode.fromString("0.1.24.6.0.255");
+    private static final ObisCode TIMED_CONNECTOR_ACTION_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");
     private static final long SUPERVISION_MAXIMUM_THRESHOLD_VALUE = 0x80000000l;
     private final String undefined_hour = "FF"; //not defined
     private final String undefined_minute = "FF"; //not defined
@@ -52,6 +59,9 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private final String disabledTime = undefined_hour + undefined_minute + undefined_second + undefined_hundredths;
     private final String disabledDate = undefined_year + undefined_month + undefined_dayOfMonth + undefined_dayOfWeek;
     private static final int MAX_MBUS_SLAVES = 4;
+    private DataProtection dataProtection;
+    private OfflineDeviceMessage pendingMessage;
+    private CollectedMessage collectedMessage;
 
     public T210DMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
@@ -59,34 +69,48 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
 
     @Override
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        this.pendingMessage = pendingMessage;
+        this.collectedMessage = collectedMessage;
 
         if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_DESCRIPTOR_FOR_ALARM_REGISTER)) {
-            collectedMessage = resetAlarmDescriptor(pendingMessage, collectedMessage);
+            resetAlarmDescriptor();
         }  else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_BITS_IN_ALARM_REGISTER)) {
-            collectedMessage = resetAlarmBits(pendingMessage, collectedMessage);
+            resetAlarmBits();
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_FILTER_FOR_ALARM_REGISTER)) {
-            collectedMessage = writeFilter(pendingMessage, collectedMessage);
+            writeFilter();
         } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT)) {
-            collectedMessage = configureSuperVisionMonitor(pendingMessage, collectedMessage);
+            configureSuperVisionMonitor();
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ConfigureGeneralLocalPortReadout)) {
-            collectedMessage = configureConsumerP1port(pendingMessage, collectedMessage);
+            configureConsumerP1port();
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.DISABLE_PUSH_ON_INSTALLATION)) {
-            collectedMessage = disablePushOnInstallation(pendingMessage, collectedMessage);
+            disablePushOnInstallation();
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ENABLE_PUSH_ON_INTERVAL_OBJECTS)) {
-            collectedMessage = enablePushOnInterval(pendingMessage, collectedMessage);
+            enablePushOnInterval();
         } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
-            firmwareUpgrade(pendingMessage);
+            firmwareUpgrade();
         } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDevices)) {
-            collectedMessage = scanAndInstallWiredMbusDevices(collectedMessage, pendingMessage);
+            scanAndInstallWiredMbusDevices();
         } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.InstallWirelessMbusDevices)) {
-            collectedMessage = installWirelessMbusDevices(collectedMessage, pendingMessage);
+            installWirelessMbusDevices();
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_DATA_PROTECTION)) {
+            remoteDisconnectWithDataProtection();
+        } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_DATA_PROTECTION)) {
+            remoteReconnectWithDataProtection();
+        } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION)) {
+            firmwareImageActivationWithDataProtection();
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP)) {
+            setDataProtectionRequiredProtection();
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
         return collectedMessage;
     }
 
-    private CollectedMessage resetAlarmDescriptor(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    protected int getMaxMBusSlaves() {
+        return MAX_MBUS_SLAVES;
+    }
+
+    private void resetAlarmDescriptor() throws IOException {
         int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
         BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getDeviceMessageAttributeValue());
         ObisCode alarmDescriptorObisCode;
@@ -101,18 +125,15 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
                 alarmDescriptorObisCode = ALARM_DESCRIPTOR_OBISCODE_3;
                 break;
             default:
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                String msg = "Unsupported value '" + register + "' for attribute " + DeviceMessageConstants.alarmRegisterAttributeName + ", expected '1' or '2'.";
-                collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
-                collectedMessage.setDeviceProtocolInformation(msg);
-                return collectedMessage;
+                String msg = "Unsupported value '" + register + "' for attribute " + DeviceMessageConstants.alarmRegisterAttributeName + ", expected '1', '2' or '3'.";
+                setIncompatibleFailedMessage(collectedMessage, pendingMessage, msg);
+                throw new UnsupportedException(msg);
         }
 
         getCosemObjectFactory().getData(alarmDescriptorObisCode).setValueAttr(new Unsigned32(alarmBits.longValue()));
-        return collectedMessage;
     }
 
-    private CollectedMessage resetAlarmBits(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    private void resetAlarmBits() throws IOException {
         int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
         ObisCode alarmRegisterObisCode;
         switch (register) {
@@ -126,19 +147,16 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
                 alarmRegisterObisCode = ALARM_BITS_OBISCODE_3;
                 break;
             default:
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                String msg = "Unsupported value '" + register + "' for attribute " + DeviceMessageConstants.alarmRegisterAttributeName + ", expected '1' or '2'.";
-                collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
-                collectedMessage.setDeviceProtocolInformation(msg);
-                return collectedMessage;
+                String msg = "Unsupported value '" + register + "' for attribute " + DeviceMessageConstants.alarmRegisterAttributeName + ", expected '1', '2' or '3'.";
+                setIncompatibleFailedMessage(collectedMessage, pendingMessage, msg);
+                throw new UnsupportedException(msg);
         }
 
         resetAllAlarmBits(alarmRegisterObisCode);
         collectedMessage.setDeviceProtocolInformation("Alarm bits reset for " + alarmRegisterObisCode.toString());
-        return collectedMessage;
     }
 
-    private CollectedMessage writeFilter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    private void writeFilter() throws IOException {
         int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getDeviceMessageAttributeValue());
         BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getDeviceMessageAttributeValue());
         ObisCode alarmFilterObisCode;
@@ -153,15 +171,12 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
                 alarmFilterObisCode = ALARM_FILTER_OBISCODE_3;
                 break;
             default:
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 String msg = "Unsupported value '" + register + "' for attribute " + DeviceMessageConstants.alarmRegisterAttributeName + ", expected '1' or '2'.";
-                collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
-                collectedMessage.setDeviceProtocolInformation(msg);
-                return collectedMessage;
+                setIncompatibleFailedMessage(collectedMessage, pendingMessage, msg);
+                throw new UnsupportedException(msg);
         }
 
         writeAlarmFilter(alarmFilterObisCode, filter.longValue());
-        return collectedMessage;
     }
 
     /*
@@ -184,20 +199,19 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         return objectDefinitions;
     }
 
-    private CollectedMessage configureSuperVisionMonitor(OfflineDeviceMessage offlineDeviceMessage, CollectedMessage collectedMessage) throws IOException {
-        int phase = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, phaseAttributeName).getDeviceMessageAttributeValue()).intValue();
-        int positiveThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, positiveThresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).intValue();
-        int negativeThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, negativeThresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).intValue();
-        return updateThresholds(offlineDeviceMessage, collectedMessage, phase, positiveThreshold, negativeThreshold);
+    private void configureSuperVisionMonitor() throws IOException {
+        int phase = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, phaseAttributeName).getDeviceMessageAttributeValue()).intValue();
+        int positiveThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, positiveThresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).intValue();
+        int negativeThreshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, negativeThresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).intValue();
+        updateThresholds(phase, positiveThreshold, negativeThreshold);
     }
 
-    private CollectedMessage updateThresholds(OfflineDeviceMessage offlineDeviceMessage, CollectedMessage collectedMessage, int phase, int positiveThreshold, int negativeThreshold) throws IOException {
+    private void updateThresholds(int phase, int positiveThreshold, int negativeThreshold) throws IOException {
         if (positiveThreshold > SUPERVISION_MAXIMUM_THRESHOLD_VALUE || negativeThreshold < -SUPERVISION_MAXIMUM_THRESHOLD_VALUE) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String msg = "Invalid threshold value, positive threshold should be smaller than 2147483648 and negative threshold greather than 2147483648";
-            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(offlineDeviceMessage, msg));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
             collectedMessage.setDeviceProtocolInformation(msg);
-            return collectedMessage;
         } else {
             ObisCode obisCode = null;
             switch (phase) {
@@ -216,12 +230,11 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             thresholds.addDataType(new Integer16(positiveThreshold));
             thresholds.addDataType(new Integer16(negativeThreshold));
             registerMonitor.writeThresholds(thresholds);
-            return collectedMessage;
         }
     }
 
-    private CollectedMessage configureConsumerP1port(OfflineDeviceMessage offlineDeviceMessage, CollectedMessage collectedMessage) throws IOException {
-        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
+    private void configureConsumerP1port() throws IOException {
+        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
         List<ObjectDefinition> objectDefinitions = new ArrayList<>();
         //add first the P1 port version and clock obis as these two will always be present
         //When only these are present the GeneralLocalPortReadout object is considered disabled
@@ -238,9 +251,9 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
                 } catch (NotInObjectListException e) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     String msg = "The objectDefinition attribute contains at least one invalid value " + e.getMessage();
-                    collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(offlineDeviceMessage, msg));
+                    collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
                     collectedMessage.setDeviceProtocolInformation(msg);
-                    return collectedMessage;
+                    break;
                 }
                 for(int i = 1; i < obis_attribute.length; i++) { //start from 1 as the first element is the obis code
                     int attribute = Integer.parseInt(obis_attribute[i].trim());
@@ -253,7 +266,6 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         GeneralLocalPortReadout generalLocalPortReadout = getCosemObjectFactory().getGeneralLocalPortReadout();
         generalLocalPortReadout.writePushObjectList(objectDefinitions);
 
-        return collectedMessage;
     }
 
     @Override
@@ -298,12 +310,12 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         return collectedMessage;
     }
 
-    protected void firmwareUpgrade(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    private void firmwareUpgrade() throws IOException {
 
-        OfflineDeviceMessageAttribute imageAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateUserFileAttributeName);
+        OfflineDeviceMessageAttribute imageAttribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName);
         byte[] binaryImage = ProtocolTools.getBytesFromHexString(imageAttribute.getDeviceMessageAttributeValue(), "");
-        boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeFirmwareUpdateAttributeName).getDeviceMessageAttributeValue());
-        String firmwareIdentifier = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+        boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, resumeFirmwareUpdateAttributeName).getDeviceMessageAttributeValue());
+        String firmwareIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
         int length = binaryImage[0];
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
         if (resume) {
@@ -317,7 +329,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, true);
     }
 
-    private CollectedMessage disablePushOnInstallation(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
+    private void disablePushOnInstallation() {
         Array executionTimes = new Array();
         Structure timeDate = new Structure();
         timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(disabledTime, "")));
@@ -325,15 +337,15 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         executionTimes.addDataType(timeDate);
         ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
         pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.On_Installation.getId());
-        return writeExecutionTime(pendingMessage, collectedMessage, executionTimes, pushSetupObisCode);
+        writeExecutionTime(executionTimes, pushSetupObisCode);
     }
 
-    private CollectedMessage enablePushOnInterval(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
+    private void enablePushOnInterval() {
         String executionMinutesForEachHour = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionMinutesForEachHour).getDeviceMessageAttributeValue();
         String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
         ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
         pushSetupObisCode.setB(ConfigurationChangeDeviceMessage.PushType.valueOf(setupType).getId());
-        List<String> executionMinutes = extractExecutionMinutesFromString(pendingMessage, collectedMessage, executionMinutesForEachHour);
+        List<String> executionMinutes = extractExecutionMinutesFromString(executionMinutesForEachHour);
         Array executionTimes = new Array();
         for(String minuteValue: executionMinutes){
             String time = undefined_hour + getMinuteValueInHex(minuteValue) + undefined_second + undefined_hundredths;
@@ -342,7 +354,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(disabledDate, "")));
             executionTimes.addDataType(timeDate);
         }
-        return writeExecutionTime(pendingMessage, collectedMessage, executionTimes, pushSetupObisCode);
+        writeExecutionTime(executionTimes, pushSetupObisCode);
     }
 
     private String getMinuteValueInHex(String minuteValue) {
@@ -350,7 +362,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         return minute.length() == 1 ? "0"+minute : minute;
     }
 
-    private List<String> extractExecutionMinutesFromString(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, String executionMinutesForEachHour) {
+    private List<String> extractExecutionMinutesFromString(String executionMinutesForEachHour) {
         List<String> executionMinutes = new ArrayList<>();
         for(String minute: executionMinutesForEachHour.trim().split(",")){
             try {
@@ -369,40 +381,32 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         return executionMinutes;
     }
 
-    private CollectedMessage writeExecutionTime(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, Array executionTimes, ObisCode obisCode) {
+    private void writeExecutionTime(Array executionTimes, ObisCode obisCode) {
         try {
             SingleActionSchedule singleActionSchedule = getCosemObjectFactory().getSingleActionSchedule(obisCode);
             singleActionSchedule.writeExecutionTime(executionTimes);
-            return collectedMessage;
         } catch (NotInObjectListException niole){
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String msg = "The obiscode: "+obisCode.getValue()+" was not found in device object list: " + niole.getMessage();
-            collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, msg));
-            collectedMessage.setDeviceProtocolInformation(msg);
-            return collectedMessage;
+            setNotInObjectListMessage(collectedMessage, obisCode.getValue(), pendingMessage, niole);
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String msg = "Unable to write execution time array";
             collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, msg));
             collectedMessage.setDeviceProtocolInformation(msg);
-            return collectedMessage;
         }
     }
 
-    private CollectedMessage installWirelessMbusDevices(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+    private void installWirelessMbusDevices() throws IOException {
         //Mbus device scanning done automatically for wireless connection
         //extract data from MBus search result
-        Array mbusSearchResult = getMbusSearchResult(collectedMessage, pendingMessage, WIRELESS_MBUS_SEARCH_RESULT);
-        installSlave(collectedMessage, pendingMessage, mbusSearchResult, WIRELESS_MBUS_PORT_REFERENCE);
-        return collectedMessage;
+        Array mbusSearchResult = getMbusSearchResult(WIRELESS_MBUS_SEARCH_RESULT);
+        installSlave(mbusSearchResult, WIRELESS_MBUS_PORT_REFERENCE);
     }
 
-    private CollectedMessage scanAndInstallWiredMbusDevices(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        scanWiredMBusDevices(collectedMessage, pendingMessage);
+    private void scanAndInstallWiredMbusDevices() throws IOException {
+        scanWiredMBusDevices();
         //extract data from MBus search result
-        Array mbusSearchResult = getMbusSearchResult(collectedMessage, pendingMessage, WIRED_MBUS_SEARCH_RESULT);
-        installSlave(collectedMessage, pendingMessage, mbusSearchResult, WIRED_MBUS_PORT_REFERENCE);
-        return collectedMessage;
+        Array mbusSearchResult = getMbusSearchResult(WIRED_MBUS_SEARCH_RESULT);
+        installSlave(mbusSearchResult, WIRED_MBUS_PORT_REFERENCE);
     }
 
     /*
@@ -412,7 +416,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         - VV: Version
         - DD: Device Type
     */
-    private CollectedMessage installSlave(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, Array mbusSearchResult, ObisCode mbusPortReferenceObis) throws IOException {
+    private void installSlave(Array mbusSearchResult, ObisCode mbusPortReferenceObis) throws IOException {
         for(AbstractDataType mbusSearchResultEntry: mbusSearchResult){
             String entry = mbusSearchResultEntry.getOctetString().stringValue();
             String serialNumber = entry.substring(0, 8);
@@ -422,7 +426,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
 
             for (int channel = 1; channel <= getMaxMBusSlaves(); channel++) {//Check the available 4 channels, install the slave meter on a free channel client.
                 ObisCode obisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);   //Find the right MBus client object
-                MBusClient mbusClient = getMbusClientForVersion(collectedMessage, pendingMessage, version, obisCode);
+                MBusClient mbusClient = getMbusClientForVersion(version, obisCode);
                 if (mbusClient.getPrimaryAddress().getValue() == 0) {     //Find a free channel client
                     mbusClient.setMBusPortReference(OctetString.fromObisCode(mbusPortReferenceObis));
                     mbusClient.setIdentificationNumber(new Unsigned32(Integer.parseInt(serialNumber, 16)));
@@ -437,10 +441,9 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
                 }
             }
         }
-        return collectedMessage;
     }
 
-    private MBusClient getMbusClientForVersion(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String version, ObisCode obisCode) throws NotInObjectListException {
+    private MBusClient getMbusClientForVersion(String version, ObisCode obisCode) throws NotInObjectListException {
         try {
             return getCosemObjectFactory().getMbusClient(obisCode, Integer.parseInt(version));
         } catch (NotInObjectListException e) {
@@ -449,7 +452,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         }
     }
 
-    private Array getMbusSearchResult(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, ObisCode searchResultObis) throws IOException {
+    private Array getMbusSearchResult(ObisCode searchResultObis) throws IOException {
         Array mbusSearchResult = null;
         try {
             mbusSearchResult = getCosemObjectFactory().getData(searchResultObis).getValueAttr().getArray();
@@ -464,7 +467,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         return mbusSearchResult;
     }
 
-    private void scanWiredMBusDevices(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+    private void scanWiredMBusDevices() throws IOException {
         //on wired connection first do the scan
         try {
             getCosemObjectFactory().getData(WIRED_SCAN_SCRIPT_TABLE).invoke(1, new Unsigned16(1).getBEREncodedByteArray());
@@ -478,8 +481,98 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         }
     }
 
-    protected int getMaxMBusSlaves() {
-        return MAX_MBUS_SLAVES;
+    private void setDataProtectionRequiredProtection() throws IOException {
+        int requiredProtection = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.requiredProtection).getDeviceMessageAttributeValue());
+        getDataProtection().writeRequiredProtectionAttribute(new TypeEnum(requiredProtection));
+    }
+
+    private void remoteDisconnectWithDataProtection() throws IOException {
+        executeDisconnectControlMethodWithDataProtection(Disconnector.METHOD_REMOTE_DISCONNECT);
+    }
+
+    private void remoteReconnectWithDataProtection() throws IOException {
+        executeDisconnectControlMethodWithDataProtection(Disconnector.METHOD_REMOTE_RECONNECT);
+    }
+
+    private void executeDisconnectControlMethodWithDataProtection(int disconnectorMethodIndex) throws IOException {
+        Unsigned16 classId = new Unsigned16(DLMSClassId.DISCONNECT_CONTROL.getClassId());
+        OctetString logicalName = OctetString.fromObisCode(Disconnector.getDefaultObisCode());
+        Integer8 methodIndex = new Integer8(disconnectorMethodIndex);
+
+        invokeProtectedMethod(logicalName, classId, methodIndex, new Integer8(0));
+    }
+
+    private void firmwareImageActivationWithDataProtection() throws IOException {
+        Unsigned16 classId = new Unsigned16(DLMSClassId.IMAGE_TRANSFER.getClassId());
+        OctetString logicalName = OctetString.fromByteArray(ImageTransfer.LN);
+        Integer8 methodIndex = new Integer8(ImageTransfer.IMAGE_ACTIVATION);
+        invokeProtectedMethod(logicalName, classId, methodIndex, new Integer8(0));
+    }
+
+    private void invokeProtectedMethod(OctetString logicalName, Unsigned16 classId, Integer8 methodIndex, Integer8 methodParameter) throws IOException {
+        int generalCipheringKeyTypeId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.generalCipheringKeyTypeId).getDeviceMessageAttributeValue());
+        Structure objectMethodDefinition = DataProtectionFactory.createObjectMethodDefinition(classId, logicalName, methodIndex);
+        List<ProtectionType> protectionLayers = getRequestProtectionTypeLayers();
+        SecurityContext securityContext = getSecurityContext();
+        OctetString protectedMethodInvocationParameters = new OctetString(getEncryptedMethodInvocationParameters(protectionLayers, securityContext, methodParameter));
+
+        try {
+            Array protectionParameters = DataProtectionFactory.createProtectionParametersArray(securityContext, protectionLayers, GeneralCipheringKeyType.fromId(generalCipheringKeyTypeId));
+            getDataProtection().invokeProtectedMethod(DataProtectionFactory.createInvokeProtectedMethodRequest(objectMethodDefinition, protectionParameters, protectedMethodInvocationParameters));
+        } catch (IOException e) {
+            String errorMessage = "Unable to invoke protected method for object with classId = " +classId.intValue()+ " obisCode = " + ObisCode.fromByteArray(logicalName.toByteArray())+ " methodIndex = "+methodIndex.intValue();
+            setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMessage);
+            throw e;
+        }
+
+    }
+
+    private byte[] getEncryptedMethodInvocationParameters(List<ProtectionType> protectionLayers, SecurityContext securityContext, Integer8 parameter) throws UnsupportedException {
+        byte[] dataToEncrypt = parameter.getBEREncodedByteArray();
+        byte[] encryptedData = new byte[]{};
+        for(ProtectionType protectionType: protectionLayers){
+            encryptedData = securityContext.encryptProtectedMethodInvocationParameters(dataToEncrypt, protectionType);
+            dataToEncrypt = encryptedData;
+        }
+        return encryptedData;
+    }
+
+    private List<ProtectionType> getRequestProtectionTypeLayers() throws IOException {
+        //read the required protection configured in Data Protection object
+
+        List<ProtectionType> protectionLayers = new ArrayList<>();
+        final int requiredProtection = getDataProtection().getRequiredProtectionAttribute().intValue();
+
+        //First add the digital signing. It will be first security layer applied to the APDU
+        if(ProtocolTools.isBitSet(requiredProtection, SecurityPolicy.REQUESTS_SIGNED_FLAG)){
+            protectionLayers.add(ProtectionType.DIGITAL_SIGNATURE);
+        }
+
+        if(ProtocolTools.isBitSet(requiredProtection, SecurityPolicy.REQUESTS_AUTHENTICATED_FLAG)
+                && ProtocolTools.isBitSet(requiredProtection, SecurityPolicy.REQUESTS_ENCRYPTED_FLAG)){
+            protectionLayers.add(ProtectionType.AUTHENTICATION_AND_ENCRYPTION);
+        } else if(ProtocolTools.isBitSet(requiredProtection, SecurityPolicy.REQUESTS_AUTHENTICATED_FLAG)){
+            protectionLayers.add(ProtectionType.AUTHENTICATION);
+        } else if(ProtocolTools.isBitSet(requiredProtection, SecurityPolicy.REQUESTS_ENCRYPTED_FLAG)){
+            protectionLayers.add(ProtectionType.ENCRYPTION);
+        }
+        return protectionLayers;
+    }
+
+    private DataProtection getDataProtection() throws NotInObjectListException {
+        try {
+            if(dataProtection == null) {
+                dataProtection = getCosemObjectFactory().getDataProtectionSetup();
+            }
+            return dataProtection;
+        } catch (NotInObjectListException e) {
+            setNotInObjectListMessage(collectedMessage, DataProtection.OBIS_CODE.toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private SecurityContext getSecurityContext() {
+        return getProtocol().getDlmsSession().getAso().getSecurityContext();
     }
 
 }

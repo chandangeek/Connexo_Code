@@ -18,20 +18,27 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  */
 public enum RequiredProtection {
 
+    NO_REQUIRED_PROTECTION(0),
     AUTHENTICATED_REQUEST(4),
     ENCRYPTED_REQUEST(8),
+    AUTHENTICATED_AND_ENCRYPTED_REQUEST(12),
     DIGITALLY_SIGNED_REQUEST(16),
     AUTHENTICATED_RESPONSE(32),
+    AUTHENTICATED_REQUEST_AND_RESPONSE(36),
     ENCRYPTED_RESPONSE(64),
-    DIGITALLY_SIGNED_RESPONSE(128);
+    ENCRYPTED_REQUEST_AND_RESPONSE(72),
+    AUTHENTICATED_AND_ENCRYPTED_RESPONSE(96),
+    AUTHENTICATED_AND_ENCRYPTED_REQUEST_AND_RESPONSE(108),
+    DIGITALLY_SIGNED_RESPONSE(128),
+    DIGITALLY_SIGNED_REQUEST_AND_RESPONSE(144);
 
     private int id;
 
-    RequiredProtection(int id) {
+    private RequiredProtection(int id) {
         this.id = id;
     }
 
-    public int getId() {
+    public final int getId() {
         return id;
     }
 

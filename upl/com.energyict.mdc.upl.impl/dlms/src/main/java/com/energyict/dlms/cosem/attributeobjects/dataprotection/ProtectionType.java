@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  * Created by cisac on 12/14/2016.
  */
 public enum ProtectionType {
+    NO_PROTECTION(-1),
     AUTHENTICATION(0),
     ENCRYPTION(1),
     AUTHENTICATION_AND_ENCRYPTION(2),

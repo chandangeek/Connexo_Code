@@ -1,6 +1,11 @@
 package com.energyict.dlms.cosem.attributeobjects.dataprotection;
 
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.protocol.UnsupportedException;
+
+import java.util.List;
 
 /**
  * Created by cisac on 12/15/2016.
@@ -17,7 +22,7 @@ public class DataProtectionFactory {
             restriction: restriction_element
         }
      */
-    public Structure createObjectDefinition(Unsigned16 classId, OctetString logicalName, Integer8 attributeIndex, Unsigned16 dataIndex, Structure restrictionElement) {
+    public static Structure createObjectDefinition(Unsigned16 classId, OctetString logicalName, Integer8 attributeIndex, Unsigned16 dataIndex, Structure restrictionElement) {
         return new Structure(classId, logicalName, attributeIndex, dataIndex, restrictionElement);
     }
 
@@ -36,11 +41,11 @@ public class DataProtectionFactory {
                 }
         }
      */
-    public Structure createRestrictionElement(RestrictionType restrictionType, Structure restrictionValue) {
+    public static Structure createRestrictionElement(RestrictionType restrictionType, Structure restrictionValue) {
         return new Structure(restrictionType.getTypeEnum(), restrictionValue);
     }
 
-    public NullData createNoRestrictionElement() {
+    public static NullData createNoRestrictionElement() {
         return new NullData();
     }
 
@@ -51,7 +56,7 @@ public class DataProtectionFactory {
             to_date: octet-string
         }
      */
-    public Structure createRestrictionByDate(OctetString fromDate, OctetString toDate) {
+    public static Structure createRestrictionByDate(OctetString fromDate, OctetString toDate) {
         return new Structure(fromDate, toDate);
     }
     /*
@@ -61,7 +66,7 @@ public class DataProtectionFactory {
             to_entry: double-long-unsigned
         }
      */
-    public Structure createRestrictionByEntry(Unsigned32 fromEntry, OctetString toEntry) {
+    public static Structure createRestrictionByEntry(Unsigned32 fromEntry, OctetString toEntry) {
         return new Structure(fromEntry, toEntry);
     }
 
@@ -83,8 +88,8 @@ public class DataProtectionFactory {
                 }
          }
      */
-    public Structure createKeyInfoElement(KeyInfoType keyInfoType, AbstractDataType keyInfoOptions) {
-        return new Structure(keyInfoType.getTypeEnum(), keyInfoOptions);
+    public static Structure createKeyInfoElement(GeneralCipheringKeyType keyInfoType, AbstractDataType keyInfoOptions) {
+        return new Structure(new TypeEnum(keyInfoType.getId()), keyInfoOptions);
     }
     /*
         agreed_key_info_options ::= structure
@@ -93,7 +98,7 @@ public class DataProtectionFactory {
             key_ciphered_data: octet-string
         }
      */
-    public Structure createAgreedKeyInfoOptions(OctetString keyParameters, OctetString keyCipheredData) {
+    public static Structure createAgreedKeyInfoOptions(OctetString keyParameters, OctetString keyCipheredData) {
         return new Structure(keyParameters, keyCipheredData);
     }
 
@@ -105,8 +110,8 @@ public class DataProtectionFactory {
             key_ciphered_data: octet-string
         }
      */
-    public Structure createWrappedKeyInfoOptions(OctetString keyCipheredData) {
-        return new Structure(new TypeEnum(0), keyCipheredData);
+    public static Structure createWrappedKeyInfoOptions(TypeEnum kekID, OctetString keyCipheredData) {
+        return new Structure(kekID, keyCipheredData);
     }
 
     /*
@@ -127,7 +132,7 @@ public class DataProtectionFactory {
             }
     }
      */
-    public Structure createProtectionParametersElement(ProtectionType protectionType, Structure protectionOptions) {
+    public static Structure createProtectionParametersElement(ProtectionType protectionType, Structure protectionOptions) {
         return new Structure(protectionType.getTypeEnum(), protectionOptions);
     }
 
@@ -141,23 +146,134 @@ public class DataProtectionFactory {
             key_info: key_info_element
         }
      */
-    public Structure createProtectionOptions(OctetString transactionId, OctetString originatorSystemTitle, OctetString recipientSystemTitle, OctetString otherInformation, Structure keyInfoElement) {
+    public static Structure createProtectionOptions(OctetString transactionId, OctetString originatorSystemTitle, OctetString recipientSystemTitle, OctetString otherInformation, Structure keyInfoElement) {
         return new Structure(transactionId, originatorSystemTitle, recipientSystemTitle, otherInformation, keyInfoElement);
     }
 
-    public Structure createProtectedAttributesGetRequest(Array objectDefinitionList, Array protectionParameters) {
+    /*
+        get_protected_attributes_request ::= structure
+        {
+            object_list: array object_definition,
+            protection_parameters: array protection_parameters_element,
+        }
+     */
+    public static Structure createProtectedAttributesGetRequest(Array objectDefinitionList, Array protectionParameters) {
         return new Structure(objectDefinitionList, protectionParameters);
     }
 
-    public Structure createProtectedAttributesSetRequest(Array objectDefinitionList, Array protectionParameters, OctetString protectedAttributes) {
+    /*
+        set_protected_attributes_request ::= structure
+        {
+            object_list: array object_definition,
+            protection_parameters: array protection_parameters_element,
+            protected_attributes: octet-string
+        }
+     */
+    public static Structure createProtectedAttributesSetRequest(Array objectDefinitionList, Array protectionParameters, OctetString protectedAttributes) {
         return new Structure(objectDefinitionList, protectionParameters, protectedAttributes);
     }
 
-    public Structure createInvokeProtectedMethodRequest(Structure objectMethodDefinition, Array protectionParameters, OctetString protectedMethodInvocationParameters) {
+    /*
+        invoke_protected_method_request ::= structure
+        {
+            object_method: object_method_definition,
+            protection_parameters: array protection_parameters_element,
+            protected_method_invocation_parameters: octet-string
+        }
+     */
+    public static Structure createInvokeProtectedMethodRequest(Structure objectMethodDefinition, Array protectionParameters, OctetString protectedMethodInvocationParameters) {
         return new Structure(objectMethodDefinition, protectionParameters, protectedMethodInvocationParameters);
     }
 
-    public Structure createObjectMethodDefinition(Unsigned16 classId, OctetString logicalName, Integer8 methodIndex) {
+    /*
+        object_method_definition ::= structure
+        {
+            class_id: long-unsigned,
+            logical_name: octet-string,
+            method_index: integer,
+        }
+     */
+    public static Structure createObjectMethodDefinition(Unsigned16 classId, OctetString logicalName, Integer8 methodIndex) {
         return new Structure(classId, logicalName, methodIndex);
+    }
+
+
+    /**
+     *
+     * @return an array that contains one element of type:
+     * protection_parameters_element ::= structure
+        {
+            protection_type: enum:
+                (0) authentication,
+                (1) encryption,
+                (2) authentication and encryption,
+                (3) digital signature
+            protection_options: structure
+            {
+                transaction_id: octet-string,
+                originator_system_title: octet-string,
+                recipient_system_title: octet-string,
+                other_information: octet-string,
+                key_info: key_info_element
+            }
+        }
+     */
+    public static Array createProtectionParametersArray(SecurityContext securityContext, List<ProtectionType> protectionLayers, GeneralCipheringKeyType generalCipheringKeyType) throws UnsupportedException {
+        Array protectionParameters = new Array();
+        for(ProtectionType protectionType: protectionLayers){
+            Structure protectionOptions = getProtectionOptions(securityContext, protectionType, generalCipheringKeyType);
+            Structure protectionParametersElement = createProtectionParametersElement(protectionType, protectionOptions);
+            protectionParameters.addDataType(protectionParametersElement);
+        }
+        return protectionParameters;
+    }
+
+    /**
+     *
+     * @param securityContext
+     * @param protectionType
+     *@param generalCipheringKeyType  @return protection_options: structure
+                {
+                    transaction_id: octet-string,
+                    originator_system_title: octet-string,
+                    recipient_system_title: octet-string,
+                    other_information: octet-string,
+                    key_info: key_info_element
+                }
+     */
+    public static Structure getProtectionOptions(SecurityContext securityContext, ProtectionType protectionType, GeneralCipheringKeyType generalCipheringKeyType) throws UnsupportedException {
+        OctetString transactionID = OctetString.fromByteArray(securityContext.getTransactionId());
+        OctetString originatorSystemTitle = OctetString.fromByteArray(securityContext.getSystemTitle());
+        OctetString recipientSystemTitle = OctetString.fromByteArray(securityContext.getResponseSystemTitle());
+        OctetString otherInformation = OctetString.fromByteArray(new byte[]{});//no other info
+        Structure keyInfo = new Structure();
+        if(protectionType.getId() != ProtectionType.DIGITAL_SIGNATURE.getId()){
+            keyInfo = getKeyInfo(securityContext, generalCipheringKeyType);
+        }
+
+        Structure protectionOptions = DataProtectionFactory.createProtectionOptions(transactionID, originatorSystemTitle, recipientSystemTitle, otherInformation, keyInfo);
+
+        return protectionOptions;
+    }
+
+    public static Structure getKeyInfo(SecurityContext securityContext, GeneralCipheringKeyType keyInfoType) throws UnsupportedException {
+        OctetString keyCipheredData;
+        switch (keyInfoType) {
+            case AGREED_KEY:
+                throw new UnsupportedException("Key agreement is not implemented for Data protection object");
+//                OctetString keyParameters = OctetString.fromByteArray(new byte[]{(byte) GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId()});//TODO: fill proper value
+//                keyCipheredData = OctetString.fromString("");//TODO: fill proper value
+//                Structure agreedKeyInfoOptions = DataProtectionFactory.createAgreedKeyInfoOptions(keyParameters, keyCipheredData);//TODO: fill proper value
+//                return DataProtectionFactory.createKeyInfoElement(GeneralCipheringKeyType.AGREED_KEY, agreedKeyInfoOptions);
+            case IDENTIFIED_KEY:
+                TypeEnum identifiedKeyOption = new TypeEnum(GeneralCipheringKeyType.IdentifiedKeyTypes.GLOBAL_UNICAST_ENCRYPTION_KEY.getId());//TODO: see if also broadcast will be used
+                return DataProtectionFactory.createKeyInfoElement(GeneralCipheringKeyType.IDENTIFIED_KEY, identifiedKeyOption);
+            case WRAPPED_KEY:
+                TypeEnum kekID = new TypeEnum(GeneralCipheringKeyType.WrappedKeyTypes.MASTER_KEY.getId());
+                OctetString wrappedKey = OctetString.fromByteArray(securityContext.getWrappedKey(false));
+                Structure wrappedKeyInfoOptions = DataProtectionFactory.createWrappedKeyInfoOptions(kekID, wrappedKey);
+                return DataProtectionFactory.createKeyInfoElement(GeneralCipheringKeyType.WRAPPED_KEY, wrappedKeyInfoOptions);
+        }
+        return null;
     }
 }

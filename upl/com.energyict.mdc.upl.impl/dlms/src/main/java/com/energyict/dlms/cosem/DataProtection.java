@@ -5,7 +5,6 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.attributeobjects.dataprotection.RequiredProtection;
 import com.energyict.dlms.cosem.attributes.DataProtectionAttributes;
 import com.energyict.dlms.cosem.methods.DataProtectionMethods;
 import com.energyict.obis.ObisCode;
@@ -70,8 +69,8 @@ public class DataProtection extends AbstractCosemObject{
         return new TypeEnum(getResponseData(DataProtectionAttributes.REQUIRED_PROTECTION), 0);
     }
 
-    public void writeRequiredProtectionAttribute(RequiredProtection requiredProtection) throws IOException {
-        write(DataProtectionAttributes.REQUIRED_PROTECTION, requiredProtection.getTypeEnum().getBEREncodedByteArray());
+    public void writeRequiredProtectionAttribute(TypeEnum requiredProtection) throws IOException {
+        write(DataProtectionAttributes.REQUIRED_PROTECTION, requiredProtection.getBEREncodedByteArray());
     }
 
     public Structure getProtectedAttributes(Structure data) throws IOException {

@@ -6,7 +6,9 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message.T210DMessaging;
+import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties.T210DProperties;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.registers.T210DRegisterFactory;
 
 import java.io.IOException;
@@ -17,6 +19,11 @@ import java.util.logging.Level;
  * Created by cisac on 6/27/2016.
  */
 public class T210D extends AM130 {
+
+    @Override
+    protected IDISProperties getNewInstanceOfProperties() {
+        return new T210DProperties();
+    }
 
     @Override
     protected void checkCacheObjects() {

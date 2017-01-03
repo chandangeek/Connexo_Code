@@ -65,8 +65,8 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	private TypeEnum controlMode = null;		// Configures the behavior of the disconnect control object for all triggers
 
 	/* Method invoke */
-	private static final int METHOD_REMOTE_DISCONNECT = 1;
-	private static final int METHOD_REMOTE_RECONNECT = 2;
+	public static final int METHOD_REMOTE_DISCONNECT = 1;
+	public static final int METHOD_REMOTE_RECONNECT = 2;
 
 	/* Method ShortName writes */
 	private static final int METHOD_REMOTE_DISCONNECT_SN = 0x20;

@@ -56,8 +56,10 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CONTACTOR_CLOSE_WITH_OUTPUT_AND_ACTIVATION_DATE(13,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(digitalOutputAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
-            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName));
-
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
+    CONTACTOR_OPEN_WITH_DATA_PROTECTION(14, PropertySpecFactory.bigDecimalPropertySpecWithValues(generalCipheringKeyTypeId, BigDecimal.valueOf(0), BigDecimal.valueOf(1), BigDecimal.valueOf(2))),
+    CONTACTOR_CLOSE_WITH_DATA_PROTECTION(15, PropertySpecFactory.bigDecimalPropertySpecWithValues(generalCipheringKeyTypeId, BigDecimal.valueOf(0), BigDecimal.valueOf(1), BigDecimal.valueOf(2))),
+    ;
     private static final DeviceMessageCategory contactorCategory = DeviceMessageCategories.CONTACTOR;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

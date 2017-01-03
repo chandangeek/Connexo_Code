@@ -36,7 +36,7 @@ public class ImageTransfer extends AbstractCosemObject {
     public static final int ATTRIBUTE_PREVIOUS_UPGRADE_STATE = -1;
     public static final int ATTRIBUTE_PROTOCOL_CONFIGURATION = -2;
     public static final int ATTRIBUTE_UPGRADE_PROGRESS = -3;
-    static final byte[] LN = new byte[]{0, 0, 44, 0, 0, (byte) 255};
+    public static final byte[] LN = new byte[]{0, 0, 44, 0, 0, (byte) 255};
     private static final String TIMEOUT_MESSAGE = "timeout";
     /* Attribute numbers */
     private static final int ATTRB_IMAGE_BLOCK_SIZE = 2;
@@ -49,7 +49,7 @@ public class ImageTransfer extends AbstractCosemObject {
     private static final int IMAGE_TRANSFER_INITIATE = 1;
     private static final int IMAGE_BLOCK_TRANSFER = 2;
     private static final int IMAGE_VERIFICATION = 3;
-    private static final int IMAGE_ACTIVATION = 4;
+    public static final int IMAGE_ACTIVATION = 4;
     /* Method writes SN */
     private static final int IMAGE_TRANSFER_INITIATE_SN = 0x40;
     private static final int IMAGE_BLOCK_TRANSFER_SN = 0x48;

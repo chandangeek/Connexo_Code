@@ -247,7 +247,8 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.client, getClients()),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newMasterKeyAttributeName),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newWrappedMasterKeyAttributeName)
-    )
+    ),
+    SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP(58, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.requiredProtection)),
     ;
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
