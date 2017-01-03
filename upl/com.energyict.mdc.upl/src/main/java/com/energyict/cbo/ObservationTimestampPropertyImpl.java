@@ -13,7 +13,7 @@ import java.util.Date;
  * @author khe
  * @since 5/04/2016 - 11:17
  */
-public abstract class ObservationTimestampPropertyImpl implements CollectedTopology.ObservationTimestampProperty {
+public class ObservationTimestampPropertyImpl implements CollectedTopology.ObservationTimestampProperty {
 
     /**
      * The name of the LastSeenDate general property
