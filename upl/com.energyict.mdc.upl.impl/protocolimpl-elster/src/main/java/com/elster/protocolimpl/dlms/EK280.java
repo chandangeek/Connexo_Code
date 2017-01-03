@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -217,8 +219,8 @@ public class EK280 extends Dlms {
 
     private IReadableRegister[] readableRegisters;
 
-    public EK280() {
-        super();
+    public EK280(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
+        super(calendarFinder, calendarExtractor);
         ocIntervalProfile = Ek280Defs.LOAD_PROFILE_60;
         ocLogProfile = Ek280Defs.EVENT_LOG;
 

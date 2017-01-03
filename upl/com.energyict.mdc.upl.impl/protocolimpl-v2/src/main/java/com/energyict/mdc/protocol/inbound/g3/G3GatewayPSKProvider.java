@@ -59,7 +59,7 @@ public class G3GatewayPSKProvider {
     protected InboundDiscoveryContext context;
     protected ComChannel tcpComChannel;
 
-    private Set<String> joiningMacAddresses = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> joiningMacAddresses = Collections.synchronizedSet(new HashSet<>());
     private DeviceProtocol gatewayProtocol = null;
 
     public G3GatewayPSKProvider(DeviceIdentifier deviceIdentifier, InboundDiscoveryContext context) {
@@ -210,7 +210,7 @@ public class G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol() {
-        return new RtuPlusServer(this.context.getCollectedDataFactory(), this.context.getIssueFactory(), this.context.getPropertySpecService(), this.context.getNlsService(), this.context.getConverter());
+        return new RtuPlusServer(this.context.getCollectedDataFactory(), this.context.getIssueFactory(), this.context.getPropertySpecService(), this.context.getNlsService(), this.context.getConverter(), this.context.getMessageFileExtractor(), this.context.getDeviceGroupExtractor(), this.context.getDeviceExtractor());
     }
 
     /**

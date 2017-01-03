@@ -2,7 +2,10 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -81,6 +84,10 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final NumberLookupExtractor numberLookupExtractor;
+    private final LoadProfileExtractor loadProfileExtractor;
 
     /**
      * Boolean indicating whether or not to show the MBus related messages in EIServer
@@ -107,12 +114,16 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
      */
     protected boolean supportResetWindow = true;
 
-    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(messageExecutor.getProtocol(), extractor);
+    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
+        super(messageExecutor.getProtocol());
         this.messageExecutor = messageExecutor;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.messageFileExtractor = messageFileExtractor;
+        this.calendarExtractor = calendarExtractor;
+        this.numberLookupExtractor = numberLookupExtractor;
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -125,6 +136,22 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
 
     protected Converter getConverter() {
         return converter;
+    }
+
+    protected DeviceMessageFileExtractor getMessageFileExtractor() {
+        return messageFileExtractor;
+    }
+
+    protected TariffCalendarExtractor getCalendarExtractor() {
+        return calendarExtractor;
+    }
+
+    protected NumberLookupExtractor getNumberLookupExtractor() {
+        return numberLookupExtractor;
+    }
+
+    protected LoadProfileExtractor getLoadProfileExtractor() {
+        return loadProfileExtractor;
     }
 
     protected DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
@@ -201,14 +228,14 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         switch (propertySpec.getName()) {
             case UserFileConfigAttributeName:
             case firmwareUpdateUserFileAttributeName: {
-                return ProtocolTools.getHexStringFromBytes(this.getExtractor().binaryContents((DeviceMessageFile) messageAttribute), "");
+                return ProtocolTools.getHexStringFromBytes(this.messageFileExtractor.binaryContents((DeviceMessageFile) messageAttribute), "");
             }
             case activityCalendarCodeTableAttributeName:
-                return convertCodeTableToXML((TariffCalendar) messageAttribute);
+                return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
             case emergencyProfileGroupIdListAttributeName:
-                return convertLookupTable((Lookup) messageAttribute);
+                return convertLookupTable((Lookup) messageAttribute, this.numberLookupExtractor);
             case encryptionLevelAttributeName:
                 return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
             case overThresholdDurationAttributeName:
@@ -223,9 +250,9 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case specialDaysCodeTableAttributeName:
-                return parseSpecialDays(((TariffCalendar) messageAttribute));
+                return parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
             case loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.getExtractor());
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
             case fromDateAttributeName:
             case toDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());

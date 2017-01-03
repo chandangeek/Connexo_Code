@@ -12,7 +12,8 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -46,7 +47,7 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,27 +66,9 @@ public class AM130 extends AM500 {
     protected static final ObisCode FRAMECOUNTER_OBISCODE_MANAGEMENT = ObisCode.fromString("0.0.43.1.0.255");
 
     protected AM130RegisterFactory registerFactory;
-    private final NlsService nlsService;
-    private final Extractor extractor;
-    private final Converter converter;
 
-    public AM130(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        super(propertySpecService, collectedDataFactory, issueFactory, extractor, nlsService, converter);
-        this.nlsService = nlsService;
-        this.converter = converter;
-        this.extractor = extractor;
-    }
-
-    protected Extractor getExtractor() {
-        return extractor;
-    }
-
-    protected NlsService getNlsService() {
-        return nlsService;
-    }
-
-    protected Converter getConverter() {
-        return converter;
+    public AM130(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+        super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, calendarExtractor, messageFileExtractor);
     }
 
     /**
@@ -97,7 +80,7 @@ public class AM130 extends AM500 {
     }
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
-        return new AM130ConfigurationSupport();
+        return new AM130ConfigurationSupport(this.getPropertySpecService());
     }
 
     protected IDISProperties getNewInstanceOfProperties() {
@@ -134,7 +117,7 @@ public class AM130 extends AM500 {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
+        return Collections.singletonList(new TcpDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override
@@ -207,14 +190,14 @@ public class AM130 extends AM500 {
 
     protected IDISLogBookFactory getIDISLogBookFactory() {
         if (idisLogBookFactory == null) {
-            idisLogBookFactory = new AM130LogBookFactory(this);
+            idisLogBookFactory = new AM130LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return idisLogBookFactory;
     }
 
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new AM130Messaging(this, this.extractor, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.nlsService, this.converter);
+            idisMessaging = new AM130Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor(), this.getMessageFileExtractor());
         }
         return idisMessaging;
     }
@@ -222,7 +205,7 @@ public class AM130 extends AM500 {
     @Override
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
-            meterTopology = new AM130MeterTopology(this);
+            meterTopology = new AM130MeterTopology(this, this.getCollectedDataFactory());
             meterTopology.searchForSlaveDevices();
         }
         return meterTopology;

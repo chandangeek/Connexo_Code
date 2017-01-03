@@ -19,6 +19,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.ADDRESSING_MODE;
@@ -386,9 +387,9 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     @Override
-    public TimeDuration getPollingDelay() {
+    public Duration getPollingDelay() {
         // Return the default value, 100 ms.
-        return new TimeDuration(100, TimeDuration.MILLISECONDS);
+        return Duration.ofMillis(100);
     }
 
     @Override

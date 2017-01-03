@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.dlms.messaging;
 
 import com.energyict.cbo.BusinessException;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -62,7 +63,7 @@ public class TestA1V2ConfigureCyclicMode
 
     private class TestClass extends A1ConfigureCyclicMode
     {
-        public TestClass()
+        private TestClass()
         {
             super(null);
         }

@@ -10,7 +10,6 @@ import com.elster.dlms.cosem.classes.class29.AutoConnectModeEnum;
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleAutoConnectObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -46,14 +45,14 @@ public class DisableAutoConnectMessage extends AbstractDlmsMessage {
      *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
 
         String autoConnectId = MessagingTools.getContentOfAttribute(messageEntry, ATTR_AUTOCONNECT_ID);
         validateMessageData(autoConnectId);
         try {
             write(autoConnectId);
         } catch (IOException e) {
-            throw new BusinessException("Unable to disable auto connect: " + e.getMessage());
+            throw new IOException("Unable to disable auto connect: " + e.getMessage(), e);
         }
 
     }
@@ -72,7 +71,7 @@ public class DisableAutoConnectMessage extends AbstractDlmsMessage {
     }
 
 
-    private void validateMessageData(String autoConnectId) throws BusinessException {
+    private void validateMessageData(String autoConnectId) {
         checkInt(autoConnectId, "AutoConnect id", 1, 2);
     }
 

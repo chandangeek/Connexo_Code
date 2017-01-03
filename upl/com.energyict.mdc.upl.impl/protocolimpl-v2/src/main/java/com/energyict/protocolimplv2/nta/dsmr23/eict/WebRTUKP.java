@@ -17,7 +17,10 @@ import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -80,14 +83,20 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr23RegisterFactory registerFactory;
     private final Converter converter;
-    private final Extractor extractor;
     private final NlsService nlsService;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final NumberLookupExtractor numberLookupExtractor;
+    private final LoadProfileExtractor loadProfileExtractor;
 
-    public WebRTUKP(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
+    public WebRTUKP(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
+        this.messageFileExtractor = messageFileExtractor;
+        this.calendarExtractor = calendarExtractor;
+        this.numberLookupExtractor = numberLookupExtractor;
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     @Override
@@ -116,7 +125,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private String getProperDeviceId() {
         String deviceId = getDlmsSessionProperties().getDeviceId();
-        if (deviceId != null && !deviceId.equalsIgnoreCase("")) {
+        if (deviceId != null && !"".equalsIgnoreCase(deviceId)) {
             return deviceId;
         } else {
             return "!"; // the Kamstrup device requires a '!' sign in the IEC1107 signOn
@@ -181,7 +190,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
             dsmr23Messaging =
                     new Dsmr23Messaging(
                             new Dsmr23MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()),
-                            this.extractor, this.getPropertySpecService(), this.nlsService, this.converter);
+                            this.getPropertySpecService(), this.nlsService, this.converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor);
         }
         return dsmr23Messaging;
     }
@@ -254,7 +263,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(), new TcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.getPropertySpecService()), new TcpDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override

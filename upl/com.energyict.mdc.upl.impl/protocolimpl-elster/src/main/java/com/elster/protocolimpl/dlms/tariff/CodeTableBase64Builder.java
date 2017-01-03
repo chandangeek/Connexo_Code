@@ -1,14 +1,15 @@
 package com.elster.protocolimpl.dlms.tariff;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.elster.protocolimpl.dlms.tariff.objects.CodeObject;
 import com.energyict.cbo.ApplicationException;
-import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -23,36 +24,36 @@ public class CodeTableBase64Builder {
      * @param codeTableId
      * @return
      */
-    public static String getXmlStringFromCodeTable(int codeTableId) {
-        return new String(getBase64FromCodeTable(mw().getCodeFactory().find(codeTableId))).replaceFirst("<[?]*(.*)[?]>", "");
+    public static String getXmlStringFromCodeTable(int codeTableId, TariffCalendarFinder finder, TariffCalendarExtractor extractor) {
+        return new String(getBase64FromCodeTable(finder.from(Integer.toString(codeTableId)).orElse(null), extractor)).replaceFirst("<[?]*(.*)[?]>", "");
     }
 
 
-    public static String getXmlStringFromCodeTable(Code codeTable) {
-        return new String(getBase64FromCodeTable(codeTable)).replaceFirst("<[?]*(.*)[?]>", "");
+    public static String getXmlStringFromCodeTable(TariffCalendar calendar, TariffCalendarExtractor extractor) {
+        return new String(getBase64FromCodeTable(calendar, extractor)).replaceFirst("<[?]*(.*)[?]>", "");
     }
 
     /**
      * @param codeTableId
      * @return
      */
-    public static byte[] getBase64FromCodeTable(int codeTableId) {
-        return getBase64FromCodeTable(mw().getCodeFactory().find(codeTableId));
+    public static byte[] getBase64FromCodeTable(int codeTableId, TariffCalendarFinder finder, TariffCalendarExtractor extractor) {
+        return getBase64FromCodeTable(finder.from(Integer.toString(codeTableId)).orElse(null), extractor);
     }
 
     /**
-     * @param codeTable
+     * @param calendar
      * @return
      */
-    public static byte[] getBase64FromCodeTable(Code codeTable) {
+    public static byte[] getBase64FromCodeTable(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         try {
-            if (codeTable == null) {
+            if (calendar == null) {
                 throw new ApplicationException("Code table not found: null");
             }
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
             ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(out));
-            oos.writeObject(CodeObject.fromCode(codeTable));
+            oos.writeObject(CodeObject.fromCode(calendar, extractor));
             oos.flush();
             oos.close();
 
@@ -69,11 +70,6 @@ public class CodeTableBase64Builder {
             mw = MeteringWarehouse.getCurrent();
         }
         return mw;
-    }
-
-    public static void main(String[] args) throws IOException {
-        System.out.println(getXmlStringFromCodeTable(1));
-        ProtocolTools.writeBytesToFile("D:\\repositorysvn\\protocols\\branches\\8.9\\protocolimpl\\test.xml", getXmlStringFromCodeTable(1).getBytes(), false);
     }
 
 }

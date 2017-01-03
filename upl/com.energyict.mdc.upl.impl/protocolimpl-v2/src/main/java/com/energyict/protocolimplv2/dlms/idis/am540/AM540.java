@@ -15,7 +15,8 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -91,8 +92,8 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     private AM540Cache am540Cache;
 
-    public AM540(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, extractor);
+    public AM540(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor, messageFileExtractor);
     }
 
     @Override
@@ -204,7 +205,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList((DeviceProtocolDialect) new SerialDeviceProtocolDialect());
+        return Collections.singletonList((DeviceProtocolDialect) new SerialDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override
@@ -213,7 +214,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     }
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
-        return new AM540ConfigurationSupport();
+        return new AM540ConfigurationSupport(this.getPropertySpecService());
     }
 
     /**
@@ -353,7 +354,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
-        final AM540Properties publicClientProperties = new AM540Properties();
+        final AM540Properties publicClientProperties = new AM540Properties(this.getPropertySpecService());
         publicClientProperties.addProperties(publicProperties);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, publicProperties));    //SecurityLevel 0:0
 
@@ -482,7 +483,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     protected AM540Properties getNewInstanceOfProperties() {
-        return new AM540Properties();
+        return new AM540Properties(this.getPropertySpecService());
     }
 
     @Override
@@ -537,7 +538,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new AM540Messaging(this, this.getExtractor(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter());
+            idisMessaging = new AM540Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor(), this.getMessageFileExtractor());
         }
         return idisMessaging;
     }

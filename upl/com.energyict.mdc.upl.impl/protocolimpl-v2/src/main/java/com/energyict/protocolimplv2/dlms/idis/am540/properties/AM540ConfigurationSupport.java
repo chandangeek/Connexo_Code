@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -39,6 +40,10 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
     public static final Duration DEFAULT_NOT_USED_AARQ_TIMEOUT = Duration.ofSeconds(0);
+
+    public AM540ConfigurationSupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {

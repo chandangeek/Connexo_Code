@@ -9,7 +9,6 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleActivityCalendarObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.types.basic.DlmsDateTime;
-import com.energyict.cbo.BusinessException;
 
 import java.io.IOException;
 
@@ -33,11 +32,11 @@ public class TariffDisablePassiveMessage extends AbstractDlmsMessage {
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         try {
             disableTariff();
         } catch (IOException e) {
-            throw new BusinessException("Unable to disable the tariff: " + e.getMessage());
+            throw new IOException("Unable to disable the tariff: " + e.getMessage(), e);
         }
     }
 

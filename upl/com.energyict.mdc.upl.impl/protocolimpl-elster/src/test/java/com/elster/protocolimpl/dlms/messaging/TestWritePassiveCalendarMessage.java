@@ -4,7 +4,6 @@ import com.elster.dlms.cosem.classes.class20.DayProfile;
 import com.elster.dlms.cosem.classes.class20.WeekProfile;
 import com.elster.protocolimpl.dlms.messaging.utils.TariffCalendar;
 import com.energyict.cbo.BusinessException;
-import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -27,6 +26,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("unused")
 public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessage
 {
-    private final static String testData = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" +
+    private static final String testData = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" +
             "<calendar>\n" +
             "   <name>ccc</name>\n" +
             " \n" +
@@ -89,7 +90,7 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
             "</calendar>\n";
 
 
-    private final static String testDataErr1 = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" +
+    private static final String testDataErr1 = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" +
             "<calendar>\n" +
             "  <name>ccc</name>\n" +
             " \n" +
@@ -241,8 +242,9 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
 
     private void printNodes(Element element, Integer ins)
     {
-        for (int i = 0; i < ins; i++)
+        for (int i = 0; i < ins; i++) {
             System.out.print(" ");
+        }
 
         System.out.print(element.getNodeName());
         ins += 2;
@@ -299,19 +301,7 @@ public class TestWritePassiveCalendarMessage extends A1WritePassiveCalendarMessa
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(new InputSource(new StringReader(xml)));
         }
-        catch (ParserConfigurationException e)
-        {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
-        }
-        catch (SAXException e)
-        {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
-        }
-        catch (IOException e)
-        {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
-        }
-        catch (DOMException e)
+        catch (ParserConfigurationException | SAXException | IOException | DOMException e)
         {
             throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
         }

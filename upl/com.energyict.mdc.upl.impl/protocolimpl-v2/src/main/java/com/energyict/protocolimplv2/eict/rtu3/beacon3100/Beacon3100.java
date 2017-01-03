@@ -36,6 +36,7 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
+import com.energyict.cbo.ObservationTimestampPropertyImpl;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -395,7 +396,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      */
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new MirrorTcpDeviceProtocolDialect(), new GatewayTcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new MirrorTcpDeviceProtocolDialect(this.getPropertySpecService()), new GatewayTcpDeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override
@@ -451,7 +452,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     }
 
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);  //Using callHomeId as a general property
-                    CollectedTopology.ObservationTimestampProperty observationTimestampProperty = ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
+                    CollectedTopology.ObservationTimestampProperty observationTimestampProperty = new ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, observationTimestampProperty);
 
                     if (persistedGatewayLogicalDeviceId == null || !gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {

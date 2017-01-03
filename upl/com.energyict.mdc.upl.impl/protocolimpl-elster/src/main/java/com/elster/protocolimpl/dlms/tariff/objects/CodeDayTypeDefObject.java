@@ -1,8 +1,9 @@
 package com.elster.protocolimpl.dlms.tariff.objects;
 
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import java.io.Serializable;
+import java.time.LocalTime;
 
 /**
  * Copyrights EnergyICT
@@ -17,12 +18,11 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
     private int from;
     private int codeValue;
 
-    public static CodeDayTypeDefObject fromCodeDayTypeDef(CodeDayTypeDef def) {
+    public static CodeDayTypeDefObject fromCodeDayTypeDef(TariffCalendarExtractor.CalendarDayTypeSlice slice) {
         CodeDayTypeDefObject dtd = new CodeDayTypeDefObject();
-        dtd.setCodeValue(def.getCodeValue());
-        dtd.setFrom(def.getTstampFrom());
-        dtd.setDayTypeId(def.getDayType().getId());
-        dtd.setDayTypeName(def.getDayType().getName());
+        dtd.setCodeValue(Integer.parseInt(slice.tariffCode()));
+        LocalTime start = slice.start();
+        dtd.setFrom(start.getHour() * 10000 + start.getMinute() * 100 + start.getSecond());
         return dtd;
     }
 
@@ -60,14 +60,12 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CodeDayTypeDefObject");
-        sb.append("{codeValue=").append(codeValue);
-        sb.append(", dayTypeId=").append(dayTypeId);
-        sb.append(", dayTypeName='").append(dayTypeName).append('\'');
-        sb.append(", from=").append(from);
-        sb.append('}');
-        return sb.toString();
+        return "CodeDayTypeDefObject" +
+                "{codeValue=" + codeValue +
+                ", dayTypeId=" + dayTypeId +
+                ", dayTypeName='" + dayTypeName + '\'' +
+                ", from=" + from +
+                '}';
     }
 
     public int compareTo(CodeDayTypeDefObject other) {

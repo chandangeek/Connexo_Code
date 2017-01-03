@@ -42,7 +42,7 @@ public class UmiFirmwareUpdateMessage extends FirmwareUpdateMessage
             String ident = "";
             for (byte b: sig)
             {
-                if (ident.length() > 0)
+                if (!ident.isEmpty())
                 {
                     ident += ".";
                 }

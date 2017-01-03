@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.registers;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -15,7 +17,7 @@ public class T210DRegisterFactory extends AM130RegisterFactory{
 
     private static final String ALARM_REGISTER3 = "0.0.97.98.2.255";
 
-    public T210DRegisterFactory(AM130 am130) {
+    public T210DRegisterFactory(AM130 am130, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(am130, collectedDataFactory, issueFactory);
     }
 

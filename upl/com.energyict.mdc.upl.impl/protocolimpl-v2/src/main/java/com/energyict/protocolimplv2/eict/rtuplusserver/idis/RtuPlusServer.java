@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -23,9 +24,12 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -74,9 +78,17 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     private IDISGatewayConfigurationSupport configurationSupport;
     private IDISConfigurationSupport meterConfigurationSupport;
     private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
 
-    public RtuPlusServer(CollectedDataFactory collectedDataFactory) {
+    public RtuPlusServer(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.collectedDataFactory = collectedDataFactory;
+        this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
@@ -238,7 +250,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
      */
     private IDISConfigurationSupport getMeterConfigurationSupport() {
         if (meterConfigurationSupport == null) {
-            meterConfigurationSupport = new IDISConfigurationSupport();
+            meterConfigurationSupport = new IDISConfigurationSupport(this.propertySpecService);
         }
         return meterConfigurationSupport;
     }
@@ -264,7 +276,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new TcpDeviceProtocolDialect());
+        return Collections.singletonList(new TcpDeviceProtocolDialect(this.propertySpecService));
     }
 
     @Override
@@ -337,7 +349,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     public DsmrSecuritySupport getDlmsSecuritySupport() {
         if (this.dlmsSecuritySupport == null) {
-            this.dlmsSecuritySupport = new DsmrSecuritySupport();
+            this.dlmsSecuritySupport = new DsmrSecuritySupport(this.propertySpecService);
         }
         return this.dlmsSecuritySupport;
     }

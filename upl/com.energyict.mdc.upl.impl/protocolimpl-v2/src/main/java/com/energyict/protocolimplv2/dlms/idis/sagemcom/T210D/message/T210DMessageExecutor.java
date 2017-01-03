@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
@@ -67,8 +69,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private final String disabledTime = undefined_hour + undefined_minute + undefined_second + undefined_hundredths;
     private final String disabledDate = undefined_year + undefined_month + undefined_dayOfMonth + undefined_dayOfWeek;
 
-    public T210DMessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public T210DMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, issueFactory);
     }
 
     @Override

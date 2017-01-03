@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.eict.webrtuz3.messages.mbus;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -40,8 +39,8 @@ public class WebRTUZ3MBusMessaging extends AbstractDlmsMessaging implements Devi
     private final NlsService nlsService;
     private final Converter converter;
 
-    public WebRTUZ3MBusMessaging(AbstractDlmsProtocol protocol, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(protocol, extractor);
+    public WebRTUZ3MBusMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(protocol);
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;

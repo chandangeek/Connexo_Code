@@ -11,7 +11,6 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleSecuritySetupObject;
 import com.elster.protocolimpl.dlms.SecurityData;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -47,11 +46,9 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
      * Send the message  to the meter.
      *
      * @param messageEntry: the message containing the new keys
-     * @throws com.energyict.cbo.BusinessException:
-     *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         String clientId = MessagingTools.getContentOfAttribute(messageEntry, ATTR_CLIENT_ID);
         String authenticationKey = MessagingTools.getContentOfAttribute(messageEntry, ATTR_AUTHENTICATION_KEY);
         String encryptionKey = MessagingTools.getContentOfAttribute(messageEntry, ATTR_ENCRYPTION_KEY);
@@ -61,7 +58,7 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
         try {
             write(clientId, authenticationKey, encryptionKey, wrapperKey);
         } catch (IOException e) {
-            throw new BusinessException("Unable to change keys in device: " + e.getMessage());
+            throw new IOException("Unable to change keys in device: " + e.getMessage(), e);
         }
     }
 
@@ -83,15 +80,15 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
     }
 
 
-    private void validateMessageData(String clientId, String authenticationKey, String encryptionKey, String wrapperKey) throws BusinessException {
+    private void validateMessageData(String clientId, String authenticationKey, String encryptionKey, String wrapperKey) {
         checkString(clientId, "client id");
         try {
             int clId = Integer.parseInt(clientId);
             if ((clId < 30) || (clId > 89)) {
-                throw new NumberFormatException("Out of range (30-89");
+                throw new IllegalArgumentException("Out of range (30-89");
             }
         } catch (NumberFormatException e) {
-            throw new BusinessException("Error in client id: " + e.getMessage());
+            throw new IllegalArgumentException("Error in client id: " + e.getMessage(), e);
         }
 
         checkKey(authenticationKey, "authentication key");
@@ -99,16 +96,16 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
         checkKey(wrapperKey, "wrapper key");
     }
 
-    private void checkString(String stringToCheck, String name) throws BusinessException {
+    private void checkString(String stringToCheck, String name) {
         if ((stringToCheck == null) || (stringToCheck.isEmpty())) {
-            throw new BusinessException("Parameter " + name + " is 'null' or empty.");
+            throw new IllegalArgumentException("Parameter " + name + " is 'null' or empty.");
         }
     }
 
-    private void checkKey(String key, String name) throws BusinessException {
+    private void checkKey(String key, String name) {
         String msg = SecurityData.checkKey(key, name);
         if (!msg.isEmpty()) {
-            throw new BusinessException("Error: " + msg);
+            throw new IllegalArgumentException("Error: " + msg);
         }
     }
 

@@ -1,14 +1,15 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
+import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
@@ -18,14 +19,20 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.ROUND_TRIP_CORREC
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
 
 /**
- * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a TCP connection type
+ * Models a {@link com.energyict.mdc.upl.DeviceProtocolDialect} for a TCP connection type.
  *
- * @author: khe
- * @since: 16/10/12 (113:25)
+ * @author khe
+ * @since 16/10/12 (113:25)
  */
 public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final int DEFAULT_TCP_TIMEOUT = 30;
+
+    private final PropertySpecService propertySpecService;
+
+    public TcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -38,12 +45,7 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.timeoutPropertySpec(),
                 this.retriesPropertySpec(),
@@ -52,28 +54,29 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     protected PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES, DEFAULT_RETRIES);
+        return this.bigDecimalSpec(RETRIES, DEFAULT_RETRIES);
     }
 
     protected PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT, new TimeDuration(DEFAULT_TCP_TIMEOUT));
+        return this.durationSpec(TIMEOUT, Duration.ofSeconds(DEFAULT_TCP_TIMEOUT));
     }
 
     protected PropertySpec roundTripCorrectionPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
+        return this.bigDecimalSpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case DlmsProtocolProperties.RETRIES:
-                return this.retriesPropertySpec();
-            case DlmsProtocolProperties.TIMEOUT:
-                return this.timeoutPropertySpec();
-            case DlmsProtocolProperties.ROUND_TRIP_CORRECTION:
-                return this.roundTripCorrectionPropertySpec();
-            default:
-                return null;
-        }
+    private PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::bigDecimalSpec)
+                .setDefaultValue(defaultValue)
+                .finish();
     }
+
+    private PropertySpec durationSpec (String name, Duration defaultValue) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::durationSpec)
+                .setDefaultValue(defaultValue)
+                .finish();
+    }
+
 }

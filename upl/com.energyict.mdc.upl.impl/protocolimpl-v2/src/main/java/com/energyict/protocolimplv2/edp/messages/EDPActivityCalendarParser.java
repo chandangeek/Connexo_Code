@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.edp.messages;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class EDPActivityCalendarParser extends ActivityCalendarMessage {
 
-    public EDPActivityCalendarParser(TariffCalendar calendar, Extractor extractor) {
+    public EDPActivityCalendarParser(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         super(calendar, extractor, null);
     }
 

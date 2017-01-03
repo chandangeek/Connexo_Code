@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -12,7 +14,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
  */
 public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
 
-    public AbstractChangeKeyMessage(Messaging messaging) {
+    public AbstractChangeKeyMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
@@ -42,7 +44,7 @@ public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
             throw new CTRException(msg);
         }
 
-        if (fullLengthKey.equalsIgnoreCase("FFFFFFFFFFFFFFFF") || fullLengthKey.equalsIgnoreCase("0000000000000000")) {
+        if ("FFFFFFFFFFFFFFFF".equalsIgnoreCase(fullLengthKey) || "0000000000000000".equalsIgnoreCase(fullLengthKey)) {
             String msg = "Unable to use [" + fullLengthKey + "] as key. This value is reserved.";
             throw new CTRException(msg);
         }

@@ -10,7 +10,6 @@ import com.elster.dlms.cosem.classes.class28.AutoAnswerModeEnum;
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleAutoAnswerObject;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -46,14 +45,14 @@ public class DisableAutoAnswerMessage extends AbstractDlmsMessage {
      *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
 
         String autoAnswerId = MessagingTools.getContentOfAttribute(messageEntry, ATTR_AUTOANSWER_ID);
         validateMessageData(autoAnswerId);
         try {
             write(autoAnswerId);
         } catch (IOException e) {
-            throw new BusinessException("Unable to disable auto answer: " + e.getMessage());
+            throw new IOException("Unable to disable auto answer: " + e.getMessage(), e);
         }
 
     }
@@ -72,7 +71,7 @@ public class DisableAutoAnswerMessage extends AbstractDlmsMessage {
     }
 
 
-    private void validateMessageData(String autoAnswerId) throws BusinessException {
+    private void validateMessageData(String autoAnswerId) {
         checkInt(autoAnswerId, "autoAnswer id", 1, 6);
     }
 

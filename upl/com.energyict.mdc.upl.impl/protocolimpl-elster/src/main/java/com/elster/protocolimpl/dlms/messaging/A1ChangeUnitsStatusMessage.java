@@ -10,7 +10,6 @@ import com.elster.dlms.types.data.DlmsData;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
 import com.elster.protocolimpl.dlms.objects.a1.UNITSStatusChanger;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class A1ChangeUnitsStatusMessage extends AbstractDlmsMessage
         return isMessageTag(MESSAGE_TAG, messageEntry.getContent());
     }
 
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         String unitsStatus = MessagingTools.getContentOfAttribute(messageEntry, ATTR_UNITS_STATUS);
         validateMessageData(unitsStatus);
@@ -43,7 +42,7 @@ public class A1ChangeUnitsStatusMessage extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to set new UNITS status: " + e.getMessage());
+            throw new IOException("Unable to set new UNITS status: " + e.getMessage(), e);
         }
     }
 
@@ -70,12 +69,12 @@ public class A1ChangeUnitsStatusMessage extends AbstractDlmsMessage
         rwObject.write(layer, new Object[]{newState});
     }
 
-    private void validateMessageData(String unitsStatus) throws BusinessException
+    private void validateMessageData(String unitsStatus)
     {
         UNITSStatusChanger.DeviceState state = StringToDeviceState(unitsStatus);
         if (state == UNITSStatusChanger.DeviceState.UNKNOWN)
         {
-            throw new BusinessException(ATTR_UNITS_STATUS + ": error in definition");
+            throw new IllegalArgumentException(ATTR_UNITS_STATUS + ": error in definition");
         }
     }
 

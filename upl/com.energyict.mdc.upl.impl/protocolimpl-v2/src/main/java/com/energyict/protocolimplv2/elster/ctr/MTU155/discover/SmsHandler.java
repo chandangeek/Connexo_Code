@@ -142,7 +142,7 @@ public class SmsHandler {
      * @throws CTRException
      */
     protected void parseTrace_CData(Trace_CQueryResponseStructure data) throws CTRException {
-        ProfileChannelForSms profileForSms = new ProfileChannelForSms(getDeviceSerialNumber(), getMtu155Properties(), data);
+        ProfileChannelForSms profileForSms = new ProfileChannelForSms(getDeviceSerialNumber(), getMtu155Properties(), data, collectedDataFactory, issueFactory);
         ProfileData pd = profileForSms.getProfileData();
         this.collectedDataList.add(convertToCollectedData(data, pd));
     }

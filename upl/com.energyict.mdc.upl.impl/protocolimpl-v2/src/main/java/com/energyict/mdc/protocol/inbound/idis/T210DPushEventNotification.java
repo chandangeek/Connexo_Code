@@ -5,8 +5,7 @@ import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +41,7 @@ public class T210DPushEventNotification extends DataPushNotification {
             collectedDatas.add(parser.getCollectedDeviceIpAddres());
         }
 
-        if(parser.getCollectedLoadProfile() != null && parser.getCollectedLoadProfile().size() > 0){
+        if(parser.getCollectedLoadProfile() != null && !parser.getCollectedLoadProfile().isEmpty()){
             for(CollectedLoadProfile collectedLoadProfile: parser.getCollectedLoadProfile()){
                 collectedDatas.add(collectedLoadProfile);
             }

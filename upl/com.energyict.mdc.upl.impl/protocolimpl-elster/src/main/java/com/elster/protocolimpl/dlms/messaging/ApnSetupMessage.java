@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleGprsModemSetupObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -46,11 +45,9 @@ public class ApnSetupMessage extends AbstractDlmsMessage {
      * Send the message (containing the apn configuration) to the meter.
      *
      * @param messageEntry: the message containing the apn configuration
-     * @throws com.energyict.cbo.BusinessException:
-     *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         String apn = MessagingTools.getContentOfAttribute(messageEntry, GPRS_APN);
         String user = MessagingTools.getContentOfAttribute(messageEntry, GPRS_USERNAME);
         String password = MessagingTools.getContentOfAttribute(messageEntry, GPRS_PASSWORD);
@@ -59,7 +56,7 @@ public class ApnSetupMessage extends AbstractDlmsMessage {
         try {
             write(apn, user, password);
         } catch (IOException e) {
-            throw new BusinessException("Unable to set GPRS modem setup data: " + e.getMessage());
+            throw new IOException("Unable to set GPRS modem setup data: " + e.getMessage(), e);
         }
     }
 
@@ -75,19 +72,19 @@ public class ApnSetupMessage extends AbstractDlmsMessage {
     }
 
 
-    protected void validateApnSetupMessage(String apn, String user, String pssw) throws BusinessException {
+    protected void validateApnSetupMessage(String apn, String user, String pssw) {
         if ("".equals(apn) || apn == null) {
-            throw new BusinessException("Parameter APN was 'null'.");
+            throw new IllegalArgumentException("Parameter APN was 'null'.");
         } else if ("".equals(pssw) || pssw == null) {
-            throw new BusinessException("Parameter password was 'null'.");
+            throw new IllegalArgumentException("Parameter password was 'null'.");
         } else if ("".equals(user) || user == null) {
-            throw new BusinessException("Parameter username was 'null'.");
+            throw new IllegalArgumentException("Parameter username was 'null'.");
         } else if (apn.length() > APN_MAX_LENGTH) {
-            throw new BusinessException("Parameter APN exceeded the maximum length (40 characters).");
+            throw new IllegalArgumentException("Parameter APN exceeded the maximum length (40 characters).");
         } else if (user.length() > USER_MAX_LENGTH) {
-            throw new BusinessException("Parameter username exceeded the maximum length (30 characters).");
+            throw new IllegalArgumentException("Parameter username exceeded the maximum length (30 characters).");
         } else if (pssw.length() > PASS_MAX_LENGTH) {
-            throw new BusinessException("Parameter password exceeded the maximum length (30 characters).");
+            throw new IllegalArgumentException("Parameter password exceeded the maximum length (30 characters).");
         }
     }
 

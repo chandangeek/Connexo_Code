@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -17,13 +19,13 @@ public class ChangeTemporaryKeyMessage extends AbstractChangeKeyMessage {
 
     public static final String CHANGE_KEYT_OBJECT_ID = "11.0.E";
 
-    public ChangeTemporaryKeyMessage(Messaging messaging) {
-        super(messaging);
+    public ChangeTemporaryKeyMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.CHANGE_TEMPORARY_KEY.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == SecurityMessage.CHANGE_TEMPORARY_KEY.id();
     }
 
     @Override

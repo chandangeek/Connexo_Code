@@ -222,7 +222,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(), new SerialDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(this.propertySpecService), new SerialDeviceProtocolDialect(this.propertySpecService));
     }
 
     @Override

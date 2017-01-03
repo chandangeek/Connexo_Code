@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -37,7 +36,7 @@ public class A1SetRSSIMultiSampling extends AbstractDlmsMessage
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         try
         {
@@ -53,7 +52,7 @@ public class A1SetRSSIMultiSampling extends AbstractDlmsMessage
             {
                 msg += " (" + e.getMessage() + ")";
             }
-            throw new BusinessException(msg);
+            throw new IOException(msg, e);
         }
     }
 

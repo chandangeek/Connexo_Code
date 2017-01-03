@@ -12,7 +12,6 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -70,14 +69,12 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
-    private final Extractor extractor;
 
-    public EIWeb(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
+    public EIWeb(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
         this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
     }
 
@@ -199,14 +196,14 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebMessageConverter(null, propertySpecService, nlsService, converter, extractor);
+            messageConverter = new EIWebMessageConverter(null, propertySpecService, nlsService, converter);
         }
         return messageConverter;
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList(new NoParamsDeviceProtocolDialect());
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.loadprofile;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
@@ -28,7 +31,7 @@ public class LoadProfileBuilder extends com.energyict.protocolimplv2.nta.dsmr23.
      *
      * @param meterProtocol the {@link #meterProtocol}
      */
-    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
+    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory,  IssueFactory issueFactory) {
         super(meterProtocol, collectedDataFactory, issueFactory);
     }
 

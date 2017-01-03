@@ -10,7 +10,6 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleRegisterObject;
 import com.elster.dlms.types.basic.ObisCode;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -44,7 +43,7 @@ public class WriteGasParametersMessage extends AbstractDlmsMessage {
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         String gasDensityAttr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_GAS_DENSITY);
         String relDensityAttr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_REL_DENSITY);
         String n2PercentageAttr = MessagingTools.getContentOfAttribute(messageEntry, ATTR_N2_PERCENTAGE);
@@ -75,7 +74,7 @@ public class WriteGasParametersMessage extends AbstractDlmsMessage {
             writeGasParameters(gasDensity, relDensity, cv, n2Percentage, h2Percentage, co2Percentage,
                     coPercentage, ch4Percentage);
         } catch (IOException e) {
-            throw new BusinessException("Failed to write the GAS parameters to the device: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to write the GAS parameters to the device: " + e.getMessage(), e);
         }
     }
 
@@ -96,25 +95,25 @@ public class WriteGasParametersMessage extends AbstractDlmsMessage {
     }
 
     protected BigDecimal validateValue(String value, String valName, BigDecimal lowerLimit, BigDecimal upperLimit,
-                                       int decimals) throws BusinessException {
+                                       int decimals) {
 
         if (value == null) {
-            throw new BusinessException(String.format("%s cannot be 'null'", valName));
+            throw new IllegalArgumentException(String.format("%s cannot be 'null'", valName));
         }
         if ("".equals(value)) {
-            throw new BusinessException(String.format("%s cannot be empty", valName));
+            throw new IllegalArgumentException(String.format("%s cannot be empty", valName));
         }
 
         BigDecimal bd = new BigDecimal(value);
         BigDecimal result = bd.setScale(decimals, BigDecimal.ROUND_HALF_UP);
 
         if (result.compareTo(lowerLimit) < 0) {
-            throw new BusinessException(String.format("%s value exceeds lower limit. Min. value is %s",
+            throw new IllegalArgumentException(String.format("%s value exceeds lower limit. Min. value is %s",
                     valName, lowerLimit.toString()));
         }
 
         if (result.compareTo(upperLimit) > 0) {
-            throw new BusinessException(String.format("%s value exceeds upper limit. Max. value is %s",
+            throw new IllegalArgumentException(String.format("%s value exceeds upper limit. Max. value is %s",
                     valName, upperLimit.toString()));
         }
 

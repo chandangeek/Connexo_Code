@@ -17,7 +17,10 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -92,13 +95,19 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private Dsmr50RegisterFactory registerFactory;
     private AM540Cache am540Cache;
     private final PropertySpecService propertySpecService;
-    private final Extractor extractor;
     private final NlsService nlsService;
     private final Converter converter;
+    private final LoadProfileExtractor loadProfileExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final NumberLookupExtractor numberLookupExtractor;
 
-    public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, Extractor extractor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
-        this.extractor = extractor;
+        this.loadProfileExtractor = loadProfileExtractor;
+        this.messageFileExtractor = messageFileExtractor;
+        this.calendarExtractor = calendarExtractor;
+        this.numberLookupExtractor = numberLookupExtractor;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
@@ -286,7 +295,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new AM540LoadProfileBuilder(this);
+            this.loadProfileBuilder = new AM540LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
             ((Dsmr40LoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(getDlmsSessionProperties().isCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
@@ -336,7 +345,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(), new TcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.propertySpecService), new TcpDeviceProtocolDialect(this.propertySpecService));
     }
 
     @Override
@@ -356,10 +365,13 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
             this.am540Messaging =
                     new AM540Messaging(
                             new AM540MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()),
-                            this.extractor,
                             this.propertySpecService,
                             this.nlsService,
-                            this.converter);
+                            this.converter,
+                            this.messageFileExtractor,
+                            this.calendarExtractor,
+                            this.numberLookupExtractor,
+                            this.loadProfileExtractor);
         }
         return this.am540Messaging;
     }

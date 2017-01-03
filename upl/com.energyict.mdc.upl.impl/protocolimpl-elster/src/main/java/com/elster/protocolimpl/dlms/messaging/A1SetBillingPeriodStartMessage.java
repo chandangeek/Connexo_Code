@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -47,7 +46,7 @@ public class A1SetBillingPeriodStartMessage extends AbstractDlmsMessage
      *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         String data = MessagingTools.getContentOfAttribute(messageEntry, ATTR_BILLING_PERIOD_START_DATE);
         validateMessage(data);
@@ -55,7 +54,7 @@ public class A1SetBillingPeriodStartMessage extends AbstractDlmsMessage
         try {
             write(values);
         } catch (IOException e) {
-            throw new BusinessException("Unable to set billing period start: " + e.getMessage());
+            throw new IOException("Unable to set billing period start: " + e.getMessage(), e);
         }
     }
 
@@ -74,11 +73,11 @@ public class A1SetBillingPeriodStartMessage extends AbstractDlmsMessage
     }
 
 
-    protected void validateMessage(String data) throws BusinessException
+    protected void validateMessage(String data)
     {
         if ((data == null) || ("".equals(data)))
         {
-            throw new BusinessException("Parameter billing period start was 'null' or empty.");
+            throw new IllegalArgumentException("Parameter billing period start was 'null' or empty.");
         }
         processDateString(data);
     }
@@ -97,13 +96,13 @@ public class A1SetBillingPeriodStartMessage extends AbstractDlmsMessage
         return msgSpec;
     }
 
-    public static Integer[] processDateString(String data) throws BusinessException
+    public static Integer[] processDateString(String data)
     {
         Pattern pattern = Pattern.compile(PATTERN);
         Matcher match = pattern.matcher(data.toUpperCase());
         if (!match.matches())
         {
-            throw new BusinessException("Parameter billing period start: error in definition");
+            throw new IllegalArgumentException("Parameter billing period start: error in definition");
         }
 
         Integer[] result = new Integer[] { 0xFFFF, 0xFF, 0xFF, 0xFF};
@@ -112,7 +111,7 @@ public class A1SetBillingPeriodStartMessage extends AbstractDlmsMessage
         for (int i = 0; i < match.groupCount() - 1; i++)
         {
             String groupValue = match.group(i + 1);
-            if ((groupValue != null) && (groupValue.trim().length() > 0))
+            if ((groupValue != null) && (!groupValue.trim().isEmpty()))
             {
                 switch (i)
                 {

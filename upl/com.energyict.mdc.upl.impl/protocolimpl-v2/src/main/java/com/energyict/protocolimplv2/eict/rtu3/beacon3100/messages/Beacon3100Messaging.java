@@ -419,9 +419,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * @param userFile The user file to write to the temp.
      * @return The {@link File} that was written.
      */
-    private final File writeToTempDirectory(final UserFile userFile) {
+    private File writeToTempDirectory(final UserFile userFile) {
         final File tempDirectory = new File(System.getProperty(TEMP_DIR));
-        final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
+        final String fileName = "beacon-3100-firmware-" + userFile.getId();
 
         try {
             FIRMWARE_FILE_LOCK.lock();
@@ -529,7 +529,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList)) {
                         collectedMessage = removeMetersFromBlackList(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.BroadcastFirmwareUpgrade)) {
-                        collectedMessage = new BroadcastUpgrade(this).broadcastFirmware(pendingMessage, collectedMessage);
+                        collectedMessage = new BroadcastUpgrade(this, this.propertySpecService).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -56,9 +56,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usern
 public class A1MessageConverter extends AbstractMessageConverter {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public A1MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor) {
-        super(messagingProtocol, propertySpecService, nlsService, converter, extractor, deviceExtractor, registerExtractor, loadProfileExtractor, numberLookupExtractor, deviceMessageFileExtractor, tariffCalendarExtractor);
+    protected A1MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+        super(messagingProtocol, propertySpecService, nlsService, converter);
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
@@ -123,7 +125,7 @@ public class A1MessageConverter extends AbstractMessageConverter {
             return String.format("%02d", timeOfDay.getHour()) + ":" + String.format("%02d", timeOfDay.getMinute()) + ":" + String.format("%02d", timeOfDay.getSecond());
         } else if (propertySpec.getName().equals(XmlUserFileAttributeName) || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             DeviceMessageFile deviceMessageFile = (DeviceMessageFile) messageAttribute;
-            return this.getExtractor().contents(deviceMessageFile);  //Bytes of the deviceMessageFile, as a string
+            return this.messageFileExtractor.contents(deviceMessageFile);  //Bytes of the deviceMessageFile, as a string
         } else {
             return messageAttribute.toString();
         }

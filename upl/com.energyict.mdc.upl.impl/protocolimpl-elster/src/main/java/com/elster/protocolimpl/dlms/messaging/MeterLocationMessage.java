@@ -10,7 +10,6 @@ import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.dlms.types.basic.CosemAttributeDescriptor;
 import com.elster.dlms.types.data.DlmsDataVisibleString;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -49,14 +48,14 @@ public class MeterLocationMessage extends AbstractDlmsMessage {
      *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         String location = MessagingTools.getContentOfAttribute(messageEntry, ATTR_LOCATION);
         validateMeterLocationMessage(location);
 
         write(location);
     }
 
-    private void write(String location) throws BusinessException {
+    private void write(String location) throws IOException {
 
         CosemAttributeDescriptor attributeDescriptor = new CosemAttributeDescriptor(
                 new com.elster.dlms.types.basic.ObisCode("7.128.0.0.6.255"), 1, 2);
@@ -70,16 +69,16 @@ public class MeterLocationMessage extends AbstractDlmsMessage {
                 throw new IOException("setAttribute failure:" + accessResult);
             }
         } catch (IOException e) {
-            throw new BusinessException("write meter location: " + e.getMessage());
+            throw new IOException("write meter location: " + e.getMessage(), e);
         }
     }
 
 
-    private void validateMeterLocationMessage(String location) throws BusinessException {
+    private void validateMeterLocationMessage(String location) {
         if ((location == null) || ("".equals(location))) {
-            throw new BusinessException("Parameter Location was 'null' or empty.");
+            throw new IllegalArgumentException("Parameter Location was 'null' or empty.");
         } else if (location.length() > METERLOCATION_MAX_LENGTH) {
-            throw new BusinessException("Parameter Location exceeded the maximum length (30 characters).");
+            throw new IllegalArgumentException("Parameter Location exceeded the maximum length (30 characters).");
         }
     }
 

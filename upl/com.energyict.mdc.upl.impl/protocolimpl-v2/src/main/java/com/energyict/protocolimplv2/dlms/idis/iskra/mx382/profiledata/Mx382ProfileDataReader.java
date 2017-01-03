@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382.profiledata;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -12,13 +15,13 @@ public class Mx382ProfileDataReader extends IDISProfileDataReader {
 
     private static final ObisCode QUARTER_HOURLY_MAXDEMAND_LOAD_PROFILE = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode DAILY_MAXDEMAND_LOAD_PROFILE = ObisCode.fromString("0.0.98.2.0.255");
-    private final int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x01;
-    private final int PROFILE_STATUS_RESET_CUMULATION = 0x10;
-    private final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
-    private final int PROFILE_STATUS_POWER_RETURNED = 0x40;
-    private final int PROFILE_STATUS_POWER_FAILURE = 0x80;
+    private static final int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x01;
+    private static final int PROFILE_STATUS_RESET_CUMULATION = 0x10;
+    private static final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
+    private static final int PROFILE_STATUS_POWER_RETURNED = 0x40;
+    private static final int PROFILE_STATUS_POWER_FAILURE = 0x80;
 
-    public Mx382ProfileDataReader(AbstractDlmsProtocol protocol, long limitMaxNrOfDays) {
+    public Mx382ProfileDataReader(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, long limitMaxNrOfDays) {
         super(protocol, limitMaxNrOfDays, collectedDataFactory, issueFactory);
         supportedLoadProfiles.add(QUARTER_HOURLY_MAXDEMAND_LOAD_PROFILE);
         supportedLoadProfiles.add(DAILY_MAXDEMAND_LOAD_PROFILE);

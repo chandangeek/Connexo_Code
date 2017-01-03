@@ -86,6 +86,8 @@ public class EIWebPlusMessageConverterTest {
     private DeviceMessageFileExtractor deviceMessageFileConverter;
     @Mock
     private CollectedDataFactory collectedDataFactory;
+    @Mock
+    private DeviceMessageFileExtractor messageFileExtractor;
 
     private ExtendedEIWebPlusMessageConverter converter;
 
@@ -170,7 +172,7 @@ public class EIWebPlusMessageConverterTest {
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             propertyStorage.setProperty(propertySpec.getName(), "1");
-            attributes.add(new OfflineDeviceMessageAttributeImpl(offlineDevice, message, new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new RtuServer(this.collectedDataFactory, propertySpecService, nlsService, converter)));
+            attributes.add(new OfflineDeviceMessageAttributeImpl(offlineDevice, message, new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new RtuServer(this.collectedDataFactory, propertySpecService, nlsService, converter, messageFileExtractor)));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);
         when(message.getSpecification()).thenReturn(messageSpec);

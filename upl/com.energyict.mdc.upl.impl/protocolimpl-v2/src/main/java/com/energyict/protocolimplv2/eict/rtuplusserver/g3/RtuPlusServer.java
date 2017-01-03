@@ -17,6 +17,9 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceGroupExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -106,13 +109,19 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DeviceGroupExtractor deviceGroupExtractor;
+    private final DeviceExtractor deviceExtractor;
 
-    public RtuPlusServer(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public RtuPlusServer(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.messageFileExtractor = messageFileExtractor;
+        this.deviceGroupExtractor = deviceGroupExtractor;
+        this.deviceExtractor = deviceExtractor;
     }
 
     @Override
@@ -318,7 +327,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     protected RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
-            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), offlineDevice, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter);
+            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), offlineDevice, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor, deviceGroupExtractor, deviceExtractor);
         }
         return rtuPlusServerMessages;
     }
@@ -350,7 +359,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new TcpDeviceProtocolDialect());
+        return Collections.singletonList(new TcpDeviceProtocolDialect(this.propertySpecService));
     }
 
     protected DeviceProtocolSecurityCapabilities getSecuritySupport() {

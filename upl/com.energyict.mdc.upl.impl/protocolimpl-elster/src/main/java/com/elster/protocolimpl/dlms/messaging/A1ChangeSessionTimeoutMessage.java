@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -43,10 +42,8 @@ public class A1ChangeSessionTimeoutMessage extends AbstractDlmsMessage
     /**
      * Send the message to the meter.
      *
-     * @throws com.energyict.cbo.BusinessException:
-     *          when a parameter is null or too long
      */
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         String timeoutValue = MessagingTools.getContentOfAttribute(messageEntry, ATTR_SESSION_TIMEOUT_MS);
         validateMessageData(timeoutValue);
@@ -56,7 +53,7 @@ public class A1ChangeSessionTimeoutMessage extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to set session timeout: " + e.getMessage());
+            throw new IOException("Unable to set session timeout: " + e.getMessage(), e);
         }
     }
 
@@ -80,7 +77,7 @@ public class A1ChangeSessionTimeoutMessage extends AbstractDlmsMessage
                 });
     }
 
-    protected void validateMessageData(final String sessionTimeout) throws BusinessException
+    protected void validateMessageData(final String sessionTimeout)
     {
         try
         {
@@ -92,7 +89,7 @@ public class A1ChangeSessionTimeoutMessage extends AbstractDlmsMessage
         }
         catch (ParseException e)
         {
-            throw new BusinessException(ATTR_SESSION_TIMEOUT_MS + ": error in definition - " + e.getMessage());
+            throw new IllegalArgumentException(ATTR_SESSION_TIMEOUT_MS + ": error in definition - " + e.getMessage());
         }
     }
 

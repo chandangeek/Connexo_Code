@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
@@ -22,6 +23,10 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
     public static final String IGNORE_CALLING_AP_TITLE = "IgnoreCallingAPTitle";
     public static final String USE_LOGICAL_DEVICE_NAME_AS_SERIAL = "UseLogicalDeviceNameAsSerialNumber";
     public static final String USE_UNDEFINED_AS_TIME_DEVIATION = "UseUndefinedAsTimeDeviation";
+
+    public IDISConfigurationSupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {

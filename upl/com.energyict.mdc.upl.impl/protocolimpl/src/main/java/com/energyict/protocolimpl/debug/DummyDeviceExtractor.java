@@ -22,6 +22,11 @@ final class DummyDeviceExtractor implements DeviceExtractor {
     }
 
     @Override
+    public <T> T protocolProperty(Device device, String propertyName, T defaultValue) {
+        return defaultValue;
+    }
+
+    @Override
     public Optional<com.energyict.mdc.upl.meterdata.Register> register(Device device, ObisCode obisCode) {
         return Optional.empty();
     }

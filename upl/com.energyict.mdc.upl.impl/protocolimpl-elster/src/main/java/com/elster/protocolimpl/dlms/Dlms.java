@@ -6,6 +6,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -172,9 +174,13 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     protected String logStructure = "";
     protected ObisCode ocLogProfile = null;
     protected ILogProcessor logProfile = null;
+    private final TariffCalendarFinder calendarFinder;
+    private final TariffCalendarExtractor calendarExtractor;
 
-    public Dlms() {
-        super(propertySpecService);
+    public Dlms(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
+        super();
+        this.calendarFinder = calendarFinder;
+        this.calendarExtractor = calendarExtractor;
     }
 
     @Override
@@ -633,17 +639,17 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
 
     @Override
     public String writeMessage(Message msg) {
-        return new XmlMessageWriter().writeMessage(msg);
+        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor).writeMessage(msg);
     }
 
     @Override
     public String writeTag(MessageTag tag) {
-        return new XmlMessageWriter().writeTag(tag);
+        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor).writeTag(tag);
     }
 
     @Override
     public String writeValue(MessageValue value) {
-        return new XmlMessageWriter().writeValue(value);
+        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor).writeValue(value);
     }
 
     public DlmsMessageExecutor getMessageExecutor() {

@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -17,14 +19,14 @@ public class ChangeSealStatusMessage extends AbstractMTU155Message {
 
     private final SealConfig sealConfig;
 
-    public ChangeSealStatusMessage(Messaging messaging) {
+    public ChangeSealStatusMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
         sealConfig = new SealConfig(messaging.getProtocol().getRequestFactory());
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.BREAK_OR_RESTORE_SEALS.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == SecurityMessage.BREAK_OR_RESTORE_SEALS.id();
     }
 
     @Override

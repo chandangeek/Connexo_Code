@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeObjectValidator;
@@ -22,8 +22,12 @@ import java.util.stream.Collectors;
 public class CodeObject implements Serializable {
 
     private int id;
+    private String externalName;
     private String name;
     private int yearFrom;
+    private int interval;
+    private boolean verified;
+    private boolean rebuilt;
     private int yearTo;
     private TimeZone destinationTimeZone;
     private TimeZone definitionTimeZone;
@@ -35,10 +39,11 @@ public class CodeObject implements Serializable {
     public CodeObject() {
     }
 
-    public static CodeObject fromCode(TariffCalendar calendar, Extractor extractor) {
+    public static CodeObject fromCode(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         CodeObject co = new CodeObject();
         co.setId(extractor.id(calendar));
         co.setName(extractor.name(calendar));
+        co.setExternalName(null);
         Range<Year> range = extractor.range(calendar);
         if (range.hasLowerBound()) {
             co.setYearFrom(range.lowerEndpoint().getValue());
@@ -50,6 +55,9 @@ public class CodeObject implements Serializable {
         } else {
             co.setYearTo(CodeObjectValidator.MAX_START_YEAR);
         }
+        co.setInterval(extractor.intervalInSeconds(calendar));
+        co.setVerified(true);
+        co.setRebuilt(true);
         co.setDestinationTimeZone(extractor.destinationTimeZone(calendar));
         co.setDefinitionTimeZone(extractor.definitionTimeZone(calendar));
         extractor.season(calendar).map(SeasonSetObject::fromSeasonSet).ifPresent(co::setSeasonSet);
@@ -136,6 +144,14 @@ public class CodeObject implements Serializable {
         this.destinationTimeZone = destinationTimeZone;
     }
 
+    public String getExternalName() {
+        return externalName;
+    }
+
+    public void setExternalName(String externalName) {
+        this.externalName = externalName;
+    }
+
     public int getId() {
         return id;
     }
@@ -146,6 +162,14 @@ public class CodeObject implements Serializable {
 
     private void setId(String id) {
         this.setId(Integer.parseInt(id));
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 
     public String getName() {
@@ -170,12 +194,28 @@ public class CodeObject implements Serializable {
         this.name = name;
     }
 
+    public boolean isRebuilt() {
+        return rebuilt;
+    }
+
+    public void setRebuilt(boolean rebuilt) {
+        this.rebuilt = rebuilt;
+    }
+
     public SeasonSetObject getSeasonSet() {
         return seasonSet;
     }
 
     public void setSeasonSet(SeasonSetObject seasonSet) {
         this.seasonSet = seasonSet;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
 
     public int getYearFrom() {

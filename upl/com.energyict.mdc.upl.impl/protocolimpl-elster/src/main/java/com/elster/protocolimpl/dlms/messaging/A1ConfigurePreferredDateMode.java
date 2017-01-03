@@ -10,7 +10,6 @@ import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.dlms.types.basic.CosemAttributeDescriptor;
 import com.elster.dlms.types.data.DlmsDataDoubleLongUnsigned;
 import com.elster.protocolimpl.dlms.util.A1Defs;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -48,7 +47,7 @@ public class A1ConfigurePreferredDateMode extends AbstractDlmsMessage
      *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         String prefDate = MessagingTools.getContentOfAttribute(messageEntry, ATTR_PREF_DATE);
         validateMessageData(prefDate);
@@ -58,7 +57,7 @@ public class A1ConfigurePreferredDateMode extends AbstractDlmsMessage
         }
         catch (IOException e)
         {
-            throw new BusinessException("Unable to set cyclic mode data: " + e.getMessage());
+            throw new IOException("Unable to set cyclic mode data: " + e.getMessage(), e);
         }
     }
 
@@ -119,12 +118,12 @@ public class A1ConfigurePreferredDateMode extends AbstractDlmsMessage
         return result;
     }
 
-    protected void validateMessageData(String prefDate) throws BusinessException
+    protected void validateMessageData(String prefDate)
     {
         Pattern pattern = Pattern.compile(DatePattern);
         if (!pattern.matcher(prefDate).matches())
         {
-            throw new BusinessException(ATTR_PREF_DATE + ": error in definition");
+            throw new IllegalArgumentException(ATTR_PREF_DATE + ": error in definition");
         }
     }
 

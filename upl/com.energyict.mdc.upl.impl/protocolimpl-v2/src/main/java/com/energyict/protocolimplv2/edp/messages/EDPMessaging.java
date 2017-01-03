@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.edp.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -48,13 +48,15 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     private final NlsService nlsService;
     private final Converter converter;
     private final AbstractMessageExecutor messageExecutor;
+    private final TariffCalendarExtractor calendarExtractor;
 
-    public EDPMessaging(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, Extractor extractor, AbstractMessageExecutor messageExecutor) {
-        super(messageExecutor.getProtocol(), extractor);
+    public EDPMessaging(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, AbstractMessageExecutor messageExecutor, TariffCalendarExtractor calendarExtractor) {
+        super(messageExecutor.getProtocol());
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
         this.messageExecutor = messageExecutor;
+        this.calendarExtractor = calendarExtractor;
     }
 
     private DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
@@ -87,10 +89,10 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case activityCalendarCodeTableAttributeName:
-                EDPActivityCalendarParser parser = new EDPActivityCalendarParser((Code) messageAttribute);
+                EDPActivityCalendarParser parser = new EDPActivityCalendarParser((Code) messageAttribute, this.calendarExtractor);
                 return convertCodeTableToAXDR(parser);
             case specialDaysCodeTableAttributeName:
-                return parseSpecialDays((Code) messageAttribute);
+                return parseSpecialDays((Code) messageAttribute, this.calendarExtractor);
             case configUserFileAttributeName:
             case firmwareUpdateUserFileAttributeName:
                 return new String(((UserFile) messageAttribute).loadFileInByteArray());

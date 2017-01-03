@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -24,13 +26,13 @@ import java.util.Date;
  */
 public class WritePDRMessage extends AbstractMTU155Message {
 
-    public WritePDRMessage(Messaging messaging) {
+    public WritePDRMessage(Messaging messaging, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(messaging, collectedDataFactory, issueFactory);
     }
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteNewPDRNumber.getPrimaryKey().getValue());
+        return message.getSpecification().getId() == ConfigurationChangeDeviceMessage.WriteNewPDRNumber.id();
     }
 
     @Override

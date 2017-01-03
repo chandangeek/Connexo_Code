@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 
 import java.io.IOException;
 
@@ -34,11 +33,11 @@ public class A1DisablePassiveTariffMessage extends AbstractDlmsMessage {
     }
 
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException {
+    public void executeMessage(MessageEntry messageEntry) throws IOException {
         try {
             disableTariff();
         } catch (IOException e) {
-            throw new BusinessException("Unable to disable the tariff: " + e.getMessage());
+            throw new IOException("Unable to disable the tariff: " + e.getMessage(), e);
         }
     }
 

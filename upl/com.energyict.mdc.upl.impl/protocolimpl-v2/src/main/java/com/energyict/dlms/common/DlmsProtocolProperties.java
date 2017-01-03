@@ -93,7 +93,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final BigDecimal DEFAULT_PROPOSED_DLMS_VERSION = new BigDecimal(6);
     public static final BigDecimal DEFAULT_PROPOSED_QOS = new BigDecimal(-1);
     public static final Boolean DEFAULT_REQUEST_TIMEZONE = false;
-    public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = new BigDecimal(0);
+    public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = BigDecimal.ZERO;
     public static final BigDecimal DEFAULT_ISKRA_WRAPPER = new BigDecimal(1);
     public static final BigDecimal DEFAULT_DEVICE_BUFFER_SIZE = new BigDecimal(-1);
     public static final boolean DEFAULT_FIX_MBUS_HEX_SHORT_ID = false;

@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.protocolimpl.dlms.objects.ObjectPool;
 import com.elster.protocolimpl.dlms.objects.a1.IReadWriteObject;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class A1SetOnDemandSnapshotTimeMessage extends AbstractDlmsMessage
      *          when a parameter is null or too long
      */
     @Override
-    public void executeMessage(MessageEntry messageEntry) throws BusinessException
+    public void executeMessage(MessageEntry messageEntry) throws IOException
     {
         validateMessage(messageEntry);
         Date date = getDateOfData(messageEntry);
@@ -61,7 +60,7 @@ public class A1SetOnDemandSnapshotTimeMessage extends AbstractDlmsMessage
         try {
             write(new Object[] {date, reason});
         } catch (IOException e) {
-            throw new BusinessException("Unable to set billing period start: " + e.getMessage());
+            throw new IOException("Unable to set billing period start: " + e.getMessage(), e);
         }
     }
 
@@ -81,7 +80,7 @@ public class A1SetOnDemandSnapshotTimeMessage extends AbstractDlmsMessage
 
 
     @SuppressWarnings({"unused"})
-    protected void validateMessage(MessageEntry messageEntry) throws BusinessException
+    protected void validateMessage(MessageEntry messageEntry)
     {
         Date date = getDateOfData(messageEntry);
         Integer reason = getReasonOfData(messageEntry);
@@ -103,7 +102,7 @@ public class A1SetOnDemandSnapshotTimeMessage extends AbstractDlmsMessage
         return msgSpec;
     }
 
-    private Date getDateOfData(MessageEntry messageEntry) throws BusinessException
+    private Date getDateOfData(MessageEntry messageEntry)
     {
         String dateString = MessagingTools.getContentOfAttribute(messageEntry, ATTR_ODST_DATE);
         try
@@ -112,23 +111,24 @@ public class A1SetOnDemandSnapshotTimeMessage extends AbstractDlmsMessage
         }
         catch (ParseException e)
         {
-            throw new BusinessException(MESSAGE_DESCRIPTION + "- error in date parameter (" + dateString + "): " + e.getMessage());
+            throw new IllegalArgumentException(MESSAGE_DESCRIPTION + "- error in date parameter (" + dateString + "): " + e.getMessage(), e);
         }
     }
 
-    private Integer getReasonOfData(MessageEntry messageEntry) throws BusinessException
+    private Integer getReasonOfData(MessageEntry messageEntry)
     {
         String reasonString = MessagingTools.getContentOfAttribute(messageEntry, ATTR_ODST_REASON);
         try
         {
             int reason = Integer.parseInt(reasonString);
-            if ((reason < 0) || (reason > 7))
+            if ((reason < 0) || (reason > 7)) {
                 throw new NumberFormatException("value of of range");
+            }
             return reason;
         }
         catch (NumberFormatException e)
         {
-            throw new BusinessException(MESSAGE_DESCRIPTION + "- error in reason parameter (" + reasonString + "): " + e.getMessage());
+            throw new IllegalArgumentException(MESSAGE_DESCRIPTION + "- error in reason parameter (" + reasonString + "): " + e.getMessage(), e);
         }
     }
 

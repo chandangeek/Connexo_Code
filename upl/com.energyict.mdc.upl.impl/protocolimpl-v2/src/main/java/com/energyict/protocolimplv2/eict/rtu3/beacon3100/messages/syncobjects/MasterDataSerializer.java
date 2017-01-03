@@ -620,7 +620,7 @@ public class MasterDataSerializer {
      * Note that we specifically use the gateway TCP dialect of the Beacon3100 protocol for this.
      */
     private static void addDefaultDialectValuesIfNecessary(TypedProperties dialectProperties) {
-        DeviceProtocolDialect theActualDialect = new GatewayTcpDeviceProtocolDialect();
+        DeviceProtocolDialect theActualDialect = new GatewayTcpDeviceProtocolDialect(propertySpecService);
 
         for (PropertySpec propertySpec : theActualDialect.getOptionalProperties()) {
             if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
