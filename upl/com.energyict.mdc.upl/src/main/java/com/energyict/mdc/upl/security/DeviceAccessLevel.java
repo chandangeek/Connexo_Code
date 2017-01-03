@@ -49,6 +49,11 @@ public interface DeviceAccessLevel {
     String getTranslationKey();
 
     /**
+     * Returns the default translation.
+     */
+    String getDefaultTranslation();
+
+    /**
      * Gets the List of {@link PropertySpec properties}
      * that the related {@link com.energyict.mdc.upl.DeviceProtocol}
      * will require to be defined on a Device
