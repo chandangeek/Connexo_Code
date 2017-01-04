@@ -53,6 +53,10 @@
 			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
+				<artifactId>protocolimpl</artifactId>
+            </dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
 				<artifactId>mdw</artifactId>
 				<version>${eiserver.version}</version>
                 <scope>provided</scope>

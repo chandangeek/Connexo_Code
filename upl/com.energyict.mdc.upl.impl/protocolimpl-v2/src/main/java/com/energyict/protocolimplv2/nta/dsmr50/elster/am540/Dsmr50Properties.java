@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
@@ -10,6 +9,7 @@ import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_UPPER_SERVER_MAC_ADDRESS;
 import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
@@ -132,8 +132,8 @@ public class Dsmr50Properties extends DlmsProperties {
      * The AM540 protocol will also run embedded in the Beacon3100, so by default: avoid polling on the inputstream
      */
     @Override
-    public TimeDuration getPollingDelay() {
-        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
+    public Duration getPollingDelay() {
+        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.POLLING_DELAY, Duration.ofSeconds(0));
     }
 
     public boolean getCheckNumberOfBlocksDuringFirmwareResume() {

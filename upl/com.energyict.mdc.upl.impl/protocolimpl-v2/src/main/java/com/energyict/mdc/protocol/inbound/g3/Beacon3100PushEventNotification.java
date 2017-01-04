@@ -1,9 +1,9 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,12 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
      */
     private static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
     private static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
+    private final PropertySpecService propertySpecService;
     private boolean provideProtocolJavaClasName = true;
+
+    public Beacon3100PushEventNotification(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     protected BeaconPSKProvider getPskProvider() {
         return BeaconPSKProviderFactory.getInstance(provideProtocolJavaClasName).getPSKProvider(getDeviceIdentifier(), getContext());
@@ -42,10 +47,14 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        final List<PropertySpec> optionalProperties = new ArrayList<>(super.getOptionalProperties());
-        optionalProperties.add(PropertySpecFactory.notNullableBooleanPropertySpec(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true));
-        return optionalProperties;
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        List<com.energyict.mdc.upl.properties.PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(
+                UPLPropertySpecFactory
+                        .specBuilder(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, false, this.propertySpecService::booleanSpec)
+                        .setDefaultValue(Boolean.TRUE)
+                        .finish());
+        return propertySpecs;
     }
 
     @Override
@@ -54,8 +63,9 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        super.addProperties(properties);
-        this.provideProtocolJavaClasName = properties.<Boolean>getTypedProperty(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true);
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+        super.setProperties(properties);
+        this.provideProtocolJavaClasName = properties.getTypedProperty(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true);
     }
+
 }
