@@ -6,11 +6,9 @@ import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.ProtocolImplFactory;
 import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.exceptions.CodingException;
@@ -18,15 +16,20 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.IdentificationFactory;
+import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * Abstract super class containing common elements (properties, connection,...) for the 3 discover protocols
+ * Abstract super class containing common elements (properties, connection,...)
+ * for the 3 discover protocols.
  * <p/>
  * Copyrights EnergyICT
  * Date: 22/06/12
@@ -38,14 +41,23 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     protected static final String TIMEOUT_KEY = "Timeout";
     protected static final String RETRIES_KEY = "Retries";
 
-    private static final TimeDuration TIMEOUT_DEFAULT = TimeDuration.seconds(10);
+    private static final Duration TIMEOUT_DEFAULT = Duration.ofSeconds(10);
     private static final BigDecimal RETRIES_DEFAULT = new BigDecimal(2);
+    private final PropertySpecService propertySpecService;
     private ComChannel comChannel;
     private TypedProperties typedProperties;
     private DeviceIdentifier deviceIdentifier = null;
     private List<CollectedData> collectedDatas = null;
     private InboundConnection inboundConnection = null;
     private InboundDiscoveryContext context;
+
+    protected AbstractDiscover(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
@@ -98,25 +110,29 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     }
 
     @Override
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+        this.typedProperties = TypedProperties.copyOf(properties);
+    }
+
     public void addProperties(TypedProperties properties) {
         this.typedProperties = properties;
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT_KEY, TIMEOUT_DEFAULT));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY, RETRIES_DEFAULT));
-        return propertySpecs;
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory
+                    .specBuilder(TIMEOUT_KEY, false, this.propertySpecService::durationSpec)
+                    .setDefaultValue(TIMEOUT_DEFAULT)
+                    .finish(),
+                UPLPropertySpecFactory
+                    .specBuilder(RETRIES_KEY, false, this.propertySpecService::bigDecimalSpec)
+                    .setDefaultValue(RETRIES_DEFAULT)
+                    .finish());
     }
 
     public int getTimeOutProperty() {
-        return (int) getTypedProperties().getTypedProperty(TIMEOUT_KEY, TIMEOUT_DEFAULT).getMilliSeconds();
+        return (int) getTypedProperties().getTypedProperty(TIMEOUT_KEY, TIMEOUT_DEFAULT).toMillis();
     }
 
     public int getRetriesProperty() {
@@ -151,7 +167,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
                 new SerialCommunicationChannelImpl(comChannel),
                 null,
                 -1,
-                new ArrayList<String>());
+                new ArrayList<>());
 
         try {
             return protocolInstantiator.getSerialNumber().getSerialNumber(discoverInfo);

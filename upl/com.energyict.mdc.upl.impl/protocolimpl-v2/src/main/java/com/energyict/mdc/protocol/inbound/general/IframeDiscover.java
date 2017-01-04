@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.inbound.general;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.exceptions.InboundFrameException;
@@ -22,7 +23,8 @@ public class IframeDiscover extends AbstractDiscover {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public IframeDiscover(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public IframeDiscover(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService);
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
     }

@@ -3,14 +3,14 @@ package com.energyict.mdc.protocol.inbound.dlms;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.inbound.dlms.aso.ObisCodeWithDefaultValuePropertySpec;
 import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObject;
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.general.InboundConnection;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -21,6 +21,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 
@@ -56,7 +57,8 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public DlmsSerialNumberDiscover(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService);
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
     }
@@ -185,11 +187,20 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> propertySpecs = super.getOptionalProperties();
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, DEFAULT_PUBLIC_CLIENT_MAC_ADDRESS));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS, DEFAULT_SERVER_ADDRESS));
-        propertySpecs.add(PropertySpecFactory.obisCodePropertySpecWithDefaultValue(DEVICE_ID_OBISCODE_KEY, DEFAULT_DEVICE_ID_OBISCODE));
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        List<com.energyict.mdc.upl.properties.PropertySpec> propertySpecs = super.getPropertySpecs();
+        PropertySpecService propertySpecService = this.getPropertySpecService();
+        propertySpecs.add(
+                UPLPropertySpecFactory
+                        .specBuilder(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false, propertySpecService::bigDecimalSpec)
+                        .setDefaultValue(DEFAULT_PUBLIC_CLIENT_MAC_ADDRESS)
+                        .finish());
+        propertySpecs.add(
+                UPLPropertySpecFactory
+                        .specBuilder(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false, propertySpecService::bigDecimalSpec)
+                        .setDefaultValue(DEFAULT_SERVER_ADDRESS)
+                        .finish());
+        propertySpecs.add(new ObisCodeWithDefaultValuePropertySpec(DEVICE_ID_OBISCODE_KEY, DEFAULT_DEVICE_ID_OBISCODE));
         return propertySpecs;
     }
 
