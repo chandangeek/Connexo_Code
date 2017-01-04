@@ -14,6 +14,11 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -109,7 +114,7 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new EIWebPlusConnectionType(propertySpecService));
+        return Collections.singletonList(new EIWebPlusConnectionType(propertySpecService));
     }
 
     @Override
@@ -199,14 +204,14 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebPlusMessageConverter(this, this.propertySpecService, this.nlsService, this.converter, this.messageFileExtractor);
+            messageConverter = new EIWebPlusMessageConverter(new Dummy(), this.propertySpecService, this.nlsService, this.converter, this.messageFileExtractor);
         }
         return messageConverter;
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new EiWebPlusDialect(propertySpecService));
+        return Collections.singletonList(new EiWebPlusDialect(propertySpecService));
     }
 
     @Override
@@ -287,5 +292,27 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
     @Override
     public ManufacturerInformation getManufacturerInformation() {
         return null;
+    }
+
+    private static class Dummy implements Messaging {
+        @Override
+        public List<MessageCategorySpec> getMessageCategories() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public String writeMessage(Message msg) {
+            return "";
+        }
+
+        @Override
+        public String writeTag(MessageTag tag) {
+            return "";
+        }
+
+        @Override
+        public String writeValue(MessageValue value) {
+            return "";
+        }
     }
 }

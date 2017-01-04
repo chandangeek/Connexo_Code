@@ -25,6 +25,7 @@ public class ObisCodeWithDefaultValuePropertySpec extends ObisCodePropertySpec {
     public PropertySpecPossibleValues getPossibleValues() {
         PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl();
         possibleValues.setDefault(this.defaultValue);
-        return super.getPossibleValues();
+        return possibleValues;
     }
+
 }
