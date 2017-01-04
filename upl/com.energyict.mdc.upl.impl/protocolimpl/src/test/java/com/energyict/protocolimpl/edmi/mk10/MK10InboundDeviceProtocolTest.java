@@ -82,7 +82,7 @@ public class MK10InboundDeviceProtocolTest {
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(TIMEOUT_KEY, new BigDecimal(5000));
         properties.setProperty(RETRIES_KEY, new BigDecimal(0));
-        MK10InboundDeviceProtocol inboundDeviceProtocol = new MK10InboundDeviceProtocol();
+        MK10InboundDeviceProtocol inboundDeviceProtocol = new MK10InboundDeviceProtocol(propertySpecService);
         inboundDeviceProtocol.addProperties(properties);
         return inboundDeviceProtocol;
     }

@@ -6,19 +6,20 @@ import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
+import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,22 +30,26 @@ import java.util.List;
  * All requests are sent in the normal protocol session (e.g. fetch meter data).
  * <p/>
  *
- * @author: sva
- * @since: 29/10/12 (10:34)
+ * @author sva
+ * @since 29/10/12 (10:34)
  */
 public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     private static final String TIMEOUT_KEY = "Timeout";
     private static final String RETRIES_KEY = "Retries";
 
-    private static final TimeDuration TIMEOUT_DEFAULT = TimeDuration.seconds(10);
+    private static final Duration TIMEOUT_DEFAULT = Duration.ofSeconds(10);
     private static final BigDecimal RETRIES_DEFAULT = new BigDecimal(2);
 
+    private final PropertySpecService propertySpecService;
     private DeviceIdentifier deviceIdentifier;
     private InboundDiscoveryContext context;
     private ComChannel comChannel;
     private TypedProperties typedProperties;
 
+    public MK10InboundDeviceProtocol(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
@@ -154,8 +159,8 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        this.typedProperties = properties;
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+        this.typedProperties = TypedProperties.copyOf(properties);
     }
 
     @Override
@@ -168,20 +173,20 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT_KEY, TIMEOUT_DEFAULT));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY, RETRIES_DEFAULT));
-        return propertySpecs;
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                UPLPropertySpecFactory
+                        .specBuilder(TIMEOUT_KEY, false, this.propertySpecService::durationSpec)
+                        .setDefaultValue(TIMEOUT_DEFAULT)
+                        .finish(),
+                UPLPropertySpecFactory
+                        .specBuilder(RETRIES_KEY, false, this.propertySpecService::bigDecimalSpec)
+                        .setDefaultValue(RETRIES_DEFAULT)
+                        .finish());
     }
 
     public int getTimeOutProperty() {
-        return (int) getTypedProperties().getTypedProperty(TIMEOUT_KEY, TIMEOUT_DEFAULT).getMilliSeconds();
+        return (int) getTypedProperties().getTypedProperty(TIMEOUT_KEY, TIMEOUT_DEFAULT).toMillis();
     }
 
     public int getRetriesProperty() {
@@ -194,6 +199,5 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
         }
         return typedProperties;
     }
-
 
 }
