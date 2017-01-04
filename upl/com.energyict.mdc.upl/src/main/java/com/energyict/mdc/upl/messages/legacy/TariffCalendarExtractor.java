@@ -71,11 +71,14 @@ public interface TariffCalendarExtractor {
     }
 
     interface CalendarDayTypeSlice {
+        String dayTypeId();
+        String dayTypeName();
         String tariffCode();
         LocalTime start();
     }
 
     interface CalendarRule {
+        String calendarId();
         String dayTypeId();
         String dayTypeName();
         Optional<String> seasonId();
