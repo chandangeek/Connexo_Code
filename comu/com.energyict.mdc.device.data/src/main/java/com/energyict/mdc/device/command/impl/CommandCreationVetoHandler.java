@@ -5,9 +5,11 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.MacException;
 
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
+import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandLimitationRulesMacException;
 import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -45,12 +47,16 @@ public class CommandCreationVetoHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
-        List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForNewCommand(deviceMessage);
-        if(!exceededCommandRules.isEmpty()) {
-            throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules);
-        } else {
-            commandRuleService.commandCreated(deviceMessage);
+        try {
+            DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
+            List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForNewCommand(deviceMessage);
+            if(!exceededCommandRules.isEmpty()) {
+                throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules);
+            } else {
+                commandRuleService.commandCreated(deviceMessage);
+            }
+        } catch (MacException e) {
+            throw new InvalidCommandLimitationRulesMacException(thesaurus, MessageSeeds.MAC_COMMAND_RULES_FAILED);
         }
     }
 
