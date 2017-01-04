@@ -14,6 +14,8 @@ public final class Priority implements Comparable<Priority>, Cloneable {
 
     private Rank rank;
 
+    public static Priority DEFAULT = new Priority(25,5);
+
     enum Rank {
         VERY_HIGH("Very High"),
         HIGH("High"),
@@ -167,7 +169,7 @@ public final class Priority implements Comparable<Priority>, Cloneable {
             throw new IllegalArgumentException("Incorrectly formatted priority.Please check format and range.");
         }
 
-        return new Priority(urgency,impact);
+        return new Priority(urgency, impact);
     }
 
     @Override
@@ -193,5 +195,11 @@ public final class Priority implements Comparable<Priority>, Cloneable {
         int result = (getUrgency() ^ (getUrgency() >>> 32));
         result = 31 * result + (getImpact() ^ (getImpact() >>> 32));
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return impact + ":"
+                + urgency;
     }
 }

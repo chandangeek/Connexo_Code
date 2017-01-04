@@ -11,8 +11,10 @@ import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.PriorityInfo;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -183,13 +185,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
-        //TODO - update code
-        Optional<String> priority = firedRule.getProperties().entrySet().stream().filter(entry -> entry.getKey().endsWith(PRIORITY)).findFirst().map(found -> String.valueOf(found.getValue()));
-        if (priority.isPresent()) {
-            baseIssue.setPriority(Priority.fromStringValue(priority.get()) == null ? Priority.get(25, 5) : Priority.fromStringValue(priority.get()));
-        } else {
-            baseIssue.setPriority(Priority.get(25, 5));
-        }
+        setIssuePriority(baseIssue, firedRule);
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));
@@ -205,6 +201,19 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             }
         }
         return false;
+    }
+
+    private void setIssuePriority(Issue baseIssue, CreationRule firedRule) {
+        Optional<CreationRuleProperty> creationRuleProperty = firedRule.getCreationRuleProperties()
+                .stream()
+                .filter(property -> property.getName().endsWith(PRIORITY))
+                .findFirst();
+        if (creationRuleProperty.isPresent() && ((ArrayList) (creationRuleProperty.get().getValue())).size() == 1) {
+            Priority priority = ((PriorityInfo) (((ArrayList) (creationRuleProperty.get().getValue())).get(0))).getPriority();
+            baseIssue.setPriority(priority == null ? Priority.DEFAULT : priority);
+        } else {
+            baseIssue.setPriority(Priority.DEFAULT);
+        }
     }
 
     @Override
