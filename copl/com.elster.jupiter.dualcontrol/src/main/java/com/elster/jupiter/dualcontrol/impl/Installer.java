@@ -41,8 +41,8 @@ class Installer implements FullInstaller {
 
         Resource resource = userService.buildResource()
                 .component(DualControlService.COMPONENT_NAME)
-                .name(Privileges.RESOURCE_TOU_CALENDARS.getKey())
-                .description(Privileges.RESOURCE_TOU_CALENDARS_DESCRIPTION.getKey())
+                .name(Privileges.RESOURCE_DUAL_CONTROL_CALENDARS.getKey())
+                .description(Privileges.RESOURCE_DUAL_CONTROL_DESCRIPTION.getKey())
                 .addGrantPrivilege(Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey())
                 .in(dualControlGrant)
                 .forCategory(dualControlApprove)

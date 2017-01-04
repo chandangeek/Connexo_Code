@@ -96,7 +96,7 @@ public class DualControlServiceImpl implements DualControlService, TranslationKe
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(COMPONENT_NAME, "Dual Control");
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "Dual control");
         for (TableSpecs each : TableSpecs.values()) {
             each.addTo(dataModel);
         }

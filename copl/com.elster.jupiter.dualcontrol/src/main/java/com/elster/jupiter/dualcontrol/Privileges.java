@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
     //Resources
-    RESOURCE_TOU_CALENDARS("dualcontrol", "Dual Control"),
-    RESOURCE_TOU_CALENDARS_DESCRIPTION("dualcontrol.description", "Manage dual control"),
+    RESOURCE_DUAL_CONTROL_CALENDARS("dualcontrol", "Dual control"),
+    RESOURCE_DUAL_CONTROL_DESCRIPTION("dualcontrol.description", "Manage dual control"),
 
     //Privileges
     GRANT_DUAL_CONTROL_APPROVAL(Constants.GRANT_APPROVAL, "Grant privileges to approve dual controlled entities.")
