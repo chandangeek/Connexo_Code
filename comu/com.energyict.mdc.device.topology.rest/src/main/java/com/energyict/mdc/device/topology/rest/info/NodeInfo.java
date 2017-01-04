@@ -2,8 +2,8 @@ package com.energyict.mdc.device.topology.rest.info;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-import com.energyict.mdc.device.topology.rest.layer.DeviceInfoLayer;
-import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
+//import com.energyict.mdc.device.topology.rest.layer.DeviceInfoLayer;
+//import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,8 +36,8 @@ public class NodeInfo {
 
     public NodeInfo(Device device) {
         this.id = device.getId();
-        DeviceInfoLayer deviceInfoLayer = new DeviceInfoLayer(device);
-        this.addLayer(deviceInfoLayer);
+       // DeviceInfoLayer deviceInfoLayer = new DeviceInfoLayer(device);
+       // this.addLayer(deviceInfoLayer);
        // this.setActiveLayer(deviceInfoLayer);
     }
 
@@ -73,11 +73,7 @@ public class NodeInfo {
 
     public LinkInfo asLinkInfo(){
         if (!isRoot()) {
-            LinkInfo linkInfo = new LinkInfo(parent.getId(), this.getId());
-            LinkQualityLayer linkQualityLayer = new LinkQualityLayer(0);
-            linkInfo.addLayer(linkQualityLayer);
-            linkInfo.setActiveLayer(linkQualityLayer);
-            return linkInfo;
+            return new LinkInfo(this);
         }
         return null;
     }
@@ -101,9 +97,9 @@ public class NodeInfo {
     public Map<String, Object> getProperties(){
         Map<String, Object> allProperties =  new HashMap<>();
         if (activeLayer.isPresent()){
-            return activeLayer.get().getProperties();
+            return activeLayer.get().getProperties(this);
         }else{
-            layers.stream().forEach(layer -> allProperties.putAll(layer.getProperties()));
+            layers.stream().forEach(layer -> allProperties.putAll(layer.getProperties(this)));
         }
         return allProperties;
     }

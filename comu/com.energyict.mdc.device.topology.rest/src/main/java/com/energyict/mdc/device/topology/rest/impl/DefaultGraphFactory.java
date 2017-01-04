@@ -3,9 +3,11 @@ package com.energyict.mdc.device.topology.rest.impl;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.DeviceTopology;
+import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphFactory;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
+import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
@@ -50,7 +52,7 @@ public class DefaultGraphFactory implements GraphFactory{
     public GraphInfo from(DeviceTopology deviceTopology){
         final NodeInfo rootNode = newNode(deviceTopology.getRoot(), Optional.empty());
 
-        GraphInfo graphInfo = new GraphInfo();
+        GraphInfo graphInfo = new GraphInfo(this.graphLayerService);
         graphInfo.setRootNode(rootNode);
         addChilds(rootNode, deviceTopology);
         return graphInfo;
@@ -64,7 +66,8 @@ public class DefaultGraphFactory implements GraphFactory{
 
     private void addCommunicationPathNodes(NodeInfo nodeInfo, Device device){
         NodeInfo root = nodeInfo;
-        List<Device> intermediates = new ArrayList<>(topologyService.getCommunicationPath(gateway, device).getIntermediateDevices());
+        G3CommunicationPath communicationPath = topologyService.getCommunicationPath(gateway, device);
+        List<Device> intermediates = new ArrayList<>(communicationPath.getIntermediateDevices());
         while (!intermediates.isEmpty()) {
             root = newNode(intermediates.get(0), Optional.of(root));
             intermediates.remove(0);
@@ -74,7 +77,7 @@ public class DefaultGraphFactory implements GraphFactory{
 
     private NodeInfo newNode(Device device, Optional<NodeInfo> parent){
         final NodeInfo node = new NodeInfo(device);
-        graphLayerService.getGraphLayers().stream().forEach(node::addLayer);
+        graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.NODE).forEach(node::addLayer);
         if (parent.isPresent()){
             parent.get().addChild(node);
         }

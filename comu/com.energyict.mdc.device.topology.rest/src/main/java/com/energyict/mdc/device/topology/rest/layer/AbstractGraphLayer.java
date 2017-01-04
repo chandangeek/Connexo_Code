@@ -3,9 +3,14 @@ package com.energyict.mdc.device.topology.rest.layer;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.impl.TopologyGraphApplication;
+import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -18,12 +23,6 @@ import java.util.Properties;
 public abstract class AbstractGraphLayer implements GraphLayer, TranslationKeyProvider {
 
     private Properties properties = new Properties();
-
-    public Map<String, Object> getProperties() {
-        HashMap<String, Object> result = new HashMap<>();
-        properties.keySet().stream().forEach(key -> result.put((String) key, properties.getProperty((String) key)));
-        return result;
-    }
 
     public void setProperty(String propertyName, String propertyValue){
         this.properties.put(propertyName, propertyValue);
@@ -51,6 +50,12 @@ public abstract class AbstractGraphLayer implements GraphLayer, TranslationKeyPr
     @Override
     public int hashCode(){
         return getType().ordinal() * getName().hashCode();
+    }
+
+    protected HashMap<String, Object> propertyMap(){
+        HashMap<String, Object> result = new HashMap<>();
+        properties.keySet().stream().forEach(key -> result.put((String) key, properties.getProperty((String) key)));
+        return result;
     }
 
 }

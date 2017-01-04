@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
+import com.energyict.mdc.device.topology.rest.info.GraphInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -51,7 +52,8 @@ public class TopologyGraphResource {
    // @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getTopologyGraphByName(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParams) {
         Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
-        return Response.ok(new DefaultGraphFactory(this.topologyService, this.graphLayerService, this.clock).from(device)).build();
+        GraphInfo graphInfo =  new DefaultGraphFactory(this.topologyService, this.graphLayerService, this.clock).from(device);
+        return Response.ok(graphInfo).build();
     }
 
 }

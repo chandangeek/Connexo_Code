@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.topology.rest;
 
+import com.energyict.mdc.device.topology.rest.info.NodeInfo;
+
 import java.util.Map;
 
 /**
@@ -28,7 +30,7 @@ public interface GraphLayer {
      *
      * @return a Map of properties to be shown on this layer
      */
-    Map<String, Object> getProperties();
+    Map<String, Object> getProperties(NodeInfo info);
 
     void getProperty(String propertyName);
     void setProperty(String propertyName, String propertyValue);

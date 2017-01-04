@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.topology.rest.info;
 
+import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayerService;
+import com.energyict.mdc.device.topology.rest.GraphLayerType;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -16,7 +20,13 @@ import java.util.List;
 @JsonPropertyOrder({ "nodes", "links" })
 public class GraphInfo {
 
+    private final GraphLayerService graphLayerService;
     private NodeInfo rootNode;
+
+
+    public GraphInfo(GraphLayerService graphLayerService){
+        this.graphLayerService = graphLayerService;
+    }
 
     public void setRootNode(NodeInfo info){
         this.rootNode = info;
@@ -42,7 +52,11 @@ public class GraphInfo {
 
     private List<LinkInfo> addLinkInfos(List<LinkInfo> linkInfos, NodeInfo nodeInfo){
         if (!nodeInfo.isRoot() && nodeInfo.isLeaf()){
-           linkInfos.add(nodeInfo.asLinkInfo());
+           LinkInfo linkInfo = nodeInfo.asLinkInfo();
+           if (linkInfo != null) {
+               graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.LINK).forEach(linkInfo::addLayer);
+               linkInfos.add(linkInfo);
+           }
         }
         nodeInfo.getChildren().forEach(child -> addLinkInfos(linkInfos, child ));
         return linkInfos;

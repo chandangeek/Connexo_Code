@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
+import jdk.nashorn.internal.runtime.regexp.joni.NodeOptInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,14 +23,21 @@ import java.util.Optional;
 @JsonIgnoreType
 public class LinkInfo {
 
+    @JsonIgnore
+    private NodeInfo nodeInfo;
     private long source;
     private long target;
     @JsonIgnore
     private List<GraphLayer> layers = new ArrayList<>();
     @JsonIgnore
-    private Optional<GraphLayer> activeLayer;
+    private Optional<GraphLayer> activeLayer = Optional.empty();
 
-    LinkInfo(long source, long target){
+    LinkInfo(NodeInfo nodeInfo){
+        this(nodeInfo.getParent().getId(), nodeInfo.getId());
+        this.nodeInfo = nodeInfo;
+    }
+
+    private LinkInfo(long source, long target){
        this.source = source;
        this.target = target;
     }
@@ -64,10 +72,14 @@ public class LinkInfo {
 
     @JsonAnyGetter
     public Map<String, Object> getProperties(){
+        Map<String, Object> allProperties =  new HashMap<>();
         if (activeLayer.isPresent()){
-            return activeLayer.get().getProperties();
+            return activeLayer.get().getProperties(nodeInfo);
         }
-        return new HashMap<>();
+        else{
+            layers.stream().forEach(layer -> allProperties.putAll(layer.getProperties(nodeInfo)));
+        }
+        return allProperties;
     }
 
 }
