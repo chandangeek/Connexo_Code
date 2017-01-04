@@ -340,6 +340,7 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
 
     private List<Difference> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) {
         List<Difference> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable);
+        toTable.recalculateMacs();
         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
             if (sequenceColumn.getQualifiedSequenceName() != null) {
                 long sequenceValue = getLastSequenceValue(context, sequenceColumn.getQualifiedSequenceName());

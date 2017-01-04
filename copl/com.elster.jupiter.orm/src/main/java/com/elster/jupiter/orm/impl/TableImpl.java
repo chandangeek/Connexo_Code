@@ -107,6 +107,8 @@ public class TableImpl<T> implements Table<T> {
     private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
     private List<ColumnImpl> realColumns;
 
+    private boolean shouldRecalculateMac = false;
+
     private TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
@@ -206,6 +208,17 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public void doNotAutoInstall() {
         this.autoInstall = false;
+    }
+
+    protected void recalculateMacs() {
+        if(shouldRecalculateMac) {
+            getDataMapper().persist((getDataMapper().findWithoutMacCheck()));
+        }
+        shouldRecalculateMac = false;
+    }
+
+    protected void macColumnAdded() {
+        shouldRecalculateMac = true;
     }
 
     Column add(ColumnImpl column) {
@@ -835,19 +848,19 @@ public class TableImpl<T> implements Table<T> {
         this.referenceConstraints = builder.build();
     }
 
-	private List<ForeignKeyConstraintImpl> getReverseConstraints() {
-		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
-		for (TableImpl<?> table : getDataModel().getTables()) {
-			//if (!table.equals(this)) {
-				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
-					if (each.getReferencedTable().equals(this)) {
-						builder.add(each);
-					}
-				}
-			//}
-		}
-		return builder.build();
-	}
+    private List<ForeignKeyConstraintImpl> getReverseConstraints() {
+        ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
+        for (TableImpl<?> table : getDataModel().getTables()) {
+            //if (!table.equals(this)) {
+            for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
+                if (each.getReferencedTable().equals(this)) {
+                    builder.add(each);
+                }
+            }
+            //}
+        }
+        return builder.build();
+    }
 
     @Override
     public boolean maps(Class<?> clazz) {
