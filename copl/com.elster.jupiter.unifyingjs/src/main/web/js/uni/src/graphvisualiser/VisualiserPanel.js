@@ -4,7 +4,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     itemId: 'VisualiserPanel',
     requires: [
         'Uni.graphvisualiser.VisualiserMenu',
-        'Uni.graphvisualiser.VisualiserPropertyViewer'
+        'Uni.graphvisualiser.VisualiserPropertyViewer',
+        'Uni.view.menu.ActionsMenu'
     ],
     layout: {
         type: 'border'
@@ -48,6 +49,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     neutralColor: '#006699',
     whiteColor: '#FFFFFF',
+    collapsedColor: '#8e8e8e',
     issueAlarmColor: '#FF0000',
     failedCommunicationStatusColor: '#FF0000',
     goodLinkQualityColor: '#70BB51',
@@ -83,9 +85,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 title: panel.propertyViewerTitle
             });
             this.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
-        }
-
-        ,
+        },
         resize: function(panel,w,h){
             KeyLines.setSize('graph-drawing-area',w-10,h);
             this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
@@ -120,15 +120,25 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         if(id) {
             var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
             var items = [
+                //{
+                //    text: 'Upstream',
+                //    handler: function () {
+                //        visualiser.upStreamFromNode(id);
+                //    }
+                //},
+                //{
+                //    text: 'Downstream',
+                //    handler: function () {
+                //        visualiser.downStreamFromNode(id);
+                //    }
+                //},
                 {
-                    text: 'Upstream', handler: function () {
-                    visualiser.upStreamFromNode(id);
-                }
-                },
-                {
-                    text: 'Downstream', handler: function () {
-                    visualiser.downStreamFromNode(id);
-                }
+                    text: visualiser.chart.combo().isCombo(id)
+                        ? Uni.I18n.translate('general.expand', 'UNI', 'Expand')
+                        : Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
+                    handler: function () {
+                        visualiser.combine(id);
+                    }
                 }
             ];
             if(this.contextMenuItems){
@@ -138,15 +148,18 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 });
                 items = items.concat(this.contextMenuItems);
             }
-            var menu_grid = new Ext.menu.Menu({
-                items: items,
-                listeners: {
-                    render: function (menu) {
-                        menu.getEl().on('contextmenu', Ext.emptyFn, null, {preventDefault: true});
+
+            var popupMenu = Ext.create('Uni.view.menu.ActionsMenu',
+                {
+                    items: items,
+                    listeners: {
+                        render: function (menu) {
+                            menu.getEl().on('contextmenu', Ext.emptyFn, null, {preventDefault: true});
+                        }
                     }
                 }
-            });
-            menu_grid.showAt([x, y]);
+            );
+            popupMenu.showAt([x, y]);
         }
         return false;
     },
@@ -185,6 +198,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         var me = this;
         if(me.chart.combo().isCombo(id)){
             me.chart.combo().uncombine(id,null,function(){
+                me.clearAllLegendItems();
                 me.setDefaultStyle();
                 Ext.each(me.activeLayers,function(layer){
                     layer.call(me);
@@ -196,12 +210,12 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             result.nodes.push(id);
             me.chart.combo().combine({
                 ids: result.nodes,
-                label: 'Combined',
+                label: Uni.I18n.translate('general.collapsed', 'UNI', 'Collapsed'),
                 glyph: null,
                 style: {
                     c: null,
                     fi: {
-                        c: '#8e8e8e',
+                        c: me.collapsedColor,
                         t:  KeyLines.getFontIcon('icon-plus')
                     }
                 }
