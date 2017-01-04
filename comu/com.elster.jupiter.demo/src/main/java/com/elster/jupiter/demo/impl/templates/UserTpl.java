@@ -43,7 +43,7 @@ public enum UserTpl implements Template<User, UserBuilder> {
     }
 
     public static final class UserRoles{
-        public static final String ADMINISTRATORS = "Administrator";
+        public static final String ADMINISTRATORS = "System administrator";
         public static final String METER_EXPERT = "Meter expert";
         public static final String METER_OPERATOR = "Meter operator";
         public static final String INSIGHT_EXPERT = "Insight data expert";
