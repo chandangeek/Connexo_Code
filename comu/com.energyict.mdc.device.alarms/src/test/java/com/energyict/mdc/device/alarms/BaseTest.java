@@ -48,6 +48,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -142,6 +143,7 @@ public abstract class BaseTest {
                 new ServiceCallModule(),
                 new IdsModule(),
                 new MeteringGroupsModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new SearchModule(),
                 new MeteringModule(),
                 new PartyModule(),
