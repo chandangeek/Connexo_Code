@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.inbound.InboundDAO;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
+import com.energyict.mdc.upl.InboundDAO;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
@@ -62,18 +62,14 @@ public class ProtocolHandler {
     private final Converter converter;
 
     public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext context) {
-        this(responseWriter, context.getInboundDAO(), context.getCryptographer(), context.getCollectedDataFactory(), context.getPropertySpecService(), context.getNlsService(), context.getConverter());
-    }
-
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDAO inboundDAO, Cryptographer cryptographer, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         super();
         this.responseWriter = responseWriter;
-        this.inboundDAO = inboundDAO;
-        this.cryptographer = cryptographer;
-        this.collectedDataFactory = collectedDataFactory;
-        this.propertySpecService = propertySpecService;
-        this.nlsService = nlsService;
-        this.converter = converter;
+        this.inboundDAO = context.getInboundDAO();
+        this.cryptographer = new EIWebCryptographer(context);
+        this.collectedDataFactory = context.getCollectedDataFactory();
+        this.propertySpecService = context.getPropertySpecService();
+        this.nlsService = context.getNlsService();
+        this.converter = context.getConverter();
     }
 
     private void setContentType(HttpServletRequest request) {

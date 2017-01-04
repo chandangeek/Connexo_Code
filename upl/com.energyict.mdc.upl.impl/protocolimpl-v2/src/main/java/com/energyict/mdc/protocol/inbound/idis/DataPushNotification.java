@@ -1,13 +1,11 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,23 +65,18 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        // No properties
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
+    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+        // No properties
     }
 
     @Override
     public String getAdditionalInformation() {
         return ""; //No additional info available
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
     }
 
     @Override

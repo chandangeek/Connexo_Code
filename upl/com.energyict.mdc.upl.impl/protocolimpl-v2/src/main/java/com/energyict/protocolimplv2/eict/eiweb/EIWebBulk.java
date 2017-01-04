@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
@@ -40,7 +40,6 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
         this.context = context;
-        this.context.setCryptographer(new EIWebCryptographer(context.getInboundDAO(), context.getComPort()));
     }
 
     @Override

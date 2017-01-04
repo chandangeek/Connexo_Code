@@ -5,8 +5,8 @@ import com.energyict.mdc.MdwInterface;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
-import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.inbound.InboundDAO;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import com.energyict.cbo.LittleEndianOutputStream;
@@ -57,6 +57,9 @@ public class ProfileBuilderTest {
     }
 
     @Mock
+    private CollectedDataFactory collectedDataFactory;
+
+    @Mock
     private ServerManager manager;
     @Mock
     private MdwInterface mdwInterface;
@@ -77,7 +80,7 @@ public class ProfileBuilderTest {
 
     @Test
     public void testGetProfileDataForDefaultNumberOfChannels () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)), collectedDataFactory);
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)), collectedDataFactory);
         String deviceId = "221";
         packetBuilder.parse(deviceId, "FFFF", "0", "0", null, null, "123,132,213,231,312,321", "192.168.2.100", null, "0");
 
@@ -92,17 +95,17 @@ public class ProfileBuilderTest {
         assertThat(profileBuilder.getProfileData().getIntervalDatas()).hasSize(1);
         IntervalData intervalData = profileBuilder.getProfileData().getIntervalData(0);
         assertThat(intervalData.getIntervalValues()).hasSize(6);
-        assertThat(((IntervalValue) intervalData.getIntervalValues().get(0)).getNumber().intValue()).isEqualTo(123);
-        assertThat(((IntervalValue) intervalData.getIntervalValues().get(1)).getNumber().intValue()).isEqualTo(132);
-        assertThat(((IntervalValue) intervalData.getIntervalValues().get(2)).getNumber().intValue()).isEqualTo(213);
-        assertThat(((IntervalValue) intervalData.getIntervalValues().get(3)).getNumber().intValue()).isEqualTo(231);
-        assertThat(((IntervalValue) intervalData.getIntervalValues().get(4)).getNumber().intValue()).isEqualTo(312);
-        assertThat(((IntervalValue) intervalData.getIntervalValues().get(5)).getNumber().intValue()).isEqualTo(321);
+        assertThat(intervalData.getIntervalValues().get(0).getNumber().intValue()).isEqualTo(123);
+        assertThat(intervalData.getIntervalValues().get(1).getNumber().intValue()).isEqualTo(132);
+        assertThat(intervalData.getIntervalValues().get(2).getNumber().intValue()).isEqualTo(213);
+        assertThat(intervalData.getIntervalValues().get(3).getNumber().intValue()).isEqualTo(231);
+        assertThat(intervalData.getIntervalValues().get(4).getNumber().intValue()).isEqualTo(312);
+        assertThat(intervalData.getIntervalValues().get(5).getNumber().intValue()).isEqualTo(321);
     }
 
     @Test
     public void testGetProfileDataForOneChannel () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)), collectedDataFactory);
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)), collectedDataFactory);
         String deviceId = "221";
         packetBuilder.parse(deviceId, "FFFF", "0", "0", null, "1", "696", "192.168.2.100", null, "0");
 
@@ -117,7 +120,7 @@ public class ProfileBuilderTest {
         assertThat(profileBuilder.getProfileData().getIntervalDatas()).hasSize(1);
         IntervalData intervalData = profileBuilder.getProfileData().getIntervalData(0);
         assertThat(intervalData.getIntervalValues()).hasSize(1);
-        assertThat(((IntervalValue) intervalData.getIntervalValues().get(0)).getNumber().intValue()).isEqualTo(696);
+        assertThat(intervalData.getIntervalValues().get(0).getNumber().intValue()).isEqualTo(696);
     }
 
     @Test
@@ -140,7 +143,7 @@ public class ProfileBuilderTest {
         this.writeData(leos, 654);  // Interval data
         leos.writeString("19 bytes of header data", 19);
         InputStream is = new ByteArrayInputStream(os.toByteArray());
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)), collectedDataFactory);
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)), collectedDataFactory);
         packetBuilder.parse(is, null);
 
         // Business method
@@ -160,7 +163,7 @@ public class ProfileBuilderTest {
         IntervalData intervalData = profileData.getIntervalDatas().get(0);
         assertThat(intervalData.getEiStatus()).isEqualTo(2103);
         assertThat(intervalData.getIntervalValues()).hasSize(1);
-        IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(0);
+        IntervalValue intervalValue = intervalData.getIntervalValues().get(0);
         assertThat(intervalValue.getNumber().toString()).isEqualTo("654");
     }
 
@@ -185,7 +188,7 @@ public class ProfileBuilderTest {
         this.writeData(leos, 654);  // Interval data
         leos.writeString("19 bytes of header data", 19);
         InputStream is = new ByteArrayInputStream(os.toByteArray());
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)), collectedDataFactory);
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)), collectedDataFactory);
         packetBuilder.parse(is, null);
 
         // Business method
@@ -207,7 +210,7 @@ public class ProfileBuilderTest {
         assertThat(profileData.getIntervalDatas()).hasSize(1);
         IntervalData intervalData = profileData.getIntervalDatas().get(0);
         assertThat(intervalData.getIntervalValues()).hasSize(1);
-        IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(0);
+        IntervalValue intervalValue = intervalData.getIntervalValues().get(0);
         assertThat(intervalValue.getNumber().toString()).isEqualTo("654");
     }
 

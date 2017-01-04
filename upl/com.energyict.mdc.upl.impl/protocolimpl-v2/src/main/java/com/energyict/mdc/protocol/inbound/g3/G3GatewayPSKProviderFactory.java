@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.HashMap;

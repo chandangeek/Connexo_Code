@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

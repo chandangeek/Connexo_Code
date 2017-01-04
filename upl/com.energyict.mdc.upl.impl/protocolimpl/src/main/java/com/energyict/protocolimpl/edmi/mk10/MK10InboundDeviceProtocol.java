@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
@@ -61,13 +62,13 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public DiscoverResultType doDiscovery() {
+    public InboundDeviceProtocol.DiscoverResultType doDiscovery() {
         PushPacket packet = PushPacket.getPushPacket(readFrame());
         switch (packet.getPushPacketType()) {
             case README:
             case HEARTBEAT:
                 setDeviceIdentifier(packet.getSerial());
-                return DiscoverResultType.IDENTIFIER;
+                return InboundDeviceProtocol.DiscoverResultType.IDENTIFIER;
             default:
                 throw InboundFrameException.unexpectedFrame(packet.toString(), "The received packet is unsupported in the current protocol");
         }
@@ -124,7 +125,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void provideResponse(DiscoverResponseType responseType) {
+    public void provideResponse(InboundDeviceProtocol.DiscoverResponseType responseType) {
         // not needed
     }
 

@@ -250,10 +250,6 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return Collections.singletonList(new ACE4000DeviceProtocolDialect());
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {

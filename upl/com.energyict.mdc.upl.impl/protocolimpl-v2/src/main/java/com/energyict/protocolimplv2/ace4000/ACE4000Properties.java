@@ -87,7 +87,7 @@ public class ACE4000Properties {
     }
 
     private int getIntegerProperty(String name, BigDecimal defaultValue) {
-        Object value = this.properties.get(TIMEOUT);
+        Object value = this.properties.get(name);
         if (value == null) {
             return defaultValue.intValue();
         } else {

@@ -1,9 +1,9 @@
 package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
+import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 

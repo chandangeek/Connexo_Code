@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
@@ -142,11 +141,6 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     @Override
     public String getConfiguredSerialNumber() {
         return serialNumber;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return super.getRequiredProperties();
     }
 
     @Override

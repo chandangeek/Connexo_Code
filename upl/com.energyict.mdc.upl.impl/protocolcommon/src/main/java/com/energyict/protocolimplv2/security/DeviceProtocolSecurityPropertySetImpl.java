@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.SecurityProperty;
 
 import java.util.List;
 

@@ -1,23 +1,21 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.tasks.InboundConnectionTask;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Test;
 
@@ -43,11 +41,10 @@ public class EIWebCryptographerTest {
     @Test(expected = NotFoundException.class)
     public void testBuildMD5SeedForNonExistingDevice () {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        InboundDAO inboundDAO = mock(InboundDAO.class);
-        InboundComPort comPort = mock(InboundComPort.class);
-        doThrow(NotFoundException.class).when(inboundDAO).getDeviceConnectionTypeProperties(deviceIdentifier, comPort);
+        InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
+        doThrow(NotFoundException.class).when(inboundDiscoveryContext).getConnectionTypeProperties(deviceIdentifier);
 
-        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDAO, comPort);
+        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
         // Business method
         cryptographer.buildMD5Seed(deviceIdentifier, "1234");
@@ -63,11 +60,10 @@ public class EIWebCryptographerTest {
     @Test(expected = CommunicationException.class)
     public void testBuildMD5SeedWithoutConnectionTypeProperties () {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        InboundDAO inboundDAO = mock(InboundDAO.class);
-        InboundComPort comPort = mock(InboundComPort.class);
-        when(inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, comPort)).thenReturn(null);
+        InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
+        when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(Optional.empty());
 
-        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDAO, comPort);
+        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
         // Business method
         cryptographer.buildMD5Seed(deviceIdentifier, "1234");
@@ -82,16 +78,15 @@ public class EIWebCryptographerTest {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceFactory.find(deviceIdentifier)).thenReturn(device);
-        InboundDAO inboundDAO = mock(InboundDAO.class);
-        InboundComPort comPort = mock(InboundComPort.class);
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, MAC_ADDRESS_VALUE);
-        when(inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, comPort)).thenReturn(connectionTypeProperties);
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
-        when(encryptionPassword.getValue()).thenReturn(new Password("EIWebCryptographerTest"));
-        when(inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort)).thenReturn(Collections.singletonList(encryptionPassword));
+        when(encryptionPassword.getValue()).thenReturn(new SimplePassword("EIWebCryptographerTest"));
+        InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
+        when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(connectionTypeProperties);
+        when(inboundDiscoveryContext.getProtocolSecurityProperties(deviceIdentifier)).thenReturn(Collections.singletonList(encryptionPassword));
 
-        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDAO, comPort);
+        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
         // Business method
         MD5Seed md5Seed = cryptographer.buildMD5Seed(deviceIdentifier, "1234");
@@ -106,16 +101,15 @@ public class EIWebCryptographerTest {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceFactory.find(deviceIdentifier)).thenReturn(device);
-        InboundDAO inboundDAO = mock(InboundDAO.class);
-        InboundComPort comPort = mock(InboundComPort.class);
+        InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, MAC_ADDRESS_VALUE);
-        when(inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, comPort)).thenReturn(connectionTypeProperties);
+        when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(connectionTypeProperties);
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
-        when(encryptionPassword.getValue()).thenReturn(new Password("EIWebCryptographerTest"));
-        when(inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort)).thenReturn(Arrays.asList(encryptionPassword));
+        when(encryptionPassword.getValue()).thenReturn(new SimplePassword("EIWebCryptographerTest"));
+        when(inboundDiscoveryContext.getProtocolSecurityProperties(deviceIdentifier)).thenReturn(Collections.singletonList(encryptionPassword));
 
-        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDAO, comPort);
+        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
         // Business method
         cryptographer.buildMD5Seed(deviceIdentifier, "1234");
@@ -126,7 +120,7 @@ public class EIWebCryptographerTest {
 
     @Test
     public void testWasNotUsed () {
-        EIWebCryptographer cryptographer = new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class));
+        EIWebCryptographer cryptographer = new EIWebCryptographer(mock(InboundDiscoveryContext.class));
 
         // Business method
         // Do not use any method at all since that is what we are actually testing
