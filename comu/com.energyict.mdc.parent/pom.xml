@@ -138,6 +138,24 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.alarms</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.alarms.extjs</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.alarms.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.config</artifactId>
                 <version>3.1.0${revision}</version>
                 <scope>provided</scope>
@@ -599,6 +617,9 @@
                 <module>../com.energyict.mdc.dashboard</module>
                 <module>../com.energyict.mdc.dashboard.rest</module>
                 <module>../com.energyict.mdc.dashboard.extjs</module>
+                <module>../com.energyict.mdc.device.alarms</module>
+                <module>../com.energyict.mdc.device.alarms.extjs</module>
+                <module>../com.energyict.mdc.device.alarms.rest</module>
                 <module>../com.energyict.mdc.device.config</module>
                 <module>../com.energyict.mdc.device.config.rest</module>
                 <module>../com.energyict.mdc.device.data</module>
