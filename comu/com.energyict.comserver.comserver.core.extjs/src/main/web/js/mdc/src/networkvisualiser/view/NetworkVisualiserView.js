@@ -6,13 +6,14 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     ],
     itemId: 'visualiserpanel',
     menu: 'Mdc.networkvisualiser.view.NetworkVisualiserMenu',
-    contextMenuItems: [
-        {
-            text: 'TestComponent', handler: function (menuItem) {
-                menuItem.visualiser.showLinkQuality(menuItem.graphId);
-            }
-        }
-    ],
+    //contextMenuItems: [
+    //    {
+    //        text: 'TestComponent',
+    //        handler: function(menuItem) {
+    //            menuItem.visualiser.showLinkQuality(menuItem.graphId);
+    //        }
+    //    }
+    //],
     propertyViewerTitle: Uni.I18n.translate('general.deviceSummary', 'UNI', 'Device summary'),
 
     initComponent: function () {
