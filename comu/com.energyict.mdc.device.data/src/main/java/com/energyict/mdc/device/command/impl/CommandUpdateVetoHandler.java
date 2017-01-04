@@ -5,9 +5,11 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.MacException;
 
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
+import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandLimitationRulesMacException;
 import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -47,18 +49,23 @@ public class CommandUpdateVetoHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
 
-        if (deviceMessage.getStatus().equals(DeviceMessageStatus.REVOKED)) {
-            commandRuleService.commandDeleted(deviceMessage);
-        } else {
-            long oldReleaseDate = (Long) localEvent.toOsgiEvent().getProperty("oldReleaseDate");
-            List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForUpdatedCommand(deviceMessage, Instant.ofEpochMilli(oldReleaseDate));
-            if (!exceededCommandRules.isEmpty()) {
-                throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules);
+        try {
+            DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
+
+            if (deviceMessage.getStatus().equals(DeviceMessageStatus.REVOKED)) {
+                commandRuleService.commandDeleted(deviceMessage);
             } else {
-                commandRuleService.commandUpdated(deviceMessage, Instant.ofEpochMilli(oldReleaseDate));
+                long oldReleaseDate = (Long) localEvent.toOsgiEvent().getProperty("oldReleaseDate");
+                List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForUpdatedCommand(deviceMessage, Instant.ofEpochMilli(oldReleaseDate));
+                if (!exceededCommandRules.isEmpty()) {
+                    throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules);
+                } else {
+                    commandRuleService.commandUpdated(deviceMessage, Instant.ofEpochMilli(oldReleaseDate));
+                }
             }
+        } catch (MacException e) {
+            throw new InvalidCommandLimitationRulesMacException(thesaurus, MessageSeeds.MAC_COMMAND_RULES_FAILED);
         }
 
     }
